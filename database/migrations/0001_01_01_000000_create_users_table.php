@@ -12,12 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+          $table->integer('userid')->primary(); // You can change to increments() if you want auto-increment
+            $table->string('username', 80)->nullable();
+            $table->string('emailid', 100);
+            $table->string('password', 100);
+            $table->string('contactNo', 10);
+            $table->string('name', 20);
+            $table->date('dob');
+            $table->enum('gender', ['MALE', 'FEMALE', 'OTHERS'])->nullable();
+            $table->string('imageUrl', 60);
+            $table->enum('userType', ['Superadmin', 'Staff', 'Parent']);
+            $table->string('title', 50)->nullable();
+            $table->enum('status', ['ACTIVE', 'IN-ACTIVE', 'PENDING'])->default('ACTIVE');
+            $table->string('AuthToken', 128);
+            $table->string('deviceid', 32);
+            $table->string('devicetype', 32);
+            $table->string('companyLogo', 70)->nullable();
+            $table->integer('theme')->default(1);
+            $table->string('image_position', 150);
             $table->timestamps();
         });
 
