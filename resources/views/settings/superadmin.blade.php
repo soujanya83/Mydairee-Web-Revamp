@@ -59,7 +59,7 @@
             <div class="header">
                 <h2>Super-Admin Settings<small></small> </h2>  
                 <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal" data-target="#addSuperadminModal">
-    Add Superadmin
+                <i class="fa fa-plus"></i>&nbsp;  Add Superadmin
 </button>                    
             </div>
             <div class="body">
