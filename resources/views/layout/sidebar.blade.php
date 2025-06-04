@@ -29,9 +29,20 @@
 
                         </li>
 
+                        <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
+                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i> <span>Settings</span></a>
+                            <ul>
+                                <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a href="{{route('settings.superadmin_settings')}}">Superdmin Settings</a> </li>
+                                <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a href="{{route('settings.center_settings')}}">Center Settings </a></li>
+                        </li>
+
                     </ul>
+
                 </nav>
             </div>
+
+
+
             <div class="tab-pane p-l-15 p-r-15" id="Chat">
                 <form>
                     <div class="input-group m-b-20">
