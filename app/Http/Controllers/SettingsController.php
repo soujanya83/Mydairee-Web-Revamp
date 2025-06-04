@@ -148,9 +148,9 @@ public function destroy($id)
 
 public function center_settings()
 {
-    $superadmins = User::where('userType', 'Superadmin')->get();
+    $centers = Center::all();
 
-    return view('settings.center', compact('superadmins'));
+    return view('settings.center', compact('centers'));
 }
 
     
