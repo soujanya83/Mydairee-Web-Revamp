@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('dashboard.university');
 });
+
 /* Dashboard */
 Route::get('dashboard', function () {
     return redirect('dashboard/analytical');
@@ -98,4 +100,26 @@ Route::get('charts', function () {
 /* Maps */
 Route::get('map', function () {
     return redirect('map/google');
+});
+
+
+
+
+Route::prefix('settings')->name('settings.')->group(function () {
+    Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
+ 
+    Route::delete('/superadmin/{id}', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
+    
+    Route::post('/superadmin/store', [SettingsController::class, 'store'])->name('superadmin.store');
+
+    Route::get('/superadmin/{id}/edit', [SettingsController::class, 'edit'])->name('superadmin.edit');
+    Route::post('/superadmin/{id}', [SettingsController::class, 'update'])->name('superadmin.update');
+
+
+
+    Route::get('/center_settings', [SettingsController::class, 'center_settings'])->name('center_settings');
+
+
+
+
 });
