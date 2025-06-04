@@ -6,13 +6,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ClearCacheAfterLogout;
 use Illuminate\Support\Facades\Auth;
 
 
-/* Dashboard */
+
+Route::get('/', function () {
+    return view('dashboard.university');
+});
+
 
 Route::get('dashboard', function () {
     return redirect('dashboard/analytical');
@@ -33,11 +38,7 @@ Route::get('file-manager/dashboard', [FileManagerController::class, 'dashboard']
 Route::get('app/calendar', [AppController::class, 'calendar'])->name('app.calendar');
 Route::get('app/chat', [AppController::class, 'chat'])->name('app.chat');
 Route::get('app/inbox', [AppController::class, 'inbox'])->name('app.inbox');
-Route::get('login', [AuthenticationController::class, 'login'])->name('authentication.login');
-Route::get('login-page', [AuthenticationController::class, 'login'])->name('login');
 Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.profile1');
-Route::get('authentication/forgot-password', [AuthenticationController::class, 'forgotPassword'])->name('authentication.forgot-password');
-Route::get('register', [AuthenticationController::class, 'register'])->name('authentication.register');
 
 Route::post('create-superadmin', [UserController::class, 'store'])->name('create_superadmin');
 Route::post('login', [UserController::class, 'login'])->name('user_login');
@@ -49,13 +50,18 @@ Route::get('verify-otp', [ResetPassword::class, 'show_verify_otp'])->name('verif
 Route::get('/reset-password-form', [ResetPassword::class, 'showResetForm'])->name('reset_password_form');
 Route::post('/reset-password-update', [ResetPassword::class, 'updatePassword'])->name('reset_password.update');
 Route::post('/resend-otp', [ResetPassword::class, 'resend_otp'])->name('resend_otp');
-
-
 Route::post('/verify-otp', [ResetPassword::class, 'verifyOtp'])->name('verify_otp.submit');
+Route::get('register', [AuthenticationController::class, 'register'])->name('authentication.register');
+Route::get('authentication/forgot-password', [AuthenticationController::class, 'forgotPassword'])->name('authentication.forgot-password');
+Route::get('login-page', [AuthenticationController::class, 'login'])->name('login');
+Route::get('login', [AuthenticationController::class, 'login'])->name('authentication.login');
 
-// Route group with middleware
+
+
+
+// Route group with middleware this middleware use after login
 Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function () {
-Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
+    Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
     Route::post('/logout', function () {
         Auth::logout(); // Logs out the user
         session()->invalidate();      // Invalidate session
@@ -63,6 +69,21 @@ Route::get('/', [DashboardController::class, 'university'])->name('dashboard.uni
         return redirect('login'); // Redirect to login page
     })->name('logout');
 
+
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
+
+        Route::delete('/superadmin/{id}', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
+
+        Route::post('/superadmin/store', [SettingsController::class, 'store'])->name('superadmin.store');
+
+        Route::get('/superadmin/{id}/edit', [SettingsController::class, 'edit'])->name('superadmin.edit');
+        Route::post('/superadmin/{id}', [SettingsController::class, 'update'])->name('superadmin.update');
+
+
+
+        Route::get('/center_settings', [SettingsController::class, 'center_settings'])->name('center_settings');
+    });
 });
 
 
@@ -70,6 +91,7 @@ Route::get('/', [DashboardController::class, 'university'])->name('dashboard.uni
 
 
 
+// no used but only use for template pages......after remove this
 
 Route::get('data', [AccidentsController::class, 'index']);
 /* Dashboard */
