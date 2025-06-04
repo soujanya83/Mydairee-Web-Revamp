@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('centers', function (Blueprint $table) {
             $table->increments('id'); // Primary key
+            $table->string('user_id')->default(null); // Primary key
             $table->string('centerName', 70);
             $table->string('adressStreet', 100);  // Note: is "adress" a typo?
             $table->string('addressCity', 50);

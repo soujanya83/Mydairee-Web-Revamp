@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-          $table->integer('userid')->primary(); // You can change to increments() if you want auto-increment
+
+         Schema::create('users', function (Blueprint $table) {
+            $table->id(); // bigint unsigned primary key
+            $table->integer('userid')->nullable();
             $table->string('username', 80)->nullable();
             $table->string('emailid', 100);
+            $table->string('email', 255)->nullable();
             $table->string('password', 100);
+            $table->integer('center_status')->default(0);
             $table->string('contactNo', 10);
             $table->string('name', 20);
             $table->date('dob');
@@ -30,6 +34,10 @@ return new class extends Migration
             $table->string('companyLogo', 70)->nullable();
             $table->integer('theme')->default(1);
             $table->string('image_position', 150);
+            $table->rememberToken(); // varchar(255) nullable
+            $table->unsignedBigInteger('created_by');
+            $table->timestamp('email_verified_at')->nullable();
+
             $table->timestamps();
         });
 

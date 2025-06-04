@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
-
-
+use App\Http\Controllers\ResetPassword;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('dashboard.university');
@@ -16,16 +16,39 @@ Route::get('/', function () {
 Route::get('dashboard', function () {
     return redirect('dashboard/analytical');
 });
-Route::get('dashboard/university', [DashboardController::class, 'university'])->name('dashboard.university');
+
+
+Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
+Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
+Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
 Route::get('dashboard/analytical', [DashboardController::class, 'analytical'])->name('dashboard.analytical');
 Route::get('file-manager/dashboard', [FileManagerController::class, 'dashboard'])->name('file-manager.dashboard');
 Route::get('app/calendar', [AppController::class, 'calendar'])->name('app.calendar');
 Route::get('app/chat', [AppController::class, 'chat'])->name('app.chat');
 Route::get('app/inbox', [AppController::class, 'inbox'])->name('app.inbox');
-Route::get('authentication/login', [AuthenticationController::class, 'login'])->name('authentication.login');
+Route::get('login', [AuthenticationController::class, 'login'])->name('authentication.login');
 Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.profile1');
 Route::get('authentication/forgot-password', [AuthenticationController::class, 'forgotPassword'])->name('authentication.forgot-password');
-Route::get('authentication/register', [AuthenticationController::class, 'register'])->name('authentication.register');
+Route::get('register', [AuthenticationController::class, 'register'])->name('authentication.register');
+
+Route::post('create-superadmin', [UserController::class, 'store'])->name('create_superadmin');
+Route::post('login', [UserController::class, 'login'])->name('user_login');
+Route::get('create-center', [UserController::class, 'create_center'])->name('create_center');
+Route::post('store-center', [UserController::class, 'store_center'])->name('center_store');
+Route::post('reset-password', [ResetPassword::class, 'reset_password'])->name('reset_password');
+Route::get('verify-otp', [ResetPassword::class, 'show_verify_otp'])->name('verify_otp');
+// Route::post('verify-otp', [ResetPassword::class, 'verify_otp'])->name('verify_otp.submit');
+Route::get('/reset-password-form', [ResetPassword::class, 'showResetForm'])->name('reset_password_form');
+Route::post('/reset-password-update', [ResetPassword::class, 'updatePassword'])->name('reset_password.update');
+
+Route::post('/verify-otp', [ResetPassword::class, 'verifyOtp'])->name('verify_otp.submit');
+
+
+
+
+
+
+
 
 Route::get('data',[AccidentsController::class,'index']);
 /* Dashboard */
