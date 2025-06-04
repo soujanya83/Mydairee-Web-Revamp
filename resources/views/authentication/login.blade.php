@@ -8,7 +8,7 @@
     <div class="vertical-align-middle auth-main">
 
         @if ($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:-220px">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:-22px">
             <ul class="mb-0">
                 @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
@@ -21,7 +21,7 @@
         @endif
 
         @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top:-220px">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top:-22px">
             {{ session('success') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -43,22 +43,25 @@
                         @csrf
 
                         <div class="form-group">
-                            <label for="signin-email" class="control-label sr-only">Email</label>
-                            <input type="email" class="form-control" id="signin-email" name="email" placeholder="Email"
+                            <label for="signin-email" class="control-label">Email</label>
+                            <input type="email" class="form-control" id="signin-email" name="email"
                                 value="{{ old('email') }}">
                             @error('email')
                             <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
 
-                        <div class="form-group">
-                            <label for="signin-password" class="control-label sr-only">Password</label>
-                            <input type="password" class="form-control" id="signin-password" name="password"
-                                placeholder="Password">
+                        <div class="form-group position-relative">
+                            <label for="signin-password" class="control-label">Password</label>
+                            <input type="password" class="form-control" id="signin-password" name="password">
+                            <span toggle="#signin-password" class="fa fa-fw fa-eye toggle-password"
+                                style="position:absolute; top:38px; right:15px; cursor:pointer;"></span>
+
                             @error('password')
                             <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
+
 
                         <div class="form-group clearfix">
                             <label class="fancy-checkbox element-left">
@@ -86,5 +89,19 @@
         </div>
     </div>
 </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.toggle-password').forEach(function (eyeIcon) {
+            eyeIcon.addEventListener('click', function () {
+                const input = document.querySelector(this.getAttribute('toggle'));
+                const isPassword = input.getAttribute('type') === 'password';
+                input.setAttribute('type', isPassword ? 'text' : 'password');
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+        });
+    });
+</script>
 
 @stop

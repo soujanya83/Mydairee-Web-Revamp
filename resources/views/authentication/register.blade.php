@@ -91,11 +91,13 @@
                                     <small id="usernameError" class="text-danger"></small>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group position-relative">
                                     <label for="password" class="control-label">Password</label>
                                     <input type="password" class="form-control" id="password" name="password" required>
-                                    {{-- Do NOT pre-fill password fields for security reasons --}}
+                                    <span toggle="#password" class="fa fa-fw fa-eye field-icon toggle-password"
+                                        style="position:absolute; top:38px; right:15px; cursor:pointer;"></span>
                                 </div>
+
 
                                 <div class="form-group">
                                     <label for="gender" class="control-label">Gender</label>
@@ -214,6 +216,22 @@
 </div>
 
 @stop
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.toggle-password').forEach(function (icon) {
+            icon.addEventListener('click', function () {
+                const input = document.querySelector(this.getAttribute('toggle'));
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+        });
+    });
+</script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const nameInput = document.getElementById("name");

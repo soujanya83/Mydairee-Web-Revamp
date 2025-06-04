@@ -69,43 +69,87 @@ class UserController extends Controller
     }
 
 
+public function login(Request $request)
+{
+    // Validate input
+    $validator = Validator::make($request->all(), [
+        'email'    => 'required|email',
+        'password' => 'required|string|min:6',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
+    }
 
 
-    public function login(Request $request)
-    {
-        // Validate input
-        $validator = Validator::make($request->all(), [
-            'email'    => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
+    $credentials = $request->only('email', 'password');
+    $remember = $request->has('remember');
 
-        $credentials = [
-            'email'    => $request->email,
-            'password' => $request->password,
-        ];
-
-        $remember = $request->has('remember');
-
-        $user_id = Auth::user()->id;
+    // Attempt login
+    if (Auth::attempt($credentials, $remember)) {
+        $user_id = Auth::user()->id; // Now user is authenticated
         session(['user_id' => $user_id]);
+
+
+
         $centerstatus = User::where('id', $user_id)->where('center_status', 1)->first();
         if ($centerstatus) {
-            if (Auth::attempt($credentials, $remember)) {
-                return redirect()->route('dashboard.university');
-            }
+        $center_id = Usercenter::where('userid', $user_id)->first();
+
+        session(['user_center_id' => $center_id->centerid ?? null]);
+
+            return redirect()->route('dashboard.university');
         } else {
             return redirect()->route('create_center');
         }
-        return redirect()->back()
-            ->withErrors(['email' => 'Invalid email or password.'])
-            ->withInput();
     }
+
+    return redirect()->back()
+        ->withErrors(['email' => 'Invalid email or password.'])
+        ->withInput();
+}
+
+
+    // public function login(Request $request)
+    // {
+    //     // Validate input
+    //     $validator = Validator::make($request->all(), [
+    //         'email'    => 'required|email',
+    //         'password' => 'required|string|min:6',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return redirect()->back()
+    //             ->withErrors($validator)
+    //             ->withInput();
+    //     }
+
+    //     $credentials = [
+    //         'email'    => $request->email,
+    //         'password' => $request->password,
+    //     ];
+
+    //     $remember = $request->has('remember');
+
+    //     $user_id = Auth::user();
+    //     dd($user_id);
+
+    //     session(['user_id' => $user_id]);
+    //     $centerstatus = User::where('id', $user_id)->where('center_status', 1)->first();
+    //     if ($centerstatus) {
+    //         if (Auth::attempt($credentials, $remember)) {
+    //             return redirect()->route('dashboard.university');
+    //         }
+    //     } else {
+    //         return redirect()->route('create_center');
+    //     }
+    //     return redirect()->back()
+    //         ->withErrors(['email' => 'Invalid email or password.'])
+    //         ->withInput();
+    // }
 
     public function store(Request $request)
     {

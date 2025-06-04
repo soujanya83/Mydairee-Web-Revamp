@@ -4,30 +4,32 @@
 
 @section('content')
 
+
+@if ($errors->any())
+<div class="alert alert-danger alert-dismissible fade show" role="alert" style="">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+@endif
+
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert" style="">
+    {{ session('success') }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+@endif
 <div class="vertical-align-wrap">
     <div class="vertical-align-middle auth-main">
 
-        @if ($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:-220px">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        @endif
 
-        @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top:-220px">
-            {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        @endif
 
         <div class="auth-box">
             <div class="top">
@@ -60,14 +62,21 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-lg btn-block">Verify OTP</button>
-
-                        <div class="bottom">
-                            <span>
-                                Didn't receive the OTP?
-                                <a href="{{ route('authentication.register') }}">Resend</a>
-                            </span>
-                        </div>
                     </form>
+                    <div class="bottom">
+                        <span>
+                            Didn't receive the OTP?
+                            <form action="{{ route('resend_otp') }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit"
+                                    style="border:none; background:none; color:#007bff; padding:0; margin:0; cursor:pointer;">
+                                    Resend
+                                </button>
+                            </form>
+                        </span>
+
+                    </div>
+
 
                 </div>
             </div>

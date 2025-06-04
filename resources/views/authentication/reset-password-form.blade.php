@@ -44,28 +44,34 @@
 
                         <div class="form-group">
                             <label for="email" class="control-label">Your Email</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}">
+                            <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}"
+                                required>
                             @error('email')
                             <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group position-relative">
                             <label for="password" class="control-label">New Password</label>
-                            <input type="password" class="form-control" id="password" name="password">
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <span toggle="#password" class="fa fa-fw fa-eye field-icon toggle-password"
+                                style="position:absolute; top:38px; right:15px; cursor:pointer;"></span>
                             @error('password')
                             <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group position-relative">
                             <label for="password_confirmation" class="control-label">Confirm Password</label>
                             <input type="password" class="form-control" id="password_confirmation"
-                                name="password_confirmation">
+                                name="password_confirmation" required>
+                            <span toggle="#password_confirmation" class="fa fa-fw fa-eye field-icon toggle-password"
+                                style="position:absolute; top:38px; right:15px; cursor:pointer;"></span>
                             @error('password_confirmation')
                             <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
+
 
                         <button type="submit" class="btn btn-primary btn-lg btn-block">Update Password</button>
                     </form>
@@ -77,6 +83,9 @@
         </div>
     </div>
 </div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
 <script>
     document.getElementById('password_confirmation').addEventListener('input', function () {
     const password = document.getElementById('password').value;
@@ -87,6 +96,17 @@
         this.setCustomValidity('');
     }
 });
+</script>
+<script>
+    document.querySelectorAll('.toggle-password').forEach(function (icon) {
+        icon.addEventListener('click', function () {
+            const input = document.querySelector(this.getAttribute('toggle'));
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    });
 </script>
 
 @stop

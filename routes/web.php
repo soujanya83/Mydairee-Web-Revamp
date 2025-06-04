@@ -8,25 +8,33 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\ClearCacheAfterLogout;
+use Illuminate\Support\Facades\Auth;
 
-Route::get('/', function () {
-    return view('dashboard.university');
-});
+
 /* Dashboard */
+
 Route::get('dashboard', function () {
     return redirect('dashboard/analytical');
 });
 
 
+Route::get('/logout', function () {
+    Auth::logout();
+    session()->invalidate();
+    session()->regenerateToken();
+    return redirect('login');
+})->name('logout');
+
 Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
 Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
-Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
 Route::get('dashboard/analytical', [DashboardController::class, 'analytical'])->name('dashboard.analytical');
 Route::get('file-manager/dashboard', [FileManagerController::class, 'dashboard'])->name('file-manager.dashboard');
 Route::get('app/calendar', [AppController::class, 'calendar'])->name('app.calendar');
 Route::get('app/chat', [AppController::class, 'chat'])->name('app.chat');
 Route::get('app/inbox', [AppController::class, 'inbox'])->name('app.inbox');
 Route::get('login', [AuthenticationController::class, 'login'])->name('authentication.login');
+Route::get('login-page', [AuthenticationController::class, 'login'])->name('login');
 Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.profile1');
 Route::get('authentication/forgot-password', [AuthenticationController::class, 'forgotPassword'])->name('authentication.forgot-password');
 Route::get('register', [AuthenticationController::class, 'register'])->name('authentication.register');
@@ -40,9 +48,22 @@ Route::get('verify-otp', [ResetPassword::class, 'show_verify_otp'])->name('verif
 // Route::post('verify-otp', [ResetPassword::class, 'verify_otp'])->name('verify_otp.submit');
 Route::get('/reset-password-form', [ResetPassword::class, 'showResetForm'])->name('reset_password_form');
 Route::post('/reset-password-update', [ResetPassword::class, 'updatePassword'])->name('reset_password.update');
+Route::post('/resend-otp', [ResetPassword::class, 'resend_otp'])->name('resend_otp');
+
 
 Route::post('/verify-otp', [ResetPassword::class, 'verifyOtp'])->name('verify_otp.submit');
 
+// Route group with middleware
+Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function () {
+Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
+    Route::post('/logout', function () {
+        Auth::logout(); // Logs out the user
+        session()->invalidate();      // Invalidate session
+        session()->regenerateToken(); // Prevent CSRF issues
+        return redirect('login'); // Redirect to login page
+    })->name('logout');
+
+});
 
 
 
@@ -50,7 +71,7 @@ Route::post('/verify-otp', [ResetPassword::class, 'verifyOtp'])->name('verify_ot
 
 
 
-Route::get('data',[AccidentsController::class,'index']);
+Route::get('data', [AccidentsController::class, 'index']);
 /* Dashboard */
 Route::get('dashboard', function () {
     return redirect('dashboard/analytical');
