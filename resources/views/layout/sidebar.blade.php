@@ -1,14 +1,22 @@
 <div id="left-sidebar" class="sidebar" style="    background-color: #ffffff;">
     <div class="sidebar-scroll">
         <div class="user-account">
-            <img src="{{ asset('assets/img/user.png') }}" class="rounded-circle user-photo" alt="User Profile Picture">
+
+        @php
+        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+        $avatars = Auth::user()->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+        $defaultAvatar = $avatars[array_rand($avatars)];
+    @endphp
+    <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" class="rounded-circle user-photo" style="vertical-align:bottom;height:45px;" alt="User Profile Picture">
+
             <div class="dropdown">
                 <span>Welcome,</span>
-                <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown"><strong>Alizee Thomas</strong></a>
+                <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown"><strong>{{ Auth::user()->name }}</strong></a>
                 <ul class="dropdown-menu dropdown-menu-right account">
                     <li><a href="{{route('pages.profile1')}}"><i class="icon-user"></i>My Profile</a></li>
 
-                    <li><a href="{{route('authentication.login')}}"><i class="icon-power"></i>Logout</a></li>
+                    <li><a href="{{route('logout')}}"><i class="icon-power"></i>Logout</a></li>
                 </ul>
             </div>
 
@@ -32,7 +40,7 @@
                         <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
                             <a href="#settings" class="has-arrow"><i class="icon-settings"></i> <span>Settings</span></a>
                             <ul>
-                                <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a href="{{route('settings.superadmin_settings')}}">Superdmin Settings</a> </li>
+                                <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
                                 <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a href="{{route('settings.center_settings')}}">Center Settings </a></li>
                         </li>
 

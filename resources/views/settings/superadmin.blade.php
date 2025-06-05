@@ -64,8 +64,8 @@
             </div>
             <div class="body">
             <div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover dataTable js-exportable c_list l-blush">
-        <thead>
+    <table class="table table-bordered table-striped table-hover dataTable js-exportable c_list">
+        <thead class="thead-light">
             <tr>
                 <th>Sr. No.</th>
                 <th>Name</th>
