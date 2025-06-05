@@ -2,14 +2,16 @@
 
 
     <div class="sidebar-scroll">
-       @php
-    $user = Auth::user();
-    $profileImage = $user->imageUrl ?? 'assets/img/user.png'; // Use actual DB column (e.g., `imageUrl` or `image`)
-@endphp
+        @php
+        $user = Auth::user();
+        $profileImage = $user->imageUrl ?? 'assets/img/user.png'; // Use actual DB column (e.g., `imageUrl` or `image`)
+        @endphp
 
         <div class="user-account">
-            <img src="{{ asset('storage/'.$profileImage) }}" class="rounded-circle user-photo" alt="User Profile Picture">
-            {{-- <img src="{{ asset('storage/' . Auth::user()->imageUrl) }}" class="rounded-circle user-photo" alt="User Profile Picture"> --}}
+            <img src="{{ asset('storage/'.$profileImage) }}" class="rounded-circle user-photo"
+                alt="User Profile Picture">
+            {{-- <img src="{{ asset('storage/' . Auth::user()->imageUrl) }}" class="rounded-circle user-photo"
+                alt="User Profile Picture"> --}}
 
             <div class="dropdown">
                 <span>Welcome,</span>
@@ -45,7 +47,7 @@
                                 <span>Settings</span></a>
                             <ul>
                                 <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a
-                                        href="{{route('settings.superadmin_settings')}}">Superdmin Settings</a> </li>
+                                        href="{{route('settings.superadmin_settings')}}">SuperAdmin Settings</a> </li>
                                 <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a
                                         href="{{route('settings.center_settings')}}">Center Settings </a></li>
                         </li>

@@ -2,6 +2,18 @@
     .navbar-fixed-top .navbar-brand img {
         width: 180px;
     }
+
+    .top_counter {
+        background-image: url('{{ asset('assets/img/doodle1.jpg') }}');
+        background-size: cover;
+        background-position: center;
+    }
+
+    .card {
+        background-image: url('{{ asset('assets/img/doodle1.jpg') }}');
+        background-size: cover;
+        background-position: center;
+    }
 </style>
 <nav class="navbar navbar-fixed-top">
     <div class="container-fluid">
@@ -38,7 +50,7 @@
                                 class="notification-dot"></span></a>
                     </li> --}}
                     <li class="dropdown">
-                        <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown">
+                        <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown" title="Notifications">
                             <i class="icon-bell"></i>
                             <span class="notification-dot"></span>
                         </a>
@@ -123,7 +135,7 @@
                         </ul>
                     </li> --}}
                     <li>
-                        <a href="{{route('logout')}}" class="icon-menu"><i class="icon-login"></i></a>
+                        <a href="{{route('logout')}}" class="icon-menu"><i class="icon-login" title="Logout"></i></a>
                     </li>
                 </ul>
             </div>

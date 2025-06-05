@@ -9,16 +9,35 @@
     <div class="col-lg-3 col-md-6">
         <div class="card top_counter">
             <div class="body">
-                <div class="icon text-info"><i class="fa fa-user"></i> </div>
+                 <div class="icon text-info"><i class="fa fa-users"></i> </div>
                 <div class="content">
-                    <div class="text">Total Student</div>
-                    <h5 class="number">530</h5>
+                    <div class="text">Total Users</div>
+                    <h5 class="number">{{ $totalUsers }}</h5>
                 </div>
                 <hr>
-                <div class="icon text-warning"><i class="fa fa-user-circle"></i> </div>
+
+                <div class="icon text-danger"><i class="fa fa-users"></i> </div>
                 <div class="content">
-                    <div class="text">Total Teacher</div>
-                    <h5 class="number">14</h5>
+                    <div class="text">Total SuperAdmin</div>
+                    <h5 class="number">{{ $totalSuperadmin }}</h5>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="card top_counter">
+            <div class="body">
+                <div class="icon text-success"><i class="fa fa-users"></i> </div>
+                <div class="content">
+                    <div class="text">Total Parents</div>
+                    <h5 class="number">{{ $totalParent }}</h5>
+                </div>
+                <hr>
+                <div class="icon text-warning"><i class="fa fa-users"></i> </div>
+                <div class="content">
+                    <div class="text">Total Staff</div>
+                    <h5 class="number">{{ $totalStaff }}</h5>
                 </div>
             </div>
         </div>
@@ -26,47 +45,32 @@
     <div class="col-lg-3 col-md-6">
         <div class="card top_counter">
             <div class="body">
-                <div class="icon text-warning"><i class="fa fa-tags"></i> </div>
+                 <div class="icon text-success"><i class="fa  fa-map-pin"></i> </div>
                 <div class="content">
-                    <div class="text">Department</div>
-                    <h5 class="number">7</h5>
+                    <div class="text">Total Centers</div>
+                    <h5 class="number">{{ $totalCenter }}</h5>
                 </div>
                 <hr>
-                <div class="icon"><i class="fa fa-graduation-cap"></i> </div>
+                <div class="icon text-danger"><i class="fa fa-university "></i> </div>
                 <div class="content">
-                    <div class="text">Courses</div>
-                    <h5 class="number">35</h5>
+                    <div class="text">Total Rooms</div>
+                    <h5 class="number">{{ $totalRooms }}</h5>
                 </div>
+
+
             </div>
         </div>
     </div>
     <div class="col-lg-3 col-md-6">
         <div class="card top_counter">
             <div class="body">
-                <div class="icon text-danger"><i class="fa fa-credit-card"></i> </div>
-                <div class="content">
-                    <div class="text">Expense</div>
-                    <h5 class="number">$3205</h5>
-                </div>
-                <hr>
-                <div class="icon text-success"><i class="fa fa-university"></i> </div>
-                <div class="content">
-                    <div class="text">Income</div>
-                    <h5 class="number">$35,325</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-        <div class="card top_counter">
-            <div class="body">
-                <div class="icon"><i class="fa fa-map-pin"></i> </div>
+                <div class="icon"><i class="fa fa-credit-card"></i> </div>
                 <div class="content">
                     <div class="text">Our Center</div>
                     <h5 class="number">28</h5>
                 </div>
                 <hr>
-                <div class="icon text-success"><i class="fa fa-smile-o"></i> </div>
+                <div class="icon text-success"><i class="fa fa-smile"></i> </div>
                 <div class="content">
                     <div class="text">Happy Clients</div>
                     <h5 class="number">528</h5>

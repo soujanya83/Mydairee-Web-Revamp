@@ -14,14 +14,14 @@ use Illuminate\Support\Facades\Auth;
 
 
 
-Route::get('/', function () {
-    return view('dashboard.university');
-});
+// Route::get('/', function () {
+//     return view('dashboard.university');
+// });
 
 
-Route::get('dashboard', function () {
-    return redirect('dashboard/analytical');
-});
+// Route::get('dashboard', function () {
+//     return redirect('dashboard/analytical');
+// });
 
 
 Route::get('/logout', function () {

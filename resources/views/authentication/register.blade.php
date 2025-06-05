@@ -50,7 +50,7 @@
                         action="{{ route('create_superadmin') }}" method="post">
                         @csrf
 
-                        <h6 class="mb-5"><u>Superadmin Details</u></h6>
+                        <h6 class="mb-5"><u>SuperAdmin Details</u></h6>
 
                         <div class="row">
                             <!-- Left Column -->
