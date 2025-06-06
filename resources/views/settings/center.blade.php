@@ -1,6 +1,6 @@
 @extends('layout.master')
 @section('title', 'Centers Settings')
-@section('parentPageTitle', 'Centers Settings')
+@section('parentPageTitle', 'Settings')
 
 
 @section('content')

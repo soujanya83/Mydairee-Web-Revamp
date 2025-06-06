@@ -50,6 +50,8 @@
                                         href="{{route('settings.superadmin_settings')}}">SuperAdmin Settings</a> </li>
                                 <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a
                                         href="{{route('settings.center_settings')}}">Center Settings </a></li>
+                                <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a href="{{route('settings.staff_settings')}}">Staffs Settings </a></li>
+
                         </li>
 
                     </ul>
