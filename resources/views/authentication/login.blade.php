@@ -34,7 +34,7 @@
                 <img src="{{url('/')}}/assets/img/MYDIAREE-new-logo.png" alt="Lucid"
                     style="background-color: aliceblue;padding: 10px;width: 180px;">
             </div>
-            <div class="card">
+            <div class="card" style="background-image: url('{{ asset('assets/img/doodle1.png') }}')">
                 <div class="header">
                     <p class="lead">Login to your account</p>
                 </div>

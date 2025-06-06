@@ -1,4 +1,4 @@
-<div id="left-sidebar" class="sidebar" style="    background-color: #ffffff;">
+<div id="left-sidebar" class="sidebar" style="    background-color: #ffffff;background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
 
 
     <div class="sidebar-scroll">

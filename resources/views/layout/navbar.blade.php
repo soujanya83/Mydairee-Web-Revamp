@@ -4,18 +4,24 @@
     }
 
     .top_counter {
-        background-image: url('{{ asset('assets/img/doodle1.jpg') }}');
+        background-image: url('{{ asset('assets/img/doodle1.png') }}');
         background-size: cover;
         background-position: center;
     }
 
     .card {
-        background-image: url('{{ asset('assets/img/doodle1.jpg') }}');
+        background-image: url('{{ asset('assets/img/doodle1.png') }}');
         background-size: cover;
         background-position: center;
     }
+
+     /* .theme-cyan {
+        background-image: url('{{ asset('assets/img/doodleold.jpg') }}');
+        background-size: cover;
+        background-position: center;
+    } */
 </style>
-<nav class="navbar navbar-fixed-top">
+<nav class="navbar navbar-fixed-top" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
     <div class="container-fluid">
         <div class="navbar-btn">
             <button type="button" class="btn-toggle-offcanvas"><i class="lnr lnr-menu fa fa-bars"></i></button>

@@ -211,7 +211,7 @@
 
     ?>
 
-    <body class="<?= $theme ?>">
+    <body class="<?= $theme ?> ">
 
         <!-- Page Loader -->
         <div class="page-loader-wrapper">
