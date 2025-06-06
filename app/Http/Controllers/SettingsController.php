@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User; // Add this at the top if not already added
 use App\Models\Center; // Add this at the top if not already added
 use App\Models\Usercenter; // Add this at the top if not already added
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 
 class SettingsController extends Controller
@@ -62,7 +64,7 @@ class SettingsController extends Controller
     
         // Step 5: Add data in Center model
         $center = new Center();
-        $center->userid = $user->id;
+        $center->user_id = $user->id;
         $center->centerName = $request->centerName;
         $center->adressStreet = $request->adressStreet;
         $center->addressCity = $request->addressCity;
@@ -148,12 +150,113 @@ public function destroy($id)
 
 public function center_settings()
 {
-    $centers = Center::all();
+    $userid = Auth::user()->id; 
 
+    $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
+    // Get all centers where the ID is in the list of center IDs
+    $centers = Center::whereIn('id', $centerIds)->get();
+    
     return view('settings.center', compact('centers'));
 }
 
+public function center_store(Request $request)
+    {
+        
+        $request->validate([
+            'centerName' => 'required|string',
+            'adressStreet' => 'required|string',
+            'addressCity' => 'required|string',
+            'addressState' => 'required|string',
+            'addressZip' => 'required|min:3',
+        ]);
+
+         // Step 5: Add data in Center model
+         $center = new Center();
+         $center->user_id = Auth::user()->id; 
+         $center->centerName = $request->centerName;
+         $center->adressStreet = $request->adressStreet;
+         $center->addressCity = $request->addressCity;
+         $center->addressState = $request->addressState;
+         $center->addressZip = $request->addressZip;
+         $center->save();
+
+         $userCenter = new Usercenter();
+         $userCenter->userid = Auth::user()->id; 
+         $userCenter->centerid = $center->id;
+         $userCenter->save();
+
+         return response()->json(['status' => 'success']);
+
     
+    }
+
+    public function center_edit($id)
+    {
+        $user = Center::findOrFail($id);
+        return response()->json($user);
+    }
+
+    public function center_update(Request $request, $id)
+{
+    $center = Center::findOrFail($id);
+
+    $request->validate([
+        'centerName' => 'required|string',
+        'adressStreet' => 'required|string',
+        'addressCity' => 'required|string',
+        'addressState' => 'required|string',
+        'addressZip' => 'required|min:3',
+    ]);
+
+         $center->centerName = $request->centerName;
+         $center->adressStreet = $request->adressStreet;
+         $center->addressCity = $request->addressCity;
+         $center->addressState = $request->addressState;
+         $center->addressZip = $request->addressZip;
+         $center->save();
+
+
+   
+
+    return response()->json(['status' => 'success']);
+}
+
+
+public function destroycenter($id)
+{
+    $center = Center::find($id);
+
+    if (!$center) {
+        return response()->json(['status' => 'error', 'message' => 'Center not found']);
+    }
+
+    try {
+        $center->delete();
+        return response()->json(['status' => 'success']);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'message' => 'Delete failed']);
+    }
+}
+
+
+public function staff_settings()
+{
+    $authId = Auth::user()->id; 
+    $centerid = Session('user_center_id');
+
+    // Get all user IDs in the center
+    $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
+
+    // Exclude current user and Superadmins
+    $staff = User::whereIn('id', $usersid)
+                ->where('id', '!=', $authId)
+                ->where('userType', '!=', 'Superadmin')
+                ->get();
+
+    return view('settings.staff', compact('staff'));
+}
+
+
 
 
 }

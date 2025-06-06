@@ -15,14 +15,14 @@ use App\Http\Controllers\ServiceDetailsController;
 
 
 
-Route::get('/', function () {
-    return view('dashboard.university');
-});
+// Route::get('/', function () {
+//     return view('dashboard.university');
+// });
 
 
-Route::get('dashboard', function () {
-    return redirect('dashboard/analytical');
-});
+// Route::get('dashboard', function () {
+//     return redirect('dashboard/analytical');
+// });
 
 
 Route::get('/logout', function () {
@@ -89,7 +89,19 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
 
         Route::get('/center_settings', [SettingsController::class, 'center_settings'])->name('center_settings');
+        Route::post('/center_store', [SettingsController::class, 'center_store'])->name('center_store');
+        Route::get('/center/{id}/edit', [SettingsController::class, 'center_edit'])->name('center.edit');
+        Route::post('/center/{id}', [SettingsController::class, 'center_update'])->name('center.update');
+        Route::delete('/center/{id}', [SettingsController::class, 'destroycenter'])->name('center.destroy');
+
+
+        Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
+
+
     });
+
+
+    
 });
 
 

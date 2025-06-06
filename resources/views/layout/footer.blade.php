@@ -1,4 +1,4 @@
-<footer class="footer-bar">
+<footer class="footer-bar" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
     <div class="container-fluid text-center py-2">
         <small>&copy; {{ date('Y') }} Mydiaree. All rights reserved.</small>
     </div>

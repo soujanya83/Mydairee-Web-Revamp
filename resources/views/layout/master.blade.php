@@ -143,7 +143,7 @@
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-markdown/bootstrap-markdown.min.css') }}"/>
         @endif
 
-        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' )
+        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/dataTables.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedcolumns.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedheader.bootstrap4.min.css') }}"/>
@@ -223,46 +223,46 @@
 
         <div id="wrapper">
 
-            @include('layout.navbar')
-            @include('layout.sidebar')
+@include('layout.navbar')
+@include('layout.sidebar')
 
-            <div id="main-content">
-                <div class="container-fluid">
-                    {{-- <div class="block-header">
-                        <div class="row">
-                            <div class="col-lg-5 col-md-8 col-sm-12">
-                                <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class="fa fa-arrow-left"></i></a> @yield('title')</h2>
-                                <ul class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="{{route('dashboard.analytical')}}"><i class="icon-home"></i></a></li>
-                                    @if (trim($__env->yieldContent('parentPageTitle')))
-                                       <li class="breadcrumb-item">@yield('parentPageTitle')</li>
-                                    @endif
-                                    @if (trim($__env->yieldContent('title')))
-                                        <li class="breadcrumb-item active">@yield('title')</li>
-                                    @endif
-                                </ul>
-                            </div>
-                            <div class="col-lg-7 col-md-4 col-sm-12 text-right">
-                                <div class="inlineblock text-center m-r-15 m-l-15 hidden-sm">
-                                    <div class="sparkline text-left" data-type="line" data-width="8em" data-height="20px" data-line-Width="1" data-line-Color="#00c5dc"
-                                        data-fill-Color="transparent">3,5,1,6,5,4,8,3</div>
-                                    <span>Visitors</span>
-                                </div>
-                                <div class="inlineblock text-center m-r-15 m-l-15 hidden-sm">
-                                    <div class="sparkline text-left" data-type="line" data-width="8em" data-height="20px" data-line-Width="1" data-line-Color="#f4516c"
-                                        data-fill-Color="transparent">4,6,3,2,5,6,5,4</div>
-                                    <span>Visits</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-
-                    @yield('content')
-
+<div id="main-content">
+    <div class="container-fluid">
+        <div class="block-header">
+            <div class="row">
+                <div class="col-lg-5 col-md-8 col-sm-12">                        
+                    <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class="fa fa-arrow-left"></i></a> @yield('title')</h2>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{route('dashboard.university')}}"><i class="icon-home"></i></a></li>
+                        @if (trim($__env->yieldContent('parentPageTitle')))
+                           <li class="breadcrumb-item">@yield('parentPageTitle')</li>
+                        @endif
+                        @if (trim($__env->yieldContent('title')))
+                            <li class="breadcrumb-item active">@yield('title')</li>
+                        @endif
+                    </ul>
+                </div>            
+                <div class="col-lg-7 col-md-4 col-sm-12 text-right">
+                    <!-- <div class="inlineblock text-center m-r-15 m-l-15 hidden-sm">
+                        <div class="sparkline text-left" data-type="line" data-width="8em" data-height="20px" data-line-Width="1" data-line-Color="#00c5dc"
+                            data-fill-Color="transparent">3,5,1,6,5,4,8,3</div>
+                        <span>Visitors</span>
+                    </div>
+                    <div class="inlineblock text-center m-r-15 m-l-15 hidden-sm">
+                        <div class="sparkline text-left" data-type="line" data-width="8em" data-height="20px" data-line-Width="1" data-line-Color="#f4516c"
+                            data-fill-Color="transparent">4,6,3,2,5,6,5,4</div>
+                        <span>Visits</span>
+                    </div> -->
                 </div>
             </div>
-
         </div>
+        
+        @yield('content')
+
+    </div>
+</div>
+
+</div>
 
         <!-- Scripts -->
         @stack('before-scripts')
@@ -458,7 +458,7 @@
             <script src="{{ asset('assets/vendor/bootstrap-markdown/bootstrap-markdown.js') }}"></script>
         @endif
 
-        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' )
+        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' )
             <script src="{{ asset('assets/bundles/datatablescripts.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/dataTables.buttons.min.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/buttons.bootstrap4.min.js') }}"></script>

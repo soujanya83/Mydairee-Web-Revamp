@@ -42,7 +42,7 @@
                 <img src="{{url('/')}}/assets/img/MYDIAREE-new-logo.png" style="background-color: aliceblue;padding: 10px;
                                 width: 180px;" alt="Lucid">
             </div>
-            <div class="card" style="    width: 700px;">
+            <div class="card" style="background-image: url('{{ asset('assets/img/doodle1.png') }}'); width: 700px;">
 
                 <div class="body">
 
@@ -50,7 +50,7 @@
                         action="{{ route('create_superadmin') }}" method="post">
                         @csrf
 
-                        <h6 class="mb-5"><u>Superadmin Details</u></h6>
+                        <h6 class="mb-5"><u>SuperAdmin Details</u></h6>
 
                         <div class="row">
                             <!-- Left Column -->
