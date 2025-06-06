@@ -1,35 +1,30 @@
-<div id="left-sidebar" class="sidebar" style="    background-color: #ffffff;background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
-
-
+<div id="left-sidebar" class="sidebar" style="    background-color: #ffffff;">
     <div class="sidebar-scroll">
-        @php
-        $user = Auth::user();
-        $profileImage = $user->imageUrl ?? 'assets/img/user.png'; // Use actual DB column (e.g., `imageUrl` or `image`)
-        @endphp
-
         <div class="user-account">
-            <img src="{{ asset('storage/'.$profileImage) }}" class="rounded-circle user-photo"
-                alt="User Profile Picture">
-            {{-- <img src="{{ asset('storage/' . Auth::user()->imageUrl) }}" class="rounded-circle user-photo"
-                alt="User Profile Picture"> --}}
+
+        @php
+        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+        $avatars = Auth::user()->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+        $defaultAvatar = $avatars[array_rand($avatars)];
+    @endphp
+    <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" class="rounded-circle user-photo" style="vertical-align:bottom;height:45px;" alt="User Profile Picture">
 
             <div class="dropdown">
                 <span>Welcome,</span>
-                <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown">
-                    <strong>{{ $user->name ?? 'Guest' }}</strong>
-                </a>
+                <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown"><strong>{{ Auth::user()->name }}</strong></a>
                 <ul class="dropdown-menu dropdown-menu-right account">
-                    <li><a href="{{ route('pages.profile1') }}"><i class="icon-user"></i> My Profile</a></li>
-                    <li><a href="{{ route('logout') }}"><i class="icon-power"></i> Logout</a></li>
+                    <li><a href="{{route('pages.profile1')}}"><i class="icon-user"></i>My Profile</a></li>
+
+                    <li><a href="{{route('logout')}}"><i class="icon-power"></i>Logout</a></li>
                 </ul>
             </div>
-        </div>
 
+        </div>
         <!-- Nav tabs -->
         <ul class="nav nav-tabs">
             <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#menu">Menu</a></li>
-            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#setting"><i class="icon-settings"></i></a>
-            </li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#setting"><i class="icon-settings"></i></a></li>
         </ul>
 
         <!-- Tab panes -->
@@ -43,13 +38,10 @@
                         </li>
 
                         <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
-                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
-                                <span>Settings</span></a>
+                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i> <span>Settings</span></a>
                             <ul>
-                                <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a
-                                        href="{{route('settings.superadmin_settings')}}">SuperAdmin Settings</a> </li>
-                                <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a
-                                        href="{{route('settings.center_settings')}}">Center Settings </a></li>
+                                <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
+                                <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a href="{{route('settings.center_settings')}}">Center Settings </a></li>
                                 <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a href="{{route('settings.staff_settings')}}">Staffs Settings </a></li>
 
                         </li>
@@ -65,7 +57,7 @@
                 <form>
                     <div class="input-group m-b-20">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="icon-magnifier"></i></span>
+                            <span class="input-group-text" ><i class="icon-magnifier"></i></span>
                         </div>
                         <input type="text" class="form-control" placeholder="Search...">
                     </div>
@@ -206,7 +198,7 @@
                 <form>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="icon-magnifier"></i></span>
+                            <span class="input-group-text" ><i class="icon-magnifier"></i></span>
                         </div>
                         <input type="text" class="form-control" placeholder="Search...">
                     </div>
@@ -224,8 +216,7 @@
                     <li><a href="javascript:void(0);">Payment info</a></li>
                     <li><a href="javascript:void(0);">Auto-Renewal</a></li>
                     <li class="menu-button m-t-30">
-                        <a href="javascript:void(0);" class="btn btn-primary"><i class="icon-question"></i> Need
-                            Help?</a>
+                        <a href="javascript:void(0);" class="btn btn-primary"><i class="icon-question"></i> Need Help?</a>
                     </li>
                 </ul>
             </div>

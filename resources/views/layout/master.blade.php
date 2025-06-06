@@ -19,169 +19,169 @@
         <link rel="stylesheet" href="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.min.css') }}" />
 
-        <!-- @if (Request::segment(2) === 'analytical' ) -->
+        @if (Request::segment(2) === 'analytical' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}">
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css') }}">
             <link rel="stylesheet" href="{{ asset('assets/vendor/chartist-plugin-tooltip/chartist-plugin-tooltip.css') }}">
             <link rel="stylesheet" href="{{ asset('assets/vendor/toastr/toastr.min.css') }}">
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'iot' ) -->
+        @if (Request::segment(2) === 'iot' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.css') }}">
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'project' or Request::segment(2) === 'nestable' ) -->
+        @if (Request::segment(2) === 'project' or Request::segment(2) === 'nestable' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/nestable/jquery-nestable.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'project' or Request::segment(2) === 'ecommerce' or Request::segment(2) === 'typography' or Request::segment(2) === 'progress-bars' or Request::segment(2) === 'data' or Request::segment(1) === 'file-manager' && Request::segment(2) === 'dashboard' or Request::segment(2) === 'teams-board' ) -->
+        @if (Request::segment(2) === 'project' or Request::segment(2) === 'ecommerce' or Request::segment(2) === 'typography' or Request::segment(2) === 'progress-bars' or Request::segment(2) === 'data' or Request::segment(1) === 'file-manager' && Request::segment(2) === 'dashboard' or Request::segment(2) === 'teams-board' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css') }}">
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'bitcoin' ) -->
+        @if (Request::segment(2) === 'bitcoin' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}">
             <link rel="stylesheet" href="{{ asset('assets/vendor/chartist-plugin-tooltip/chartist-plugin-tooltip.css') }}">
             <link rel="stylesheet" href="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-2.0.3.min.css') }}">
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/dataTables.bootstrap4.min.css') }}">
-        <!-- @endif -->
+        @endif
 
-		<!-- @if (Request::segment(2) === 'inbox' ) -->
+		@if (Request::segment(2) === 'inbox' )
 			<link rel="stylesheet" href="{{ asset('assets/css/inbox.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-		<!-- @if (Request::segment(2) === 'chat' ) -->
+		@if (Request::segment(2) === 'chat' )
 			<link rel="stylesheet" href="{{ asset('assets/css/chatapp.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-		<!-- @if (Request::segment(2) === 'calendar' ) -->
+		@if (Request::segment(2) === 'calendar' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/fullcalendar/fullcalendar.min.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'contact-list' or Request::segment(2) === 'contact-card' or Request::segment(2) === 'inbox' or Request::segment(2) === 'taskboard' or Request::segment(2) === 'dialogs' ) -->
+        @if (Request::segment(2) === 'contact-list' or Request::segment(2) === 'contact-card' or Request::segment(2) === 'inbox' or Request::segment(2) === 'taskboard' or Request::segment(2) === 'dialogs' )
 			<link rel="stylesheet" href="{{ asset('assets/vendor/sweetalert/sweetalert.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'taskboard' ) -->
+        @if (Request::segment(2) === 'taskboard' )
 			<link rel="stylesheet" href="{{ asset('assets/vendor/nestable/jquery-nestable.css') }}"/>
 			<link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(1) === 'file-manager' && Request::segment(2) === 'dashboard' ) -->
+        @if (Request::segment(1) === 'file-manager' && Request::segment(2) === 'dashboard' )
 			<link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(1) === 'blog' && Request::segment(2) === 'dashboard' ) -->
+        @if (Request::segment(1) === 'blog' && Request::segment(2) === 'dashboard' )
 			<link rel="stylesheet" href="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
 			<link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'new-post' ) -->
+        @if (Request::segment(2) === 'new-post' )
 			<link rel="stylesheet" href="{{ asset('assets/vendor/summernote/dist/summernote.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'notifications' ) -->
+        @if (Request::segment(2) === 'notifications' )
 			<link rel="stylesheet" href="{{ asset('assets/vendor/toastr/toastr.min.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'range-sliders' ) -->
+        @if (Request::segment(2) === 'range-sliders' )
 			<link rel="stylesheet" href="{{ asset('assets/vendor/rangeslider/css/ion.rangeSlider.css') }}"/>
 			<link rel="stylesheet" href="{{ asset('assets/vendor/rangeslider/css/ion.rangeSlider.skinFlat.css') }}"/>
 			<link rel="stylesheet" href="{{ asset('assets/vendor/material-rangeslider/style.css') }}"/>
 			<link rel="stylesheet" href="{{ asset('assets/vendor/roundslider/roundslider.min.css') }}"/>
 			<link rel="stylesheet" href="{{ asset('assets/vendor/roundslider/style.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'treeview' ) -->
+        @if (Request::segment(2) === 'treeview' )
 			<link rel="stylesheet" href="{{ asset('assets/vendor/toastr/toastr.min.css') }}"/>
 			<link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-treeview/bootstrap-treeview.min.css') }}"/>
 			<link rel="stylesheet" href="{{ asset('assets/vendor/jstree/themes/default/style.min.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'chart' ) -->
+        @if (Request::segment(2) === 'chart' )
 			<link rel="stylesheet" href="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
 			<link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.min.css') }}"/>
 			<link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'profile1' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' ) -->
+        @if (Request::segment(2) === 'profile1' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'image-gallery2' ) -->
+        @if (Request::segment(2) === 'image-gallery2' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/light-gallery/css/lightgallery.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'horizontal-timeline' ) -->
+        @if (Request::segment(2) === 'horizontal-timeline' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/horizontal-timeline/css/horizontal-timeline.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'validation' or Request::segment(2) === 'advance-elements' ) -->
+        @if (Request::segment(2) === 'validation' or Request::segment(2) === 'advance-elements' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-multiselect/bootstrap-multiselect.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'advance-elements' ) -->
+        @if (Request::segment(2) === 'advance-elements' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css')}}" />
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-colorpicker/css/bootstrap-colorpicker.css')}}" />
             <link rel="stylesheet" href="{{ asset('assets/vendor/multi-select/css/multi-select.css')}}" />
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-tagsinput/bootstrap-tagsinput.css')}}" />
             <link rel="stylesheet" href="{{ asset('assets/vendor/nouislider/nouislider.min.css')}}" />
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'dragdrop' ) -->
+        @if (Request::segment(2) === 'dragdrop' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/dropify/css/dropify.min.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'cropping' ) -->
+        @if (Request::segment(2) === 'cropping' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/cropper/cropper.min.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'summernote' ) -->
+        @if (Request::segment(2) === 'summernote' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/summernote/dist/summernote.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'markdown' ) -->
+        @if (Request::segment(2) === 'markdown' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-markdown/bootstrap-markdown.min.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' ) -->
+        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/dataTables.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedcolumns.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedheader.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/sweetalert/sweetalert.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'dragger' ) -->
+        @if (Request::segment(2) === 'dragger' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/table-dragger/table-dragger.min.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'morris' ) -->
+        @if (Request::segment(2) === 'morris' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'chartjs' ) -->
+        @if (Request::segment(2) === 'chartjs' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/chartist-plugin-tooltip/chartist-plugin-tooltip.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'c3' ) -->
+        @if (Request::segment(2) === 'c3' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/charts-c3/plugin.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'jvector' ) -->
+        @if (Request::segment(2) === 'jvector' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-2.0.3.css') }}"/>
-        <!-- @endif -->
+        @endif
 
         <!-- Custom Css -->
         <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/css/color_skins.css') }}">
 
-        <!-- @if (Request::segment(2) === 'list' or Request::segment(2) === 'detail' or Request::segment(2) === 'blog' or Request::segment(2) === 'profile2' ) -->
+        @if (Request::segment(2) === 'list' or Request::segment(2) === 'detail' or Request::segment(2) === 'blog' or Request::segment(2) === 'profile2' )
 			<link rel="stylesheet" href="{{ asset('assets/css/blog.css') }}"/>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'ecommerce' ) -->
+        @if (Request::segment(2) === 'ecommerce' )
 			<link rel="stylesheet" href="{{ asset('assets/css/ecommerce.css') }}"/>
-        <!-- @endif -->
+        @endif
 
         @stack('after-styles')
 
@@ -211,7 +211,7 @@
 
     ?>
 
-    <body class="<?= $theme ?> ">
+    <body class="<?= $theme ?>">
 
         <!-- Page Loader -->
         <div class="page-loader-wrapper">
@@ -274,148 +274,148 @@
         <script src="{{ asset('assets/bundles/jvectormap.bundle.js') }}"></script> <!-- JVectorMap Plugin Js -->
         <script src="{{ asset('assets/bundles/knob.bundle.js') }}"></script>
 
-        <!-- @if (Request::segment(2) === 'analytical' ) -->
+        @if (Request::segment(2) === 'analytical' )
             <script src="{{ asset('assets/bundles/chartist.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/toastr/toastr.js') }}"></script>
             <script src="{{ asset('assets/js/index.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'iot' ) -->
+        @if (Request::segment(2) === 'iot' )
             <script src="{{ asset('assets/bundles/morrisscripts.bundle.js')}}"></script>
             <script src="{{ asset('assets/vendor/jquery-sparkline/js/jquery.sparkline.min.js')}}"></script>
             <script src="{{ asset('assets/vendor/raphael/raphael-min.js')}}"></script>
             <script src="{{ asset('assets/js/iot.js')}}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'bitcoin' ) -->
+        @if (Request::segment(2) === 'bitcoin' )
             <script src="{{ asset('assets/bundles/jvectormap.bundle.js') }}"></script>
             <script src="{{ asset('assets/bundles/chartist.bundle.js') }}"></script>
             <script src="{{ asset('assets/bundles/datatablescripts.bundle.js') }}"></script>
             <script src="{{ asset('assets/js/pages/tables/jquery-datatable.js') }}"></script>
             <script src="{{ asset('assets/js/index7.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'demographic' ) -->
+        @if (Request::segment(2) === 'demographic' )
             <script src="{{ asset('assets/js/widgets/infobox/infobox-1.js') }}"></script>
             <script src="{{ asset('assets/js/index2.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'hospital' ) -->
+        @if (Request::segment(2) === 'hospital' )
             <script src="{{ asset('assets/js/index3.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'university' ) -->
+        @if (Request::segment(2) === 'university' )
             <script src="{{ asset('assets/js/index4.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'real-estate' ) -->
+        @if (Request::segment(2) === 'real-estate' )
             <script src="{{ asset('assets/js/index5.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'ecommerce' ) -->
+        @if (Request::segment(2) === 'ecommerce' )
             <script src="{{ asset('assets/js/index8.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'project' ) -->
+        @if (Request::segment(2) === 'project' )
             <script src="{{ asset('assets/vendor/nestable/jquery.nestable.js') }}"></script> <!-- Jquery Nestable -->
             <script src="{{ asset('assets/js/pages/ui/sortable-nestable.js') }}"></script>
             <script src="{{ asset('assets/js/index6.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'inbox' or Request::segment(2) === 'contact-list' or Request::segment(2) === 'taskboard' or Request::segment(2) === 'dialogs' ) -->
+        @if (Request::segment(2) === 'inbox' or Request::segment(2) === 'contact-list' or Request::segment(2) === 'taskboard' or Request::segment(2) === 'dialogs' )
             <script src="{{ asset('assets/vendor/sweetalert/sweetalert.min.js') }}"></script>
 			<script src="{{ asset('assets/js/pages/ui/dialogs.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'calendar' ) -->
+        @if (Request::segment(2) === 'calendar' )
             <script src="{{ asset('assets/bundles/fullcalendarscripts.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/fullcalendar/fullcalendar.js') }}"></script>
             <script src="{{ asset('assets/js/pages/calendar.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'contact-card' ) -->
+        @if (Request::segment(2) === 'contact-card' )
             <script src="{{ asset('assets/bundles/easypiechart.bundle.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'taskboard' ) -->
+        @if (Request::segment(2) === 'taskboard' )
 			<script src="{{ asset('assets/vendor/nestable/jquery.nestable.js') }}"></script>
 			<script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
 			<script src="{{ asset('assets/js/pages/ui/sortable-nestable.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(1) === 'file-manager' && Request::segment(2) === 'dashboard' ) -->
+        @if (Request::segment(1) === 'file-manager' && Request::segment(2) === 'dashboard' )
 			<script src="{{ asset('assets/js/pages/file/filemanager.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(1) === 'blog' && Request::segment(2) === 'dashboard' ) -->
+        @if (Request::segment(1) === 'blog' && Request::segment(2) === 'dashboard' )
 			<script src="{{ asset('assets/js/pages/blog.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'new-post' ) -->
+        @if (Request::segment(2) === 'new-post' )
 			<script src="{{ asset('assets/vendor/summernote/dist/summernote.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'notifications' ) -->
+        @if (Request::segment(2) === 'notifications' )
 			<script src="{{ asset('assets/vendor/toastr/toastr.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'nestable' ) -->
+        @if (Request::segment(2) === 'nestable' )
             <script src="{{ asset('assets/vendor/nestable/jquery.nestable.js') }}"></script>
             <script src="{{ asset('assets/js/pages/ui/sortable-nestable.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'range-sliders' ) -->
+        @if (Request::segment(2) === 'range-sliders' )
             <script src="{{ asset('assets/vendor/rangeslider/js/ion.rangeSlider.js') }}"></script>
             <script src="{{ asset('assets/vendor/roundslider/roundslider.min.js') }}"></script>
             <script src="{{ asset('assets/js/pages/range-sliders.js') }}"></script>
             <script src="{{ asset('assets/vendor/material-rangeslider/mrange.js') }}"></script>
             <script src="{{ asset('assets/vendor/roundslider/custom.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'treeview' ) -->
+        @if (Request::segment(2) === 'treeview' )
             <script src="{{ asset('assets/vendor/bootstrap-treeview/bootstrap-treeview.min.js') }}"></script>
             <script src="{{ asset('assets/vendor/jstree/jstree.min.js') }}"></script>
             <script src="{{ asset('assets/vendor/toastr/toastr.js') }}"></script>
             <script src="{{ asset('assets/js/pages/treeview/jstree.js') }}"></script>
             <script src="{{ asset('assets/js/pages/treeview/bootstrap-treeview.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'statistics' ) -->
+        @if (Request::segment(2) === 'statistics' )
             <script src="{{ asset('assets/js/widgets/infobox/infobox-1.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'chart' ) -->
+        @if (Request::segment(2) === 'chart' )
             <script src="{{ asset('assets/bundles/chartist.bundle.js') }}"></script>
             <script src="{{ asset('assets/bundles/jvectormap.bundle.js') }}"></script>
             <script src="{{ asset('assets/bundles/flotscripts.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/flot-charts/jquery.flot.selection.js') }}"></script>
             <script src="{{ asset('assets/js/pages/charts/chart-widgets.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'profile1' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' ) -->
+        @if (Request::segment(2) === 'profile1' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' )
             <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'image-gallery1' ) -->
+        @if (Request::segment(2) === 'image-gallery1' )
             <script src="{{ asset('assets/vendor/LightboxGallery/mauGallery.min.js') }}"></script>
             <script src="{{ asset('assets/vendor/LightboxGallery/scripts.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'image-gallery2' ) -->
+        @if (Request::segment(2) === 'image-gallery2' )
             <script src="{{ asset('assets/vendor/light-gallery/js/lightgallery-all.min.js') }}"></script>
             <script src="{{ asset('assets/js/pages/medias/image-gallery.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'horizontal-timeline' ) -->
+        @if (Request::segment(2) === 'horizontal-timeline' )
             <script src="{{ asset('assets/vendor/horizontal-timeline/js/horizontal-timeline.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'validation' ) -->
+        @if (Request::segment(2) === 'validation' )
             <script src="{{ asset('assets/vendor/bootstrap-multiselect/bootstrap-multiselect.js') }}"></script>
             <script src="{{ asset('assets/vendor/parsleyjs/js/parsley.min.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'advance-elements' ) -->
+        @if (Request::segment(2) === 'advance-elements' )
             <script src="{{ asset('assets/vendor/bootstrap-colorpicker/js/bootstrap-colorpicker.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-inputmask/jquery.inputmask.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery.maskedinput/jquery.maskedinput.min.js') }}"></script>
@@ -425,40 +425,40 @@
             <script src="{{ asset('assets/vendor/bootstrap-tagsinput/bootstrap-tagsinput.js') }}"></script>
             <script src="{{ asset('assets/vendor/nouislider/nouislider.js') }}"></script>
             <script src="{{ asset('assets/js/pages/forms/advanced-form-elements.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'wizard' ) -->
+        @if (Request::segment(2) === 'wizard' )
             <script src="{{ asset('assets/vendor/jquery-validation/jquery.validate.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-steps/jquery.steps.js') }}"></script>
             <script src="{{ asset('assets/js/pages/forms/form-wizard.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'dragdrop' ) -->
+        @if (Request::segment(2) === 'dragdrop' )
             <script src="{{ asset('assets/vendor/dropify/js/dropify.min.js') }}"></script>
             <script src="{{ asset('assets/js/pages/forms/dropify.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'cropping' ) -->
+        @if (Request::segment(2) === 'cropping' )
             <script src="{{ asset('assets/vendor/cropper/cropper.min.js') }}"></script>
             <script src="{{ asset('assets/vendor/cropper/cropper-init.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'summernote' ) -->
+        @if (Request::segment(2) === 'summernote' )
             <script src="{{ asset('assets/vendor/summernote/dist/summernote.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'editors' ) -->
+        @if (Request::segment(2) === 'editors' )
             <script src="{{ asset('assets/vendor/ckeditor/ckeditor.js') }}"></script>
             <script src="{{ asset('assets/js/pages/forms/editors.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'markdown' ) -->
+        @if (Request::segment(2) === 'markdown' )
             <script src="{{ asset('assets/vendor/markdown/markdown.js') }}"></script>
             <script src="{{ asset('assets/vendor/to-markdown/to-markdown.js') }}"></script>
             <script src="{{ asset('assets/vendor/bootstrap-markdown/bootstrap-markdown.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' ) -->
+        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' )
             <script src="{{ asset('assets/bundles/datatablescripts.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/dataTables.buttons.min.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/buttons.bootstrap4.min.js') }}"></script>
@@ -467,71 +467,71 @@
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/buttons.print.min.js') }}"></script>
             <script src="{{ asset('assets/vendor/sweetalert/sweetalert.min.js') }}"></script>
             <script src="{{ asset('assets/js/pages/tables/jquery-datatable.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'editable' ) -->
+        @if (Request::segment(2) === 'editable' )
             <script src="{{ asset('assets/vendor/editable-table/mindmup-editabletable.js') }}"></script>
             <script src="{{ asset('assets/js/pages/tables/editable-table.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'dragger' ) -->
+        @if (Request::segment(2) === 'dragger' )
             <script src="{{ asset('assets/vendor/table-dragger/table-dragger.min.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'morris' ) -->
+        @if (Request::segment(2) === 'morris' )
             <script src="{{ asset('assets/js/pages/charts/morris.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'flot' ) -->
+        @if (Request::segment(2) === 'flot' )
             <script src="{{ asset('assets/bundles/flotscripts.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/flot-charts/jquery.flot.time.js') }}"></script>
             <script src="{{ asset('assets/vendor/flot-charts/jquery.flot.selection.js') }}"></script>
             <script src="{{ asset('assets/js/pages/charts/flot.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'chartjs' ) -->
+        @if (Request::segment(2) === 'chartjs' )
             <script src="{{ asset('assets/bundles/chartist.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/chartist/polar_area_chart.js') }}"></script>
             <script src="{{ asset('assets/js/pages/charts/chartjs.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'jquery-knob' ) -->
+        @if (Request::segment(2) === 'jquery-knob' )
             <script src="{{ asset('assets/vendor/jquery-knob/jquery.knob.min.js') }}"></script>
             <script src="{{ asset('assets/js/pages/charts/jquery-knob.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'sparkline' ) -->
+        @if (Request::segment(2) === 'sparkline' )
             <script src="{{ asset('assets/vendor/jquery-sparkline/js/jquery.sparkline.min.js') }}"></script>
             <script src="{{ asset('assets/js/pages/charts/sparkline.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'peity' ) -->
+        @if (Request::segment(2) === 'peity' )
             <script src="{{ asset('assets/vendor/jquery-sparkline/js/jquery.sparkline.min.js') }}"></script>
             <script src="{{ asset('assets/js/pages/charts/peity_chart.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'c3' ) -->
+        @if (Request::segment(2) === 'c3' )
             <script src="{{ asset('assets/bundles/c3.bundle.js') }}"></script>
             <script src="{{ asset('assets/js/pages/chart/c3.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'gauges' ) -->
+        @if (Request::segment(2) === 'gauges' )
             <script src="{{ asset('assets/vendor/gauge/gauge.min.js') }}"></script>
             <script src="{{ asset('assets/js/pages/chart/gauge.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'echart' ) -->
+        @if (Request::segment(2) === 'echart' )
             <script src="{{ asset('assets/bundles/echarts.bundle.js') }}"></script>
             <script src="{{ asset('assets/js/pages/charts/echart.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'google' ) -->
+        @if (Request::segment(2) === 'google' )
             <script src="https://maps.google.com/maps/api/js?v=3&sensor=false"></script>
             <script src="{{ asset('assets/vendor/gmaps/gmaps.js') }}"></script>
             <script src="{{ asset('assets/js/pages/maps/google.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
-        <!-- @if (Request::segment(2) === 'jvector' ) -->
+        @if (Request::segment(2) === 'jvector' )
             <script src="{{ asset('assets/bundles/jvectormap.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
             <script src="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-in-mill.js') }}"></script>
@@ -539,15 +539,14 @@
             <script src="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-uk-mill-en.js') }}"></script>
             <script src="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-au-mill.js') }}"></script>
             <script src="{{ asset('assets/js/pages/maps/jvectormap.js') }}"></script>
-        <!-- @endif -->
+        @endif
 
         <script src="{{ asset('assets/bundles/mainscripts.bundle.js') }}"></script>
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         @stack('after-scripts')
 

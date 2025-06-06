@@ -1,6 +1,6 @@
 @extends('layout.master')
 @section('title', 'Superadmin Settings')
-@section('parentPageTitle', 'Settings')
+@section('parentPageTitle', 'Superadmin Settings')
 
 
 @section('content')
@@ -59,13 +59,13 @@
             <div class="header">
                 <h2>Super-Admin Settings<small></small> </h2>  
                 <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal" data-target="#addSuperadminModal">
-    Add Superadmin
+                <i class="fa fa-plus"></i>&nbsp;  Add Superadmin
 </button>                    
             </div>
             <div class="body">
             <div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover dataTable js-exportable c_list l-blush">
-        <thead>
+    <table class="table table-bordered table-striped table-hover dataTable js-exportable c_list">
+        <thead class="thead-light">
             <tr>
                 <th>Sr. No.</th>
                 <th>Name</th>
