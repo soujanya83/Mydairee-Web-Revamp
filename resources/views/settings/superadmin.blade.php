@@ -1,6 +1,6 @@
 @extends('layout.master')
 @section('title', 'Superadmin Settings')
-@section('parentPageTitle', 'Superadmin Settings')
+@section('parentPageTitle', 'Settings')
 
 
 @section('content')

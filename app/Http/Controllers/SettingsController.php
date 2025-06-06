@@ -155,5 +155,24 @@ public function center_settings()
 
     
 
+public function staff_settings()
+{
+    $authId = Auth::user()->id; 
+    $centerid = Session('user_center_id');
+
+    // Get all user IDs in the center
+    $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
+
+    // Exclude current user and Superadmins
+    $staff = User::whereIn('id', $usersid)
+                ->where('id', '!=', $authId)
+                ->where('userType', '!=', 'Superadmin')
+                ->get();
+
+    return view('settings.staff', compact('staff'));
+}
+
+
+
 
 }
