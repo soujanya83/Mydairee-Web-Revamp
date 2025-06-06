@@ -28,6 +28,12 @@
                             <a href="/"><i class="icon-home"></i> <span>Dashboard</span></a>
 
                         </li>
+                        <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
+                            <a href="/ServiceDetails">
+                                <i class="far fa-clipboard"></i> <span>Service Details</span>
+                            </a>
+                        </li>
+
 
                         <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
                             <a href="#settings" class="has-arrow"><i class="icon-settings"></i> <span>Settings</span></a>

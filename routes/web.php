@@ -11,6 +11,7 @@ use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ClearCacheAfterLogout;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ServiceDetailsController;
 
 
 
@@ -62,15 +63,20 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 // Route group with middleware this middleware use after login
 Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function () {
     Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
+    // service details 
+    Route::get('ServiceDetails', [ServiceDetailsController::class, 'create'])->name('create.serviceDetails');
+
     Route::post('/logout', function () {
         Auth::logout(); // Logs out the user
         session()->invalidate();      // Invalidate session
         session()->regenerateToken(); // Prevent CSRF issues
         return redirect('login'); // Redirect to login page
     })->name('logout');
+// service details
 
 
     Route::prefix('settings')->name('settings.')->group(function () {
+           
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
 
         Route::delete('/superadmin/{id}', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
@@ -98,6 +104,9 @@ Route::get('data', [AccidentsController::class, 'index']);
 Route::get('dashboard', function () {
     return redirect('dashboard/analytical');
 });
+// service details
+
+
 /* App */
 Route::get('app', function () {
     return redirect('app/inbox');
