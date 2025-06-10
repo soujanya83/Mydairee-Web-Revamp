@@ -1,6 +1,12 @@
 @extends('layout.master')
-@section('title', 'Staff Settings')
+@section('title', 'Parents Settings')
 @section('parentPageTitle', 'Settings')
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 
 
 <style>
@@ -60,6 +66,8 @@
 
 @section('content')
 
+
+
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
     <div class="dropdown">
         <button class="btn btn-outline-primary btn-lg dropdown-toggle"
@@ -86,10 +94,10 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="header">
-                <h2>Staff Settings<small></small> </h2>
+                <h2>Parent Settings<small></small> </h2>
                 <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
-                    data-target="#addSuperadminModal">
-                    <i class="fa fa-plus"></i>&nbsp; Add Staff
+                    data-target="#addParentModal">
+                    <i class="fa fa-plus"></i>&nbsp; Add Parent
                 </button>
             </div>
             <div class="body">
@@ -101,6 +109,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Contact No.</th>
+                                <th>Children</th>
 
                                 <th>Edit</th>
                                 <th>Delete</th>
@@ -112,13 +121,14 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Contact No.</th>
+                                <th>Children</th>
 
                                 <th>Edit</th>
                                 <th>Delete</th>
                             </tr>
                         </tfoot>
                         <tbody>
-                            @foreach($staff as $index => $staffs)
+                            @foreach($parents as $index => $staffs)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>
@@ -137,8 +147,13 @@
                                 <td>{{ $staffs->email }}</td>
                                 <td>{{ $staffs->contactNo }}</td>
                                 <td>
+                                @foreach ($staffs->children as $child)
+            <li>{{ $child->name }} {{ $child->lastname }} ({{ $child->pivot->relation }})</li>
+        @endforeach
+                                </td>
+                                <td>
                                     <button class="btn btn-sm btn-info"
-                                        onclick="openEditSuperadminModal({{ $staffs->id }})">
+                                        onclick="openEditParentModal({{ $staffs->id }})">
                                         <i class="fa-solid fa-pen-to-square fa-beat-fade"></i> Edit
                                     </button>
                                 </td>
@@ -165,14 +180,14 @@
 
 
     <!-- Modal Form -->
-    <div class="modal fade" id="addSuperadminModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+    <div class="modal fade" id="addParentModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
 
                 <!-- Modal Header -->
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">Add New Staff</h5>
+                    <h5 class="modal-title" id="modalLabel">Add New Parent</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -184,14 +199,11 @@
                         @csrf
                         <!-- Laravel CSRF -->
 
-                        <h6 class="mb-3">Staff Details</h6>
+                        <h6 class="mb-3">Parent Details</h6>
                         <div class="form-row">
-                            <!-- <div class="form-group col-md-6">
-                            <label>Username</label>
-                            <input type="text" class="form-control" name="username" required>
-                        </div> -->
+         
                             <div class="form-group col-md-6">
-                                <label>Staff Name</label>
+                                <label>Parent Name</label>
                                 <input type="text" class="form-control" name="name" required>
                             </div>
                             <div class="form-group col-md-6">
@@ -207,10 +219,6 @@
                                 <input type="tel" class="form-control" name="contactNo" required>
                             </div>
 
-                            <!-- <div class="form-group col-md-6">
-                            <label>Date of Birth</label>
-                            <input type="date" class="form-control" name="dob" required>
-                        </div> -->
                             <div class="form-group col-md-6">
                                 <label>Gender</label>
                                 <select class="form-control" name="gender" required>
@@ -220,22 +228,52 @@
                                     <option value="OTHERS">Other</option>
                                 </select>
                             </div>
-                            <!-- <div class="form-group col-md-6">
-                            <label>Title</label>
-                            <input type="text" class="form-control" name="title" required>
-                        </div> -->
+                
                             <div class="form-group col-12">
                                 <label>Profile Image</label>
                                 <input type="file" class="form-control" name="imageUrl" accept="image/*">
                             </div>
+
+                            
                         </div>
+
+                           <!-- Link Children -->
+        <h6 class="mt-4">Link Children</h6>
+        <div id="childRelationContainer">
+            <div class="child-relation-group border p-3 rounded mb-2">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Child</label>
+                            <select name="children[0][childid]" class="form-control child-select" required>
+        <option value="">Select Child</option>
+        @foreach($children as $child)
+            <option value="{{ $child->id }}">{{ $child->name }} {{ $child->lastname }}</option>
+        @endforeach
+    </select>
+                    </div>
+                    <div class="form-group col-md-5">
+                        <label>Relation</label>
+                        <select name="children[0][relation]" class="form-control" required>
+                            <option value="">Select Relation</option>
+                            <option value="Mother">Mother</option>
+                            <option value="Father">Father</option>
+                            <option value="Brother">Brother</option>
+                            <option value="Sister">Sister</option>
+                            <option value="Relative">Relative</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addChildRelation()">Add Another Child</button>
 
                 </div>
 
                 <!-- Modal Footer -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="Submit" class="btn btn-primary" onclick="submitSuperadminForm()">Save</button>
+                    <button type="Submit" class="btn btn-primary" onclick="submitparentform()">Save</button>
                 </div>
                 </form>
             </div>
@@ -243,45 +281,37 @@
     </div>
 
 
-    <div class="modal fade" id="editSuperadminModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <form id="editSuperadminForm">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Edit Superadmin</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body row">
-                        <input type="hidden" name="id" id="editId">
+    <div class="modal fade" id="editParentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form id="editParentForm" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="id" id="editParentId">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Parent</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
 
+                <div class="modal-body" style="max-height:500px; overflow-y:auto;">
+                    <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label>Name</label>
+                            <label>Parent Name</label>
                             <input type="text" class="form-control" name="name" id="editName" required>
                         </div>
-
                         <div class="form-group col-md-6">
                             <label>Email ID</label>
                             <input type="email" class="form-control" name="email" id="editEmail" required>
                         </div>
-
                         <div class="form-group col-md-6">
-                            <label>Password <span style="color:green;">(Optional- Leave blank if not
-                                    changing)</span></label>
+                            <label>Password <span style="color:green;">(Optional)</span></label>
                             <input type="password" class="form-control" name="password" id="editPassword">
                         </div>
-
                         <div class="form-group col-md-6">
                             <label>Contact No</label>
                             <input type="tel" class="form-control" name="contactNo" id="editContactNo" required>
                         </div>
-
-                        <div class="form-group col-6">
-                            <label>Change Image <span style="color:green;">(Optional)</span></label>
-                            <input type="file" class="form-control" id="imageUrl" name="imageUrl" accept="image/*">
-                        </div>
-
                         <div class="form-group col-md-6">
                             <label>Gender</label>
                             <select class="form-control" name="gender" id="editGender" required>
@@ -291,18 +321,28 @@
                                 <option value="OTHERS">Other</option>
                             </select>
                         </div>
+                        <div class="form-group col-12">
+                            <label>Change Image <span class="text-success">(Optional)</span></label>
+                            <input type="file" class="form-control" name="imageUrl" accept="image/*">
+                        </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" onclick="updateSuperadmin()" class="btn btn-primary">Update</button>
-                    </div>
+                    <h6 class="mt-4">Linked Children</h6>
+                    <div id="editChildRelationContainer"></div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addEditChildRelation()">Add Another Child</button>
                 </div>
-            </form>
-        </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" onclick="submitEditParent()" class="btn btn-primary">Update</button>
+                </div>
+            </div>
+        </form>
     </div>
+</div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 
     <script>
@@ -329,12 +369,12 @@
         }, 3000);
     }
 
-    function submitSuperadminForm() {
+    function submitparentform() {
         const form = document.getElementById('superadminForm');
         const formData = new FormData(form);
-        formData.append('userType', 'Staff');
+        formData.append('userType', 'Parent');
 
-        const submitBtn = document.querySelector('[onclick="submitSuperadminForm()"]');
+        const submitBtn = document.querySelector('[onclick="submitparentform()"]');
         submitBtn.disabled = true;
         submitBtn.innerHTML = 'Saving...';
 
@@ -366,7 +406,7 @@
 
         // Proceed with AJAX if all required fields are filled
         $.ajax({
-            url: "{{ route('settings.staff.store') }}",
+            url: "{{ route('settings.parent.store') }}",
             type: "POST",
             data: formData,
             processData: false,
@@ -376,9 +416,9 @@
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    showToast('success', 'Staff added successfully!');
+                    showToast('success', 'Parent added successfully!');
                     setTimeout(() => {
-                        $('#addSuperadminModal').modal('hide');
+                        $('#addParentModal').modal('hide');
                         location.reload();
                     }, 1500);
                 } else {
@@ -402,63 +442,9 @@
         });
     }
 
-    function openEditSuperadminModal(id) {
-        $.ajax({
-            url: `/settings/staff/${id}/edit`, // This route must return JSON
-            type: 'GET',
-            success: function(data) {
-                $('#editId').val(data.id);
-                $('#editName').val(data.name);
-                $('#editEmail').val(data.email);
-                $('#editContactNo').val(data.contactNo);
-                $('#editGender').val(data.gender);
-                $('#editPassword').val(''); // Clear password field
+  
 
-                $('#editSuperadminModal').modal('show');
-            },
-            error: function() {
-                showToast('error', 'Failed to fetch user data.');
-            }
-        });
-    }
-
-    function updateSuperadmin() {
-        const form = document.getElementById('editSuperadminForm');
-        const formData = new FormData(form);
-        const id = $('#editId').val();
-
-        $.ajax({
-            url: `/settings/staff/${id}`,
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    showToast('success', 'Superadmin updated successfully!');
-                    setTimeout(() => {
-                        $('#editSuperadminModal').modal('hide');
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showToast('error', response.message || 'Update failed');
-                }
-            },
-            error: function(xhr) {
-                if (xhr.status === 422) {
-                    Object.values(xhr.responseJSON.errors).forEach(error => {
-                        showToast('error', error[0]);
-                    });
-                } else {
-                    showToast('error', 'Server error occurred');
-                }
-            }
-        });
-    }
-
+   
 
     function deleteSuperadmin(id) {
         Swal.fire({
@@ -495,10 +481,197 @@
             }
         });
     }
+
+
+    function openEditParentModal(parentId) {
+    $('#editParentModal').modal('show');
+    $('#editParentForm')[0].reset();
+    $('#editChildRelationContainer').empty();
+    childIndex = 0;
+
+    $.ajax({
+        url: `/settings/parent/${parentId}/get`,
+        type: 'GET',
+        success: function (response) {
+            const parent = response.parent;
+            const children = response.children;
+
+            $('#editParentId').val(parent.id);
+            $('#editName').val(parent.name);
+            $('#editEmail').val(parent.emailid);
+            $('#editContactNo').val(parent.contactNo);
+            $('#editGender').val(parent.gender);
+
+            children.forEach(childRel => {
+                addEditChildRelation(childRel);
+            });
+        },
+        error: function () {
+            showToast('error', 'Failed to load parent data');
+            $('#editParentModal').modal('hide');
+        }
+    });
+}
+
+
+function addEditChildRelation(data = null) {
+    let childOptions = `@foreach($children as $child)<option value="{{ $child->id }}">{{ $child->name }} {{ $child->lastname }}</option>@endforeach`;
+
+    let html = `
+    <div class="child-relation-group border p-3 rounded mb-2" data-index="${childIndex}">
+        <div class="form-row">
+            <input type="hidden" name="children[${childIndex}][id]" value="${data?.id || ''}">
+            <div class="form-group col-md-5">
+                <label>Child</label>
+                <select name="children[${childIndex}][childid]" class="form-control" required>
+                    <option value="">Select Child</option>
+                    ${childOptions}
+                </select>
+            </div>
+            <div class="form-group col-md-5">
+                <label>Relation</label>
+                <select name="children[${childIndex}][relation]" class="form-control" required>
+                    <option value="">Select Relation</option>
+                    <option value="Mother">Mother</option>
+                    <option value="Father">Father</option>
+                    <option value="Brother">Brother</option>
+                    <option value="Sister">Sister</option>
+                    <option value="Relative">Relative</option>
+                </select>
+            </div>
+            <div class="form-group col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeEditChildRelation(this)">Remove</button>
+            </div>
+        </div>
+    </div>`;
+
+    $('#editChildRelationContainer').append(html);
+
+    if (data) {
+        $(`[name="children[${childIndex}][childid]"]`).val(data.childid);
+        $(`[name="children[${childIndex}][relation]"]`).val(data.relation);
+    }
+
+    childIndex++;
+}
+
+
+
+
+function removeEditChildRelation(btn) {
+    $(btn).closest('.child-relation-group').remove();
+}
+
+function submitEditParent() {
+    const form = document.getElementById('editParentForm');
+    const formData = new FormData(form);
+
+    const submitBtn = document.querySelector('#editParentModal button.btn-primary');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Updating...';
+
+    $.ajax({
+        url: "{{ route('settings.parent.update') }}", // define this route
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        success: function (response) {
+            if (response.status === 'success') {
+                showToast('success', 'Parent updated successfully!');
+                setTimeout(() => {
+                    $('#editParentModal').modal('hide');
+                    location.reload();
+                }, 1500);
+            } else {
+                showToast('error', response.message || 'Something went wrong');
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                Object.values(xhr.responseJSON.errors).forEach(err => showToast('error', err[0]));
+            } else {
+                showToast('error', 'Server error. Please try again.');
+            }
+        },
+        complete: function () {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Update';
+        }
+    });
+}
+
+
     </script>
 
 
+<script>
+  let childRelationIndex = 1;
 
+function addChildRelation() {
+    const index = childRelationIndex++;
+    const html = `
+        <div class="child-relation-group border p-3 rounded mb-2 position-relative">
+            <button type="button" class="btn btn-sm btn-danger position-absolute" style="top:5px; right:5px;" onclick="removeChildRelation(this)"><i class="fa-solid fa-trash fa-fade"></i></button>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>Child</label>
+                    <select name="children[${index}][childid]" class="form-control child-select" required>
+                        <option value="">Select Child</option>
+                        @foreach($children as $child)
+                            <option value="{{ $child->id }}">{{ $child->name }} {{ $child->lastname }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group col-md-5">
+                    <label>Relation</label>
+                    <select name="children[${index}][relation]" class="form-control" required>
+                        <option value="">Select Relation</option>
+                        <option value="Mother">Mother</option>
+                        <option value="Father">Father</option>
+                        <option value="Brother">Brother</option>
+                        <option value="Sister">Sister</option>
+                        <option value="Relative">Relative</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+    $('#childRelationContainer').append(html);
+
+    // Init Select2 for the newly added child select
+    $(`select[name="children[${index}][childid]"]`).select2({
+        dropdownParent: $('#addParentModal'),
+        width: '100%',
+        placeholder: "Select Child",
+        allowClear: true
+    });
+}
+
+    function removeChildRelation(button) {
+        $(button).closest('.child-relation-group').remove();
+    }
+
+    $(document).ready(function () {
+        $('.child-select').select2({ width: '100%' });
+    });
+</script>
+
+
+<script>
+$(document).ready(function () {
+    // Init existing select when modal is shown
+    $('#addParentModal').on('shown.bs.modal', function () {
+        $('.child-select').select2({
+            dropdownParent: $('#addParentModal'),
+            width: '100%',
+            placeholder: "Select Child",
+            allowClear: true
+        });
+    });
+});
+</script>
 
 
 
