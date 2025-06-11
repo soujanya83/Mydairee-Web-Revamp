@@ -1,5 +1,11 @@
 <div id="left-sidebar" class="sidebar"
     style="background-color: #ffffff;background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
+<style>
+.dropdown-menu.account.show {
+    top: 100% !important;
+    left: 0px !important;
+}
+</style>
     <div class="sidebar-scroll">
         <div class="user-account">
 
@@ -9,17 +15,16 @@
             $avatars = Auth::user()->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
             $defaultAvatar = $avatars[array_rand($avatars)];
             @endphp
-            <img src="{{ Auth::user()->imageUrl ? asset('storage/' . Auth::user()->imageUrl) : asset('assets/img/default.png') }}"
+            <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('assets/img/default.png') }}"
                 class="rounded-circle user-photo" style="vertical-align: bottom; height: 45px;"
                 alt="User Profile Picture">
 
             <div class="dropdown">
                 <span>Welcome,</span>
-                <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown"><strong>{{
-                        Auth::user()->name }}</strong></a>
-                <ul class="dropdown-menu dropdown-menu-right account">
-                    <li><a href="{{route('pages.profile1')}}"><i class="icon-user"></i>My Profile</a></li>
-
+                <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown"><strong>{{ Auth::user()->name }}</strong></a>
+                <ul class="dropdown-menu dropdown-menu-right account " >
+                    <li><a href="{{route('settings.profile')}}"><i class="icon-user"></i>My Profile</a></li>
+                    <li class="divider"></li>
                     <li><a href="{{route('logout')}}"><i class="icon-power"></i>Logout</a></li>
                 </ul>
             </div>
@@ -52,12 +57,17 @@
                                         href="{{route('settings.center_settings')}}">Center Settings </a></li>
                                 <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a
                                         href="{{route('settings.staff_settings')}}">Staffs Settings </a></li>
+                                <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}"><a href="{{route('settings.parent_settings')}}">Parents Settings </a></li>
+
                             </ul>
 
                         </li>
 
                         <li class="{{ Request::segment(1) === 'dashboard' ? 'active' : null }}">
                             <a href="{{ route('rooms_list') }}"><i class="icon-home"></i> <span>Rooms</span></a>
+                                {{-- <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
+                                <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a href="{{route('settings.center_settings')}}">Center Settings </a></li>
+                                <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a href="{{route('settings.staff_settings')}}">Staffs Settings </a></li> --}}
 
                         </li>
 

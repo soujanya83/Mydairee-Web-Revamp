@@ -93,7 +93,29 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::delete('/center/{id}', [SettingsController::class, 'destroycenter'])->name('center.destroy');
 
         Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
+
+        Route::post('/staff/store', [SettingsController::class, 'staff_store'])->name('staff.store');
+
+        Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
+        Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
+
+
+
+
+        Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
+        Route::post('/parent/store', [SettingsController::class, 'parent_store'])->name('parent.store');
+
+        Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
+        Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');
+
+
+        Route::get('/profile', [SettingsController::class, 'getprofile_page'])->name('profile');
+        Route::post('/upload-profile-image', [SettingsController::class, 'uploadImage'])->name('upload.profile.image');
+        Route::post('/profile/update/{id}', [SettingsController::class, 'profileupdate'])->name('profile.update');
+        Route::post('/profile/change-password/{id}', [SettingsController::class, 'changePassword'])->name('profile.change-password');
     });
+
+    Route::post('/change-center', [SettingsController::class, 'changeCenter'])->name('change.center');
 });
 
 

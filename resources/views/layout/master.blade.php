@@ -20,6 +20,9 @@
         <link rel="stylesheet" href="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.min.css') }}" />
 
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
         @if (Request::segment(2) === 'analytical' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}">
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css') }}">
@@ -104,7 +107,7 @@
 			<link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}"/>
         @endif
 
-        @if (Request::segment(2) === 'profile1' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' )
+        @if (Request::segment(2) === 'profile' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}"/>
         @endif
 
@@ -144,7 +147,7 @@
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-markdown/bootstrap-markdown.min.css') }}"/>
         @endif
 
-        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' )
+        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' || Request::segment(2) === 'parent_settings' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/dataTables.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedcolumns.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedheader.bootstrap4.min.css') }}"/>
@@ -393,7 +396,7 @@
             <script src="{{ asset('assets/js/pages/charts/chart-widgets.js') }}"></script>
         @endif
 
-        @if (Request::segment(2) === 'profile1' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' )
+        @if (Request::segment(2) === 'profile' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' )
             <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
         @endif
 
@@ -459,7 +462,7 @@
             <script src="{{ asset('assets/vendor/bootstrap-markdown/bootstrap-markdown.js') }}"></script>
         @endif
 
-        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' )
+        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' || Request::segment(2) === 'parent_settings' )
             <script src="{{ asset('assets/bundles/datatablescripts.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/dataTables.buttons.min.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/buttons.bootstrap4.min.js') }}"></script>
@@ -548,6 +551,48 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+    $('.center-option').on('click', function () {
+        var centerId = $(this).data('id');
+        $.ajax({
+            url: "{{ route('change.center') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                center_id: centerId
+            },
+            success: function (response) {
+                if (response.status === 'success') {
+                    location.reload();
+                }
+            }
+        });
+    });
+</script>
+
+
+<style>
+    
+    .dropdown-menu .active {
+        background-color: #e7f1ff;
+        border-left: 3px solid #007bff;
+    }
+
+    .dropdown-menu a.dropdown-item:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown-menu.dropdown-menu-right {
+        top: 3% !important;
+        left: 13px !important;
+    }
+    
+</style>
+
+
+
 
         @stack('after-scripts')
 
