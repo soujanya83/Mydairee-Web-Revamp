@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'University')
+@section('title', 'Dashboard')
 @section('parentPageTitle', 'Dashboard')
 
 
@@ -51,7 +51,7 @@
                     <h5 class="number">{{ $totalCenter }}</h5>
                 </div>
                 <hr>
-                <div class="icon text-danger"><i class="fa fa-university "></i> </div>
+                <div class="icon text-danger"><i class="fa fa-university"></i> </div>
                 <div class="content">
                     <div class="text">Total Rooms</div>
                     <h5 class="number">{{ $totalRooms }}</h5>

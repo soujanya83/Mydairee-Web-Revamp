@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ResetPassword;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ClearCacheAfterLogout;
 use Illuminate\Support\Facades\Auth;
@@ -69,33 +70,30 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         return redirect('login'); // Redirect to login page
     })->name('logout');
 
+    Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
+    Route::get('/edit-child/{id}', [RoomController::class, 'edit_child'])->name('edit_child');
+    Route::put('/child/update/{id}', [RoomController::class, 'update_child'])->name('update_child');
+    Route::post('/move-children', [RoomController::class, 'moveChildren'])->name('move_children');
+    Route::post('/children/delete-selected', [RoomController::class, 'delete_selected_children'])->name('delete_selected_children');
+
+    Route::post('add-children', [RoomController::class, 'add_new_children'])->name('add_children');
+    Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
+
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
-
         Route::delete('/superadmin/{id}', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
-
         Route::post('/superadmin/store', [SettingsController::class, 'store'])->name('superadmin.store');
-
         Route::get('/superadmin/{id}/edit', [SettingsController::class, 'edit'])->name('superadmin.edit');
         Route::post('/superadmin/{id}', [SettingsController::class, 'update'])->name('superadmin.update');
-
-
-
         Route::get('/center_settings', [SettingsController::class, 'center_settings'])->name('center_settings');
         Route::post('/center_store', [SettingsController::class, 'center_store'])->name('center_store');
         Route::get('/center/{id}/edit', [SettingsController::class, 'center_edit'])->name('center.edit');
         Route::post('/center/{id}', [SettingsController::class, 'center_update'])->name('center.update');
         Route::delete('/center/{id}', [SettingsController::class, 'destroycenter'])->name('center.destroy');
 
-
         Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
-
-
     });
-
-
-    
 });
 
 

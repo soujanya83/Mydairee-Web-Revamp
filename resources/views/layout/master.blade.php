@@ -10,6 +10,7 @@
         <meta name="description" content="@yield('meta_description', config('app.name'))">
         <meta name="author" content="@yield('meta_author', config('app.name'))">
         @yield('meta')
+<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/MYDIAREE-new-logo.png') }}">
 
         {{-- See https://laravel.com/docs/5.5/blade#stacks for usage --}}
         @stack('before-styles')
@@ -230,9 +231,9 @@
     <div class="container-fluid">
         <div class="block-header">
             <div class="row">
-                <div class="col-lg-5 col-md-8 col-sm-12">                        
-                    <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class="fa fa-arrow-left"></i></a> @yield('title')</h2>
-                    <ul class="breadcrumb">
+                <div class="col-lg-5 col-md-8 col-sm-12">
+                    <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class=""></i></a> @yield('title')</h2>
+                    {{-- <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard.university')}}"><i class="icon-home"></i></a></li>
                         @if (trim($__env->yieldContent('parentPageTitle')))
                            <li class="breadcrumb-item">@yield('parentPageTitle')</li>
@@ -240,9 +241,9 @@
                         @if (trim($__env->yieldContent('title')))
                             <li class="breadcrumb-item active">@yield('title')</li>
                         @endif
-                    </ul>
-                </div>            
-                <div class="col-lg-7 col-md-4 col-sm-12 text-right">
+                    </ul> --}}
+                </div>
+                {{-- <div class="col-lg-7 col-md-4 col-sm-12 text-right"> --}}
                     <!-- <div class="inlineblock text-center m-r-15 m-l-15 hidden-sm">
                         <div class="sparkline text-left" data-type="line" data-width="8em" data-height="20px" data-line-Width="1" data-line-Color="#00c5dc"
                             data-fill-Color="transparent">3,5,1,6,5,4,8,3</div>
@@ -253,10 +254,10 @@
                             data-fill-Color="transparent">4,6,3,2,5,6,5,4</div>
                         <span>Visits</span>
                     </div> -->
-                </div>
+                {{-- </div> --}}
             </div>
         </div>
-        
+
         @yield('content')
 
     </div>
