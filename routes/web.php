@@ -66,6 +66,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     // service details 
     Route::get('ServiceDetails', [ServiceDetailsController::class, 'create'])->name('create.serviceDetails');
 
+     Route::post('ServiceDetails', [ServiceDetailsController::class, 'store'])->name('store.serviceDetails');
+
     Route::post('/logout', function () {
         Auth::logout(); // Logs out the user
         session()->invalidate();      // Invalidate session
