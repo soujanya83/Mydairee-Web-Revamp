@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Auth;
 //     return view('dashboard.university');
 // });
 
-
 // Route::get('dashboard', function () {
 //     return redirect('dashboard/analytical');
 // });
