@@ -2,14 +2,13 @@
 @section('title', 'Dashboard')
 @section('parentPageTitle', 'Dashboard')
 
-
 @section('content')
 
 <div class="row clearfix" style="margin-top:30px">
     <div class="col-lg-3 col-md-6">
         <div class="card top_counter">
             <div class="body">
-                 <div class="icon text-info"><i class="fa fa-users"></i> </div>
+                <div class="icon text-info"><i class="fa fa-users"></i> </div>
                 <div class="content">
                     <div class="text">Total Users</div>
                     <h5 class="number">{{ $totalUsers }}</h5>
@@ -45,7 +44,7 @@
     <div class="col-lg-3 col-md-6">
         <div class="card top_counter">
             <div class="body">
-                 <div class="icon text-success"><i class="fa  fa-map-pin"></i> </div>
+                <div class="icon text-success"><i class="fa  fa-map-pin"></i> </div>
                 <div class="content">
                     <div class="text">Total Centers</div>
                     <h5 class="number">{{ $totalCenter }}</h5>
@@ -56,95 +55,40 @@
                     <div class="text">Total Rooms</div>
                     <h5 class="number">{{ $totalRooms }}</h5>
                 </div>
-
-
             </div>
         </div>
     </div>
     <div class="col-lg-3 col-md-6">
         <div class="card top_counter">
             <div class="body">
-                <div class="icon"><i class="fa fa-credit-card"></i> </div>
+                <div class="icon"><i class="fa fa-utensils"></i> </div>
                 <div class="content">
-                    <div class="text">Our Center</div>
-                    <h5 class="number">28</h5>
+                    <div class="text">Total Recipes</div>
+                    <h5 class="number">{{ $totalRecipes }}</h5>
                 </div>
                 <hr>
                 <div class="icon text-success"><i class="fa fa-smile"></i> </div>
                 <div class="content">
                     <div class="text">Happy Clients</div>
-                    <h5 class="number">528</h5>
+                    <h5 class="number">111</h5>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row clearfix">
-    <div class="col-lg-12 col-md-12 col-sm-12">
-        <div class="card">
-            <div class="header">
-                <h2>University Survey</h2>
-                <ul class="header-dropdown">
-                    <li class="dropdown">
-                        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                            aria-haspopup="true" aria-expanded="false"></a>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a href="javascript:void(0);">Action</a></li>
-                            <li><a href="javascript:void(0);">Another Action</a></li>
-                            <li><a href="javascript:void(0);">Something else</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-            <div class="body">
-                <div class="row text-center">
-                    <div class="col-sm-3 col-6">
-                        <h4 class="margin-0">$231</h4>
-                        <p class="text-muted margin-0"> Today's</p>
-                    </div>
-                    <div class="col-sm-3 col-6">
-                        <h4 class="margin-0">$1,254</h4>
-                        <p class="text-muted margin-0">This Week's</p>
-                    </div>
-                    <div class="col-sm-3 col-6">
-                        <h4 class="margin-0">$3,298</h4>
-                        <p class="text-muted margin-0">This Month's</p>
-                    </div>
-                    <div class="col-sm-3 col-6">
-                        <h4 class="margin-0">$9,208</h4>
-                        <p class="text-muted margin-0">This Year's</p>
-                    </div>
-                </div>
-                <div id="m_bar_chart" class="graph m-t-20"></div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row clearfix">
-    <div class="col-sm-12 col-md-4 col-lg-4">
-        <div class="card">
-            <div class="header">
-                <h2>Income Analysis<small>8% High then last month</small></h2>
-            </div>
-            <div class="body">
-                <div class="sparkline-pie text-center">6,4,8</div>
-                <div class="stats-report">
-                    <div class="stat-item">
-                        <h5>Science</h5>
-                        <b class="col-black">84.60%</b>
-                    </div>
-                    <div class="stat-item">
-                        <h5>Commerce</h5>
-                        <b class="col-black">15.40%</b>
-                    </div>
-                    <div class="stat-item">
-                        <h5>Atrs</h5>
-                        <b class="col-black">5.10%</b>
-                    </div>
-                </div>
-            </div>
+
+<div class="row g-3">
+    <div class="col-sm-12 col-md-4 col-lg-4 d-flex justify-content-end">
+        <div class="weatherPanel">
+            <object data="https://www.sunsmart.com.au/uvalert/default.asp?version=australia&locationid=161" height="300"
+                id="sunsmart">
+                <embed src="https://www.sunsmart.com.au/uvalert/default.asp?version=australia&locationid=161"
+                    height="300">
+                </embed>
+                Error: Embedded data could not be displayed.
+            </object>
         </div>
     </div>
     <div class="col-sm-12 col-md-4 col-lg-4">
@@ -201,7 +145,47 @@
         </div>
     </div>
 </div>
-
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="card">
+            <div class="header">
+                <h2>University Survey</h2>
+                <ul class="header-dropdown">
+                    <li class="dropdown">
+                        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                            aria-haspopup="true" aria-expanded="false"></a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="javascript:void(0);">Action</a></li>
+                            <li><a href="javascript:void(0);">Another Action</a></li>
+                            <li><a href="javascript:void(0);">Something else</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="body">
+                <div class="row text-center">
+                    <div class="col-sm-3 col-6">
+                        <h4 class="margin-0">$231</h4>
+                        <p class="text-muted margin-0"> Today's</p>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <h4 class="margin-0">$1,254</h4>
+                        <p class="text-muted margin-0">This Week's</p>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <h4 class="margin-0">$3,298</h4>
+                        <p class="text-muted margin-0">This Month's</p>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <h4 class="margin-0">$9,208</h4>
+                        <p class="text-muted margin-0">This Year's</p>
+                    </div>
+                </div>
+                <div id="m_bar_chart" class="graph m-t-20"></div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row clearfix">
     <div class="col-lg-12">
         <div class="card">

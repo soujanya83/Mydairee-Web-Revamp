@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
+use App\Http\Controllers\HealthyController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\RoomController;
@@ -77,6 +78,25 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     Route::post('add-children', [RoomController::class, 'add_new_children'])->name('add_children');
     Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
+    Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
+    Route::delete('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
+
+    Route::match(['get', 'post'], '/healthy-recipe', [HealthyController::class, 'healthy_recipe'])->name('healthy_recipe');
+    Route::get('/recipes/{id}/edit', [HealthyController::class, 'edit'])->name('recipes.edit');
+    Route::delete('/recipes/{id}/delete', [HealthyController::class, 'destroy'])->name('recipes.destroy');
+    Route::get('/recipes/ingredients', [HealthyController::class, 'recipes_Ingredients'])->name('recipes.Ingredients');
+    Route::get('/ingredients/{id}/edit', [HealthyController::class, 'ingredients_edit'])->name('ingredients.edit');
+    Route::delete('/ingredients/{id}/delete', [HealthyController::class, 'destroy_ingredent'])->name('ingredients.destroy');
+    Route::post('/ingredients', [HealthyController::class, 'ingredients_store'])->name('ingredients.store');
+    Route::put('/ingredients/{id}', [HealthyController::class, 'ingredients_update'])->name('ingredients.update');
+    Route::post('/recipes/store', [HealthyController::class, 'recipes_store'])->name('recipes.store');
+
+    Route::match(['get', 'post'], '/healthy-menu', [HealthyController::class, 'healthy_menu'])->name('healthy_menu');
+    // Route::post('/store-menu', [HealthyController::class, 'store_menu'])->name('menu.store');
+    Route::get('/get-recipes-by-type', [HealthyController::class, 'getByType']);
+    Route::post('/save-recipes', [HealthyController::class, 'store_menu'])->name('menu.store');
+    Route::delete('/menu/{id}', [HealthyController::class, 'menu_destroy'])->name('menu.destroy');
+
 
 
     Route::prefix('settings')->name('settings.')->group(function () {

@@ -6,47 +6,50 @@
     .is-invalid {
         border-color: #dc3545 !important;
     }
+
     .toast-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1050;
-}
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+    }
 
-.toast {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+    .toast {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-.toast-success {
-    background-color: #28a745; /* Green for success */
-}
+    .toast-success {
+        background-color: #28a745;
+        /* Green for success */
+    }
 
-.toast-error {
-    background-color: #dc3545; /* Red for error */
-}
+    .toast-error {
+        background-color: #dc3545;
+        /* Red for error */
+    }
 
-.toast-close-button {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    color: white;
-    margin-left: 10px;
-}
+    .toast-close-button {
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: white;
+        margin-left: 10px;
+    }
 
-.toast-message {
-    flex: 1;
+    .toast-message {
+        flex: 1;
 
-}
+    }
 
-.c_list .avatar{
-    height:45px;
-    width: 50px;
-}
+    .c_list .avatar {
+        height: 45px;
+        width: 50px;
+    }
 </style>
 
 @section('content')
@@ -58,182 +61,186 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="header">
-                <h2>Centers Settings<small></small> </h2>  
-<button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal" data-target="#addCenterModal">
-<i class="fa fa-plus"></i>&nbsp; Add Center
-</button>                    
+                <h2>Centers Settings<small></small> </h2>
+                <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
+                    data-target="#addCenterModal">
+                    <i class="fa fa-plus"></i>&nbsp; Add Center
+                </button>
             </div>
             <div class="body">
-            <div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover dataTable js-exportable c_list">
-        <thead class="thead-light">
-            <tr>
-                <th>Sr. No.</th>
-                <th>Center Name</th>
-                <th>Street Address</th>
-                <th>City Address</th>
-                <th>State Address</th>
-                <th>Zip</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-        </thead>
-        <tfoot>
-            <tr>
-            <th>Sr. No.</th>
-                <th>Center Name</th>
-                <th>Street Address</th>
-                <th>City Address</th>
-                <th>State Address</th>
-                <th>Zip</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-        </tfoot>
-        <tbody>
-            @foreach($centers as $index => $center)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>
-    <span class="c_name">{{ $center->centerName }} </span>
-                   </td>
-                    <td>{{ $center->adressStreet }}</td>
-                    <td>{{ $center->addressCity }}</td>
-                    <td>{{ $center->addressState }}</td>
-                    <td>{{ $center->addressZip }}</td>
-                    <td>
-    <button class="btn btn-sm btn-info" onclick="openEditcenterModal({{ $center->id }})">
-        <i class="fa-solid fa-pen-to-square fa-beat-fade"></i> Edit
-    </button>
-</td>
-<td>
-@if(count($centers) > 1)    
-    <button class="btn btn-sm btn-danger" onclick="deletecenter({{ $center->id }})">
-        <i class="fa-solid fa-trash fa-fade"></i> Delete
-    </button>
-    @endif
-</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover dataTable js-exportable c_list">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Sr. No.</th>
+                                <th>Center Name</th>
+                                <th>Street Address</th>
+                                <th>City Address</th>
+                                <th>State Address</th>
+                                <th>Zip</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th>Sr. No.</th>
+                                <th>Center Name</th>
+                                <th>Street Address</th>
+                                <th>City Address</th>
+                                <th>State Address</th>
+                                <th>Zip</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                            @foreach($centers as $index => $center)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>
+                                    <span class="c_name">{{ $center->centerName }} </span>
+                                </td>
+                                <td>{{ $center->adressStreet }}</td>
+                                <td>{{ $center->addressCity }}</td>
+                                <td>{{ $center->addressState }}</td>
+                                <td>{{ $center->addressZip }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info"
+                                        onclick="openEditcenterModal({{ $center->id }})">
+                                        <i class="fa-solid fa-pen-to-square fa-beat-fade"></i> Edit
+                                    </button>
+                                </td>
+                                <td>
+                                    @if(count($centers) > 1)
+                                    <button class="btn btn-sm btn-danger" onclick="deletecenter({{ $center->id }})">
+                                        <i class="fa-solid fa-trash fa-fade"></i> Delete
+                                    </button>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
+            </div>
+        </div>
+
+    </div>
+
+
+    <div id="toast-container" class="toast-bottom-right"
+        style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
+
+
+
+    <!-- Modal Form -->
+    <div class="modal fade" id="addCenterModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Add New Center</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body" style="max-height:500px;overflow-y:auto;">
+                    <form id="centerForm" enctype="multipart/form-data">
+                        @csrf
+                        <!-- Laravel CSRF -->
+
+                        <h6 class="mt-4 mb-3">Center Details</h6>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Center Name</label>
+                                <input type="text" class="form-control" name="centerName" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Street Address</label>
+                                <input type="text" class="form-control" name="adressStreet" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>City</label>
+                                <input type="text" class="form-control" name="addressCity" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>State</label>
+                                <input type="text" class="form-control" name="addressState" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>ZIP Code</label>
+                                <input type="text" class="form-control" name="addressZip" required>
+                            </div>
+                        </div>
+
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="Submit" class="btn btn-primary" onclick="submitcenterForm()">Save</button>
+                </div>
+                </form>
+            </div>
         </div>
     </div>
 
-</div>
 
+    <div class="modal fade" id="editcenterModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="editcenterForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Center</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
 
-<div id="toast-container" class="toast-bottom-right" style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
+                    <div class="modal-body row">
+                        <input type="hidden" name="id" id="editId">
 
-
-
-<!-- Modal Form -->
-<div class="modal fade" id="addCenterModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalLabel">Add New Center</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body" style="max-height:500px;overflow-y:auto;">
-                <form id="centerForm" enctype="multipart/form-data">
-                    @csrf <!-- Laravel CSRF -->               
-
-                    <h6 class="mt-4 mb-3">Center Details</h6>
-                    <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Center Name</label>
-                            <input type="text" class="form-control" name="centerName" required>
+                            <input type="text" class="form-control" id="centerName" name="centerName" required>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Street Address</label>
-                            <input type="text" class="form-control" name="adressStreet" required>
+                            <input type="text" class="form-control" id="adressStreet" name="adressStreet" required>
                         </div>
                         <div class="form-group col-md-4">
                             <label>City</label>
-                            <input type="text" class="form-control" name="addressCity" required>
+                            <input type="text" class="form-control" id="addressCity" name="addressCity" required>
                         </div>
                         <div class="form-group col-md-4">
                             <label>State</label>
-                            <input type="text" class="form-control" name="addressState" required>
+                            <input type="text" class="form-control" id="addressState" name="addressState" required>
                         </div>
                         <div class="form-group col-md-4">
                             <label>ZIP Code</label>
-                            <input type="text" class="form-control" name="addressZip" required>
+                            <input type="text" class="form-control" id="addressZip" name="addressZip" required>
                         </div>
                     </div>
-               
-            </div>
 
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="Submit" class="btn btn-primary" onclick="submitcenterForm()">Save</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" onclick="updatecenter()" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
             </div>
-            </form>
         </div>
     </div>
-</div>
-
-
-<div class="modal fade" id="editcenterModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <form id="editcenterForm">
-        <div class="modal-header">
-          <h5 class="modal-title">Edit Center</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-
-        <div class="modal-body row">
-          <input type="hidden" name="id" id="editId">
-
-          <div class="form-group col-md-6">
-            <label>Center Name</label>
-            <input type="text" class="form-control" id="centerName" name="centerName" required>
-          </div>
-          <div class="form-group col-md-6">
-            <label>Street Address</label>
-            <input type="text" class="form-control" id="adressStreet" name="adressStreet" required>
-          </div>
-          <div class="form-group col-md-4">
-            <label>City</label>
-            <input type="text" class="form-control" id="addressCity" name="addressCity" required>
-          </div>
-          <div class="form-group col-md-4">
-            <label>State</label>
-            <input type="text" class="form-control" id="addressState" name="addressState" required>
-          </div>
-          <div class="form-group col-md-4">
-            <label>ZIP Code</label>
-            <input type="text" class="form-control" id="addressZip" name="addressZip" required>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" onclick="updatecenter()" class="btn btn-primary">Update</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 
 
-<script>
-    
-    function showToast(type, message) {
+    <script>
+        function showToast(type, message) {
     const isSuccess = type === 'success';
     const toastType = isSuccess ? 'toast-success' : 'toast-error';
     const ariaLive = isSuccess ? 'polite' : 'assertive';
@@ -259,8 +266,8 @@
 function submitcenterForm() {
     const form = document.getElementById('centerForm');
     const formData = new FormData(form);
-  
-    
+
+
 
     const submitBtn = document.querySelector('[onclick="submitcenterForm()"]');
     submitBtn.disabled = true;
@@ -343,7 +350,7 @@ function openEditcenterModal(id) {
             $('#adressStreet').val(data.adressStreet);
             $('#addressState').val(data.addressState);
             $('#addressZip').val(data.addressZip);
-            
+
 
             $('#editcenterModal').modal('show');
         },
@@ -430,9 +437,9 @@ function deletecenter(id) {
 }
 
 
-</script>
+    </script>
 
 
 
-@include('layout.footer')
-@stop
+    @include('layout.footer')
+    @stop

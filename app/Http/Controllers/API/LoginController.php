@@ -14,7 +14,6 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         try {
-            // Validate input
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
                 'password' => 'required',
@@ -26,17 +25,11 @@ class LoginController extends Controller
                     'errors' => $validator->errors(),
                 ], 422);
             }
-            // Find user
             $user = User::where('email', $request->email)->first();
-
-            // Check credentials
             if (! $user || ! Hash::check($request->password, $user->password)) {
                 return response()->json(['message' => 'Invalid credentials'], 401);
             }
-
-            // Create token
             $token = $user->createToken('api-token')->plainTextToken;
-
             return response()->json([
                 'token' => $token,
                 'user' => $user,
