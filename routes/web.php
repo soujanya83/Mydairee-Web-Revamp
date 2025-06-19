@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
 use App\Http\Controllers\HealthyController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ObservationsController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
@@ -98,6 +99,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::delete('/menu/{id}', [HealthyController::class, 'menu_destroy'])->name('menu.destroy');
 
 
+    Route::post('/change-center', [SettingsController::class, 'changeCenter'])->name('change.center');
+
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
@@ -134,7 +137,54 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::post('/profile/change-password/{id}', [SettingsController::class, 'changePassword'])->name('profile.change-password');
     });
 
-    Route::post('/change-center', [SettingsController::class, 'changeCenter'])->name('change.center');
+
+    Route::prefix('observation')->name('observation.')->group(function () {
+     
+        Route::get('/index', [ObservationsController::class, 'index'])->name('index');
+        Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
+        Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
+        Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
+        Route::get('/view', [ObservationsController::class, 'index'])->name('view');
+        Route::get('/print/{id}', [ObservationsController::class, 'index'])->name('print');
+
+
+        Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
+        Route::get('/addnew/{id?}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
+
+
+        Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get.children');
+        Route::get('/get-rooms', [ObservationsController::class, 'getrooms'])->name('get.rooms');
+        Route::post('/store', [ObservationsController::class, 'store'])->name('store');
+        Route::post('/refine-text', [ObservationsController::class, 'refine'])->name('refine.text'); 
+
+        Route::delete('/observation-media/{id}', [ObservationsController::class, 'destroyimage']);
+
+        Route::post('/montessori/store', [ObservationsController::class, 'storeMontessoriData'])->name('montessori.store');
+        Route::post('/eylf/store', [ObservationsController::class, 'storeEylfData'])->name('eylf.store');
+        Route::post('/devmilestone/store', [ObservationsController::class, 'storeDevMilestone'])->name('devmilestone.store');
+        Route::post('/status/update', [ObservationsController::class, 'updateStatus'])->name('status.update');
+        Route::get('/view/{id}', [ObservationsController::class, 'view'])->name('view');
+        Route::get('/observationslink', [ObservationsController::class, 'linkobservationdata']);
+        Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    });
+
+
+
+
 });
 
 

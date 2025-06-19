@@ -15,7 +15,7 @@
             $avatars = Auth::user()->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
             $defaultAvatar = $avatars[array_rand($avatars)];
             @endphp
-            <img src="{{ 'storage/'.Auth::user()->imageUrl ? asset('storage/'.Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
+            <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
                 class="rounded-circle user-photo" style="vertical-align: bottom; height: 45px;"
                 alt="User Profile Picture">
 
@@ -47,6 +47,11 @@
                             <a href="/"><i class="icon-home"></i> <span>Dashboard</span></a>
 
                         </li>
+
+                        <li class="{{ Request::segment(1) === 'observation.index' ? 'active' : null }}">
+                            <a href="{{route('observation.index')}}"><i class="fa-solid fa-gears"></i><span>Observation</span></a>
+                        </li>
+
 
                         <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
                             <a href="#settings" class="has-arrow"><i class="icon-settings"></i>

@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Models\User; // Add this at the top if not already added
-use App\Models\Center; // Add this at the top if not already added
-use App\Models\Usercenter; // Add this at the top if not already added
-use App\Models\Child; // Add this at the top if not already added
-use App\Models\Childparent; // Add this at the top if not already added
+use App\Models\User; 
+use App\Models\Center; 
+use App\Models\Usercenter; 
+use App\Models\Child; 
+use App\Models\Childparent; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
@@ -556,6 +556,14 @@ class SettingsController extends Controller
         $existing = Childparent::where('parentid', $user->id)->pluck('id')->toArray();
         $submitted = collect($request->children)->pluck('id')->filter()->toArray();
 
+    $user = User::findOrFail($request->id);
+    $user->fill([
+        'name' => $request->name,
+        'emailid' => $request->email,
+        'email' => $request->email,
+        'contactNo' => $request->contactNo,
+        'gender' => $request->gender,
+    ]);
         // Delete removed relations
         $toDelete = array_diff($existing, $submitted);
         if (!empty($toDelete)) {

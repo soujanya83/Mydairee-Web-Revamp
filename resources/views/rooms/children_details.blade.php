@@ -1,5 +1,7 @@
 @extends('layout.master')
-@section('title', 'Room`s Childrens')
+@section('title', 'Childrens')
+@section('parentPageTitle', 'Rooms')
+
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <!-- Flatpickr CSS -->
 {{--

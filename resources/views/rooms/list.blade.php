@@ -1,7 +1,7 @@
 @extends('layout.master')
-<title>@yield('title','Rooms List')</title>
+@section('title', 'Rooms')
+@section('parentPageTitle', '')
 
-{{-- @section('parentPageTitle', '') --}}
 
 <style>
     .educator-checkbox-list {
@@ -35,6 +35,9 @@
 
 @section('content')
 
+<<<<<<< HEAD
+<div style="">
+=======
 <div style="margin-top: -36px;">
 
     @if ($errors->any())
@@ -59,6 +62,7 @@
         </button>
     </div>
     @endif
+>>>>>>> origin/main
     <h5>Rooms List</h5>
 
 
