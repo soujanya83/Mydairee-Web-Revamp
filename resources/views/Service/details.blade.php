@@ -11,6 +11,27 @@
     </div>
 @endif
 
+<!-- new header content -->
+<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
+    <div class="dropdown">
+        <button class="btn btn-outline-primary btn-lg dropdown-toggle"
+                type="button" id="centerDropdown" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+            {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+        </button>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
+            @foreach($centers as $center)
+                <a href="javascript:void(0);"
+                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                 style="background-color:white;"  data-id="{{ $center->id }}">
+                    {{ $center->centerName }}
+                </a>
+            @endforeach
+        </div>
+    </div>
+</div>
+<!-- ends here -->
+
 <div class="row service-details" style="padding-block:5em;padding-inline:2em;">
     <form method="post" action="{{ route('store.serviceDetails') }}">
       @csrf
@@ -26,7 +47,7 @@
 </div>
 
 <!-- Dropdown showing currently selected center -->
-<div class="btn-group">
+<!-- <div class="btn-group">
     <button type="button" class="btn btn-outline-primary btn-lg dropdown-toggle dropdown-toggle-split"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         {{ $selectedCenter->centerName ?? 'Select Center' }}
@@ -39,7 +60,9 @@
             </a>
         @endforeach
     </div>
-</div>
+</div> -->
+
+
 
     </div>
     <hr class="mt-3">

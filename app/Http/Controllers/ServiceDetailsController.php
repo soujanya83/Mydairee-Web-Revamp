@@ -5,30 +5,48 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Center;
 use App\Models\ServiceDetailsModel;
+use App\Models\User; // Add this at the top if not already added
+use App\Models\Usercenter; // Add this at the top if not already added
+use App\Models\Child; // Add this at the top if not already added
+use App\Models\Childparent; // Add this at the top if not already added
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Hash;
 
 class ServiceDetailsController extends Controller
 {
 
     public function create(Request $request)
 {
-    $centers = Center::all();
-    $selectedCenterId = $request->centerid;
+
+      $authId = Auth::user()->id; 
+    $centerid = Session('user_center_id');
+
+      if(Auth::user()->userType == "Superadmin"){
+    $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+ 
+    $centers = Center::whereIn('id', $center)->get();
+//    dd($centers);
+     }else{
+    $centers = Center::where('id', $centerid)->get();
+     }
+
+    // $centers = Center::all();
+    // $selectedCenterId = $request->centerid;
 
     $serviceDetails = null;
     $selectedCenter = null;
 
-    if ($selectedCenterId) {
-        $serviceDetails = ServiceDetailsModel::where('centerid', $selectedCenterId)->first();
-        $selectedCenter = Center::find($selectedCenterId);
+    if ($centerid) {
+        $serviceDetails = ServiceDetailsModel::where('centerid', $centerid)->first();
+        $selectedCenter = Center::find($centerid);
     }
 
-    return view('Service.details', compact('centers', 'serviceDetails', 'selectedCenterId', 'selectedCenter'));
+    return view('Service.details', compact('centers', 'serviceDetails', 'selectedCenter'));
 }
 
 
     function store(Request $request){
-
-        // dd($request->all());
         $request->validate([
   'serviceName' => 'required',
   'serviceApprovalNumber' => 'required',
@@ -62,16 +80,16 @@ class ServiceDetailsController extends Controller
   'personSubmittingQip' => 'required',
   'educatorsData' => 'required',
   'philosophyStatement' => 'required',
-  'centerid' => 'required'
     ]);
 
     // dd('here');
+        $centerid = Session('user_center_id');
 // check if the service details already present or not based on center_id 
-   $check = ServiceDetailsModel::where('centerid', $request->centerid)->first();
+   $check = ServiceDetailsModel::where('centerid', $centerid)->first();
 
 
     if($check){
-
+        $request->merge(['centerid' => $centerid]);
         $response = $check->update($request->all());
 
          if($response){
@@ -81,6 +99,7 @@ class ServiceDetailsController extends Controller
         }
 
     }else{
+        $request->merge(['centerid' => $centerid]);
         $response = ServiceDetailsModel::create($request->all());
 
         if($response){

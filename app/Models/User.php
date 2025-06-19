@@ -64,4 +64,10 @@ class User extends Authenticatable
             'dob' => 'date',
         ];
     }
+
+    public function children()
+    {
+        return $this->belongsToMany(Child::class, 'childparent', 'parentid', 'childid')
+                    ->withPivot('relation');
+    }
 }

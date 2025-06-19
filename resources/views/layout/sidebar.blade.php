@@ -1,21 +1,30 @@
-<div id="left-sidebar" class="sidebar" style="    background-color: #ffffff;">
+<div id="left-sidebar" class="sidebar"
+    style="background-color: #ffffff;background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
+<style>
+.dropdown-menu.account.show {
+    top: 100% !important;
+    left: 0px !important;
+}
+</style>
     <div class="sidebar-scroll">
         <div class="user-account">
 
-        @php
-        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
-        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
-        $avatars = Auth::user()->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-        $defaultAvatar = $avatars[array_rand($avatars)];
-    @endphp
-    <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" class="rounded-circle user-photo" style="vertical-align:bottom;height:45px;" alt="User Profile Picture">
+            @php
+            $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+            $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+            $avatars = Auth::user()->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+            $defaultAvatar = $avatars[array_rand($avatars)];
+            @endphp
+            <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('assets/img/default.png') }}"
+                class="rounded-circle user-photo" style="vertical-align: bottom; height: 45px;"
+                alt="User Profile Picture">
 
             <div class="dropdown">
                 <span>Welcome,</span>
                 <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown"><strong>{{ Auth::user()->name }}</strong></a>
-                <ul class="dropdown-menu dropdown-menu-right account">
-                    <li><a href="{{route('pages.profile1')}}"><i class="icon-user"></i>My Profile</a></li>
-
+                <ul class="dropdown-menu dropdown-menu-right account " >
+                    <li><a href="{{route('settings.profile')}}"><i class="icon-user"></i>My Profile</a></li>
+                    <li class="divider"></li>
                     <li><a href="{{route('logout')}}"><i class="icon-power"></i>Logout</a></li>
                 </ul>
             </div>
@@ -24,7 +33,8 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs">
             <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#menu">Menu</a></li>
-            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#setting"><i class="icon-settings"></i></a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#setting"><i class="icon-settings"></i></a>
+            </li>
         </ul>
 
         <!-- Tab panes -->
@@ -36,6 +46,12 @@
                             <a href="/"><i class="icon-home"></i> <span>Dashboard</span></a>
 
                         </li>
+                           <li class="{{ Request::segment(1) === 'programPlanList' ? 'active' : '' }}">
+                            <a href="/programPlanList">
+                                <i class="far fa-clipboard"></i> <span>Program Plan</span>
+                            </a>
+                        </li>
+
                         <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
                             <a href="/ServiceDetails">
                                 <i class="far fa-clipboard"></i> <span>Service Details</span>
@@ -43,12 +59,59 @@
                         </li>
 
 
-                        <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
-                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i> <span>Settings</span></a>
-                            <ul>
-                                <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
+                      
+
+                        <li class="{{ Request::segment(1) === 'dashboard' ? 'active' : null }}">
+                            <a href="{{ route('rooms_list') }}"><i class="icon-home"></i> <span>Rooms</span></a>
+                                {{-- <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
                                 <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a href="{{route('settings.center_settings')}}">Center Settings </a></li>
-                                <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a href="{{route('settings.staff_settings')}}">Staffs Settings </a></li>
+                                <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a href="{{route('settings.staff_settings')}}">Staffs Settings </a></li> --}}
+
+                        </li>
+
+                           <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
+                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
+                                <span>Announcements</span></a>
+                            <ul>
+                                <li class="{{ Request::segment(2) === 'list' ? 'active' : null }}"><a
+                                        href="{{route('announcements.list')}}">Announcements</a> </li>
+                                <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('survey.list')}}">Survey </a></li>
+                            </ul>
+
+                        </li>
+
+                        <!-- daily Journel -->
+                            <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
+                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
+                                <span>Daily Journel</span></a>
+                            <ul>
+                                <li class="{{ Request::segment(2) === 'DailyDiary' ? 'active' : null }}"><a
+                                        href="{{route('dailyDiary.list')}}">Daily Diary</a> </li>
+                                <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('dailyDiary.list')}}">Head Checks</a></li>
+                                         <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('dailyDiary.list')}}">Sleep Check List</a></li>
+                                         <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('dailyDiary.list')}}">Accidents</a></li>
+                            </ul>
+
+                        </li>
+                         <!-- Daily journel ends -->
+
+                          <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
+                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
+                                <span>Settings</span></a>
+                            <ul>
+                                <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a
+                                        href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
+                                <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a
+                                        href="{{route('settings.center_settings')}}">Center Settings </a></li>
+                                <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a
+                                        href="{{route('settings.staff_settings')}}">Staffs Settings </a></li>
+                                <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}"><a href="{{route('settings.parent_settings')}}">Parents Settings </a></li>
+
+                            </ul>
 
                         </li>
 
@@ -63,7 +126,7 @@
                 <form>
                     <div class="input-group m-b-20">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" ><i class="icon-magnifier"></i></span>
+                            <span class="input-group-text"><i class="icon-magnifier"></i></span>
                         </div>
                         <input type="text" class="form-control" placeholder="Search...">
                     </div>
@@ -204,7 +267,7 @@
                 <form>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" ><i class="icon-magnifier"></i></span>
+                            <span class="input-group-text"><i class="icon-magnifier"></i></span>
                         </div>
                         <input type="text" class="form-control" placeholder="Search...">
                     </div>
@@ -222,7 +285,8 @@
                     <li><a href="javascript:void(0);">Payment info</a></li>
                     <li><a href="javascript:void(0);">Auto-Renewal</a></li>
                     <li class="menu-button m-t-30">
-                        <a href="javascript:void(0);" class="btn btn-primary"><i class="icon-question"></i> Need Help?</a>
+                        <a href="javascript:void(0);" class="btn btn-primary"><i class="icon-question"></i> Need
+                            Help?</a>
                     </li>
                 </ul>
             </div>

@@ -10,14 +10,25 @@
         <meta name="description" content="@yield('meta_description', config('app.name'))">
         <meta name="author" content="@yield('meta_author', config('app.name'))">
         @yield('meta')
+<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/MYDIAREE-new-logo.png') }}">
 
         {{-- See https://laravel.com/docs/5.5/blade#stacks for usage --}}
         @stack('before-styles')
 
         <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}">
+
         <link rel="stylesheet" href="{{ asset('assets/vendor/font-awesome/css/font-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.min.css') }}" />
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+          @if (Request::segment(1) === 'announcements' )
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"> -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
+        @endif
 
         @if (Request::segment(2) === 'analytical' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}">
@@ -103,7 +114,7 @@
 			<link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}"/>
         @endif
 
-        @if (Request::segment(2) === 'profile1' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' )
+        @if (Request::segment(2) === 'profile' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}"/>
         @endif
 
@@ -143,7 +154,7 @@
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-markdown/bootstrap-markdown.min.css') }}"/>
         @endif
 
-        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' )
+        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' || Request::segment(2) === 'parent_settings' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/dataTables.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedcolumns.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedheader.bootstrap4.min.css') }}"/>
@@ -230,9 +241,9 @@
     <div class="container-fluid">
         <div class="block-header">
             <div class="row">
-                <div class="col-lg-5 col-md-8 col-sm-12">                        
-                    <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class="fa fa-arrow-left"></i></a> @yield('title')</h2>
-                    <ul class="breadcrumb">
+                <div class="col-lg-5 col-md-8 col-sm-12">
+                    <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class=""></i></a> @yield('title')</h2>
+                    {{-- <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard.university')}}"><i class="icon-home"></i></a></li>
                         @if (trim($__env->yieldContent('parentPageTitle')))
                            <li class="breadcrumb-item">@yield('parentPageTitle')</li>
@@ -240,9 +251,9 @@
                         @if (trim($__env->yieldContent('title')))
                             <li class="breadcrumb-item active">@yield('title')</li>
                         @endif
-                    </ul>
-                </div>            
-                <div class="col-lg-7 col-md-4 col-sm-12 text-right">
+                    </ul> --}}
+                </div>
+                {{-- <div class="col-lg-7 col-md-4 col-sm-12 text-right"> --}}
                     <!-- <div class="inlineblock text-center m-r-15 m-l-15 hidden-sm">
                         <div class="sparkline text-left" data-type="line" data-width="8em" data-height="20px" data-line-Width="1" data-line-Color="#00c5dc"
                             data-fill-Color="transparent">3,5,1,6,5,4,8,3</div>
@@ -253,10 +264,10 @@
                             data-fill-Color="transparent">4,6,3,2,5,6,5,4</div>
                         <span>Visits</span>
                     </div> -->
-                </div>
+                {{-- </div> --}}
             </div>
         </div>
-        
+
         @yield('content')
 
     </div>
@@ -268,6 +279,9 @@
         @stack('before-scripts')
 
         <script src="{{ asset('assets/bundles/libscripts.bundle.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
         <script src="{{ asset('assets/bundles/vendorscripts.bundle.js') }}"></script>
 
         <script src="{{ asset('assets/bundles/morrisscripts.bundle.js') }}"></script><!-- Morris Plugin Js -->
@@ -343,6 +357,14 @@
 			<script src="{{ asset('assets/js/pages/ui/sortable-nestable.js') }}"></script>
         @endif
 
+         @if (Request::segment(1) === 'announcements' )
+			<script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
+
+			<!-- <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script> -->
+             <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/js/bootstrap-datepicker.min.js"></script> -->
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/js/bootstrap-datepicker.min.js"></script>
+        @endif
+
         @if (Request::segment(1) === 'file-manager' && Request::segment(2) === 'dashboard' )
 			<script src="{{ asset('assets/js/pages/file/filemanager.js') }}"></script>
         @endif
@@ -392,7 +414,7 @@
             <script src="{{ asset('assets/js/pages/charts/chart-widgets.js') }}"></script>
         @endif
 
-        @if (Request::segment(2) === 'profile1' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' )
+        @if (Request::segment(2) === 'profile' or Request::segment(2) === 'profile2' or Request::segment(2) === 'image-gallery1' )
             <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
         @endif
 
@@ -458,7 +480,7 @@
             <script src="{{ asset('assets/vendor/bootstrap-markdown/bootstrap-markdown.js') }}"></script>
         @endif
 
-        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' )
+        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' || Request::segment(2) === 'parent_settings' )
             <script src="{{ asset('assets/bundles/datatablescripts.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/dataTables.buttons.min.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/buttons.bootstrap4.min.js') }}"></script>
@@ -548,6 +570,48 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+<script>
+    $('.center-option').on('click', function () {
+        var centerId = $(this).data('id');
+        $.ajax({
+            url: "{{ route('change.center') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                center_id: centerId
+            },
+            success: function (response) {
+                if (response.status === 'success') {
+                    location.reload();
+                }
+            }
+        });
+    });
+</script>
+
+
+<style>
+    
+    .dropdown-menu .active {
+        background-color: #e7f1ff;
+        border-left: 3px solid #007bff;
+    }
+
+    .dropdown-menu a.dropdown-item:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown-menu.dropdown-menu-right {
+        top: 3% !important;
+        left: 13px !important;
+    }
+    
+</style>
+
+
+
+
         @stack('after-scripts')
 
         @if (trim($__env->yieldContent('page-script')))
@@ -555,5 +619,7 @@
                 @yield('page-script')
             </script>
 		@endif
+
+        @stack('scripts')
     </body>
 </html>
