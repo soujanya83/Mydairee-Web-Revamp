@@ -31,7 +31,7 @@
                         <!-- <a href="#" class="btn btn-primary btn-lg top-right-button" id="addnewbtn" data-toggle="modal" data-target="#templateModal">ADD NEW</a> -->
                     @endif
 
-                    @if($userType != 'Parent')
+                    @if(Auth::user()->userType != 'Parent')
                  
                      
                         <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}" class="btn btn-primary btn-lg">ADD NEW</a>
