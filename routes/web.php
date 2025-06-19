@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ObservationsController;
 use App\Http\Controllers\ResetPassword;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ClearCacheAfterLogout;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +19,6 @@ use Illuminate\Support\Facades\Auth;
 // Route::get('/', function () {
 //     return view('dashboard.university');
 // });
-
 
 // Route::get('dashboard', function () {
 //     return redirect('dashboard/analytical');
@@ -69,28 +70,32 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         return redirect('login'); // Redirect to login page
     })->name('logout');
 
+    Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
+    Route::get('/edit-child/{id}', [RoomController::class, 'edit_child'])->name('edit_child');
+    Route::put('/child/update/{id}', [RoomController::class, 'update_child'])->name('update_child');
+    Route::post('/move-children', [RoomController::class, 'moveChildren'])->name('move_children');
+    Route::post('/children/delete-selected', [RoomController::class, 'delete_selected_children'])->name('delete_selected_children');
+
+    Route::post('add-children', [RoomController::class, 'add_new_children'])->name('add_children');
+    Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
+
+    Route::post('/change-center', [SettingsController::class, 'changeCenter'])->name('change.center');
+
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
-
         Route::delete('/superadmin/{id}', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
-
         Route::post('/superadmin/store', [SettingsController::class, 'store'])->name('superadmin.store');
-
         Route::get('/superadmin/{id}/edit', [SettingsController::class, 'edit'])->name('superadmin.edit');
         Route::post('/superadmin/{id}', [SettingsController::class, 'update'])->name('superadmin.update');
-
-
-
         Route::get('/center_settings', [SettingsController::class, 'center_settings'])->name('center_settings');
         Route::post('/center_store', [SettingsController::class, 'center_store'])->name('center_store');
         Route::get('/center/{id}/edit', [SettingsController::class, 'center_edit'])->name('center.edit');
         Route::post('/center/{id}', [SettingsController::class, 'center_update'])->name('center.update');
         Route::delete('/center/{id}', [SettingsController::class, 'destroycenter'])->name('center.destroy');
 
-
         Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
-       
+
         Route::post('/staff/store', [SettingsController::class, 'staff_store'])->name('staff.store');
 
         Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
@@ -110,6 +115,43 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::post('/upload-profile-image', [SettingsController::class, 'uploadImage'])->name('upload.profile.image');
         Route::post('/profile/update/{id}', [SettingsController::class, 'profileupdate'])->name('profile.update');
         Route::post('/profile/change-password/{id}', [SettingsController::class, 'changePassword'])->name('profile.change-password');
+    });
+
+
+    Route::prefix('observation')->name('observation.')->group(function () {
+     
+        Route::get('/index', [ObservationsController::class, 'index'])->name('index');
+        Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
+        Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
+        Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
+        Route::get('/view', [ObservationsController::class, 'index'])->name('view');
+        Route::get('/print/{id}', [ObservationsController::class, 'index'])->name('print');
+
+
+        Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
+        Route::get('/addnew/{id?}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
+
+
+        Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get.children');
+        Route::get('/get-rooms', [ObservationsController::class, 'getrooms'])->name('get.rooms');
+        Route::post('/store', [ObservationsController::class, 'store'])->name('store');
+        Route::post('/refine-text', [ObservationsController::class, 'refine'])->name('refine.text'); 
+
+        Route::delete('/observation-media/{id}', [ObservationsController::class, 'destroyimage']);
+
+        Route::post('/montessori/store', [ObservationsController::class, 'storeMontessoriData'])->name('montessori.store');
+        Route::post('/eylf/store', [ObservationsController::class, 'storeEylfData'])->name('eylf.store');
+        Route::post('/devmilestone/store', [ObservationsController::class, 'storeDevMilestone'])->name('devmilestone.store');
+        Route::post('/status/update', [ObservationsController::class, 'updateStatus'])->name('status.update');
+        Route::get('/view/{id}', [ObservationsController::class, 'view'])->name('view');
+        Route::get('/observationslink', [ObservationsController::class, 'linkobservationdata']);
+        Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
+
+
+
+
+
+
 
 
 
@@ -120,11 +162,9 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     });
 
-    Route::post('/change-center', [SettingsController::class, 'changeCenter'])->name('change.center');
 
 
 
-    
 });
 
 
