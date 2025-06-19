@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RecipeModel;
 use App\Models\User;
 use App\Models\Room;
 use App\Models\Usercenter;
@@ -19,8 +20,9 @@ class DashboardController extends BaseController
         $totalParent=User::where('userType','Parent')->count();
         $totalCenter=Usercenter::count();
         $totalRooms=Room::count();
+        $totalRecipes=RecipeModel::count();
 
-        return view('dashboard.university',compact('totalSuperadmin','totalParent','totalStaff','totalUsers','totalCenter','totalRooms'));
+        return view('dashboard.university',compact('totalSuperadmin','totalParent','totalStaff','totalUsers','totalCenter','totalRooms','totalRecipes'));
     }
 
 

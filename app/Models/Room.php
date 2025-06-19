@@ -14,4 +14,7 @@ class Room extends Model
 {
     return $this->belongsToMany(User::class, 'room_staff', 'roomid', 'staffid');
 }
+    public $timestamps = false;
+
+    protected $fillable=['id','name','userId','color','ageFrom','ageTo','capacity','status','centerid','created_by'];
 }

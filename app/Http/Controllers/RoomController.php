@@ -6,36 +6,138 @@ use App\Http\Controllers\Controller;
 use App\Models\Center;
 use App\Models\Child;
 use App\Models\Room;
+use App\Models\RoomStaff;
+use App\Models\Usercenter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class RoomController extends Controller
 {
-    // public function rooms_list(Request $request)
-    // {
-    //     $userId = Auth::user()->id;
-    //     $getrooms = Room::select('room.id as roomid', 'room.*')->where('room.userId', $userId)->join('centers', 'centers.id', '=', 'room.centerid')->get();
-    //     foreach ($getrooms as $room) {
-    //         $room->children = Child::where('room', $room->roomid)->get();
-    //     }
+ public function bulkDelete(Request $request)
+{
+    $roomIds = $request->input('selected_rooms', []);
 
-    //     return view('rooms.list', compact('getrooms'));
-    // }
+    // Validation
+    $validator = Validator::make($request->all(), [
+        'selected_rooms' => 'required|array|min:1',
+        'selected_rooms.*' => 'exists:room,id',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+    try {
+        // Start DB transaction for safety (optional)
+        DB::beginTransaction();
+
+        Room::whereIn('id', $roomIds)->delete();
+        RoomStaff::whereIn('roomid', $roomIds)->delete();
+
+        DB::commit();
+
+        return redirect()->back()->with('success', 'Selected rooms deleted successfully.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->with('error', 'Something went wrong while deleting rooms.');
+    }
+}
+
+
+
+    public function rooms_create(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'room_name' => 'required|string|max:255',
+            'room_capacity' => 'required|integer|min:1',
+            'ageFrom' => 'required|numeric|min:0',
+            'ageTo' => 'required|numeric|min:' . $request->input('ageFrom'),
+            'room_status' => 'required|in:Active,Inactive',
+            'room_color' => 'required|string',
+            'educators' => 'array',
+            'educators.*' => 'exists:users,userid',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            // Start DB transaction (optional but good for grouped operations)
+            DB::beginTransaction();
+
+            // Generate a unique 10-digit ID
+            do {
+                $roomId = random_int(100000000, 999999999);
+            } while (\App\Models\Room::where('id', $roomId)->exists());
+
+            $room = Room::create([
+                'id' => $roomId,
+                'name' => $request->input('room_name'),
+                'capacity' => $request->input('room_capacity'),
+                'ageFrom' => $request->input('ageFrom'),
+                'ageTo' => $request->input('ageTo'),
+                'status' => $request->input('room_status'),
+                'color' => $request->input('room_color'),
+                'centerid' => $request->input('dcenterid'),
+                'created_by' => Auth::user()->id,
+                'userId' => Auth::user()->id,
+            ]);
+
+            // Assign educators
+            if ($request->has('educators')) {
+                foreach ($request->input('educators') as $educatorId) {
+                    RoomStaff::create([
+                        'roomid' => $roomId,
+                        'staffid' => $educatorId,
+                    ]);
+                }
+            }
+
+            DB::commit(); // Success, commit transaction
+            return redirect()->back()->with('success', 'Room created successfully.');
+        } catch (\Exception $e) {
+            dd($e);
+            DB::rollBack(); // Rollback on error
+            return redirect()->back()->with('error', 'Failed to create room: ' . $e->getMessage());
+        }
+    }
+
 
     public function rooms_list(Request $request)
     {
         $userId = Auth::id();
-        $centerId = $request->centerId ?? session('user_center_id');
-        $centers = Center::take(3)->get();
+        // $centerId = $request->centerId ?? session('user_center_id');
+        // $centers = Center::take(3)->get();
+
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+
+        if (Auth::user()->userType == "Superadmin") {
+            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+        // dd($centers);
+
         $getrooms = Room::select('room.id as roomid', 'room.*')
             ->join('centers', 'centers.id', '=', 'room.centerid')
             ->where('room.userId', $userId);
-        if ($centerId) {
-            $getrooms->where('room.centerid', $centerId);
+        if ($centerid) {
+            $getrooms->where('room.centerid', $centerid);
         }
         $getrooms = $getrooms->get();
+
+
         foreach ($getrooms as $room) {
             $room->children = Child::where('room', $room->roomid)->get();
             $room->educators = DB::table('room_staff')
@@ -44,7 +146,14 @@ class RoomController extends Controller
                 ->where('room_staff.roomid', $room->roomid)
                 ->get();
         }
-        return view('rooms.list', compact('getrooms', 'centers', 'centerId'));
+
+        $roomStaffs = RoomStaff::join('users', 'users.id', '=', 'room_staff.staffid')
+            ->where('users.userType', 'Staff')
+            ->where('users.status', 'Active')
+            ->select('room_staff.staffid', 'users.name')
+            ->distinct('room_staff.staffid')
+            ->get();
+        return view('rooms.list', compact('getrooms', 'centers', 'centerid', 'roomStaffs'));
     }
 
 
