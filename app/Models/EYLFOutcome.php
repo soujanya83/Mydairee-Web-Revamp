@@ -2,24 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class EYLFOutcome extends Model
 {
-    protected $table = "eylfoutcome";
+    use HasFactory;
+
+    protected $table = 'eylfoutcome';
+
+    public $timestamps = false;
+
     protected $fillable = [
-                    'title',
-                    'name',
-                    'added_by',
-                    'added_at',
+        'title',
+        'name',
+        'added_by',
+        'added_at'
     ];
 
-//  public function outcome()
-//     {
-//         return $this->belongsTo(EYLFOutcome::class, 'outcomeId', 'id');
-//     }
-    public function activities()
-{
-    return $this->hasMany(ELYFActivity::class, 'outcomeId', 'id');
+
+public function activities() {
+    return $this->hasMany(EYLFActivity::class, 'outcomeId', 'id');
 }
 }

@@ -1,5 +1,7 @@
 @extends('layout.master')
-@section('title', 'Room`s Childrens')
+@section('title', 'Childrens')
+@section('parentPageTitle', 'Rooms')
+
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <!-- Flatpickr CSS -->
 {{--
@@ -93,7 +95,7 @@
 
     <div class="text-zero top-right-button-container mt-3" style="margin-right:40px">
         <div class="btn-group">
-            <button data-toggle="modal" data-target="#newChildModal" class="btn btn-info dropdown-toggle"> + NEW
+            <button data-toggle="modal" data-target="#newChildModal" class="btn btn-outline-info dropdown-toggle"> + NEW
                 CHILDREN </button>
         </div>
     </div>
@@ -198,6 +200,7 @@
                     @endforeach
                 </select>
                 <button type="submit" class="btn btn-outline-primary btn-xs" id="moveButton" disabled>MOVE</button>
+                &nbsp; &nbsp;
                 <button type="submit" formaction="{{ route('delete_selected_children') }}"
                     class="btn btn-outline-danger btn-xs" id="deleteButton"
                     onclick="return confirm('Are you sure you want to delete the selected children?')" disabled>
@@ -226,7 +229,7 @@
                         </div>
                         <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a>
                         <input type="checkbox" name="child_ids[]" value="{{ $child->id }}" class="child-checkbox mr-2"
-                            style="margin-left: 148px;">
+                            style="margin-left: 148px;z-index: 1;width: 15px; height: 15px;">
                     </div>
                 </div>
                 @endforeach

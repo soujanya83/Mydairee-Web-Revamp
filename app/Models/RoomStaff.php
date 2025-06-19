@@ -2,13 +2,31 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class RoomStaff extends Model
 {
-    protected $table = "room_staff";
+    use HasFactory;
+
+    protected $table = 'room_staff';
+
+    public $timestamps = false;
+
     protected $fillable = [
         'roomid',
-        'staffid'
+        'staffid',
     ];
+
+    // 🔗 Relationship to Room
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'roomid');
+    }
+
+    // 🔗 Relationship to User (staff)
+    public function staff()
+    {
+        return $this->belongsTo(User::class, 'staffid');
+    }
 }

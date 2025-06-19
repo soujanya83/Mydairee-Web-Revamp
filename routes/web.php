@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
 use App\Http\Controllers\LessonPlanList;
+use App\Http\Controllers\HealthyController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ObservationsController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
@@ -23,7 +25,6 @@ use App\Http\Controllers\SurveyController;
 // Route::get('/', function () {
 //     return view('dashboard.university');
 // });
-
 
 // Route::get('dashboard', function () {
 //     return redirect('dashboard/analytical');
@@ -142,6 +143,31 @@ Route::get('dailyDiary/viewChildDiary',[DailyDiaryController::class,'viewChildDi
 
     Route::post('add-children', [RoomController::class, 'add_new_children'])->name('add_children');
     Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
+    Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
+    Route::delete('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
+
+    Route::match(['get', 'post'], '/healthy-recipe', [HealthyController::class, 'healthy_recipe'])->name('healthy_recipe');
+    Route::get('/recipes/{id}/edit', [HealthyController::class, 'edit'])->name('recipes.edit');
+    Route::delete('/recipes/{id}/delete', [HealthyController::class, 'destroy'])->name('recipes.destroy');
+    Route::get('/recipes/ingredients', [HealthyController::class, 'recipes_Ingredients'])->name('recipes.Ingredients');
+    Route::get('/ingredients/{id}/edit', [HealthyController::class, 'ingredients_edit'])->name('ingredients.edit');
+    Route::delete('/ingredients/{id}/delete', [HealthyController::class, 'destroy_ingredent'])->name('ingredients.destroy');
+    Route::post('/ingredients', [HealthyController::class, 'ingredients_store'])->name('ingredients.store');
+    Route::put('/ingredients/{id}', [HealthyController::class, 'ingredients_update'])->name('ingredients.update');
+    Route::post('/recipes/store', [HealthyController::class, 'recipes_store'])->name('recipes.store');
+
+    Route::match(['get', 'post'], '/healthy-menu', [HealthyController::class, 'healthy_menu'])->name('healthy_menu');
+    // Route::post('/store-menu', [HealthyController::class, 'store_menu'])->name('menu.store');
+    Route::get('/get-recipes-by-type', [HealthyController::class, 'getByType']);
+    Route::post('/save-recipes', [HealthyController::class, 'store_menu'])->name('menu.store');
+    Route::delete('/menu/{id}', [HealthyController::class, 'menu_destroy'])->name('menu.destroy');
+
+
+    Route::post('/change-center', [SettingsController::class, 'changeCenter'])->name('change.center');
+
+
+    Route::post('add-children', [RoomController::class, 'add_new_children'])->name('add_children');
+    Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
 
     Route::get('Observation/getSubjects',[ObservationController::class,'getSubjects'])->name('Observation.getSubjects');
 
@@ -184,7 +210,71 @@ Route::get('Observation/addSubActivity',[ObservationController::class,'getActivi
         Route::post('/profile/change-password/{id}', [SettingsController::class, 'changePassword'])->name('profile.change-password');
     });
 
-    Route::post('/change-center', [SettingsController::class, 'changeCenter'])->name('change.center');
+
+    Route::prefix('observation')->name('observation.')->group(function () {
+     
+        Route::get('/index', [ObservationsController::class, 'index'])->name('index');
+        Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
+        Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
+        Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
+        Route::get('/view', [ObservationsController::class, 'index'])->name('view');
+        Route::get('/print/{id}', [ObservationsController::class, 'index'])->name('print');
+
+
+        Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
+        Route::get('/addnew/{id?}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
+
+
+        Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get.children');
+        Route::get('/get-rooms', [ObservationsController::class, 'getrooms'])->name('get.rooms');
+        Route::post('/store', [ObservationsController::class, 'store'])->name('store');
+        Route::post('/refine-text', [ObservationsController::class, 'refine'])->name('refine.text'); 
+
+        Route::delete('/observation-media/{id}', [ObservationsController::class, 'destroyimage']);
+
+        Route::post('/montessori/store', [ObservationsController::class, 'storeMontessoriData'])->name('montessori.store');
+        Route::post('/eylf/store', [ObservationsController::class, 'storeEylfData'])->name('eylf.store');
+        Route::post('/devmilestone/store', [ObservationsController::class, 'storeDevMilestone'])->name('devmilestone.store');
+        Route::post('/status/update', [ObservationsController::class, 'updateStatus'])->name('status.update');
+        Route::get('/view/{id}', [ObservationsController::class, 'view'])->name('view');
+        Route::get('/observationslink', [ObservationsController::class, 'linkobservationdata']);
+        Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
+        Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
+
+
+
+
+        Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
+        Route::post('/parent/store', [SettingsController::class, 'parent_store'])->name('parent.store');
+
+        Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
+        Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');
+
+
+        Route::get('/profile', [SettingsController::class, 'getprofile_page'])->name('profile');
+        Route::post('/upload-profile-image', [SettingsController::class, 'uploadImage'])->name('upload.profile.image');
+        Route::post('/profile/update/{id}', [SettingsController::class, 'profileupdate'])->name('profile.update');
+        Route::post('/profile/change-password/{id}', [SettingsController::class, 'changePassword'])->name('profile.change-password');
+    });
+
+
+
+
 });
 
 

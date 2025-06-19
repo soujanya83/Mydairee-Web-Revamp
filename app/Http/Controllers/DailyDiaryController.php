@@ -28,6 +28,7 @@ use App\Models\DailyDiaryModel;
 use Illuminate\Support\Carbon;   
 
 
+
 class DailyDiaryController extends Controller
 {
 

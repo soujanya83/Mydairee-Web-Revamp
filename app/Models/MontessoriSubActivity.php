@@ -2,24 +2,41 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MontessoriSubActivity extends Model
 {
-    protected $table = "montessorisubactivity";
+    use HasFactory;
+
+    protected $table = 'montessorisubactivity';
+
+    protected $primaryKey = 'idSubActivity'; // Custom primary key
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     public $timestamps = false;
+
+
     protected $fillable = [
-'idActivity',
-'title',
-'subject',
-'imageUrl',
-'added_by',
-'added_at',
+        'idActivity',
+        'title',
+        'added_by',
     ];
 
-public function activity()
+    // 🔗 Relationship to MontessoriActivity
+    public function activity()
+    {
+        return $this->belongsTo(MontessoriActivity::class, 'idActivity');
+    }
+
+    public function observationLinks()
 {
-    return $this->belongsTo(MontessoriActivity::class, 'idActivity', 'idActivity');
+    return $this->hasMany(ObservationMontessori::class, 'idSubActivity');
 }
- 
+
+public function montessoriLinks()
+{
+    return $this->hasMany(ObservationMontessori::class, 'idSubActivity');
+}
 }
