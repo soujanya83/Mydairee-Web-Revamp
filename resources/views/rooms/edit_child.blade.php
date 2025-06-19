@@ -7,7 +7,7 @@
 
 @section('content')
 
-<div style="">
+<div >
     <h5>Edit Child</h5>
 
     <hr>

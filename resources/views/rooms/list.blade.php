@@ -1,4 +1,39 @@
 @extends('layout.master')
+
+<title>@yield('title','Rooms List')</title>
+
+{{-- @section('parentPageTitle', '') --}}
+
+
+
+@section('content')
+
+<div style="margin-top: -36px;">
+    <h5>Rooms List</h5>
+
+    <form method="GET" action="{{ route('rooms_list') }}" class="d-flex justify-content-end mb-3"
+        style="margin-right:30px;margin-top: -36px;">
+        <div class="btn-group">
+            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false">
+                {{ $centers->firstWhere('id', $centerId)->centerName ?? 'Select Center' }}
+            </button>
+            <div class="dropdown-menu">
+                @foreach ($centers as $center)
+                <button type="submit" name="centerId" value="{{ $center->id }}" class="dropdown-item">
+                    {{ $center->centerName }}
+                </button>
+                @endforeach
+            </div>
+        </div>
+    </form>
+    <hr>
+
+
+    <div class="row clearfix" style="margin-bottom: 43px;">
+        @foreach($getrooms as $room)
+        <div class="col-lg-4 col-md-6 mb-1">
+
 @section('title', 'Rooms')
 @section('parentPageTitle', '')
 
@@ -35,9 +70,6 @@
 
 @section('content')
 
-<<<<<<< HEAD
-<div style="">
-=======
 <div style="margin-top: -36px;">
 
     @if ($errors->any())
@@ -62,7 +94,6 @@
         </button>
     </div>
     @endif
->>>>>>> origin/main
     <h5>Rooms List</h5>
 
 
@@ -101,10 +132,11 @@
     <hr>
 
 
-    {{--
-    <div class="row clearfix" style="margin-bottom: 43px;">
+    
+   {{-- <div class="row clearfix" style="margin-bottom: 43px;">
         @foreach($getrooms as $room)
         <div class="col-lg-4 col-md-6 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
+
             <a href="{{ route('room.children', $room->roomid) }}" style="text-decoration: none; color: inherit;">
                 <div class="card shadow-sm border-0 rounded p-3 hover-shadow">
                     <div class="d-flex justify-content-between align-items-start mb-2">

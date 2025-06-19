@@ -20,6 +20,11 @@ class Child extends Model
                     ->withPivot('relation');
     }
 
+    public function room()
+{
+    return $this->belongsTo(Room::class, 'room');
+}
+
     public function observationChildren()
     {
         return $this->hasMany(ObservationChild::class, 'childId');

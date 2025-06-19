@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 
 class MontessoriActivity extends Model
 {
@@ -22,6 +24,7 @@ class MontessoriActivity extends Model
         'idSubject',
         'title',
         'added_by',
+        'added_at'
     ];
 
     // 🔗 Relationship to MontessoriSubject
@@ -42,6 +45,8 @@ public function subActivities()
     return $this->hasMany(MontessoriSubActivity::class, 'idActivity', 'idActivity');
 }
 
-
-
+    public function parentActivity()
+    {
+        return $this->belongsTo(MontessoriActivity::class, 'parent_id');
+    }
 }

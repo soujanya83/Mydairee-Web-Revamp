@@ -16,12 +16,19 @@
         @stack('before-styles')
 
         <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}">
+
         <link rel="stylesheet" href="{{ asset('assets/vendor/font-awesome/css/font-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.min.css') }}" />
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+          @if (Request::segment(1) === 'announcements' )
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"> -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
+        @endif
 
         @if (Request::segment(2) === 'analytical' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}">
@@ -234,9 +241,9 @@
     <div class="container-fluid">
         <div class="block-header">
             <div class="row">
-                <div class="col-lg-5 col-md-8 col-sm-12">                        
-                    <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class="fa fa-arrow-left"></i></a> @yield('title')</h2>
-                    <ul class="breadcrumb">
+                <div class="col-lg-5 col-md-8 col-sm-12">
+                    <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class=""></i></a> @yield('title')</h2>
+                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard.university')}}"><i class="icon-home"></i></a></li>
                         @if (trim($__env->yieldContent('parentPageTitle')))
                            <li class="breadcrumb-item">@yield('parentPageTitle')</li>
@@ -260,7 +267,7 @@
                 <!-- </div> -->
             </div>
         </div>
-        
+
         @yield('content')
 
     </div>
@@ -272,6 +279,9 @@
         @stack('before-scripts')
 
         <script src="{{ asset('assets/bundles/libscripts.bundle.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
         <script src="{{ asset('assets/bundles/vendorscripts.bundle.js') }}"></script>
 
         <script src="{{ asset('assets/bundles/morrisscripts.bundle.js') }}"></script><!-- Morris Plugin Js -->
@@ -345,6 +355,14 @@
 			<script src="{{ asset('assets/vendor/nestable/jquery.nestable.js') }}"></script>
 			<script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
 			<script src="{{ asset('assets/js/pages/ui/sortable-nestable.js') }}"></script>
+        @endif
+
+         @if (Request::segment(1) === 'announcements' )
+			<script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
+
+			<!-- <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script> -->
+             <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/js/bootstrap-datepicker.min.js"></script> -->
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/js/bootstrap-datepicker.min.js"></script>
         @endif
 
         @if (Request::segment(1) === 'file-manager' && Request::segment(2) === 'dashboard' )
@@ -601,5 +619,7 @@
                 @yield('page-script')
             </script>
 		@endif
+
+        @stack('scripts')
     </body>
 </html>

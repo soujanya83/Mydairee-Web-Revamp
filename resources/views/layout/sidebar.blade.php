@@ -1,11 +1,12 @@
 <div id="left-sidebar" class="sidebar"
     style="background-color: #ffffff;background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
-    <style>
-        .dropdown-menu.account.show {
-            top: 100% !important;
-            left: 0px !important;
-        }
-    </style>
+<style>
+.dropdown-menu.account.show {
+    top: 100% !important;
+    left: 0px !important;
+}
+</style>
+   
     <div class="sidebar-scroll">
         <div class="user-account">
 
@@ -47,7 +48,60 @@
                             <a href="/"><i class="icon-home"></i> <span>Dashboard</span></a>
 
                         </li>
+                           <li class="{{ Request::segment(1) === 'programPlanList' ? 'active' : '' }}">
+                            <a href="/programPlanList">
+                                <i class="far fa-clipboard"></i> <span>Program Plan</span>
+                            </a>
+                        </li>
 
+                        <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
+                            <a href="/ServiceDetails">
+                                <i class="far fa-clipboard"></i> <span>Service Details</span>
+                            </a>
+                        </li>
+
+
+                      
+
+                        <li class="{{ Request::segment(1) === 'dashboard' ? 'active' : null }}">
+                            <a href="{{ route('rooms_list') }}"><i class="icon-home"></i> <span>Rooms</span></a>
+                                {{-- <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
+                                <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a href="{{route('settings.center_settings')}}">Center Settings </a></li>
+                                <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a href="{{route('settings.staff_settings')}}">Staffs Settings </a></li> --}}
+
+                        </li>
+
+                           <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
+                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
+                                <span>Announcements</span></a>
+                            <ul>
+                                <li class="{{ Request::segment(2) === 'list' ? 'active' : null }}"><a
+                                        href="{{route('announcements.list')}}">Announcements</a> </li>
+                                <!-- <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('survey.list')}}">Survey </a></li> -->
+                            </ul>
+
+                        </li>
+
+                        <!-- daily Journel -->
+                            <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
+                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
+                                <span>Daily Journel</span></a>
+                            <ul>
+                                <li class="{{ Request::segment(2) === 'DailyDiary' ? 'active' : null }}"><a
+                                        href="{{route('dailyDiary.list')}}">Daily Diary</a> </li>
+                                <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('dailyDiary.list')}}">Head Checks</a></li>
+                                         <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('dailyDiary.list')}}">Sleep Check List</a></li>
+                                         <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('dailyDiary.list')}}">Accidents</a></li>
+                            </ul>
+
+                        </li>
+                         <!-- Daily journel ends -->
+
+                          <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
                         <li class="{{ Request::segment(1) === 'observation.index' ? 'active' : null }}">
                             <a href="{{route('observation.index')}}"><i class="fa-solid fa-gears"></i><span>Observation</span></a>
                         </li>
