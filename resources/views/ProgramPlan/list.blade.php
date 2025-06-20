@@ -197,3 +197,5 @@ $(document).ready(function() {
 });
 </script>
 @endpush
+
+@include('layout.footer')

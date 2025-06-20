@@ -3,6 +3,46 @@
 @section('parentPageTitle', 'Dashboard')
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
+<style>
+.media-upload-box {
+    border: 2px dashed #007bff;
+    background-color: #f8f9fa;
+    position: relative;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.media-upload-box:hover {
+    background-color: #e9f0ff;
+}
+
+.media-thumb {
+    height: 150px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding: 2px 5px;
+    font-size: 12px;
+}
+
+#mediaPreview .btn {
+    margin-right: 5px;
+    margin-top: 5px;
+}
+.media-thumb {
+    max-height: 200px;
+    object-fit: cover;
+    width: 100%;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+</style>
+
     <style>
         .list-thumbnail.xsmall {
             width: 40px;
@@ -17,7 +57,14 @@
             margin-left: 22px;
             font-size: 15px;
         }
+
+
     </style>
+    <style>
+  .ck-editor__editable_inline {
+    min-height: 300px; /* This is like setting more "rows" */
+  }
+</style>
 @endsection
 
 @section('content')
@@ -38,6 +85,7 @@
     }
 @endphp
 
+
 <main data-centerid="{{ $centerid }}">
     <div class="container-fluid">
         <div class="row">
@@ -46,7 +94,10 @@
                 <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
                     <ol class="breadcrumb pt-0">
                         <li class="breadcrumb-item"><a href="">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="">Announcements List</a></li>
+                        <li class="breadcrumb-item">
+    <a href="{{ route('announcements.list') }}">Announcements List</a>
+</li>
+
                         <li class="breadcrumb-item active" aria-current="page">Manage Announcement</li>
                     </ol>
                 </nav>
@@ -62,7 +113,7 @@
                             <h5 class="card-title">Enter Details</h5>
                         </div>
 
-                        <form action="" method="POST" autocomplete="off">
+                        <form action="{{ route('announcements.store') }}" method="POST" autocomplete="off" enctype="multipart/form-data">
                             @csrf
                             @if ($announcement)
                                 <input type="hidden" name="annId" value="{{ $announcement->id }}">
@@ -79,8 +130,12 @@
                                     <div class="form-group">
                                         <label for="eventDate">Date</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control calendar" name="eventDate" id="eventDate" value=""
- data-date-format="dd-mm-yyyy">
+                                 <input type="text" 
+       class="form-control calendar" 
+       name="eventDate" 
+       value="{{ isset($announcement->eventDate) ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y') : '' }}" 
+       data-date-format="dd-mm-yyyy">
+
                                             <span class="input-group-text input-group-append input-group-addon">
                                                 <i class="simple-icon-calendar"></i>
                                             </span>
@@ -88,13 +143,25 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <button type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-backdrop="static" data-target="#selectChildrenModal">+ Add Children</button>
+                                        <h4>Media Upload Section</h4>
+                                        <div class="media-upload-box p-4 border rounded bg-light text-center">
+         <label for="mediaInput" class="btn btn-outline-primary">
+            Select up to 200kb Images(png,jpeg,jpg)
+        </label>
+        <input type="file" id="mediaInput" name="media[]" class="d-none" multiple accept="image/*">
+        <small class="form-text text-muted mt-2">Only image allowed</small>
+    </div>
+
+    <div id="mediaPreview" class="row mt-4" ></div>
                                     </div>
 
+                                    <div class="form-group">
+                                        <button type="button" class="btn btn-primary mb-1" data-toggle="modal" data-backdrop="static" data-target="#selectChildrenModal">+ Add Children</button>
+                                    </div>
                                     <div class="children-tags">
                                         @forelse ($announcement->children ?? [] as $child)
-                                            <a href="#!" class="rem" data-role="remove" data-child="{{ $child->childid }}">
-                                                <input type="hidden" name="childId[]" value="{{ $child->childid }}">
+                                            <a href="#!" class="rem" data-role="remove" data-child="{{ $child->id }}">
+                                                <input type="hidden" name="childId[]" value="{{ $child->id }}">
                                                 <span class="badge badge-pill badge-outline-primary mb-1">{{ $child->name }} X</span>
                                             </a>
                                         @empty
@@ -172,7 +239,7 @@
 
                     {{-- Children Tab --}}
                     <div class="tab-pane show  active" id="first" role="tabpanel" aria-labelledby="first-tab">
-                        <div class="select-all-box">
+                        <div class="select-all-box" id="select-all-box">
                             <input type="checkbox" id="select-all-child">
                             <label for="select-all-child" id="select-all-child-label">Select All</label>
                         </div>
@@ -269,20 +336,214 @@
     </div>
 </div>
 
+<div aria-live="polite" aria-atomic="true" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 1080;">
+    <div class="toast-container">
+
+        {{-- Validation Errors --}}
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
+                <div class="toast bg-danger text-white mb-2" data-delay="10000">
+                
+                    <div class="toast-body">
+                        {{ $error }}
+                    </div>
+                </div>
+            @endforeach
+        @endif
+
+        {{-- Custom Flash Message 
+        @if (session('status') && session('message'))
+            <div class="toast {{ session('status') === 'success' ? 'bg-success' : 'bg-danger' }} text-white mb-2" data-delay="5000">
+                <div class="toast-header {{ session('status') === 'success' ? 'bg-success' : 'bg-danger' }} text-white">
+                    <strong class="mr-auto">{{ ucfirst(session('status')) }}</strong>
+                    <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    {{ session('message') }}
+                </div>
+            </div>
+        @endif --}}
+
+    
+
+    </div>
+</div>
+
 
 
 
 @endsection
 
 @push('scripts')
+<script>
+let selectedFiles = [];
+
+document.getElementById('mediaInput').addEventListener('change', function (event) {
+    const previewContainer = document.getElementById('mediaPreview');
+    const newFiles = Array.from(event.target.files);
+    const totalFiles = selectedFiles.length + newFiles.length;
+
+    if (totalFiles > 1) {
+        alert("You can upload a maximum of 1 files.");
+        this.value = '';
+        return;
+    }
+
+    newFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        const fileIndex = selectedFiles.length;
+
+        reader.onload = function (e) {
+            const col = document.createElement('div');
+            col.className = 'col-md-3 position-relative mb-3';
+
+            let mediaContent = '';
+
+            if (file.type.startsWith('image/')) {
+                mediaContent = `<img src="${e.target.result}" class="media-thumb rounded">`;
+            } else if (file.type.startsWith('video/')) {
+                mediaContent = `<video src="${e.target.result}" class="media-thumb rounded" controls></video>`;
+            }
+
+            col.innerHTML = `
+                <div class="position-relative">
+                    ${mediaContent}
+                    <button type="button" class="btn btn-danger btn-sm remove-btn" data-index="${fileIndex}">✕</button>
+                </div>
+            `;
+
+            previewContainer.appendChild(col);
+        };
+
+        reader.readAsDataURL(file);
+        selectedFiles.push(file);
+    });
+
+    updateFileInput();
+});
+
+// Remove handler
+document.getElementById('mediaPreview').addEventListener('click', function (e) {
+    if (e.target.classList.contains('remove-btn')) {
+        const index = parseInt(e.target.getAttribute('data-index'));
+        selectedFiles.splice(index, 1);
+        updateFileInput();
+        renderPreview();
+    }
+});
+
+
+// Re-render preview
+function renderPreview() {
+    const preview = document.getElementById('mediaPreview');
+    preview.innerHTML = ''; // clear previous
+
+    selectedFiles.forEach((file, i) => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <span>${file.name}</span>
+            <button type="button" class="remove-btn" data-index="${i}">Remove</button>
+        `;
+        preview.appendChild(div);
+    });
+}
+
+function updateFileInput() {
+    const input = document.getElementById('mediaInput');
+    const dataTransfer = new DataTransfer();
+
+    selectedFiles.forEach(file => dataTransfer.items.add(file));
+    input.files = dataTransfer.files;
+}
+
+
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.toast').toast('show');
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if (session('msg'))
+            Swal.fire({
+                title: 'Success!',
+                text: "{{ session('msg') }}",
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            });
+        @endif
+
+        @if (session('status') === 'error' && session('message'))
+            Swal.fire({
+                title: 'Error!',
+                text: "{{ session('message') }}",
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Close'
+            });
+        @endif
+    });
+</script>
+<script>
+$(document).ready(function () {
+    $('#filter-child').on('keyup', function () {
+        const searchValue = $(this).val().toLowerCase();
+
+        $('.tab-pane').each(function () {
+            let tabHasVisibleChildren = false;
+
+            // Loop each select-all box and its table
+            $(this).find('.select-all-box').each(function () {
+                const $selectAllBox = $(this);
+                const $table = $selectAllBox.next('table');
+                let visibleRows = 0;
+
+                // Filter rows based on name or age
+                $table.find('tr').each(function () {
+                    const label = $(this).find('label').text().toLowerCase();
+                    const isMatch = label.includes(searchValue);
+                    $(this).toggle(isMatch);
+                    if (isMatch) visibleRows++;
+                });
+
+                // Show or hide select-all and table
+                if (visibleRows > 0) {
+                    $selectAllBox.show();
+                    $table.show();
+                    tabHasVisibleChildren = true;
+                } else {
+                    $selectAllBox.hide();
+                    $table.hide();
+                }
+            });
+
+            // Hide the entire tab-pane if no visible children in any section
+            $(this).toggle(tabHasVisibleChildren);
+        });
+    });
+});
+</script>
+
+
+
 
 
  <script>
+
     
 $(document).off('click', '.nav-link').on('click', 'select-children', function(e) {
     e.preventDefault();
     $(this).modal('hide'); // Manually trigger Bootstrap tab
 });
+
+
 
 
       $(document).ready(function() {
@@ -302,27 +563,28 @@ $(document).off('click', '.nav-link').on('click', 'select-children', function(e)
             });
 
 
-   CKEDITOR.replace('about', {
-    height: 150,
-    contentsCss: [
-        'https://cdn.ckeditor.com/4.22.1/full-all/contents.css',
-        'https://ckeditor.com/docs/ckeditor4/4.22.1/examples/assets/mentions/contents.css'
-    ],
-    extraPlugins: 'format,list', // Only if you need plugins not in the build (optional)
-    toolbar: [
-        { name: 'clipboard', items: ['Undo', 'Redo'] },
-        { name: 'basicstyles', items: ['Bold', 'Italic', 'Strike'] },
-        { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
-        { name: 'links', items: ['Link', 'Unlink'] },
-        { name: 'styles', items: ['Format'] }
-    ]
-});
+   ClassicEditor
+        .create(document.querySelector('#about'), {
+            toolbar: [
+                'undo', 'redo', '|',
+                'bold', 'italic', 'strikethrough', '|',
+                'numberedList', 'bulletedList', '|',
+                'link'
+            ],
+            height: '150px' // Note: You need CSS for height in CKEditor 5
+        })
+        .then(editor => {
+            console.log('CKEditor 5 initialized', editor);
+        })
+        .catch(error => {
+            console.error('There was a problem initializing the editor:', error);
+        });
 
 
             $(document).on('click', "#select-all-child", function() {           
                 //check if this checkbox is checked or not
                 if ($(this).is(':checked')) {
-                    alert();
+                    // alert();
                     //check all children
                     var _childid = $('input.common-child');
                     $(_childid).prop('checked', true);
@@ -454,3 +716,4 @@ $(document).off('click', '.nav-link').on('click', 'select-children', function(e)
 
 @endpush
 
+@include('layout.footer')

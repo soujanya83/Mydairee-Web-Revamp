@@ -1839,3 +1839,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @endpush
+
+@include('layout.footer')

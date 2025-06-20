@@ -90,9 +90,11 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 Route::post('Observation/addSubActivity',[ObservationController::class,'addSubActivity'])->name(' Observation.addSubActivity');
 
 Route::get('announcements/list',[AnnouncementController::class,'list'])->name('announcements.list');
-Route::get('announcements/create',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
-Route::get('announcements/store',[AnnouncementController::class,'AnnouncementStore'])->name('announcements.store');
-Route::get('announcements/delete',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.delete');
+Route::get('announcements/create/{id?}',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
+Route::post('announcements/store',[AnnouncementController::class,'AnnouncementStore'])->name('announcements.store');
+Route::delete('announcements/delete',[AnnouncementController::class,'AnnouncementDelete'])->name('announcements.delete');
+Route::get('announcements/view/{annid}',[AnnouncementController::class,'AnnouncementView'])->name('announcements.view');
+
 
 Route::get('surveys/list',[SurveyController::class,'list'])->name('survey.list');
 
