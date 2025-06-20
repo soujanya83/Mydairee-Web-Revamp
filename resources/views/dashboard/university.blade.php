@@ -78,7 +78,6 @@
 </div>
 
 
-
 <div class="row g-3">
     <div class="col-sm-12 col-md-4 col-lg-4 d-flex justify-content-end">
         <div class="weatherPanel">
