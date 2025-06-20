@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+
 class SessionExpired
 {
     public function handle($request, Closure $next)
