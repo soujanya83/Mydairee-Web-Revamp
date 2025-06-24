@@ -60,7 +60,8 @@
                                         href="{{route('settings.staff_settings')}}">Staffs Settings </a></li>
                                 <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}"><a
                                         href="{{route('settings.parent_settings')}}">Parents Settings </a></li>
-
+                                <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}"><a
+                                        href="{{route('settings.manage_permissions')}}">Manage Permissions </a></li>
                             </ul>
 
                         </li>

@@ -12,18 +12,18 @@ class SessionExpired
 {
     public function handle($request, Closure $next)
     {
-        if (Auth::check()) {
-            $lastActivity = session('last_activity_time');
+        // if (Auth::check()) {
+        //     $lastActivity = session('last_activity_time');
 
-            if ($lastActivity && Carbon::now()->diffInMinutes($lastActivity) > config('session.lifetime')) {
-                Auth::logout();
-                session()->flush();
-                return redirect()->route('login')->with('error', 'Session expired. Please log in again.');
-            }
+        //     if ($lastActivity && Carbon::now()->diffInMinutes($lastActivity) > config('session.lifetime')) {
+        //         Auth::logout();
+        //         session()->flush();
+        //         return redirect()->route('login')->with('error', 'Session expired. Please log in again.');
+        //     }
 
-            session(['last_activity_time' => Carbon::now()]);
-        }
+        //     session(['last_activity_time' => Carbon::now()]);
+        // }
 
-        return $next($request);
+        // return $next($request);
     }
 }
