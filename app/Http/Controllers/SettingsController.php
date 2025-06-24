@@ -728,7 +728,7 @@ class SettingsController extends Controller
         $request->validate([
             'imageUrl' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-        $user = auth()->user();
+        $user = auth::user();
 
         if ($request->hasFile('imageUrl')) {
             // Remove old image if exists
