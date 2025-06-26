@@ -1,10 +1,25 @@
 @extends('layout.master')
-@section('title', 'Service Details')
+@section('title', 'Update Service Details')
 @section('parentPageTitle', 'Dashboard')
 
+@section('page-styles')
+<style>
+        .main{
+padding-block:5em;
+padding-inline:2em;
+    }
+    @media screen and (max-width: 600px) {
+    .main{
+padding-block:2em;
+padding-inline:0;
+    }
+}
+</style>
+@endsection
 
 
 @section('content')
+
 @if (session('status'))
     <div class="alert alert-success">
         {{ session('status') }}
@@ -12,9 +27,9 @@
 @endif
 
 <!-- new header content -->
-<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
+<div class="text-zero top-right-button-container d-lg-flex justify-content-end "  style="margin-right: 20px;margin-top: -60px;">
     <div class="dropdown">
-        <button class="btn btn-outline-primary btn-lg dropdown-toggle"
+        <button class="btn btn-outline-info btn-lg dropdown-toggle"
                 type="button" id="centerDropdown" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
@@ -22,7 +37,7 @@
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
             @foreach($centers as $center)
                 <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
                  style="background-color:white;"  data-id="{{ $center->id }}">
                     {{ $center->centerName }}
                 </a>
@@ -31,20 +46,20 @@
     </div>
 </div>
 <!-- ends here -->
-
-<div class="row service-details" style="padding-block:5em;padding-inline:2em;">
+ <hr class="mt-lg-3 mt-sm-3">
+<div class="row service-details main" style="">
     <form method="post" action="{{ route('store.serviceDetails') }}">
       @csrf
       <input type="hidden" name="centerid" value="{{ isset($selectedCenterId) ? $selectedCenterId : '' }}">
 
-  <div class="col-12 service-details-header">
+  <!-- <div class="col-12 service-details-header">
     <div class="d-flex justify-content-between align-items-end flex-wrap">
  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end gap-4">
   <h2 class="mb-0">Service Details</h2>
   <p class="mb-0 text-muted mx-md-4">
     Dashboard <span class="mx-2">|</span> <span>Service Details</span>
   </p>
-</div>
+</div> -->
 
 <!-- Dropdown showing currently selected center -->
 <!-- <div class="btn-group">
@@ -63,10 +78,10 @@
 </div> -->
 
 
-
+<!-- 
     </div>
     <hr class="mt-3">
-  </div>
+  </div> -->
 
   <div class="col-12">
     <!-- SECTION: Service Info -->
@@ -346,7 +361,7 @@
       </div>
     </div>
      <div class="col-1 float-right"> 
-    <button type="submit" class="form-control">save</button>
+    <button type="submit" class="form-control btn-outline-info">save</button>
   </div>
   </div>
 

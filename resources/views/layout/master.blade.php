@@ -10,7 +10,7 @@
         <meta name="description" content="@yield('meta_description', config('app.name'))">
         <meta name="author" content="@yield('meta_author', config('app.name'))">
         @yield('meta')
-<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/MYDIAREE-new-logo.png') }}">
+<link rel="icon" type="image/png" sizes="36x36" href="{{ asset('assets/img/android-icon-36x36.png') }}">
 
         {{-- See https://laravel.com/docs/5.5/blade#stacks for usage --}}
         @stack('before-styles')
@@ -20,12 +20,15 @@
         <link rel="stylesheet" href="{{ asset('assets/vendor/font-awesome/css/font-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.min.css') }}" />
+        <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css')}}" />
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
           @if (Request::segment(1) === 'announcements' )
+          <!-- Replace existing Bootstrap 4.1.1 with this -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
         <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"> -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
         @endif
@@ -358,7 +361,8 @@
         @endif
 
          @if (Request::segment(1) === 'announcements' )
-			<script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
+		<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 			<!-- <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script> -->
              <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/js/bootstrap-datepicker.min.js"></script> -->
@@ -568,7 +572,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+			<script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
 
 
 <script>
@@ -592,7 +597,7 @@
 
 
 <style>
-    
+
     .dropdown-menu .active {
         background-color: #e7f1ff;
         border-left: 3px solid #007bff;
@@ -606,7 +611,7 @@
         top: 3% !important;
         left: 13px !important;
     }
-    
+
 </style>
 
 

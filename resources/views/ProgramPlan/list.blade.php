@@ -9,7 +9,7 @@
 
                     <div class="btn-group mr-1">
                         <div class="dropdown">
-        <button class="btn btn-outline-primary btn-lg dropdown-toggle"
+        <button class="btn btn-outline-info btn-lg dropdown-toggle"
                 type="button" id="centerDropdown" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
@@ -17,7 +17,7 @@
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
             @foreach($centers as $center)
                 <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
                  style="background-color:white;"  data-id="{{ $center->id }}">
                     {{ $center->centerName }}
                 </a>
@@ -33,7 +33,7 @@
 
                     @if($userType != 'Parent')
                  
-                      <a href="{{ route('create.programplan', ['centerid' => $centerId]) }}" class="btn btn-outline-primary" style="margin-left:5px;">
+                      <a href="{{ route('create.programplan', ['centerid' => $centerId]) }}" class="btn btn-outline-info" style="margin-left:5px;">
                             Add ProgramPlan
                         </a>
 
@@ -44,7 +44,7 @@
 <!-- resources/views/program_plan_list.blade.php -->
     
 <main data-centerid="{{ $centerId ?? '' }}" style="padding-block:5em;padding-inline:2em;">
-  <div class="col-12 service-details-header">
+  <!-- <div class="col-12 service-details-header">
     <div class="d-flex justify-content-between align-items-end flex-wrap">
  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end gap-4">
   <h2 class="mb-0">Program Plan</h2>
@@ -57,7 +57,7 @@
 
     </div>
     <hr class="mt-3">
-  </div>   
+  </div>    -->
     <div class="container-fluid">
    
 
@@ -68,7 +68,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered">
+                                <table class="table table-borderless">
                                     <thead>
                                         <tr>
                                             <th class="id-column">ID</th>
@@ -97,17 +97,17 @@
                                                 <td>
                                                     <div class="action-buttons">
                                                         <a href="{{ route('print.programplan', $plan->id) }}" class="btn btn-sm btn-info">
-                                                            <i class="fa-solid fa-print animated-icon"></i> Print
+                                                            <i class="fa-solid fa-print animated-icon"></i> 
                                                         </a>
 
                                                         @if(session('UserType') != 'Parent')
                                                          <a href="{{ route('create.programplan', ['centerId' => $centerId, 'planId' => $plan->id]) }}" class="btn btn-sm btn-primary">
-                                                            <i class="fa-solid fa-pen-to-square animated-icon"></i> Edit
+                                                            <i class="fa-solid fa-pen-to-square animated-icon"></i> 
                                                         </a>
 
 
                                                             <button type="button" class="btn btn-sm btn-danger delete-program" data-id="{{ $plan->id }}">
-                                                                <i class="fa-solid fa-trash animated-icon"></i> Delete
+                                                                <i class="fa-solid fa-trash animated-icon"></i>
                                                             </button>
                                                         @endif
                                                     </div>
@@ -127,6 +127,15 @@
                         </div>
                     </div>
                 </div>
+
+                @if ($programPlans->count())
+    <div class="mt-3 mx-auto">
+        {{ $programPlans->appends(request()->query())->links() }}
+    </div>
+@else
+    <p>No program plans found.</p>
+@endif
+
             </div>
         </div>
 
@@ -197,3 +206,5 @@ $(document).ready(function() {
 });
 </script>
 @endpush
+
+@include('layout.footer')

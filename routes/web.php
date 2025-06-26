@@ -8,6 +8,7 @@ use App\Http\Controllers\DailyDiaryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
+use App\Http\Controllers\HeadChecks;
 use App\Http\Controllers\LessonPlanList;
 use App\Http\Controllers\HealthyController;
 use App\Http\Controllers\SettingsController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\ServiceDetailsController;
 use App\Models\Child;
 use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ReflectionController;
+use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
 
 // Route::get('/', function () {
@@ -91,9 +93,37 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 Route::post('Observation/addSubActivity',[ObservationController::class,'addSubActivity'])->name(' Observation.addSubActivity');
 
 Route::get('announcements/list',[AnnouncementController::class,'list'])->name('announcements.list');
-Route::get('announcements/create',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
-Route::get('announcements/store',[AnnouncementController::class,'AnnouncementStore'])->name('announcements.store');
-Route::get('announcements/delete',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.delete');
+Route::get('announcements/create/{id?}',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
+Route::post('announcements/store',[AnnouncementController::class,'AnnouncementStore'])->name('announcements.store');
+Route::delete('announcements/delete',[AnnouncementController::class,'AnnouncementDelete'])->name('announcements.delete');
+Route::get('announcements/view/{annid}',[AnnouncementController::class,'AnnouncementView'])->name('announcements.view');
+
+// headchecks 
+Route::get('headChecks',[HeadChecks::class,'index'])->name('headChecks');
+Route::post('headchecks/store',[HeadChecks::class,'headchecksStore'])->name('headchecks.store');
+Route::post('headchecks/getCenterRooms',[HeadChecks::class,'getCenterRooms'])->name('headchecks.getCenterRooms');
+Route::post('headcheckdelete',[HeadChecks::class,'headcheckDelete'])->name('headcheck.delete');
+
+// sleep check
+Route::get('sleepcheck/list',[SleepCheckController::class,'getSleepChecksList'])->name('sleepcheck.list');
+Route::post('sleepcheck/save',[SleepCheckController::class,'sleepcheckSave'])->name('sleepcheck.save');
+Route::post('sleepcheck/update',[SleepCheckController::class,'sleepcheckUpdate'])->name('sleepcheck.update');
+Route::post('sleepcheck/delete',[SleepCheckController::class,'sleepcheckDelete'])->name('sleepcheck.delete');
+
+// Accidents
+Route::get('Accidents/list',[AccidentsController::class,'AccidentsList'])->name('Accidents.list');
+Route::post('Accidents/getCenterRooms',[AccidentsController::class,'getCenterRooms'])->name('Accidents.getCenterRooms');
+Route::put('Accidents/update/{id}',[AccidentsController::class,'AccidentsUpdate'])->name('accidents.update');
+Route::get('Accidents/details',[AccidentsController::class,'getAccidentDetails'])->name('Accidents.details');
+Route::post('Accidents/sendEmail',[AccidentsController::class,'sendEmail'])->name('Accidents.sendEmail');
+Route::get('Accidents/create',[AccidentsController::class,'create'])->name('Accidents.create');
+Route::get('Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
+Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
+Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
+
+
+
+
 
 Route::get('surveys/list',[SurveyController::class,'list'])->name('survey.list');
 
@@ -205,12 +235,17 @@ Route::get('Observation/addSubActivity',[ObservationController::class,'getActivi
 
         Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
         Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
+        Route::put('/settings/update-permissions/{user}', [SettingsController::class, 'updateUserPermissions'])->name('update_user_permissions');
 
 
 
 
         Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
+        Route::get('/manage_permissions', [SettingsController::class, 'manage_permissions'])->name('manage_permissions');
+        Route::get('user/permissions', [SettingsController::class, 'user_permissions'])->name('allusers_permissions');
         Route::post('/parent/store', [SettingsController::class, 'parent_store'])->name('parent.store');
+        Route::post('/assign-permissions', [SettingsController::class, 'assign_user_permissions'])->name('assign_permissions');
+        Route::get('permissions-assigned', [SettingsController::class, 'assigned_permissions'])->name('assigned_permissions');
 
         Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
         Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');

@@ -25,43 +25,36 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Illuminate\Pagination\Paginator;
+
 
 
 
 class LessonPlanList extends Controller
 {
 
-    public function programPlanList(Request $request)
+public function programPlanList(Request $request)
 {
     if (Auth::check()) {
         $user = Auth::user();
-        // dd($user);
-        // $userId = $user->id;
-        // $userType = $user->user_type;
-        // $centerIds = session('centerIds', []);
-        // $centerId = $request->query('centerid') ?? ($centerIds[0]->id ?? 0);
-        // $centerId = session('user_center_id');
-        // dd($centerId);
+        $authId = $user->id;
+        $centerId = Session('user_center_id');
 
-          $authId = Auth::user()->id; 
-    $centerId = Session('user_center_id');
+        if ($user->userType == "Superadmin") {
+            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
+        } else {
+            $centers = Center::where('id', $centerId)->get();
+        }
 
-      if(Auth::user()->userType == "Superadmin"){
-    $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
- 
-    $centers = Center::whereIn('id', $center)->get();
-//    dd($centers);
-     }else{
-    $centers = Center::where('id', $centerId)->get();
-     }
         $programPlans = [];
 
-        if (Auth::user()->userType === 'Superadmin') {
+        if ($user->userType === 'Superadmin') {
             $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
                 ->where('centerid', $centerId)
                 ->orderByDesc('created_at')
-                ->get();
-        } elseif (Auth::user()->userType === 'Staff') {
+                ->paginate(10);
+        } elseif ($user->userType === 'Staff') {
             $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
                 ->where('centerid', $centerId)
                 ->where(function ($query) use ($authId) {
@@ -69,8 +62,8 @@ class LessonPlanList extends Controller
                           ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
                 })
                 ->orderByDesc('created_at')
-                ->get();
-        } elseif (Auth::user()->userType === 'Parent') {
+                ->paginate(10);
+        } elseif ($user->userType === 'Parent') {
             $childIds = ChildParent::where('parentid', $authId)->pluck('childid');
 
             if ($childIds->isNotEmpty()) {
@@ -82,11 +75,11 @@ class LessonPlanList extends Controller
                         }
                     })
                     ->orderByDesc('created_at')
-                    ->get();
+                    ->paginate(10);
             }
         }
 
-        // Helper function for month name
+        // Month name helper
         $getMonthName = function ($monthNumber) {
             $months = [
                 1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
@@ -96,14 +89,17 @@ class LessonPlanList extends Controller
             return $months[$monthNumber] ?? '';
         };
 
-        $userType = Auth::user()->userType;
+        $userType = $user->userType;
         $userId = $authId;
-        //   dd($programPlans);
-        return view('programPlan.list', compact('programPlans', 'userType', 'userId', 'centerId','centers', 'getMonthName'));
+
+        return view('programPlan.list', compact(
+            'programPlans', 'userType', 'userId', 'centerId', 'centers', 'getMonthName'
+        ));
     } else {
         return redirect('login');
     }
 }
+
 
 public function programPlanPrintPage($id)
 {

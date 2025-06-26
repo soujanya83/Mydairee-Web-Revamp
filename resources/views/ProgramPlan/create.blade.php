@@ -1,32 +1,32 @@
 @extends('layout.master')
-@section('title', 'Program Plan')
+@section('title', 'Create Program Plan')
 @section('parentPageTitle', 'Dashboard')
 
 @section('content')
-   <div style="display: flex; justify-content: space-between; align-items: center;"> 
+<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
     <h5></h5>
     <div style="margin:5px;">
-    <button class="btn btn-outline-primary" id="addActivityBtn">Add Activity</button>&nbsp;
-        <button class="btn btn-outline-primary" id="addSubActivityBtn">Add Sub-Activity</button>
+    <button class="btn btn-outline-info" id="addActivityBtn">Add Activity</button>&nbsp;
+        <button class="btn btn-outline-info" id="addSubActivityBtn">Add Sub-Activity</button>
 </div>
     </div>
-    <main data-centerid="<?= isset($centerId)?$centerId:null; ?>">
+    <main data-centerid="<?= isset($centerId)?$centerId:null; ?>" style="padding-block:5em;padding-inline:2em;">
   
 
-     <div class="col-12 service-details-header">
+     <!-- <div class="col-12 service-details-header">
     <div class="d-flex justify-content-between align-items-end flex-wrap">
- <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end gap-4">
-  <h2 class="mb-0">Create Program Plan</h2>
-  <!-- <p class="mb-0 text-muted mx-md-4">
+ <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end gap-4"> 
+ <h2 class="mb-0">Create Program Plan</h2> 
+ <p class="mb-0 text-muted mx-md-4">
     Dashboard <span class="mx-2">|</span> <span>Create Program Plan</span>
-  </p> -->
+  </p> 
 </div>
 
 
 
-    </div>
+     </div>
     <hr class="mt-3">
-  </div>   
+   </div>     -->
 
  
 
@@ -126,7 +126,7 @@
           <div class="input-group">
        <textarea class="form-control" id="practical_life" name="practical_life" rows="3" readonly><?= isset($plan_data) ? $plan_data->practical_life : '' ?></textarea>
          <div class="input-group-append">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#practicalLifeModal">
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#practicalLifeModal">
             <i class="fa fa-search"></i> Select Activities
         </button>
              </div>
@@ -143,7 +143,7 @@
 <div class="input-group">
     <textarea class="form-control" id="sensorial" name="sensorial" rows="3" readonly><?= isset($plan_data) ? $plan_data->sensorial : '' ?></textarea>
     <div class="input-group-append">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#sensorialModal">
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#sensorialModal">
             <i class="fa fa-search"></i> Select Activities
         </button>
     </div>
@@ -160,7 +160,7 @@
 <div class="input-group">
     <textarea class="form-control" id="math" name="math" rows="3" readonly><?= isset($plan_data) ? $plan_data->math : '' ?></textarea>
     <div class="input-group-append">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mathModal">
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#mathModal">
             <i class="fa fa-search"></i> Select Activities
         </button>
     </div>
@@ -176,7 +176,7 @@
 <div class="input-group">
     <textarea class="form-control" id="language" name="language" rows="3" readonly><?= isset($plan_data) ? $plan_data->language : '' ?></textarea>
     <div class="input-group-append">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#languageModal">
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#languageModal">
             <i class="fa fa-search"></i> Select Activities
         </button>
     </div>
@@ -192,7 +192,7 @@
 <div class="input-group">
     <textarea class="form-control" id="culture" name="culture" rows="3" readonly><?= isset($plan_data) ? $plan_data->culture : '' ?></textarea>
     <div class="input-group-append">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#cultureModal">
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#cultureModal">
             <i class="fa fa-search"></i> Select Activities
         </button>
     </div>
@@ -224,7 +224,7 @@
     <div class="input-group">
     <textarea class="form-control" id="eylf" name="eylf" rows="3" ><?= isset($plan_data) ? $plan_data->eylf : '' ?></textarea>
         <div class="input-group-append">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#eylfModal">
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#eylfModal">
                 <i class="fa fa-search"></i> Select EYLF
             </button>
         </div>
@@ -282,13 +282,13 @@
                 <?php if(isset($plan_data) && $plan_data): ?>
                    
                     <div class="form-group">
-        <button type="submit" class="btn btn-primary" id="updateBtn">Update</button>
+        <button type="submit" class="btn btn-info" id="updateBtn">Update</button>
        &nbsp;&nbsp;&nbsp; <button type="button" class="btn btn-info" style="background-color:#2eefb7;border-color:#2eefb7;color:black;" id="saveAsNewBtn">Save as New Data</button>
     </div>
 
                 <?php else: ?>
                     <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-info">Submit</button>
                 </div>
                 <?php endif; ?>
                 
@@ -1839,3 +1839,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @endpush
+
+@include('layout.footer')

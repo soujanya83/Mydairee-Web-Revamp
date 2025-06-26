@@ -79,4 +79,9 @@ public function reflections()
     return $this->hasMany(ReflectionStaff::class, 'staffid');
 }
 
+
+public function parents()
+{
+    return $this->belongsToMany(User::class, 'childparent', 'childid', 'parentid', 'childid', 'userid');
+}
 }

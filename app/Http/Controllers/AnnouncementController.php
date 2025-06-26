@@ -20,251 +20,166 @@ use Carbon\Carbon;
 
 class AnnouncementController extends Controller
 {
- public function list(Request $request)
+//  public function list(Request $request)
+// {
+//     $centerId = Session::get('user_center_id');
+//       if(Auth::user()->userType == "Superadmin"){
+  
+//     $user = Auth::user();
+//     $userId = $user->userid;
+//     $userType = $user->userType;
+
+//     $announcements = collect();
+//     $permissions = null;
+
+//       $center = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
+ 
+//     $centers = Center::whereIn('id', $center)->get();
+//      }
+//      else{
+//     $centers = Center::where('id', $centerId)->get();
+//      }
+
+//     if ($userType === 'Staff') {
+
+//         if (is_null($userId) && !is_null($centerId)) {
+//             $announcements = AnnouncementsModel::where('centerid', $centerId)
+//                 ->orderByDesc('id')
+//                 ->get();
+//         } else {
+//             $announcements = AnnouncementsModel::where('createdBy', $userId)
+//                 ->where('centerid', $centerId)
+//                 ->orderByDesc('id')
+//                 ->get();
+//         }
+
+//         // dd($userId);
+
+
+//     } elseif ($userType === 'Superadmin') {
+
+//         if (is_null($userId) && !is_null($centerId)) {
+//             $announcements = AnnouncementsModel::where('centerid', $centerId)
+//                 ->orderByDesc('id')
+//                 ->get();
+//         } else {
+//             $announcements = AnnouncementsModel::where('createdBy', $userId)
+//                 ->where('centerid', $centerId)
+//                 ->orderByDesc('id')
+//                 ->get();
+//         }
+
+//     } else {
+//         // For parents or other roles
+//         $childs = ChildParent::where('parentid', $userId)->get();
+
+//         foreach ($childs as $child) {
+//             $childId = $child->childid;
+
+//             $results = AnnouncementsModel::select('announcement.*')
+//                 ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
+//                 ->where('announcementchild.childid', $childId)
+//                 ->orderByDesc('announcement.id')
+//                 ->get();
+
+//             $announcements = $announcements->merge($results);
+//         }
+//     }
+
+//     // Attach createdBy name
+//     foreach ($announcements as $announcement) {
+//         $creator = User::where('userid', $announcement->createdBy)->first();
+//         $announcement->createdBy = $creator->name ?? 'Not Available';
+//     }
+
+    
+//         $permissions = PermissionsModel::where('userid', $userId)
+//             ->where('centerid', $centerId)
+//             ->first();
+
+//     $records = $announcements;
+//      $selectedCenter = $centerId;
+//     return view('Announcement.list', compact(
+//     'records',
+//     'permissions',
+//     'centers',
+//     'centerId',
+//     'userType'
+// ));
+
+// }
+
+public function list(Request $request)
 {
     $centerId = Session::get('user_center_id');
-      if(Auth::user()->userType == "Superadmin"){
-  
     $user = Auth::user();
     $userId = $user->userid;
     $userType = $user->userType;
-
-    $announcements = collect();
     $permissions = null;
 
-      $center = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
- 
-    $centers = Center::whereIn('id', $center)->get();
-     }
-     else{
-    $centers = Center::where('id', $centerId)->get();
-     }
-
-    if ($userType === 'Staff') {
-
-        if (is_null($userId) && !is_null($centerId)) {
-            $announcements = AnnouncementsModel::where('centerid', $centerId)
-                ->orderByDesc('id')
-                ->get();
-        } else {
-            $announcements = AnnouncementsModel::where('createdBy', $userId)
-                ->where('centerid', $centerId)
-                ->orderByDesc('id')
-                ->get();
-        }
-
-        $permissions = PermissionsModel::where('userid', $userId)
-            ->where('centerid', $centerId)
-            ->get();
-
-    } elseif ($userType === 'Superadmin') {
-
-        if (is_null($userId) && !is_null($centerId)) {
-            $announcements = AnnouncementsModel::where('centerid', $centerId)
-                ->orderByDesc('id')
-                ->get();
-        } else {
-            $announcements = AnnouncementsModel::where('createdBy', $userId)
-                ->where('centerid', $centerId)
-                ->orderByDesc('id')
-                ->get();
-        }
-
+    if ($userType === "Superadmin") {
+        $centerIds = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
+        $centers = Center::whereIn('id', $centerIds)->get();
     } else {
-        // For parents or other roles
-        $childs = ChildParent::where('parentid', $userId)->get();
-
-        foreach ($childs as $child) {
-            $childId = $child->childid;
-
-            $results = AnnouncementsModel::select('announcement.*')
-                ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
-                ->where('announcementchild.childid', $childId)
-                ->orderByDesc('announcement.id')
-                ->get();
-
-            $announcements = $announcements->merge($results);
-        }
+        $centers = Center::where('id', $centerId)->get();
     }
 
-    // Attach createdBy name
-    foreach ($announcements as $announcement) {
+    // Fetch announcements with pagination
+    if ($userType === 'Staff' || $userType === 'Superadmin') {
+        $query = AnnouncementsModel::with('creator') // optional relationship
+            ->where('centerid', $centerId);
+
+        if ($userType === 'Staff') {
+            $query->where('createdBy', $userId);
+        }
+
+        $records = $query->orderByDesc('id')->paginate(10); // ✅ Pagination applied
+    } else {
+        // For Parents or other roles - get related children announcements
+        $childIds = ChildParent::where('parentid', $userId)->pluck('childid');
+
+        $records = AnnouncementsModel::select('announcement.*')
+            ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
+            ->whereIn('announcementchild.childid', $childIds)
+            ->orderByDesc('announcement.id')
+            ->paginate(10); // ✅ Pagination here too
+    }
+
+    // Attach creator name manually if needed
+    foreach ($records as $announcement) {
         $creator = User::where('userid', $announcement->createdBy)->first();
         $announcement->createdBy = $creator->name ?? 'Not Available';
     }
 
-    // dd($userType);
+    // Permissions
+    $permissions = PermissionsModel::where('userid', $userId)
+        ->where('centerid', $centerId)
+        ->first();
 
-    return view('Announcement.list', [
-        'records' => $announcements,
-        'permissions' => $permissions,
-        'centers' => $centers,
-        'selectedCenter' => $centerId,
-        'userType' => $userType
-    ]);
+    return view('Announcement.list', compact(
+        'records',
+        'permissions',
+        'centers',
+        'centerId',
+        'userType'
+    ));
 }
 
-// public function AnnouncementCreate(Request $request)
-// {
-//     $announcement = null;
-//      $centerid = Session('user_center_id');
-
-//     // Get center ID
-//     $centerid = $request->query('centerid');
-//     if (!$centerid) {
-//         $center = session('centerIds');
-//         $centerid = $center[0]->id ?? null;
-//     }
 
 
-
-//     // get children
-
-
-//     if (isset($updatedHeaders['X-Device-Id'], $updatedHeaders['X-Token'])) {
-       
-
-      
-
-//         if ($json && $res && $res->userid == $json->userid) {
-//             $childrenList = [];
-//             // $childs = Children::getChildsFromCenter($json->centerid);
-//           $childs = DB::table('child as c')
-//     ->join('room as r', 'c.room', '=', 'r.id')
-//     ->select('c.*', 'r.*', 'c.name as name', 'c.id as childid')
-//     ->where('r.centerid', $centerid)
-//     ->get();
-
-//         	$checkChildInAnmnt = $this->db->get_where('announcementchild', array("aid"=>$annid,"childid"=>$childid));
-
-//             foreach ($childs as $childobj) {
-//                 $dob = Carbon::parse($childobj->dob);
-//                 $now = Carbon::now();
-//                 $childrenList[] = [
-//                     'childid' => $childobj->childid,
-//                     'name' => $childobj->name . " " . $childobj->lastname,
-//                     'imageUrl' => $childobj->imageUrl,
-//                     'dob' => $dob->format('d-m-Y'),
-//                     'age' => $dob->diff($now)->format('%y years %m months'),
-//                     'gender' => $childobj->gender,
-//                     'checked' => isset($json->annId) && $checkChildInAnmnt
-//                 ];
-
-
-//             }
-
-//             // Groups
-//             $groupsList = [];
-//             // $childGroups = Children::getChildGroups($json->centerid);
-//             if ($centerid) {
-// 			$childGroups = $this->db->get_where('child_group',array('centerid'=>$centerid));
-// 		}else{
-// 			$childGroups = $this->db->get('child_group');
-// 		}
-//             foreach ($childGroups as $group) {
-//                 $groupChildren = [];
-//                 // $groupChilds = Children::getChildsFromGroups($group->id);
-//                 $groupChilds = Child::join('child_group_member', 'child.id', '=', 'child_group_member.child_id')
-//     ->where('child_group_member.group_id', $groupId)
-//     ->select('child.*', 'child_group_member.*') // Adjust as needed
-//     ->get();
-
-//                 foreach ($groupChilds as $child) {
-//                     $dob = Carbon::parse($child->dob);
-//                     $groupChildren[] = [
-//                         'childid' => $child->id,
-//                         'name' => $child->name . " " . $child->lastname,
-//                         'imageUrl' => $child->imageUrl,
-//                         'dob' => $dob->format('d-m-Y'),
-//                         'age' => $dob->diff($now)->format('%y years %m months'),
-//                         'gender' => $child->gender,
-//                         'checked' => isset($json->annId) && $checkChildInAnmnt  ];
-//                 }
-//                 $groupsList[] = [
-//                     'groupid' => $group->id,
-//                     'name' => $group->name,
-//                     'childrens' => $groupChildren
-//                 ];
-//             }
-
-//             // Rooms
-//             $roomsList = [];
-    
-//            $rooms = DB::table('room')
-//     ->where('centerid', $centerid)
-//     ->get();
-//             foreach ($rooms as $room) {
-//                 $roomChildren = [];
-             
-//                 $roomChilds = Child::join('room', 'child.room', '=', 'room.id')
-//     ->where('room.id', $roomid)
-//     ->select('child.*', 'room.*', 'child.id as childid', 'child.name as name')
-//     ->get();
-//                 foreach ($roomChilds as $child) {
-//                     $dob = Carbon::parse($child->dob);
-//                     $roomChildren[] = [
-//                         'childid' => $child->childid,
-//                         'name' => $child->name . " " . $child->lastname,
-//                         'imageUrl' => $child->imageUrl,
-//                         'dob' => $dob->format('d-m-Y'),
-//                         'age' => $dob->diff($now)->format('%y years %m months'),
-//                         'gender' => $child->gender,
-//                         'checked' => isset($json->annId) && $checkChildInAnmnt];
-//                 }
-//                 $roomsList[] = [
-//                     'roomid' => $room->id,
-//                     'name' => $room->name,
-//                     'childrens' => $roomChildren
-//                 ];
-//             }
-
-
-//         } else {
-            
-//         }
-//     }
-
-  
-//     // get children ends 
-
-
-//         if (Auth::user()->userType === 'Superadmin') {
-//             $permissions = null;
-//         } else {
-
-//             // Custom method
-//                 $permissions = Permission::where('userid', Auth::user()->userid)
-//             ->where('centerid', $centerid)
-//             ->get();
-
-         
-        
-    
-
-
-           
-//         }
-
-
-  
-    
-
-    
-
-//     // Optional fallback for other statuses
-
-
-//     return view('Announcement.create', compact('announcement','centerid'));
-// }
-
-public function AnnouncementCreate(Request $request)
+public function AnnouncementCreate(Request $request,$announcementid=null)
 {
     $announcement = null;
-    $centerid = $request->centerid;
+    
+    $centerid = Session('user_center_id');
 
     $Childrens = [];
     $Groups = [];
     $Rooms = [];
+
+    if($announcementid){
+        $announcement = AnnouncementsModel::find($announcementid);
+    }
 
 
         // Children List
@@ -279,9 +194,9 @@ public function AnnouncementCreate(Request $request)
         foreach ($childs as $childobj) {
             $dob = Carbon::parse($childobj->dob);
             $checked = false;
-            if (isset($json->annId)) {
+            if (isset($announcementid)) {
                 $check = DB::table('announcementchild')
-                    ->where('aid', $json->annId)
+                    ->where('aid', $announcementid)
                     ->where('childid', $childobj->childid)
                     ->exists();
                 $checked = $check;
@@ -314,9 +229,9 @@ public function AnnouncementCreate(Request $request)
             foreach ($groupChilds as $child) {
                 $dob = Carbon::parse($child->dob);
                 $checked = false;
-                if (isset($json->annId)) {
+                if (isset($announcementid)) {
                     $check = DB::table('announcementchild')
-                        ->where('aid', $json->annId)
+                        ->where('aid', $announcementid)
                         ->where('childid', $child->id)
                         ->exists();
                     $checked = $check;
@@ -389,7 +304,7 @@ public function AnnouncementCreate(Request $request)
             ->where('centerid', $centerid)
             ->get();
 
-            // dd($Rooms);
+            // dd($announcement);
 
     return view('Announcement.create', compact(
         'announcement',
@@ -402,57 +317,248 @@ public function AnnouncementCreate(Request $request)
 }
 
 
+public function AnnouncementStore(Request $request)
+{
 
-public function addNew()
-	{
-		if($this->session->has_userdata('LoginId')){
-			if (isset($_GET['centerid'])) {
-		    	$centerid = strip_tags(trim(stripslashes($_GET['centerid'])));
-		    }else{
-		    	$center = $this->session->userdata("centerIds");
-				$centerid = $center[0]->id;
-		    }
-		    $data['centerid'] = $centerid;
-			$data['userid'] = $this->session->userdata('LoginId');
-			$url = BASE_API_URL."Announcements/getChildRecords/";
-			$ch = curl_init($url);
-			curl_setopt($ch, CURLOPT_URL,$url);
-			curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-				'X-Device-Id: '.$this->session->userdata('X-Device-Id'),
-				'X-Token: '.$this->session->userdata('AuthToken')
-			));
+    // dd($request->all());
+    $request->validate([
+        'title'      => 'required|string|max:255',
+        'text'       => 'required|string',
+        'eventDate'  => 'nullable|date_format:d-m-Y',
+        'childId'    => 'required|array',
+        'childId.*'  => 'required|numeric|exists:child,id',
+        'media'      => 'nullable|array',
+        'media.*'    => 'file|mimes:jpeg,jpg,png|max:200', // 200KB per image
+    ], [
+        'childId.required' => 'Children are required.',
+        'text.required'    => 'Description is required.',
+        'media.*.max'      => 'Each image must be under 200KB.',
+        'media.*.mimes'    => 'Only JPG, JPEG, PNG files are allowed.',
+    ]);
 
-			$server_output = curl_exec($ch);
-			$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);			
-			if($httpcode == 200){
-				$jsonOutput = json_decode($server_output);
-				curl_close ($ch);
-				$usertype = $this->session->userdata('UserType');
-				if ($usertype == "Superadmin") {
-					$jsondata = [];
-					$jsondata = $jsonOutput;
-					$jsondata->Permissions = NULL;
-				} else {
-					$jsondata = $jsonOutput;
-					$perInfo = $this->getPermission($data['userid'],$data['centerid']);
-					$permissions = json_decode($perInfo);
-					$jsondata->Permissions = $permissions->Permissions;
-				}
-				$jsondata->centerid = $centerid;
-			    $this->load->view('announcementForm_v3',$jsondata);
-			}
-			
-			if($httpcode == 401){ redirect('Welcome'); }
+    try {
+        $userid = Auth::user()->userid;
+        $centerid = session('user_center_id');
+        $announcementId = null;
 
-		}else{
-			redirect('Welcome');
-		}
-	}
+        // Format date
+        $eventDate = empty($request->eventDate)
+             ? now()->addDay()->format('Y-m-d')
+            : Carbon::createFromFormat('d-m-Y', $request->eventDate)->format('Y-m-d');
 
-    public function AnnouncementStore(){
-            die('here');
+        $role = Auth::user()->userType;
+        $run = 0;
+        $status = 'Pending';
+
+        // Permissions
+        if ($role === "Superadmin") {
+            $run = 1;
+            $status = "Sent";
+        } elseif ($role === "Staff") {
+            $permission = \App\Models\PermissionsModel::where('userid', $userid)
+                ->where('centerid', $centerid)
+                ->first();
+
+            if ($permission && ($permission->addAnnouncement || $permission->updateAnnouncement)) {
+                $run = 1;
+                $status = $permission->approveAnnouncement ? "Sent" : "Pending";
+            }
+        }
+
+        if ($run !== 1) {
+            return redirect()->back()->with([
+                'status' => 'error',
+                'message' => 'Permission Denied!',
+            ]);
+        }
+
+        $mediaFiles = [];
+
+        // Store new files (in public/assets/media)
+        if ($request->hasFile('media')) {
+            foreach ($request->file('media') as $file) {
+                $filename = uniqid() . '_' . $file->getClientOriginalName();
+                $destinationPath = public_path('assets/media');
+                $file->move($destinationPath, $filename);
+                $mediaFiles[] = $filename;
+            }
+        }
+
+        // UPDATE
+        if ($request->annId) {
+            $announcement = \App\Models\AnnouncementsModel::find($request->annId);
+
+            if (!$announcement) {
+                return redirect()->back()->with([
+                    'status' => 'error',
+                    'message' => 'Announcement not found!',
+                ]);
+            }
+
+            // Remove old media if new media uploaded
+            if (!empty($mediaFiles) && $announcement->announcementMedia) {
+                $oldMedia = json_decode($announcement->announcementMedia, true);
+                foreach ($oldMedia as $oldFile) {
+                    $filePath = public_path('assets/media/' . $oldFile);
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
+                }
+            }
+
+            $announcement->update([
+                'title'             => $request->title,
+                'eventDate'         => $eventDate,
+                'text'              => $request->text,
+                'status'            => $status,
+                'announcementMedia' => !empty($mediaFiles) ? json_encode($mediaFiles) : $announcement->announcementMedia,
+            ]);
+
+            $announcementId = $announcement->id;
+
+            \App\Models\AnnouncementChildModel::where('aid', $announcementId)->delete();
+        } 
+        // CREATE
+        else {
+            $announcement = \App\Models\AnnouncementsModel::create([
+                'title'             => $request->title,
+                'text'              => $request->text,
+                'eventDate'         => $eventDate,
+                'status'            => $status,
+                'createdBy'         => $userid,
+                'centerid'          => $centerid,
+                'createdAt'         => now(),
+                'announcementMedia' => json_encode($mediaFiles),
+            ]);
+
+            if (!$announcement) {
+                return redirect()->back()->with([
+                    'status' => 'error',
+                    'message' => 'Failed to create announcement!',
+                ]);
+            }
+
+            $announcementId = $announcement->id;
+        }
+
+        // Link children
+        foreach ($request->childId as $childId) {
+            if (!empty($childId)) {
+                \App\Models\AnnouncementChildModel::create([
+                    'aid'     => $announcementId,
+                    'childid' => $childId,
+                ]);
+            }
+        }
+
+        return redirect()->back()->with([
+            'status' => 'success',
+            'msg' => $request->annId ? 'Announcement updated successfully' : 'Announcement created successfully',
+        ]);
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with([
+            'status' => 'error',
+            'message' => 'Something went wrong! ' . $e->getMessage(),
+        ]);
     }
+}
+
+
+
+public function AnnouncementView(Request $request)
+{
+    // dd('here');
+   $announcementId = $request->annid;
+
+//    dd($announcementId);
+
+   if (empty($announcementId)) {
+    return redirect()->back()->with([
+        'status' => 'error',
+        'message' => 'Invalid announcement ID!'
+    ]);
+}
+
+
+    $announcementInfo = AnnouncementsModel::find($announcementId);
+    // dd($announcementInfo);
+
+   if (!$announcementInfo) {
+    return redirect()->back()->with([
+        'status' => 'error',
+        'message' => "Announcement record doesn't exist!"
+    ]);
+}
+
+
+    $type = Auth::user()->userType; // Replace with actual logic if you have userType stored
+
+    $permission = null;
+    if ($type === 'Staff') {
+        $permission = PermissionsModel::where('userid', Auth::user()->userid)
+            ->where('centerid', $announcementInfo->centerid)
+            ->first();
+    }
+
+   $user = User::where('userid', $announcementInfo->createdBy)->first();
+
+    $announcementInfo->username = $user->name ?? 'Unknown';
+
+    return view('Announcement.view',[
+        'Status' => 'SUCCESS',
+        'Info' => $announcementInfo,
+        'Permissions' => $permission,
+        'centerid' => $announcementInfo->centerid
+    ]);
+}
+
+
+
+public function AnnouncementDelete(Request $request)
+{
+    $announcementId = $request->announcementid;
+
+    if (!$announcementId) {
+        return redirect()->back()->with('msg', 'Error! Invalid Announcement ID.');
+    }
+
+    $userid = Auth::user()->userid;
+    $role = Auth::user()->userType;
+
+    $announcementInfo = AnnouncementsModel::find($announcementId);
+
+    if (!$announcementInfo) {
+        return redirect()->back()->with('msg', 'Error! Announcement not found.');
+    }
+
+    $centerid = $announcementInfo->centerid;
+    $run = 0;
+
+    // Role-based permission check
+    if ($role === "Superadmin") {
+        $run = 1;
+    } elseif ($role === "Staff") {
+        $permission = PermissionsModel::where('userid', $userid)
+            ->where('centerid', $centerid)
+            ->first();
+
+        if ($permission && $permission->deleteAnnouncement == 1) {
+            $run = 1;
+        }
+    }
+
+    if ($run === 1) {
+        // Delete child records and announcement
+        AnnouncementChildModel::where('aid', $announcementId)->delete();
+        AnnouncementsModel::where('id', $announcementId)->delete();
+
+        return redirect()->back()->with('msg', 'Success! Announcement deleted successfully.');
+    }
+
+    return redirect()->back()->with('msg', 'Error! Permission Denied.');
+}
+ 
+
 
 }

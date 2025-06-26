@@ -17,10 +17,16 @@ class AnnouncementsModel extends Model
 'centerid',
 'createdBy',
 'createdAt',
+'announcementMedia'
     ];
 
 public function children()
 {
     return $this->belongsToMany(Child::class, 'announcementchild', 'aid', 'childid');
+}
+
+public function creator()
+{
+    return $this->belongsTo(User::class, 'createdBy', 'userid');
 }
 }

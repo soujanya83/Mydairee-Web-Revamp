@@ -4,19 +4,142 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Models\User; 
-use App\Models\Center; 
-use App\Models\Usercenter; 
-use App\Models\Child; 
-use App\Models\Childparent; 
+use App\Models\User; // Add this at the top if not already added
+use App\Models\Center; // Add this at the top if not already added
+use App\Models\Usercenter; // Add this at the top if not already added
+use App\Models\Child; // Add this at the top if not already added
+use App\Models\Childparent; // Add this at the top if not already added
+use App\Models\Permission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
-
-
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class SettingsController extends Controller
 {
+
+    public function updateUserPermissions(Request $request, $userId)
+    {
+        $permissions = $request->input('permissions', []);
+        $allColumns = Schema::getColumnListing('permissions');
+
+        // Exclude non-permission columns
+        $exclude = ['id', 'userid', 'created_at', 'updated_at'];
+        $permissionCols = array_diff($allColumns, $exclude);
+
+        // Find or create record
+        $permissionRow = Permission::where('userid', $userId)->first();
+
+        $data = ['userid' => $userId];
+
+        foreach ($permissionCols as $col) {
+            $data[$col] = isset($permissions[$col]) ? 1 : 0;
+        }
+
+        if ($permissionRow) {
+           Permission::where('userid', $userId)->update($data);
+        } else {
+           Permission::insert($data);
+        }
+
+        return redirect()->back()->with('success', 'Permissions updated successfully!');
+    }
+
+
+
+    //   function assigned_permissions()
+    // {
+    //     $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
+
+    //     $assignedUserList = User::select('users.id', 'users.name')
+    //         ->join('permissions', 'permissions.userid', '=', 'users.id')
+    //         ->distinct()
+    //         ->get()
+    //         ->map(function ($user, $index) use ($colors) {
+    //             $user->colorClass = $colors[$index % count($colors)];
+    //             return $user;
+    //         });
+
+    //     return view('settings.assigned_permissions_list', compact('assignedUserList'));
+    // }
+
+
+    function assigned_permissions()
+    {
+        $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
+
+        $assignedUserList = User::select('users.id', 'users.name')
+            ->join('permissions', 'permissions.userid', '=', 'users.id')
+            ->distinct()
+            ->get()
+            ->map(function ($user, $index) use ($colors) {
+                $user->colorClass = $colors[$index % count($colors)];
+                return $user;
+            });
+
+        // Get all permission column names from the `permissions` table
+        $permissionColumns = collect(Schema::getColumnListing('permissions'))
+            ->reject(fn($col) => in_array($col, ['id', 'userid', 'created_at', 'updated_at']))
+            ->map(fn($col) => [
+                'name' => $col,
+                'label' => Str::headline($col),
+            ])
+            ->toArray();
+
+        return view('settings.assigned_permissions_list', compact('assignedUserList', 'permissionColumns'));
+    }
+
+    public function manage_permissions()
+    {
+        $users = User::where('userType', 'Staff')->get();
+        $permissions = Schema::getColumnListing('users'); // Get column names from users table
+        $permissionColumns = collect(Schema::getColumnListing('permissions'))
+            ->filter(function ($column) {
+                return !in_array($column, ['id', 'userid', 'centerid']); // exclude default columns
+            })
+            ->map(function ($column) {
+                return [
+                    'name' => $column,
+                    'label' => Str::headline($column), // e.g., addObservation → Add Observation
+                ];
+            });
+
+        return view('settings.alluser_assign_permission', compact('users', 'permissionColumns'));
+    }
+
+
+    public function assign_user_permissions(Request $request)
+    {
+
+        $userIds = $request->input('user_ids', []);
+        $checkedPermissions = $request->input('permissions', []); // ['addRoom' => '1', 'editRoom' => '1', ...]
+
+        foreach ($userIds as $userId) {
+            // Check if the record exists
+            $permissionRecord = Permission::where('userid', $userId)->first();
+
+            if (!$permissionRecord) {
+                $permissionRecord = new Permission();
+                $permissionRecord->userid = $userId;
+                // If you have centerid, also set: $permissionRecord->centerid = ...
+            }
+
+            // Get all permission column names from table (excluding id, userid, centerid)
+            $allColumns = Schema::getColumnListing('permissions');
+            $permissionColumns = collect($allColumns)->filter(fn($col) => !in_array($col, ['id', 'userid', 'centerid']));
+
+            // Set 1 for checked, 0 for unchecked
+            foreach ($permissionColumns as $col) {
+                $permissionRecord->{$col} = isset($checkedPermissions[$col]) ? 1 : 0;
+            }
+
+            $permissionRecord->save();
+        }
+        return redirect()->back()->with('success', 'Permissions updated successfully!');
+    }
+
+
 
     public function superadminSettings()
     {
@@ -613,7 +736,7 @@ class SettingsController extends Controller
         $request->validate([
             'imageUrl' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-        $user = auth()->user();
+        $user = auth::user();
 
         if ($request->hasFile('imageUrl')) {
             // Remove old image if exists
@@ -681,6 +804,7 @@ class SettingsController extends Controller
 
     public function changePassword(Request $request, $id)
     {
+        
         $user = User::findOrFail($id);
 
         $request->validate([

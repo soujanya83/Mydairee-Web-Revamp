@@ -210,8 +210,6 @@ class HealthyController extends Controller
     //     return view('healthy.menulist', compact('menus', 'centers', 'recipes'));
     // }
 
-
-
     public function recipes_store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -249,12 +247,10 @@ class HealthyController extends Controller
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $image) {
                 $imagePath = $image->store('uploads/recipes', 'public');
-
                 DB::table('recipe_media')->insert([
                     'recipeId'  => $recipe->id,
                     'mediaUrl'  => $imagePath,
                     'mediaType' => 'Image',
-
                 ]);
             }
         }
