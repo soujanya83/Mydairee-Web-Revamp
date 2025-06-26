@@ -3,7 +3,18 @@
 @section('parentPageTitle', 'Dashboard')
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+        main{
+padding-block:4em;
+padding-inline:2em;
+    }
+    @media screen and (max-width: 600px) {
+    main{
 
+padding-inline:0;
+    }
+}
+</style>
 @endsection
 @section('content')
 @if (session('msg'))
@@ -76,10 +87,11 @@
                 </div>
 
 </div>
+  <hr class="mt-3">
 
-<main style="padding-block:5em;padding-inline:2em;">
+<main style="padding-block:2em;padding-inline:2em;">
     <div class="container-fluid">
-        <div class="row">
+        <!-- <div class="row">
               <div class="col-12 service-details-header">
     <div class="d-flex justify-content-between align-items-end flex-wrap">
  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end gap-4">
@@ -94,7 +106,8 @@
     </div>
     <hr class="mt-3">
   </div>   
-        </div>
+        </div> -->
+        
 
         <div class="row">
             <div class="col-lg-12 col-md-12 mb-4 accidentListCont">

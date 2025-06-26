@@ -3,6 +3,18 @@
 @section('parentPageTitle', 'Dashboard')
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
+<style>
+        main{
+padding-block:4em;
+padding-inline:2em;
+    }
+    @media screen and (max-width: 600px) {
+    main{
+
+padding-inline:0;
+    }
+}
+</style>
     <style>
 	.modal-footer {
 	   display: inline-block;
@@ -1064,3 +1076,4 @@ function saveImage() {
 	});
 </script>
 @endpush
+@include('layout.footer')

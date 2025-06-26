@@ -55,7 +55,8 @@
 
                         <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
                             <a href="/ServiceDetails">
-                                <i class="far fa-clipboard"></i> <span>Service Details</span>
+                               <i class="fa fa-info-circle"></i>
+                                <span>Service Details</span>
                             </a>
                         </li>
 
@@ -71,7 +72,8 @@
                         </li>
 
                            <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
-                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
+                            <a href="#settings" class="has-arrow"><i class="fa fa-bullhorn"></i>
+
                                 <span>Announcements</span></a>
                             <ul>
                                 <li class="{{ Request::segment(2) === 'list' ? 'active' : null }}"><a
@@ -84,7 +86,7 @@
 
                         <!-- daily Journel -->
                             <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
-                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
+                            <a href="#settings" class="has-arrow"><i class="fa fa-calendar"></i>
                                 <span>Daily Journel</span></a>
                             <ul>
                                 <li class="{{ Request::segment(2) === 'DailyDiary' ? 'active' : null }}"><a
