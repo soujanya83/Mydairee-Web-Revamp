@@ -151,7 +151,7 @@
             top: 20px;
             right: 20px;
             padding: 10px 20px;
-            background-color: #4CAF50;
+            background-color:rgb(60, 87, 138);
             color: white;
             border: none;
             border-radius: 5px;

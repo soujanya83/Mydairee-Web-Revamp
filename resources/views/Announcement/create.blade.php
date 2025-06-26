@@ -88,7 +88,7 @@
 
 <main data-centerid="{{ $centerid }}">
     <div class="container-fluid">
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-12">
                 <h1>Manage Announcements</h1>
                 <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
@@ -103,7 +103,7 @@
                 </nav>
                 <div class="separator mb-5"></div>
             </div>
-        </div>
+        </div> -->
 
         <div class="row">
             <div class="col-12">
@@ -145,7 +145,7 @@
                                     <div class="form-group">
                                         <h4>Media Upload Section</h4>
                                         <div class="media-upload-box p-4 border rounded bg-light text-center">
-         <label for="mediaInput" class="btn btn-outline-primary">
+         <label for="mediaInput" class="btn btn-outline-info">
             Select up to 200kb Images(png,jpeg,jpg)
         </label>
         <input type="file" id="mediaInput" name="media[]" class="d-none" multiple accept="image/*">
@@ -156,13 +156,13 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <button type="button" class="btn btn-primary mb-1" data-toggle="modal" data-backdrop="static" data-target="#selectChildrenModal">+ Add Children</button>
+                                        <button type="button" class="btn btn-info mb-1" data-toggle="modal" data-backdrop="static" data-target="#selectChildrenModal">+ Add Children</button>
                                     </div>
                                     <div class="children-tags">
                                         @forelse ($announcement->children ?? [] as $child)
                                             <a href="#!" class="rem" data-role="remove" data-child="{{ $child->id }}">
                                                 <input type="hidden" name="childId[]" value="{{ $child->id }}">
-                                                <span class="badge badge-pill badge-outline-primary mb-1">{{ $child->name }} X</span>
+                                                <span class="badge badge-pill badge-outline-info mb-1">{{ $child->name }} X</span>
                                             </a>
                                         @empty
                                             <p>No children selected</p>
@@ -182,15 +182,15 @@
                                 <div class="col-12 text-right">
                                     @if ($announcement)
                                         @if ($edit)
-                                            <button type="submit" class="btn btn-primary my-2">Save</button>
+                                            <button type="submit" class="btn btn-outline-info my-2">Save</button>
                                         @else
-                                            <button type="button" class="btn btn-primary my-2" data-toggle="tooltip" data-placement="top" title="You need permission to save!">Save</button>
+                                            <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip" data-placement="top" title="You need permission to save!">Save</button>
                                         @endif
                                     @else
                                         @if ($add)
-                                            <button type="submit" class="btn btn-primary my-2">Save</button>
+                                            <button type="submit" class="btn btn-outline-info my-2">Save</button>
                                         @else
-                                            <button type="button" class="btn btn-primary my-2" data-toggle="tooltip" data-placement="top" title="You need permission to save!">Save</button>
+                                            <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip" data-placement="top" title="You need permission to save!">Save</button>
                                         @endif
                                     @endif
                                 </div>
@@ -470,7 +470,7 @@ function updateFileInput() {
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        @if (session('msg'))
+        @if(session('msg'))
             Swal.fire({
                 title: 'Success!',
                 text: "{{ session('msg') }}",

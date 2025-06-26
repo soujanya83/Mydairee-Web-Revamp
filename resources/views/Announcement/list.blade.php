@@ -21,7 +21,7 @@
 
                     <div class="btn-group mr-1">
                         <div class="dropdown">
-        <button class="btn btn-outline-primary btn-lg dropdown-toggle"
+        <button class="btn btn-outline-info btn-lg dropdown-toggle"
                 type="button" id="centerDropdown" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
@@ -29,7 +29,7 @@
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
             @foreach($centers as $center)
                 <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
                  style="background-color:white;"  data-id="{{ $center->id }}">
                     {{ $center->centerName }}
                 </a>
@@ -46,7 +46,7 @@
                     @if(Auth::user()->userType != 'Parent')
                  
                      
-                        <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}" class="btn btn-primary btn-lg">ADD NEW</a>
+                        <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}" class="btn btn-outline-info btn-lg">ADD NEW</a>
                     
 
                     @endif
@@ -56,21 +56,7 @@
 <main style="padding-block:5em;padding-inline:2em;">
     <div class="container-fluid">
         <!-- <div class="row"> -->
-
-            <div class="col-12 service-details-header">
-    <div class="d-flex justify-content-between align-items-end flex-wrap">
- <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end gap-4">
-  <h2 class="mb-0">Announcement</h2>
-  <p class="mb-0 text-muted mx-md-4">
-    <a href="">Dashboard</a><span class="mx-2">|</span> <span>Announcements List</span>
-  </p>
-</div>
-
-
-
-    </div>
-    <hr class="mt-3">
-  </div>   
+<!--     -->
         <!-- </div> -->
        
 
@@ -121,7 +107,7 @@
                                 <td>{{ ucfirst($announcement->createdBy) }}</td>
                                 <td>{{ \Carbon\Carbon::parse($announcement->eventDate)->format('d.m.Y') }}</td>
                                 <td>
-                                    <span class="badge badge-pill 
+                                    <span class="
                                         {{ $announcement->status == 'Sent' ? 'badge-success' : 
                                            ($announcement->status == 'Pending' ? 'badge-warning' : 'badge-danger') }}">
                                         {{ ucfirst($announcement->status) }}
@@ -139,7 +125,7 @@
     {{-- Edit --}}
     @if($permissions && $permissions->updateAnnouncement == 1)
         <a href="{{ route('announcements.create', $announcement->id) }}" 
-           class="btn btn-outline-primary btn-sm me-1" title="Edit">
+           class="btn btn-outline-info btn-sm me-1" title="Edit">
             <i class="fas fa-edit"></i>
         </a>
     @endif

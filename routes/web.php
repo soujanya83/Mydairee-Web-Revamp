@@ -8,6 +8,7 @@ use App\Http\Controllers\DailyDiaryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileManagerController;
+use App\Http\Controllers\HeadChecks;
 use App\Http\Controllers\LessonPlanList;
 use App\Http\Controllers\HealthyController;
 use App\Http\Controllers\SettingsController;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Models\Child;
 use App\Http\Controllers\ObservationController;
+use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
 
 // Route::get('/', function () {
@@ -94,6 +96,32 @@ Route::get('announcements/create/{id?}',[AnnouncementController::class,'Announce
 Route::post('announcements/store',[AnnouncementController::class,'AnnouncementStore'])->name('announcements.store');
 Route::delete('announcements/delete',[AnnouncementController::class,'AnnouncementDelete'])->name('announcements.delete');
 Route::get('announcements/view/{annid}',[AnnouncementController::class,'AnnouncementView'])->name('announcements.view');
+
+// headchecks 
+Route::get('headChecks',[HeadChecks::class,'index'])->name('headChecks');
+Route::post('headchecks/store',[HeadChecks::class,'headchecksStore'])->name('headchecks.store');
+Route::post('headchecks/getCenterRooms',[HeadChecks::class,'getCenterRooms'])->name('headchecks.getCenterRooms');
+Route::post('headcheckdelete',[HeadChecks::class,'headcheckDelete'])->name('headcheck.delete');
+
+// sleep check
+Route::get('sleepcheck/list',[SleepCheckController::class,'getSleepChecksList'])->name('sleepcheck.list');
+Route::post('sleepcheck/save',[SleepCheckController::class,'sleepcheckSave'])->name('sleepcheck.save');
+Route::post('sleepcheck/update',[SleepCheckController::class,'sleepcheckUpdate'])->name('sleepcheck.update');
+Route::post('sleepcheck/delete',[SleepCheckController::class,'sleepcheckDelete'])->name('sleepcheck.delete');
+
+// Accidents
+Route::get('Accidents/list',[AccidentsController::class,'AccidentsList'])->name('Accidents.list');
+Route::post('Accidents/getCenterRooms',[AccidentsController::class,'getCenterRooms'])->name('Accidents.getCenterRooms');
+Route::put('Accidents/update/{id}',[AccidentsController::class,'AccidentsUpdate'])->name('accidents.update');
+Route::get('Accidents/details',[AccidentsController::class,'getAccidentDetails'])->name('Accidents.details');
+Route::post('Accidents/sendEmail',[AccidentsController::class,'sendEmail'])->name('Accidents.sendEmail');
+Route::get('Accidents/create',[AccidentsController::class,'create'])->name('Accidents.create');
+Route::get('Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
+Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
+Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
+
+
+
 
 
 Route::get('surveys/list',[SurveyController::class,'list'])->name('survey.list');

@@ -17,7 +17,7 @@
 <main>
     <div class="container-fluid">
         <!-- Header -->
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-12">
                 <h1>View Announcement</h1>
                 <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
@@ -29,7 +29,7 @@
                 </nav>
                 <hr class="my-3">
             </div>
-        </div>
+        </div> -->
 
         <!-- Announcement Card -->
         <div class="row">
