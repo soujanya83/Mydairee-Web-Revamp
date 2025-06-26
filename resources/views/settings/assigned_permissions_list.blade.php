@@ -113,7 +113,8 @@
                                                             <label class="form-check-label fw-bold ms-2"
                                                                 for="selectAll_{{ $user->id }}">
                                                                 <span style="color: green;"><u>Select All
-                                                                        Permissions</u></span>
+                                                                        Permissions</u>
+                                                                </span>
                                                             </label>
                                                         </div>
                                                         <button type="submit" class="btn btn-info"
@@ -121,8 +122,6 @@
                                                             Save Changes
                                                         </button>
                                                     </div>
-
-
                                                     <!-- Individual Permission Checkboxes -->
                                                     @foreach($permissionColumns as $column)
                                                     <div class="col-md-4 mb-2">
@@ -141,9 +140,9 @@
                                                     @endforeach
                                                 </div>
                                                 <div class="modal-footer  d-flex justify-content-end">
-
                                                     <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Close</button>
+                                                        data-bs-dismiss="modal">Close
+                                                    </button>
                                                 </div>
                                             </div>
                                         </form>

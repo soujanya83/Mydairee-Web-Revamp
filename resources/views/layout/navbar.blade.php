@@ -4,18 +4,18 @@
     }
 
     .top_counter {
-        background-image: url('{{ asset('assets/img/doodle1.png') }}');
+        background-image: url('{{ asset(' assets/img/doodle1.png') }}');
         background-size: cover;
         background-position: center;
     }
 
     .card {
-        background-image: url('{{ asset('assets/img/doodle1.png') }}');
+        background-image: url('{{ asset(' assets/img/doodle1.png') }}');
         background-size: cover;
         background-position: center;
     }
 
-     /* .theme-cyan {
+    /* .theme-cyan {
         background-image: url('{{ asset('assets/img/doodleold.jpg') }}');
         background-size: cover;
         background-position: center;
@@ -56,7 +56,8 @@
                                 class="notification-dot"></span></a>
                     </li> --}}
                     <li class="dropdown">
-                        <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown" title="Notifications">
+                        <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown"
+                            title="Notifications">
                             <i class="icon-bell"></i>
                             <span class="notification-dot"></span>
                         </a>

@@ -796,6 +796,7 @@ class SettingsController extends Controller
 
     public function changePassword(Request $request, $id)
     {
+        
         $user = User::findOrFail($id);
 
         $request->validate([
