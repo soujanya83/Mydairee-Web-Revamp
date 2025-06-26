@@ -1,21 +1,21 @@
 <style>
     .navbar-fixed-top .navbar-brand img {
-        width: 180px;
+        width: 130px;
     }
 
     .top_counter {
-        background-image: url('{{ asset('assets/img/doodle1.png') }}');
+        background-image: url('{{ asset(' assets/img/doodle1.png') }}');
         background-size: cover;
         background-position: center;
     }
 
     .card {
-        background-image: url('{{ asset('assets/img/doodle1.png') }}');
+        background-image: url('{{ asset(' assets/img/doodle1.png') }}');
         background-size: cover;
         background-position: center;
     }
 
-     /* .theme-cyan {
+    /* .theme-cyan {
         background-image: url('{{ asset('assets/img/doodleold.jpg') }}');
         background-size: cover;
         background-position: center;
@@ -27,7 +27,7 @@
             <button type="button" class="btn-toggle-offcanvas"><i class="lnr lnr-menu fa fa-bars"></i></button>
         </div>
 
-        <div class="navbar-brand">
+        <div class="navbar-brand" style="margin-top: -12px;">
             <a href="{{route('dashboard.analytical')}}"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}"
                     alt="Lucid Logo" class="img-responsive logo"></a>
         </div>
@@ -56,7 +56,8 @@
                                 class="notification-dot"></span></a>
                     </li> --}}
                     <li class="dropdown">
-                        <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown" title="Notifications">
+                        <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown"
+                            title="Notifications">
                             <i class="icon-bell"></i>
                             <span class="notification-dot"></span>
                         </a>

@@ -1,13 +1,12 @@
 <div id="left-sidebar" class="sidebar"
     style="background-color: #ffffff;background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
-<style>
-.dropdown-menu.account.show {
-    top: 100% !important;
-    left: 0px !important;
-}
-</style>
-   
-    <div class="sidebar-scroll">
+    <style>
+        .dropdown-menu.account.show {
+            top: 100% !important;
+            left: 0px !important;
+        }
+    </style>
+    <div class="sidebar-scroll" style="    margin-top: 54px;">
         <div class="user-account">
 
             @php
@@ -119,7 +118,8 @@
                                         href="{{route('settings.staff_settings')}}">Staffs Settings </a></li>
                                 <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}"><a
                                         href="{{route('settings.parent_settings')}}">Parents Settings </a></li>
-
+                                <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}"><a
+                                        href="{{route('settings.manage_permissions')}}">Manage Permissions </a></li>
                             </ul>
 
                         </li>

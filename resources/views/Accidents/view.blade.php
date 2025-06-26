@@ -736,14 +736,14 @@
                             </div>
                         </div>
 
-                         <div class="row m-2" id="formSubmit">
+                         <!-- <div class="row m-2" id="formSubmit">
                             <div class="col-sm-12 text-right">
                                 <div class="formSubmit">
                                     <button type="button" id="form-submit" class="btn btn-default btn-success">update &amp; Next</button>
                                     <button type="button" class="btn btn-default btn-danger">Cancel</button>
                                 </div>
                             </div>
-                        </div> 
+                        </div>  -->
 
                     </form>
                 </div>

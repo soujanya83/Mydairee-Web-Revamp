@@ -130,7 +130,7 @@
     }
     .add-row-btn,
     .save-row-btn{
-      background-color: #3498db;
+      background-color: #17a2b8;
       color: white;
       border: none;
       padding: 8px 12px;
@@ -153,7 +153,7 @@
       transition: background-color 0.3s ease;
     }
     .update-row-btn{
-      background-color: #3498db;
+      background-color: #17a2b8;;
       color: white;
       border: none;
       padding: 8px 12px;
@@ -178,7 +178,7 @@
 
     .add-row-btn:hover,
     .save-row-btn:hover{
-      background-color: #2980b9;
+      background-color: #17a2b8;;
     }
 
     .remove-row-btn:hover {
@@ -186,7 +186,7 @@
     }
     
     .update-row-btn:hover{
-      background-color: #2980b9;
+      background-color: #17a2b8;;
     }
 
     .delete-row-btn:hover {
@@ -207,7 +207,7 @@
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important; left:13px !important;">
             @foreach($centers as $center)
                 <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
                    style="background-color:white;" data-id="{{ $center->id }}">
                     {{ $center->centerName }}
                 </a>
@@ -242,7 +242,7 @@
     <div class="form-group mb-0">
         <div class="input-group date">
             <input type="text" class="form-control drop-down" id="txtCalendar" name="start_date" value="{{ $calDate }}">
-            <span class="input-group-text input-group-append custom-cal">
+            <span class="input-group-text input-group-append custom-cal btn-outline-info">
                 <i class="simple-icon-calendar"></i>
             </span>
         </div>
@@ -332,8 +332,8 @@
               </td>
               <td><textarea rows="2">{{ $sleep->notes }}</textarea></td>
               <td>
-                <button class="update-row-btn" onclick="updateRow(this, {{ $child->id }}, {{ $sleep->id }})">Update</button>
-                <button class="delete-row-btn" onclick="deleteRow(this, {{ $sleep->id }})">Delete</button>
+                <button class="update-row-btn btn-outline-info" onclick="updateRow(this, {{ $child->id }}, {{ $sleep->id }})">Update</button>
+                <button class="delete-row-btn btn-outline-info" onclick="deleteRow(this, {{ $sleep->id }})">Delete</button>
               </td>
             </tr>
           @endforeach
@@ -358,8 +358,8 @@
             </td>
             <td><textarea rows="2" name="children[{{ $child->id }}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
             <td>
-              <button class="save-row-btn" onclick="saveRow(this, {{ $child->id }})">Save</button>
-              <button class="remove-row-btn" onclick="removeRow(this)">Remove</button>
+              <button class="save-row-btn btn-outline-info" onclick="saveRow(this, {{ $child->id }})">Save</button>
+              <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>
             </td>
           </tr>
         </tbody>
@@ -408,8 +408,8 @@
             </td>
             <td><textarea rows="2" name="children[${childDbId}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
             <td>
-                <button class="save-row-btn" onclick="saveRow(this, ${childDbId})">Save</button>
-                <button class="remove-row-btn" onclick="removeRow(this)">Remove</button>
+                <button class="save-row-btn btn-outline-info" onclick="saveRow(this, ${childDbId})">Save</button>
+                <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>
             </td>
         `;
         tableBody.appendChild(row);

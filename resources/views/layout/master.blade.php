@@ -10,7 +10,7 @@
         <meta name="description" content="@yield('meta_description', config('app.name'))">
         <meta name="author" content="@yield('meta_author', config('app.name'))">
         @yield('meta')
-<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/MYDIAREE-new-logo.png') }}">
+<link rel="icon" type="image/png" sizes="36x36" href="{{ asset('assets/img/android-icon-36x36.png') }}">
 
         {{-- See https://laravel.com/docs/5.5/blade#stacks for usage --}}
         @stack('before-styles')
@@ -597,7 +597,7 @@
 
 
 <style>
-    
+
     .dropdown-menu .active {
         background-color: #e7f1ff;
         border-left: 3px solid #007bff;
@@ -611,7 +611,7 @@
         top: 3% !important;
         left: 13px !important;
     }
-    
+
 </style>
 
 

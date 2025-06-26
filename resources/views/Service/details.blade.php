@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Service Details')
+@section('title', 'Update Service Details')
 @section('parentPageTitle', 'Dashboard')
 
 
@@ -14,7 +14,7 @@
 <!-- new header content -->
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
     <div class="dropdown">
-        <button class="btn btn-outline-primary btn-lg dropdown-toggle"
+        <button class="btn btn-outline-info btn-lg dropdown-toggle"
                 type="button" id="centerDropdown" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
@@ -22,7 +22,7 @@
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
             @foreach($centers as $center)
                 <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
                  style="background-color:white;"  data-id="{{ $center->id }}">
                     {{ $center->centerName }}
                 </a>
@@ -346,7 +346,7 @@
       </div>
     </div>
      <div class="col-1 float-right"> 
-    <button type="submit" class="form-control">save</button>
+    <button type="submit" class="form-control btn-outline-info">save</button>
   </div>
   </div>
 

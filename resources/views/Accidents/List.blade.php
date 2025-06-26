@@ -100,7 +100,8 @@
             <div class="col-lg-12 col-md-12 mb-4 accidentListCont">
                 <div class="card">
                     <div class="card-body">
-                        <table class="table data-table data-tables-pagination">
+                       <table class="table table-borderless data-table data-tables-pagination">
+
                             <thead>
                                 <tr>
                                     <th scope="col">S No</th>

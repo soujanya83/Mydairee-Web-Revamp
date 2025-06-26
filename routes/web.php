@@ -223,12 +223,17 @@ Route::get('Observation/addSubActivity',[ObservationController::class,'getActivi
 
         Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
         Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
+        Route::put('/settings/update-permissions/{user}', [SettingsController::class, 'updateUserPermissions'])->name('update_user_permissions');
 
 
 
 
         Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
+        Route::get('/manage_permissions', [SettingsController::class, 'manage_permissions'])->name('manage_permissions');
+        Route::get('user/permissions', [SettingsController::class, 'user_permissions'])->name('allusers_permissions');
         Route::post('/parent/store', [SettingsController::class, 'parent_store'])->name('parent.store');
+        Route::post('/assign-permissions', [SettingsController::class, 'assign_user_permissions'])->name('assign_permissions');
+        Route::get('permissions-assigned', [SettingsController::class, 'assigned_permissions'])->name('assigned_permissions');
 
         Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
         Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');

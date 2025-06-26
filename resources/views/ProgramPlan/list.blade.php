@@ -68,7 +68,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered">
+                                <table class="table table-borderless">
                                     <thead>
                                         <tr>
                                             <th class="id-column">ID</th>
@@ -97,17 +97,17 @@
                                                 <td>
                                                     <div class="action-buttons">
                                                         <a href="{{ route('print.programplan', $plan->id) }}" class="btn btn-sm btn-info">
-                                                            <i class="fa-solid fa-print animated-icon"></i> Print
+                                                            <i class="fa-solid fa-print animated-icon"></i> 
                                                         </a>
 
                                                         @if(session('UserType') != 'Parent')
                                                          <a href="{{ route('create.programplan', ['centerId' => $centerId, 'planId' => $plan->id]) }}" class="btn btn-sm btn-primary">
-                                                            <i class="fa-solid fa-pen-to-square animated-icon"></i> Edit
+                                                            <i class="fa-solid fa-pen-to-square animated-icon"></i> 
                                                         </a>
 
 
                                                             <button type="button" class="btn btn-sm btn-danger delete-program" data-id="{{ $plan->id }}">
-                                                                <i class="fa-solid fa-trash animated-icon"></i> Delete
+                                                                <i class="fa-solid fa-trash animated-icon"></i>
                                                             </button>
                                                         @endif
                                                     </div>

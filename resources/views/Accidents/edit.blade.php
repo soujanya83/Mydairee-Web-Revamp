@@ -655,9 +655,9 @@
                         <div class="row m-2">
                             <div class="col-sm-12 text-right">
                                 <div class="formSubmit">
-                                    <button type="button" id="form-submit" class="btn btn-default btn-success">Save &amp; Next</button>
+                                    <button type="button" id="form-submit" class="btn  btn-outline-info">Save &amp; Next</button>
                                     <!-- <button type="button" class="btn btn-default btn-danger">Cancel</button> -->
-                                   <a href="{{ route('Accidents.list', ['centerid' => request()->get('centerid'), 'roomid' => request()->get('roomid')]) }}">
+                                   <a href="{{ route('Accidents.list', ['centerid' => request()->get('centerid'), 'roomid' => request()->get('roomid')]) }}" class="btn  btn-outline-info">
    Cancel
 </a>
 
@@ -1083,7 +1083,7 @@ function saveImage() {
 			.done(function(json) {
 				var res = json;
 				if (res.Status == "SUCCESS") {
-                    alert();
+                    // alert();
 					$("#childfullname").val(res.Child.name + res.Child.lastname);
 					$("#birthdate").val(res.Child.dob);
 
