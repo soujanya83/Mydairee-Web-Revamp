@@ -48,6 +48,15 @@
                             <a href="/"><i class="icon-home"></i> <span>Dashboard</span></a>
 
                         </li>
+
+                        <li class="{{ Request::is('observation*') ? 'active' : null }}">
+                            <a href="{{route('observation.index')}}"><i class="fa-solid fa-gears"></i><span>Observation</span></a>
+                        </li>
+
+                        <li class="{{ Request::is('reflection*') ? 'active' : null }}">
+                            <a href="{{route('reflection.index')}}"><i class="fa-solid fa-window-restore"></i><span>Daily Reflections</span></a>
+                        </li>
+
                            <li class="{{ Request::segment(1) === 'programPlanList' ? 'active' : '' }}">
                             <a href="/programPlanList">
                                 <i class="far fa-clipboard"></i> <span>Program Plan</span>
@@ -102,9 +111,7 @@
                          <!-- Daily journel ends -->
 
                           
-                        <li class="{{ Request::segment(1) === 'observation.index' ? 'active' : null }}">
-                            <a href="{{route('observation.index')}}"><i class="fa-solid fa-gears"></i><span>Observation</span></a>
-                        </li>
+                      
 
 
                         <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">

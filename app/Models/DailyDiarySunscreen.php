@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class DailyDiarySunscreen extends Model
 {
     protected $table = "dailydiarysunscreen";
-    public $timestamps = false;
+    // public $timestamps = false;
     protected $fillable = [
     'id',
     'childid',

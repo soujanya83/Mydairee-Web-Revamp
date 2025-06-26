@@ -1,6 +1,269 @@
 @extends('layout.master')
-@section('title', 'Observation')
+@section('title', 'Reflection')
 @section('parentPageTitle', '')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<style>
+    .reflection-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        background: #fff;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .reflection-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .image-carousel {
+        position: relative;
+        height: 250px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .carousel-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+    }
+
+    .carousel-image.active {
+        opacity: 1;
+    }
+
+    .carousel-indicators {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+    }
+
+    .carousel-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .carousel-indicator.active {
+        background: white;
+        transform: scale(1.2);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 20px;
+        position: relative;
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-date {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .card-body {
+        padding: 25px;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-title i {
+        color: #667eea;
+    }
+
+    .children-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .child-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 8px;
+        border-radius: 12px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+        min-width: 80px;
+    }
+
+    .child-item:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+    }
+
+    .child-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #667eea;
+        margin-bottom: 8px;
+    }
+
+    .child-name {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #495057;
+        line-height: 1.2;
+    }
+
+    .educators-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .educator-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 15px;
+        background: linear-gradient(135deg, #667eea20, #764ba220);
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+
+    .educator-item:hover {
+        background: linear-gradient(135deg, #667eea30, #764ba230);
+        transform: translateY(-1px);
+    }
+
+    .educator-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #667eea;
+    }
+
+    .educator-name {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .btn-action {
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        max-height:35px;
+    }
+
+    .btn-edit:hover {
+        background: linear-gradient(135deg, #218838, #1ba085);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        color: white;
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #dc3545, #e83e8c);
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: linear-gradient(135deg, #c82333, #d91a72);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        color: white;
+    }
+
+    .no-image-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-size: 3rem;
+    }
+
+    @media (max-width: 768px) {
+        .reflection-card {
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            padding: 15px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .children-grid {
+            justify-content: center;
+        }
+        
+        .educators-list {
+            justify-content: center;
+        }
+        
+        .card-actions {
+            justify-content: center;
+        }
+    }
+</style>
 
 <style>
 .pagination {
@@ -39,76 +302,6 @@
     vertical-align: middle;
 }
 </style>
-
-
-<style>
-    .list-thumbnail {
-        height: 150px !important;
-        width: 200px !important;
-    }
-
-    .obs-link {
-        color: #008ecc;
-    }
-
-    .obs-link:hover {
-        color: #000000;
-    }
-
-    .br-10 {
-        border-radius: 10px;
-    }
-
-
-
-    @media (max-width: 575px) {
-        .top-right-button-container {
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .filterbutton {
-            width: 100% !important;
-            ;
-        }
-    }
-    </style>
-    <style>
-    .list-thumbnail {
-        max-width: 200px;
-        height: 75px;
-        object-fit: cover;
-        border-radius: 4px;
-    }
-
-    .checkbox input[type="checkbox"] {
-        margin-top: 0;
-    }
-
-    #observationsList .checkbox:hover {
-        background-color: #f8f9fa;
-    }
-
-    .icon-actions {
-        min-width: 60px;
-        /* Width of right icons area */
-        text-align: center;
-    }
-
-    .icon-actions i {
-        font-size: 22px;
-        margin-bottom: 30px;
-    }
-
-    .list-thumbnail {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 10px;
-    }
-
-    </style>
 
 
 <style>
@@ -155,14 +348,9 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
+
 @section('content')
-
-
-
-
-
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
-
 
 @if(Auth::user()->userType != 'Parent')
                       <!-- Filter Button -->
@@ -171,11 +359,11 @@
     FILTERS
 </button>
 &nbsp;&nbsp;&nbsp;
-<button type="button" class="btn btn-outline-info" onclick="window.location.href='{{ route('observation.addnew') }}'">Add New</button>
+<button type="button" class="btn btn-outline-info" onclick="window.location.href='{{ route('reflection.addnew') }}'">Add New</button>
 @endif &nbsp;&nbsp;&nbsp;
 
 
-    <div class="dropdown">
+<div class="dropdown">
         <button class="btn btn-outline-primary btn-lg dropdown-toggle"
                 type="button" id="centerDropdown" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
@@ -193,126 +381,133 @@
     </div>
 </div>
 
-
-<div class="row" id="observations-list" style="margin-top:20px;">
-
-    @forelse($observations as $observation)
-    @php
-    $obsId = $observation->id;
-    @endphp
-
-    <div class="col-lg-6 col-md-3">
-        <div class="d-flex flex-row mb-3 bg-white br-10 align-items-center justify-content-between p-3 card">
-
-            <!-- LEFT SIDE: Image + Content -->
-            <div class="d-flex flex-row align-items-center">
-
-            @if(Auth::user()->userType != 'Parent')
-        <a class="d-block position-relative" href="{{ route('observation.view', ['id' => $obsId]) }}">
-            @else
-        <a class="d-block position-relative" href="{{ route('observation.print', $obsId) }}" target="_blank">
-            @endif
-
-                        <!-- Image Part -->
-@if($observation->media->isEmpty())
-    <img src="https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg" 
-         alt="No Media" 
-         class="list-thumbnail border-0" 
-         style="width:100px;height:100px;object-fit:cover;">
-@else
-    @php
-        $firstMedia = $observation->media->first(); // Get first media item
-    @endphp
-        @if(file_exists(public_path($firstMedia->mediaUrl)))
-            <img src="{{ asset($firstMedia->mediaUrl) }}" 
-                 alt="Image" 
-                 class="list-thumbnail border-0" 
-                 style="width:100px;height:100px;object-fit:cover;">
-        @else
-            <img src="https://via.placeholder.com/320x240?text=Media+Deleted" 
-                 alt="Image" 
-                 class="list-thumbnail border-0" 
-                 style="width:100px;height:100px;object-fit:cover;">
-        @endif
-
-@endif
-            
-@if($observation->status == 'Published')
-    <span class="badge badge-pill position-absolute badge-top-right badge-success" style="top:8px;right: -7px;">PUBLISHED</span>
-@else
-    <span class="badge badge-pill position-absolute badge-top-right badge-danger" style="top:8px;right: -7px;" >DRAFT</span>
-@endif
-
-                    </a>
-
-                    <!-- Title and Details -->
-                    <div class="pl-3">
-    @if(Auth::user()->userType != 'Parent')
-        <a href="{{ route('observation.view', ['id' => $obsId]) }}" class="obs-link">
-    @else
-        <a href="{{ route('observation.print', $obsId) }}" class="obs-link" target="_blank">
-    @endif
-
-            <p class="list-item-heading mb-1">
-                @if(!empty($observation->obestitle))
-                    {{ strip_tags($observation->obestitle) }}
-                @else
-                    {{ Str::limit(strip_tags(html_entity_decode($observation->title)), 40, '...') }}
-                @endif
-            </p>
-        </a>
-
-        <p class="text-muted mb-1 text-small">
-            By: {{ $observation->user->name ?? 'Unknown' }}
-        </p>
-
-        <p class="text-primary text-small font-weight-medium mb-0">
-            {{ \Carbon\Carbon::parse($observation->created_at)->format('d.m.Y') }}
-        </p>
 </div>
 
-            </div>
 
-            <!-- RIGHT SIDE: Icons (Print/Delete/Comment) -->
-            <div class="d-flex flex-column align-items-center icon-actions">
-    @if(Auth::user()->userType != 'Parent')
-        <a href="{{ route('observation.print', $obsId) }}" target="_blank" class="mb-2">
-            <i class="fa-solid fa-print fa-lg" style="color: #74C0FC;"></i>
-        </a>
-        <i class="fa-sharp fa-solid fa-trash fa-lg" style="color: #da0711; cursor: pointer;"
-           onclick="deleteObservation({{ $obsId }})"></i>
-    @else
-        <i class="fa-solid fa-comment fa-bounce fa-sm" style="color: #74C0FC; cursor: pointer;"
-           onclick="openAddCommentModal({{ $obsId }})"></i>
-    @endif
-</div>
-        </div>
-    </div>
 
-    @empty
-    <div class="col">
-                    <div class="text-center">
-                        <h6 class="mb-4">You don't have any Observations, Create New Observations.....</h6>
-                        <!-- <p class="mb-0 text-muted text-small mb-0">Error code</p> -->
-                        <!-- <p class="display-1 font-weight-bold mb-5"> -->
-                        <!-- 200 -->
-                        <!-- </p> -->
-                        <a href="{{ route('dashboard.university') }}" class="btn btn-info btn-lg btn-shadow">  <i class="fa-solid fa-home fa-lg fa-beat" style="color: #74C0FC;"></i>&nbsp;  GO BACK
-                            HOME</a>
+
+
+<div class="container mt-4">
+    <div class="row" id="observations-list">
+        @forelse($reflection as $reflectionItem)
+            <div class="col-lg-6 col-md-12">
+                <div class="card reflection-card">
+                    {{-- Image Carousel --}}
+                    <div class="image-carousel">
+                        @if($reflectionItem->media && $reflectionItem->media->count() > 0)
+                            @foreach($reflectionItem->media as $index => $media)
+                                <img src="{{ asset($media->mediaUrl) }}" 
+                                     alt="Reflection Image" 
+                                     class="carousel-image {{ $index === 0 ? 'active' : '' }}">
+                            @endforeach
+                            @if($reflectionItem->media->count() > 1)
+                                <div class="carousel-indicators">
+                                    @foreach($reflectionItem->media as $index => $media)
+                                        <div class="carousel-indicator {{ $index === 0 ? 'active' : '' }}" 
+                                             data-slide="{{ $index }}"></div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        @else
+                            <div class="no-image-placeholder">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Card Header --}}
+                    <div class="card-header">
+                        <h5 class="card-title">{!! $reflectionItem->title !!}</h5>
+                        <div class="card-date">
+                            <i class="fas fa-calendar-alt"></i> 
+                            {{ $reflectionItem->created_at->format('M d, Y') }}
+                        </div>
+                    </div>
+
+                    {{-- Card Body --}}
+                    <div class="card-body">
+                        {{-- Children Section --}}
+                        @if($reflectionItem->children && $reflectionItem->children->count() > 0)
+                            <div class="section-title">
+                                <i class="fas fa-child"></i>
+                                Children
+                            </div>
+                            <div class="children-grid">
+                                @foreach($reflectionItem->children as $childRelation)
+
+                                    @if($childRelation->child)
+                                        <div class="child-item">
+                                            <img src="{{ $childRelation->child->imageUrl ? asset($childRelation->child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}" 
+                                                 alt="{{ $childRelation->child->name }}" 
+                                                 class="child-avatar">
+                                            <div class="child-name">{{ $childRelation->child->name }}</div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+
+                        {{-- Educators Section --}}
+                        @if($reflectionItem->staff && $reflectionItem->staff->count() > 0)
+                            <div class="section-title">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                Educators
+                            </div>
+                            <div class="educators-list">
+                                @foreach($reflectionItem->staff as $staffRelation)
+
+                                @php
+                                    $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
+                                    'avatar10.jpg'];
+                                    $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
+                                    'avatar7.jpg'];
+                                    $avatars = $staffRelation->staff->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+                                    $defaultAvatar = $avatars[array_rand($avatars)];
+                                @endphp
+
+
+                                    @if($staffRelation->staff)
+                                        <div class="educator-item">
+                                            <img src="{{ $staffRelation->staff->imageUrl ? asset($staffRelation->staff->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" 
+                                                 alt="{{ $staffRelation->staff->name }}" 
+                                                 class="educator-avatar">
+                                            <div class="educator-name">{{ $staffRelation->staff->name }}</div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+
+                        {{-- Action Buttons --}}
+                        <div class="card-actions">
+                        <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}" class="btn btn-edit btn-action">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
+                                  <i class="fas fa-trash-alt"></i> Delete
+                             </button>
+                        </div>
                     </div>
                 </div>
-    @endforelse
+            </div>
+        @empty
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle"></i> No reflections found.
+                </div>
+            </div>
+        @endforelse
 
-    @if ($observations->hasPages())
-    <div class="col-12 d-flex justify-content-center mt-4">
-        {{ $observations->links('vendor.pagination.bootstrap-4') }}
+        {{-- Pagination --}}
+    @if ($reflection->hasPages())
+        <div class="col-12 d-flex justify-content-center mt-4">
+            {{ $reflection->links('vendor.pagination.bootstrap-4') }}
+        </div>
+    @endif
     </div>
-@endif
- 
 
+  
 </div>
-
-
 
 
 
@@ -486,7 +681,7 @@
 
 <!-- jQuery and Bootstrap JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script> -->
+
 
 <script>
 $(document).ready(function() {
@@ -663,7 +858,7 @@ if ($('#filter_author_any').is(':checked')) {
         // AJAX request
         $.ajax({
             type: 'POST',
-            url: '/observation/filters', // Laravel route
+            url: '/reflection/filters', // Laravel route
             data: {
                 childs: childs,
                 authors: authors,
@@ -675,104 +870,120 @@ if ($('#filter_author_any').is(':checked')) {
             },
             dataType: 'json',
             success: function(response) {
-                if (response.status === "success") {
-                    $('#observations-list').empty();
-                    
-                    if (response.observations.length === 0) {
-                        $('#observations-list').append(`
-                            <div class="col">
-                                <div class="text-center">
-                                    <h6 class="mb-4">No observations found matching your filters.</h6>
-                                    <button class="btn btn-info btn-lg btn-shadow" id="btn-clear-filters-inline">
-                                        <i class="fa-solid fa-filter-circle-xmark fa-lg" style="color: #74C0FC;"></i>&nbsp;
-                                        Clear Filters
-                                    </button>
-                                </div>
-                            </div>
-                        `);
+        $('#observations-list').empty(); // your container
+
+        if (response.status === "success") {
+            const reflections = response.reflections;
+
+            if (reflections.length === 0) {
+                $('#observations-list').append(`
+                    <div class="col">
+                        <div class="text-center">
+                            <h6 class="mb-4">No reflections found matching your filters.</h6>
+                            <button class="btn btn-info btn-lg btn-shadow" id="btn-clear-filters-inline">
+                                <i class="fa-solid fa-filter-circle-xmark fa-lg" style="color: #74C0FC;"></i>&nbsp;
+                                Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                `);
+            } else {
+                reflections.forEach(function(val) {
+                    // Media Carousel
+                    let imagesHtml = '';
+                    let indicatorsHtml = '';
+                    if (val.media && val.media.length > 0) {
+                        val.media.forEach((mediaItem, index) => {
+                            imagesHtml += `
+                                <img src="${window.location.origin}/${mediaItem.mediaUrl}" alt="Reflection Image" class="carousel-image ${index === 0 ? 'active' : ''}">
+                            `;
+                            indicatorsHtml += `<div class="carousel-indicator ${index === 0 ? 'active' : ''}" data-slide="${index}"></div>`;
+                        });
                     } else {
-                        $.each(response.observations, function(key, val) {
-                            var _status = '';
-                            var _mediaUrl = '';
-                            var _role = response.userRole;
+                        imagesHtml = `
+                            <div class="no-image-placeholder">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        `;
+                    }
 
-                         
-
-                            // Media Handling
-                            if (!val.media || val.media.mediaUrl === "") {
-                                _mediaUrl = "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg";
-                            } else {
-                                let cleanPath = val.media.mediaUrl.replace(/^\/?observation\//, '');
-                                _mediaUrl = window.location.origin + '/' + cleanPath;
-                            }
-
-                            // console.log("djkjda",_mediaUrl);
-
-                            // Status Badge
-                            if (val.status === "Published") {
-                                _status = `<span class="badge badge-pill position-absolute badge-top-right badge-success" style="top:8px;right: -7px;">PUBLISHED</span>`;
-                            } else {
-                                _status = `<span class="badge badge-pill position-absolute badge-top-right badge-danger" style="top:8px;right: -7px;">DRAFT</span>`;
-                            }
-
-                            // Link based on Role
-                            var viewLink = (_role !== "Parent") ?
-                                "/observation/view/" + val.id :
-                                "/observation/print/" + val.id;
-
-                            var targetAttr = (_role !== "Parent") ? '' : 'target="_blank"';
-
-                            // Icons on Right side
-                            var iconsHtml = '';
-                            if (_role !== "Parent") {
-                                iconsHtml = `
-                                    <a href="/observation/print/${val.id}" target="_blank" class="mb-2">
-                                        <i class="fa-solid fa-print fa-lg fa-beat" style="color: #74C0FC;"></i>
-                                    </a>
-                                    <i class="fa-sharp fa-solid fa-trash fa-lg fa-fade" style="color: #da0711;cursor:pointer;" onclick="deleteObservation(${val.id})"></i>
-                                `;
-                            } else {
-                                iconsHtml = `
-                                    <i class="fa-solid fa-comment fa-bounce fa-sm" style="color: #74C0FC;cursor:pointer;" onclick="openAddCommentModal(${val.id})"></i>
-                                `;
-                            }
-
-                            // Build observation card
-                            var title = val.obestitle || val.title;
-                            var displayTitle = title.length > 40 ? title.substring(0, 40) + '...' : title;
-                            
-                            $('#observations-list').append(`
-                                <div class="col-lg-6 col-md-3">
-                                    <div class="d-flex flex-row mb-3 bg-white br-10 align-items-center justify-content-between p-3 card">
-                                        <div class="d-flex flex-row align-items-center">
-                                            <a class="d-block position-relative" href="${viewLink}" ${targetAttr}>
-                                                <img src="${_mediaUrl}" alt="Media" class="list-thumbnail border-0" style="width:100px;height:100px;object-fit:cover;">
-                                                ${_status}
-                                            </a>
-                                            <div class="pl-3">
-                                                <a href="${viewLink}" class="obs-link" ${targetAttr}>
-                                                    <p class="list-item-heading mb-1">${displayTitle}</p>
-                                                </a>
-                                                <p class="text-muted mb-1 text-small">By: ${val.userName || 'Unknown'}</p>
-                                                <p class="text-primary text-small font-weight-medium mb-0">${val.date_added}</p>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-column align-items-center icon-actions">
-                                            ${iconsHtml}
-                                        </div>
-                                    </div>
+                    // Children Section
+                    let childrenHtml = '';
+                    if (val.children && val.children.length > 0) {
+                        val.children.forEach(childItem => {
+                            const imageUrl = childItem.child?.imageUrl || 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png';
+                            childrenHtml += `
+                                <div class="child-item">
+                                    <img src="${imageUrl}" alt="${childItem.child?.name}" class="child-avatar">
+                                    <div class="child-name">${childItem.child?.name}</div>
                                 </div>
-                            `);
+                            `;
                         });
                     }
-                    
-                    $('#btn-apply-filters').prop('disabled', false).html('Apply Filters');
-                    $('#filtersModal').modal('hide');
-                } else {
-                    alert(response.message || 'An error occurred while filtering observations.');
-                    $('#btn-apply-filters').prop('disabled', false).html('Apply Filters');
-                }
-            },
+
+                    // Educators Section
+                    let educatorsHtml = '';
+                    if (val.staff && val.staff.length > 0) {
+                        val.staff.forEach(staffItem => {
+                            const gender = staffItem.staff?.gender === 'FEMALE' ? 'female' : 'male';
+                            const imageUrl = staffItem.staff?.imageUrl || `/assets/img/xs/avatar${Math.floor(Math.random() * 10) + 1}.jpg`;
+                            educatorsHtml += `
+                                <div class="educator-item">
+                                    <img src="${imageUrl}" alt="${staffItem.staff?.name}" class="educator-avatar">
+                                    <div class="educator-name">${staffItem.staff?.name}</div>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    $('#observations-list').append(`
+                        <div class="col-lg-6 col-md-12">
+                            <div class="card reflection-card">
+                                <div class="image-carousel">
+                                    ${imagesHtml}
+                                    ${val.media?.length > 1 ? `<div class="carousel-indicators">${indicatorsHtml}</div>` : ''}
+                                </div>
+
+                                <div class="card-header">
+                                    <h5 class="card-title">${val.title}</h5>
+                                    <div class="card-date">
+                                        <i class="fas fa-calendar-alt"></i> ${val.created_at_formatted}
+                                    </div>
+                                </div>
+
+                                <div class="card-body">
+                                    ${childrenHtml ? `
+                                        <div class="section-title"><i class="fas fa-child"></i> Children</div>
+                                        <div class="children-grid">${childrenHtml}</div>
+                                    ` : ''}
+
+                                    ${educatorsHtml ? `
+                                        <div class="section-title"><i class="fas fa-chalkboard-teacher"></i> Educators</div>
+                                        <div class="educators-list">${educatorsHtml}</div>
+                                    ` : ''}
+
+                                    <div class="card-actions">
+                                        <a href="/reflection/addnew/${val.id}" class="btn btn-edit btn-action">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <button class="btn btn-delete btn-action delete-reflection" data-id="${val.id}">
+                                            <i class="fas fa-trash-alt"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
+            }
+
+            $('#btn-apply-filters').prop('disabled', false).html('Apply Filters');
+            $('#filtersModal').modal('hide');
+        } else {
+            alert(response.message || 'An error occurred while filtering reflections.');
+        }
+    },
+
             error: function(xhr, status, error) {
                 console.error('Filter error:', error);
                 alert('An error occurred while filtering observations.');
@@ -926,6 +1137,109 @@ $(document).on('change', '.filter_author, .filter_staff', function () {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+{{-- JavaScript for auto-sliding carousel --}}
+<script>
+$(document).ready(function() {
+    // Auto-sliding carousel functionality
+    $('.reflection-card').each(function() {
+        const card = $(this);
+        const images = card.find('.carousel-image');
+        const indicators = card.find('.carousel-indicator');
+        let currentIndex = 0;
+        let intervalId;
+
+        if (images.length > 1) {
+            function showImage(index) {
+                images.removeClass('active');
+                indicators.removeClass('active');
+                images.eq(index).addClass('active');
+                indicators.eq(index).addClass('active');
+            }
+
+            function nextImage() {
+                currentIndex = (currentIndex + 1) % images.length;
+                showImage(currentIndex);
+            }
+
+            function startCarousel() {
+                intervalId = setInterval(nextImage, 4000); // Change image every 4 seconds
+            }
+
+            function stopCarousel() {
+                clearInterval(intervalId);
+            }
+
+            // Start auto-sliding
+            startCarousel();
+
+            // Pause on hover
+            card.hover(stopCarousel, startCarousel);
+
+            // Manual navigation
+            indicators.click(function() {
+                currentIndex = $(this).data('slide');
+                showImage(currentIndex);
+                stopCarousel();
+                startCarousel(); // Restart auto-sliding
+            });
+        }
+    });
+});
+</script>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.delete-reflection').forEach(button => {
+            button.addEventListener('click', function () {
+                const reflectionId = this.getAttribute('data-id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/reflection/delete/${reflectionId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            Swal.fire('Deleted!', data.message, 'success').then(() => {
+                                location.reload();
+                            });
+                        })
+                        .catch(error => {
+                            Swal.fire('Error!', 'Something went wrong.', 'error');
+                        });
+                    }
+                });
+            });
+        });
+    });
+</script>
 
 @include('layout.footer')
 @stop

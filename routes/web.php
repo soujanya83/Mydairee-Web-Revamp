@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Models\Child;
 use App\Http\Controllers\ObservationController;
+use App\Http\Controllers\ReflectionController;
 use App\Http\Controllers\SurveyController;
 
 // Route::get('/', function () {
@@ -122,6 +123,16 @@ Route::post('dailyDiary/deleteBottleTime',[DailyDiaryController::class,'deleteBo
 
 Route::get('dailyDiary/viewChildDiary',[DailyDiaryController::class,'viewChildDiary'])->name('dailyDiary.viewChildDiary');
 
+Route::post('/activities/breakfast', [DailyDiaryController::class, 'storeBreakfast']);
+Route::post('/activities/morning-tea', [DailyDiaryController::class, 'storeMorningTea']);
+Route::post('/activities/lunch', [DailyDiaryController::class, 'storeLunch']);
+Route::post('/activities/sleep', [DailyDiaryController::class, 'storeSleep']);
+Route::post('/activities/afternoon-tea', [DailyDiaryController::class, 'storeAfternoonTea']);
+Route::post('/activities/snacks', [DailyDiaryController::class, 'storeSnacks']);
+Route::post('/activities/sunscreen', [DailyDiaryController::class, 'storeSunscreen']);
+Route::post('/activities/toileting', [DailyDiaryController::class, 'storeToileting']);
+Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
+
 // Daily Journel Ends here 
 
 
@@ -174,7 +185,8 @@ Route::get('dailyDiary/viewChildDiary',[DailyDiaryController::class,'viewChildDi
     Route::get('Observation/getActivitiesBySubject',[ObservationController::class,'addSubActivity'])->name('Observation.addSubActivity');
 
 Route::get('Observation/addSubActivity',[ObservationController::class,'getActivitiesBySubject'])->name('Observation.getActivitiesBySubject');
-    Route::prefix('settings')->name('settings.')->group(function () {
+    
+      Route::prefix('settings')->name('settings.')->group(function () {
            
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
         Route::delete('/superadmin/{id}', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
@@ -218,7 +230,7 @@ Route::get('Observation/addSubActivity',[ObservationController::class,'getActivi
         Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
         Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
         Route::get('/view', [ObservationsController::class, 'index'])->name('view');
-        Route::get('/print/{id}', [ObservationsController::class, 'index'])->name('print');
+        Route::get('/print/{id}', [ObservationsController::class, 'print'])->name('print');
 
 
         Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
@@ -241,35 +253,29 @@ Route::get('Observation/addSubActivity',[ObservationController::class,'getActivi
         Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
 
 
+    });
+
+
+    Route::prefix('reflection')->name('reflection.')->group(function () {
+
+        Route::get('/index', [ReflectionController::class, 'index'])->name('index');
+
+        Route::get('/addnew', [ReflectionController::class, 'storepage'])->name('addnew');
+        Route::get('/addnew/{id?}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
+
+        Route::post('/store', [ReflectionController::class, 'store'])->name('store');
+
+        Route::delete('/reflection-media/{id}', [ReflectionController::class, 'destroyimage']);
+
+        Route::post('/status/update', [ReflectionController::class, 'updateStatus'])->name('status.update');
+
+        Route::delete('/delete/{id}', [ReflectionController::class, 'destroy'])->name('delete');
+
+        Route::post('/filters', [ReflectionController::class, 'applyFilters'])->name('filters');
 
 
 
-
-
-
-
-
-
-
-
-
-        Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
-        Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
-
-
-
-
-        Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
-        Route::post('/parent/store', [SettingsController::class, 'parent_store'])->name('parent.store');
-
-        Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
-        Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');
-
-
-        Route::get('/profile', [SettingsController::class, 'getprofile_page'])->name('profile');
-        Route::post('/upload-profile-image', [SettingsController::class, 'uploadImage'])->name('upload.profile.image');
-        Route::post('/profile/update/{id}', [SettingsController::class, 'profileupdate'])->name('profile.update');
-        Route::post('/profile/change-password/{id}', [SettingsController::class, 'changePassword'])->name('profile.change-password');
+     
     });
 
 
