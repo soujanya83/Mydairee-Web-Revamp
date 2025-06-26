@@ -1,13 +1,13 @@
 @extends('layout.master')
-<title>@yield('title','Rooms List')</title>
+@section('title', 'Rooms')
+@section('parentPageTitle', 'Children')
 
-{{-- @section('parentPageTitle', '') --}}
 
 
 
 @section('content')
 
-<div style="margin-top: -36px;">
+<div >
     <h5>Edit Child</h5>
 
     <hr>

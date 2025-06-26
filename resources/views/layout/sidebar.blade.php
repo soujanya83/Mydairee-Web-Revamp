@@ -15,7 +15,7 @@
             $avatars = Auth::user()->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
             $defaultAvatar = $avatars[array_rand($avatars)];
             @endphp
-            <img src="{{ 'storage/'.Auth::user()->imageUrl ? asset('storage/'.Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
+            <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
                 class="rounded-circle user-photo" style="vertical-align: bottom; height: 45px;"
                 alt="User Profile Picture">
 
@@ -47,6 +47,64 @@
                             <a href="/"><i class="icon-home"></i> <span>Dashboard</span></a>
 
                         </li>
+                           <li class="{{ Request::segment(1) === 'programPlanList' ? 'active' : '' }}">
+                            <a href="/programPlanList">
+                                <i class="far fa-clipboard"></i> <span>Program Plan</span>
+                            </a>
+                        </li>
+
+                        <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
+                            <a href="/ServiceDetails">
+                                <i class="far fa-clipboard"></i> <span>Service Details</span>
+                            </a>
+                        </li>
+
+
+                      
+
+                        <li class="{{ Request::segment(1) === 'dashboard' ? 'active' : null }}">
+                            <a href="{{ route('rooms_list') }}"><i class="icon-home"></i> <span>Rooms</span></a>
+                                {{-- <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
+                                <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a href="{{route('settings.center_settings')}}">Center Settings </a></li>
+                                <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a href="{{route('settings.staff_settings')}}">Staffs Settings </a></li> --}}
+
+                        </li>
+
+                           <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
+                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
+                                <span>Announcements</span></a>
+                            <ul>
+                                <li class="{{ Request::segment(2) === 'list' ? 'active' : null }}"><a
+                                        href="{{route('announcements.list')}}">Announcements</a> </li>
+                                <!-- <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('survey.list')}}">Survey </a></li> -->
+                            </ul>
+
+                        </li>
+
+                        <!-- daily Journel -->
+                            <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
+                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
+                                <span>Daily Journel</span></a>
+                            <ul>
+                                <li class="{{ Request::segment(2) === 'DailyDiary' ? 'active' : null }}"><a
+                                        href="{{route('dailyDiary.list')}}">Daily Diary</a> </li>
+                                <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('headChecks')}}">Head Checks</a></li>
+                                         <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('sleepcheck.list')}}">Sleep Check List</a></li>
+                                         <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('Accidents.list')}}">Accidents</a></li>
+                            </ul>
+
+                        </li>
+                         <!-- Daily journel ends -->
+
+                          
+                        <li class="{{ Request::segment(1) === 'observation.index' ? 'active' : null }}">
+                            <a href="{{route('observation.index')}}"><i class="fa-solid fa-gears"></i><span>Observation</span></a>
+                        </li>
+
 
                         <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
                             <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
@@ -66,36 +124,23 @@
 
                         </li>
 
-                        <li class="{{ Request::segment(1) === 'dashboard' ? 'active' : null }}">
-                            <a href="{{ route('rooms_list') }}"><i class="icon-home"></i> <span>Rooms</span></a>
-                            {{--
-                        <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a
-                                href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
-                        <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a
-                                href="{{route('settings.center_settings')}}">Center Settings </a></li>
-                        <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a
-                                href="{{route('settings.staff_settings')}}">Staffs Settings </a></li> --}}
-
-                        </li>
-                        <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
-                            <a href="#settings" class="has-arrow">
+                       
+                     <li class="{{ Request::segment(1) === 'healthy_eating' ? 'active' : null }}">
+                            <a href="#healthy_eating" class="has-arrow">
                                 <i class="fas fa-utensils"></i> <span>Healthy Eating</span>
                             </a>
-                            <ul>
-
-                        </li>
-                        <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a
+                    <ul>
+                        <li class="{{ Request::segment(2) === 'menu' ? 'active' : null }}"><a
                                 href="{{route('healthy_menu')}}">Menu </a></li>
-                        <li class="{{ Request::segment(3) === 'staff_settings' ? 'active' : null }}"><a
+                        <li class="{{ Request::segment(3) === 'recipe' ? 'active' : null }}"><a
                                 href="{{route('healthy_recipe')}}">Recipe </a></li>
 
-                        <li class="{{ Request::segment(4) === 'staff_settings' ? 'active' : null }}"><a
+                        <li class="{{ Request::segment(4) === 'ingredients' ? 'active' : null }}"><a
                                 href="{{route('recipes.Ingredients')}}">Ingredients </a></li>
-
                     </ul>
 
                     </li>
-                    </ul>
+                </ul>
 
                 </nav>
             </div>

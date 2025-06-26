@@ -16,12 +16,22 @@
         @stack('before-styles')
 
         <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}">
+
         <link rel="stylesheet" href="{{ asset('assets/vendor/font-awesome/css/font-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/vendor/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/morrisjs/morris.min.css') }}" />
+        <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css')}}" />
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+          @if (Request::segment(1) === 'announcements' )
+          <!-- Replace existing Bootstrap 4.1.1 with this -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"> -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
+        @endif
 
         @if (Request::segment(2) === 'analytical' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}">
@@ -139,7 +149,7 @@
             <link rel="stylesheet" href="{{ asset('assets/vendor/cropper/cropper.min.css') }}"/>
         @endif
 
-        @if (Request::segment(2) === 'summernote' )
+        @if (Request::segment(2) === 'summernote' || Request::segment(2) === 'addNew')
             <link rel="stylesheet" href="{{ asset('assets/vendor/summernote/dist/summernote.css') }}"/>
         @endif
 
@@ -236,7 +246,7 @@
             <div class="row">
                 <div class="col-lg-5 col-md-8 col-sm-12">
                     <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class=""></i></a> @yield('title')</h2>
-                    {{-- <ul class="breadcrumb">
+                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard.university')}}"><i class="icon-home"></i></a></li>
                         @if (trim($__env->yieldContent('parentPageTitle')))
                            <li class="breadcrumb-item">@yield('parentPageTitle')</li>
@@ -244,9 +254,9 @@
                         @if (trim($__env->yieldContent('title')))
                             <li class="breadcrumb-item active">@yield('title')</li>
                         @endif
-                    </ul> --}}
-                </div>
-                {{-- <div class="col-lg-7 col-md-4 col-sm-12 text-right"> --}}
+                    </ul>
+                </div>            
+                <!-- <div class="col-lg-7 col-md-4 col-sm-12 text-right"> -->
                     <!-- <div class="inlineblock text-center m-r-15 m-l-15 hidden-sm">
                         <div class="sparkline text-left" data-type="line" data-width="8em" data-height="20px" data-line-Width="1" data-line-Color="#00c5dc"
                             data-fill-Color="transparent">3,5,1,6,5,4,8,3</div>
@@ -257,7 +267,7 @@
                             data-fill-Color="transparent">4,6,3,2,5,6,5,4</div>
                         <span>Visits</span>
                     </div> -->
-                {{-- </div> --}}
+                <!-- </div> -->
             </div>
         </div>
 
@@ -272,6 +282,9 @@
         @stack('before-scripts')
 
         <script src="{{ asset('assets/bundles/libscripts.bundle.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
         <script src="{{ asset('assets/bundles/vendorscripts.bundle.js') }}"></script>
 
         <script src="{{ asset('assets/bundles/morrisscripts.bundle.js') }}"></script><!-- Morris Plugin Js -->
@@ -345,6 +358,15 @@
 			<script src="{{ asset('assets/vendor/nestable/jquery.nestable.js') }}"></script>
 			<script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
 			<script src="{{ asset('assets/js/pages/ui/sortable-nestable.js') }}"></script>
+        @endif
+
+         @if (Request::segment(1) === 'announcements' )
+		<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+			<!-- <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script> -->
+             <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/js/bootstrap-datepicker.min.js"></script> -->
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/js/bootstrap-datepicker.min.js"></script>
         @endif
 
         @if (Request::segment(1) === 'file-manager' && Request::segment(2) === 'dashboard' )
@@ -447,7 +469,7 @@
             <script src="{{ asset('assets/vendor/cropper/cropper-init.js') }}"></script>
         @endif
 
-        @if (Request::segment(2) === 'summernote' )
+        @if (Request::segment(2) === 'summernote' || Request::segment(2) === 'addNew' )
             <script src="{{ asset('assets/vendor/summernote/dist/summernote.js') }}"></script>
         @endif
 
@@ -550,7 +572,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+			<script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
 
 
 <script>
@@ -601,5 +624,7 @@
                 @yield('page-script')
             </script>
 		@endif
+
+        @stack('scripts')
     </body>
 </html>

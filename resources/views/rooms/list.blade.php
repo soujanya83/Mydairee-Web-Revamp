@@ -1,7 +1,24 @@
 @extends('layout.master')
-<title>@yield('title','Rooms List')</title>
 
-{{-- @section('parentPageTitle', '') --}}
+@section('title', 'Rooms List')
+
+@section('parentPageTitle', '')
+
+
+
+@section('content')
+
+
+
+
+
+<!-- <div style="margin-top: -36px;">
+    <h5>Rooms List</h5>
+
+   
+    <hr> -->
+
+
 
 <style>
     .educator-checkbox-list {
@@ -33,7 +50,6 @@
     }
 </style>
 
-@section('content')
 
 <div style="margin-top: -36px;">
 
@@ -59,7 +75,7 @@
         </button>
     </div>
     @endif
-    <h5>Rooms List</h5>
+    <!-- <h5>Rooms List</h5> -->
 
 
 
@@ -69,7 +85,7 @@
 
         <input type="text" id="roomSearch" class="form-control w-25" placeholder="Search room name...">
 
-        <div class="dropdown">
+        <!-- <div class="dropdown">
             <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="centerDropdown"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
@@ -84,7 +100,26 @@
                 </a>
                 @endforeach
             </div>
+        </div> -->
+
+        <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: 0px;">
+    <div class="dropdown">
+        <button class="btn btn-outline-primary btn-lg dropdown-toggle"
+                type="button" id="centerDropdown" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+            {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+        </button>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
+            @foreach($centers as $center)
+                <a href="javascript:void(0);"
+                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                 style="background-color:white;"  data-id="{{ $center->id }}">
+                    {{ $center->centerName }}
+                </a>
+            @endforeach
         </div>
+    </div>
+</div>
 
         <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#roomModal"
             style="height: 36px;">
@@ -97,10 +132,11 @@
     <hr>
 
 
-    {{--
-    <div class="row clearfix" style="margin-bottom: 43px;">
+    
+    <!-- <div class="row clearfix" style="margin-bottom: 43px;">
         @foreach($getrooms as $room)
         <div class="col-lg-4 col-md-6 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
+
             <a href="{{ route('room.children', $room->roomid) }}" style="text-decoration: none; color: inherit;">
                 <div class="card shadow-sm border-0 rounded p-3 hover-shadow">
                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -136,7 +172,7 @@
             </a>
         </div>
         @endforeach
-    </div> --}}
+    </div>  -->
 
     <form method="POST" action="{{ route('rooms.bulk_delete') }}" id="deleteRoomsForm">
         @csrf
@@ -286,7 +322,7 @@
 </div>
 
 
-{{-- <div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="filtersModalRight"
+ <div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="filtersModalRight"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -360,7 +396,7 @@
             </div>
         </div>
     </div>
-</div> --}}
+</div> 
 
 <script>
     $(document).on('click', '.edit-room', function() {
