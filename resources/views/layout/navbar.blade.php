@@ -1,6 +1,6 @@
 <style>
     .navbar-fixed-top .navbar-brand img {
-        width: 180px;
+        width: 130px;
     }
 
     .top_counter {
