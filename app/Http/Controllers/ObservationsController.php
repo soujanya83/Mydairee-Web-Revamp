@@ -109,13 +109,15 @@ class ObservationsController extends Controller
 
              if(Auth::user()->userType == "Superadmin"){
 
-             $observations = Observation::where('centerid', $centerid)
+             $observations = Observation::with(['user', 'child','media'])
+             ->where('centerid', $centerid)
              ->orderBy('id', 'desc') // optional: to show latest first
              ->paginate(10); // 10 items per page   
 
              }elseif(Auth::user()->userType == "Staff"){
 
-                $observations = Observation::where('userId', $authId)
+                $observations = Observation::with(['user', 'child','media'])
+                ->where('userId', $authId)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page 
 
@@ -127,7 +129,8 @@ class ObservationsController extends Controller
                 ->unique()
                 ->toArray();
                 // dd($childids);
-            $observations = Observation::whereIn('id', $observationIds)
+            $observations = Observation::with(['user', 'child','media'])
+            ->whereIn('id', $observationIds)
              ->orderBy('id', 'desc') // optional: to show latest first
              ->paginate(10); // 10 items per page   
 
@@ -147,7 +150,7 @@ class ObservationsController extends Controller
             $centerid = Session('user_center_id');
 
 
-            $query = Observation::with(['user', 'child'])
+            $query = Observation::with(['user', 'child','media'])
             ->where('centerid', $centerid);            
             // Status filter
             if ($request->has('observations') && !empty($request->observations)) {
@@ -283,7 +286,7 @@ class ObservationsController extends Controller
                     'title' => html_entity_decode($observation->title ?? ''),
                     'obestitle' => $observation->obestitle ?? '',
                     'status' => $observation->status,
-                    'media' => $observation->observationsMedia,
+                    'media' => $observation->media->first(),
                     'mediaType' => $observation->observationsMediaType,
                     'userName' => $observation->user->name ?? 'Unknown',
                     'date_added' => Carbon::parse($observation->created_at)->format('d.m.Y'),
@@ -810,11 +813,6 @@ public function store(Request $request)
     );
 
     $isEdit = $request->filled('id');
-    // if (!$isEdit) {
-    //     dd("id is not");
-    // }else{
-    //     dd("id is tere");
-    // }
 
     $rules = [
         'selected_rooms'    => 'required',
@@ -967,6 +965,31 @@ public function destroyimage($id)
     $media->delete();
 
     return response()->json(['status' => 'success']);
+}
+
+public function print($id)
+{
+    try {
+        // Fetch the observation with all related data using the same relationships as view method
+        $observation = Observation::with([
+            'media',
+            'child.child',
+            'montessoriLinks.subActivity.activity.subject',
+            'eylfLinks.subActivity.activity.outcome',
+            'devMilestoneSubs.devMilestone.main',
+            'devMilestoneSubs.devMilestone.milestone',
+            'user'  // Assuming you have a room relationship
+        ])->findOrFail($id);
+
+        $roomNames = Room::whereIn('id', explode(',', $observation->room))
+        ->pluck('name')
+        ->implode(', '); // or ->toArray() if you prefer array
+
+        return view('observations.print', compact('observation','roomNames'));
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Observation not found or error occurred while loading the print view.');
+    }
 }
 
 

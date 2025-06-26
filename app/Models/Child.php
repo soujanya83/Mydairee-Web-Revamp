@@ -34,4 +34,9 @@ class Child extends Model
     {
         return $this->hasManyThrough(Observation::class, ObservationChild::class, 'childId', 'id', 'id', 'observationId');
     }
+
+    public function reflections()
+{
+    return $this->hasMany(ReflectionChild::class, 'childid');
+}
 }

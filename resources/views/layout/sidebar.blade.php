@@ -41,13 +41,29 @@
         <!-- Tab panes -->
         <div class="tab-content p-l-0 p-r-0">
             <div class="tab-pane active" id="menu">
-                <nav id="left-sidebar-nav" class="sidebar-nav">
+                <nav id="left-sidebar-nav" class="sidebar-nav" style="margin-bottom: 60px;">
                     <ul id="main-menu" class="metismenu">
-                        <li class="{{ Request::segment(1) === 'dashboard' ? 'active' : null }}">
+                        <li class="{{ Request::is('/') ? 'active' : null }}">
                             <a href="/"><i class="icon-home"></i> <span>Dashboard</span></a>
 
                         </li>
-                           <li class="{{ Request::segment(1) === 'programPlanList' ? 'active' : '' }}">
+
+                        <li class="{{ Request::is('observation*') ? 'active' : null }}">
+                            <a href="{{route('observation.index')}}"><i class="fa-solid fa-gears"></i><span>Observation</span></a>
+                        </li>
+
+
+                        <li class="{{ Request::is('room*') ? 'active' : null }}">
+                            <a href="{{ route('rooms_list') }}"><i class="fa-solid fa-users-viewfinder"></i> <span>Rooms</span></a>
+                        </li>
+
+
+
+                        <li class="{{ Request::is('reflection*') ? 'active' : null }}">
+                            <a href="{{route('reflection.index')}}"><i class="fa-solid fa-window-restore"></i><span>Daily Reflections</span></a>
+                        </li>
+
+                           <li class="{{ Request::is('programPlanList*') ? 'active' : '' }}">
                             <a href="/programPlanList">
                                 <i class="far fa-clipboard"></i> <span>Program Plan</span>
                             </a>
@@ -63,16 +79,10 @@
 
                       
 
-                        <li class="{{ Request::segment(1) === 'dashboard' ? 'active' : null }}">
-                            <a href="{{ route('rooms_list') }}"><i class="icon-home"></i> <span>Rooms</span></a>
-                                {{-- <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
-                                <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a href="{{route('settings.center_settings')}}">Center Settings </a></li>
-                                <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a href="{{route('settings.staff_settings')}}">Staffs Settings </a></li> --}}
-
-                        </li>
+                      
 
                            <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
-                            <a href="#settings" class="has-arrow"><i class="fa fa-bullhorn"></i>
+                            <a href="#announcements" class="has-arrow"><i class="fa fa-bullhorn"></i>
 
                                 <span>Announcements</span></a>
                             <ul>
@@ -85,8 +95,8 @@
                         </li>
 
                         <!-- daily Journel -->
-                            <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
-                            <a href="#settings" class="has-arrow"><i class="fa fa-calendar"></i>
+                            <!-- <li class="{{ Request::segment(1) === 'dailydiary' ? 'active' : null }}">
+                            <a href="#dailydiary" class="has-arrow"><i class="fa fa-calendar"></i>
                                 <span>Daily Journel</span></a>
                             <ul>
                                 <li class="{{ Request::segment(2) === 'DailyDiary' ? 'active' : null }}"><a
@@ -99,13 +109,34 @@
                                         href="{{route('Accidents.list')}}">Accidents</a></li>
                             </ul>
 
-                        </li>
+                        </li> -->
+
+                        @php
+    $isDiaryActive = Route::is('dailyDiary.list') || Route::is('headChecks') || Route::is('sleepcheck.list') || Route::is('Accidents.list');
+@endphp
+
+<li class="{{ $isDiaryActive ? 'active' : '' }}">
+    <a href="javascript:void(0);" class="has-arrow"><i class="fa fa-calendar"></i>
+        <span>Daily Journal</span></a>
+    <ul>
+        <li class="{{ Route::is('dailyDiary.list') ? 'active' : '' }}">
+            <a href="{{ route('dailyDiary.list') }}">Daily Diary</a>
+        </li>
+        <li class="{{ Route::is('headChecks') ? 'active' : '' }}">
+            <a href="{{ route('headChecks') }}">Head Checks</a>
+        </li>
+        <li class="{{ Route::is('sleepcheck.list') ? 'active' : '' }}">
+            <a href="{{ route('sleepcheck.list') }}">Sleep Check List</a>
+        </li>
+        <li class="{{ Route::is('Accidents.list') ? 'active' : '' }}">
+            <a href="{{ route('Accidents.list') }}">Accidents</a>
+        </li>
+    </ul>
+</li>
                          <!-- Daily journel ends -->
 
                           
-                        <li class="{{ Request::segment(1) === 'observation.index' ? 'active' : null }}">
-                            <a href="{{route('observation.index')}}"><i class="fa-solid fa-gears"></i><span>Observation</span></a>
-                        </li>
+                      
 
 
                         <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
@@ -127,7 +158,7 @@
                         </li>
 
                        
-                     <li class="{{ Request::segment(1) === 'healthy_eating' ? 'active' : null }}">
+                     <!-- <li class="{{ Request::segment(1) === 'healthy_eating' ? 'active' : null }}">
                             <a href="#healthy_eating" class="has-arrow">
                                 <i class="fas fa-utensils"></i> <span>Healthy Eating</span>
                             </a>
@@ -141,7 +172,32 @@
                                 href="{{route('recipes.Ingredients')}}">Ingredients </a></li>
                     </ul>
 
+                    </li> -->
+
+                    @php
+                        $isHealthyActive = Route::is('healthy_menu') || Route::is('healthy_recipe') || Route::is('recipes.Ingredients');
+                    @endphp
+
+                    <li class="{{ $isHealthyActive ? 'active' : '' }}">
+                        <a href="#healthy_eating" class="has-arrow">
+                            <i class="fas fa-utensils"></i> <span>Healthy Eating</span>
+                        </a>
+                        <ul>
+                            <li class="{{ Route::is('healthy_menu') ? 'active' : '' }}">
+                                <a href="{{ route('healthy_menu') }}">Menu</a>
+                            </li>
+                            <li class="{{ Route::is('healthy_recipe') ? 'active' : '' }}">
+                                <a href="{{ route('healthy_recipe') }}">Recipe</a>
+                            </li>
+                            <li class="{{ Route::is('recipes.Ingredients') ? 'active' : '' }}">
+                                <a href="{{ route('recipes.Ingredients') }}">Ingredients</a>
+                            </li>
+                        </ul>
                     </li>
+
+
+
+
                 </ul>
 
                 </nav>
