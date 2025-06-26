@@ -27,7 +27,7 @@
             <button type="button" class="btn-toggle-offcanvas"><i class="lnr lnr-menu fa fa-bars"></i></button>
         </div>
 
-        <div class="navbar-brand">
+        <div class="navbar-brand" style="margin-top: -12px;">
             <a href="{{route('dashboard.analytical')}}"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}"
                     alt="Lucid Logo" class="img-responsive logo"></a>
         </div>
