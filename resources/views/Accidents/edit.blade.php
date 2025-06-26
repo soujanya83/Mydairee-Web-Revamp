@@ -3,6 +3,18 @@
 @section('parentPageTitle', 'Dashboard')
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
+<style>
+        main{
+padding-block:4em;
+padding-inline:2em;
+    }
+    @media screen and (max-width: 600px) {
+    main{
+padding-block:4em;
+padding-inline:0;
+    }
+}
+</style>
     <style>
 	.modal-footer {
 	   display: inline-block;
@@ -44,7 +56,7 @@
     <main>
         <div class="container-fluid">
             <div class="row">
-                <div class="col-12">
+                <!-- <div class="col-12">
                     <h1>Add Accidents</h1>
                     
                     <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
@@ -65,7 +77,7 @@
                         </ol>
                     </nav>
                     <div class="separator mb-5"></div>
-                </div>
+                </div> -->
             </div>  
             <div class="row">
                 <div class="col-12 mb-5 card pt-4">
@@ -1119,3 +1131,4 @@ function saveImage() {
     }
 </script>
 @endpush
+@include('layout.footer')

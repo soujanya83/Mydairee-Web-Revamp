@@ -14,6 +14,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css">
  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
  <style>
+    main{
+padding-block:4em;
+padding-inline:2em;
+    }
+    @media screen and (max-width: 600px) {
+    main{
+
+padding-inline:0;
+    }
+}
+
         .modal-footer {
         display: inline-block;
         width: 100%;
@@ -52,7 +63,7 @@
 
         .print-button {
             position: absolute;
-            top: 9px;
+            /* top: 9px; */
             right: 60px;
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -61,12 +72,13 @@
             border-radius: 5px;
             cursor: pointer;
             z-index: 10; /* Add this */
+            /* margin-right: 10px; */
         }
 
         .email-button {
     position: absolute;
-    top: 9px;
-    right: 190px; /* Adjust to position it beside the print button */
+    /* top: 9px; */
+    right: 210px; 
     padding: 10px 20px;
     background-color: #007BFF; /* Blue to distinguish from print */
     color: white;
@@ -137,11 +149,14 @@
 
    
 </div>
-    <main style="padding-block:5em;padding-inline:2em;">
+  <hr class="mt-5">
+ 
+    <main >
+        
         <div class="container-fluid">
            <div class="row no-print2">
     <div class="col-12">
-        <h1> Accidents Details</h1>
+        <!-- <h1> Accidents Details</h1>
         <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
             <ol class="breadcrumb pt-0">
                 <li class="breadcrumb-item">
@@ -154,8 +169,8 @@
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">View Accidents</li>
             </ol>
-        </nav>
-        <div class="separator mb-5"></div>
+        </nav> -->
+       
     </div>
 </div>
        <div id="printArea">
@@ -273,9 +288,9 @@
                                     <span class="simple-icon-pencil text-primary editbtn" data-toggle="modal" data-target="#signModal" data-identity="witness_sign"></span>
                                 </label>
                                 <!-- <input type="text" class="form-control" id="witness_sign_dt" disabled> -->
-                                <div id="#witness_sign">
+                                <div id="#witness_sign " class="bordered">
                                     <input type="hidden" name="witness_sign" id="witness_sign_txt" value="_{{ $AccidentInfo->witness_sign }}">
-                                    <img src="{{ asset('assets/media/'.$AccidentInfo->witness_sign) }}" height="120px" width="300px" id="witness_sign_img">
+                                    <img src="{{ asset('assets/media/'.$AccidentInfo->witness_sign) }}" class="bordered" height="120px" width="300px" id="witness_sign_img">
                                 </div>
                             </div>
                         </div>
@@ -314,11 +329,15 @@
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <div class="svgFlex col-12 row">
-                                    <span class="col-md-6 col-sm-12">
-                                        <!-- <canvas id="c" width="500" height="500"></canvas> -->
-                                      <img src="{{ asset('assets/media/' . $AccidentInfo->injury_image) }}" alt="" srcset="">
+                                 <span class="col-md-6 col-sm-12">
+    <img 
+        src="{{ asset('assets/media/' . $AccidentInfo->injury_image) }}" 
+        alt="Injury Image"
+        class="img-fluid border rounded" 
+        style="max-width: 100%; height: auto; display: block;"
+    >
+</span>
 
-                                    </span>
                                     <span class="col-md-6 col-sm-12">
                                         <input type="hidden" name="injury_image" id="injury-image" value="">
                                         <ul class="col-12 row">

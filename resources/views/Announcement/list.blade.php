@@ -2,6 +2,21 @@
 @section('title', 'Announcements')
 @section('parentPageTitle', 'Dashboard')
 
+@section('page-styles')
+<style>
+        main{
+padding-block:4em;
+padding-inline:2em;
+    }
+    @media screen and (max-width: 600px) {
+    main{
+
+padding-inline:0;
+    }
+}
+
+</style>
+@endsection
 @section('content')
 @if (session('msg'))
     <script>
@@ -53,7 +68,7 @@
                 </div>
 
 </div>
-<main style="padding-block:5em;padding-inline:2em;">
+<main >
     <div class="container-fluid">
         <!-- <div class="row"> -->
 <!--     -->
@@ -161,10 +176,12 @@
 </div>
 
         @endif
-    </div>
-    <div class="d-flex justify-content-center mt-3">
+         <div class="d-flex justify-content-center mt-3 text-white  p-2 rounded">
     {{ $records->links() }}
 </div>
+    </div>
+
+
 
 </main>
 
