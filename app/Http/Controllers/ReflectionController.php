@@ -500,7 +500,7 @@ public function applyFilters(Request $request)
 
         
     } catch (\Exception $e) {
-        \Log::error('Filter error: ' . $e->getMessage());
+        Log::error('Filter error: ' . $e->getMessage());
         
         return response()->json([
             'status' => 'error',
