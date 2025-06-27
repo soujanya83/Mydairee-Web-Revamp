@@ -42,6 +42,7 @@ return array(
     'App\\Models\\Childparent' => $baseDir . '/app/Models/Childparent.php',
     'App\\Models\\IngredientModel' => $baseDir . '/app/Models/IngredientModel.php',
     'App\\Models\\Menu' => $baseDir . '/app/Models/Menu.php',
+    'App\\Models\\Permission' => $baseDir . '/app/Models/Permission.php',
     'App\\Models\\RecipeModel' => $baseDir . '/app/Models/RecipeModel.php',
     'App\\Models\\Room' => $baseDir . '/app/Models/Room.php',
     'App\\Models\\RoomStaff' => $baseDir . '/app/Models/RoomStaff.php',

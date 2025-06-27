@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit5a974499189db658d8cafcbbfb2129ad
+class ComposerStaticInitbd76d50ee62395a38069284764c01738
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
@@ -557,6 +557,7 @@ class ComposerStaticInit5a974499189db658d8cafcbbfb2129ad
         'App\\Models\\Childparent' => __DIR__ . '/../..' . '/app/Models/Childparent.php',
         'App\\Models\\IngredientModel' => __DIR__ . '/../..' . '/app/Models/IngredientModel.php',
         'App\\Models\\Menu' => __DIR__ . '/../..' . '/app/Models/Menu.php',
+        'App\\Models\\Permission' => __DIR__ . '/../..' . '/app/Models/Permission.php',
         'App\\Models\\RecipeModel' => __DIR__ . '/../..' . '/app/Models/RecipeModel.php',
         'App\\Models\\Room' => __DIR__ . '/../..' . '/app/Models/Room.php',
         'App\\Models\\RoomStaff' => __DIR__ . '/../..' . '/app/Models/RoomStaff.php',
@@ -6884,9 +6885,9 @@ class ComposerStaticInit5a974499189db658d8cafcbbfb2129ad
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit5a974499189db658d8cafcbbfb2129ad::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit5a974499189db658d8cafcbbfb2129ad::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit5a974499189db658d8cafcbbfb2129ad::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitbd76d50ee62395a38069284764c01738::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitbd76d50ee62395a38069284764c01738::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitbd76d50ee62395a38069284764c01738::$classMap;
 
         }, null, ClassLoader::class);
     }
