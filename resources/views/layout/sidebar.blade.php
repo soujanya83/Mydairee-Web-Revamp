@@ -6,6 +6,23 @@
             left: 0px !important;
         }
     </style>
+    <style>
+        /* Default: right arrow */
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        /* When parent li has .open or .active class, rotate arrow down */
+        .open>a .dropdown-arrow,
+        .active>a .dropdown-arrow {
+            transform: rotate(90deg);
+        }
+
+        /* Optional: style submenu if needed */
+        .open>ul {
+            display: block;
+        }
+    </style>
     <div class="sidebar-scroll" style="    margin-top: 54px;">
         <div class="user-account">
 
@@ -84,8 +101,8 @@
 
 
 
-                        <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
-                            <a href="#announcements" class="has-arrow"><i class="fa fa-bullhorn"></i>
+                        {{-- <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
+                            <a href="#announcements" class="has-arrow-right"><i class="fa fa-bullhorn"></i>
 
                                 <span>Announcements</span></a>
                             <ul>
@@ -95,7 +112,24 @@
                                         href="{{route('survey.list')}}">Survey </a></li> -->
                             </ul>
 
+                        </li> --}}
+
+                        <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
+                            <a href="#announcements"
+                                class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fa fa-bullhorn"></i>
+                                    <span>Announcements</span>
+                                </div>
+                                <i class="fa fa-chevron-right dropdown-arrow"></i> {{-- dropdown arrow --}}
+                            </a>
+                            <ul>
+                                <li class="{{ Request::segment(2) === 'list' ? 'active' : '' }}">
+                                    <a href="{{ route('announcements.list') }}">Announcements</a>
+                                </li>
+                            </ul>
                         </li>
+
 
                         <!-- daily Journel -->
                         <!-- <li class="{{ Request::segment(1) === 'dailydiary' ? 'active' : null }}">
@@ -119,9 +153,15 @@
                         Route::is('sleepcheck.list') || Route::is('Accidents.list');
                         @endphp
 
-                        <li class="{{ $isDiaryActive ? 'active' : '' }}">
-                            <a href="javascript:void(0);" class="has-arrow"><i class="fa fa-calendar"></i>
-                                <span>Daily Journal</span></a>
+                        <li class="{{ $isDiaryActive ? 'active open' : '' }}">
+                            <a href="javascript:void(0);"
+                                class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fa fa-calendar"></i>
+                                    <span>Daily Journal</span>
+                                </div>
+                                <i class="fa fa-chevron-right dropdown-arrow"></i>
+                            </a>
                             <ul>
                                 <li class="{{ Route::is('dailyDiary.list') ? 'active' : '' }}">
                                     <a href="{{ route('dailyDiary.list') }}">Daily Diary</a>
@@ -137,29 +177,40 @@
                                 </li>
                             </ul>
                         </li>
+
                         <!-- Daily journel ends -->
 
 
 
 
 
-                        <li class="{{ Request::segment(1) === 'settings' ? 'active' : null }}">
-                            <a href="#settings" class="has-arrow"><i class="icon-settings"></i>
-                                <span>Settings</span></a>
+                        <li class="{{ Request::segment(1) === 'settings' ? 'active open' : null }}">
+                            <a href="#settings" class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="icon-settings"></i>
+                                    <span>Settings</span>
+                                </div>
+                                <i class="fa fa-chevron-right dropdown-arrow"></i>
+                            </a>
                             <ul>
-                                <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}"><a
-                                        href="{{route('settings.superadmin_settings')}}">Super-Admin Settings</a> </li>
-                                <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}"><a
-                                        href="{{route('settings.center_settings')}}">Center Settings </a></li>
-                                <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}"><a
-                                        href="{{route('settings.staff_settings')}}">Staffs Settings </a></li>
-                                <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}"><a
-                                        href="{{route('settings.parent_settings')}}">Parents Settings </a></li>
-                                <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}"><a
-                                        href="{{route('settings.manage_permissions')}}">Manage Permissions </a></li>
+                                <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}">
+                                    <a href="{{ route('settings.superadmin_settings') }}">Super-Admin Settings</a>
+                                </li>
+                                <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}">
+                                    <a href="{{ route('settings.center_settings') }}">Center Settings</a>
+                                </li>
+                                <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}">
+                                    <a href="{{ route('settings.staff_settings') }}">Staffs Settings</a>
+                                </li>
+                                <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}">
+                                    <a href="{{ route('settings.parent_settings') }}">Parents Settings</a>
+                                </li>
+                                <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}">
+                                    <a href="{{ route('settings.manage_permissions') }}">Manage Permissions</a>
+                                </li>
                             </ul>
-
                         </li>
+
 
 
                         <!-- <li class="{{ Request::segment(1) === 'healthy_eating' ? 'active' : null }}">
@@ -183,9 +234,13 @@
                         Route::is('recipes.Ingredients');
                         @endphp
 
-                        <li class="{{ $isHealthyActive ? 'active' : '' }}">
-                            <a href="#healthy_eating" class="has-arrow">
-                                <i class="fas fa-utensils"></i> <span>Healthy Eating</span>
+                        <li class="{{ $isHealthyActive ? 'active open' : '' }}">
+                            <a href="javascript:void(0);"
+                                class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-utensils"></i> <span>Healthy Eating</span>
+                                </div>
+                                <i class="fa fa-chevron-right dropdown-arrow"></i>
                             </a>
                             <ul>
                                 <li class="{{ Route::is('healthy_menu') ? 'active' : '' }}">
@@ -199,6 +254,7 @@
                                 </li>
                             </ul>
                         </li>
+
 
 
 
@@ -381,3 +437,12 @@
         </div>
     </div>
 </div>
+<script>
+    document.querySelectorAll('.has-arrow').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const parent = this.closest('li');
+            parent.classList.toggle('open');
+        });
+    });
+</script>
