@@ -69,4 +69,19 @@ class User extends Authenticatable
         return $this->belongsToMany(Child::class, 'childparent', 'parentid', 'childid')
                     ->withPivot('relation');
     }
+
+    public function rooms()
+{
+    return $this->belongsToMany(Room::class, 'room_staff', 'staffid', 'roomid');
+}
+public function reflections()
+{
+    return $this->hasMany(ReflectionStaff::class, 'staffid');
+}
+
+
+public function parents()
+{
+    return $this->belongsToMany(User::class, 'childparent', 'childid', 'parentid', 'childid', 'userid');
+}
 }

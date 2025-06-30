@@ -83,7 +83,7 @@ class SettingsController extends Controller
             ->reject(fn($col) => in_array($col, ['id', 'userid', 'created_at', 'updated_at']))
             ->map(fn($col) => [
                 'name' => $col,
-                'label' => \Str::headline($col),
+                'label' => Str::headline($col),
             ])
             ->toArray();
 
@@ -679,6 +679,14 @@ class SettingsController extends Controller
         $existing = Childparent::where('parentid', $user->id)->pluck('id')->toArray();
         $submitted = collect($request->children)->pluck('id')->filter()->toArray();
 
+    $user = User::findOrFail($request->id);
+    $user->fill([
+        'name' => $request->name,
+        'emailid' => $request->email,
+        'email' => $request->email,
+        'contactNo' => $request->contactNo,
+        'gender' => $request->gender,
+    ]);
         // Delete removed relations
         $toDelete = array_diff($existing, $submitted);
         if (!empty($toDelete)) {
@@ -820,3 +828,4 @@ class SettingsController extends Controller
         return response()->json(['status' => 'success']);
     }
 }
+
