@@ -215,6 +215,18 @@
         box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         color: white;
     }
+    .btn-print {
+        background: linear-gradient(135deg, #57e4bf, #0f88bc);
+        color: white;
+        max-height:35px;
+    }
+
+    .btn-print:hover {
+        background: linear-gradient(135deg, #84eddd, #0b5c73);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        color: white;
+    }
 
     .btn-delete {
         background: linear-gradient(135deg, #dc3545, #e83e8c);
@@ -482,6 +494,9 @@
                         <div class="card-actions">
                         <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}" class="btn btn-edit btn-action">
                                 <i class="fas fa-edit"></i> Edit
+                            </a>
+                        <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}" class="btn btn-print btn-action">
+                                <i class="fas fa-print"></i> Print
                             </a>
                             <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
                                   <i class="fas fa-trash-alt"></i> Delete
