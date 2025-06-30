@@ -59,11 +59,7 @@ padding-inline:0;
                     @endif
 
                     @if(Auth::user()->userType != 'Parent')
-                 
-                     
                         <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}" class="btn btn-outline-info btn-lg">ADD NEW</a>
-                    
-
                     @endif
                 </div>
 
@@ -73,7 +69,7 @@ padding-inline:0;
         <!-- <div class="row"> -->
 <!--     -->
         <!-- </div> -->
-       
+
 
         @if($records->isEmpty())
             <div class="row">
@@ -123,7 +119,7 @@ padding-inline:0;
                                 <td>{{ \Carbon\Carbon::parse($announcement->eventDate)->format('d.m.Y') }}</td>
                                 <td>
                                     <span class="
-                                        {{ $announcement->status == 'Sent' ? 'badge-success' : 
+                                        {{ $announcement->status == 'Sent' ? 'badge-success' :
                                            ($announcement->status == 'Pending' ? 'badge-warning' : 'badge-danger') }}">
                                         {{ ucfirst($announcement->status) }}
                                     </span>
@@ -132,14 +128,14 @@ padding-inline:0;
                               <div class="d-flex " style="gap: 0.2rem;">
 
     {{-- View --}}
-    <a href="{{ route('announcements.view', $announcement->id) }}" 
+    <a href="{{ route('announcements.view', $announcement->id) }}"
        class="btn btn-outline-success btn-sm me-1" title="View">
         <i class="fas fa-eye"></i>
     </a>
 
     {{-- Edit --}}
     @if($permissions && $permissions->updateAnnouncement == 1)
-        <a href="{{ route('announcements.create', $announcement->id) }}" 
+        <a href="{{ route('announcements.create', $announcement->id) }}"
            class="btn btn-outline-info btn-sm me-1" title="Edit">
             <i class="fas fa-edit"></i>
         </a>
@@ -152,7 +148,7 @@ padding-inline:0;
             @method('DELETE')
             <input type="hidden" name="announcementid" value="{{ $announcement->id }}">
             <button type="button" class="btn btn-outline-danger delete-btn btn-sm"
-                   
+
                     title="Delete">
                 <i class="fas fa-trash-alt"></i>
             </button>
@@ -162,7 +158,7 @@ padding-inline:0;
 
                                 </td>
                             </tr>
-                            
+
                         @empty
                             <tr>
                                 <td colspan="5" class="text-center">No announcements found.</td>
@@ -191,7 +187,7 @@ padding-inline:0;
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
- 
+
     const deleteButtons = document.querySelectorAll('.delete-btn');
 
     deleteButtons.forEach(button => {
