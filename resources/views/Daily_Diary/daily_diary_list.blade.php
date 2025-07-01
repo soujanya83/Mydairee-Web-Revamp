@@ -1727,6 +1727,9 @@ body {
 $(document).ready(function() {
     // Handle activity switching in the sidebar
     $('.sidebar-nav a').click(function(e) {
+
+        const href = $(this).attr('href');
+      if (!href || href === '#') {
         e.preventDefault();
         $('.sidebar-nav a').removeClass('active');
         $(this).addClass('active');
@@ -1738,6 +1741,7 @@ $(document).ready(function() {
         // Update the activity title
         const activityName = $(this).find('span').text();
         $('#activity-title').html(`<i class="${$(this).find('i').attr('class')} mr-2"></i>Add ${activityName} Entry`);
+      }
     });
 
     // Handle child search

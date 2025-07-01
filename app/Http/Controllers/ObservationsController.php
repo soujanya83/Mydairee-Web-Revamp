@@ -925,7 +925,7 @@ public function store(Request $request)
         DB::rollBack();
         Log::error('Observation Store/Update Failed: ' . $e->getMessage());
 
-        return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
+        return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
     }
 }
 
