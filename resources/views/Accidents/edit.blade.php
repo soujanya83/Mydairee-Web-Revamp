@@ -53,6 +53,7 @@ padding-inline:0;
 </style>
 @endsection
 @section('content')
+  <hr class="mt-5">
     <main>
         <div class="container-fluid">
             <div class="row">

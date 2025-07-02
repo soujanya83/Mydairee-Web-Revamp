@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -16,14 +17,16 @@ use App\Models\Center;
 use Illuminate\Support\Facades\DB;
 use App\Models\Child;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 
 class AnnouncementController extends Controller
 {
-
-public function list(Request $request)
+    public function list(Request $request)
 {
-    $centerId = Session::get('user_center_id');
+    // $centerId = Session::get('user_center_id');
+    $centerId = $request->centerid;
+    // $user = User::where('userid',$request->userid)->first();
     $user = Auth::user();
     $userId = $user->userid;
     $userType = $user->userType;
@@ -68,23 +71,35 @@ public function list(Request $request)
         ->where('centerid', $centerId)
         ->first();
 
-    return view('Announcement.list', compact(
-        'records',
-        'permissions',
-        'centers',
-        'centerId',
-        'userType'
-    ));
+    return response()->json([
+    'status' => true,
+    'data' => [
+        'records' => $records,
+        'permissions' => $permissions,
+        'centers' => $centers,
+        'centerId' => $centerId,
+        'userType' => $userType
+    ]
+]);
+
 }
 
 
 
 public function AnnouncementCreate(Request $request,$announcementid=null)
 {
+    // dd('here');
     $announcement = null;
     
-    $centerid = Session('user_center_id');
+    // $centerid = Session('user_center_id');
+    $centerid = $request->centerid;
 
+    if(!$request->centerid){
+        return response()->json([
+            'status' => false,
+            'msg' => 'please provide center id'
+        ]);
+    }
     $Childrens = [];
     $Groups = [];
     $Rooms = [];
@@ -210,22 +225,30 @@ public function AnnouncementCreate(Request $request,$announcementid=null)
         }
 
     // Permissions
-    $permissions = Auth::user()->userType === 'Superadmin'
+    $userid = Auth::user()->userid;
+    // $userid = $request->userid;
+    // dd($userid);
+    $user = User::where('userid',$userid)->first();
+    $permissions = $user->userType === 'Superadmin'
         ? null
-        : PermissionsModel::where('userid', Auth::user()->userid)
+        : PermissionsModel::where('userid',$userid)
             ->where('centerid', $centerid)
             ->get();
 
             // dd($announcement);
+return response()->json([
+    'status' => true,
+    'message' => 'Announcement create data fetched successfully',
+    'data' => [
+        'announcement' => $announcement,
+        'centerid' => $centerid,
+        'Childrens' => $Childrens,
+        'Groups' => $Groups,
+        'Rooms' => $Rooms,
+        'permissions' => $permissions
+    ]
+]);
 
-    return view('Announcement.create', compact(
-        'announcement',
-        'centerid',
-        'Childrens',
-        'Groups',
-        'Rooms',
-        'permissions'
-    ));
 }
 
 
@@ -233,24 +256,51 @@ public function AnnouncementStore(Request $request)
 {
 
     // dd($request->all());
-    $request->validate([
-        'title'      => 'required|string|max:255',
-        'text'       => 'required|string',
-        'eventDate'  => 'nullable|date_format:d-m-Y',
-        'childId'    => 'required|array',
-        'childId.*'  => 'required|numeric|exists:child,id',
-        'media'      => 'nullable|array',
-        'media.*'    => 'file|mimes:jpeg,jpg,png|max:200', // 200KB per image
-    ], [
-        'childId.required' => 'Children are required.',
-        'text.required'    => 'Description is required.',
-        'media.*.max'      => 'Each image must be under 200KB.',
-        'media.*.mimes'    => 'Only JPG, JPEG, PNG files are allowed.',
-    ]);
+    // $request->validate([
+    //     'title'      => 'required|string|max:255',
+    //     'text'       => 'required|string',
+    //     'eventDate'  => 'nullable|date_format:d-m-Y',
+    //     'childId'    => 'required|array',
+    //     'childId.*'  => 'required|numeric|exists:child,id',
+    //     'media'      => 'nullable|array',
+    //     'media.*'    => 'file|mimes:jpeg,jpg,png|max:200', // 200KB per image
+    // ], [
+    //     'childId.required' => 'Children are required.',
+    //     'text.required'    => 'Description is required.',
+    //     'media.*.max'      => 'Each image must be under 200KB.',
+    //     'media.*.mimes'    => 'Only JPG, JPEG, PNG files are allowed.',
+    // ]);
+
+    $validator = Validator::make($request->all(), [
+    'title'      => 'required|string|max:255',
+    'text'       => 'required|string',
+    'eventDate'  => 'nullable|date_format:d-m-Y',
+    'childId'    => 'required|array',
+    'childId.*'  => 'required|numeric|exists:child,id',
+    'media'      => 'nullable|array',
+    'media.*'    => 'file|mimes:jpeg,jpg,png|max:200',
+], [
+    'childId.required' => 'Children are required.',
+    'text.required'    => 'Description is required.',
+    'media.*.max'      => 'Each image must be under 200KB.',
+    'media.*.mimes'    => 'Only JPG, JPEG, PNG files are allowed.',
+]);
+
+if ($validator->fails()) {
+    return response()->json([
+        'status' => 'false',
+        'message' => 'Validation failed.',
+        'errors' => $validator->errors()
+    ], 422);
+}
 
     try {
         $userid = Auth::user()->userid;
-        $centerid = session('user_center_id');
+        $user = Auth::user();
+        // $userid = $request->userid;
+        // $user = User::where('userid',$userid)->first();
+        // $centerid = session('user_center_id');/
+        $centerid = $request->centerid;
         $announcementId = null;
 
         // Format date
@@ -258,7 +308,7 @@ public function AnnouncementStore(Request $request)
              ? now()->addDay()->format('Y-m-d')
             : Carbon::createFromFormat('d-m-Y', $request->eventDate)->format('Y-m-d');
 
-        $role = Auth::user()->userType;
+        $role = $user->userType;
         $run = 0;
         $status = 'Pending';
 
@@ -278,8 +328,8 @@ public function AnnouncementStore(Request $request)
         }
 
         if ($run !== 1) {
-            return redirect()->back()->with([
-                'status' => 'error',
+            return response()->json([
+                'status' => 'false',
                 'message' => 'Permission Denied!',
             ]);
         }
@@ -301,8 +351,8 @@ public function AnnouncementStore(Request $request)
             $announcement = \App\Models\AnnouncementsModel::find($request->annId);
 
             if (!$announcement) {
-                return redirect()->back()->with([
-                    'status' => 'error',
+                return response()->json([
+                    'status' => 'false',
                     'message' => 'Announcement not found!',
                 ]);
             }
@@ -344,8 +394,8 @@ public function AnnouncementStore(Request $request)
             ]);
 
             if (!$announcement) {
-                return redirect()->back()->with([
-                    'status' => 'error',
+                return response()->json([
+                    'status' => 'false',
                     'message' => 'Failed to create announcement!',
                 ]);
             }
@@ -363,14 +413,14 @@ public function AnnouncementStore(Request $request)
             }
         }
 
-        return redirect()->back()->with([
-            'status' => 'success',
+        return response()->json([
+            'status' => 'true',
             'msg' => $request->annId ? 'Announcement updated successfully' : 'Announcement created successfully',
         ]);
 
     } catch (\Exception $e) {
-        return redirect()->back()->with([
-            'status' => 'error',
+        return response()->json([
+            'status' => 'false',
             'message' => 'Something went wrong! ' . $e->getMessage(),
         ]);
     }
@@ -381,30 +431,27 @@ public function AnnouncementStore(Request $request)
 public function AnnouncementView(Request $request)
 {
     // dd('here');
-   $announcementId = $request->annid;
+    $announcementId = $request->annid;
 
-//    dd($announcementId);
-
-   if (empty($announcementId)) {
-    return redirect()->back()->with([
-        'status' => 'error',
-        'message' => 'Invalid announcement ID!'
-    ]);
-}
-
+    if (empty($announcementId)) {
+        return response()->json([
+            'status' => 'false',
+            'message' => 'Invalid announcement ID!'
+        ], 400);
+    }
 
     $announcementInfo = AnnouncementsModel::find($announcementId);
-    // dd($announcementInfo);
 
-   if (!$announcementInfo) {
-    return redirect()->back()->with([
-        'status' => 'error',
-        'message' => "Announcement record doesn't exist!"
-    ]);
-}
+    if (!$announcementInfo) {
+        return response()->json([
+            'status' => 'false',
+            'message' => "Announcement record doesn't exist!"
+        ], 404);
+    }
 
-
-    $type = Auth::user()->userType; // Replace with actual logic if you have userType stored
+    $type = Auth::user()->userType ?? null;
+    // $user = User::where('userid',$request->userid)->first();
+    // $type = $user->userType;
 
     $permission = null;
     if ($type === 'Staff') {
@@ -413,17 +460,19 @@ public function AnnouncementView(Request $request)
             ->first();
     }
 
-   $user = User::where('userid', $announcementInfo->createdBy)->first();
-
+    $user = User::where('userid', $announcementInfo->createdBy)->first();
     $announcementInfo->username = $user->name ?? 'Unknown';
 
-    return view('Announcement.view',[
-        'Status' => 'SUCCESS',
-        'Info' => $announcementInfo,
-        'Permissions' => $permission,
-        'centerid' => $announcementInfo->centerid
+    return response()->json([
+        'status' => 'true',
+        'data' => [
+            'info' => $announcementInfo,
+            'permissions' => $permission,
+            'centerid' => $announcementInfo->centerid
+        ]
     ]);
 }
+
 
 
 
@@ -432,16 +481,47 @@ public function AnnouncementDelete(Request $request)
     $announcementId = $request->announcementid;
 
     if (!$announcementId) {
-        return redirect()->back()->with('msg', 'Error! Invalid Announcement ID.');
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid Announcement ID.'
+        ], 400);
     }
+    if (!Auth::check()) {
+    return response()->json([
+        'status' => false,
+        'message' => 'User not authenticated.'
+    ], 401);
+}
 
+    // $userid = $request->userid;
     $userid = Auth::user()->userid;
     $role = Auth::user()->userType;
+
+    if (empty($userid)) {
+        return response()->json([
+            'status' => false,
+            'message' => 'User ID is required.'
+        ], 400);
+    }
+
+    $user = User::where('userid', $userid)->first();
+
+    if (!$user) {
+        return response()->json([
+            'status' => false,
+            'message' => 'User not found.'
+        ], 404);
+    }
+
+    // $role = $user->userType;
 
     $announcementInfo = AnnouncementsModel::find($announcementId);
 
     if (!$announcementInfo) {
-        return redirect()->back()->with('msg', 'Error! Announcement not found.');
+        return response()->json([
+            'status' => false,
+            'message' => 'Announcement not found.'
+        ], 404);
     }
 
     $centerid = $announcementInfo->centerid;
@@ -461,16 +541,19 @@ public function AnnouncementDelete(Request $request)
     }
 
     if ($run === 1) {
-        // Delete child records and announcement
         AnnouncementChildModel::where('aid', $announcementId)->delete();
         AnnouncementsModel::where('id', $announcementId)->delete();
 
-        return redirect()->back()->with('msg', 'Success! Announcement deleted successfully.');
+        return response()->json([
+            'status' => true,
+            'message' => 'Announcement deleted successfully.'
+        ]);
     }
 
-    return redirect()->back()->with('msg', 'Error! Permission Denied.');
+    return response()->json([
+        'status' => false,
+        'message' => 'Permission Denied.'
+    ], 403);
 }
- 
-
 
 }
