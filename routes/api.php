@@ -33,7 +33,10 @@ Route::post('/forget-password', [ApiResetPassword::class, 'apiResetPassword']);
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::get('/login',[LoginController::class,'login'])->name('login');
 // });
-    Route::get('/programPlanList',[LessonPlanList::class,'programPlanList'])->name('programPlanList');
+
+
+Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/programPlanList',[LessonPlanList::class,'programPlanList'])->name('programPlanList');
     // Route::middleware('auth:sanctum')->get('programPlanList', [LessonPlanList::class, 'programPlanList']);
 
 
@@ -79,3 +82,5 @@ Route::get('Accidents/create',[AccidentsController::class,'create'])->name('Acci
 Route::get('Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
 Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
 Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
+   
+});

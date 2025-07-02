@@ -122,7 +122,8 @@ public function getCenterRooms(Request $request)
         ], 400);
     }
 
-      $user = User::where('userid',Auth::user()->userid)->first();
+    //   $user = User::where('userid',Auth::user()->userid)->first();
+      $user = Auth::user();
 
     // Fetch rooms from DB
     $rooms = Room::where('centerid', $centerid)->get();

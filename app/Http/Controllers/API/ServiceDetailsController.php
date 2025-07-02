@@ -20,9 +20,9 @@ class ServiceDetailsController extends Controller
     public function create(Request $request)
 {
 // dd('here');
-    //   $authId = Auth::user()->id; 
+      $authId = Auth::user()->id; 
     // $centerid = Session('user_center_id');
-    $authId = $request->user_id;
+    // $authId = $request->user_id;
     $centerid = $request->user_center_id;
     // dd($authId);
 

@@ -34,22 +34,18 @@ class LessonPlanList extends Controller
     public function programPlanList(Request $request)
 {
   
-    // if (Auth::check()) {
-        // $user = Auth::user();
-        // $authId = $user->id;
-        // $centerId = Session('user_center_id');
-        $centerId = $request->user_center_id;
-        // if(!$user){
-            if ($request->has('userId')) {
-        $user = User::where('userid', $request->userId)->first();
-    }
-
-        $authId = $user->id;
-        // }
-
-if (!$user) {
+  
+        $user = Auth::user();
+        if (!$user) {
     return response()->json(['error' => 'User not found or not authenticated'], 401);
 }
+        $authId = $user->id;
+        // $centerId = Session('user_center_id');
+        $centerId = $request->centerid;
+      
+
+
+
 
         if ($user->userType == "Superadmin") {
             // dd('here');
@@ -175,12 +171,10 @@ public function programPlanPrintPage($id)
         // return redirect('login');
         // }
 
-    //   $authId = Auth::user()->userid; 
+      $authId = Auth::user()->userid; 
+      $user = Auth::user();
     // $centerId = Session('user_center_id');
      $centerId = $request->user_center_id;
-     $authId = $request->userId;
-
-     $user = User::where('userid',$authId)->first();
 
     // dd($centerId);
         // if (Auth::check()) {

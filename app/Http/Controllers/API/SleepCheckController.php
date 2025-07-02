@@ -29,6 +29,7 @@ public function getSleepChecksList(Request $request)
 
       
         $user = Auth::user();
+        // dd($user);
   if (!$user) {
             return response()->json([
                 'status' => 'error',

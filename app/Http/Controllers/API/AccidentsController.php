@@ -31,8 +31,8 @@ class AccidentsController extends Controller
 
 public function AccidentsList(Request $request)
 {
-    // $user = Auth::user();
-    $user = User::where('userid',$request->userid)->first();
+    $user = Auth::user();
+    // $user = User::where('userid',$request->userid)->first();
     $userid = $user->userid;
     $userType = $user->userType;
     $centerid = $request->centerid;
@@ -129,8 +129,8 @@ public function getCenterRooms(Request $request)
 
 public function getAccidentDetails(Request $request)
 {
-    // $userid = Auth::user()->userid;
-    $userid = $request->userid;
+    $userid = Auth::user()->userid;
+    // $userid = $request->userid;
     $accidentId = $request->id ?? null;
     $centerid = $request->centerid;
 
