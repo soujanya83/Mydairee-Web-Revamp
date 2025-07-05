@@ -4,88 +4,91 @@
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
 <style>
-.media-upload-box {
-    border: 2px dashed #007bff;
-    background-color: #f8f9fa;
-    position: relative;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-}
+    .media-upload-box {
+        border: 2px dashed #007bff;
+        background-color: #f8f9fa;
+        position: relative;
+        cursor: pointer;
+        transition: 0.3s ease-in-out;
+    }
 
-.media-upload-box:hover {
-    background-color: #e9f0ff;
-}
+    .media-upload-box:hover {
+        background-color: #e9f0ff;
+    }
 
-.media-thumb {
-    height: 150px;
-    object-fit: cover;
-    width: 100%;
-}
+    .media-thumb {
+        height: 150px;
+        object-fit: cover;
+        width: 100%;
+    }
 
-.remove-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    padding: 2px 5px;
-    font-size: 12px;
-}
+    .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        padding: 2px 5px;
+        font-size: 12px;
+    }
 
-#mediaPreview .btn {
-    margin-right: 5px;
-    margin-top: 5px;
-}
-.media-thumb {
-    max-height: 200px;
-    object-fit: cover;
-    width: 100%;
-    border: 1px solid #ddd;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-}
+    #mediaPreview .btn {
+        margin-right: 5px;
+        margin-top: 5px;
+    }
+
+    .media-thumb {
+        max-height: 200px;
+        object-fit: cover;
+        width: 100%;
+        border: 1px solid #ddd;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
 </style>
 
-    <style>
-        .list-thumbnail.xsmall {
-            width: 40px;
-        }
-        .list-table td {
-            vertical-align: middle !important;
-        }
-        .select-all-box {
-            padding-left: 12px;
-        }
-        .select-all-box > label {
-            margin-left: 22px;
-            font-size: 15px;
-        }
+<style>
+    .list-thumbnail.xsmall {
+        width: 40px;
+    }
 
+    .list-table td {
+        vertical-align: middle !important;
+    }
 
-    </style>
-    <style>
-  .ck-editor__editable_inline {
-    min-height: 300px; /* This is like setting more "rows" */
-  }
+    .select-all-box {
+        padding-left: 12px;
+    }
+
+    .select-all-box>label {
+        margin-left: 22px;
+        font-size: 15px;
+    }
+</style>
+<style>
+    .ck-editor__editable_inline {
+        min-height: 300px;
+        /* This is like setting more "rows" */
+    }
 </style>
 @endsection
 
 @section('content')
 
-  @php
-    $role = Auth::user()->userType;
-    $edit = $add = 0;
+@php
+$role = Auth::user()->userType;
+$edit = $add = 0;
 
-    if ($role === 'Superadmin') {
-        $edit = $add = 1;
-    } elseif ($role === 'Staff') {
-        if (isset($permissions->addAnnouncement) && $permissions->addAnnouncement == 1) {
-            $add = 1;
-        }
-        if (isset($permissions->updateAnnouncement) && $permissions->updateAnnouncement == 1) {
-            $edit = 1;
-        }
-    }
+if ($role === 'Superadmin') {
+$edit = $add = 1;
+} elseif ($role === 'Staff') {
+if (isset($permissions->addAnnouncement) && $permissions->addAnnouncement == 1) {
+$add = 1;
+}
+if (isset($permissions->updateAnnouncement) && $permissions->updateAnnouncement == 1) {
+$edit = 1;
+}
+}
 @endphp
 
-
+<hr>
 <main data-centerid="{{ $centerid }}">
     <div class="container-fluid">
         <!-- <div class="row">
@@ -113,10 +116,11 @@
                             <h5 class="card-title">Enter Details</h5>
                         </div>
 
-                        <form action="{{ route('announcements.store') }}" method="POST" autocomplete="off" enctype="multipart/form-data">
+                        <form action="{{ route('announcements.store') }}" method="POST" autocomplete="off"
+                            enctype="multipart/form-data">
                             @csrf
                             @if ($announcement)
-                                <input type="hidden" name="annId" value="{{ $announcement->id }}">
+                            <input type="hidden" name="annId" value="{{ $announcement->id }}">
                             @endif
                             <input type="hidden" name="centerid" value="{{ $centerid }}">
 
@@ -124,17 +128,16 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="title">Title</label>
-                                        <input type="text" class="form-control" name="title" id="title" required value="{{ old('title', $announcement->title ?? '') }}">
+                                        <input type="text" class="form-control" name="title" id="title" required
+                                            value="{{ old('title', $announcement->title ?? '') }}">
                                     </div>
 
                                     <div class="form-group">
                                         <label for="eventDate">Date</label>
                                         <div class="input-group">
-                                 <input type="text" 
-       class="form-control calendar" 
-       name="eventDate" 
-       value="{{ isset($announcement->eventDate) ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y') : '' }}" 
-       data-date-format="dd-mm-yyyy">
+                                            <input type="text" class="form-control calendar" name="eventDate"
+                                                value="{{ isset($announcement->eventDate) ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y') : '' }}"
+                                                data-date-format="dd-mm-yyyy">
 
                                             <span class="input-group-text input-group-append input-group-addon">
                                                 <i class="simple-icon-calendar"></i>
@@ -145,27 +148,31 @@
                                     <div class="form-group">
                                         <h4>Media Upload Section</h4>
                                         <div class="media-upload-box p-4 border rounded bg-light text-center">
-         <label for="mediaInput" class="btn btn-outline-info">
-            Select up to 200kb Images(png,jpeg,jpg)
-        </label>
-        <input type="file" id="mediaInput" name="media[]" class="d-none" multiple accept="image/*">
-        <small class="form-text text-muted mt-2">Only image allowed</small>
-    </div>
+                                            <label for="mediaInput" class="btn btn-outline-info">
+                                                Select up to 200kb Images(png,jpeg,jpg)
+                                            </label>
+                                            <input type="file" id="mediaInput" name="media[]" class="d-none" multiple
+                                                accept="image/*">
+                                            <small class="form-text text-muted mt-2">Only image allowed</small>
+                                        </div>
 
-    <div id="mediaPreview" class="row mt-4" ></div>
+                                        <div id="mediaPreview" class="row mt-4"></div>
                                     </div>
 
                                     <div class="form-group">
-                                        <button type="button" class="btn btn-info mb-1" data-toggle="modal" data-backdrop="static" data-target="#selectChildrenModal">+ Add Children</button>
+                                        <button type="button" class="btn btn-info mb-1" data-toggle="modal"
+                                            data-backdrop="static" data-target="#selectChildrenModal">+ Add
+                                            Children</button>
                                     </div>
                                     <div class="children-tags">
                                         @forelse ($announcement->children ?? [] as $child)
-                                            <a href="#!" class="rem" data-role="remove" data-child="{{ $child->id }}">
-                                                <input type="hidden" name="childId[]" value="{{ $child->id }}">
-                                                <span class="badge badge-pill badge-outline-info mb-1">{{ $child->name }} X</span>
-                                            </a>
+                                        <a href="#!" class="rem" data-role="remove" data-child="{{ $child->id }}">
+                                            <input type="hidden" name="childId[]" value="{{ $child->id }}">
+                                            <span class="badge badge-pill badge-outline-info mb-1">{{ $child->name }}
+                                                X</span>
+                                        </a>
                                         @empty
-                                            <p>No children selected</p>
+                                        <p>No children selected</p>
                                         @endforelse
                                     </div>
                                 </div>
@@ -173,7 +180,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="text">Description</label>
-                                        <textarea name="text" id="about" class="form-control">{{ old('text', $announcement->text ?? '') }}</textarea>
+                                        <textarea name="text" id="about"
+                                            class="form-control">{{ old('text', $announcement->text ?? '') }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -181,17 +189,19 @@
                             <div class="row">
                                 <div class="col-12 text-right">
                                     @if ($announcement)
-                                        @if ($edit)
-                                            <button type="submit" class="btn btn-outline-info my-2">Save</button>
-                                        @else
-                                            <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip" data-placement="top" title="You need permission to save!">Save</button>
-                                        @endif
+                                    @if ($edit)
+                                    <button type="submit" class="btn btn-outline-info my-2">Save</button>
                                     @else
-                                        @if ($add)
-                                            <button type="submit" class="btn btn-outline-info my-2">Save</button>
-                                        @else
-                                            <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip" data-placement="top" title="You need permission to save!">Save</button>
-                                        @endif
+                                    <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip"
+                                        data-placement="top" title="You need permission to save!">Save</button>
+                                    @endif
+                                    @else
+                                    @if ($add)
+                                    <button type="submit" class="btn btn-outline-info my-2">Save</button>
+                                    @else
+                                    <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip"
+                                        data-placement="top" title="You need permission to save!">Save</button>
+                                    @endif
                                     @endif
                                 </div>
                             </div>
@@ -204,7 +214,8 @@
 </main>
 
 
-<div class="modal fade modal-right" id="selectChildrenModal" tabindex="-1" role="dialog" aria-labelledby="selectChildrenModal" aria-hidden="true">
+<div class="modal fade modal-right" id="selectChildrenModal" tabindex="-1" role="dialog"
+    aria-labelledby="selectChildrenModal" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
 
@@ -217,7 +228,8 @@
 
             <div class="modal-body">
                 <div class="form-group filter-box">
-                    <input type="text" class="form-control" id="filter-child" placeholder="Enter child name or age to search">
+                    <input type="text" class="form-control" id="filter-child"
+                        placeholder="Enter child name or age to search">
                 </div>
 
                 <ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
@@ -245,22 +257,20 @@
                         </div>
                         <table class="list-table table table-condensed">
                             @foreach ($Childrens as $child)
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" class="common-child child-tab unique-tag"
-                                            name="child[]" id="child_{{ $child->childid }}"
-                                            value="{{ $child->childid }}"
-                                            data-name="{{ $child->name . ' - ' . $child->age }}"
-                                            {{ $child->checked }}>
-                                    </td>
-                                    <td>
-                                        <label for="child_{{ $child->childid }}">
-                                            <img src="{{ url('assets/media/' . $child->imageUrl) }}"
-                                                class="img-thumbnail border-0 rounded-circle list-thumbnail align-self-center xsmall">
-                                            {{ $child->name . ' - ' . $child->age }}
-                                        </label>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="common-child child-tab unique-tag" name="child[]"
+                                        id="child_{{ $child->childid }}" value="{{ $child->childid }}"
+                                        data-name="{{ $child->name . ' - ' . $child->age }}" {{ $child->checked }}>
+                                </td>
+                                <td>
+                                    <label for="child_{{ $child->childid }}">
+                                        <img src="{{ url('assets/media/' . $child->imageUrl) }}"
+                                            class="img-thumbnail border-0 rounded-circle list-thumbnail align-self-center xsmall">
+                                        {{ $child->name . ' - ' . $child->age }}
+                                    </label>
+                                </td>
+                            </tr>
                             @endforeach
                         </table>
                     </div>
@@ -268,59 +278,59 @@
                     {{-- Groups Tab --}}
                     <div class="tab-pane show" id="second" role="tabpanel" aria-labelledby="second-tab">
                         @foreach ($Groups as $group)
-                            <div class="select-all-box">
-                                <input type="checkbox" id="select-group-child-{{ $group->groupid }}" class="select-group-child" data-groupid="{{ $group->groupid }}">
-                                <label for="select-group-child-{{ $group->groupid }}">{{ $group->name }}</label>
-                            </div>
-                            <table class="list-table table table-condensed">
-                                @foreach ($group->Childrens as $child)
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" class="common-child child-group"
-                                                name="child[]" data-groupid="{{ $group->groupid }}"
-                                                id="child_{{ $child->childid }}"
-                                                value="{{ $child->childid }}" {{ $child->checked }}>
-                                        </td>
-                                        <td>
-                                            <label for="child_{{ $child->childid }}">
-                                                <img src="{{ url('assets/media/' . $child->imageUrl) }}"
-                                                    class="img-thumbnail border-0 rounded-circle list-thumbnail align-self-center xsmall">
-                                                {{ $child->name . ' - ' . $child->age }}
-                                            </label>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </table>
+                        <div class="select-all-box">
+                            <input type="checkbox" id="select-group-child-{{ $group->groupid }}"
+                                class="select-group-child" data-groupid="{{ $group->groupid }}">
+                            <label for="select-group-child-{{ $group->groupid }}">{{ $group->name }}</label>
+                        </div>
+                        <table class="list-table table table-condensed">
+                            @foreach ($group->Childrens as $child)
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="common-child child-group" name="child[]"
+                                        data-groupid="{{ $group->groupid }}" id="child_{{ $child->childid }}"
+                                        value="{{ $child->childid }}" {{ $child->checked }}>
+                                </td>
+                                <td>
+                                    <label for="child_{{ $child->childid }}">
+                                        <img src="{{ url('assets/media/' . $child->imageUrl) }}"
+                                            class="img-thumbnail border-0 rounded-circle list-thumbnail align-self-center xsmall">
+                                        {{ $child->name . ' - ' . $child->age }}
+                                    </label>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </table>
                         @endforeach
                     </div>
 
                     {{-- Rooms Tab --}}
                     <div class="tab-pane show" id="third" role="tabpanel" aria-labelledby="third-tab">
                         @foreach ($Rooms as $room)
-                            <div class="select-all-box">
-                                <input type="checkbox" class="select-room-child" id="select-room-child-{{ $room->roomid }}" data-roomid="{{ $room->roomid }}">
-                                <label for="select-room-child-{{ $room->roomid }}">{{ $room->name }}</label>
-                            </div>
-                            <table class="list-table table table-condensed">
-                             
-                                @foreach ($room->Childrens as $child)
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" class="common-child child-room"
-                                                name="child[]" data-roomid="{{ $room->roomid }}"
-                                                id="child_{{ $child->childid }}"
-                                                value="{{ $child->childid }}" {{ $child->checked }}>
-                                        </td>
-                                        <td>
-                                            <label for="child_{{ $child->childid }}">
-                                                <img src="{{ url('assets/media/' . $child->imageUrl) }}"
-                                                    class="img-thumbnail border-0 rounded-circle list-thumbnail align-self-center xsmall">
-                                                {{ $child->name . ' - ' . $child->age }}
-                                            </label>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </table>
+                        <div class="select-all-box">
+                            <input type="checkbox" class="select-room-child" id="select-room-child-{{ $room->roomid }}"
+                                data-roomid="{{ $room->roomid }}">
+                            <label for="select-room-child-{{ $room->roomid }}">{{ $room->name }}</label>
+                        </div>
+                        <table class="list-table table table-condensed">
+
+                            @foreach ($room->Childrens as $child)
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="common-child child-room" name="child[]"
+                                        data-roomid="{{ $room->roomid }}" id="child_{{ $child->childid }}"
+                                        value="{{ $child->childid }}" {{ $child->checked }}>
+                                </td>
+                                <td>
+                                    <label for="child_{{ $child->childid }}">
+                                        <img src="{{ url('assets/media/' . $child->imageUrl) }}"
+                                            class="img-thumbnail border-0 rounded-circle list-thumbnail align-self-center xsmall">
+                                        {{ $child->name . ' - ' . $child->age }}
+                                    </label>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </table>
                         @endforeach
                     </div>
 
@@ -341,32 +351,33 @@
 
         {{-- Validation Errors --}}
         @if ($errors->any())
-            @foreach ($errors->all() as $error)
-                <div class="toast bg-danger text-white mb-2" data-delay="10000">
-                
-                    <div class="toast-body">
-                        {{ $error }}
-                    </div>
-                </div>
-            @endforeach
+        @foreach ($errors->all() as $error)
+        <div class="toast bg-danger text-white mb-2" data-delay="10000">
+
+            <div class="toast-body">
+                {{ $error }}
+            </div>
+        </div>
+        @endforeach
         @endif
 
-        {{-- Custom Flash Message 
+        {{-- Custom Flash Message
         @if (session('status') && session('message'))
-            <div class="toast {{ session('status') === 'success' ? 'bg-success' : 'bg-danger' }} text-white mb-2" data-delay="5000">
-                <div class="toast-header {{ session('status') === 'success' ? 'bg-success' : 'bg-danger' }} text-white">
-                    <strong class="mr-auto">{{ ucfirst(session('status')) }}</strong>
-                    <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="toast-body">
-                    {{ session('message') }}
-                </div>
+        <div class="toast {{ session('status') === 'success' ? 'bg-success' : 'bg-danger' }} text-white mb-2"
+            data-delay="5000">
+            <div class="toast-header {{ session('status') === 'success' ? 'bg-success' : 'bg-danger' }} text-white">
+                <strong class="mr-auto">{{ ucfirst(session('status')) }}</strong>
+                <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <div class="toast-body">
+                {{ session('message') }}
+            </div>
+        </div>
         @endif --}}
 
-    
+
 
     </div>
 </div>
@@ -378,7 +389,7 @@
 
 @push('scripts')
 <script>
-let selectedFiles = [];
+    let selectedFiles = [];
 
 document.getElementById('mediaInput').addEventListener('change', function (event) {
     const previewContainer = document.getElementById('mediaPreview');
@@ -492,7 +503,7 @@ function updateFileInput() {
     });
 </script>
 <script>
-$(document).ready(function () {
+    $(document).ready(function () {
     $('#filter-child').on('keyup', function () {
         const searchValue = $(this).val().toLowerCase();
 
@@ -535,10 +546,8 @@ $(document).ready(function () {
 
 
 
- <script>
-
-    
-$(document).off('click', '.nav-link').on('click', 'select-children', function(e) {
+<script>
+    $(document).off('click', '.nav-link').on('click', 'select-children', function(e) {
     e.preventDefault();
     $(this).modal('hide'); // Manually trigger Bootstrap tab
 });
@@ -581,7 +590,7 @@ $(document).off('click', '.nav-link').on('click', 'select-children', function(e)
         });
 
 
-            $(document).on('click', "#select-all-child", function() {           
+            $(document).on('click', "#select-all-child", function() {
                 //check if this checkbox is checked or not
                 if ($(this).is(':checked')) {
                     // alert();
@@ -621,7 +630,7 @@ $(document).off('click', '.nav-link').on('click', 'select-children', function(e)
                     $("#select-all-child").prop('checked', false);
                 }
             });
-            
+
             $(document).on("click",".select-group-child",function(){
                 var _groupid = $(this).data('groupid');
                 var _selector = $('input.common-child[data-groupid="'+_groupid+'"]');
@@ -688,7 +697,7 @@ $(document).off('click', '.nav-link').on('click', 'select-children', function(e)
                 if (_totalRoomChilds == _totalRoomChildsChecked) {
                     $(_selector).prop('checked', true);
                 }else{
-                    $(_selector).prop('checked', false);                
+                    $(_selector).prop('checked', false);
                 }
             });
 
@@ -712,7 +721,7 @@ $(document).off('click', '.nav-link').on('click', 'select-children', function(e)
             });
         });
 
-    </script>
+</script>
 
 @endpush
 
