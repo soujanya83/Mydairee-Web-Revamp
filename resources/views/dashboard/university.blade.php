@@ -1,8 +1,41 @@
 @extends('layout.master')
 @section('title', 'Dashboard')
 {{-- @section('parentPageTitle', 'Dashboard') --}}
+<!-- FullCalendar CSS -->
 
 @section('content')
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+
+<style>
+    #calendar {
+        min-height: 350px;
+        padding: 10px;
+            margin-top: -49px;
+    }
+</style>
+<style>
+    .fc .fc-button {
+        background-color: #007bff; /* Bootstrap primary */
+        border-color: #007bff;
+        color: #fff;
+    }
+
+    .fc .fc-button:hover {
+        background-color: #0056b3;
+        border-color: #004999;
+    }
+
+    .fc .fc-button:disabled {
+        background-color: #0e0e0e;
+        border-color: #eaeff4;
+        color:white
+    }
+    .fc-toolbar-chunk{
+        margin-left: 200px;
+    }
+</style>
+
 
 <div class="row clearfix" style="margin-top:30px">
     <div class="col-lg-3 col-md-6">
@@ -77,73 +110,39 @@
     </div>
 </div>
 
+<div class="row clearfix">
 
-<div class="row g-3">
-    <div class="col-sm-12 col-md-4 col-lg-4 d-flex justify-content-end">
-        <div class="weatherPanel">
-            <object data="https://www.sunsmart.com.au/uvalert/default.asp?version=australia&locationid=161" height="300"
-                id="sunsmart">
-                <embed src="https://www.sunsmart.com.au/uvalert/default.asp?version=australia&locationid=161"
-                    height="300">
-                </embed>
-                Error: Embedded data could not be displayed.
-            </object>
-        </div>
-    </div>
-    <div class="col-sm-12 col-md-4 col-lg-4">
+    <div class="col-md-12 col-lg-8">
+
         <div class="card">
             <div class="header">
-                <h2>Science Department<small>All Earnings are in million $</small></h2>
-
+                <h2>Calendar</h2>
             </div>
             <div class="body">
-                <div class="sparkline" data-type="line" data-spot-Radius="2" data-highlight-Spot-Color="#445771"
-                    data-highlight-Line-Color="#222" data-min-Spot-Color="#445771" data-max-Spot-Color="#445771"
-                    data-spot-Color="#445771" data-offset="90" data-width="100%" data-height="100px" data-line-Width="1"
-                    data-line-Color="#ffcd55" data-fill-Color="#ffcd55"> 2,5,3,2,1,7,6,0,2</div>
-                <div class="stats-report">
-                    <div class="stat-item">
-                        <h5>Overall</h5>
-                        <b class="col-indigo">7,000</b>
-                    </div>
-                    <div class="stat-item">
-                        <h5>2016</h5>
-                        <b class="col-indigo">2,000</b>
-                    </div>
-                    <div class="stat-item">
-                        <h5>2017</h5>
-                        <b class="col-indigo">5,000</b>
-                    </div>
-                </div>
+                <div id="calendar"></div>
             </div>
         </div>
+
+
+
     </div>
-    <div class="col-sm-12 col-md-4 col-lg-4">
-        <div class="card">
-            <div class="header">
-                <h2>Commerce Department<small>All Earnings are in million $</small></h2>
+
+    <div class="col-lg-4 col-md-12">
+        <div class="row clearfix">
+            <div class="weatherPanel">
+                <object data="https://www.sunsmart.com.au/uvalert/default.asp?version=australia&locationid=161"
+                    height="300" id="sunsmart">
+                    <embed src="https://www.sunsmart.com.au/uvalert/default.asp?version=australia&locationid=161"
+                        height="300">
+                    </embed>
+                    Error: Embedded data could not be displayed.
+                </object>
             </div>
-            <div class="body">
-                <div class="sparkline" data-type="bar" data-width="97%" data-height="100px" data-bar-Width="7"
-                    data-bar-Spacing="10" data-bar-Color="#02b5b2">2,8,3,4,6,2,3,8,7,6,5,2,1,8</div>
-                <div class="stats-report">
-                    <div class="stat-item">
-                        <h5>Overall</h5>
-                        <b class="col-indigo">3,200</b>
-                    </div>
-                    <div class="stat-item">
-                        <h5>2016</h5>
-                        <b class="col-indigo">1,200</b>
-                    </div>
-                    <div class="stat-item">
-                        <h5>2017</h5>
-                        <b class="col-indigo">2,000</b>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>
+
 <div class="row clearfix">
     <div class="col-lg-12 col-md-12 col-sm-12">
         <div class="card">
@@ -272,86 +271,7 @@
     </div>
 </div>
 
-<div class="row clearfix">
-    <div class="col-lg-4 col-md-12">
-        <div class="row clearfix">
-            <div class="col-lg-12 col-md-6 col-sm-12 text-center">
-                <div class="card tasks_report">
-                    <div class="body">
-                        <input type="text" class="knob2" value="66" data-width="70" data-height="70"
-                            data-thickness="0.1" data-fgColor="#4CAF50" readonly>
-                        <h6 class="m-t-10">Satisfaction Rate</h6>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-12 col-md-6 col-sm-12 text-center">
-                <div class="card tasks_report">
-                    <div class="body">
-                        <input type="text" class="knob2" value="26" data-width="70" data-height="70"
-                            data-thickness="0.1" data-fgColor="#7b69ec" readonly>
-                        <h6 class="m-t-10">Admission in Commerce</h6>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-12 col-md-12 col-sm-12 text-center">
-                <div class="card tasks_report">
-                    <div class="body">
-                        <input type="text" class="knob2" value="76" data-width="70" data-height="70"
-                            data-thickness="0.1" data-fgColor="#f9bd53" readonly>
-                        <h6 class="m-t-10">Admission in Science</h6>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-12 col-lg-8">
-        <div class="card visitors-map">
-            <div class="header">
-                <h2>Our Location</h2>
-                <ul class="header-dropdown">
-                    <li class="dropdown">
-                        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                            aria-haspopup="true" aria-expanded="false"></a>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a href="javascript:void(0);">Action</a></li>
-                            <li><a href="javascript:void(0);">Another Action</a></li>
-                            <li><a href="javascript:void(0);">Something else</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-            <div class="body">
-                <div class="row clearfix">
-                    <div class="col-lg-4 col-sm-6 col-6">
-                        <span><i class="m-r-5 fa fa-map-marker"></i> America</span>
-                        <h4>53</h4>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 col-6">
-                        <span><i class="m-r-5 fa fa-map-marker"></i> Canada</span>
-                        <h4>23</h4>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 col-6">
-                        <span><i class="m-r-5 fa fa-map-marker"></i> UK</span>
-                        <h4>17</h4>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 col-6">
-                        <span><i class="m-r-5 fa fa-map-marker"></i> India</span>
-                        <h4>102</h4>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 col-6">
-                        <span><i class="m-r-5 fa fa-map-marker"></i> Australia</span>
-                        <h4>27</h4>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 col-6">
-                        <span><i class="m-r-5 fa fa-map-marker"></i> Other</span>
-                        <h4>13</h4>
-                    </div>
-                </div>
-                <div id="world-map-markers2" style="height: 300px;" class="jvector-map m-t-20"></div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <div class="row clearfix">
     <div class="col-lg-4 col-md-12 col-sm-12">
@@ -499,5 +419,27 @@
         </div>
     </div>
 </div>
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'title',
+            right: 'prev,next today'
+        },
+        height: 500,
+        themeSystem: 'standard', // default; can also try 'bootstrap'
+    });
+
+    calendar.render();
+});
+
+</script>
+
+
 @include('layout.footer')
 @stop
