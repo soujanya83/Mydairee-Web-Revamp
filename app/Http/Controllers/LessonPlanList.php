@@ -92,7 +92,7 @@ public function programPlanList(Request $request)
         $userType = $user->userType;
         $userId = $authId;
 
-        return view('programPlan.list', compact(
+        return view('ProgramPlan.list', compact(
             'programPlans', 'userType', 'userId', 'centerId', 'centers', 'getMonthName'
         ));
     } else {

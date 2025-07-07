@@ -269,7 +269,36 @@
         <p class="text-primary text-small font-weight-medium mb-0">
             {{ \Carbon\Carbon::parse($observation->created_at)->format('d.m.Y') }}
         </p>
+
+        @if(Auth::user()->userType != 'Parent')
+<p><strong>Seen by Parents:</strong></p>
+        <ul style="max-height:60px;overflow-y:auto;">
+            @forelse($observation->Seen as $seen)
+
+                                @php
+                                    $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
+                                    'avatar10.jpg'];
+                                    $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
+                                    'avatar7.jpg'];
+                                    $avatars = $seen->user->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+                                    $defaultAvatar = $avatars[array_rand($avatars)];
+                                @endphp
+
+                @if($seen->user && $seen->user->userType === 'Parent')
+                    <li style="margin-bottom: 10px;">
+                        <img src="{{ $seen->user->imageUrl  ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" alt="Profile Image" width="40" height="40" style="border-radius: 50%;">
+                        {{ $seen->user->name }} <span style="color: #2196F3;">&#10003;&#10003;</span> 
+                    </li>
+                @endif
+            @empty
+                <li>No parent has seen this yet.</li>
+            @endforelse
+        </ul>
+@endif
+
 </div>
+
+
 
             </div>
 
@@ -737,6 +766,32 @@ if ($('#filter_author_any').is(':checked')) {
                                 `;
                             }
 
+                               // ⭐ Seen by Parents HTML Generation
+                                var seenByParentsHtml = '';
+                                if (_role !== "Parent") {
+                                    seenByParentsHtml += '<p><strong>Seen by Parents:</strong></p><ul style="max-height:60px;overflow-y:auto;">';
+                                    if (val.seen && val.seen.length > 0) {
+                                        $.each(val.seen, function(index, seen) {
+                                            const maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+                                            const femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+                                            const avatars = seen.gender === 'FEMALE' ? femaleAvatars : maleAvatars;
+                                            const defaultAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+                                            
+                                            const imageUrl = seen.imageUrl ? `{{ asset('') }}${seen.imageUrl}` : `{{ asset('assets/img/xs/') }}/${defaultAvatar}`;
+
+                                            seenByParentsHtml += `
+                                                <li style="margin-bottom: 10px;">
+                                                    <img src="${imageUrl}" alt="Profile Image" width="40" height="40" style="border-radius: 50%;">
+                                                    ${seen.name} <span style="color: #2196F3;">&#10003;&#10003;</span>
+                                                </li>
+                                            `;
+                                        });
+                                    } else {
+                                        seenByParentsHtml += '<li>No parent has seen this yet.</li>';
+                                    }
+                                    seenByParentsHtml += '</ul>';
+                                }
+
                             // Build observation card
                             var title = val.obestitle || val.title;
                             var displayTitle = title.length > 40 ? title.substring(0, 40) + '...' : title;
@@ -755,6 +810,7 @@ if ($('#filter_author_any').is(':checked')) {
                                                 </a>
                                                 <p class="text-muted mb-1 text-small">By: ${val.userName || 'Unknown'}</p>
                                                 <p class="text-primary text-small font-weight-medium mb-0">${val.date_added}</p>
+                                                ${seenByParentsHtml} 
                                             </div>
                                         </div>
                                         <div class="d-flex flex-column align-items-center icon-actions">

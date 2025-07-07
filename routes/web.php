@@ -295,6 +295,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
         Route::get('/addnew', [ReflectionController::class, 'storepage'])->name('addnew');
         Route::get('/addnew/{id?}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
+        Route::get('/print/{id?}', [ReflectionController::class, 'print'])->name('print');
+
 
         Route::post('/store', [ReflectionController::class, 'store'])->name('store');
 
