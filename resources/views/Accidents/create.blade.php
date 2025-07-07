@@ -4,6 +4,7 @@
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
 <style>
+   
         main{
 padding-top:2em;
 padding-bottom: 4em;

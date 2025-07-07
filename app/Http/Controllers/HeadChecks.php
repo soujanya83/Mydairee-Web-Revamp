@@ -74,7 +74,7 @@ class HeadChecks extends Controller
 
                         // dd($headChecks);
 
-      return view('headchecks.index', [
+      return view('headChecks.index', [
     'centerid' => $centerId,
     'date' => $date,
     'roomid' => $roomid,

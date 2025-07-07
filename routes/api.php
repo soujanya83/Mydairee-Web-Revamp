@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\LoginController;
 use App\Http\Controllers\API\RagisterController;
 use App\Http\Controllers\API\ApiResetPassword;
+use App\Http\Controllers\API\ApiHealthyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\LessonPlanList;
@@ -18,19 +19,12 @@ use App\Http\Controllers\API\RoomController;
 
 
 
-
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
-
-
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working!']);
 });
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/store', [RagisterController::class, 'store']);
-Route::post('/forget-password', [ApiResetPassword::class, 'apiResetPassword']);
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::get('/login',[LoginController::class,'login'])->name('login');
@@ -97,4 +91,29 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
     Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
     Route::delete('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
    
+});
+Route::post('/forget-password', [ApiResetPassword::class, 'apiResetPassword']);
+Route::post('/verify-otp', [ApiResetPassword::class, 'apiVerifyOtp']);
+Route::post('/resend-otp', [ApiResetPassword::class, 'apiResendOtp']);
+Route::post('/reset-password-update', [ApiResetPassword::class, 'apiUpdatePassword']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::match(['get', 'post'], '/healthy-menu', [ApiHealthyController::class, 'apiHealthyMenu']);
+    Route::get('/get-recipes-by-type', [ApiHealthyController::class, 'apiGetRecipesByType']);
+    Route::post('/save-recipes', [ApiHealthyController::class, 'apiStoreMenu']);
+    Route::delete('/menu/{id}', [ApiHealthyController::class, 'apiMenuDestroy']);
+    Route::match(['get', 'post'], '/healthy-recipes', [ApiHealthyController::class, 'apiHealthyRecipe']);
+    Route::get('/recipe/edit/{id}', [ApiHealthyController::class, 'apiEditRecipe']);
+    Route::delete('/recipe/delete/{id}', [ApiHealthyController::class, 'apiDestroyRecipe']);
+    Route::post('/recipe/store', [ApiHealthyController::class, 'apiStoreRecipe']);
+    Route::get('/ingredients', [ApiHealthyController::class, 'apiRecipeIngredients']);
+    Route::get('/ingredients/edit/{id}', [ApiHealthyController::class, 'apiEditIngredient']);
+    Route::delete('/ingredient/{id}', [ApiHealthyController::class, 'destroyIngredient']);
+    Route::post('/ingredient/store', [ApiHealthyController::class, 'ingredientsStore']);
+    Route::get('/meal-types', [ApiHealthyController::class, 'getUniqueMealTypes']);
+
+
+
+
 });

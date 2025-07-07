@@ -290,7 +290,7 @@ padding-inline:0;
 
 
 <!-- ends here -->
- <hr class="mt-lg-3 mt-sm-3">
+ <hr class="mt-lg-3 mt-sm-3 ">
     <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-12 col-xl-12">
@@ -308,7 +308,7 @@ padding-inline:0;
                             <input type="hidden" name="centerid" value="">
 
                             <!-- Service Information -->
-                            <div class="card-section">
+                            <div class="card-section card">
                                 <div class="section-header">
                                     <h4><i class="fas fa-info-circle"></i> Service Information</h4>
                                 </div>
@@ -331,7 +331,7 @@ padding-inline:0;
                             </div>
 
                             <!-- Physical Location -->
-                            <div class="card-section">
+                            <div class="card-section card">
                                 <div class="section-header">
                                     <h4><i class="fas fa-map-marker-alt"></i> Physical Location of Service</h4>
                                 </div>
@@ -368,7 +368,7 @@ padding-inline:0;
                             </div>
 
                             <!-- Contact Details -->
-                            <div class="card-section">
+                            <div class="card-section card">
                                 <div class="section-header">
                                     <h4><i class="fas fa-phone"></i> Physical Location Contact Details</h4>
                                 </div>
@@ -405,7 +405,7 @@ padding-inline:0;
                             </div>
 
                             <!-- Approved Provider -->
-                            <div class="card-section">
+                            <div class="card-section card">
                                 <div class="section-header">
                                     <h4><i class="fas fa-user-check"></i> Approved Provider</h4>
                                 </div>
@@ -449,7 +449,7 @@ padding-inline:0;
                             </div>
 
                             <!-- Nominated Supervisor -->
-                            <div class="card-section">
+                            <div class="card-section card">
                                 <div class="section-header">
                                     <h4><i class="fas fa-user-tie"></i> Nominated Supervisor</h4>
                                 </div>
@@ -493,7 +493,7 @@ padding-inline:0;
                             </div>
 
                             <!-- Postal Address -->
-                            <div class="card-section">
+                            <div class="card-section card" >
                                 <div class="section-header">
                                     <h4><i class="fas fa-envelope"></i> Postal Address (if different from physical)</h4>
                                 </div>
@@ -530,7 +530,7 @@ padding-inline:0;
                             </div>
 
                             <!-- Educational Leader -->
-                            <div class="card-section">
+                            <div class="card-section card">
                                 <div class="section-header">
                                     <h4><i class="fas fa-graduation-cap"></i> Educational Leader</h4>
                                 </div>
@@ -560,7 +560,7 @@ padding-inline:0;
                             </div>
 
                             <!-- Additional Information -->
-                            <div class="card-section">
+                            <div class="card-section card" >
                                 <div class="section-header">
                                     <h4><i class="fas fa-info"></i> Additional Information About Your Service</h4>
                                 </div>
@@ -597,12 +597,12 @@ padding-inline:0;
                             </div>
 
                             <!-- Service Philosophy -->
-                            <div class="philosophy-section">
+                            <div class="philosophy-section card">
                                 <div class="section-header">
                                     <h4><i class="fas fa-lightbulb"></i> Service Statement of Philosophy</h4>
                                 </div>
                                 <div class="form-group">
-                                    <label for="philosophyStatement" class="form-label">Insert your service's statement of philosophy here</label>
+                                    <label for="philosophyStatement" class="form-label text-dark">Insert your service's statement of philosophy here</label>
                                     <textarea class="form-control" id="philosophyStatement" rows="6" name="philosophyStatement" placeholder="Enter your service's philosophy statement...">{{old('philosophyStatement', $serviceDetails->philosophyStatement ?? '')}}</textarea>
                                     <span class="text-danger">{{ $errors->first('philosophyStatement') }}</span>
                                 </div>

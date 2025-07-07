@@ -28,6 +28,7 @@ use App\Models\ObservationMedia;
 use App\Models\ObservationMontessori; 
 use App\Models\Room; 
 use App\Models\RoomStaff;
+use App\Models\SeenObservation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
@@ -109,14 +110,14 @@ class ObservationsController extends Controller
 
              if(Auth::user()->userType == "Superadmin"){
 
-             $observations = Observation::with(['user', 'child','media'])
+             $observations = Observation::with(['user', 'child','media','Seen.user'])
              ->where('centerid', $centerid)
              ->orderBy('id', 'desc') // optional: to show latest first
              ->paginate(10); // 10 items per page   
 
              }elseif(Auth::user()->userType == "Staff"){
 
-                $observations = Observation::with(['user', 'child','media'])
+                $observations = Observation::with(['user', 'child','media','Seen.user'])
                 ->where('userId', $authId)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page 
@@ -129,12 +130,14 @@ class ObservationsController extends Controller
                 ->unique()
                 ->toArray();
                 // dd($childids);
-            $observations = Observation::with(['user', 'child','media'])
-            ->whereIn('id', $observationIds)
-             ->orderBy('id', 'desc') // optional: to show latest first
-             ->paginate(10); // 10 items per page   
+                $observations = Observation::with(['user', 'child','media','Seen.user'])
+                ->whereIn('id', $observationIds)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page   
 
              }
+
+            //  dd($observations);
 
         return view('observations.index', compact('observations','centers'));
  
@@ -150,7 +153,7 @@ class ObservationsController extends Controller
             $centerid = Session('user_center_id');
 
 
-            $query = Observation::with(['user', 'child','media'])
+            $query = Observation::with(['user', 'child','media','Seen.user'])
             ->where('centerid', $centerid);            
             // Status filter
             if ($request->has('observations') && !empty($request->observations)) {
@@ -290,7 +293,17 @@ class ObservationsController extends Controller
                     'mediaType' => $observation->observationsMediaType,
                     'userName' => $observation->user->name ?? 'Unknown',
                     'date_added' => Carbon::parse($observation->created_at)->format('d.m.Y'),
-                    'created_at' => $observation->created_at->format('Y-m-d H:i:s')
+                    'created_at' => $observation->created_at->format('Y-m-d H:i:s'),
+                    'seen' => $observation->seen->map(function ($seen) {
+                        if ($seen->user && $seen->user->userType === 'Parent') {
+                            return [
+                                'name' => $seen->user->name,
+                                'imageUrl' => $seen->user->imageUrl,
+                                'gender' => $seen->user->gender,
+                            ];
+                        }
+                        return null;
+                    })->filter(),
                 ];
             });
             
@@ -980,6 +993,24 @@ public function print($id)
             'devMilestoneSubs.devMilestone.milestone',
             'user'  // Assuming you have a room relationship
         ])->findOrFail($id);
+
+
+           // Only track if the user is authenticated and is a Parent
+           $user = Auth::user();
+           if ($user && $user->userType === 'Parent') {
+               // Check if already seen
+               $alreadySeen = SeenObservation::where('user_id', $user->id)
+                   ->where('observation_id', $id)
+                   ->exists();
+   
+               if (! $alreadySeen) {
+                   SeenObservation::create([
+                       'user_id' => $user->id,
+                       'observation_id' => $id
+                   ]);
+               }
+           }
+
 
         $roomNames = Room::whereIn('id', explode(',', $observation->room))
         ->pluck('name')

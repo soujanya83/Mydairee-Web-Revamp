@@ -44,6 +44,7 @@ Route::get('/logout', function () {
 Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
 Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
 Route::get('dashboard/analytical', [DashboardController::class, 'analytical'])->name('dashboard.analytical');
+Route::get('/api/events', [DashboardController::class, 'getEvents']);
 Route::get('file-manager/dashboard', [FileManagerController::class, 'dashboard'])->name('file-manager.dashboard');
 Route::get('app/calendar', [AppController::class, 'calendar'])->name('app.calendar');
 Route::get('app/chat', [AppController::class, 'chat'])->name('app.chat');
@@ -196,6 +197,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('/ingredients', [HealthyController::class, 'ingredients_store'])->name('ingredients.store');
     Route::put('/ingredients/{id}', [HealthyController::class, 'ingredients_update'])->name('ingredients.update');
     Route::post('/recipes/store', [HealthyController::class, 'recipes_store'])->name('recipes.store');
+    Route::post('/recipes/{id}/update', [HealthyController::class, 'update'])->name('recipes.update');
 
     Route::match(['get', 'post'], '/healthy-menu', [HealthyController::class, 'healthy_menu'])->name('healthy_menu');
     // Route::post('/store-menu', [HealthyController::class, 'store_menu'])->name('menu.store');
@@ -295,6 +297,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
         Route::get('/addnew', [ReflectionController::class, 'storepage'])->name('addnew');
         Route::get('/addnew/{id?}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
+        Route::get('/print/{id?}', [ReflectionController::class, 'print'])->name('print');
+
 
         Route::post('/store', [ReflectionController::class, 'store'])->name('store');
 

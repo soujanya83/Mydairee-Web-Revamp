@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\support\Facades\Auth;
-use App\Models\UserCenter; 
+use App\Models\Usercenter; 
 use App\Models\Center; 
 use App\Models\Room;
 use App\Models\ChildParent;

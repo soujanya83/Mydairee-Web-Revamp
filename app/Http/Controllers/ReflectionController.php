@@ -16,6 +16,7 @@ use App\Models\EYLFOutcome;
 use App\Models\ReflectionStaff; 
 use App\Models\Room; 
 use App\Models\RoomStaff;
+use App\Models\SeenReflection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
@@ -44,7 +45,7 @@ class ReflectionController extends Controller
 
              if(Auth::user()->userType == "Superadmin"){
 
-                $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff'])
+                $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
                 ->where('centerid', $centerid)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page   
@@ -56,7 +57,7 @@ class ReflectionController extends Controller
                 //    ->orderBy('id', 'desc') // optional: to show latest first
                 //    ->paginate(10); // 10 items per page 
 
-                $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff'])
+                $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
                 ->where('centerid', $centerid)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page   
@@ -65,11 +66,11 @@ class ReflectionController extends Controller
    
                    $childids = Childparent::where('parentid', $authId)->pluck('childid');
                    $reflectionIds = ReflectionChild::whereIn('childId', $childids)
-                   ->pluck('observationId')
+                   ->pluck('reflectionid')
                    ->unique()
                    ->toArray();
                    // dd($childids);
-               $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff'])
+               $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
                ->whereIn('id', $reflectionIds)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page   
@@ -116,6 +117,38 @@ class ReflectionController extends Controller
 
 
         return view('reflections.storeReflection', compact('reflection','childrens','rooms','staffs','outcomes'));
+     }
+
+
+     public function print($id){
+        if ($id) {
+            $reflection = Reflection::with(['creator', 'center','children','media','staff'])->find($id);
+        }
+
+
+        $user = Auth::user();
+           if ($user && $user->userType === 'Parent') {
+               // Check if already seen
+               $alreadySeen = SeenReflection::where('user_id', $user->id)
+                   ->where('reflection_id', $id)
+                   ->exists();
+   
+               if (! $alreadySeen) {
+                SeenReflection::create([
+                       'user_id' => $user->id,
+                       'reflection_id' => $id
+                   ]);
+               }
+           }
+
+
+        $roomNames = Room::whereIn('id', explode(',', $reflection->roomids))
+        ->pluck('name')
+        ->implode(', '); // or ->toArray() if you prefer array
+
+        // dd($reflection);
+
+        return view('reflections.printReflection', compact('reflection','roomNames'));
      }
 
 
@@ -348,7 +381,7 @@ public function applyFilters(Request $request)
         $centerid = Session('user_center_id');
 
 
-        $query = Reflection::with(['creator', 'center','children.child','media','staff.staff'])
+        $query = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
         ->where('centerid', $centerid);            
         // Status filter
         if ($request->has('observations') && !empty($request->observations)) {
@@ -488,8 +521,20 @@ public function applyFilters(Request $request)
                 'children' => $reflection->children,
                 'staff' => $reflection->staff,
                 'created_at_formatted' => \Carbon\Carbon::parse($reflection->created_at)->format('M d, Y'),
+                'seen' => $reflection->seen->map(function ($seen) {
+                    if ($seen->user && $seen->user->userType === 'Parent') {
+                        return [
+                            'name' => $seen->user->name,
+                            'imageUrl' => $seen->user->imageUrl,
+                            'gender' => $seen->user->gender,
+                        ];
+                    }
+                    return null;
+                })->filter(),
             ];
         });
+
+        // dd($formattedReflections);
         
         return response()->json([
             'status' => 'success',

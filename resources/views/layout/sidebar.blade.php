@@ -61,92 +61,10 @@
                 <nav id="left-sidebar-nav" class="sidebar-nav" style="margin-bottom: 60px;">
                     <ul id="main-menu" class="metismenu">
                         <li class="{{ Request::is('/') ? 'active' : null }}">
-                            <a href="/"><i class="icon-home"></i> <span>Dashboard</span></a>
+                            <a href="/"><i class="icon-home" style="font-size: 25px;"></i>&nbsp;<span
+                                    style="font-size: 18px;">Dashboard</span></a>
 
                         </li>
-
-                        <li class="{{ Request::is('observation*') ? 'active' : null }}">
-                            <a href="{{route('observation.index')}}"><i
-                                    class="fa-solid fa-gears"></i><span>Observation</span></a>
-                        </li>
-
-
-                        <li class="{{ Request::is('room*') ? 'active' : null }}">
-                            <a href="{{ route('rooms_list') }}"><i class="fa-solid fa-users-viewfinder"></i>
-                                <span>Rooms</span></a>
-                        </li>
-
-
-
-                        <li class="{{ Request::is('reflection*') ? 'active' : null }}">
-                            <a href="{{route('reflection.index')}}"><i
-                                    class="fa-solid fa-window-restore"></i><span>Daily Reflections</span></a>
-                        </li>
-
-                        <li class="{{ Request::is('programPlanList*') ? 'active' : '' }}">
-                            <a href="/programPlanList">
-                                <i class="far fa-clipboard"></i> <span>Program Plan</span>
-                            </a>
-                        </li>
-
-                        <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
-                            <a href="/ServiceDetails">
-                                <i class="fa fa-info-circle"></i>
-                                <span>Service Details</span>
-                            </a>
-                        </li>
-
-
-
-
-
-
-                        {{-- <li class="{{ Request::segment(1) === 'announcements' ? 'active' : null }}">
-                            <a href="#announcements" class="has-arrow-right"><i class="fa fa-bullhorn"></i>
-
-                                <span>Announcements</span></a>
-                            <ul>
-                                <li class="{{ Request::segment(2) === 'list' ? 'active' : null }}"><a
-                                        href="{{route('announcements.list')}}">Announcements</a> </li>
-                                <!-- <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
-                                        href="{{route('survey.list')}}">Survey </a></li> -->
-                            </ul>
-
-                        </li> --}}
-
-                        <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
-                            <a href="#announcements"
-                                class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fa fa-bullhorn"></i>
-                                    <span>Announcements</span>
-                                </div>
-                                <i class="fa fa-chevron-right dropdown-arrow"></i> {{-- dropdown arrow --}}
-                            </a>
-                            <ul>
-                                <li class="{{ Request::segment(2) === 'list' ? 'active' : '' }}">
-                                    <a href="{{ route('announcements.list') }}">Announcements</a>
-                                </li>
-                            </ul>
-                        </li>
-
-
-                        <!-- daily Journel -->
-                        <!-- <li class="{{ Request::segment(1) === 'dailydiary' ? 'active' : null }}">
-                            <a href="#dailydiary" class="has-arrow"><i class="fa fa-calendar"></i>
-                                <span>Daily Journel</span></a>
-                            <ul>
-                                <li class="{{ Request::segment(2) === 'DailyDiary' ? 'active' : null }}"><a
-                                        href="{{route('dailyDiary.list')}}">Daily Diary</a> </li>
-                                <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
-                                        href="{{route('headChecks')}}">Head Checks</a></li>
-                                         <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
-                                        href="{{route('sleepcheck.list')}}">Sleep Check List</a></li>
-                                         <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
-                                        href="{{route('Accidents.list')}}">Accidents</a></li>
-                            </ul>
-
-                        </li> -->
 
                         @php
                         $isDiaryActive = Route::is('dailyDiary.list') || Route::is('headChecks') ||
@@ -154,11 +72,10 @@
                         @endphp
 
                         <li class="{{ $isDiaryActive ? 'active open' : '' }}">
-                            <a href="javascript:void(0);"
-                                class="d-flex justify-content-between align-items-center">
+                            <a href="javascript:void(0);" class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i class="fa fa-calendar"></i>
-                                    <span>Daily Journal</span>
+                                    <i class="fa fa-calendar" style="font-size: 25px;"></i>
+                                    <span style="font-size: 18px;">Daily Journal</span>
                                 </div>
                                 <i class="fa fa-chevron-right dropdown-arrow"></i>
                             </a>
@@ -178,6 +95,102 @@
                             </ul>
                         </li>
 
+                        <li class="{{ Request::is('programPlanList*') ? 'active' : '' }}">
+                            <a href="/programPlanList">
+                                <i class="far fa-clipboard" style="font-size: 25px;"></i><span style="font-size: 18px;">
+                                    &nbsp;Program
+                                    Plan</span>
+                            </a>
+                        </li>
+
+                        <li class="{{ Request::is('reflection*') ? 'active' : null }}">
+                            <a href="{{route('reflection.index')}}"><i class="fa-solid fa-window-restore"
+                                    style="font-size: 25px;"></i> <span style="font-size: 18px;"> Daily
+                                    Reflections</span></a>
+                        </li>
+
+                        <li class="{{ Request::is('observation*') ? 'active' : null }}">
+                            <a href="{{route('observation.index')}}">
+                                <i class="icon-equalizer" style="font-size: 25px;"></i><span
+                                    style="font-size: 18px; margin-left:3px">Observation</span></a>
+                        </li>
+
+
+
+
+                        <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
+                            <a href="{{ route('announcements.list') }}">  <i class="fa fa-bullhorn" style="font-size: 25px;"></i><span
+                                    style="font-size: 18px; margin-left:-1px">Announcements</span></a>
+
+                        </li>
+
+                      
+
+                        <li class="{{ Request::is('room*') ? 'active' : null }}">
+                            <a href="{{ route('rooms_list') }}"><i class="fa-solid fa-users-viewfinder"
+                                    style="font-size: 25px;"></i><span
+                                    style="font-size: 18px; margin-left:-1px">Rooms</span></a>
+
+                        </li>
+
+                        @php
+                        $isHealthyActive = Route::is('healthy_menu') || Route::is('healthy_recipe') ||
+                        Route::is('recipes.Ingredients');
+                        @endphp
+
+                        <li class="{{ $isHealthyActive ? 'active open' : '' }}">
+                            <a href="javascript:void(0);" class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-utensils" style="font-size: 25px;"></i> <span
+                                        style="font-size: 18px;">Healthy Eating</span>
+                                </div>
+                                <i class="fa fa-chevron-right dropdown-arrow"></i>
+                            </a>
+                            <ul>
+                                <li class="{{ Route::is('healthy_menu') ? 'active' : '' }}">
+                                    <a href="{{ route('healthy_menu') }}">Menu</a>
+                                </li>
+                                <li class="{{ Route::is('healthy_recipe') ? 'active' : '' }}">
+                                    <a href="{{ route('healthy_recipe') }}">Recipe</a>
+                                </li>
+                                <li class="{{ Route::is('recipes.Ingredients') ? 'active' : '' }}">
+                                    <a href="{{ route('recipes.Ingredients') }}">Ingredients</a>
+                                </li>
+                            </ul>
+                        </li>
+
+
+
+
+
+                        <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
+                            <a href="/ServiceDetails">
+                                <i class="fa fa-info-circle" style="font-size: 25px;"></i>
+                                <span style="font-size: 18px;">Service Details</span>
+                            </a>
+                        </li>
+
+
+
+
+
+                        <!-- daily Journel -->
+                        <!-- <li class="{{ Request::segment(1) === 'dailydiary' ? 'active' : null }}">
+
+                                <li class="{{ Request::segment(2) === 'DailyDiary' ? 'active' : null }}"><a
+                                        href="{{route('dailyDiary.list')}}">Daily Diary</a> </li>
+                                <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('headChecks')}}">Head Checks</a></li>
+                                         <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('sleepcheck.list')}}">Sleep Check List</a></li>
+                                         <li class="{{ Request::segment(2) === 'survey' ? 'active' : null }}"><a
+                                        href="{{route('Accidents.list')}}">Accidents</a></li>
+                            </ul>
+
+                        </li> -->
+
+
+
                         <!-- Daily journel ends -->
 
 
@@ -187,8 +200,8 @@
                         <li class="{{ Request::segment(1) === 'settings' ? 'active open' : null }}">
                             <a href="#settings" class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i class="icon-settings"></i>
-                                    <span>Settings</span>
+                                    <i class="icon-settings" style="font-size: 25px;"></i>
+                                    <span style="font-size: 18px;">Settings</span>
                                 </div>
                                 <i class="fa fa-chevron-right dropdown-arrow"></i>
                             </a>
@@ -229,31 +242,7 @@
 
                     </li> -->
 
-                        @php
-                        $isHealthyActive = Route::is('healthy_menu') || Route::is('healthy_recipe') ||
-                        Route::is('recipes.Ingredients');
-                        @endphp
 
-                        <li class="{{ $isHealthyActive ? 'active open' : '' }}">
-                            <a href="javascript:void(0);"
-                                class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fas fa-utensils"></i> <span>Healthy Eating</span>
-                                </div>
-                                <i class="fa fa-chevron-right dropdown-arrow"></i>
-                            </a>
-                            <ul>
-                                <li class="{{ Route::is('healthy_menu') ? 'active' : '' }}">
-                                    <a href="{{ route('healthy_menu') }}">Menu</a>
-                                </li>
-                                <li class="{{ Route::is('healthy_recipe') ? 'active' : '' }}">
-                                    <a href="{{ route('healthy_recipe') }}">Recipe</a>
-                                </li>
-                                <li class="{{ Route::is('recipes.Ingredients') ? 'active' : '' }}">
-                                    <a href="{{ route('recipes.Ingredients') }}">Ingredients</a>
-                                </li>
-                            </ul>
-                        </li>
 
 
 
@@ -367,45 +356,7 @@
                     </li>
                 </ul>
                 <hr>
-                {{-- <h6>General Settings</h6>
-                <ul class="setting-list list-unstyled">
-                    <li>
-                        <label class="fancy-checkbox">
-                            <input type="checkbox" name="checkbox">
-                            <span>Report Panel Usag</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label class="fancy-checkbox">
-                            <input type="checkbox" name="checkbox" checked>
-                            <span>Email Redirect</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label class="fancy-checkbox">
-                            <input type="checkbox" name="checkbox" checked>
-                            <span>Notifications</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label class="fancy-checkbox">
-                            <input type="checkbox" name="checkbox">
-                            <span>Auto Updates</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label class="fancy-checkbox">
-                            <input type="checkbox" name="checkbox">
-                            <span>Offline</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label class="fancy-checkbox">
-                            <input type="checkbox" name="checkbox">
-                            <span>Location Permission</span>
-                        </label>
-                    </li>
-                </ul> --}}
+
             </div>
             <div class="tab-pane p-l-15 p-r-15" id="question">
                 <form>

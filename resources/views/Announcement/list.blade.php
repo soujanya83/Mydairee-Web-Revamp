@@ -85,60 +85,62 @@ img:hover {
 padding-block:4em;
 padding-inline:2em;
     }
+
     @media screen and (max-width: 600px) {
-    main{
+        main {
 
-padding-inline:0;
+            padding-inline: 0;
+        }
     }
-}
-
 </style>
 @endsection
 @section('content')
 @if (session('msg'))
-    <script>
-        $(document).ready(function() {
+<script>
+    $(document).ready(function() {
             Swal.fire({
                 title: 'Success!',
                 text: "{{ session('msg') }}",
                 icon: 'success'
             });
         });
-    </script>
+</script>
 @endif
+<hr>
+<div class="text-zero top-right-button-container d-flex justify-content-end"
+    style="margin-right: 20px;margin-top: -60px;">
 
-<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
+    <div class="text-zero top-right-button-container">
 
-                <div class="text-zero top-right-button-container">
-
-                    <div class="btn-group mr-1">
-                        <div class="dropdown">
-        <button class="btn btn-outline-info btn-lg dropdown-toggle"
-                type="button" id="centerDropdown" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-            {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
-        </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
-            @foreach($centers as $center)
-                <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
-                 style="background-color:white;"  data-id="{{ $center->id }}">
-                    {{ $center->centerName }}
-                </a>
-            @endforeach
-        </div>
-    </div>
-
-                    </div>
-
-                    @if(isset($permission) && $permission->add == 1)
-                        <!-- <a href="#" class="btn btn-primary btn-lg top-right-button" id="addnewbtn" data-toggle="modal" data-target="#templateModal">ADD NEW</a> -->
-                    @endif
-
-                    @if(Auth::user()->userType != 'Parent')
-                        <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}" class="btn btn-outline-info btn-lg">ADD NEW</a>
-                    @endif
+        <div class="btn-group mr-1">
+            <div class="dropdown">
+                <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="centerDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
+                    style="top:3% !important;left:13px !important;">
+                    @foreach($centers as $center)
+                    <a href="javascript:void(0);"
+                        class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
+                        style="background-color:white;" data-id="{{ $center->id }}">
+                        {{ $center->centerName }}
+                    </a>
+                    @endforeach
                 </div>
+            </div>
+
+        </div>
+
+        @if(isset($permission) && $permission->add == 1)
+        <!-- <a href="#" class="btn btn-primary btn-lg top-right-button" id="addnewbtn" data-toggle="modal" data-target="#templateModal">ADD NEW</a> -->
+        @endif
+
+        @if(Auth::user()->userType != 'Parent')
+        <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}"
+            class="btn btn-outline-info btn-lg">ADD NEW</a>
+        @endif
+    </div>
 
 </div>
 
@@ -162,6 +164,7 @@ padding-inline:0;
                     </div>
                 </div>
             </div>
+        </div>
         @else
             <!-- Announcements List -->
             <div class="row">
@@ -305,7 +308,7 @@ padding-inline:0;
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
     const deleteButtons = document.querySelectorAll('.delete-btn');
 

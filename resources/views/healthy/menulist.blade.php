@@ -320,36 +320,6 @@ $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks
 });
 </script>
 
-{{-- <script>
-    flatpickr("#calendarPicker", {
-        dateFormat: "d-m-Y",
-        defaultDate: new Date(),
-        onChange: function(selectedDates, dateStr, instance) {
-            console.log("Selected date:", dateStr); // Optional: send date via AJAX or reload
-        }
-    });
-
-
-    $('.add-item-btn').on('click', function () {
-    // Get selected date from calendar
-    var selectedDate = $('#calendarPicker').val();
-
-    // Set in hidden input field in modal form
-    $('#selectedDateInput').val(selectedDate);
-
-    // Also set day and meal type if needed
-    let day = $(this).data('day');  // Assuming you pass day
-    let mealType = $(this).data('meal');  // Assuming you pass meal type
-
-    $('#modalDay').val(day);
-    $('#modalMealType').val(mealType);
-
-    // Now show modal
-    $('#ingredientModal').modal('show');
-});
-
-</script> --}}
-
 
 <script>
     $(document).on('click', '.add-item-btn', function () {
