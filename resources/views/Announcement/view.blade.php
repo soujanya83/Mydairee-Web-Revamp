@@ -3,17 +3,17 @@
 @section('parentPageTitle', 'Dashboard')
 
 @section('page-styles')
- <style>
-        .d-flex-custom{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-    </style>
+<style>
+    .d-flex-custom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+</style>
 @endsection
 @section('content')
 
-
+<hr>
 <main>
     <div class="container-fluid">
         <!-- Header -->
@@ -38,25 +38,26 @@
                     <div class="card-body">
                         <!-- Title & Status -->
                         <div class="d-flex-custom mb-3">
-                                              @php
-    $media = json_decode($Info->announcementMedia, true);
-@endphp
+                            @php
+                            $media = json_decode($Info->announcementMedia, true);
+                            @endphp
 
-<td>
-    @if (!empty($media) && is_array($media))
-        @foreach ($media as $img)
-            <img class="img-thumbnail" src="{{ asset('assets/media/' . $img) }}" style="width: 80px;" alt="Image">
-        @endforeach
-    @else
-        No image
-    @endif
-</td>
+                            <td>
+                                @if (!empty($media) && is_array($media))
+                                @foreach ($media as $img)
+                                <img class="img-thumbnail" src="{{ asset('assets/media/' . $img) }}"
+                                    style="width: 80px;" alt="Image">
+                                @endforeach
+                                @else
+                                No image
+                                @endif
+                            </td>
                             <h5 class="mb-0">{{ $Info->title }}</h5>
-                           <span class="badge 
-    {{ $Info->status === 'Sent' ? 'bg-success text-white' : 
+                            <span class="badge
+    {{ $Info->status === 'Sent' ? 'bg-success text-white' :
        ($Info->status === 'Pending' ? 'bg-warning text-dark' : 'bg-danger text-white') }}">
-    {{ ucfirst($Info->status) }}
-</span>
+                                {{ ucfirst($Info->status) }}
+                            </span>
 
                         </div>
 
@@ -74,11 +75,11 @@
                             {!! html_entity_decode($Info->text) !!}
                         </div>
                     </div>
-                </div>      
+                </div>
             </div>
         </div>
     </div>
 </main>
 
-    @endsection
+@endsection
 @include('layout.footer')

@@ -39,6 +39,7 @@ class HealthyController extends Controller
     public function store_menu(Request $request)
     {
 
+
         $request->validate([
             'selected_date' => 'required',
             'day' => 'required|string',
@@ -123,92 +124,6 @@ class HealthyController extends Controller
     }
 
 
-
-
-
-    // public function healthy_menu(Request $request)
-    // {
-    //     $authId = Auth::user()->id;
-    //     $centerid = Session('user_center_id');
-
-    //     // Format selected date if available
-    //     $selectedDate = $request->selected_date ?? null;
-    //     $formattedDate = null;
-    //     if ($selectedDate) {
-    //         try {
-    //             $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $selectedDate)->format('Y-m-d');
-    //         } catch (\Exception $e) {
-    //             $formattedDate = null;
-    //         }
-    //     }
-
-    //     // Get center(s)
-    //     if (Auth::user()->userType == "Superadmin") {
-    //         $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-    //         $centers = Center::whereIn('id', $center)->get();
-    //         $centerIds = $centers->pluck('id')->toArray();
-    //     } else {
-    //         $centers = Center::where('id', $centerid)->get();
-    //         $centerIds = [$centerid];
-    //     }
-
-    //     // Base query
-    //     $query = Menu::whereIn('menu.centerId', $centerIds)
-    //         ->join('recipes', 'recipes.id', '=', 'menu.recipeid');
-
-    //     // Apply date filter if selected
-    //     if ($formattedDate) {
-    //         $query->where('menu.currentDate', $formattedDate);
-    //     }
-
-    //     $menus = $query->get()
-    //         ->map(function ($item) {
-    //             return (object)[
-    //                 'id' => $item->id,
-    //                 'name' => $item->name,
-    //                 'day' => $item->day,
-    //                 'mealType' => $item->meal_type,
-    //                 'colorClass' => $item->color_class ?? null,
-    //             ];
-    //         });
-
-    //     $recipes = RecipeModel::all();
-
-    //     return view('healthy.menulist', compact('menus', 'centers', 'recipes', 'selectedDate'));
-    // }
-
-    // public function healthy_menu(Request $request)
-    // {
-
-    //     $authId = Auth::user()->id;
-    //     $centerid = Session('user_center_id');
-
-
-    //     if (Auth::user()->userType == "Superadmin") {
-    //         $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-    //         $centers = Center::whereIn('id', $center)->get();
-    //         $centerIds = $centers->pluck('id')->toArray();
-    //     } else {
-    //         $centers = Center::where('id', $centerid)->get();
-    //         $centerIds = [$centerid]; // wrap single ID in array for consistency
-    //     }
-
-    //     $menus = Menu::whereIn('menu.centerId', $centerIds)
-    //         ->join('recipes', 'recipes.id', '=', 'menu.recipeid')
-    //         ->get()
-    //         ->map(function ($item) {
-    //             return (object)[
-    //                 'id' => $item->id,
-    //                 'name' => $item->name,
-    //                 'day' => $item->day,
-    //                 'mealType' => $item->meal_type,
-    //                 'colorClass' => $item->color_class ?? null,
-    //             ];
-    //         });
-
-    //     $recipes = RecipeModel::all();
-    //     return view('healthy.menulist', compact('menus', 'centers', 'recipes'));
-    // }
 
     public function recipes_store(Request $request)
     {
@@ -355,9 +270,61 @@ class HealthyController extends Controller
 
     public function edit($id)
     {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+        if (Auth::user()->userType == "Superadmin") {
+            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+
+        $ingredients = IngredientModel::select('name', 'id')->get();
+
+        $uniqueMealTypes = Menu::select('mealType')
+            ->distinct()
+            ->pluck('mealType');
+
         $recipe = RecipeModel::findOrFail($id);
-        return view('recipes.edit', compact('recipe'));
+
+        // Get selected ingredient
+        $selectedIngredientId = DB::table('recipe_ingredients')
+            ->where('recipeId', $id)
+            ->value('ingredientId');
+
+        return view('healthy.edit', compact('recipe', 'uniqueMealTypes', 'ingredients', 'selectedIngredientId'));
     }
+
+
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'itemName'   => 'required|string|max:255',
+            'mealType'   => 'required|string|max:255',
+            'ingredient' => 'required|exists:ingredients,id',
+            'recipe'     => 'required|string',
+        ]);
+
+        $recipe = RecipeModel::findOrFail($id);
+
+        // Update fields
+        $recipe->update([
+            'itemName' => $request->itemName,
+            'type'     => $request->mealType,
+            'recipe'   => $request->recipe,
+        ]);
+
+        // Update or Insert ingredient mapping
+        DB::table('recipe_ingredients')->updateOrInsert(
+            ['recipeId' => $recipe->id],
+            ['ingredientId' => $request->ingredient]
+        );
+
+        return redirect()->route('healthy_recipe')->with('success', 'Recipe updated successfully!');
+    }
+
 
     public function destroy($id)
     {
