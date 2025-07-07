@@ -100,7 +100,7 @@ class DailyDiaryController extends Controller
         // dd($children);
         
 
-        return view('Daily_diary.daily_diary_list', compact('centers', 'room', 'selectedroom', 'children','selectedDate'));
+        return view('Daily_Diary.daily_diary_list', compact('centers', 'room', 'selectedroom', 'children','selectedDate'));
     }
     
 
