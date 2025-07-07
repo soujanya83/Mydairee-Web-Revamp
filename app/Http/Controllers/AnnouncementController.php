@@ -20,97 +20,10 @@ use Carbon\Carbon;
 
 class AnnouncementController extends Controller
 {
-    //  public function list(Request $request)
-    // {
-    //     $centerId = Session::get('user_center_id');
-    //       if(Auth::user()->userType == "Superadmin"){
-
-    //     $user = Auth::user();
-    //     $userId = $user->userid;
-    //     $userType = $user->userType;
-
-    //     $announcements = collect();
-    //     $permissions = null;
-
-    //       $center = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
-
-    //     $centers = Center::whereIn('id', $center)->get();
-    //      }
-    //      else{
-    //     $centers = Center::where('id', $centerId)->get();
-    //      }
-
-    //     if ($userType === 'Staff') {
-
-    //         if (is_null($userId) && !is_null($centerId)) {
-    //             $announcements = AnnouncementsModel::where('centerid', $centerId)
-    //                 ->orderByDesc('id')
-    //                 ->get();
-    //         } else {
-    //             $announcements = AnnouncementsModel::where('createdBy', $userId)
-    //                 ->where('centerid', $centerId)
-    //                 ->orderByDesc('id')
-    //                 ->get();
-    //         }
-
-    //         // dd($userId);
-
-
-    //     } elseif ($userType === 'Superadmin') {
-
-    //         if (is_null($userId) && !is_null($centerId)) {
-    //             $announcements = AnnouncementsModel::where('centerid', $centerId)
-    //                 ->orderByDesc('id')
-    //                 ->get();
-    //         } else {
-    //             $announcements = AnnouncementsModel::where('createdBy', $userId)
-    //                 ->where('centerid', $centerId)
-    //                 ->orderByDesc('id')
-    //                 ->get();
-    //         }
-
-    //     } else {
-    //         // For parents or other roles
-    //         $childs = ChildParent::where('parentid', $userId)->get();
-
-    //         foreach ($childs as $child) {
-    //             $childId = $child->childid;
-
-    //             $results = AnnouncementsModel::select('announcement.*')
-    //                 ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
-    //                 ->where('announcementchild.childid', $childId)
-    //                 ->orderByDesc('announcement.id')
-    //                 ->get();
-
-    //             $announcements = $announcements->merge($results);
-    //         }
-    //     }
-
-    //     // Attach createdBy name
-    //     foreach ($announcements as $announcement) {
-    //         $creator = User::where('userid', $announcement->createdBy)->first();
-    //         $announcement->createdBy = $creator->name ?? 'Not Available';
-    //     }
-
-
-    //         $permissions = PermissionsModel::where('userid', $userId)
-    //             ->where('centerid', $centerId)
-    //             ->first();
-
-    //     $records = $announcements;
-    //      $selectedCenter = $centerId;
-    //     return view('Announcement.list', compact(
-    //     'records',
-    //     'permissions',
-    //     'centers',
-    //     'centerId',
-    //     'userType'
-    // ));
-
-    // }
 
     public function list(Request $request)
     {
+        // dd('here');
         $centerId = Session::get('user_center_id');
         $user = Auth::user();
         $userId = $user->userid;

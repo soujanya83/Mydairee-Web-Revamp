@@ -4,30 +4,31 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use App\Models\User; 
-use App\Models\Center; 
-use App\Models\Usercenter; 
-use App\Models\Child; 
-use App\Models\Childparent; 
-use App\Models\DevMilestone; 
-use App\Models\DevMilestoneMain; 
-use App\Models\DevMilestoneSub; 
-use App\Models\EYLFActivity; 
-use App\Models\EYLFOutcome; 
-use App\Models\EYLFSubActivity; 
-use App\Models\MontessoriActivity; 
-use App\Models\MontessoriSubActivity; 
-use App\Models\MontessoriSubject; 
-use App\Models\Observation; 
-use App\Models\ObservationChild; 
-use App\Models\ObservationComment; 
-use App\Models\ObservationDevMilestoneSub; 
-use App\Models\ObservationEYLF; 
-use App\Models\ObservationLink; 
-use App\Models\ObservationMedia; 
-use App\Models\ObservationMontessori; 
-use App\Models\Room; 
+use App\Models\User;
+use App\Models\Center;
+use App\Models\Usercenter;
+use App\Models\Child;
+use App\Models\Childparent;
+use App\Models\DevMilestone;
+use App\Models\DevMilestoneMain;
+use App\Models\DevMilestoneSub;
+use App\Models\EYLFActivity;
+use App\Models\EYLFOutcome;
+use App\Models\EYLFSubActivity;
+use App\Models\MontessoriActivity;
+use App\Models\MontessoriSubActivity;
+use App\Models\MontessoriSubject;
+use App\Models\Observation;
+use App\Models\ObservationChild;
+use App\Models\ObservationComment;
+use App\Models\ObservationDevMilestoneSub;
+use App\Models\ObservationEYLF;
+use App\Models\ObservationLink;
+use App\Models\ObservationMedia;
+use App\Models\ObservationMontessori;
+use App\Models\Room;
 use App\Models\RoomStaff;
+use App\Models\SeenObservation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
@@ -38,7 +39,6 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
 
 
 
@@ -97,7 +97,7 @@ class ObservationsController extends Controller
 
     public function index(){
 
-        $authId = Auth::user()->id; 
+        $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
 
         if(Auth::user()->userType == "Superadmin"){
@@ -109,17 +109,17 @@ class ObservationsController extends Controller
 
              if(Auth::user()->userType == "Superadmin"){
 
-             $observations = Observation::with(['user', 'child','media'])
+             $observations = Observation::with(['user', 'child','media','Seen.user'])
              ->where('centerid', $centerid)
              ->orderBy('id', 'desc') // optional: to show latest first
-             ->paginate(10); // 10 items per page   
+             ->paginate(10); // 10 items per page
 
              }elseif(Auth::user()->userType == "Staff"){
 
-                $observations = Observation::with(['user', 'child','media'])
+                $observations = Observation::with(['user', 'child','media','Seen.user'])
                 ->where('userId', $authId)
                 ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page 
+                ->paginate(10); // 10 items per page
 
              }else{
 
@@ -129,15 +129,17 @@ class ObservationsController extends Controller
                 ->unique()
                 ->toArray();
                 // dd($childids);
-            $observations = Observation::with(['user', 'child','media'])
-            ->whereIn('id', $observationIds)
-             ->orderBy('id', 'desc') // optional: to show latest first
-             ->paginate(10); // 10 items per page   
+                $observations = Observation::with(['user', 'child','media','Seen.user'])
+                ->whereIn('id', $observationIds)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
 
              }
 
+            //  dd($observations);
+
         return view('observations.index', compact('observations','centers'));
- 
+
     }
 
 
@@ -150,8 +152,8 @@ class ObservationsController extends Controller
             $centerid = Session('user_center_id');
 
 
-            $query = Observation::with(['user', 'child','media'])
-            ->where('centerid', $centerid);            
+            $query = Observation::with(['user', 'child','media','Seen.user'])
+            ->where('centerid', $centerid);
             // Status filter
             if ($request->has('observations') && !empty($request->observations)) {
                 $statusFilters = $request->observations;
@@ -163,27 +165,27 @@ class ObservationsController extends Controller
             // Date filter
             if ($request->has('added') && !empty($request->added)) {
                 $dateFilters = $request->added;
-                
+
                 foreach ($dateFilters as $dateFilter) {
                     switch ($dateFilter) {
                         case 'Today':
                             $query->whereDate('created_at', Carbon::today());
                             break;
-                            
+
                         case 'This Week':
                             $query->whereBetween('created_at', [
                                 Carbon::now()->startOfWeek(),
                                 Carbon::now()->endOfWeek()
                             ]);
                             break;
-                            
+
                         case 'This Month':
                             $query->whereBetween('created_at', [
                                 Carbon::now()->startOfMonth(),
                                 Carbon::now()->endOfMonth()
                             ]);
                             break;
-                            
+
                         case 'Custom':
                             if ($request->fromDate && $request->toDate) {
                                 $fromDate = Carbon::parse($request->fromDate)->startOfDay();
@@ -194,17 +196,17 @@ class ObservationsController extends Controller
                     }
                 }
             }
-            
+
             // Child filter
             if ($request->has('childs') && !empty($request->childs)) {
                 $childIds = $request->childs;
-                
+
                 // Get observation IDs that have the selected children
                 $observationIds = ObservationChild::whereIn('childId', $childIds)
                     ->pluck('observationId')
                     ->unique()
                     ->toArray();
-                
+
                 if (!empty($observationIds)) {
                     $query->whereIn('id', $observationIds);
                 } else {
@@ -212,19 +214,19 @@ class ObservationsController extends Controller
                     $query->where('id', 0);
                 }
             }
-            
+
             // Author filter
             if ($request->has('authors') && !empty($request->authors)) {
                 $authorFilters = $request->authors;
-            
+
                 // 🚫 Skip filter if "Any" is selected
                 if (!in_array('Any', $authorFilters)) {
-            
+
                     // ✅ If "Me" is selected
                     if (in_array('Me', $authorFilters)) {
                         $query->where('userId', Auth::id());
                     }
-            
+
                     // ✅ If specific staff IDs are selected (as string IDs)
                     else {
                         $query->whereIn('userId', $authorFilters);
@@ -237,7 +239,7 @@ class ObservationsController extends Controller
             if ($user->userType === 'Staff') {
                 $query->where('userId', Auth::id());
             }
-            
+
             // Apply user-specific filters based on role
             // $user = Auth::user();
             // if ($user->userType === 'Parent') {
@@ -248,7 +250,7 @@ class ObservationsController extends Controller
             //             ->pluck('observationId')
             //             ->unique()
             //             ->toArray();
-                    
+
             //         if (!empty($parentObservationIds)) {
             //             $query->whereIn('id', $parentObservationIds);
             //         } else {
@@ -264,7 +266,7 @@ class ObservationsController extends Controller
             //             ->pluck('observationId')
             //             ->unique()
             //             ->toArray();
-                    
+
             //         if (!empty($teacherObservationIds)) {
             //             $query->whereIn('id', $teacherObservationIds);
             //         } else {
@@ -272,13 +274,13 @@ class ObservationsController extends Controller
             //         }
             //     }
             // }
-            
+
             // Order by latest first
             $query->orderBy('created_at', 'desc');
-            
+
             // Get the filtered observations
             $observations = $query->get();
-            
+
             // Format the observations for response
             $formattedObservations = $observations->map(function ($observation) {
                 return [
@@ -290,10 +292,20 @@ class ObservationsController extends Controller
                     'mediaType' => $observation->observationsMediaType,
                     'userName' => $observation->user->name ?? 'Unknown',
                     'date_added' => Carbon::parse($observation->created_at)->format('d.m.Y'),
-                    'created_at' => $observation->created_at->format('Y-m-d H:i:s')
+                    'created_at' => $observation->created_at->format('Y-m-d H:i:s'),
+                    'seen' => $observation->seen->map(function ($seen) {
+                        if ($seen->user && $seen->user->userType === 'Parent') {
+                            return [
+                                'name' => $seen->user->name,
+                                'imageUrl' => $seen->user->imageUrl,
+                                'gender' => $seen->user->gender,
+                            ];
+                        }
+                        return null;
+                    })->filter(),
                 ];
             });
-            
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Filters applied successfully',
@@ -301,10 +313,10 @@ class ObservationsController extends Controller
                 'userRole' => Auth::user()->userType,
                 'count' => $formattedObservations->count()
             ]);
-            
+
         } catch (\Exception $e) {
-            \Log::error('Filter error: ' . $e->getMessage());
-            
+            Log::error('Filter error: ' . $e->getMessage());
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'An error occurred while applying filters',
@@ -312,7 +324,7 @@ class ObservationsController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Get children list for filter modal
      */
@@ -321,7 +333,7 @@ class ObservationsController extends Controller
         try {
             $user = Auth::user();
             $children = collect();
-            
+
         if($user->userType === 'Superadmin') {
             $children = $this->getChildrenForSuperadmin();
             }elseif($user->userType === 'Staff'){
@@ -335,10 +347,10 @@ class ObservationsController extends Controller
                 'status' => 'success',
                 'success' => true
             ]);
-        
+
         } catch (\Exception $e) {
-            \Log::error('Filter error: ' . $e->getMessage());
-            
+            Log::error('Filter error: ' . $e->getMessage());
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'An error occurred while applying filters',
@@ -350,47 +362,47 @@ class ObservationsController extends Controller
 
     private function getChildrenForSuperadmin()
 {
-    $authId = Auth::user()->id; 
+    $authId = Auth::user()->id;
     $centerid = Session('user_center_id');
-    
+
     // Get all room IDs for the center
     $roomIds = Room::where('centerid', $centerid)->pluck('id');
-    
+
     // Get all children in those rooms
     $children = Child::whereIn('room', $roomIds)->get();
-    
+
     return $children;
 }
 
 
 private function getChildrenForStaff()
 {
-    $authId = Auth::user()->id; 
+    $authId = Auth::user()->id;
     $centerid = Session('user_center_id');
-    
+
     // Get room IDs from RoomStaff where staff is assigned
     $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
-    
+
     // Get room IDs where user is the owner (userId matches)
     $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
-    
+
     // Merge both collections and remove duplicates
     $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
-    
+
     // Get all children in those rooms
     $children = Child::whereIn('room', $allRoomIds)->get();
-    
+
     return $children;
 }
 
 private function getChildrenForParent(){
-    $authId = Auth::user()->id; 
+    $authId = Auth::user()->id;
     $centerid = Session('user_center_id');
 
     $childids = Childparent::where('parentid', $authId)->pluck('childid');
 
     $children = Child::whereIn('id', $childids)->get();
-    
+
     return $children;
 
 
@@ -398,9 +410,9 @@ private function getChildrenForParent(){
 
 private function getStaffForSuperadmin()
 {
-    $authId = Auth::user()->id; 
+    $authId = Auth::user()->id;
     $centerid = Session('user_center_id');
-    
+
     // Get all room IDs for the center
     $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
 
@@ -408,7 +420,7 @@ private function getStaffForSuperadmin()
     $staff = User::whereIn('id', $usersid)
                 ->where('userType', 'Staff')
                 ->get();
-    
+
     return $staff;
 }
 
@@ -418,7 +430,7 @@ public function getStaff(Request $request)
     try {
         $user = Auth::user();
         $children = collect();
-        
+
     if($user->userType === 'Superadmin') {
         $staff = $this->getStaffForSuperadmin();
         }
@@ -433,10 +445,10 @@ public function getStaff(Request $request)
             'status' => 'success',
             'success' => true
         ]);
-    
+
     } catch (\Exception $e) {
-        \Log::error('Filter error: ' . $e->getMessage());
-        
+        Log::error('Filter error: ' . $e->getMessage());
+
         return response()->json([
             'status' => 'error',
             'message' => 'An error occurred while applying filters',
@@ -448,7 +460,7 @@ public function getStaff(Request $request)
 
 
 private function getroomsforSuperadmin(){
-    $authId = Auth::user()->id; 
+    $authId = Auth::user()->id;
     $centerid = Session('user_center_id');
 
     $rooms = Room::where('centerid', $centerid)->get();
@@ -456,14 +468,14 @@ private function getroomsforSuperadmin(){
 }
 
 private function getroomsforStaff(){
-    $authId = Auth::user()->id; 
+    $authId = Auth::user()->id;
     $centerid = Session('user_center_id');
 
     $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
-    
+
     // Get room IDs where user is the owner (userId matches)
     $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
-    
+
     // Merge both collections and remove duplicates
     $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
 
@@ -477,7 +489,7 @@ public function getrooms(){
     try {
         $user = Auth::user();
         $rooms = collect();
-        
+
     if($user->userType === 'Superadmin') {
         $rooms = $this->getroomsforSuperadmin();
         }else{
@@ -489,10 +501,10 @@ public function getrooms(){
             'status' => 'success',
             'success' => true
         ]);
-    
+
     } catch (\Exception $e) {
-        \Log::error('Filter error: ' . $e->getMessage());
-        
+        Log::error('Filter error: ' . $e->getMessage());
+
         return response()->json([
             'status' => 'error',
             'message' => 'An error occurred while applying filters',
@@ -506,7 +518,7 @@ public function getrooms(){
 
 public function storepage($id = null, $activeTab = 'observation', $activesubTab = 'MONTESSORI')
 {
-    $authId = Auth::user()->id; 
+    $authId = Auth::user()->id;
     $centerid = Session('user_center_id');
 
     if(Auth::user()->userType == "Superadmin"){
@@ -525,7 +537,7 @@ public function storepage($id = null, $activeTab = 'observation', $activesubTab 
     ? $observation->child->pluck('child')->filter()
     : collect();
 
-    
+
     $rooms = collect();
 
     if ($observation && $observation->room) {
@@ -647,7 +659,7 @@ public function view($id)
 
 public function linkobservationdata(Request $request)
 {
-    $authId = Auth::user()->id; 
+    $authId = Auth::user()->id;
     $centerid = Session('user_center_id');
     $search = $request->query('search');
     $obsId = $request->query('obsId'); // Current observation ID for checking existing links
@@ -806,7 +818,7 @@ public function storelinkobservation(Request $request)
 
 public function store(Request $request)
 {
-   
+
     $uploadMaxSize = min(
         $this->convertToBytes(ini_get('upload_max_filesize')),
         $this->convertToBytes(ini_get('post_max_size'))
@@ -925,7 +937,7 @@ public function store(Request $request)
         DB::rollBack();
         Log::error('Observation Store/Update Failed: ' . $e->getMessage());
 
-        return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
+        return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
     }
 }
 
@@ -956,7 +968,7 @@ private function convertToBytes($value)
 public function destroyimage($id)
 {
     $media = ObservationMedia::findOrFail($id);
-    
+
     // Optionally delete the file from storage
     if (file_exists(public_path($media->mediaUrl))) {
         @unlink(public_path($media->mediaUrl));
@@ -980,6 +992,24 @@ public function print($id)
             'devMilestoneSubs.devMilestone.milestone',
             'user'  // Assuming you have a room relationship
         ])->findOrFail($id);
+
+
+           // Only track if the user is authenticated and is a Parent
+           $user = Auth::user();
+           if ($user && $user->userType === 'Parent') {
+               // Check if already seen
+               $alreadySeen = SeenObservation::where('user_id', $user->id)
+                   ->where('observation_id', $id)
+                   ->exists();
+
+               if (! $alreadySeen) {
+                   SeenObservation::create([
+                       'user_id' => $user->id,
+                       'observation_id' => $id
+                   ]);
+               }
+           }
+
 
         $roomNames = Room::whereIn('id', explode(',', $observation->room))
         ->pluck('name')

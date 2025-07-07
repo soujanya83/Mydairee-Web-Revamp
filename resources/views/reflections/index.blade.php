@@ -215,6 +215,18 @@
         box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         color: white;
     }
+    .btn-print {
+        background: linear-gradient(135deg, #57e4bf, #0f88bc);
+        color: white;
+        max-height:35px;
+    }
+
+    .btn-print:hover {
+        background: linear-gradient(135deg, #84eddd, #0b5c73);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        color: white;
+    }
 
     .btn-delete {
         background: linear-gradient(135deg, #dc3545, #e83e8c);
@@ -475,13 +487,71 @@
                                         </div>
                                     @endif
                                 @endforeach
+
+
                             </div>
                         @endif
+
+
+
+                                @if(Auth::user()->userType != 'Parent')
+                                    
+                                     @if($reflectionItem->Seen && $reflectionItem->Seen->count() > 0)
+                                            <div class="section-title">
+                                            <i class="fa-solid fa-users-between-lines"></i>
+                                                            Seen by Parents:
+                                                        </div>
+
+                                                <div class="educators-list">
+                                                            @forelse($reflectionItem->Seen as $seen)
+
+                                                                    @php
+                                                                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
+                                                                        'avatar10.jpg'];
+                                                                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
+                                                                        'avatar7.jpg'];
+                                                                        $avatars = $seen->user->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+                                                                        $defaultAvatar = $avatars[array_rand($avatars)];
+                                                                    @endphp
+
+                                                                    @if($seen->user && $seen->user->userType === 'Parent')
+                                                                
+                                                                
+                                                                    <!-- <li style="margin-bottom: 10px;">
+                                                                    <img src="{{ $seen->user->imageUrl  ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" alt="Profile Image" width="40" height="40" style="border-radius: 50%;">
+                                                                    {{ $seen->user->name }} <span style="color: #2196F3;">&#10003;&#10003;</span> 
+                                                                    </li> -->
+
+
+                                                                    <div class="educator-item">
+                                                                            <img src="{{ $seen->user->imageUrl ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" 
+                                                                                alt="{{ $seen->user->name }}" 
+                                                                                class="educator-avatar">
+                                                                            <div class="educator-name">{{ $seen->user->name }}</div>
+                                                                        </div>
+
+
+
+                                                                    @endif
+                                                                    @empty
+                                                                    <li>No parent has seen this yet.</li>
+                                                            @endforelse
+
+                                                </div>
+
+                                    @endif        
+                                @endif
+
+
+
 
                         {{-- Action Buttons --}}
                         <div class="card-actions">
                         <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}" class="btn btn-edit btn-action">
                                 <i class="fas fa-edit"></i> Edit
+                            </a>
+                        <a href="{{ route('reflection.print', ['id' => $reflectionItem->id]) }}" target="_blank" class="btn btn-print btn-action">
+                                <i class="fas fa-print"></i> Print
                             </a>
                             <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
                                   <i class="fas fa-trash-alt"></i> Delete
@@ -936,6 +1006,20 @@ if ($('#filter_author_any').is(':checked')) {
                         });
                     }
 
+                    let seenparentHtml = '';
+                    if (val.seen && val.seen.length > 0) {
+                        val.seen.forEach(parentItem => {
+                            const gender = parentItem.gender === 'FEMALE' ? 'female' : 'male';
+                            const imageUrl = parentItem.imageUrl || `/assets/img/xs/avatar${Math.floor(Math.random() * 10) + 1}.jpg`;
+                            seenparentHtml += `
+                                <div class="educator-item">
+                                    <img src="${imageUrl}" alt="${parentItem.name}" class="educator-avatar">
+                                    <div class="educator-name">${parentItem.name}</div>
+                                </div>
+                            `;
+                        });
+                    }
+ 
                     $('#observations-list').append(`
                         <div class="col-lg-6 col-md-12">
                             <div class="card reflection-card">
@@ -960,6 +1044,11 @@ if ($('#filter_author_any').is(':checked')) {
                                     ${educatorsHtml ? `
                                         <div class="section-title"><i class="fas fa-chalkboard-teacher"></i> Educators</div>
                                         <div class="educators-list">${educatorsHtml}</div>
+                                    ` : ''}
+
+                                    ${seenparentHtml ? `
+                                        <div class="section-title"><i class="fas fa-chalkboard-teacher"></i>Seen by Parents:</div>
+                                        <div class="educators-list">${seenparentHtml}</div>
                                     ` : ''}
 
                                     <div class="card-actions">

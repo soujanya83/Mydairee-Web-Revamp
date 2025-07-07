@@ -61,5 +61,9 @@ public function links()
 {
     return $this->hasMany(ObservationLink::class, 'observationId');
 }
+public function Seen()
+{
+    return $this->hasMany(SeenObservation::class, 'observation_id');
+}
 
 }
