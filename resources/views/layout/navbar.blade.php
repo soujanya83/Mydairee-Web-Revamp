@@ -4,13 +4,13 @@
     }
 
     .top_counter {
-        background-image: url('{{ asset(' assets/img/doodle1.png') }}');
+        background-image: url('{{ asset('assets/img/doodle1.png') }}');
         background-size: cover;
         background-position: center;
     }
 
     .card {
-        background-image: url('{{ asset(' assets/img/doodle1.png') }}');
+        background-image: url('{{ asset('assets/img/doodle1.png') }}');
         background-size: cover;
         background-position: center;
     }
