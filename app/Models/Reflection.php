@@ -46,4 +46,15 @@ public function staff()
 {
     return $this->hasMany(ReflectionStaff::class, 'reflectionid');
 }
+public function SeenReflection()
+{
+    return $this->hasMany(SeenReflection::class, 'reflection_id');
+}
+
+public function Seen()
+{
+    return $this->hasMany(SeenReflection::class, 'reflection_id');
+}
+
+
 }

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class SettingsController extends Controller
 {
@@ -611,8 +612,409 @@ class SettingsController extends Controller
             ]);
         }
 
+        $this->sendWelcomeEmail($request->email, $request->password, $request->children);
+
+
         return response()->json(['status' => 'success']);
     }
+
+
+    private function sendWelcomeEmail($email, $password, $childrenData)
+{
+    try {
+        // Get child details for each child ID
+        $childrenDetails = [];
+        foreach ($childrenData as $child) {
+            $childId = $child['childid'];
+            $relation = $child['relation'];
+            
+            // Query to get child details from Child model
+            $childInfo = Child::select('name', 'lastname', 'dob', 'imageUrl')
+                            ->where('id', $childId)
+                            ->first();
+            
+            if ($childInfo) {
+                $childArray = $childInfo->toArray();
+                $childArray['relation'] = $relation;
+                $childrenDetails[] = $childArray;
+            }
+        }
+        
+        // Generate HTML for each child
+        $childrenHTML = '';
+        foreach ($childrenDetails as $child) {
+            // Handle child image URL
+            if (!empty($child['imageUrl'])) {
+                $childImageUrl = asset($child['imageUrl']);
+            } else {
+                $childImageUrl = 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=150&h=150&fit=crop&crop=face';
+            }
+            
+            $childFullName = trim($child['name'] . ' ' . $child['lastname']);
+            $dob = !empty($child['dob']) ? date('d M Y', strtotime($child['dob'])) : 'Not provided';
+            
+            $childrenHTML .= '
+            <div class="child-card">
+                <div class="child-photo">
+                    <img src="' . $childImageUrl . '" alt="' . htmlspecialchars($childFullName) . '" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #e3f2fd;">
+                </div>
+                <div class="child-info">
+                    <h3>' . htmlspecialchars($childFullName) . '</h3>
+                    <p><strong>Date of Birth:</strong> ' . $dob . '</p>
+                    <p><strong>Your Relation:</strong> ' . htmlspecialchars($child['relation']) . '</p>
+                </div>
+            </div>';
+        }
+        
+        // Create HTML email with Bootstrap 4 inspired design
+        $messageContent = '
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Welcome to MyDiaree</title>
+            <style>
+                * {
+                    box-sizing: border-box;
+                }
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #212529;
+                    margin: 0;
+                    padding: 0;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                }
+                .email-wrapper {
+                    padding: 20px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                }
+                .container {
+                    max-width: 700px;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                    border-radius: 15px;
+                    overflow: hidden;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                }
+                .header {
+                    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+                    color: white;
+                    padding: 40px 30px;
+                    text-align: center;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .header::before {
+                    content: "";
+                    position: absolute;
+                    top: -50%;
+                    left: -50%;
+                    width: 200%;
+                    height: 200%;
+                    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+                    animation: shimmer 3s ease-in-out infinite;
+                }
+                @keyframes shimmer {
+                    0%, 100% { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+                    50% { transform: translateX(-50%) translateY(-50%) rotate(180deg); }
+                }
+                .content {
+                    padding: 40px 30px;
+                    background-color: #ffffff;
+                }
+                h1 {
+                    color: #ffffff;
+                    margin: 0;
+                    font-size: 32px;
+                    font-weight: 700;
+                    letter-spacing: 1px;
+                    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                    position: relative;
+                    z-index: 1;
+                }
+                h2 {
+                    color: #007bff;
+                    margin: 0 0 20px 0;
+                    font-size: 24px;
+                    font-weight: 600;
+                    border-bottom: 3px solid #e9ecef;
+                    padding-bottom: 10px;
+                }
+                .welcome-message {
+                    font-size: 18px;
+                    margin-bottom: 25px;
+                    color: #495057;
+                }
+                .login-details {
+                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    border: 1px solid #dee2e6;
+                    border-left: 5px solid #007bff;
+                    padding: 25px;
+                    margin: 25px 0;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0,123,255,0.1);
+                }
+                .login-details h3 {
+                    color: #007bff;
+                    margin-top: 0;
+                    font-size: 20px;
+                }
+                .credentials {
+                    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+                    font-size: 16px;
+                    background-color: #ffffff;
+                    padding: 8px 12px;
+                    border-radius: 6px;
+                    border: 1px solid #ced4da;
+                    display: inline-block;
+                    margin-left: 10px;
+                    font-weight: 600;
+                    color: #495057;
+                }
+                .features-list {
+                    margin: 25px 0;
+                }
+                .feature-item {
+                    margin-bottom: 15px;
+                    position: relative;
+                    padding-left: 35px;
+                    font-size: 16px;
+                    color: #495057;
+                }
+                .feature-item:before {
+                    content: "✓";
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 24px;
+                    height: 24px;
+                    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                    border-radius: 50%;
+                    color: white;
+                    font-weight: bold;
+                    text-align: center;
+                    line-height: 24px;
+                    font-size: 14px;
+                }
+                .btn-primary {
+                    display: inline-block;
+                    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+                    color: white !important;
+                    padding: 15px 35px;
+                    text-decoration: none;
+                    border-radius: 50px;
+                    margin: 25px 0;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    font-size: 14px;
+                    box-shadow: 0 8px 20px rgba(0,123,255,0.3);
+                    transition: all 0.3s ease;
+                    border: none;
+                }
+                .btn-primary:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 12px 25px rgba(0,123,255,0.4);
+                }
+                .text-center {
+                    text-align: center;
+                }
+                .child-section {
+                    margin: 35px 0;
+                    padding: 25px;
+                    background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);
+                    border-radius: 15px;
+                    border: 1px solid #e3f2fd;
+                }
+                .child-card {
+                    display: flex;
+                    align-items: center;
+                    background-color: #ffffff;
+                    border-radius: 12px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+                    border: 1px solid #f1f3f4;
+                    transition: all 0.3s ease;
+                }
+                .child-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+                }
+                .child-photo {
+                    margin-right: 25px;
+                    flex-shrink: 0;
+                }
+                .child-info {
+                    flex-grow: 1;
+                }
+                .child-info h3 {
+                    margin: 0 0 10px 0;
+                    color: #007bff;
+                    font-size: 20px;
+                    font-weight: 600;
+                }
+                .child-info p {
+                    margin: 8px 0;
+                    color: #6c757d;
+                    font-size: 15px;
+                }
+                .highlight {
+                    color: #007bff;
+                    font-weight: 600;
+                }
+                .divider {
+                    height: 2px;
+                    background: linear-gradient(90deg, transparent, #dee2e6, transparent);
+                    margin: 30px 0;
+                    border: none;
+                }
+                .footer {
+                    text-align: center;
+                    padding: 30px;
+                    font-size: 14px;
+                    color: #6c757d;
+                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    border-top: 1px solid #dee2e6;
+                }
+                .footer p {
+                    margin: 5px 0;
+                }
+                .support-email {
+                    color: #007bff;
+                    text-decoration: none;
+                    font-weight: 600;
+                }
+                .support-email:hover {
+                    text-decoration: underline;
+                }
+                @media (max-width: 600px) {
+                    .container {
+                        margin: 10px;
+                        border-radius: 10px;
+                    }
+                    .content {
+                        padding: 25px 20px;
+                    }
+                    .header {
+                        padding: 30px 20px;
+                    }
+                    h1 {
+                        font-size: 24px;
+                    }
+                    .child-card {
+                        flex-direction: column;
+                        text-align: center;
+                    }
+                    .child-photo {
+                        margin-right: 0;
+                        margin-bottom: 15px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-wrapper">
+                <div class="container">
+                    <div class="header">
+                        <h1>🎉 Welcome to MyDiaree!</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Dear Parent,</h2>
+                        <p class="welcome-message">
+                            We are thrilled to welcome you to <span class="highlight">MyDiaree (Beta)</span> - your gateway to staying connected with your child\'s educational journey and development!
+                        </p>
+                        
+                        <div class="login-details">
+                            <h3>🔐 Your Login Credentials</h3>
+                            <p><strong>Email:</strong><span class="credentials">' . htmlspecialchars($email) . '</span></p>
+                            <p><strong>Password:</strong><span class="credentials">' . htmlspecialchars($password) . '</span></p>
+                            <p style="margin-top: 15px; color: #dc3545; font-weight: 500;">
+                                <em>⚠️ Please save these credentials securely for future access.</em>
+                            </p>
+                        </div>
+                        
+                        <p style="font-size: 18px; margin: 25px 0 15px 0; color: #495057;">
+                            <strong>🚀 What you can do with MyDiaree:</strong>
+                        </p>
+                        <div class="features-list">
+                            <div class="feature-item">Monitor your child\'s daily activities and academic progress</div>
+                            <div class="feature-item">Receive real-time updates and school announcements</div>
+                            <div class="feature-item">Communicate seamlessly with teachers and staff</div>
+                            <div class="feature-item">Access personalized learning resources and activities</div>
+                            <div class="feature-item">View photos and updates from school events</div>
+                            <div class="feature-item">Track homework assignments and important dates</div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="https://mydiaree.com.au" class="btn-primary">
+                                🚪 Access Your Account Now
+                            </a>
+                        </div>
+                        
+                        <div class="child-section">
+                            <h2>👨‍👩‍👧‍👦 Your Connected Children</h2>
+                            <p style="margin-bottom: 20px; color: #6c757d;">
+                                You have been successfully linked to the following children in our system:
+                            </p>
+                            
+                            ' . $childrenHTML . '
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <p style="font-size: 16px; color: #495057; margin: 20px 0;">
+                            We believe MyDiaree will revolutionize how you stay connected with your child\'s educational experience, making parent-school collaboration more effective and meaningful than ever before.
+                        </p>
+                        
+                        <p style="margin: 20px 0;">
+                            <strong>Need help?</strong> Our dedicated support team is ready to assist you at 
+                            <a href="mailto:mydairee47@gmail.com" class="support-email">mydairee47@gmail.com</a>
+                        </p>
+                        
+                        <p style="margin: 25px 0 5px 0;">
+                            Welcome to the MyDiaree family! 🎊
+                        </p>
+                        
+                        <p style="margin: 5px 0;">
+                            <strong>Warm regards,</strong><br>
+                            <span class="highlight">The MyDiaree Team</span><br>
+                            <em>Nextgen Montessori</em>
+                        </p>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; ' . date('Y') . ' MyDiaree. All rights reserved.</p>
+                        <p>This is an automated welcome email. Please do not reply directly to this message.</p>
+                        <p style="margin-top: 15px; font-size: 12px;">
+                            You are receiving this email because an account was created for you on MyDiaree.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>';
+        
+        // Send email using Laravel Mail
+        Mail::send([], [], function ($mail) use ($email, $messageContent) {
+            $mail->to($email)
+                    ->from('mydairee47@gmail.com', 'MyDiaree Support')
+                    ->subject('🎉 Welcome to MyDiaree - Your Child\'s Learning Journey Begins!')
+                    ->html($messageContent);
+        });
+        
+        return true;
+        
+    } catch (\Exception $e) {
+        // Log the error
+        \Log::error('Failed to send welcome email: ' . $e->getMessage());
+        return false;
+    }
+}
+
 
 
     public function getParentData($id)
