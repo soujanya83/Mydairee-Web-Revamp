@@ -245,7 +245,7 @@
         <div class="block-header">
             <div class="row">
                 <div class="col-lg-5 col-md-8 col-sm-12">
-                    <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"></a><u>@yield('title') <i class="fa fa-arrow-right" style="font-size:18px"></i></u> </h2>
+                    <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"></a><u></u> </h2>
                      <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard.university')}}"><i class="icon-home"></i></a></li>
                         @if (trim($__env->yieldContent('parentPageTitle')))
