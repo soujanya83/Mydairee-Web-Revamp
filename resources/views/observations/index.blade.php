@@ -270,7 +270,7 @@
             {{ \Carbon\Carbon::parse($observation->created_at)->format('d.m.Y') }}
         </p>
 
-        @if(Auth::user()->userType != 'Parent')
+        @if(Auth::user()->userType != 'Parent' && $observation->Seen->isNotEmpty())
 <p><strong>Seen by Parents:</strong></p>
         <ul style="max-height:60px;overflow-y:auto;">
             @forelse($observation->Seen as $seen)
