@@ -254,23 +254,23 @@
         .reflection-card {
             margin-bottom: 20px;
         }
-        
+
         .card-header {
             padding: 15px;
         }
-        
+
         .card-body {
             padding: 20px;
         }
-        
+
         .children-grid {
             justify-content: center;
         }
-        
+
         .educators-list {
             justify-content: center;
         }
-        
+
         .card-actions {
             justify-content: center;
         }
@@ -408,14 +408,14 @@
                     <div class="image-carousel">
                         @if($reflectionItem->media && $reflectionItem->media->count() > 0)
                             @foreach($reflectionItem->media as $index => $media)
-                                <img src="{{ asset($media->mediaUrl) }}" 
-                                     alt="Reflection Image" 
+                                <img src="{{ asset($media->mediaUrl) }}"
+                                     alt="Reflection Image"
                                      class="carousel-image {{ $index === 0 ? 'active' : '' }}">
                             @endforeach
                             @if($reflectionItem->media->count() > 1)
                                 <div class="carousel-indicators">
                                     @foreach($reflectionItem->media as $index => $media)
-                                        <div class="carousel-indicator {{ $index === 0 ? 'active' : '' }}" 
+                                        <div class="carousel-indicator {{ $index === 0 ? 'active' : '' }}"
                                              data-slide="{{ $index }}"></div>
                                     @endforeach
                                 </div>
@@ -431,8 +431,8 @@
                     <div class="card-header">
                         <h5 class="card-title">{!! $reflectionItem->title !!}</h5>
                         <div class="card-date">
-                            <i class="fas fa-calendar-alt"></i> 
-                            {{ $reflectionItem->created_at->format('M d, Y') }}
+                            <i class="fas fa-calendar-alt"></i>
+                          {{ $reflectionItem->created_at ? $reflectionItem->created_at->format('M d, Y') : '' }}
                         </div>
                     </div>
 
@@ -449,8 +449,8 @@
 
                                     @if($childRelation->child)
                                         <div class="child-item">
-                                            <img src="{{ $childRelation->child->imageUrl ? asset($childRelation->child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}" 
-                                                 alt="{{ $childRelation->child->name }}" 
+                                            <img src="{{ $childRelation->child->imageUrl ? asset($childRelation->child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}"
+                                                 alt="{{ $childRelation->child->name }}"
                                                  class="child-avatar">
                                             <div class="child-name">{{ $childRelation->child->name }}</div>
                                         </div>
@@ -480,8 +480,8 @@
 
                                     @if($staffRelation->staff)
                                         <div class="educator-item">
-                                            <img src="{{ $staffRelation->staff->imageUrl ? asset($staffRelation->staff->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" 
-                                                 alt="{{ $staffRelation->staff->name }}" 
+                                            <img src="{{ $staffRelation->staff->imageUrl ? asset($staffRelation->staff->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
+                                                 alt="{{ $staffRelation->staff->name }}"
                                                  class="educator-avatar">
                                             <div class="educator-name">{{ $staffRelation->staff->name }}</div>
                                         </div>
@@ -495,7 +495,7 @@
 
 
                                 @if(Auth::user()->userType != 'Parent')
-                                    
+
                                      @if($reflectionItem->Seen && $reflectionItem->Seen->count() > 0)
                                             <div class="section-title">
                                             <i class="fa-solid fa-users-between-lines"></i>
@@ -515,17 +515,17 @@
                                                                     @endphp
 
                                                                     @if($seen->user && $seen->user->userType === 'Parent')
-                                                                
-                                                                
+
+
                                                                     <!-- <li style="margin-bottom: 10px;">
                                                                     <img src="{{ $seen->user->imageUrl  ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" alt="Profile Image" width="40" height="40" style="border-radius: 50%;">
-                                                                    {{ $seen->user->name }} <span style="color: #2196F3;">&#10003;&#10003;</span> 
+                                                                    {{ $seen->user->name }} <span style="color: #2196F3;">&#10003;&#10003;</span>
                                                                     </li> -->
 
 
                                                                     <div class="educator-item">
-                                                                            <img src="{{ $seen->user->imageUrl ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" 
-                                                                                alt="{{ $seen->user->name }}" 
+                                                                            <img src="{{ $seen->user->imageUrl ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
+                                                                                alt="{{ $seen->user->name }}"
                                                                                 class="educator-avatar">
                                                                             <div class="educator-name">{{ $seen->user->name }}</div>
                                                                         </div>
@@ -539,7 +539,7 @@
 
                                                 </div>
 
-                                    @endif        
+                                    @endif
                                 @endif
 
 
@@ -576,7 +576,7 @@
     @endif
     </div>
 
-  
+
 </div>
 
 
@@ -680,7 +680,7 @@
                                     <input type="text" id="childSearchInput" class="form-control mb-3" placeholder="Search child...">
                                     <!-- Dynamic child checkboxes will be loaded here -->
                                     <div id="child-checkboxes">
-                                  
+
                                     </div>
                                 </div>
                             </div>
@@ -722,11 +722,11 @@
 
 
                                     <div id="staff-checkboxes">
-                                  
+
                                     </div>
                                     @endif
-        
-                                </div>    
+
+                                </div>
                             </div>
                         </div>
 
@@ -786,7 +786,7 @@ $(document).ready(function() {
     $(document).on('change', '.filter_child:not(#filter_child_selectall)', function() {
         var totalChildCheckboxes = $('.filter_child:not(#filter_child_selectall)').length;
         var checkedChildCheckboxes = $('.filter_child:not(#filter_child_selectall):checked').length;
-        
+
         if (checkedChildCheckboxes === totalChildCheckboxes) {
             $('#filter_child_selectall').prop('checked', true);
         } else {
@@ -808,7 +808,7 @@ $(document).ready(function() {
     $(document).on('change', '.filter_staff:not(#filter_staff_selectall)', function() {
         var totalChildCheckboxes = $('.filter_staff:not(#filter_staff_selectall)').length;
         var checkedChildCheckboxes = $('.filter_staff:not(#filter_staff_selectall):checked').length;
-        
+
         if (checkedChildCheckboxes === totalChildCheckboxes) {
             $('#filter_staff_selectall').prop('checked', true);
         } else {
@@ -821,7 +821,7 @@ $(document).ready(function() {
     function applyFilters() {
         // Get selected child IDs
         var childs = getSelectedChildIds();
-        
+
         function getSelectedChildIds() {
             var childs = [];
             var hasSelectAll = false;
@@ -1019,7 +1019,7 @@ if ($('#filter_author_any').is(':checked')) {
                             `;
                         });
                     }
- 
+
                     $('#observations-list').append(`
                         <div class="col-lg-6 col-md-12">
                             <div class="card reflection-card">
@@ -1093,20 +1093,20 @@ if ($('#filter_author_any').is(':checked')) {
     function clearFilters() {
         // Reset status to "All"
         $('#status_all').prop('checked', true);
-        
+
         // Reset date to "None"
         $('#added_none').prop('checked', true);
         $('#custom_date_range').hide();
         $('#from_date').val('');
         $('#to_date').val('');
-        
+
         // Uncheck all children
         $('.filter_child').prop('checked', false);
-        
+
         // Reset author to "Any"
         $('.filter_author').prop('checked', false);
         $('#filter_author_any').prop('checked', true);
-        
+
         // Reload original observations
         location.reload();
     }
