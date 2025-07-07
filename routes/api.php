@@ -12,6 +12,8 @@ use App\Http\Controllers\API\AnnouncementController;
 use App\Http\Controllers\API\HeadChecks;
 use App\Http\Controllers\API\SleepCheckController;
 use App\Http\Controllers\API\AccidentsController;
+use App\Http\Controllers\API\RoomController;
+
 
 
 
@@ -82,5 +84,17 @@ Route::get('Accidents/create',[AccidentsController::class,'create'])->name('Acci
 Route::get('Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
 Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
 Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
+
+// rooms
+    Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
+    Route::get('/edit-child/{id}', [RoomController::class, 'edit_child'])->name('edit_child');
+    Route::post('/child/update', [RoomController::class, 'update_child'])->name('update_child');
+    Route::post('/move-children', [RoomController::class, 'moveChildren'])->name('move_children');
+    Route::post('/children/delete-selected', [RoomController::class, 'delete_selected_children'])->name('delete_selected_children');
+
+    Route::post('add-children', [RoomController::class, 'add_new_children'])->name('add_children');
+    Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
+    Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
+    Route::delete('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
    
 });

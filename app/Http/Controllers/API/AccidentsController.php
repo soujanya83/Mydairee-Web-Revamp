@@ -163,7 +163,7 @@ public function getAccidentDetails(Request $request)
             $accident->$key = $value;
         }
     }
-
+ 
     // Return structured JSON
     return response()->json([
         'status' => true,
@@ -175,11 +175,40 @@ public function getAccidentDetails(Request $request)
 
 public function sendEmail(Request $request)
 {
-    $htmlContent = $request->html_content;
+    $accidentId = $request->id;
+    // $htmlContent = $request->html_content;
     $studentId = $request->student_id;
 
+       if (!$accidentId) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Error! Accident ID is missing.'
+        ], 400);
+    }
+
+       $accident = AccidentsModel::with(['child', 'addedByUser'])->find($accidentId);
+
+    if (!$accident) {
+        return response()->json([
+            'status' => false,
+            'message' => 'No Accident Details present.'
+        ], 404);
+    }
+
+    // Attach illness data if exists
+    $accidentIllness = AccidentIllnessModel::where('accident_id', $accidentId)->first();
+    if ($accidentIllness) {
+        $illnessData = $accidentIllness->toArray();
+        $illnessData['illness_id'] = $illnessData['id'];
+        unset($illnessData['id']);
+
+        foreach ($illnessData as $key => $value) {
+            $accident->$key = $value;
+        }
+    }
+
     // Validate input
-    if (!$htmlContent || !$studentId) {
+    if (!$studentId) {
         return response()->json([
             'success' => false,
             'message' => 'Missing required parameters'
@@ -207,6 +236,13 @@ public function sendEmail(Request $request)
     }
 
     // Generate PDF
+        $htmlContent = view('Accidents.pdf', ['AccidentInfo'=>$accident])->render();
+          if (!$htmlContent || !$studentId) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Missing required parameters'
+        ]);
+    }
     $pdf = Pdf::loadHTML($htmlContent)->setPaper('a4', 'portrait');
     $filename = 'student_report_' . $studentId . '_' . now()->format('Ymd_His') . '.pdf';
     $pdfPath = public_path('reports/' . $filename);
@@ -253,179 +289,6 @@ public function sendEmail(Request $request)
     ]);
 }
 
-
-// public function saveAccident(Request $request)
-// {
-//     // dd('here');
-//     $data = $request->all();
-//     // dd($request->all());
-//     // $data['userid'] = Auth::user()->userid;
-//     // $data['username'] = Auth::user()->name;
-//     // $data['centerid'] = session('user_center_id');
-//     // $data['roomid'] = $request->roomid;
-
-//     $request->merge([
-//     'userid' => Auth::user()->userid,
-//     'username' => Auth::user()->name,
-//     'centerid' => session('user_center_id'),
-//     'roomid' => $request->roomid,
-// ]);
-
-//     $accidentId = null;
-//     if (!empty($request->accidentid)) {
-//         $this->updateAccident((object)$data);  // Ensure cast to object if needed
-//         $accidentId = $request->accidentid;
-//     } else {
-//         $accidentId = $this->insertAccident($request);
-//         if (!$accidentId) {
-//             return response()->json([
-//                 'Status' => 'ERROR',
-//                 'Message' => 'Something went wrong!'
-//             ], 401);
-//         }
-//     }
-
-//     // Save signatures/images
-//     $targetPath = public_path('assets/media/');
-//     File::ensureDirectoryExists($targetPath);
-
-//     $imageMappings = [
-//         'person_sign' => "personSign-$accidentId.png",
-//         'witness_sign' => "witnessSign-$accidentId.png",
-//         'injury_image' => "injuryImage-$accidentId.png",
-//         'responsible_person_sign' => "personInchargeSign-$accidentId.png",
-//         'nominated_supervisor_sign' => "supervisorSign-$accidentId.png",
-//     ];
-
-//     foreach ($imageMappings as $field => $filename) {
-//         if (!empty($data[$field])) {
-//             $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data[$field]));
-//             file_put_contents($targetPath . $filename, $imageData);
-
-//             // Update image field in DB
-//             AccidentsModel::where('id', $accidentId)->update([$field => $filename]);
-//         }
-//     }
-
-//     // Update illness
-//     $data['accidentid'] = $accidentId;
-//      return redirect()->route('Accidents.list');
-// //     if ($this->updateIllness((object)$data)) {
-// //         return response()->json([
-// //             'Status' => 'SUCCESS',
-// //             'Message' => 'Accident record saved!'
-// //         ], 200);
-// //     } else {
-// //         return response()->json([
-// //             'Status' => 'ERROR',
-// //             'Message' => "Can't update illness!"
-// //         ], 401);
-// //     }
-// }
-
-// public function saveAccident(Request $request)
-// {
-//     $data = $request->all();
-
-//     // dd($data);
-
-//     // Merge additional fields from session/auth
-//     $request->merge([
-//         'userid' => Auth::user()->userid,
-//         'username' => Auth::user()->name,
-//         'centerid' => session('user_center_id'),
-//         'roomid' => $request->roomid,
-//     ]);
-
-//     $accidentId = null;
-
-//     // Insert or Update Accident
-//     if (!empty($request->id)) {
-//         // dd($request->all());
-//      $accidentId =   $this->updateAccident($request);  // Make sure updateAccident handles casting
-//         $accidentId = $request->accidentid;
-//     // Save Signature / Injury Images
-//     $targetPath = public_path('assets/media/');
-//     File::ensureDirectoryExists($targetPath);
-// // Fetch existing record
-// $existingAccident = AccidentsModel::find($accidentId);
-
-
-//     $imageMappings = [
-//         'person_sign' => "personSign-$accidentId.png",
-//         'witness_sign' => "witnessSign-$accidentId.png",
-//         'injury_image' => "injuryImage-$accidentId.png",
-//         'responsible_person_sign' => "personInchargeSign-$accidentId.png",
-//         'nominated_supervisor_sign' => "supervisorSign-$accidentId.png",
-//     ];
-
-//     foreach ($imageMappings as $field => $filename) {
-//         if (!empty($data[$field])) {
-//             $base64 = $data[$field];
-
-//             // Strip base64 prefix and decode
-//             $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64));
-
-//             // Save file
-//             file_put_contents($targetPath . $filename, $imageData);
-
-//             // Update DB with image filename
-//             AccidentsModel::where('id', $accidentId)->update([
-//                 $field => $filename
-//             ]);
-//         }
-//     }
-
-
-
-//     } else {
-
-//         $accidentId = $this->insertAccident($request);
-//         if (!$accidentId) {
-//             return response()->json([
-//                 'Status' => 'ERROR',
-//                 'Message' => 'Something went wrong while saving accident record!'
-//             ], 500);
-//         }
-
-//             // Save Signature / Injury Images
-//     $targetPath = public_path('assets/media/');
-//     File::ensureDirectoryExists($targetPath);
-
-//     $imageMappings = [
-//         'person_sign' => "personSign-$accidentId.png",
-//         'witness_sign' => "witnessSign-$accidentId.png",
-//         'injury_image' => "injuryImage-$accidentId.png",
-//         'responsible_person_sign' => "personInchargeSign-$accidentId.png",
-//         'nominated_supervisor_sign' => "supervisorSign-$accidentId.png",
-//     ];
-
-//     foreach ($imageMappings as $field => $filename) {
-//         if (!empty($data[$field])) {
-//             $base64 = $data[$field];
-
-//             // Strip base64 prefix and decode
-//             $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64));
-
-//             // Save file
-//             file_put_contents($targetPath . $filename, $imageData);
-
-//             // Update DB with image filename
-//             AccidentsModel::where('id', $accidentId)->update([
-//                 $field => $filename
-//             ]);
-//         }
-//     }
-//     }
-
-
-
-//     // Optionally update related illness data (commented out for now)
-//     // $data['accidentid'] = $accidentId;
-//     // $this->updateIllness((object)$data);
-
-//     return redirect()->route('Accidents.list')->with('success', 'Accident record saved successfully.');
-// }
 public function saveAccident(Request $request)
 {
     $data = $request->all();
@@ -434,7 +297,7 @@ public function saveAccident(Request $request)
     $request->merge([
         'userid' => Auth::user()->userid,
         'username' => Auth::user()->name,
-        'centerid' => session('user_center_id'),
+        'centerid' => $request->centerid,
         'roomid' => $request->roomid,
     ]);
 
@@ -498,7 +361,19 @@ public function saveAccident(Request $request)
         }
     }
 
-    return redirect()->route('Accidents.list')->with('success', 'Accident record saved successfully.');
+    if($request->id){
+          return response()->json([
+    'success' => true,
+    'message' => 'Accident record updated successfully.',
+    'accident_id' => $accidentId
+]);
+    }
+   return response()->json([
+    'success' => true,
+    'message' => 'Accident record saved successfully.',
+    'accident_id' => $accidentId
+]);
+
 }
 
 
@@ -735,40 +610,38 @@ public function getChildDetails(Request $request)
 
 public function AccidentEdit(Request $request)
 {
-    // $userid = Auth::user()->userid;
-    $userid = $request->userid;
+    $userid = Auth::user()->userid;
     $accidentId = $request->id ?? null;
     $centerid = $request->centerid;
-     $roomid = $request->roomid;
-    //  dd( $roomid);
+    $roomid = $request->roomid;
 
-    //  Accident ID missing
     if (!$accidentId) {
-        return redirect()->back()->with('msg', 'Error! Accident id could not be fetched. Please try again');
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Error! Accident ID could not be fetched. Please try again.',
+        ], 400);
     }
 
-    // ✅ Fetch accident via Eloquent
-    // $accident = AccidentsModel::with(['child', 'addedByUser']) // assuming relations
-    //     ->find($accidentId);
+    $accident = AccidentsModel::with(['child', 'addedByUser'])->find($accidentId);
 
-        // dd($accident);
-        $accident = AccidentsModel::with(['child', 'addedByUser'])
-    ->find($accidentId);
-
-$accidentIllness = AccidentIllnessModel::where('accident_id', $accidentId)->first();
-
-if ($accidentIllness) {
-    $illnessData = $accidentIllness->toArray();
-    $illnessData['illness_id'] = $illnessData['id']; // rename 'id' to 'illness_id'
-    unset($illnessData['id']); // remove original 'id'
-    
-    // Merge illness data into $accident
-    foreach ($illnessData as $key => $value) {
-        $accident->$key = $value;
+    if (!$accident) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No Accident Details present.',
+        ], 404);
     }
-}
 
-         
+    $accidentIllness = AccidentIllnessModel::where('accident_id', $accidentId)->first();
+
+    if ($accidentIllness) {
+        $illnessData = $accidentIllness->toArray();
+        $illnessData['illness_id'] = $illnessData['id'];
+        unset($illnessData['id']);
+
+        foreach ($illnessData as $key => $value) {
+            $accident->$key = $value;
+        }
+    }
 
     $children = Child::where('room', $roomid)
         ->where('status', 'Active')
@@ -779,17 +652,13 @@ if ($accidentIllness) {
             return $child;
         });
 
-    if (!$accident) {
-        return redirect()->back()->with('error','No Accident Details present');
-    }
-    // dd($children);
-
-    return view('Accidents.edit',[
-     
-        'AccidentInfo' => $accident,
-        'Childrens' => $children,
-        'roomid' => $request->roomid,
-        'centerid' => $request->centerid
+    return response()->json([
+        'status' => 'success',
+        'accident' => $accident,
+        'children' => $children,
+        'roomid' => $roomid,
+        'centerid' => $centerid,
     ]);
-} 
+}
+
 }

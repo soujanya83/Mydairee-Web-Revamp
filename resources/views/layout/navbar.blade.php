@@ -32,7 +32,7 @@
                     alt="Lucid Logo" class="img-responsive logo"></a>
         </div>
         <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i
-                class="fa fa-arrow-left"></i></a>
+                class="fa fa-arrow-left" ></i></a>
         <div class="navbar-right">
             <form id="navbar-search" class="navbar-form search-form">
                 <input value="" class="form-control" placeholder="Search here..." type="text">

@@ -1,6 +1,6 @@
 @extends('layout.master')
 @section('title', 'Dashboard')
-@section('parentPageTitle', 'Dashboard')
+{{-- @section('parentPageTitle', 'Dashboard') --}}
 
 @section('content')
 

@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Create Announcement')
+@section('title', 'Create Accident')
 @section('parentPageTitle', 'Dashboard')
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}

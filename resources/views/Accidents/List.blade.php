@@ -1,5 +1,5 @@
   @extends('layout.master')
-@section('title', 'Announcements')
+@section('title', 'Accidents')
 @section('parentPageTitle', 'Dashboard')
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

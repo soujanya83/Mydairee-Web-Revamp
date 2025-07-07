@@ -141,7 +141,7 @@ padding-inline:0;
     
       @if(Auth::user()->userType != 'Parent')
     <button onclick="sendReportToParent()" class="email-button no-print ml-2">
-        Send to Parent <i class="fa-solid fa-envelope fa-beat-fade" style=""></i>
+        Send to Parent <i class="fa-solid fa-envelope fa-beat-fade" ></i>
     </button>
 @endif
 

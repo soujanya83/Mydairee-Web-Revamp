@@ -203,7 +203,14 @@ public function programPlanPrintPage($id)
             $userId = $authId;
 
             // Return view with data
-            // dd($plan_data);
+            // dd($montessori_subjects);
+//             foreach( $montessori_subjects as $subject){
+//   if($subject->name == "Sensorial"){
+//                 dd($subject->activities );
+
+//             }
+//             }
+          
             return view('ProgramPlan.create', compact(
                 'rooms', 'users', 'centerId', 'userId', 'eylf_outcomes', 'montessori_subjects', 'plan_data', 'selected_educators', 'selected_children'
             ));

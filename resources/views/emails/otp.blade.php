@@ -103,8 +103,8 @@
         <!-- Logo -->
         <div style="text-align: center; padding: 20px;">
             <a href="https://www.zinggerr.com" target="_blank">
-                <img src="https://www.zinggerr.com/asset/images/logo.png" alt="Mydiaree Logo" style="max-width: 150px;">
-                
+                <img src="http://www.mydiaree.com.au/assets/img/MYDIAREE-new-logo.png" alt="Mydiaree Logo" style="max-width: 150px;">
+
             </a>
         </div>
 

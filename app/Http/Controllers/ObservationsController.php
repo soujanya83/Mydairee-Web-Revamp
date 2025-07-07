@@ -303,7 +303,7 @@ class ObservationsController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Filter error: ' . $e->getMessage());
+            Log::error('Filter error: ' . $e->getMessage());
             
             return response()->json([
                 'status' => 'error',
@@ -337,7 +337,7 @@ class ObservationsController extends Controller
             ]);
         
         } catch (\Exception $e) {
-            \Log::error('Filter error: ' . $e->getMessage());
+            Log::error('Filter error: ' . $e->getMessage());
             
             return response()->json([
                 'status' => 'error',
@@ -435,7 +435,7 @@ public function getStaff(Request $request)
         ]);
     
     } catch (\Exception $e) {
-        \Log::error('Filter error: ' . $e->getMessage());
+        Log::error('Filter error: ' . $e->getMessage());
         
         return response()->json([
             'status' => 'error',
@@ -491,7 +491,7 @@ public function getrooms(){
         ]);
     
     } catch (\Exception $e) {
-        \Log::error('Filter error: ' . $e->getMessage());
+        Log::error('Filter error: ' . $e->getMessage());
         
         return response()->json([
             'status' => 'error',
@@ -925,7 +925,7 @@ public function store(Request $request)
         DB::rollBack();
         Log::error('Observation Store/Update Failed: ' . $e->getMessage());
 
-        return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
+        return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
     }
 }
 

@@ -28,6 +28,7 @@ public function getSleepChecksList(Request $request)
    
         $userid = $user->userid;
         $userType = $user->userType;
+      
         
         $centerid = Session('user_center_id') ;
 

@@ -80,9 +80,6 @@ img:hover {
 
 <style>
 
-margin-right: 20px;
-margin-top: -60px;
-
 
         main{
 padding-block:4em;
@@ -139,11 +136,7 @@ padding-inline:0;
                     @endif
 
                     @if(Auth::user()->userType != 'Parent')
-                 
-                     
                         <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}" class="btn btn-outline-info btn-lg">ADD NEW</a>
-                    
-
                     @endif
                 </div>
 
@@ -184,203 +177,78 @@ padding-inline:0;
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="card-body p-0">
-                            <!-- Desktop Table View -->
-                            <div class="d-none d-lg-block">
-                                <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
-                                        <thead class="bg-light">
+                            <!-- Table View -->
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>S.no</th>
+                                            <th>Title</th>
+                                            <th>Media</th>
+                                            <th>Created By</th>
+                                            <th>Event Date</th>
+                                            <th>Status</th>
+                                            <th style="width: 140px;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($records as $announcement)
+                                            @php $media = json_decode($announcement->announcementMedia, true); @endphp
                                             <tr>
-                                                <th class="border-0 fw-semibold text-dark">Title</th>
-                                                <th class="border-0 fw-semibold text-dark">Media</th>
-                                                <th class="border-0 fw-semibold text-dark">Created By</th>
-                                                <th class="border-0 fw-semibold text-dark">Event Date</th>
-                                                <th class="border-0 fw-semibold text-dark">Status</th>
-                                                <th class="border-0 fw-semibold text-dark" style="width: 140px;">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse($records as $announcement)
-                                                <tr class="border-bottom">
-                                                    <td class="py-3">
-                                                        <div class="fw-semibold text-dark">{{ ucfirst($announcement->title) }}</div>
-                                                    </td>
-                                                    
-                                                    @php
-                                                        $media = json_decode($announcement->announcementMedia, true);
-                                                    @endphp
-                                                    
-                                                    <td class="py-3">
-                                                        @if (!empty($media) && is_array($media))
-                                                            <div class="d-flex flex-wrap gap-1">
-                                                                @foreach (array_slice($media, 0, 2) as $img)
-                                                                    <img class="rounded shadow-sm" 
-                                                                         src="{{ asset('assets/media/' . $img) }}" 
-                                                                         style="width: 50px; height: 50px; object-fit: cover;" 
-                                                                         alt="Media"
-                                                                         data-bs-toggle="tooltip" 
-                                                                         title="Click to view full size">
-                                                                @endforeach
-                                                                @if(count($media) > 2)
-                                                                    <div class="d-flex align-items-center justify-content-center bg-light rounded" 
-                                                                         style="width: 50px; height: 50px;">
-                                                                        <small class="text-muted">+{{ count($media) - 2 }}</small>
-                                                                    </div>
-                                                                @endif
-                                                            </div>
-                                                        @else
-                                                            <span class="text-muted">
-                                                                <i class="fas fa-image me-1"></i>No media
-                                                            </span>
-                                                        @endif
-                                                    </td>
-                                                    
-                                                    <td class="py-3">
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
-                                                                <small class="text-white fw-bold">{{ strtoupper(substr($announcement->createdBy, 0, 1)) }}</small>
-                                                            </div>
-                                                            <span>{{ ucfirst($announcement->createdBy) }}</span>
-                                                        </div>
-                                                    </td>
-                                                    
-                                                    <td class="py-3">
-                                                        <div class="fw-semibold">{{ \Carbon\Carbon::parse($announcement->eventDate)->format('d M Y') }}</div>
-                                                        <small class="text-muted">{{ \Carbon\Carbon::parse($announcement->eventDate)->diffForHumans() }}</small>
-                                                    </td>
-                                                    
-                                                    <td class="py-3">
-                                                        <span class="badge fs-6 {{ $announcement->status == 'Sent' ? 'bg-success' : 
-                                                               ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
-                                                            <i class="fas {{ $announcement->status == 'Sent' ? 'fa-check' : 
-                                                                   ($announcement->status == 'Pending' ? 'fa-clock' : 'fa-times') }} me-1"></i>
-                                                            {{ ucfirst($announcement->status) }}
-                                                        </span>
-                                                    </td>
-                                                    
-                                                    <td class="py-3">
-                                                        <div class="d-flex gap-1 align-items-center">
-                                                            <!-- View -->
-                                                            <a href="{{ route('announcements.view', $announcement->id) }}" 
-                                                               class="btn btn-outline-success btn-sm d-flex align-items-center justify-content-center" 
-                                                               style="width: 32px; height: 32px;"
-                                                               title="View"
-                                                               data-bs-toggle="tooltip">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
+<td data-label="ID">
+    <span class="id-badge">
+        {{ ($records->currentPage() - 1) * $records->perPage() + $loop->iteration }}
+    </span>
+</td>
 
-                                                            <!-- Edit -->
-                                                            @if($permissions && $permissions->updateAnnouncement == 1)
-                                                                <a href="{{ route('announcements.create', $announcement->id) }}" 
-                                                                   class="btn btn-outline-info btn-sm d-flex align-items-center justify-content-center" 
-                                                                   style="width: 32px; height: 32px;"
-                                                                   title="Edit"
-                                                                   data-bs-toggle="tooltip">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </a>
-                                                            @endif
-
-                                                            <!-- Delete -->
-                                                            @if($permissions && $permissions->deleteAnnouncement == 1)
-                                                                <form action="{{ route('announcements.delete') }}" method="POST" class="d-inline m-0">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <input type="hidden" name="announcementid" value="{{ $announcement->id }}">
-                                                                    <button type="button" 
-                                                                            class="btn btn-outline-danger btn-sm delete-btn d-flex align-items-center justify-content-center"
-                                                                            style="width: 32px; height: 32px;"
-                                                                            title="Delete"
-                                                                            data-bs-toggle="tooltip">
-                                                                        <i class="fas fa-trash-alt"></i>
-                                                                    </button>
-                                                                </form>
-                                                            @endif
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="6" class="text-center py-5 text-muted">
-                                                        <i class="fas fa-inbox fa-2x mb-3 d-block"></i>
-                                                        No announcements found.
-                                                    </td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Mobile Card View -->
-                            <div class="d-lg-none p-3">
-                                @forelse($records as $announcement)
-                                    <div class="card mb-3 border-start border-4 {{ $announcement->status == 'Sent' ? 'border-success' : 
-                                           ($announcement->status == 'Pending' ? 'border-warning' : 'border-danger') }}">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                                        <h6 class="fw-bold mb-1">{{ ucfirst($announcement->title) }}</h6>
-                                                        <span class="badge fs-6 {{ $announcement->status == 'Sent' ? 'bg-success' : 
-                                                               ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
-                                                            {{ ucfirst($announcement->status) }}
-                                                        </span>
-                                                    </div>
-                                                    
-                                                    @php
-                                                        $media = json_decode($announcement->announcementMedia, true);
-                                                    @endphp
-                                                    
+                                                <td>{{ ucfirst($announcement->title) }}</td>
+                                                <td>
                                                     @if (!empty($media) && is_array($media))
-                                                        <div class="mb-3">
-                                                            <div class="d-flex flex-wrap gap-2">
-                                                                @foreach (array_slice($media, 0, 3) as $img)
-                                                                    <img class="rounded shadow-sm" 
-                                                                         src="{{ asset('assets/media/' . $img) }}" 
-                                                                         style="width: 60px; height: 60px; object-fit: cover;" 
-                                                                         alt="Media">
-                                                                @endforeach
-                                                                @if(count($media) > 3)
-                                                                    <div class="d-flex align-items-center justify-content-center bg-light rounded" 
-                                                                         style="width: 60px; height: 60px;">
-                                                                        <small class="text-muted fw-bold">+{{ count($media) - 3 }}</small>
-                                                                    </div>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    @endif
-                                                    
-                                                    <div class="row text-sm">
-                                                        <div class="col-6 mb-2">
-                                                            <small class="text-muted d-block">Created By</small>
-                                                            <div class="d-flex align-items-center">
-                                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
-                                                                    <small class="text-white fw-bold" style="font-size: 10px;">{{ strtoupper(substr($announcement->createdBy, 0, 1)) }}</small>
+                                                        <div class="d-flex flex-wrap gap-1">
+                                                            @foreach (array_slice($media, 0, 2) as $img)
+                                                                <img src="{{ asset('assets/media/' . $img) }}" class="rounded shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" alt="Media">
+                                                            @endforeach
+                                                            @if(count($media) > 2)
+                                                                <div class="d-flex align-items-center justify-content-center bg-light rounded" style="width: 50px; height: 50px;">
+                                                                    <small class="text-muted">+{{ count($media) - 2 }}</small>
                                                                 </div>
-                                                                <small class="fw-semibold">{{ ucfirst($announcement->createdBy) }}</small>
-                                                            </div>
+                                                            @endif
                                                         </div>
-                                                        <div class="col-6 mb-2">
-                                                            <small class="text-muted d-block">Event Date</small>
-                                                            <small class="fw-semibold">{{ \Carbon\Carbon::parse($announcement->eventDate)->format('d M Y') }}</small>
+                                                    @else
+                                                        <span class="text-muted"><i class="fas fa-image me-1"></i>No media</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                                            <small class="text-white fw-bold">{{ strtoupper(substr($announcement->createdBy, 0, 1)) }}</small>
                                                         </div>
+                                                        <span>{{ ucfirst($announcement->createdBy) }}</span>
                                                     </div>
-                                                    
-                                                    <div class="d-flex gap-2 mt-3 justify-content-end align-items-center">
+                                                </td>
+                                                <td>
+                                                    <div class="fw-semibold">{{ \Carbon\Carbon::parse($announcement->eventDate)->format('d M Y') }}</div>
+                                                    <small class="text-muted">{{ \Carbon\Carbon::parse($announcement->eventDate)->diffForHumans() }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge fs-6 {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                                        <i class="fas {{ $announcement->status == 'Sent' ? 'fa-check' : ($announcement->status == 'Pending' ? 'fa-clock' : 'fa-times') }} me-1"></i>
+                                                        {{ ucfirst($announcement->status) }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-1 align-items-center">
                                                         <!-- View -->
-                                                        <a href="{{ route('announcements.view', $announcement->id) }}" 
-                                                           class="btn btn-outline-success btn-sm d-flex align-items-center"
-                                                           style="height: 32px;">
-                                                            <i class="fas fa-eye me-1"></i>View
+                                                        <a href="{{ route('announcements.view', $announcement->id) }}" class="btn btn-outline-success btn-sm" title="View">
+                                                            <i class="fas fa-eye"></i>
                                                         </a>
 
                                                         <!-- Edit -->
                                                         @if($permissions && $permissions->updateAnnouncement == 1)
-                                                            <a href="{{ route('announcements.create', $announcement->id) }}" 
-                                                               class="btn btn-outline-info btn-sm d-flex align-items-center mx-1"
-                                                               style="height: 32px;">
-                                                                <i class="fas fa-edit me-1"></i>Edit
+                                                            <a href="{{ route('announcements.create', $announcement->id) }}" class="btn btn-outline-info btn-sm" title="Edit">
+                                                                <i class="fas fa-edit"></i>
                                                             </a>
                                                         @endif
 
@@ -390,24 +258,24 @@ padding-inline:0;
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <input type="hidden" name="announcementid" value="{{ $announcement->id }}">
-                                                                <button type="button" 
-                                                                        class="btn btn-outline-danger btn-sm delete-btn d-flex align-items-center"
-                                                                        style="height: 32px;">
-                                                                    <i class="fas fa-trash-alt me-1"></i>Delete
+                                                                <button type="button" class="btn btn-outline-danger btn-sm delete-btn" title="Delete">
+                                                                    <i class="fas fa-trash-alt"></i>
                                                                 </button>
                                                             </form>
                                                         @endif
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="text-center py-5">
-                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">No announcements found.</p>
-                                    </div>
-                                @endforelse
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center py-5 text-muted">
+                                                    <i class="fas fa-inbox fa-2x mb-3 d-block"></i>
+                                                    No announcements found.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -431,13 +299,14 @@ padding-inline:0;
 </main>
 
 
+
 @endsection
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
- 
+
     const deleteButtons = document.querySelectorAll('.delete-btn');
 
     deleteButtons.forEach(button => {
