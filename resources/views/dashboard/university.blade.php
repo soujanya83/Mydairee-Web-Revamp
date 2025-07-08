@@ -146,7 +146,7 @@
 
                 <!-- Children -->
                 <div class="col-md-4 mb-4">
-                    <a href="#" class="card shadow-sm">
+                    <a href="{{ route('childrens_list') }}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="fa-solid fa-children fa-2x mb-2"></i>
                             <p class="card-text mb-0 title">Children</p>
@@ -165,7 +165,7 @@
                 </div>
 
                 <!-- Observations -->
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" style="margin-top: -26px;">
                     <a href="{{route('observation.index')}}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="icon-equalizer fa-2x mb-2"></i>
@@ -175,7 +175,7 @@
                 </div>
 
                 <!-- Daily Reflections -->
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" style="margin-top: -26px;">
                     <a href="{{route('reflection.index')}}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="fa-solid fa-notes-medical fa-2x mb-2"></i>
@@ -185,7 +185,7 @@
                 </div>
 
                 <!-- Daily Diary -->
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" style="margin-top: -26px;">
                     <a href="{{ route('dailyDiary.list') }}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="fa-solid fa-wallet fa-2x mb-2"></i>
@@ -198,7 +198,7 @@
 
         <!-- Weather Card -->
         <div class="card" style="margin-top: -48px;    margin-bottom: 82px;">
-            <div class="header">
+            <div class="header" style="    margin-bottom: -28px;">
                 <h2>Weather</h2>
             </div>
             <div class="body text-center">
