@@ -368,10 +368,10 @@
                       <!-- Filter Button -->
 <button class="btn btn-outline-primary btn-lg mr-1 filterbutton" data-toggle="modal"
         data-backdrop="static" data-target="#filtersModal">
-    FILTERS
+        <i class="fa-solid fa-filter" style="margin-right: 5px;"></i> FILTERS
 </button>
 &nbsp;&nbsp;&nbsp;
-<button type="button" class="btn btn-outline-info" onclick="window.location.href='{{ route('reflection.addnew') }}'">Add New</button>
+<button type="button" class="btn btn-outline-info" onclick="window.location.href='{{ route('reflection.addnew') }}'"><i class="icon-plus" style="margin-right: 5px;"></i>Add New</button>
 @endif &nbsp;&nbsp;&nbsp;
 
 
@@ -379,7 +379,7 @@
         <button class="btn btn-outline-primary btn-lg dropdown-toggle"
                 type="button" id="centerDropdown" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
-            {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+                <i class="fa-brands fa-centercode" style="margin-right: 5px;"></i> {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
         </button>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
             @foreach($centers as $center)
