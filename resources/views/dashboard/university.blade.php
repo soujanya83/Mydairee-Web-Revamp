@@ -146,7 +146,7 @@
 
                 <!-- Children -->
                 <div class="col-md-4 mb-4">
-                    <a href="#" class="card shadow-sm">
+                    <a href="{{ route('childrens_list') }}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="fa-solid fa-children fa-2x mb-2"></i>
                             <p class="card-text mb-0 title">Children</p>

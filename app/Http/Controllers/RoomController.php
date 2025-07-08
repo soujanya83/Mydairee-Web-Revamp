@@ -16,37 +16,106 @@ use Illuminate\Support\Str;
 
 class RoomController extends Controller
 {
- public function bulkDelete(Request $request)
-{
-    $roomIds = $request->input('selected_rooms', []);
 
-    // Validation
-    $validator = Validator::make($request->all(), [
-        'selected_rooms' => 'required|array|min:1',
-        'selected_rooms.*' => 'exists:room,id',
-    ]);
+    public function update_child_progress(Request $request, $id)
+    {
 
-    if ($validator->fails()) {
-        return redirect()->back()
-            ->withErrors($validator)
-            ->withInput();
+        $request->validate([
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'dob' => 'required|date',
+            'startDate' => 'required|date',
+            'gender' => 'required|in:Male,Female,Other',
+            'status' => 'required|in:Active,Active,Enrolled',
+            'file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+        $child = Child::findOrFail($id);
+        $child->room = $request->roomid ?? null;
+        $child->name = $request->firstname;
+        $child->lastname = $request->lastname;
+        $child->dob = $request->dob;
+        $child->startDate = $request->startDate;
+        $child->gender = $request->gender;
+        $child->status = $request->status;
+
+        $child->centerid =  $request->centerid ?? null;
+        $child->createdBy = Auth::user()->id;
+
+        if ($request->hasFile('file')) {
+            $child->imageUrl = $request->file('file')->store('children_images', 'public');
+        }
+
+        $daysMap = ['mon', 'tue', 'wed', 'thu', 'fri'];
+        $daysString = '';
+        foreach ($daysMap as $day) {
+            $daysString .= in_array($day, $request->input('days', [])) ? '1' : '0';
+        }
+        $child->daysAttending = $daysString;
+        $child->save();
+
+        // return redirect()->route('room.children',['roomid'=>$request->roomid])->with('success', 'Child updated successfully.');
+        return redirect()->route('childrens_list')->with('success', 'Child updated successfully.');
     }
 
-    try {
-        // Start DB transaction for safety (optional)
-        DB::beginTransaction();
+    public function childrens_edit($id)
+    {
 
-        Room::whereIn('id', $roomIds)->delete();
-        RoomStaff::whereIn('roomid', $roomIds)->delete();
+        $data = Child::where('id', $id)->first();
 
-        DB::commit();
-
-        return redirect()->back()->with('success', 'Selected rooms deleted successfully.');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()->with('error', 'Something went wrong while deleting rooms.');
+        return view('rooms.edit_child_progress', compact('data'));
     }
-}
+
+    public function children_destroy($id)
+    {
+
+        $childIds = Child::find($id);
+        if (!$childIds) {
+            return redirect()->back()->with('error', 'No children for deletion.');
+        }
+        $childIds->delete();
+        return redirect()->back()->with('success', 'Children deleted successfully.');
+    }
+
+    public function childrens_list()
+    {
+        $userId = Auth::user()->id;
+        $chilData = Child::select('child.*', 'child.id as childId', 'child.name as childname', 'room.name as roomname', 'room.*', 'child.createdAt as childcreatedate')->where('child.createdBy', $userId)->join('room', 'room.id', '=', 'child.room')->get();
+
+        return view('rooms.childrens_list', compact('chilData'));
+    }
+
+
+    public function bulkDelete(Request $request)
+    {
+        $roomIds = $request->input('selected_rooms', []);
+
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'selected_rooms' => 'required|array|min:1',
+            'selected_rooms.*' => 'exists:room,id',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            // Start DB transaction for safety (optional)
+            DB::beginTransaction();
+
+            Room::whereIn('id', $roomIds)->delete();
+            RoomStaff::whereIn('roomid', $roomIds)->delete();
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Selected rooms deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Something went wrong while deleting rooms.');
+        }
+    }
 
 
 
