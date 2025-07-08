@@ -1,11 +1,13 @@
 @extends('layout.master')
-@section('title', 'Create Announcement')
+@section('title', 'Create Accident')
 @section('parentPageTitle', 'Dashboard')
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
 <style>
+   
         main{
-padding-block:4em;
+padding-top:2em;
+padding-bottom: 4em;
 padding-inline:2em;
     }
     @media screen and (max-width: 600px) {
@@ -53,9 +55,10 @@ padding-inline:0;
 </style>
 @endsection
 @section('content')
+  <hr class="mt-5">
     <main>
         <div class="container-fluid">
-            <div class="row">
+            <!-- <div class="row">
                 <div class="col-12">
                     <h1>Add Accidents</h1>
                     
@@ -78,7 +81,7 @@ padding-inline:0;
                     </nav>
                     <div class="separator mb-5"></div>
                 </div>
-            </div>  
+            </div>   -->
             <div class="row">
                 <div class="col-12 mb-5 card pt-4">
                     <h3 class="service-title text-primary">INCIDENT, INJURY, TRAUMA, & ILLNESS RECORD</h3>
@@ -730,197 +733,7 @@ padding-inline:0;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.signature/1.2.1/jquery.signature.min.js"></script>
 
-
-<!-- <script>
-	$(document).ready(function(){
-		$('.js-example-basic-single').select2();
-		var sig = $('#sig').signature();
-		$('#btnSignature').on('click', function() {
-			let _identity = $("#identityVal").val();
-			if (_identity == "person_sign") {
-				$('#person_sign').show();
-				$('#person_sign_dt').hide();
-				var _signature = $('#sig').signature('toDataURL');
-				$('#person_sign_img').attr('src', _signature);
-				$('#person_sign_txt').val(_signature);
-			} else if (_identity == "witness_sign") {
-				$('#witness_sign').show();
-				$('#witness_sign_dt').hide();
-				var _signature = $('#sig').signature('toDataURL');
-				$('#witness_sign_img').attr('src', _signature);
-				$('#witness_sign_txt').val(_signature);
-			} else if (_identity == "incharge_sign") {
-				$('#incharge_sign').show();
-				$('#res_pinc_dt').hide();
-				var _signature = $('#sig').signature('toDataURL');
-				$('#res_pinc_img').attr('src', _signature);
-				$('#res_pinc_txt').val(_signature);
-			} else if (_identity == "supervisor_sign") {
-				$('#supervisor_sign').show();
-				$('#nom_svs_dt').hide();
-				var _signature = $('#sig').signature('toDataURL');
-				$('#nsv_sign_img').attr('src', _signature);
-				$('#nsv_sign_txt').val(_signature);
-			}
-			$('#sig').signature('clear');
-		});
-
-		$(document).on('show.bs.modal', '#signModal',function (event) {
-		  var button = $(event.relatedTarget);
-		  var identity = button.data('identity');
-		  $("#identityVal").val(identity);
-		});
-
-        $('.select2-container').addClass('select2-container--bootstrap select2-container--below select2-container--focus');
-        $('.select2-container').removeClass('select2-container--default');
-        
-	});
-
-    var canvas = new fabric.Canvas('c', {
-    isDrawingMode: true,
-    // Set lower resolution for the canvas
-    width: 500,
-    height: 500
-});
-
-// Configure drawing brush to use less data
-canvas.freeDrawingBrush.width = 2; // Thinner lines
-canvas.freeDrawingBrush.color = '#000000'; // Simple color
-
-fabric.Image.fromURL('{{ asset("assets/images/baby.jpg") }}', function(myImg) {
-    var img1 = myImg.set({ 
-        left: 0, 
-        top: 0,
-        scaleX: 500 / myImg.width,
-        scaleY: 500 / myImg.height,
-        selectable: false,
-        hasControls: false
-    });
-
-    canvas.add(img1);
-}, { crossOrigin: 'Anonymous' });
-
-function saveImage() {
-    // Use JPEG format with compression instead of PNG
-    // The second parameter is the quality (0 to 1)
-    var jpegURL = canvas.toDataURL({
-        format: 'jpeg',
-        quality: 0.5,    // Lower value = smaller file, but lower quality
-        multiplier: 0.8  // Reduces the resolution of the output
-    });
-    
-    $("#injury-image").val(jpegURL);
-}
-
-	$("#form-submit").click(function(event) {
-		saveImage();
-		$('#acc-form').submit();
-	});
-
-	$('input[name="other"]').on('click',function(){
-
-		if ($(this).is(':checked')) {
-			$("#injury-remarks").show();
-		}else{
-			$("#injury-remarks").hide();
-		}
-	});
-
-	$("#childid").on("change",function(){
-		let _val = $(this).val();
-		if (_val != "") {
-			$.ajax({
-					url: "{{route('Accident/getChildDetails') }}",
-				type: 'post',
-                         headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-				data: {'childid': _val},
-			})
-			.done(function(json) {
-				var res = json;
-				if (res.Status == "SUCCESS") {
-                    alert();
-					$("#childfullname").val(res.Child.name + res.Child.lastname);
-					$("#birthdate").val(res.Child.dob);
-
-                               let birthDate = new Date(res.Child.dob);
-                    let today = new Date();
-                    let age = today.getFullYear() - birthDate.getFullYear();
-
-                    // Adjust age if birthday hasn't occurred yet this year
-                    let m = today.getMonth() - birthDate.getMonth();
-                    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                        age--;
-                    }
-					$("#age").val(age);
-					if(res.Child.gender == "Male"){
-						$("#Male").prop('checked', true);
-						$("#Female").prop('checked', false);
-						$("#Others").prop('checked', false);
-					}else if(res.Child.gender == "Female"){
-						$("#Male").prop('checked', false);
-						$("#Female").prop('checked', true);
-						$("#Others").prop('checked', false);
-					}else{
-						$("#Male").prop('checked', false);
-						$("#Female").prop('checked', false);
-						$("#Others").prop('checked', true);
-					}
-				}
-			});
-		}
-	});
-</script> -->
-
 <script style="opacity: 1;">
-	// $(document).ready(function(){ 
-	// 	$('.js-example-basic-single').select2();
-	// 	var sig = $('#sig').signature();
-    //     //   var _signature = canvas1.toDataURL({ format: 'png' });
-	// 	$('#btnSignature').on('click', function() {
-    //         alert();
-	// 		let _identity = $("#identityVal").val();
-	// 		if (_identity == "person_sign") {
-    //             // alert();
-	// 			$('#person_sign').show();
-	// 			$('#person_sign_dt').hide();
-	// 			var _signature = $('#sig').signature('toDataURL');
-	// 			$('#person_sign_img').attr('src', _signature);
-	// 			$('#person_sign_txt').val(_signature);
-	// 		} else if (_identity == "witness_sign") {
-    //              alert();
-	// 			$('#witness_sign').show();
-	// 			$('#witness_sign_dt').hide();
-	// 			var _signature = $('#sig').signature('toDataURL');
-	// 			$('#witness_sign_img').attr('src', _signature);
-	// 			$('#witness_sign_txt').val(_signature);
-	// 		} else if (_identity == "incharge_sign") {
-	// 			$('#incharge_sign').show();
-	// 			$('#res_pinc_dt').hide();
-	// 			var _signature = $('#sig').signature('toDataURL');
-	// 			$('#res_pinc_img').attr('src', _signature);
-	// 			$('#res_pinc_txt').val(_signature);
-	// 		} else if (_identity == "supervisor_sign") {
-	// 			$('#supervisor_sign').show();
-	// 			$('#nom_svs_dt').hide();
-	// 			var _signature = $('#sig').signature('toDataURL');
-	// 			$('#nsv_sign_img').attr('src', _signature);
-	// 			$('#nsv_sign_txt').val(_signature);
-	// 		}
-	// 		$('#sig').signature('clear');
-	// 	});
-
-	// 	$(document).on('show.bs.modal', '#signModal',function (event) {
-	// 	  var button = $(event.relatedTarget);
-	// 	  var identity = button.data('identity');
-	// 	  $("#identityVal").val(identity);
-	// 	});
-
-    //     $('.select2-container').addClass('select2-container--bootstrap select2-container--below select2-container--focus');
-    //     $('.select2-container').removeClass('select2-container--default');
-        
-	// });
 
     $('#btnSignature').on('click', function() {
     let _identity = $("#identityVal").val();
@@ -929,7 +742,7 @@ function saveImage() {
     var _signature = canvas1.toDataURL({ format: 'png' });
 
     if (_identity === "person_sign") {
-        alert();
+       
         $('#person_sign').show();
         $('#person_sign_dt').hide();
         $('#person_sign_img').attr('src', _signature);
@@ -1043,7 +856,7 @@ function saveImage() {
 			.done(function(json) {
 				var res = json;
 				if (res.Status == "SUCCESS") {
-                    alert();
+                    // alert();
 					$("#childfullname").val(res.Child.name + res.Child.lastname);
 					$("#birthdate").val(res.Child.dob);
 

@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Response;
 use App\Services\AuthTokenService; // Custom service to verify token
 use App\Models\DailyDiaryModel;
 use Illuminate\Support\Carbon;   
+use Illuminate\Support\Facades\Log;
 
 
 
@@ -120,7 +121,7 @@ class DailyDiaryController extends Controller
                 return $rooms;
             
             } catch (\Exception $e) {
-                \Log::error('Filter error: ' . $e->getMessage());
+                Log::error('Filter error: ' . $e->getMessage());
                 
                 return response()->json([
                     'status' => 'error',

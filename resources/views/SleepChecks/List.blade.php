@@ -310,7 +310,9 @@
         <tbody>
           @php
             $childSleepChecks = $sleepChecks->where('childid', $child->id)->sortBy('time');
+          
           @endphp
+        
           @foreach($childSleepChecks as $sleep)
             <tr data-id="{{ $sleep->id }}">
               <td><input type="time" value="{{ $sleep->time }}" /></td>
@@ -332,8 +334,8 @@
               </td>
               <td><textarea rows="2">{{ $sleep->notes }}</textarea></td>
               <td>
-                <button class="update-row-btn btn-outline-info" onclick="updateRow(this, {{ $child->id }}, {{ $sleep->id }})">Update</button>
-                <button class="delete-row-btn btn-outline-info" onclick="deleteRow(this, {{ $sleep->id }})">Delete</button>
+                <button class="update-row-btn btn-outline-info" onclick="updateRow(this,' {{ $child->id }} ',' {{ $sleep->id }}')">Update</button>
+                <button class="delete-row-btn btn-outline-info" onclick="deleteRow(this, '{{ $sleep->id }}')">Delete</button>
               </td>
             </tr>
           @endforeach
@@ -358,13 +360,13 @@
             </td>
             <td><textarea rows="2" name="children[{{ $child->id }}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
             <td>
-              <button class="save-row-btn btn-outline-info" onclick="saveRow(this, {{ $child->id }})">Save</button>
+              <button class="save-row-btn btn-outline-info" onclick="saveRow(this, '{{ $child->id }}')">Save</button>
               <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>
             </td>
           </tr>
         </tbody>
       </table>
-      <button class="add-row-btn" onclick="addRow('child{{ $child->id }}', {{ $child->id }})">+ Add 10-Min Entry</button>
+      <button class="add-row-btn" onclick="addRow('child{{ $child->id }}', '{{ $child->id }}')">+ Add 10-Min Entry</button>
     </div>
   @endforeach
 </div>

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use App\Models\User;
@@ -20,100 +20,106 @@ use Illuminate\Support\Facades\Validator;
 
 class SleepCheckController extends Controller
 {
-  
 
+     
 public function getSleepChecksList(Request $request)
 {
-        $user = Auth::user(); // implement this logic in your LoginModel
-   
+    try {
+        // $user = User::where('userid', $request->userid)->first();
+
+      
+        $user = Auth::user();
+        // dd($user);
+  if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid user.'
+            ], 404);
+        }
         $userid = $user->userid;
         $userType = $user->userType;
-      
-        
-        $centerid = Session('user_center_id') ;
 
-    if (empty($centerid)) {
-    // Get the first center ID assigned to the user
-    $centerId = Usercenter::where('userid', $userid)->pluck('centerid')->first();
+        $centerid = $request->centerid;
+        if (empty($centerid)) {
+            $centerId = Usercenter::where('userid', $userid)->pluck('centerid')->first();
+            $center = Center::find($centerId);
+            $centerid = $center?->id;
+        } else {
+            $centerId = $centerid;
+        }
 
-    // Fetch full center data for that ID
-    $center = Center::find($centerId);
+        if ($userType === "Superadmin") {
+            $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $centerIds)->get();
+        } else {
+            $centers = Center::where('id', $centerId)->get();
+        }
 
-    // Use this center's ID for further logic
-    $centerid = $center?->id;
-}
-
-
-    if ($userType === "Superadmin") {
-        $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $centerIds)->get();
-    } else {
-        $centers = Center::where('id', $centerId)->get();
-    }
-
-    if (empty($request->roomid)) {
+        if (empty($request->roomid)) {
             $centerRoom = Room::where('centerid', $centerid)->first();
             $roomid = $centerRoom->id ?? null;
             $roomname = $centerRoom->name ?? '';
             $roomcolor = $centerRoom->color ?? '';
-             $centerRooms = Room::where('centerid', $centerid)->get();
-    } else {
+            $centerRooms = Room::where('centerid', $centerid)->get();
+        } else {
             $roomid = $request->roomid;
             $room = Room::find($roomid);
             $roomname = $room->name ?? '';
             $roomcolor = $room->color ?? '';
             $centerRooms = Room::where('centerid', $centerid)->get();
-    }
-
-            $roomid = $roomid ?? $room->id ?? null;
-            $roomname = $room->name ?? null;
-            $roomcolor = $room->color ?? null;
-
-            $date = !empty($request->date)
-                ? date('Y-m-d', strtotime($request->date))
-                : date('Y-m-d');
-
-            $role = Auth::user()->userType; // implement method
-            if ($role === "Superadmin") {
-                $permission = null;
-            } elseif ($role === "Staff") {
-                 $permission = \App\Models\PermissionsModel::where('userid', $user->userid)
-                            ->where('centerid', $centerId)
-                            ->first(); // implement method
-            } else {
-                $permission = null;
-            }
-  $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
-
-            $children = Child::where('room', $roomid)->get();
-
-            $sleepChecks = DailyDiarySleepCheckList::where(['createdBy'=>$userid, 'roomid'=>$roomid])
-             ->whereDate('created_at', $date)
-             ->get();
-
-            //  dd($sleepChecks);
-
-           return view('SleepChecks.List', [
-    'centerid'     => $centerid,
-    'date'         => $date,
-    'roomid'       => $roomid,
-    'children'     => $children,
-    'roomname'     => $roomname,
-    'roomcolor'    => $roomcolor,
-    'rooms'        => $centerRooms ?? [],
-    'sleepChecks'  => $sleepChecks,
-    'permissions'  => $permission,
-    'centers' => $centers
-]);
-
         }
 
-      
+        $roomid = $roomid ?? $room->id ?? null;
+        $roomname = $roomname ?? $room->name ?? null;
+        $roomcolor = $roomcolor ?? $room->color ?? null;
+
+        $date = !empty($request->date)
+            ? date('Y-m-d', strtotime($request->date))
+            : date('Y-m-d');
+
+        // Permissions
+        $permission = null;
+        if ($userType === "Staff") {
+            $permission = \App\Models\PermissionsModel::where('userid', $userid)
+                ->where('centerid', $centerId)
+                ->first();
+        }
+
+        $children = Child::where('room', $roomid)->get();
+        $sleepChecks = DailyDiarySleepCheckList::where(['createdBy' => $userid, 'roomid' => $roomid])
+            ->whereDate('created_at', $date)
+            ->get();
+
+        return response()->json([
+            'status' => 'true',
+            'message' => 'Sleep checks fetched successfully.',
+            'data' => [
+                'centerid'    => $centerid,
+                'date'        => $date,
+                'roomid'      => $roomid,
+                'roomname'    => $roomname,
+                'roomcolor'   => $roomcolor,
+                'rooms'       => $centerRooms,
+                'children'    => $children,
+                'sleepChecks' => $sleepChecks,
+                'permissions' => $permission,
+                'centers'     => $centers,
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'false',
+            'message' => 'Something went wrong!',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
 
         public function sleepcheckSave(Request $request)
 {
-    // Validate incoming request
-    $validator = $request->validate( [
+       $validator = Validator::make($request->all(), [
         'childid'          => 'required|integer|exists:child,id',
         'diarydate'        => 'required|date_format:d-m-Y',
         'roomid'           => 'required|integer|exists:room,id',
@@ -123,6 +129,14 @@ public function getSleepChecksList(Request $request)
         'notes'            => 'nullable|string',
     ]);
 
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
 
     // Convert date to Y-m-d
     $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate);
@@ -130,6 +144,7 @@ public function getSleepChecksList(Request $request)
 
     // Get logged in user ID (you can also use Auth::id() if using Laravel auth)
     $createdBy = Auth::user()->userid;
+    // $createdBy = $request->userid;
 
     // Save record
     $check = DailyDiarySleepChecklist::create([
@@ -146,13 +161,13 @@ public function getSleepChecksList(Request $request)
 
     if ($check) {
         return response()->json([
-            'success' => true,
+            'status' => true,
             'message' => 'Saved successfully'
         ]);
     }
 
     return response()->json([
-        'success' => false,
+        'status' => false,
         'message' => 'Failed to save'
     ]);
 }
@@ -160,8 +175,19 @@ public function getSleepChecksList(Request $request)
 
 public function sleepcheckUpdate(Request $request)
 {
-    // Validate input
-    $validator = $request->validate([
+    // // Validate input
+    // $validator = $request->validate([
+
+    //     'childid'          => 'required|integer|exists:child,id',
+    //     'diarydate'        => 'required|date_format:d-m-Y',
+    //     'roomid'           => 'required|integer|exists:room,id',
+    //     'time'             => 'required|string',
+    //     'breathing'        => 'nullable|string',
+    //     'body_temperature' => 'nullable|string',
+    //     'notes'            => 'nullable|string',
+    // ]);
+// dd('here');
+       $validator = Validator::make($request->all(), [
         'id'               => 'required|integer|exists:dailydiarysleepchecklist,id',
         'childid'          => 'required|integer|exists:child,id',
         'diarydate'        => 'required|date_format:d-m-Y',
@@ -171,6 +197,15 @@ public function sleepcheckUpdate(Request $request)
         'body_temperature' => 'nullable|string',
         'notes'            => 'nullable|string',
     ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
 
     // Convert diarydate to Y-m-d
     $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate);
@@ -203,29 +238,34 @@ public function sleepcheckUpdate(Request $request)
             
         public function sleepcheckDelete(Request $request)
         {
-            $request->validate([
-                'id' => 'required|integer|exists:dailydiarysleepchecklist,id',
-            ]);
+           $request->validate([
+        'id' => 'required|integer',
+    ]);
+
+    // Check if record exists first
+    $record = DailyDiarySleepChecklist::find($request->id);
+
+    if (!$record) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Record not found or already deleted.'
+        ], 404);
+    }
 
             $deleted = DailyDiarySleepChecklist::where('id', $request->id)->delete();
 
             if ($deleted) {
                 return response()->json([
-                    'success' => true,
+                    'status' => true,
                     'message' => 'Deleted successfully'
                 ]);
             } else {
                 return response()->json([
-                    'success' => false,
+                    'status' => false,
                     'message' => 'Failed to delete or already removed'
                 ]);
             }
         }
 
 
-    }
-    
-
-
-
-
+}

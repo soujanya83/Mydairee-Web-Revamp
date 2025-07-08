@@ -11,12 +11,13 @@
     #calendar {
         min-height: 350px;
         padding: 10px;
-            margin-top: -49px;
+        margin-top: -49px;
     }
 </style>
 <style>
     .fc .fc-button {
-        background-color: #007bff; /* Bootstrap primary */
+        background-color: #007bff;
+        /* Bootstrap primary */
         border-color: #007bff;
         color: #fff;
     }
@@ -29,10 +30,11 @@
     .fc .fc-button:disabled {
         background-color: #0e0e0e;
         border-color: #eaeff4;
-        color:white
+        color: white
     }
-    .fc-toolbar-chunk{
-        margin-left: 200px;
+
+    .fc-toolbar-chunk {
+        margin-left: 110px;
     }
 </style>
 
@@ -110,10 +112,12 @@
     </div>
 </div>
 
+
+
+
 <div class="row clearfix">
-
-    <div class="col-md-12 col-lg-8">
-
+    <!-- Calendar Column -->
+    <div class="col-md-12 col-lg-6">
         <div class="card">
             <div class="header">
                 <h2>Calendar</h2>
@@ -122,28 +126,98 @@
                 <div id="calendar"></div>
             </div>
         </div>
-
-
-
     </div>
 
-    <div class="col-lg-4 col-md-12">
-        <div class="row clearfix">
-            <div class="weatherPanel">
+    <!-- Weather Widget Column -->
+    <div class="col-md-12 col-lg-6">
+
+        <!-- Shortcut Cards -->
+        <div class="icon-cards-row mt-0">
+            <div class="row mb-4">
+                <!-- Rooms -->
+                <div class="col-md-4 mb-4">
+                    <a href="{{ route('rooms_list') }}" class="card shadow-sm">
+                        <div class="card-body text-center" style="color:#0e0e0e">
+                            <i class="fa-solid fa-people-roof fa-2x mb-2"></i>
+                            <p class="card-text mb-0 title">Rooms</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Children -->
+                <div class="col-md-4 mb-4">
+                    <a href="#" class="card shadow-sm">
+                        <div class="card-body text-center" style="color:#0e0e0e">
+                            <i class="fa-solid fa-children fa-2x mb-2"></i>
+                            <p class="card-text mb-0 title">Children</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Educators -->
+                <div class="col-md-4 mb-4">
+                    <a href="{{ route('settings.staff_settings') }}" class="card shadow-sm">
+                        <div class="card-body text-center" style="color:#0e0e0e">
+                            <i class="fa-solid fa-chalkboard-user fa-2x mb-2"></i>
+                            <p class="card-text mb-0 title">Educators</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Observations -->
+                <div class="col-md-4 mb-4">
+                    <a href="{{route('observation.index')}}" class="card shadow-sm">
+                        <div class="card-body text-center" style="color:#0e0e0e">
+                            <i class="icon-equalizer fa-2x mb-2"></i>
+                            <p class="card-text mb-0 title">Observations</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Daily Reflections -->
+                <div class="col-md-4 mb-4">
+                    <a href="{{route('reflection.index')}}" class="card shadow-sm">
+                        <div class="card-body text-center" style="color:#0e0e0e">
+                            <i class="fa-solid fa-notes-medical fa-2x mb-2"></i>
+                            <p class="card-text mb-0 title">Daily Reflections</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Daily Diary -->
+                <div class="col-md-4 mb-4">
+                    <a href="{{ route('dailyDiary.list') }}" class="card shadow-sm">
+                        <div class="card-body text-center" style="color:#0e0e0e">
+                            <i class="fa-solid fa-wallet fa-2x mb-2"></i>
+                            <p class="card-text mb-0 title">Daily Diary</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weather Card -->
+        <div class="card" style="margin-top: -48px;    margin-bottom: 82px;">
+            <div class="header">
+                <h2>Weather</h2>
+            </div>
+            <div class="body text-center">
                 <object data="https://www.sunsmart.com.au/uvalert/default.asp?version=australia&locationid=161"
-                    height="300" id="sunsmart">
+                    height="300" width="100%" id="sunsmart">
                     <embed src="https://www.sunsmart.com.au/uvalert/default.asp?version=australia&locationid=161"
-                        height="300">
+                        height="300" width="100%">
                     </embed>
                     Error: Embedded data could not be displayed.
                 </object>
             </div>
-
         </div>
+
     </div>
+
 </div>
 
-<div class="row clearfix">
+
+{{-- <div class="row clearfix">
     <div class="col-lg-12 col-md-12 col-sm-12">
         <div class="card">
             <div class="header">
@@ -418,11 +492,12 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
+
 <!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
     var calendarEl = document.getElementById('calendar');
 
     var calendar = new FullCalendar.Calendar(calendarEl, {

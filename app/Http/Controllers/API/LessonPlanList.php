@@ -1,6 +1,8 @@
 <?php
-namespace App\Http\Controllers;
 
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
@@ -27,20 +29,26 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Illuminate\Pagination\Paginator;
 
-
-
-
 class LessonPlanList extends Controller
 {
-
-public function programPlanList(Request $request)
+    public function programPlanList(Request $request)
 {
-    if (Auth::check()) {
+  
+  
         $user = Auth::user();
+        if (!$user) {
+    return response()->json(['error' => 'User not found or not authenticated'], 401);
+}
         $authId = $user->id;
-        $centerId = Session('user_center_id');
+        // $centerId = Session('user_center_id');
+        $centerId = $request->centerid;
+      
+
+
+
 
         if ($user->userType == "Superadmin") {
+            // dd('here');
             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $center)->get();
         } else {
@@ -53,7 +61,7 @@ public function programPlanList(Request $request)
             $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
                 ->where('centerid', $centerId)
                 ->orderByDesc('created_at')
-                ->paginate(10);
+                ->get();
         } elseif ($user->userType === 'Staff') {
             $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
                 ->where('centerid', $centerId)
@@ -62,7 +70,7 @@ public function programPlanList(Request $request)
                           ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
                 })
                 ->orderByDesc('created_at')
-                ->paginate(10);
+                ->get();
         } elseif ($user->userType === 'Parent') {
             $childIds = ChildParent::where('parentid', $authId)->pluck('childid');
 
@@ -75,38 +83,50 @@ public function programPlanList(Request $request)
                         }
                     })
                     ->orderByDesc('created_at')
-                    ->paginate(10);
+                    ->get();
             }
         }
 
         // Month name helper
-        $getMonthName = function ($monthNumber) {
-            $months = [
+        // $getMonthName = function ($monthNumber) {
+            $getMonthName = [
                 1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
                 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
                 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
             ];
-            return $months[$monthNumber] ?? '';
-        };
+            // return $months[$monthNumber] ?? '';
+        // };
 
         $userType = $user->userType;
         $userId = $authId;
 
-        return view('ProgramPlan.list', compact(
-            'programPlans', 'userType', 'userId', 'centerId', 'centers', 'getMonthName'
-        ));
-    } else {
-        return redirect('login');
-    }
+        // return view('programPlan.list', compact(
+        //     'programPlans', 'userType', 'userId', 'centerId', 'centers', 'getMonthName'
+        // ));
+        return response()->json([
+    'success' => true,
+    'data' => [
+        'programPlans' => $programPlans,
+        'userType' => $userType,
+        'userId' => $userId,
+        'centerId' => $centerId,
+        'centers' => $centers,
+        'getMonthName' => $getMonthName,
+    ]
+]);
+
+    // } else {
+    //     // return redirect('login');
+    // }
 }
 
 
 public function programPlanPrintPage($id)
 {
     // Check if user is authenticated
-    if (!Auth::check()) {
-        return redirect('login');
-    }
+    // if (!Auth::check()) {
+    //     return redirect('login');
+    // }
     // dd($id);
 
     // Fetch the program plan by ID
@@ -134,27 +154,30 @@ public function programPlanPrintPage($id)
         ? \App\Models\Child::whereIn('id', $child_ids)->pluck('name')->implode(', ')
         : 'No Children';
 
-    return view('ProgramPlan.print', [
-        'plan' => $plan,
-        'room_name' => $room_name,
-        'educator_names' => $educator_names,
-        'children_names' => $children_names,
-        'month_name' => $month_name
-    ]);
+   return response()->json([
+    'plan' => $plan,
+    'room_name' => $room_name,
+    'educator_names' => $educator_names,
+    'children_names' => $children_names,
+    'month_name' => $month_name
+]);
+
 }
 
 
  public function createForm(Request $request)
     {
-        if (!Auth::check()) {
-        return redirect('login');
-        }
+        // if (!Auth::check()) {
+        // return redirect('login');
+        // }
 
       $authId = Auth::user()->userid; 
-    $centerId = Session('user_center_id');
+      $user = Auth::user();
+    // $centerId = Session('user_center_id');
+     $centerId = $request->user_center_id;
 
     // dd($centerId);
-        if (Auth::check()) {
+        // if (Auth::check()) {
             $centerid = $request->centerid;
             // dd($centerid);
             // $userid = session('LoginId');
@@ -162,7 +185,7 @@ public function programPlanPrintPage($id)
             $planid = $request->planId;
             // dd($planid);
 
-            $admin = (Auth::user()->userType == "Superadmin") ? 1 : 0;
+            $admin = ($user->userType == "Superadmin") ? 1 : 0;
 
             // Fetch rooms
             $rooms = Room::when($admin == 1, function ($query) use ($centerId) {
@@ -203,52 +226,63 @@ public function programPlanPrintPage($id)
             $userId = $authId;
 
             // Return view with data
-            // dd($montessori_subjects);
-//             foreach( $montessori_subjects as $subject){
-//   if($subject->name == "Sensorial"){
-//                 dd($subject->activities );
+            // dd($plan_data);
+          return response()->json([
+    'rooms' => $rooms,
+    'users' => $users,
+    'centerId' => $centerId,
+    'userId' => $userId,
+    'eylf_outcomes' => $eylf_outcomes,
+    'montessori_subjects' => $montessori_subjects,
+    'plan_data' => $plan_data,
+    'selected_educators' => $selected_educators,
+    'selected_children' => $selected_children
+]);
 
-//             }
-//             }
-          
-            return view('ProgramPlan.create', compact(
-                'rooms', 'users', 'centerId', 'userId', 'eylf_outcomes', 'montessori_subjects', 'plan_data', 'selected_educators', 'selected_children'
-            ));
-        } else {
-            return redirect()->route('login');
-        }
+        // } else {
+        //     return redirect()->route('login');
+        // }
     }
 
-    // ajax here 
-    public function getRoomUsers(Request $request)
+public function getRoomUsers(Request $request)
 {
     $request->validate([
         'room_id' => 'required|integer|exists:room_staff,roomid',
-        'center_id' => 'required|integer', // You can add validation if needed
     ]);
 
-    $roomId = $request->input('room_id');
+    $roomId = $request->room_id;
 
     // Get staff IDs assigned to the room
-    $staffIds = RoomStaff::where('roomid', $roomId)
-        ->pluck('staffid');
+    $staffIds = RoomStaff::where('roomid', $roomId)->pluck('staffid');
 
-    if ($staffIds->isEmpty()) {
-        return response()->json([]);
-    }
+ if ($staffIds->isEmpty()) {
+    return response()->json([
+        'status' => false,
+        'message' => 'No users found for this room.',
+        'users' => []
+    ]);
+}
+
 
     // Get user details
     $users = User::whereIn('userid', $staffIds)
         ->select('userid as id', 'name')
         ->get();
 
-    return response()->json($users);
+    return response()->json([
+        'status' => true,
+        'users' => $users
+    ]);
 }
+
 
 public function getRoomChildren(Request $request)
 {
+    $request->validate([
+        'room_id' => 'required|integer|exists:child,room'
+    ]);
+
     $roomId = $request->input('room_id');
-    $centerId = $request->input('center_id'); // You can use this if needed later
 
     $children = Child::where('room', $roomId)
         ->select('id', 'name', 'lastname')
@@ -256,24 +290,38 @@ public function getRoomChildren(Request $request)
         ->map(function ($child) {
             return [
                 'id' => $child->id,
-                'name' => $child->name . ' ' . $child->lastname,
+                'name' => trim($child->name . ' ' . $child->lastname),
             ];
         });
 
-    return response()->json($children);
+    if ($children->isEmpty()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'No children found for this room.',
+            'children' => []
+        ]);
+    }
+
+    return response()->json([
+        'status' => true,
+        'children' => $children
+    ]);
 }
+
 
 // 
 public function saveProgramPlan(Request $request)
 {
     // Validate required fields
+    // dd('here');
     $validated = $request->validate([
-        'room' => 'required|integer',
+        'room_id' => 'required|integer',
         'months' => 'required|string',
         'users' => 'required|array',
         'children' => 'required|array',
     ]);
-    dd($request->all());
+    // dd('here');
+    
 
     // Convert arrays to comma-separated strings
     $educators = implode(',', $request->input('users'));
@@ -281,7 +329,7 @@ public function saveProgramPlan(Request $request)
 
     // Prepare data
     $programData = [
-        'room_id' => $request->input('room'),
+        'room_id' => $request->input('room_id'),
         'months' => $request->input('months'),
         'years' => $request->input('years'),
         'centerid' => $request->input('centerid'),
@@ -324,7 +372,7 @@ public function saveProgramPlan(Request $request)
             return response()->json([
                 'success' => true,
                 'message' => 'Program plan updated successfully',
-                'redirect_url' => route('print.programplan', $planId)
+               
             ]);
         }
 
@@ -341,7 +389,7 @@ public function saveProgramPlan(Request $request)
             return response()->json([
                 'success' => true,
                 'message' => 'Program plan created successfully',
-                'redirect_url' => route('print.programplan', $newPlan->id)
+              
             ]);
         }
 
@@ -355,46 +403,33 @@ public function saveProgramPlan(Request $request)
 
 public function deleteProgramPlan(Request $request)
 {
-    // Check if user is authenticated
-    if (!Auth::check()) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'You must be logged in to perform this action'
-        ], 403);
+    if(!$request->program_id){
+           return response()->json([
+                'success' => false,
+                'message' => 'Program plan id not found. Please provide'
+            ]);
     }
-
-    // Validate request is AJAX (optional in Laravel)
-    if (!$request->ajax()) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Invalid request method'
-        ], 400);
-    }
-
-    // Validate input
-    $request->validate([
-        'program_id' => 'required|integer|exists:programplantemplatedetailsadd,id'
-    ]);
 
     try {
-        // Delete the record
         $deleted = ProgramPlanTemplateDetailsAdd::where('id', $request->program_id)->delete();
 
         if ($deleted) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'Program plan deleted successfully'
+                'success' => true,
+                'message' => 'Program plan deleted successfully.'
             ]);
         } else {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to delete program plan'
+                'success' => false,
+                'message' => 'Program plan not found or already deleted.'
             ]);
         }
     } catch (\Exception $e) {
+        Log::error('Program Plan Delete Error: ' . $e->getMessage());
+
         return response()->json([
-            'status' => 'error',
-            'message' => 'Database error: ' . $e->getMessage()
+            'success' => false,
+            'message' => 'Unexpected error occurred while deleting program plan.'
         ], 500);
     }
 }

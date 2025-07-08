@@ -486,10 +486,10 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="max-height:500px;overflow-y:auto;">
+
+            <div class="modal-body" style="max-height:500px; overflow-y:auto;">
                 <div class="practical-life-tree">
                     <ul class="list-group">
-                        <!-- Main Practical Life Framework -->
                         <li class="list-group-item practical-life-framework">
                             <div class="d-flex align-items-center">
                                 <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#practicalLifeFramework">
@@ -497,63 +497,54 @@
                                 </span>
                                 <span>Practical Life (Montessori)</span>
                             </div>
-                            
-                            <!-- Practical Life Framework content -->
+
                             <div id="practicalLifeFramework" class="collapse mt-2">
                                 <ul class="list-group">
-                                    <?php foreach ($montessori_subjects as $subject) : ?>
-                                        <?php if ($subject->name === 'Practical Life') : ?>
-                                          
-                                            <?php foreach ($subject->activities as $activity) : ?>
-                                            <li class="list-group-item practical-life-activity">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#activity<?= $activity->idActivity ?>">
-                                                        <i class="fa fa-chevron-right"></i>
-                                                    </span>
-                                                    <span><?= $activity->title ?></span>
-                                                </div>
-                                                
-                                                <!-- Sub-activities for this activity -->
-                                                <div id="activity<?= $activity->idActivity ?>" class="collapse mt-2">
-                                                    <ul class="list-group">
-                                                      
-                                                        <?php 
-                                                         $subActivityCounter = 0;
-                                                          
-                                                        foreach ($activity->subActivities
- as $sub_activity) : 
-                                                        ?>
-                                                           
-                                                        <li class="list-group-item practical-life-sub-activity">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input practical-life-checkbox"
-                                                                       type="checkbox"
-                                                                       value="<?= $sub_activity->title ?>"
-                                                                       id="subActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>"
-                                                                       data-activity-id="<?= $activity->idActivity ?>"
-                                                                       data-activity-title="<?= $activity->title ?>"
-                                                                       data-sub-activity-title="<?= $sub_activity->title ?>">
-                                                                <label class="form-check-label" for="subActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>">
-                                                                    <?= $sub_activity->title ?>
-                                                                </label>
-                                                            </div>
-                                                        </li>
-                                                    <?php
-                                                    $subActivityCounter++; 
-                                                    endforeach; 
-                                                    ?>
-                                                    </ul>
-                                                </div>
-                                            </li>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
+                                    @foreach ($montessori_subjects as $subject)
+                                        @if ($subject->name === 'Practical Life')
+                                            @foreach ($subject->activities as $activity)
+                                                <li class="list-group-item practical-life-activity">
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="mr-2 toggle-icon"
+                                                              data-toggle="collapse"
+                                                              data-target="#pl_activity{{ $activity->idActivity }}">
+                                                            <i class="fa fa-chevron-right"></i>
+                                                        </span>
+                                                        <span>{{ $activity->title }}</span>
+                                                    </div>
+
+                                                    <div id="pl_activity{{ $activity->idActivity }}" class="collapse mt-2">
+                                                        <ul class="list-group">
+                                                            @foreach ($activity->subActivities as $index => $subActivity)
+                                                                <li class="list-group-item practical-life-sub-activity">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input practical-life-checkbox"
+                                                                               type="checkbox"
+                                                                               value="{{ $subActivity->title }}"
+                                                                               id="pl_subActivity{{ $activity->idActivity }}_{{ $index }}"
+                                                                               data-activity-id="{{ $activity->idActivity }}"
+                                                                               data-activity-title="{{ $activity->title }}"
+                                                                               data-sub-activity-title="{{ $subActivity->title }}">
+                                                                        <label class="form-check-label"
+                                                                               for="pl_subActivity{{ $activity->idActivity }}_{{ $index }}">
+                                                                            {{ $subActivity->title }}
+                                                                        </label>
+                                                                    </div>
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                            @endforeach
+                                        @endif
+                                    @endforeach
                                 </ul>
                             </div>
                         </li>
                     </ul>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="savePracticalLifeSelections">Save selections</button>
@@ -561,6 +552,7 @@
         </div>
     </div>
 </div>
+
 
 
 <!-- Sensorial Modal -->
@@ -573,7 +565,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="max-height:500px;overflow-y:auto;">
+            <div class="modal-body" style="max-height:500px; overflow-y:auto;">
                 <div class="sensorial-tree">
                     <ul class="list-group">
                         <!-- Main Sensorial Framework -->
@@ -584,54 +576,48 @@
                                 </span>
                                 <span>Sensorial</span>
                             </div>
-                            
-                            <!-- Sensorial Framework content -->
+
+                            <!-- Sensorial Framework Content -->
                             <div id="sensorialFramework" class="collapse mt-2">
                                 <ul class="list-group">
-                                    <?php foreach ($montessori_subjects as $subject) : ?>
-                                        <?php if ($subject->name === 'Sensorial') : ?>
-                                            <?php foreach ($subject->activities as $activity) : ?>
-                                            <li class="list-group-item sensorial-activity">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#sensorialActivity<?= $activity->idActivity ?>">
-                                                        <i class="fa fa-chevron-right"></i>
-                                                    </span>
-                                                    <span><?= $activity->title ?></span>
-                                                </div>
-                                                
-                                                <!-- Sub-activities for this activity -->
-                                                <div id="sensorialActivity<?= $activity->idActivity ?>" class="collapse mt-2">
-                                                    <ul class="list-group">
-                                                        <?php 
-                                                         $subActivityCounter = 0;
-                                                        foreach ($activity->subActivities
- as $sub_activity) : 
-                                                        ?>
-                                                           
-                                                        <li class="list-group-item sensorial-sub-activity">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input sensorial-checkbox"
-                                                                       type="checkbox"
-                                                                       value="<?= $sub_activity->title ?>"
-                                                                       id="sensorialSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>"
-                                                                       data-activity-id="<?= $activity->idActivity ?>"
-                                                                       data-activity-title="<?= $activity->title ?>"
-                                                                       data-sub-activity-title="<?= $sub_activity->title ?>">
-                                                                <label class="form-check-label" for="sensorialSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>">
-                                                                    <?= $sub_activity->title ?>
-                                                                </label>
-                                                            </div>
-                                                        </li>
-                                                    <?php
-                                                    $subActivityCounter++; 
-                                                    endforeach; 
-                                                    ?>
-                                                    </ul>
-                                                </div>
-                                            </li>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
+                                    @foreach ($montessori_subjects as $subject)
+                                        @if ($subject->name === 'Sensorial')
+                                   
+                                            @foreach ($subject->activities as $activity)
+                                                <li class="list-group-item sensorial-activity">
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#sensorialActivity{{ $activity->idActivity }}">
+                                                            <i class="fa fa-chevron-right"></i>
+                                                        </span>
+                                                        <span>{{ $activity->title }}</span>
+                                                    </div>
+
+                                                    <!-- Sub-Activities -->
+                                                    <div id="sensorialActivity{{ $activity->idActivity }}" class="collapse mt-2">
+                                                        <ul class="list-group">
+                                                       
+                                                            @foreach ($activity->subActivities as $index => $subActivity)
+                                                                <li class="list-group-item sensorial-sub-activity">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input sensorial-checkbox"
+                                                                               type="checkbox"
+                                                                               value="{{ $subActivity->title }}"
+                                                                               id="sensorialSubActivity{{ $activity->idActivity }}_{{ $index }}"
+                                                                               data-activity-id="{{ $activity->idActivity }}"
+                                                                               data-activity-title="{{ $activity->title }}"
+                                                                               data-sub-activity-title="{{ $subActivity->title }}">
+                                                                        <label class="form-check-label" for="sensorialSubActivity{{ $activity->idActivity }}_{{ $index }}">
+                                                                            {{ $subActivity->title }}
+                                                                        </label>
+                                                                    </div>
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                            @endforeach
+                                        @endif
+                                    @endforeach
                                 </ul>
                             </div>
                         </li>
@@ -645,6 +631,7 @@
         </div>
     </div>
 </div>
+
 
 
 <!-- Math Modal -->

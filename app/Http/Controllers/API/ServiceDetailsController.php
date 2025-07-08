@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Center;
 use App\Models\ServiceDetailsModel;
@@ -15,14 +16,19 @@ use Illuminate\Support\Facades\Hash;
 
 class ServiceDetailsController extends Controller
 {
-
+    
     public function create(Request $request)
 {
-
+// dd('here');
       $authId = Auth::user()->id; 
-    $centerid = Session('user_center_id');
+    // $centerid = Session('user_center_id');
+    // $authId = $request->user_id;
+    $centerid = $request->user_center_id;
+    // dd($authId);
 
-      if(Auth::user()->userType == "Superadmin"){
+    $user = User::where('userid',$authId)->first();
+
+      if($user->userType == "Superadmin"){
     $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
  
     $centers = Center::whereIn('id', $center)->get();
@@ -30,19 +36,39 @@ class ServiceDetailsController extends Controller
      }else{
     $centers = Center::where('id', $centerid)->get();
      }
+    //  dd($centers);
 
     // $centers = Center::all();
     // $selectedCenterId = $request->centerid;
 
     $serviceDetails = null;
     $selectedCenter = null;
+    $data = [];
 
     if ($centerid) {
         $serviceDetails = ServiceDetailsModel::where('centerid', $centerid)->first();
         $selectedCenter = Center::find($centerid);
+
+        $data = [
+        'centers' => $centers,
+        'serviceDetails' => $serviceDetails,
+        'selectedCenter' => $selectedCenter
+        ];
+        $response = [
+            'status' => true,
+            'msg' => 'data retrived successfully',
+            'data' => $data
+        ];
     }
 
-    return view('Service.details', compact('centers', 'serviceDetails', 'selectedCenter'));
+    $response = [
+            'status' => false,
+            'msg' => 'data donot exist',
+            'data' => $data
+        ];
+
+  return response()->json($response);
+
 }
 
 
@@ -84,7 +110,8 @@ class ServiceDetailsController extends Controller
     ]);
 
     // dd('here');
-        $centerid = Session('user_center_id');
+        // $centerid = Session('user_center_id');
+        $centerid = $request->centerid;
 // check if the service details already present or not based on center_id 
    $check = ServiceDetailsModel::where('centerid', $centerid)->first();
 
@@ -110,7 +137,7 @@ class ServiceDetailsController extends Controller
         }
     }
 
-    return redirect()->back()->with('status',$msg);
+    return response()->json(['status' => true , 'msg'=> $msg ]);
 
 
     }
