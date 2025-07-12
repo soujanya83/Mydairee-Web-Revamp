@@ -50,8 +50,10 @@
         </div>
         <!-- Nav tabs -->
         <ul class="nav nav-tabs">
-            <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#menu">Menu</a></li>
-            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#setting"><i class="icon-settings"></i></a>
+            <li class="nav-item" style="font-size:16px"><a class="nav-link active" data-toggle="tab"
+                    href="#menu">Menu</a></li>
+            <li class="nav-item" style="font-size:18px"><a class="nav-link" data-toggle="tab" href="#setting"><i
+                        class="icon-settings"></i></a>
             </li>
         </ul>
 
@@ -80,9 +82,12 @@
                                 <i class="fa fa-chevron-right dropdown-arrow"></i>
                             </a>
                             <ul>
+                                @if(!empty($permissions['viewDailyDiary']) && $permissions['viewDailyDiary'])
+
                                 <li class="{{ Route::is('dailyDiary.list') ? 'active' : '' }}">
                                     <a href="{{ route('dailyDiary.list') }}">Daily Diary</a>
                                 </li>
+                                @endif
                                 <li class="{{ Route::is('headChecks') ? 'active' : '' }}">
                                     <a href="{{ route('headChecks') }}">Head Checks</a>
                                 </li>
@@ -94,6 +99,7 @@
                                 </li>
                             </ul>
                         </li>
+                        @if(!empty($permissions['viewProgramPlan']) && $permissions['viewProgramPlan'])
 
                         <li class="{{ Request::is('programPlanList*') ? 'active' : '' }}">
                             <a href="/programPlanList">
@@ -102,29 +108,38 @@
                                     Plan</span>
                             </a>
                         </li>
+                        @endif
+                        @if(!empty($permissions['viewAllReflection']) && $permissions['viewAllReflection'])
 
                         <li class="{{ Request::is('reflection*') ? 'active' : null }}">
                             <a href="{{route('reflection.index')}}"><i class="fa-solid fa-window-restore"
                                     style="font-size: 25px;"></i> <span style="font-size: 18px;"> Daily
                                     Reflections</span></a>
                         </li>
+                        @endif
+
+                        @if(!empty($permissions['viewAllObservation']) && $permissions['viewAllObservation'])
 
                         <li class="{{ Request::is('observation*') ? 'active' : null }}">
                             <a href="{{route('observation.index')}}">
                                 <i class="icon-equalizer" style="font-size: 25px;"></i><span
                                     style="font-size: 18px; margin-left:3px">Observation</span></a>
                         </li>
+                        @endif
 
 
-
+                        @if(!empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement'])
 
                         <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
-                            <a href="{{ route('announcements.list') }}">  <i class="fa fa-bullhorn" style="font-size: 25px;"></i><span
+                            <a href="{{ route('announcements.list') }}"> <i class="fa fa-bullhorn"
+                                    style="font-size: 25px;"></i><span
                                     style="font-size: 18px; margin-left:-1px">Announcements</span></a>
 
                         </li>
+                        @endif
 
-                      
+
+                        @if(!empty($permissions['viewRoom']) && $permissions['viewRoom'])
 
                         <li class="{{ Request::is('room*') ? 'active' : null }}">
                             <a href="{{ route('rooms_list') }}"><i class="fa-solid fa-users-viewfinder"
@@ -132,7 +147,7 @@
                                     style="font-size: 18px; margin-left:-1px">Rooms</span></a>
 
                         </li>
-
+                        @endif
                         @php
                         $isHealthyActive = Route::is('healthy_menu') || Route::is('healthy_recipe') ||
                         Route::is('recipes.Ingredients');
@@ -206,18 +221,38 @@
                                 <i class="fa fa-chevron-right dropdown-arrow"></i>
                             </a>
                             <ul>
+                                @php
+                                $userId=Auth::user()->id;
+                                @endphp
+                                @if($userId == 1)
                                 <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.superadmin_settings') }}">Super-Admin Settings</a>
                                 </li>
+                                @endif
+
+                                @php
+                                $userType=Auth::user()->userType; @endphp
+
+
+                                @if((!empty($permissions['viewCenters']) && $permissions['viewCenters']) || ($userType
+                                == 'Superadmin'))
+
                                 <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.center_settings') }}">Center Settings</a>
                                 </li>
+                                @endif
+                                @if($userType == 'Superadmin')
                                 <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.staff_settings') }}">Staffs Settings</a>
                                 </li>
+                                @endif
+                                @if(!empty($permissions['viewParent']) && $permissions['viewParent'])
+
                                 <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.parent_settings') }}">Parents Settings</a>
                                 </li>
+                                @endif
+
                                 <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}">
                                     <a href="{{ route('settings.manage_permissions') }}">Manage Permissions</a>
                                 </li>

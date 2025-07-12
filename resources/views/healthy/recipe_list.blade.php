@@ -62,10 +62,13 @@
     </div>
 
     &nbsp;&nbsp;&nbsp;&nbsp;
+    @if(!empty($permissions['addRecipe']) && $permissions['addRecipe'])
+
     <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#roomModal"
         style="height: 36px;">
         Add Recipes
     </button>
+    @endif
 </div>
 
 
@@ -111,11 +114,16 @@
                                 <i class="fas fa-ellipsis-v"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu{{ $recipe->id }}">
+                                @if(!empty($permissions['updateRecipe']) && $permissions['updateRecipe'])
+
                                 <li>
                                     <a class="dropdown-item" href="{{ route('recipes.edit', $recipe->id) }}">
                                         <i class="fas fa-edit me-2"></i> Edit
                                     </a>
                                 </li>
+                                @endif
+                                @if(!empty($permissions['deleteRecipe']) && $permissions['deleteRecipe'])
+
                                 <li>
                                     <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST"
                                         onsubmit="return confirm('Delete this recipe?')">
@@ -125,6 +133,8 @@
                                         </button>
                                     </form>
                                 </li>
+                                @endif
+
                             </ul>
                         </div>
                     </div>

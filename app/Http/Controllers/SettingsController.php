@@ -627,19 +627,19 @@ class SettingsController extends Controller
         foreach ($childrenData as $child) {
             $childId = $child['childid'];
             $relation = $child['relation'];
-            
+
             // Query to get child details from Child model
             $childInfo = Child::select('name', 'lastname', 'dob', 'imageUrl')
                             ->where('id', $childId)
                             ->first();
-            
+
             if ($childInfo) {
                 $childArray = $childInfo->toArray();
                 $childArray['relation'] = $relation;
                 $childrenDetails[] = $childArray;
             }
         }
-        
+
         // Generate HTML for each child
         $childrenHTML = '';
         foreach ($childrenDetails as $child) {
@@ -649,10 +649,10 @@ class SettingsController extends Controller
             } else {
                 $childImageUrl = 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=150&h=150&fit=crop&crop=face';
             }
-            
+
             $childFullName = trim($child['name'] . ' ' . $child['lastname']);
             $dob = !empty($child['dob']) ? date('d M Y', strtotime($child['dob'])) : 'Not provided';
-            
+
             $childrenHTML .= '
             <div class="child-card">
                 <div class="child-photo">
@@ -665,7 +665,7 @@ class SettingsController extends Controller
                 </div>
             </div>';
         }
-        
+
         // Create HTML email with Bootstrap 4 inspired design
         $messageContent = '
         <!DOCTYPE html>
@@ -928,7 +928,7 @@ class SettingsController extends Controller
                         <p class="welcome-message">
                             We are thrilled to welcome you to <span class="highlight">MyDiaree (Beta)</span> - your gateway to staying connected with your child\'s educational journey and development!
                         </p>
-                        
+
                         <div class="login-details">
                             <h3>🔐 Your Login Credentials</h3>
                             <p><strong>Email:</strong><span class="credentials">' . htmlspecialchars($email) . '</span></p>
@@ -937,7 +937,7 @@ class SettingsController extends Controller
                                 <em>⚠️ Please save these credentials securely for future access.</em>
                             </p>
                         </div>
-                        
+
                         <p style="font-size: 18px; margin: 25px 0 15px 0; color: #495057;">
                             <strong>🚀 What you can do with MyDiaree:</strong>
                         </p>
@@ -949,37 +949,37 @@ class SettingsController extends Controller
                             <div class="feature-item">View photos and updates from school events</div>
                             <div class="feature-item">Track homework assignments and important dates</div>
                         </div>
-                        
+
                         <div class="text-center">
                             <a href="https://mydiaree.com.au" class="btn-primary">
                                 🚪 Access Your Account Now
                             </a>
                         </div>
-                        
+
                         <div class="child-section">
                             <h2>👨‍👩‍👧‍👦 Your Connected Children</h2>
                             <p style="margin-bottom: 20px; color: #6c757d;">
                                 You have been successfully linked to the following children in our system:
                             </p>
-                            
+
                             ' . $childrenHTML . '
                         </div>
-                        
+
                         <hr class="divider">
-                        
+
                         <p style="font-size: 16px; color: #495057; margin: 20px 0;">
                             We believe MyDiaree will revolutionize how you stay connected with your child\'s educational experience, making parent-school collaboration more effective and meaningful than ever before.
                         </p>
-                        
+
                         <p style="margin: 20px 0;">
-                            <strong>Need help?</strong> Our dedicated support team is ready to assist you at 
+                            <strong>Need help?</strong> Our dedicated support team is ready to assist you at
                             <a href="mailto:mydairee47@gmail.com" class="support-email">mydairee47@gmail.com</a>
                         </p>
-                        
+
                         <p style="margin: 25px 0 5px 0;">
                             Welcome to the MyDiaree family! 🎊
                         </p>
-                        
+
                         <p style="margin: 5px 0;">
                             <strong>Warm regards,</strong><br>
                             <span class="highlight">The MyDiaree Team</span><br>
@@ -997,7 +997,7 @@ class SettingsController extends Controller
             </div>
         </body>
         </html>';
-        
+
         // Send email using Laravel Mail
         Mail::send([], [], function ($mail) use ($email, $messageContent) {
             $mail->to($email)
@@ -1005,12 +1005,12 @@ class SettingsController extends Controller
                     ->subject('🎉 Welcome to MyDiaree - Your Child\'s Learning Journey Begins!')
                     ->html($messageContent);
         });
-        
+
         return true;
-        
+
     } catch (\Exception $e) {
         // Log the error
-        \Log::error('Failed to send welcome email: ' . $e->getMessage());
+        Log::error('Failed to send welcome email: ' . $e->getMessage());
         return false;
     }
 }
@@ -1206,7 +1206,7 @@ class SettingsController extends Controller
 
     public function changePassword(Request $request, $id)
     {
-        
+
         $user = User::findOrFail($id);
 
         $request->validate([
