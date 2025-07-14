@@ -127,6 +127,15 @@
                         </li>
                         @endif
 
+                        <li class="{{ Request::is('snapshot*') ? 'active' : null }}">
+                            <a href="{{route('snapshot.index')}}">
+                                <i class="icon-camera" style="font-size: 25px;"></i>
+                                <span style="font-size: 18px; margin-left:3px">Snapshots</span>
+                            </a>
+                        </li>
+
+
+
 
                         @if(!empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement'])
 

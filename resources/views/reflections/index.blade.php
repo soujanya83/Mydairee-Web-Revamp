@@ -382,6 +382,7 @@
 <div class="text-zero top-right-button-container d-flex justify-content-end"
     style="margin-right: 20px;margin-top: -60px;">
 
+<<<<<<< HEAD
     @if(Auth::user()->userType != 'Parent')
     <!-- Filter Button -->
     <button class="btn btn-outline-primary btn-lg mr-1 filterbutton" data-toggle="modal" data-backdrop="static"
@@ -401,6 +402,24 @@
         <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+=======
+@if(Auth::user()->userType != 'Parent')
+                      <!-- Filter Button -->
+<button class="btn btn-outline-primary btn-lg mr-1 filterbutton" data-toggle="modal"
+        data-backdrop="static" data-target="#filtersModal">
+        <i class="fa-solid fa-filter" style="margin-right: 5px;"></i> FILTERS
+</button>
+&nbsp;&nbsp;&nbsp;
+<button type="button" class="btn btn-outline-info" onclick="window.location.href='{{ route('reflection.addnew') }}'"><i class="icon-plus" style="margin-right: 5px;"></i>Add New</button>
+@endif &nbsp;&nbsp;&nbsp;
+
+
+<div class="dropdown">
+        <button class="btn btn-outline-primary btn-lg dropdown-toggle"
+                type="button" id="centerDropdown" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <i class="fa-brands fa-centercode" style="margin-right: 5px;"></i> {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+>>>>>>> 5e542e3e33c8c770374b04aa864ed9238807975a
         </button>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
             style="top:3% !important;left:13px !important;">
