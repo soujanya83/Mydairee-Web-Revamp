@@ -879,7 +879,7 @@ body {
                 <div class="child-card">
                     <div class="child-header">
                         <div class="d-flex align-items-center">
-                            <img src="{{ $image }}" alt="{{ $fullName }}" class="child-avatar">
+                            <img src="{{ asset($image) }}" alt="{{ $fullName }}" class="child-avatar">
                             <div class="child-info">
                                 <h3>{{ $fullName }}</h3>
                                 <p><i class="fas fa-birthday-cake mr-2"></i>Age: {{ $age }} years</p>
@@ -1397,7 +1397,7 @@ body {
                                                 <div class="child-checkbox" data-name="{{ strtolower($fullName) }}">
                                                     <input type="checkbox" id="{{ $childId }}" value="{{ $child->id }}" class="custom-checkbox child-checkbox-input">
                                                     <label for="{{ $childId }}" class="child-label">
-                                                        <img src="{{ $image }}" alt="{{ $fullName }}" class="child-thumb">
+                                                        <img src="{{ asset($image) }}" alt="{{ $fullName }}" class="child-thumb">
                                                         <span>{{ $fullName }}</span>
                                                     </label>
                                                 </div>

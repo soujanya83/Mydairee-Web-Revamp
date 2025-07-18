@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Reflection')
+@section('title', 'Reflections')
 @section('parentPageTitle', '')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -444,11 +444,28 @@
                                 <i class="fas fa-child"></i>
                                 Children
                             </div>
-                            <div class="children-grid">
+                            <div class="children-grid"  style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">
                                 @foreach($reflectionItem->children as $childRelation)
 
                                     @if($childRelation->child)
-                                        <div class="child-item">
+                                        <div class="child-item"   style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 0;
+        ">
                                             <img src="{{ $childRelation->child->imageUrl ? asset($childRelation->child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}"
                                                  alt="{{ $childRelation->child->name }}"
                                                  class="child-avatar">
@@ -465,7 +482,16 @@
                                 <i class="fas fa-chalkboard-teacher"></i>
                                 Educators
                             </div>
-                            <div class="educators-list">
+                            <div class="educators-list" style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">
                                 @foreach($reflectionItem->staff as $staffRelation)
 
                                 @php
@@ -479,7 +505,14 @@
 
 
                                     @if($staffRelation->staff)
-                                        <div class="educator-item">
+                                        <div class="educator-item" style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+    
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 6px;
+        ">
                                             <img src="{{ $staffRelation->staff->imageUrl ? asset($staffRelation->staff->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
                                                  alt="{{ $staffRelation->staff->name }}"
                                                  class="educator-avatar">
@@ -502,7 +535,16 @@
                                                             Seen by Parents:
                                                         </div>
 
-                                                <div class="educators-list">
+                                                <div class="educators-list" style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">
                                                             @forelse($reflectionItem->Seen as $seen)
 
                                                                     @php
@@ -523,7 +565,14 @@
                                                                     </li> -->
 
 
-                                                                    <div class="educator-item">
+                                                                    <div class="educator-item" style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+    
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 6px;
+        ">
                                                                             <img src="{{ $seen->user->imageUrl ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
                                                                                 alt="{{ $seen->user->name }}"
                                                                                 class="educator-avatar">
@@ -547,13 +596,13 @@
 
                         {{-- Action Buttons --}}
                         <div class="card-actions">
-                        <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}" class="btn btn-edit btn-action">
+                        <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}" class="btn btn-edit btn-action" style="border-radius:70px;">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
-                        <a href="{{ route('reflection.print', ['id' => $reflectionItem->id]) }}" target="_blank" class="btn btn-print btn-action">
+                        <a href="{{ route('reflection.print', ['id' => $reflectionItem->id]) }}" target="_blank" class="btn btn-print btn-action" style="border-radius:70px;">
                                 <i class="fas fa-print"></i> Print
                             </a>
-                            <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
+                            <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}" style="border-radius:70px;">
                                   <i class="fas fa-trash-alt"></i> Delete
                              </button>
                         </div>
@@ -983,7 +1032,15 @@ if ($('#filter_author_any').is(':checked')) {
                         val.children.forEach(childItem => {
                             const imageUrl = childItem.child?.imageUrl || 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png';
                             childrenHtml += `
-                                <div class="child-item">
+                                <div class="child-item" style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 0;
+        ">
                                     <img src="${imageUrl}" alt="${childItem.child?.name}" class="child-avatar">
                                     <div class="child-name">${childItem.child?.name}</div>
                                 </div>
@@ -998,7 +1055,14 @@ if ($('#filter_author_any').is(':checked')) {
                             const gender = staffItem.staff?.gender === 'FEMALE' ? 'female' : 'male';
                             const imageUrl = staffItem.staff?.imageUrl || `/assets/img/xs/avatar${Math.floor(Math.random() * 10) + 1}.jpg`;
                             educatorsHtml += `
-                                <div class="educator-item">
+                                <div class="educator-item" style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+    
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 6px;
+        ">
                                     <img src="${imageUrl}" alt="${staffItem.staff?.name}" class="educator-avatar">
                                     <div class="educator-name">${staffItem.staff?.name}</div>
                                 </div>
@@ -1012,7 +1076,14 @@ if ($('#filter_author_any').is(':checked')) {
                             const gender = parentItem.gender === 'FEMALE' ? 'female' : 'male';
                             const imageUrl = parentItem.imageUrl || `/assets/img/xs/avatar${Math.floor(Math.random() * 10) + 1}.jpg`;
                             seenparentHtml += `
-                                <div class="educator-item">
+                                <div class="educator-item" style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+    
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 6px;
+        ">
                                     <img src="${imageUrl}" alt="${parentItem.name}" class="educator-avatar">
                                     <div class="educator-name">${parentItem.name}</div>
                                 </div>
@@ -1038,17 +1109,44 @@ if ($('#filter_author_any').is(':checked')) {
                                 <div class="card-body">
                                     ${childrenHtml ? `
                                         <div class="section-title"><i class="fas fa-child"></i> Children</div>
-                                        <div class="children-grid">${childrenHtml}</div>
+                                        <div class="children-grid" style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">${childrenHtml}</div>
                                     ` : ''}
 
                                     ${educatorsHtml ? `
                                         <div class="section-title"><i class="fas fa-chalkboard-teacher"></i> Educators</div>
-                                        <div class="educators-list">${educatorsHtml}</div>
+                                        <div class="educators-list" style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">${educatorsHtml}</div>
                                     ` : ''}
 
                                     ${seenparentHtml ? `
                                         <div class="section-title"><i class="fas fa-chalkboard-teacher"></i>Seen by Parents:</div>
-                                        <div class="educators-list">${seenparentHtml}</div>
+                                        <div class="educators-list" style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">${seenparentHtml}</div>
                                     ` : ''}
 
                                     <div class="card-actions">

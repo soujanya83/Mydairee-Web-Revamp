@@ -30,6 +30,7 @@ use App\Models\SnapshotMedia;
 use App\Models\SnapshotChild;
 use App\Models\Snapshot;
 use App\Models\ObservationMontessori;
+use App\Models\Userprogressplan;
 use App\Models\Room;
 use App\Models\RoomStaff;
 use App\Models\SeenObservation;
@@ -81,7 +82,7 @@ class ObservationsController extends Controller
             "messages" => [
                 [
                     "role" => "system",
-                    "content" => "Refine the text and correct its grammar. Make it professional. Add relevant content if needed. Only return the modified text without any explanation."
+                    "content" => "Polish the text for grammar, clarity, and professionalism. Add relevant content where appropriate. Return only the revised text without any explanations. Make it precise."
                 ],
                 [
                     "role" => "user",
@@ -579,6 +580,28 @@ public function storeMontessoriData(Request $request)
             'idExtra' => 0 // or other default
         ]);
     }
+
+    $childIds = ObservationChild::where('observationId',$request->observationId)->pluck('childId')->toArray();
+
+    Userprogressplan::where('observationId', $request->observationId)->delete();
+
+
+    // Insert into Userprogressplan
+    foreach ($childIds as $childId) {
+        foreach ($request->subactivities as $entry) {
+            Userprogressplan::create([
+                'observationId' => $request->observationId,
+                'childid'       => $childId,
+                'subid'         => $entry['idSubActivity'],
+                'status'        => $entry['assesment'],
+                'created_by'    => Auth::id(),
+                'created_at'    => now(),
+                'updated_by'    => Auth::id(),
+                'updated_at'    => now(),
+            ]);
+        }
+    }
+
 
     return response()->json(['message' => 'Saved successfully', 'status' => 'success', 'id' => $request->observationId]);
 }

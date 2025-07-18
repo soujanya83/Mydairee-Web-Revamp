@@ -48,7 +48,7 @@ class ReflectionController extends Controller
                 $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
                 ->where('centerid', $centerid)
                 ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page   
+                ->paginate(9); // 10 items per page   
    
                 }elseif(Auth::user()->userType == "Staff"){
    
@@ -60,7 +60,7 @@ class ReflectionController extends Controller
                 $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
                 ->where('centerid', $centerid)
                 ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page   
+                ->paginate(9); // 10 items per page   
    
                 }else{
    
@@ -73,7 +73,7 @@ class ReflectionController extends Controller
                $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
                ->whereIn('id', $reflectionIds)
                 ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page   
+                ->paginate(9); // 10 items per page   
    
                 }
 
@@ -289,7 +289,7 @@ class ReflectionController extends Controller
         DB::rollBack();
         Log::error('Observation Store/Update Failed: ' . $e->getMessage());
 
-        return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
+        return response()->json(['status' => false, 'message' => 'Something went wrong.','error' => $e->getMessage()], 500);
     }
 
 
