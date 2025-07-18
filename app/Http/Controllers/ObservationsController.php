@@ -43,7 +43,7 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
+use App\Notifications\ObservationAdded;
 
 
 class ObservationsController extends Controller
@@ -930,6 +930,9 @@ class ObservationsController extends Controller
 
             DB::commit();
 
+            $user = User::find(1); // Or loop over multiple users
+            $user->notify(new ObservationAdded($observation));
+
             return response()->json([
                 'status' => 'success',
                 'message' => $isEdit ? 'Observation updated successfully.' : 'Observation saved successfully.',
@@ -1027,292 +1030,282 @@ class ObservationsController extends Controller
 
 
 
-public function snapshotindex(){
+    public function snapshotindex()
+    {
 
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
 
-    if(Auth::user()->userType == "Superadmin"){
-        $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $center)->get();
-         }else{
-        $centers = Center::where('id', $centerid)->get();
-         }
+        if (Auth::user()->userType == "Superadmin") {
+            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
 
-         if(Auth::user()->userType == "Superadmin"){
+        if (Auth::user()->userType == "Superadmin") {
 
-         $snapshots = Snapshot::with(['creator', 'center','children.child','media'])
-         ->where('centerid', $centerid)
-         ->orderBy('id', 'desc') // optional: to show latest first
-         ->paginate(10); // 10 items per page
+            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('centerid', $centerid)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
 
-         }elseif(Auth::user()->userType == "Staff"){
+        } elseif (Auth::user()->userType == "Staff") {
 
-            $snapshots = Snapshot::with(['creator', 'center','children.child','media'])
-            ->where('createdBy', $authId)
-            ->orderBy('id', 'desc') // optional: to show latest first
-            ->paginate(10); // 10 items per page
+            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('createdBy', $authId)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
 
-         }else{
+        } else {
 
             $childids = Childparent::where('parentid', $authId)->pluck('childid');
             $snapshotid = SnapshotChild::whereIn('childid', $childids)
-            ->pluck('snapshotid')
-            ->unique()
-            ->toArray();
-            // dd($childids);
-            $snapshots = Snapshot::with(['creator', 'center','children.child','media'])
-            ->whereIn('id', $snapshotid)
-            ->orderBy('id', 'desc') // optional: to show latest first
-            ->paginate(10); // 10 items per page
-
-         }
-
-
-                $allRoomIds = $snapshots->pluck('roomids')
-                ->flatMap(function ($roomids) {
-                    return explode(',', $roomids);
-                })
+                ->pluck('snapshotid')
                 ->unique()
-                ->filter(); // Use filter to remove any empty values
+                ->toArray();
+            // dd($childids);
+            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->whereIn('id', $snapshotid)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
+
+        }
 
 
-                $rooms = collect();
-                if ($allRoomIds->isNotEmpty()) {
-                $rooms = Room::whereIn('id', $allRoomIds)->get()->keyBy('id');
-                }
+        $allRoomIds = $snapshots->pluck('roomids')
+            ->flatMap(function ($roomids) {
+                return explode(',', $roomids);
+            })
+            ->unique()
+            ->filter(); // Use filter to remove any empty values
 
 
-                $snapshots->each(function ($snapshot) use ($rooms) {
-                $roomIds = explode(',', $snapshot->roomids);
-                $snapshot->rooms = $rooms->whereIn('id', $roomIds)->values();
-                });
+        $rooms = collect();
+        if ($allRoomIds->isNotEmpty()) {
+            $rooms = Room::whereIn('id', $allRoomIds)->get()->keyBy('id');
+        }
+
+
+        $snapshots->each(function ($snapshot) use ($rooms) {
+            $roomIds = explode(',', $snapshot->roomids);
+            $snapshot->rooms = $rooms->whereIn('id', $roomIds)->values();
+        });
 
         //  dd($snapshots);
 
-    return view('observations.snapshotindex', compact('snapshots','centers'));
-
-}
-
-
-
-public function snapshotindexstorepage($id = null)
-{
-   $authId = Auth::user()->id;
-   $centerid = Session('user_center_id');
-
-   $reflection = null;
-   if ($id) {
-       $reflection = Snapshot::with(['creator', 'center','children','media'])->find($id);
-   }
-
-   $childrens = $reflection
-   ? $reflection->children->pluck('child')->filter()
-   : collect();
-
-   $rooms = collect();
-
-   if ($reflection && $reflection->roomids) {
-   $roomIds = explode(',', $reflection->roomids); // Convert comma-separated string to array
-   $rooms = Room::whereIn('id', $roomIds)->get();
+        return view('observations.snapshotindex', compact('snapshots', 'centers'));
     }
 
-    //     $staffs = $reflection
-    // ? $reflection->staff->pluck('staff')->filter()
-    // : collect();
-
-    $outcomes = EYLFOutcome::with('activities.subActivities')->get();
 
 
-   return view('observations.storesnapshots', compact('reflection','childrens','rooms','outcomes'));
-}
+    public function snapshotindexstorepage($id = null)
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+        $reflection = null;
+        if ($id) {
+            $reflection = Snapshot::with(['creator', 'center', 'children', 'media'])->find($id);
+        }
+
+        $childrens = $reflection
+            ? $reflection->children->pluck('child')->filter()
+            : collect();
+
+        $rooms = collect();
+
+        if ($reflection && $reflection->roomids) {
+            $roomIds = explode(',', $reflection->roomids); // Convert comma-separated string to array
+            $rooms = Room::whereIn('id', $roomIds)->get();
+        }
+
+        //     $staffs = $reflection
+        // ? $reflection->staff->pluck('staff')->filter()
+        // : collect();
+
+        $outcomes = EYLFOutcome::with('activities.subActivities')->get();
 
 
-
-
-public function snapshotstore(Request $request)
-{
-//    dd($request->all());
-
-  $uploadMaxSize = min(
-   $this->convertToBytes(ini_get('upload_max_filesize')),
-   $this->convertToBytes(ini_get('post_max_size'))
-);
-
-$isEdit = $request->filled('id');
-
-$rules = [
-   'selected_rooms'    => 'required',
-   'title'             => 'required|string|max:255',
-   'about'             => 'required|string',
-   'selected_children' => 'required|string',
-];
-
-if (!$isEdit) {
-   $rules['media'] = 'required|array|min:1';
-} else {
-   $rules['media'] = 'nullable|array';
-}
-
-$rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
-
-$messages = [
-   'media.required' => 'At least one media file is required.',
-   'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
-];
-
-$validator = Validator::make($request->all(), $rules, $messages);
-
-if ($validator->fails()) {
-   return response()->json([
-       'status' => false,
-       'errors' => $validator->errors(),
-   ], 422);
-}
-
-
-
-
-DB::beginTransaction();
-
-try {
-   $authId = Auth::user()->id;
-   $centerid = Session('user_center_id');
-
-   $reflection = $isEdit
-       ? Snapshot::findOrFail($request->id)
-       : new Snapshot();
-
-   $reflection->roomids      = $request->input('selected_rooms');
-   $reflection->title        = $request->input('title');
-   $reflection->about        = $request->input('about');
-   $reflection->centerid     = $centerid;
-   $reflection->createdBy    = $authId;
-   $reflection->save();
-
-   $reflectionId = $reflection->id;
-
-   // Replace all existing reflectionchilds records
-   SnapshotChild::where('snapshotid', $reflectionId)->delete();
-
-   $selectedChildren = explode(',', $request->input('selected_children'));
-   foreach ($selectedChildren as $childId) {
-       if (trim($childId) !== '') {
-        SnapshotChild::create([
-               'snapshotid' => $reflectionId,
-               'childid' => trim($childId),
-           ]);
-       }
-   }
-
-   // Replace all existing reflectionstaffs records
-//    ReflectionStaff::where('reflectionid', $reflectionId)->delete();
-
-//    $selectedStaffs = explode(',', $request->input('selected_staff'));
-//    foreach ($selectedStaffs as $staffids) {
-//        if (trim($staffids) !== '') {
-//            ReflectionStaff::create([
-//                'reflectionid' => $reflectionId,
-//                'staffid' => trim($staffids),
-//            ]);
-//        }
-//    }
-
-
-
-
-   // Process uploaded media only if present
-   if ($request->hasFile('media')) {
-       $manager = new ImageManager(new GdDriver());
-
-       foreach ($request->file('media') as $file) {
-           if ($file->isValid()) {
-               $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-               $destinationPath = public_path('uploads/Snapshots');
-
-               if (!file_exists($destinationPath)) {
-                   mkdir($destinationPath, 0777, true);
-               }
-
-               if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
-                   $image = $manager->read($file->getPathname());
-                   $image->scale(1920);
-                   $image->save($destinationPath . '/' . $filename, 75);
-               } else {
-                   $file->move($destinationPath, $filename);
-               }
-
-               SnapshotMedia::create([
-                   'snapshotid' => $reflectionId,
-                   'mediaUrl' => 'uploads/Snapshots/' . $filename,
-                   'mediaType' => $file->getClientMimeType(),
-               ]);
-           }
-       }
-   }
-
-   DB::commit();
-
-   return response()->json([
-       'status' => 'success',
-       'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
-       'id' => $reflectionId
-   ]);
-
-} catch (\Exception $e) {
-   DB::rollBack();
-   Log::error('Snapshot Store/Update Failed: ' . $e->getMessage());
-
-   return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
-}
-
-
-
-
-
-}
-
-
-
-
-public function snapshotdestroyimage($id)
-{
-    $media = SnapshotMedia::findOrFail($id);
-
-    // Optionally delete the file from storage
-    if (file_exists(public_path($media->mediaUrl))) {
-        @unlink(public_path($media->mediaUrl));
+        return view('observations.storesnapshots', compact('reflection', 'childrens', 'rooms', 'outcomes'));
     }
 
-    $media->delete();
-
-    return response()->json(['status' => 'success']);
-}
-
-public function snapshotupdateStatus(Request $request)
-{
-    $request->validate([
-        'reflectionId' => 'required|exists:snapshot,id',
-        'status' => 'required|in:Published,Draft'
-    ]);
-
-    $reflection = Snapshot::find($request->reflectionId);
-    $reflection->status = $request->status;
-    $reflection->save();
-
-    return response()->json(['status' => 'success', 'id' => $reflection->id]);
-}
-
-
-public function snapshotsdelete($id)
-{
-    $snapshot = Snapshot::findOrFail($id);
-    $snapshot->delete();
-
-    return response()->json(['status' => 'success']);
-}
 
 
 
+    public function snapshotstore(Request $request)
+    {
+        //    dd($request->all());
 
+        $uploadMaxSize = min(
+            $this->convertToBytes(ini_get('upload_max_filesize')),
+            $this->convertToBytes(ini_get('post_max_size'))
+        );
+
+        $isEdit = $request->filled('id');
+
+        $rules = [
+            'selected_rooms'    => 'required',
+            'title'             => 'required|string|max:255',
+            'about'             => 'required|string',
+            'selected_children' => 'required|string',
+        ];
+
+        if (!$isEdit) {
+            $rules['media'] = 'required|array|min:1';
+        } else {
+            $rules['media'] = 'nullable|array';
+        }
+
+        $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
+
+        $messages = [
+            'media.required' => 'At least one media file is required.',
+            'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+
+
+
+        DB::beginTransaction();
+
+        try {
+            $authId = Auth::user()->id;
+            $centerid = Session('user_center_id');
+
+            $reflection = $isEdit
+                ? Snapshot::findOrFail($request->id)
+                : new Snapshot();
+
+            $reflection->roomids      = $request->input('selected_rooms');
+            $reflection->title        = $request->input('title');
+            $reflection->about        = $request->input('about');
+            $reflection->centerid     = $centerid;
+            $reflection->createdBy    = $authId;
+            $reflection->save();
+
+            $reflectionId = $reflection->id;
+
+            // Replace all existing reflectionchilds records
+            SnapshotChild::where('snapshotid', $reflectionId)->delete();
+
+            $selectedChildren = explode(',', $request->input('selected_children'));
+            foreach ($selectedChildren as $childId) {
+                if (trim($childId) !== '') {
+                    SnapshotChild::create([
+                        'snapshotid' => $reflectionId,
+                        'childid' => trim($childId),
+                    ]);
+                }
+            }
+
+            // Replace all existing reflectionstaffs records
+            //    ReflectionStaff::where('reflectionid', $reflectionId)->delete();
+
+            //    $selectedStaffs = explode(',', $request->input('selected_staff'));
+            //    foreach ($selectedStaffs as $staffids) {
+            //        if (trim($staffids) !== '') {
+            //            ReflectionStaff::create([
+            //                'reflectionid' => $reflectionId,
+            //                'staffid' => trim($staffids),
+            //            ]);
+            //        }
+            //    }
+
+
+
+
+            // Process uploaded media only if present
+            if ($request->hasFile('media')) {
+                $manager = new ImageManager(new GdDriver());
+
+                foreach ($request->file('media') as $file) {
+                    if ($file->isValid()) {
+                        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $destinationPath = public_path('uploads/Snapshots');
+
+                        if (!file_exists($destinationPath)) {
+                            mkdir($destinationPath, 0777, true);
+                        }
+
+                        if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
+                            $image = $manager->read($file->getPathname());
+                            $image->scale(1920);
+                            $image->save($destinationPath . '/' . $filename, 75);
+                        } else {
+                            $file->move($destinationPath, $filename);
+                        }
+
+                        SnapshotMedia::create([
+                            'snapshotid' => $reflectionId,
+                            'mediaUrl' => 'uploads/Snapshots/' . $filename,
+                            'mediaType' => $file->getClientMimeType(),
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
+                'id' => $reflectionId
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Snapshot Store/Update Failed: ' . $e->getMessage());
+
+            return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
+        }
+    }
+
+
+
+
+    public function snapshotdestroyimage($id)
+    {
+        $media = SnapshotMedia::findOrFail($id);
+
+        // Optionally delete the file from storage
+        if (file_exists(public_path($media->mediaUrl))) {
+            @unlink(public_path($media->mediaUrl));
+        }
+
+        $media->delete();
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function snapshotupdateStatus(Request $request)
+    {
+        $request->validate([
+            'reflectionId' => 'required|exists:snapshot,id',
+            'status' => 'required|in:Published,Draft'
+        ]);
+
+        $reflection = Snapshot::find($request->reflectionId);
+        $reflection->status = $request->status;
+        $reflection->save();
+
+        return response()->json(['status' => 'success', 'id' => $reflection->id]);
+    }
+
+
+    public function snapshotsdelete($id)
+    {
+        $snapshot = Snapshot::findOrFail($id);
+        $snapshot->delete();
+
+        return response()->json(['status' => 'success']);
+    }
 }

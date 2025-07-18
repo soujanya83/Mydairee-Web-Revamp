@@ -27,6 +27,7 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\Notifications\ReflectionAdded;
 
 class ReflectionController extends Controller
 {
@@ -273,7 +274,8 @@ class ReflectionController extends Controller
             }
 
             DB::commit();
-
+            $user = User::find(1); // You can loop over multiple users too
+            $user->notify(new ReflectionAdded($reflection));
             return response()->json([
                 'status' => 'success',
                 'message' => $isEdit ? 'Reflection updated successfully.' : 'Reflection saved successfully.',

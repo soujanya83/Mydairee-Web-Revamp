@@ -25,6 +25,7 @@ use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ReflectionController;
 use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\Auth\NotificationController;
 use Illuminate\Support\Facades\Artisan;
 // Route::get('/', function () {
 //     return view('dashboard.university');
@@ -165,6 +166,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     // Daily Journel Ends here
     Route::get('/backup-now', [DBBackupController::class, 'runBackup']);
 
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
 
 
     Route::post('/logout', function () {
