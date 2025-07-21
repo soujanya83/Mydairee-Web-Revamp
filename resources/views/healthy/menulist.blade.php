@@ -96,11 +96,14 @@ $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks
                                 $items = $menus->where('day', $day)->where('mealType',
                                 \Illuminate\Support\Str::upper($meal));
                                 @endphp
+                                @if(!empty($permissions['addMenu']) && $permissions['addMenu'])
+
                                 <button class="btn btn-outline-info btn-sm add-item-btn" data-bs-toggle="modal"
                                     data-bs-target="#ingredientModal" data-day="{{ $day }}" data-meal="{{ $meal }}"
                                     style="margin-top:-24px;margin-right:0px">
                                     Add Item
                                 </button>
+                                @endif
                             </div>
                             @if ($items->isEmpty())
                             <p class="text-muted mb-0">No items added</p>
@@ -146,7 +149,8 @@ $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks
                                             style="margin-top:12px">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete this menu">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                title="Delete this menu">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>

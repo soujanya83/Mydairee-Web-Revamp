@@ -311,12 +311,12 @@
                 font-size: 0.8rem;
                 padding: 6px 10px;
             }
-            
+
             .room-item {
                 font-size: 0.75rem;
                 padding: 5px 10px;
             }
-            
+
             .action-buttons {
                 flex-direction: column;
             }
@@ -373,7 +373,7 @@
                 </h1>
             </div>
         </div>
-        
+
         <div class="row" id="snapshotContainer" style="margin-bottom:80px;">
             <!-- Sample Card 1 -->
             @foreach($snapshots as $snapshot)
@@ -455,7 +455,7 @@
     </div>
 @endforeach
 
-            
+
             <!-- Sample Card 2 -->
             <!-- <div class="col-lg-4 col-md-6 col-sm-12">
                 <div class="snapshot-card fade-in">
@@ -463,7 +463,7 @@
                         <h3 class="snapshot-title">Birthday Party Memories</h3>
                         <span class="status-badge status-draft">Draft</span>
                     </div>
-                    
+
                     <div class="image-gallery">
                         <img src="https://picsum.photos/400/250?random=2" alt="Snapshot Image" class="main-image">
                         <button class="image-nav prev" onclick="previousImage(this)">
@@ -476,12 +476,12 @@
                             <i class="fas fa-images mr-1"></i>1 / 8
                         </div>
                     </div>
-                    
+
                     <div class="card-body">
                         <div class="snapshot-details">
                             A magical birthday celebration with friends and family. The party was filled with laughter, games, and delicious cake that everyone enjoyed.
                         </div>
-                        
+
                         <div class="children-section">
                             <div class="section-title">
                                 <i class="fas fa-child"></i>
@@ -498,7 +498,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="rooms-section">
                             <div class="section-title">
                                 <i class="fas fa-door-open"></i>
@@ -510,7 +510,7 @@
                                 <span class="room-item">Backyard</span>
                             </div>
                         </div>
-                        
+
                         <div class="action-buttons">
                             <button class="btn-action btn-edit" onclick="editSnapshot(2)">
                                 <i class="fas fa-edit mr-2"></i>Edit
@@ -522,7 +522,7 @@
                     </div>
                 </div>
             </div> -->
-            
+
             <!-- Sample Card 3 -->
             <!-- <div class="col-lg-4 col-md-6 col-sm-12">
                 <div class="snapshot-card fade-in">
@@ -530,7 +530,7 @@
                         <h3 class="snapshot-title">School Event 2024</h3>
                         <span class="status-badge status-published">Published</span>
                     </div>
-                    
+
                     <div class="image-gallery">
                         <img src="https://picsum.photos/400/250?random=3" alt="Snapshot Image" class="main-image">
                         <button class="image-nav prev" onclick="previousImage(this)">
@@ -543,12 +543,12 @@
                             <i class="fas fa-images mr-1"></i>1 / 3
                         </div>
                     </div>
-                    
+
                     <div class="card-body">
                         <div class="snapshot-details">
                             Annual school event showcasing student achievements and talents. A proud moment for parents and teachers alike.
                         </div>
-                        
+
                         <div class="children-section">
                             <div class="section-title">
                                 <i class="fas fa-child"></i>
@@ -573,7 +573,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="rooms-section">
                             <div class="section-title">
                                 <i class="fas fa-door-open"></i>
@@ -587,7 +587,7 @@
                                 <span class="room-item">Art Room</span>
                             </div>
                         </div>
-                        
+
                         <div class="action-buttons">
                             <button class="btn-action btn-edit" onclick="editSnapshot(3)">
                                 <i class="fas fa-edit mr-2"></i>Edit

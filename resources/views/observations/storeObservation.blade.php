@@ -952,7 +952,7 @@
 
                 <!-- OBSERVATIONS Tabs -->
                 <div class="tab-pane {{ $activeTab == 'observation' ? 'show active' : '' }}" id="Home">
-                        
+
                     <form id="observationform" method="POST" enctype="multipart/form-data">
 
       <div class="row">
@@ -1221,7 +1221,7 @@
 <button type="button" id="saveMontessoriData" class="btn btn-primary">Save Montessori Assessment</button>
 
 
-      </div> 
+      </div>
 
 
       <div class="tab-pane {{ $activesubTab == 'EYLF' ? 'show active' : '' }}" id="EYLF" role="tabpanel">
@@ -1286,7 +1286,7 @@
 
 
 
-      </div> 
+      </div>
 
 
       <div class="tab-pane {{ $activesubTab == 'MILESTONE' ? 'show active' : '' }}" id="MILESTONE">
@@ -1359,11 +1359,11 @@
 
 
 
-      </div> 
+      </div>
 
 
 </div>
-             
+
                 </div>
              <!-- end ASSESSMENT -->
 
@@ -1401,14 +1401,14 @@
 
             @if($linked)
                 <div class="col-md-4 mb-3">
-                  
+
                     <div class="card h-100 shadow-sm obs-card">
                     @php
                        $media = $linked->media->first();
                        $imageUrl = $media && $media->mediaUrl ? asset($media->mediaUrl) : 'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
                    @endphp
 
-<img src="{{ $imageUrl }}" class="card-img-top obs-img" alt="{{ $linked->obestitle ?? 'Untitled' }}"> 
+<img src="{{ $imageUrl }}" class="card-img-top obs-img" alt="{{ $linked->obestitle ?? 'Untitled' }}">
                         <div class="card-body">
                         <h5 class="card-title">{!! $linked->obestitle ?? 'Untitled' !!}</h5>
                             <p class="card-text"><small class="text-muted">Created by: {{ $linked->user->name ?? 'Unknown' }}</small></p>
@@ -1431,7 +1431,7 @@
                 </div>
                 <div class="modal-body" style="overflow-y:auto;max-height:550px;">
                     <input type="text" id="searchObservation" class="form-control mb-3" placeholder="Search by title...">
-                 
+
                     <div id="observationList" class="row mb-3"></div>
                 </div>
                 <div class="modal-footer">
@@ -1836,7 +1836,7 @@ $(document).ready(function () {
     $('#observationform').on('submit', function (e) {
         e.preventDefault();
 
-     
+
 
         const form = $('#observationform')[0];
         const formData = new FormData(form);
@@ -2220,7 +2220,7 @@ $(function() {
                     Object.values(xhr.responseJSON.errors).forEach(err => showToast('error', err[0]));
                 } else showToast('error', 'Server error occurred');
 
-                
+
             }
         });
     });
@@ -2558,6 +2558,7 @@ document.querySelectorAll('.assessment-label').forEach(label => {
 
 @include('layout.footer')
 @stop
+
 
 
 

@@ -62,10 +62,14 @@
         <div class="card">
             <div class="header">
                 <h2>Centers Settings<small></small> </h2>
+                @if(!empty($permissions['addCenters']) && $permissions['addCenters'])
+
                 <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
                     data-target="#addCenterModal">
                     <i class="fa fa-plus"></i>&nbsp; Add Center
                 </button>
+                @endif
+
             </div>
             <div class="body">
                 <div class="table-responsive">
@@ -78,7 +82,9 @@
                                 <th>City Address</th>
                                 <th>State Address</th>
                                 <th>Zip</th>
+                                @if(!empty($permissions['updateCenters']) && $permissions['updateCenters'])
                                 <th>Edit</th>
+                                @endif
                                 <th>Delete</th>
                             </tr>
                         </thead>
@@ -90,7 +96,10 @@
                                 <th>City Address</th>
                                 <th>State Address</th>
                                 <th>Zip</th>
+                                @if(!empty($permissions['updateCenters']) && $permissions['updateCenters'])
+
                                 <th>Edit</th>
+                                @endif
                                 <th>Delete</th>
                             </tr>
                         </tfoot>
@@ -105,12 +114,15 @@
                                 <td>{{ $center->addressCity }}</td>
                                 <td>{{ $center->addressState }}</td>
                                 <td>{{ $center->addressZip }}</td>
+                                @if(!empty($permissions['updateCenters']) && $permissions['updateCenters'])
+
                                 <td>
                                     <button class="btn btn-sm btn-info"
                                         onclick="openEditcenterModal({{ $center->id }})">
                                         <i class="fa-solid fa-pen-to-square fa-beat-fade"></i> Edit
                                     </button>
                                 </td>
+                                @endif
                                 <td>
                                     @if(count($centers) > 1)
                                     <button class="btn btn-sm btn-danger" onclick="deletecenter({{ $center->id }})">

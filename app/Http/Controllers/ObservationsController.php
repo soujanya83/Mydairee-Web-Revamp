@@ -44,7 +44,7 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
+use App\Notifications\ObservationAdded;
 
 
 class ObservationsController extends Controller
@@ -100,65 +100,65 @@ class ObservationsController extends Controller
 
 
 
-    public function index(){
+    public function index()
+    {
 
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
 
-        if(Auth::user()->userType == "Superadmin"){
+        if (Auth::user()->userType == "Superadmin") {
             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $center)->get();
-             }else{
+        } else {
             $centers = Center::where('id', $centerid)->get();
-             }
+        }
 
-             if(Auth::user()->userType == "Superadmin"){
+        if (Auth::user()->userType == "Superadmin") {
 
-             $observations = Observation::with(['user', 'child','media','Seen.user'])
-             ->where('centerid', $centerid)
-             ->orderBy('id', 'desc') // optional: to show latest first
-             ->paginate(10); // 10 items per page
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+                ->where('centerid', $centerid)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
 
-             }elseif(Auth::user()->userType == "Staff"){
+        } elseif (Auth::user()->userType == "Staff") {
 
-                $observations = Observation::with(['user', 'child','media','Seen.user'])
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
                 ->where('userId', $authId)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
 
-             }else{
+        } else {
 
-                $childids = Childparent::where('parentid', $authId)->pluck('childid');
-                $observationIds = ObservationChild::whereIn('childId', $childids)
+            $childids = Childparent::where('parentid', $authId)->pluck('childid');
+            $observationIds = ObservationChild::whereIn('childId', $childids)
                 ->pluck('observationId')
                 ->unique()
                 ->toArray();
-                // dd($childids);
-                $observations = Observation::with(['user', 'child','media','Seen.user'])
+            // dd($childids);
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
                 ->whereIn('id', $observationIds)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
 
-             }
+        }
 
-            //  dd($observations);
+        //  dd($observations);
 
-        return view('observations.index', compact('observations','centers'));
-
+        return view('observations.index', compact('observations', 'centers'));
     }
 
 
 
     public function applyFilters(Request $request)
     {
-    //    dd($request->all());
+        //    dd($request->all());
         try {
 
             $centerid = Session('user_center_id');
 
 
-            $query = Observation::with(['user', 'child','media','Seen.user'])
-            ->where('centerid', $centerid);
+            $query = Observation::with(['user', 'child', 'media', 'Seen.user'])
+                ->where('centerid', $centerid);
             // Status filter
             if ($request->has('observations') && !empty($request->observations)) {
                 $statusFilters = $request->observations;
@@ -318,7 +318,6 @@ class ObservationsController extends Controller
                 'userRole' => Auth::user()->userType,
                 'count' => $formattedObservations->count()
             ]);
-
         } catch (\Exception $e) {
             Log::error('Filter error: ' . $e->getMessage());
 
@@ -339,12 +338,12 @@ class ObservationsController extends Controller
             $user = Auth::user();
             $children = collect();
 
-        if($user->userType === 'Superadmin') {
-            $children = $this->getChildrenForSuperadmin();
-            }elseif($user->userType === 'Staff'){
-            $children = $this->getChildrenForStaff();
-            }else{
-            $children = $this->getChildrenForParent();
+            if ($user->userType === 'Superadmin') {
+                $children = $this->getChildrenForSuperadmin();
+            } elseif ($user->userType === 'Staff') {
+                $children = $this->getChildrenForStaff();
+            } else {
+                $children = $this->getChildrenForParent();
             }
 
             return response()->json([
@@ -352,7 +351,6 @@ class ObservationsController extends Controller
                 'status' => 'success',
                 'success' => true
             ]);
-
         } catch (\Exception $e) {
             Log::error('Filter error: ' . $e->getMessage());
 
@@ -366,220 +364,220 @@ class ObservationsController extends Controller
 
 
     private function getChildrenForSuperadmin()
-{
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
 
-    // Get all room IDs for the center
-    $roomIds = Room::where('centerid', $centerid)->pluck('id');
+        // Get all room IDs for the center
+        $roomIds = Room::where('centerid', $centerid)->pluck('id');
 
-    // Get all children in those rooms
-    $children = Child::whereIn('room', $roomIds)->get();
+        // Get all children in those rooms
+        $children = Child::whereIn('room', $roomIds)->get();
 
-    return $children;
-}
-
-
-private function getChildrenForStaff()
-{
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
-
-    // Get room IDs from RoomStaff where staff is assigned
-    $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
-
-    // Get room IDs where user is the owner (userId matches)
-    $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
-
-    // Merge both collections and remove duplicates
-    $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
-
-    // Get all children in those rooms
-    $children = Child::whereIn('room', $allRoomIds)->get();
-
-    return $children;
-}
-
-private function getChildrenForParent(){
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
-
-    $childids = Childparent::where('parentid', $authId)->pluck('childid');
-
-    $children = Child::whereIn('id', $childids)->get();
-
-    return $children;
-
-
-}
-
-private function getStaffForSuperadmin()
-{
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
-
-    // Get all room IDs for the center
-    $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
-
-    // Exclude current user and Superadmins
-    $staff = User::whereIn('id', $usersid)
-                ->where('userType', 'Staff')
-                ->get();
-
-    return $staff;
-}
-
-
-public function getStaff(Request $request)
-{
-    try {
-        $user = Auth::user();
-        $children = collect();
-
-    if($user->userType === 'Superadmin') {
-        $staff = $this->getStaffForSuperadmin();
-        }
-        // elseif($user->userType === 'Staff'){
-        // $children = $this->getChildrenForStaff();
-        // }else{
-        // $children = $this->getChildrenForParent();
-        // }
-
-        return response()->json([
-            'staff' => $staff,
-            'status' => 'success',
-            'success' => true
-        ]);
-
-    } catch (\Exception $e) {
-        Log::error('Filter error: ' . $e->getMessage());
-
-        return response()->json([
-            'status' => 'error',
-            'message' => 'An error occurred while applying filters',
-            'error' => $e->getMessage()
-        ], 500);
+        return $children;
     }
-}
+
+
+    private function getChildrenForStaff()
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+        // Get room IDs from RoomStaff where staff is assigned
+        $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
+
+        // Get room IDs where user is the owner (userId matches)
+        $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
+
+        // Merge both collections and remove duplicates
+        $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
+
+        // Get all children in those rooms
+        $children = Child::whereIn('room', $allRoomIds)->get();
+
+        return $children;
+    }
+
+    private function getChildrenForParent()
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+        $childids = Childparent::where('parentid', $authId)->pluck('childid');
+
+        $children = Child::whereIn('id', $childids)->get();
+
+        return $children;
+    }
+
+    private function getStaffForSuperadmin()
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+        // Get all room IDs for the center
+        $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
+
+        // Exclude current user and Superadmins
+        $staff = User::whereIn('id', $usersid)
+            ->where('userType', 'Staff')
+            ->get();
+
+        return $staff;
+    }
+
+
+    public function getStaff(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $children = collect();
+
+            if ($user->userType === 'Superadmin') {
+                $staff = $this->getStaffForSuperadmin();
+            }
+            // elseif($user->userType === 'Staff'){
+            // $children = $this->getChildrenForStaff();
+            // }else{
+            // $children = $this->getChildrenForParent();
+            // }
+
+            return response()->json([
+                'staff' => $staff,
+                'status' => 'success',
+                'success' => true
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Filter error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while applying filters',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
 
 
-private function getroomsforSuperadmin(){
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
+    private function getroomsforSuperadmin()
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
 
-    $rooms = Room::where('centerid', $centerid)->get();
-    return $rooms;
-}
+        $rooms = Room::where('centerid', $centerid)->get();
+        return $rooms;
+    }
 
-private function getroomsforStaff(){
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
+    private function getroomsforStaff()
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
 
-    $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
+        $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
 
-    // Get room IDs where user is the owner (userId matches)
-    $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
+        // Get room IDs where user is the owner (userId matches)
+        $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
 
-    // Merge both collections and remove duplicates
-    $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
+        // Merge both collections and remove duplicates
+        $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
 
-    $rooms = Room::where('id', $allRoomIds)->get();
-    return $rooms;
-}
+        $rooms = Room::where('id', $allRoomIds)->get();
+        return $rooms;
+    }
 
 
 
-public function getrooms(){
-    try {
-        $user = Auth::user();
+    public function getrooms()
+    {
+        try {
+            $user = Auth::user();
+            $rooms = collect();
+
+            if ($user->userType === 'Superadmin') {
+                $rooms = $this->getroomsforSuperadmin();
+            } else {
+                $rooms = $this->getroomsforStaff();
+            }
+
+            return response()->json([
+                'rooms' => $rooms,
+                'status' => 'success',
+                'success' => true
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Filter error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while applying filters',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    } 
+
+
+
+
+    public function storepage($id = null, $activeTab = 'observation', $activesubTab = 'MONTESSORI')
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+        if (Auth::user()->userType == "Superadmin") {
+            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+
+        $observation = null;
+        if ($id) {
+            $observation = Observation::with(['media', 'child.child', 'montessoriLinks', 'eylfLinks', 'devMilestoneSubs', 'links'])->find($id);
+        }
+
+        $childrens = $observation
+            ? $observation->child->pluck('child')->filter()
+            : collect();
+
+
         $rooms = collect();
 
-    if($user->userType === 'Superadmin') {
-        $rooms = $this->getroomsforSuperadmin();
-        }else{
-        $rooms = $this->getroomsforStaff();
+        if ($observation && $observation->room) {
+            $roomIds = explode(',', $observation->room); // Convert comma-separated string to array
+            $rooms = Room::whereIn('id', $roomIds)->get();
         }
 
-        return response()->json([
-            'rooms' => $rooms,
-            'status' => 'success',
-            'success' => true
+        $subjects = MontessoriSubject::with(['activities.subActivities'])->get();
+        $outcomes = EYLFOutcome::with('activities.subActivities')->get();
+        $milestones = DevMilestone::with('mains.subs')->get();
+
+        return view('observations.storeObservation', compact('centers', 'observation', 'childrens', 'activeTab', 'rooms', 'activesubTab', 'subjects', 'outcomes', 'milestones'));
+    }
+
+
+    public function storeMontessoriData(Request $request)
+    {
+        // dd($request->all());
+        $request->validate([
+            'observationId' => 'required|exists:observation,id',
+            'subactivities' => 'array',
+            'subactivities.*.idSubActivity' => 'required|integer',
+            'subactivities.*.assesment' => 'required|in:Introduced,Working,Completed',
         ]);
 
-    } catch (\Exception $e) {
-        Log::error('Filter error: ' . $e->getMessage());
+        // Delete existing data
+        ObservationMontessori::where('observationId', $request->observationId)->delete();
 
-        return response()->json([
-            'status' => 'error',
-            'message' => 'An error occurred while applying filters',
-            'error' => $e->getMessage()
-        ], 500);
-    }
-}
-
-
-
-
-public function storepage($id = null, $activeTab = 'observation', $activesubTab = 'MONTESSORI')
-{
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
-
-    if(Auth::user()->userType == "Superadmin"){
-        $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $center)->get();
-    } else {
-        $centers = Center::where('id', $centerid)->get();
-    }
-
-    $observation = null;
-    if ($id) {
-        $observation = Observation::with(['media','child.child','montessoriLinks','eylfLinks','devMilestoneSubs','links'])->find($id);
-    }
-
-    $childrens = $observation
-    ? $observation->child->pluck('child')->filter()
-    : collect();
-
-
-    $rooms = collect();
-
-    if ($observation && $observation->room) {
-    $roomIds = explode(',', $observation->room); // Convert comma-separated string to array
-    $rooms = Room::whereIn('id', $roomIds)->get();
-     }
-
-     $subjects = MontessoriSubject::with(['activities.subActivities'])->get();
-     $outcomes = EYLFOutcome::with('activities.subActivities')->get();
-     $milestones = DevMilestone::with('mains.subs')->get();
-
-    return view('observations.storeObservation', compact('centers', 'observation','childrens', 'activeTab', 'rooms','activesubTab','subjects','outcomes','milestones'));
-}
-
-
-public function storeMontessoriData(Request $request)
-{
-    // dd($request->all());
-    $request->validate([
-        'observationId' => 'required|exists:observation,id',
-        'subactivities' => 'array',
-        'subactivities.*.idSubActivity' => 'required|integer',
-        'subactivities.*.assesment' => 'required|in:Introduced,Working,Completed',
-    ]);
-
-    // Delete existing data
-    ObservationMontessori::where('observationId', $request->observationId)->delete();
-
-    // Insert new data
-    foreach ($request->subactivities as $entry) {
-        ObservationMontessori::create([
-            'observationId' => $request->observationId,
-            'idSubActivity' => $entry['idSubActivity'],
-            'assesment' => $entry['assesment'],
-            'idExtra' => 0 // or other default
-        ]);
-    }
+        // Insert new data
+        foreach ($request->subactivities as $entry) {
+            ObservationMontessori::create([
+                'observationId' => $request->observationId,
+                'idSubActivity' => $entry['idSubActivity'],
+                'assesment' => $entry['assesment'],
+                'idExtra' => 0 // or other default
+            ]);
+        }
 
     $childIds = ObservationChild::where('observationId',$request->observationId)->pluck('childId')->toArray();
 
@@ -603,740 +601,734 @@ public function storeMontessoriData(Request $request)
     }
 
 
-    return response()->json(['message' => 'Saved successfully', 'status' => 'success', 'id' => $request->observationId]);
-}
-
-
-public function storeEylfData(Request $request)
-{
-    $request->validate([
-        'observationId' => 'required|exists:observation,id',
-        'subactivityIds' => 'array',
-        'subactivityIds.*' => 'integer|exists:eylfsubactivity,id'
-    ]);
-
-    ObservationEYLF::where('observationId', $request->observationId)->delete();
-
-    foreach ($request->subactivityIds ?? [] as $subId) {
-        $activityid = EYLFSubActivity::find($subId)->activityid ?? null;
-        if ($activityid) {
-            ObservationEYLF::create([
-                'observationId' => $request->observationId,
-                'eylfSubactivityId' => $subId,
-                'eylfActivityId' => $activityid
-            ]);
-        }
+        return response()->json(['message' => 'Saved successfully', 'status' => 'success', 'id' => $request->observationId]);
     }
 
-    return response()->json(['status' => 'success', 'id' => $request->observationId]);
-}
 
-
-
-public function storeDevMilestone(Request $req) {
-    // dd($req->all());
-    $req->validate([
-        'observationId' => 'required|exists:observation,id',
-        'selections' => 'array',
-        'selections.*.idSub' => 'required|integer',
-        'selections.*.assessment' => 'required|in:Introduced,Working towards,Achieved',
-    ]);
-
-    ObservationDevMilestoneSub::where('observationId', $req->observationId)->delete();
-
-    foreach ($req->selections as $sel) {
-        ObservationDevMilestoneSub::create([
-            'observationId' => $req->observationId,
-            'devMilestoneId' => $sel['idSub'],
-            'assessment' => $sel['assessment']
+    public function storeEylfData(Request $request)
+    {
+        $request->validate([
+            'observationId' => 'required|exists:observation,id',
+            'subactivityIds' => 'array',
+            'subactivityIds.*' => 'integer|exists:eylfsubactivity,id'
         ]);
-    }
 
-    return response()->json(['status' => 'success', 'id' => $req->observationId]);
-}
+        ObservationEYLF::where('observationId', $request->observationId)->delete();
 
-public function updateStatus(Request $request)
-{
-    $request->validate([
-        'observationId' => 'required|exists:observation,id',
-        'status' => 'required|in:Published,Draft'
-    ]);
-
-    $observation = Observation::find($request->observationId);
-    $observation->status = $request->status;
-    $observation->save();
-
-    return response()->json(['status' => 'success', 'id' => $observation->id]);
-}
-
-
-public function view($id)
-{
-    $observation = Observation::with([
-        'media',
-        'child.child',
-        'montessoriLinks.subActivity.activity.subject',
-        'eylfLinks.subActivity.activity.outcome',
-        'devMilestoneSubs.devMilestone.main',
-        'devMilestoneSubs.devMilestone.milestone'
-    ])->findOrFail($id);
-
-    return view('observations.view', compact('observation'));
-}
-
-public function linkobservationdata(Request $request)
-{
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
-    $search = $request->query('search');
-    $obsId = $request->query('obsId'); // Current observation ID for checking existing links
-
-    $observations = Observation::with(['media', 'child.child', 'user'])
-        ->when($search, function ($query, $search) {
-            return $query->where('obestitle', 'like', "%{$search}%");
-        })
-        ->where('centerid', $centerid)
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-    $linkedIds = ObservationLink::where('observationId', $obsId)
-        ->where('linktype', 'OBSERVATION')
-        ->pluck('linkid')
-        ->toArray();
-
-    return response()->json([
-        'observations' => $observations,
-        'linked_ids' => $linkedIds
-    ]);
-}
-
-
-public function storelinkobservation(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'obsId' => 'required|exists:observation,id',
-        'observation_ids' => 'required|array',
-        'observation_ids.*' => 'exists:observation,id',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
-
-    $observationId = $request->input('obsId');
-
-    ObservationLink::where('observationId', $observationId)->delete();
-
-    $linkIds = $request->input('observation_ids');
-
-    foreach ($linkIds as $linkId) {
-        ObservationLink::create([
-            'observationId' => $observationId,
-            'linkid' => $linkId,
-            'linktype' => 'OBSERVATION',
-        ]);
-    }
-
-    return response()->json(['message' => 'Links saved successfully.', 'id' => $observationId]);
-}
-
-
-
-// public function store(Request $request)
-// {
-//     // Get PHP upload limits
-//     $uploadMaxSize = min(
-//         $this->convertToBytes(ini_get('upload_max_filesize')),
-//         $this->convertToBytes(ini_get('post_max_size'))
-//     );
-
-//     // Validate input
-//     $validator = Validator::make($request->all(), [
-//         'selected_rooms'   => 'required',
-//         'obestitle'        => 'required|string|max:255',
-//         'title'            => 'required|string|max:255',
-//         'notes'            => 'required|string',
-//         'reflection'       => 'required|string',
-//         'child_voice'      => 'required|string',
-//         'future_plan'      => 'required|string',
-//         'selected_children'=> 'required|string',
-//         'media'            => 'required|array|min:1',
-//         'media.*'          => "file|mimes:jpeg,png,jpg,gif,webp|max:" . intval($uploadMaxSize / 1024), // Convert to KB
-//     ], [
-//         'media.required' => 'At least one media file is required.',
-//         'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
-//     ]);
-
-//     if ($validator->fails()) {
-//         return response()->json([
-//             'status' => false,
-//             'errors' => $validator->errors(),
-//         ], 422);
-//     }
-
-//     DB::beginTransaction();
-
-//     try {
-//         $authId = Auth::user()->id;
-//         $centerid = Session('user_center_id');
-
-//         $observation = new Observation();
-//         $observation->room = $request->input('selected_rooms');
-//         $observation->obestitle = $request->input('obestitle');
-//         $observation->title = $request->input('title');
-//         $observation->notes = $request->input('notes');
-//         $observation->userId = $authId;
-//         $observation->centerid = $centerid;
-//         $observation->reflection = $request->input('reflection');
-//         $observation->child_voice = $request->input('child_voice');
-//         $observation->future_plan = $request->input('future_plan');
-//         $observation->save();
-
-//         $observationId = $observation->id;
-
-//         $selectedChildren = explode(',', $request->input('selected_children'));
-//         foreach ($selectedChildren as $childId) {
-//             if (trim($childId) !== '') {
-//                 ObservationChild::create([
-//                     'observationId' => $observationId,
-//                     'childId' => trim($childId),
-//                 ]);
-//             }
-//         }
-
-//         $manager = new ImageManager(new GdDriver());
-
-//         foreach ($request->file('media') as $file) {
-//             if ($file->isValid()) {
-//                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-//                 $destinationPath = public_path('uploads/Observation');
-
-//                 if (!file_exists($destinationPath)) {
-//                     mkdir($destinationPath, 0777, true);
-//                 }
-
-//                 if ($file->getSize() > 1024 * 1024) {
-//                     $image = $manager->read($file->getPathname());
-//                     $image->scale(1920);
-//                     $image->save($destinationPath . '/' . $filename, 75);
-//                 } else {
-//                     $file->move($destinationPath, $filename);
-//                 }
-
-//                 ObservationMedia::create([
-//                     'observationId' => $observationId,
-//                     'mediaUrl' => 'uploads/Observation/' . $filename,
-//                     'mediaType' => $file->getClientMimeType(),
-//                 ]);
-//             }
-//         }
-
-//         DB::commit();
-
-//         return response()->json(['status' => 'success', 'message' => 'Observation saved successfully.','id' => $observationId]);
-//     } catch (\Exception $e) {
-//         DB::rollBack();
-//         Log::error('Observation Store Failed: ' . $e->getMessage());
-
-//         return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
-//     }
-// }
-
-
-public function store(Request $request)
-{
-
-    $uploadMaxSize = min(
-        $this->convertToBytes(ini_get('upload_max_filesize')),
-        $this->convertToBytes(ini_get('post_max_size'))
-    );
-
-    $isEdit = $request->filled('id');
-
-    $rules = [
-        'selected_rooms'    => 'required',
-        'obestitle'         => 'required|string|max:255',
-        'title'             => 'required|string|max:255',
-        'notes'             => 'required|string',
-        'reflection'        => 'required|string',
-        'child_voice'       => 'required|string',
-        'future_plan'       => 'required|string',
-        'selected_children' => 'required|string',
-    ];
-
-    if (!$isEdit) {
-        $rules['media'] = 'required|array|min:1';
-    } else {
-        $rules['media'] = 'nullable|array';
-    }
-
-    $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
-
-    $messages = [
-        'media.required' => 'At least one media file is required.',
-        'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
-    ];
-
-    $validator = Validator::make($request->all(), $rules, $messages);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => false,
-            'errors' => $validator->errors(),
-        ], 422);
-    }
-
-    DB::beginTransaction();
-
-    try {
-        $authId = Auth::user()->id;
-        $centerid = Session('user_center_id');
-
-        $observation = $isEdit
-            ? Observation::findOrFail($request->id)
-            : new Observation();
-
-        $observation->room         = $request->input('selected_rooms');
-        $observation->obestitle    = $request->input('obestitle');
-        $observation->title        = $request->input('title');
-        $observation->notes        = $request->input('notes');
-        $observation->reflection   = $request->input('reflection');
-        $observation->child_voice  = $request->input('child_voice');
-        $observation->future_plan  = $request->input('future_plan');
-        $observation->userId       = $authId;
-        $observation->centerid     = $centerid;
-        $observation->save();
-
-        $observationId = $observation->id;
-
-        // Replace all existing ObservationChild records
-        ObservationChild::where('observationId', $observationId)->delete();
-
-        $selectedChildren = explode(',', $request->input('selected_children'));
-        foreach ($selectedChildren as $childId) {
-            if (trim($childId) !== '') {
-                ObservationChild::create([
-                    'observationId' => $observationId,
-                    'childId' => trim($childId),
+        foreach ($request->subactivityIds ?? [] as $subId) {
+            $activityid = EYLFSubActivity::find($subId)->activityid ?? null;
+            if ($activityid) {
+                ObservationEYLF::create([
+                    'observationId' => $request->observationId,
+                    'eylfSubactivityId' => $subId,
+                    'eylfActivityId' => $activityid
                 ]);
             }
         }
 
-        // Process uploaded media only if present
-        if ($request->hasFile('media')) {
-            $manager = new ImageManager(new GdDriver());
+        return response()->json(['status' => 'success', 'id' => $request->observationId]);
+    }
 
-            foreach ($request->file('media') as $file) {
-                if ($file->isValid()) {
-                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $destinationPath = public_path('uploads/Observation');
 
-                    if (!file_exists($destinationPath)) {
-                        mkdir($destinationPath, 0777, true);
-                    }
 
-                    if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
-                        $image = $manager->read($file->getPathname());
-                        $image->scale(1920);
-                        $image->save($destinationPath . '/' . $filename, 75);
-                    } else {
-                        $file->move($destinationPath, $filename);
-                    }
-
-                    ObservationMedia::create([
-                        'observationId' => $observationId,
-                        'mediaUrl' => 'uploads/Observation/' . $filename,
-                        'mediaType' => $file->getClientMimeType(),
-                    ]);
-                }
-            }
-        }
-
-        DB::commit();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => $isEdit ? 'Observation updated successfully.' : 'Observation saved successfully.',
-            'id' => $observationId
+    public function storeDevMilestone(Request $req)
+    {
+        // dd($req->all());
+        $req->validate([
+            'observationId' => 'required|exists:observation,id',
+            'selections' => 'array',
+            'selections.*.idSub' => 'required|integer',
+            'selections.*.assessment' => 'required|in:Introduced,Working towards,Achieved',
         ]);
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Observation Store/Update Failed: ' . $e->getMessage());
+        ObservationDevMilestoneSub::where('observationId', $req->observationId)->delete();
 
-        return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
-    }
-}
+        foreach ($req->selections as $sel) {
+            ObservationDevMilestoneSub::create([
+                'observationId' => $req->observationId,
+                'devMilestoneId' => $sel['idSub'],
+                'assessment' => $sel['assessment']
+            ]);
+        }
 
-
-// Helper to convert ini values to bytes
-private function convertToBytes($value)
-{
-    $unit = strtolower(substr($value, -1));
-    $bytes = (int) $value;
-
-    switch ($unit) {
-        case 'g':
-            $bytes *= 1024 * 1024 * 1024;
-            break;
-        case 'm':
-            $bytes *= 1024 * 1024;
-            break;
-        case 'k':
-            $bytes *= 1024;
-            break;
+        return response()->json(['status' => 'success', 'id' => $req->observationId]);
     }
 
-    return $bytes;
-}
+    public function updateStatus(Request $request)
+    {
+        $request->validate([
+            'observationId' => 'required|exists:observation,id',
+            'status' => 'required|in:Published,Draft'
+        ]);
 
+        $observation = Observation::find($request->observationId);
+        $observation->status = $request->status;
+        $observation->save();
 
-
-public function destroyimage($id)
-{
-    $media = ObservationMedia::findOrFail($id);
-
-    // Optionally delete the file from storage
-    if (file_exists(public_path($media->mediaUrl))) {
-        @unlink(public_path($media->mediaUrl));
+        return response()->json(['status' => 'success', 'id' => $observation->id]);
     }
 
-    $media->delete();
 
-    return response()->json(['status' => 'success']);
-}
-
-public function print($id)
-{
-    try {
-        // Fetch the observation with all related data using the same relationships as view method
+    public function view($id)
+    {
         $observation = Observation::with([
             'media',
             'child.child',
             'montessoriLinks.subActivity.activity.subject',
             'eylfLinks.subActivity.activity.outcome',
             'devMilestoneSubs.devMilestone.main',
-            'devMilestoneSubs.devMilestone.milestone',
-            'user'  // Assuming you have a room relationship
+            'devMilestoneSubs.devMilestone.milestone'
         ])->findOrFail($id);
 
-
-           // Only track if the user is authenticated and is a Parent
-           $user = Auth::user();
-           if ($user && $user->userType === 'Parent') {
-               // Check if already seen
-               $alreadySeen = SeenObservation::where('user_id', $user->id)
-                   ->where('observation_id', $id)
-                   ->exists();
-
-               if (! $alreadySeen) {
-                   SeenObservation::create([
-                       'user_id' => $user->id,
-                       'observation_id' => $id
-                   ]);
-               }
-           }
-
-
-        $roomNames = Room::whereIn('id', explode(',', $observation->room))
-        ->pluck('name')
-        ->implode(', '); // or ->toArray() if you prefer array
-
-        return view('observations.print', compact('observation','roomNames'));
-
-    } catch (\Exception $e) {
-        return redirect()->back()->with('error', 'Observation not found or error occurred while loading the print view.');
+        return view('observations.view', compact('observation'));
     }
-}
+
+    public function linkobservationdata(Request $request)
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+        $search = $request->query('search');
+        $obsId = $request->query('obsId'); // Current observation ID for checking existing links
+
+        $observations = Observation::with(['media', 'child.child', 'user'])
+            ->when($search, function ($query, $search) {
+                return $query->where('obestitle', 'like', "%{$search}%");
+            })
+            ->where('centerid', $centerid)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $linkedIds = ObservationLink::where('observationId', $obsId)
+            ->where('linktype', 'OBSERVATION')
+            ->pluck('linkid')
+            ->toArray();
+
+        return response()->json([
+            'observations' => $observations,
+            'linked_ids' => $linkedIds
+        ]);
+    }
+
+
+    public function storelinkobservation(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'obsId' => 'required|exists:observation,id',
+            'observation_ids' => 'required|array',
+            'observation_ids.*' => 'exists:observation,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $observationId = $request->input('obsId');
+
+        ObservationLink::where('observationId', $observationId)->delete();
+
+        $linkIds = $request->input('observation_ids');
+
+        foreach ($linkIds as $linkId) {
+            ObservationLink::create([
+                'observationId' => $observationId,
+                'linkid' => $linkId,
+                'linktype' => 'OBSERVATION',
+            ]);
+        }
+
+        return response()->json(['message' => 'Links saved successfully.', 'id' => $observationId]);
+    }
 
 
 
-public function snapshotindex(){
+    // public function store(Request $request)
+    // {
+    //     // Get PHP upload limits
+    //     $uploadMaxSize = min(
+    //         $this->convertToBytes(ini_get('upload_max_filesize')),
+    //         $this->convertToBytes(ini_get('post_max_size'))
+    //     );
 
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
+    //     // Validate input
+    //     $validator = Validator::make($request->all(), [
+    //         'selected_rooms'   => 'required',
+    //         'obestitle'        => 'required|string|max:255',
+    //         'title'            => 'required|string|max:255',
+    //         'notes'            => 'required|string',
+    //         'reflection'       => 'required|string',
+    //         'child_voice'      => 'required|string',
+    //         'future_plan'      => 'required|string',
+    //         'selected_children'=> 'required|string',
+    //         'media'            => 'required|array|min:1',
+    //         'media.*'          => "file|mimes:jpeg,png,jpg,gif,webp|max:" . intval($uploadMaxSize / 1024), // Convert to KB
+    //     ], [
+    //         'media.required' => 'At least one media file is required.',
+    //         'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
+    //     ]);
 
-    if(Auth::user()->userType == "Superadmin"){
-        $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $center)->get();
-         }else{
-        $centers = Center::where('id', $centerid)->get();
-         }
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'errors' => $validator->errors(),
+    //         ], 422);
+    //     }
 
-         if(Auth::user()->userType == "Superadmin"){
+    //     DB::beginTransaction();
 
-         $snapshots = Snapshot::with(['creator', 'center','children.child','media'])
-         ->where('centerid', $centerid)
-         ->orderBy('id', 'desc') // optional: to show latest first
-         ->paginate(10); // 10 items per page
+    //     try {
+    //         $authId = Auth::user()->id;
+    //         $centerid = Session('user_center_id');
 
-         }elseif(Auth::user()->userType == "Staff"){
+    //         $observation = new Observation();
+    //         $observation->room = $request->input('selected_rooms');
+    //         $observation->obestitle = $request->input('obestitle');
+    //         $observation->title = $request->input('title');
+    //         $observation->notes = $request->input('notes');
+    //         $observation->userId = $authId;
+    //         $observation->centerid = $centerid;
+    //         $observation->reflection = $request->input('reflection');
+    //         $observation->child_voice = $request->input('child_voice');
+    //         $observation->future_plan = $request->input('future_plan');
+    //         $observation->save();
 
-            $snapshots = Snapshot::with(['creator', 'center','children.child','media'])
-            ->where('createdBy', $authId)
-            ->orderBy('id', 'desc') // optional: to show latest first
-            ->paginate(10); // 10 items per page
+    //         $observationId = $observation->id;
 
-         }else{
+    //         $selectedChildren = explode(',', $request->input('selected_children'));
+    //         foreach ($selectedChildren as $childId) {
+    //             if (trim($childId) !== '') {
+    //                 ObservationChild::create([
+    //                     'observationId' => $observationId,
+    //                     'childId' => trim($childId),
+    //                 ]);
+    //             }
+    //         }
+
+    //         $manager = new ImageManager(new GdDriver());
+
+    //         foreach ($request->file('media') as $file) {
+    //             if ($file->isValid()) {
+    //                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+    //                 $destinationPath = public_path('uploads/Observation');
+
+    //                 if (!file_exists($destinationPath)) {
+    //                     mkdir($destinationPath, 0777, true);
+    //                 }
+
+    //                 if ($file->getSize() > 1024 * 1024) {
+    //                     $image = $manager->read($file->getPathname());
+    //                     $image->scale(1920);
+    //                     $image->save($destinationPath . '/' . $filename, 75);
+    //                 } else {
+    //                     $file->move($destinationPath, $filename);
+    //                 }
+
+    //                 ObservationMedia::create([
+    //                     'observationId' => $observationId,
+    //                     'mediaUrl' => 'uploads/Observation/' . $filename,
+    //                     'mediaType' => $file->getClientMimeType(),
+    //                 ]);
+    //             }
+    //         }
+
+    //         DB::commit();
+
+    //         return response()->json(['status' => 'success', 'message' => 'Observation saved successfully.','id' => $observationId]);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Observation Store Failed: ' . $e->getMessage());
+
+    //         return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
+    //     }
+    // }
+
+
+    public function store(Request $request)
+    {
+
+        $uploadMaxSize = min(
+            $this->convertToBytes(ini_get('upload_max_filesize')),
+            $this->convertToBytes(ini_get('post_max_size'))
+        );
+
+        $isEdit = $request->filled('id');
+
+        $rules = [
+            'selected_rooms'    => 'required',
+            'obestitle'         => 'required|string|max:255',
+            'title'             => 'required|string|max:255',
+            'notes'             => 'required|string',
+            'reflection'        => 'required|string',
+            'child_voice'       => 'required|string',
+            'future_plan'       => 'required|string',
+            'selected_children' => 'required|string',
+        ];
+
+        if (!$isEdit) {
+            $rules['media'] = 'required|array|min:1';
+        } else {
+            $rules['media'] = 'nullable|array';
+        }
+
+        $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
+
+        $messages = [
+            'media.required' => 'At least one media file is required.',
+            'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $authId = Auth::user()->id;
+            $centerid = Session('user_center_id');
+
+            $observation = $isEdit
+                ? Observation::findOrFail($request->id)
+                : new Observation();
+
+            $observation->room         = $request->input('selected_rooms');
+            $observation->obestitle    = $request->input('obestitle');
+            $observation->title        = $request->input('title');
+            $observation->notes        = $request->input('notes');
+            $observation->reflection   = $request->input('reflection');
+            $observation->child_voice  = $request->input('child_voice');
+            $observation->future_plan  = $request->input('future_plan');
+            $observation->userId       = $authId;
+            $observation->centerid     = $centerid;
+            $observation->save();
+
+            $observationId = $observation->id;
+
+            // Replace all existing ObservationChild records
+            ObservationChild::where('observationId', $observationId)->delete();
+
+            $selectedChildren = explode(',', $request->input('selected_children'));
+            foreach ($selectedChildren as $childId) {
+                if (trim($childId) !== '') {
+                    ObservationChild::create([
+                        'observationId' => $observationId,
+                        'childId' => trim($childId),
+                    ]);
+                }
+            }
+
+            // Process uploaded media only if present
+            if ($request->hasFile('media')) {
+                $manager = new ImageManager(new GdDriver());
+
+                foreach ($request->file('media') as $file) {
+                    if ($file->isValid()) {
+                        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $destinationPath = public_path('uploads/Observation');
+
+                        if (!file_exists($destinationPath)) {
+                            mkdir($destinationPath, 0777, true);
+                        }
+
+                        if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
+                            $image = $manager->read($file->getPathname());
+                            $image->scale(1920);
+                            $image->save($destinationPath . '/' . $filename, 75);
+                        } else {
+                            $file->move($destinationPath, $filename);
+                        }
+
+                        ObservationMedia::create([
+                            'observationId' => $observationId,
+                            'mediaUrl' => 'uploads/Observation/' . $filename,
+                            'mediaType' => $file->getClientMimeType(),
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            $user = User::find(1); // Or loop over multiple users
+            $user->notify(new ObservationAdded($observation));
+
+            return response()->json([
+                'status' => 'success',
+                'message' => $isEdit ? 'Observation updated successfully.' : 'Observation saved successfully.',
+                'id' => $observationId
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Observation Store/Update Failed: ' . $e->getMessage());
+
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+
+    // Helper to convert ini values to bytes
+    private function convertToBytes($value)
+    {
+        $unit = strtolower(substr($value, -1));
+        $bytes = (int) $value;
+
+        switch ($unit) {
+            case 'g':
+                $bytes *= 1024 * 1024 * 1024;
+                break;
+            case 'm':
+                $bytes *= 1024 * 1024;
+                break;
+            case 'k':
+                $bytes *= 1024;
+                break;
+        }
+
+        return $bytes;
+    }
+
+
+
+    public function destroyimage($id)
+    {
+        $media = ObservationMedia::findOrFail($id);
+
+        // Optionally delete the file from storage
+        if (file_exists(public_path($media->mediaUrl))) {
+            @unlink(public_path($media->mediaUrl));
+        }
+
+        $media->delete();
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function print($id)
+    {
+        try {
+            // Fetch the observation with all related data using the same relationships as view method
+            $observation = Observation::with([
+                'media',
+                'child.child',
+                'montessoriLinks.subActivity.activity.subject',
+                'eylfLinks.subActivity.activity.outcome',
+                'devMilestoneSubs.devMilestone.main',
+                'devMilestoneSubs.devMilestone.milestone',
+                'user'  // Assuming you have a room relationship
+            ])->findOrFail($id);
+
+
+            // Only track if the user is authenticated and is a Parent
+            $user = Auth::user();
+            if ($user && $user->userType === 'Parent') {
+                // Check if already seen
+                $alreadySeen = SeenObservation::where('user_id', $user->id)
+                    ->where('observation_id', $id)
+                    ->exists();
+
+                if (! $alreadySeen) {
+                    SeenObservation::create([
+                        'user_id' => $user->id,
+                        'observation_id' => $id
+                    ]);
+                }
+            }
+
+
+            $roomNames = Room::whereIn('id', explode(',', $observation->room))
+                ->pluck('name')
+                ->implode(', '); // or ->toArray() if you prefer array
+
+            return view('observations.print', compact('observation', 'roomNames'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Observation not found or error occurred while loading the print view.');
+        }
+    }
+
+
+
+
+
+    public function snapshotindex()
+    {
+
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+        if (Auth::user()->userType == "Superadmin") {
+            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+
+        if (Auth::user()->userType == "Superadmin") {
+
+            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('centerid', $centerid)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
+
+        } elseif (Auth::user()->userType == "Staff") {
+
+            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('createdBy', $authId)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
+
+        } else {
 
             $childids = Childparent::where('parentid', $authId)->pluck('childid');
             $snapshotid = SnapshotChild::whereIn('childid', $childids)
-            ->pluck('snapshotid')
-            ->unique()
-            ->toArray();
-            // dd($childids);
-            $snapshots = Snapshot::with(['creator', 'center','children.child','media'])
-            ->whereIn('id', $snapshotid)
-            ->orderBy('id', 'desc') // optional: to show latest first
-            ->paginate(10); // 10 items per page
-
-         }
-
-
-                $allRoomIds = $snapshots->pluck('roomids')
-                ->flatMap(function ($roomids) {
-                    return explode(',', $roomids);
-                })
+                ->pluck('snapshotid')
                 ->unique()
-                ->filter(); // Use filter to remove any empty values
+                ->toArray();
+            // dd($childids);
+            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->whereIn('id', $snapshotid)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
 
-               
-                $rooms = collect();
-                if ($allRoomIds->isNotEmpty()) {
-                $rooms = Room::whereIn('id', $allRoomIds)->get()->keyBy('id');
-                }
+        }
 
-              
-                $snapshots->each(function ($snapshot) use ($rooms) {
-                $roomIds = explode(',', $snapshot->roomids);
-                $snapshot->rooms = $rooms->whereIn('id', $roomIds)->values();
-                });
+
+        $allRoomIds = $snapshots->pluck('roomids')
+            ->flatMap(function ($roomids) {
+                return explode(',', $roomids);
+            })
+            ->unique()
+            ->filter(); // Use filter to remove any empty values
+
+
+        $rooms = collect();
+        if ($allRoomIds->isNotEmpty()) {
+            $rooms = Room::whereIn('id', $allRoomIds)->get()->keyBy('id');
+        }
+
+
+        $snapshots->each(function ($snapshot) use ($rooms) {
+            $roomIds = explode(',', $snapshot->roomids);
+            $snapshot->rooms = $rooms->whereIn('id', $roomIds)->values();
+        });
 
         //  dd($snapshots);
 
-    return view('observations.snapshotindex', compact('snapshots','centers'));
-
-}
-
-
-  
-public function snapshotindexstorepage($id = null)
-{
-   $authId = Auth::user()->id; 
-   $centerid = Session('user_center_id');
-
-   $reflection = null;
-   if ($id) {
-       $reflection = Snapshot::with(['creator', 'center','children','media'])->find($id);
-   }
-
-   $childrens = $reflection
-   ? $reflection->children->pluck('child')->filter()
-   : collect();
-
-   $rooms = collect();
-
-   if ($reflection && $reflection->roomids) {
-   $roomIds = explode(',', $reflection->roomids); // Convert comma-separated string to array
-   $rooms = Room::whereIn('id', $roomIds)->get();
+        return view('observations.snapshotindex', compact('snapshots', 'centers'));
     }
 
-    //     $staffs = $reflection
-    // ? $reflection->staff->pluck('staff')->filter()
-    // : collect();
-
-    $outcomes = EYLFOutcome::with('activities.subActivities')->get();
 
 
-   return view('observations.storesnapshots', compact('reflection','childrens','rooms','outcomes'));
-}
+    public function snapshotindexstorepage($id = null)
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+        $reflection = null;
+        if ($id) {
+            $reflection = Snapshot::with(['creator', 'center', 'children', 'media'])->find($id);
+        }
+
+        $childrens = $reflection
+            ? $reflection->children->pluck('child')->filter()
+            : collect();
+
+        $rooms = collect();
+
+        if ($reflection && $reflection->roomids) {
+            $roomIds = explode(',', $reflection->roomids); // Convert comma-separated string to array
+            $rooms = Room::whereIn('id', $roomIds)->get();
+        }
+
+        //     $staffs = $reflection
+        // ? $reflection->staff->pluck('staff')->filter()
+        // : collect();
+
+        $outcomes = EYLFOutcome::with('activities.subActivities')->get();
 
 
-
-  
-public function snapshotstore(Request $request)
-{
-//    dd($request->all());
-
-  $uploadMaxSize = min(
-   $this->convertToBytes(ini_get('upload_max_filesize')),
-   $this->convertToBytes(ini_get('post_max_size'))
-);
-
-$isEdit = $request->filled('id');
-
-$rules = [
-   'selected_rooms'    => 'required',
-   'title'             => 'required|string|max:255',
-   'about'             => 'required|string',
-   'selected_children' => 'required|string',
-];
-
-if (!$isEdit) {
-   $rules['media'] = 'required|array|min:1';
-} else {
-   $rules['media'] = 'nullable|array';
-}
-
-$rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
-
-$messages = [
-   'media.required' => 'At least one media file is required.',
-   'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
-];
-
-$validator = Validator::make($request->all(), $rules, $messages);
-
-if ($validator->fails()) {
-   return response()->json([
-       'status' => false,
-       'errors' => $validator->errors(),
-   ], 422);
-}
-
-
-
-
-DB::beginTransaction();
-
-try {
-   $authId = Auth::user()->id;
-   $centerid = Session('user_center_id');
-
-   $reflection = $isEdit
-       ? Snapshot::findOrFail($request->id)
-       : new Snapshot();
-
-   $reflection->roomids      = $request->input('selected_rooms');
-   $reflection->title        = $request->input('title');
-   $reflection->about        = $request->input('about');
-   $reflection->centerid     = $centerid;
-   $reflection->createdBy    = $authId;
-   $reflection->save();
-
-   $reflectionId = $reflection->id;
-
-   // Replace all existing reflectionchilds records
-   SnapshotChild::where('snapshotid', $reflectionId)->delete();
-
-   $selectedChildren = explode(',', $request->input('selected_children'));
-   foreach ($selectedChildren as $childId) {
-       if (trim($childId) !== '') {
-        SnapshotChild::create([
-               'snapshotid' => $reflectionId,
-               'childid' => trim($childId),
-           ]);
-       }
-   }
-
-   // Replace all existing reflectionstaffs records
-//    ReflectionStaff::where('reflectionid', $reflectionId)->delete();
-
-//    $selectedStaffs = explode(',', $request->input('selected_staff'));
-//    foreach ($selectedStaffs as $staffids) {
-//        if (trim($staffids) !== '') {
-//            ReflectionStaff::create([
-//                'reflectionid' => $reflectionId,
-//                'staffid' => trim($staffids),
-//            ]);
-//        }
-//    }
-
-
-
-
-   // Process uploaded media only if present
-   if ($request->hasFile('media')) {
-       $manager = new ImageManager(new GdDriver());
-
-       foreach ($request->file('media') as $file) {
-           if ($file->isValid()) {
-               $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-               $destinationPath = public_path('uploads/Snapshots');
-
-               if (!file_exists($destinationPath)) {
-                   mkdir($destinationPath, 0777, true);
-               }
-
-               if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
-                   $image = $manager->read($file->getPathname());
-                   $image->scale(1920);
-                   $image->save($destinationPath . '/' . $filename, 75);
-               } else {
-                   $file->move($destinationPath, $filename);
-               }
-
-               SnapshotMedia::create([
-                   'snapshotid' => $reflectionId,
-                   'mediaUrl' => 'uploads/Snapshots/' . $filename,
-                   'mediaType' => $file->getClientMimeType(),
-               ]);
-           }
-       }
-   }
-
-   DB::commit();
-
-   return response()->json([
-       'status' => 'success',
-       'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
-       'id' => $reflectionId
-   ]);
-
-} catch (\Exception $e) {
-   DB::rollBack();
-   Log::error('Snapshot Store/Update Failed: ' . $e->getMessage());
-
-   return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
-}
-
-
-
-
-
-}
-
-   
-     
-
-public function snapshotdestroyimage($id)
-{
-    $media = SnapshotMedia::findOrFail($id);
-    
-    // Optionally delete the file from storage
-    if (file_exists(public_path($media->mediaUrl))) {
-        @unlink(public_path($media->mediaUrl));
+        return view('observations.storesnapshots', compact('reflection', 'childrens', 'rooms', 'outcomes'));
     }
 
-    $media->delete();
-
-    return response()->json(['status' => 'success']);
-}
-
-public function snapshotupdateStatus(Request $request)
-{
-    $request->validate([
-        'reflectionId' => 'required|exists:snapshot,id',
-        'status' => 'required|in:Published,Draft'
-    ]);
-
-    $reflection = Snapshot::find($request->reflectionId);
-    $reflection->status = $request->status;
-    $reflection->save();
-
-    return response()->json(['status' => 'success', 'id' => $reflection->id]);
-}
-
-
-public function snapshotsdelete($id)
-{
-    $snapshot = Snapshot::findOrFail($id);
-    $snapshot->delete();
-
-    return response()->json(['status' => 'success']);
-}
 
 
 
+    public function snapshotstore(Request $request)
+    {
+        //    dd($request->all());
 
+        $uploadMaxSize = min(
+            $this->convertToBytes(ini_get('upload_max_filesize')),
+            $this->convertToBytes(ini_get('post_max_size'))
+        );
+
+        $isEdit = $request->filled('id');
+
+        $rules = [
+            'selected_rooms'    => 'required',
+            'title'             => 'required|string|max:255',
+            'about'             => 'required|string',
+            'selected_children' => 'required|string',
+        ];
+
+        if (!$isEdit) {
+            $rules['media'] = 'required|array|min:1';
+        } else {
+            $rules['media'] = 'nullable|array';
+        }
+
+        $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
+
+        $messages = [
+            'media.required' => 'At least one media file is required.',
+            'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+
+
+
+        DB::beginTransaction();
+
+        try {
+            $authId = Auth::user()->id;
+            $centerid = Session('user_center_id');
+
+            $reflection = $isEdit
+                ? Snapshot::findOrFail($request->id)
+                : new Snapshot();
+
+            $reflection->roomids      = $request->input('selected_rooms');
+            $reflection->title        = $request->input('title');
+            $reflection->about        = $request->input('about');
+            $reflection->centerid     = $centerid;
+            $reflection->createdBy    = $authId;
+            $reflection->save();
+
+            $reflectionId = $reflection->id;
+
+            // Replace all existing reflectionchilds records
+            SnapshotChild::where('snapshotid', $reflectionId)->delete();
+
+            $selectedChildren = explode(',', $request->input('selected_children'));
+            foreach ($selectedChildren as $childId) {
+                if (trim($childId) !== '') {
+                    SnapshotChild::create([
+                        'snapshotid' => $reflectionId,
+                        'childid' => trim($childId),
+                    ]);
+                }
+            }
+
+            // Replace all existing reflectionstaffs records
+            //    ReflectionStaff::where('reflectionid', $reflectionId)->delete();
+
+            //    $selectedStaffs = explode(',', $request->input('selected_staff'));
+            //    foreach ($selectedStaffs as $staffids) {
+            //        if (trim($staffids) !== '') {
+            //            ReflectionStaff::create([
+            //                'reflectionid' => $reflectionId,
+            //                'staffid' => trim($staffids),
+            //            ]);
+            //        }
+            //    }
+
+
+
+
+            // Process uploaded media only if present
+            if ($request->hasFile('media')) {
+                $manager = new ImageManager(new GdDriver());
+
+                foreach ($request->file('media') as $file) {
+                    if ($file->isValid()) {
+                        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $destinationPath = public_path('uploads/Snapshots');
+
+                        if (!file_exists($destinationPath)) {
+                            mkdir($destinationPath, 0777, true);
+                        }
+
+                        if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
+                            $image = $manager->read($file->getPathname());
+                            $image->scale(1920);
+                            $image->save($destinationPath . '/' . $filename, 75);
+                        } else {
+                            $file->move($destinationPath, $filename);
+                        }
+
+                        SnapshotMedia::create([
+                            'snapshotid' => $reflectionId,
+                            'mediaUrl' => 'uploads/Snapshots/' . $filename,
+                            'mediaType' => $file->getClientMimeType(),
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
+                'id' => $reflectionId
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Snapshot Store/Update Failed: ' . $e->getMessage());
+
+            return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
+        }
+    }
+
+
+
+
+    public function snapshotdestroyimage($id)
+    {
+        $media = SnapshotMedia::findOrFail($id);
+
+        // Optionally delete the file from storage
+        if (file_exists(public_path($media->mediaUrl))) {
+            @unlink(public_path($media->mediaUrl));
+        }
+
+        $media->delete();
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function snapshotupdateStatus(Request $request)
+    {
+        $request->validate([
+            'reflectionId' => 'required|exists:snapshot,id',
+            'status' => 'required|in:Published,Draft'
+        ]);
+
+        $reflection = Snapshot::find($request->reflectionId);
+        $reflection->status = $request->status;
+        $reflection->save();
+
+        return response()->json(['status' => 'success', 'id' => $reflection->id]);
+    }
+
+
+    public function snapshotsdelete($id)
+    {
+        $snapshot = Snapshot::findOrFail($id);
+        $snapshot->delete();
+
+        return response()->json(['status' => 'success']);
+    }
 }

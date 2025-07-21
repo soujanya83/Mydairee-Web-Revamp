@@ -34,7 +34,7 @@
     }
 
     .fc-toolbar-chunk {
-        margin-left: 110px;
+        margin-left: 90px;
     }
 </style>
 

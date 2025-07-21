@@ -58,94 +58,59 @@
                         <a href="{{route('app.inbox')}}" class="icon-menu"><i class="icon-envelope"></i><span
                                 class="notification-dot"></span></a>
                     </li> --}}
+                    @php
+                    $notifications = auth()->user()->unreadNotifications;
+                    @endphp
                     <li class="dropdown">
                         <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown"
                             title="Notifications">
-                            <i class="icon-bell"></i>
-                            <span class="notification-dot"></span>
+                            <i class="fa fa-bell" style="font-size: 22px;color:rgb(180, 155, 10)"></i>
+                            <span style="
+                                    display: inline-block; min-width: 20px;height: 20px; padding: 0 6px;font-size: 12px; color: white;
+                                    text-align: center;background-color: rgb(180, 155, 10);border-radius: 50%;`line-height: 20px;
+                                    margin-left: 0px;
+                                ">
+                                {{ $notifications->count() }}
+                            </span>
+
                         </a>
-                        <ul class="dropdown-menu notifications">
-                            <li class="header"><strong>You have 4 new Notifications</strong></li>
+
+
+                        <ul class="dropdown-menu notifications" style="background-color: aliceblue">
+                            <li class="mb-2"><strong>You have {{ $notifications->count() }} new Notifications</strong>
+                            </li>
+
+                            @forelse ($notifications as $notification)
                             <li>
-                                <a href="javascript:void(0);">
+                                <a href="{{ $notification->data['url'] ?? '#' }}">
                                     <div class="media">
                                         <div class="media-left">
-                                            <i class="icon-info text-warning"></i>
+                                            <i class="{{ $notification->data['icon'] ?? 'fa fa-bell' }} fa-2x"
+                                                style="color:green"></i>
                                         </div>
                                         <div class="media-body">
-                                            <p class="text">Campaign <strong>Holiday Sale</strong> is nearly reach
-                                                budget limit.</p>
-                                            <span class="timestamp">10:00 AM Today</span>
+                                            <p class="text">{{ $notification->data['message'] }}</p>
+                                            <span class="timestamp">{{ $notification->created_at->diffForHumans()
+                                                }}</span>
                                         </div>
                                     </div>
                                 </a>
                             </li>
+                            @empty
                             <li>
-                                <a href="javascript:void(0);">
-                                    <div class="media">
-                                        <div class="media-left">
-                                            <i class="icon-like text-success"></i>
-                                        </div>
-                                        <div class="media-body">
-                                            <p class="text">Your New Campaign <strong>Holiday Sale</strong> is approved.
-                                            </p>
-                                            <span class="timestamp">11:30 AM Today</span>
-                                        </div>
-                                    </div>
-                                </a>
+                                <p>No notifications</p>
                             </li>
-                            <li>
-                                <a href="javascript:void(0);">
-                                    <div class="media">
-                                        <div class="media-left">
-                                            <i class="icon-pie-chart text-info"></i>
-                                        </div>
-                                        <div class="media-body">
-                                            <p class="text">Website visits from Twitter is 27% higher than last week.
-                                            </p>
-                                            <span class="timestamp">04:00 PM Today</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript:void(0);">
-                                    <div class="media">
-                                        <div class="media-left">
-                                            <i class="icon-info text-danger"></i>
-                                        </div>
-                                        <div class="media-body">
-                                            <p class="text">Error on website analytics configurations</p>
-                                            <span class="timestamp">Yesterday</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li class="footer"><a href="javascript:void(0);" class="more">See all notifications</a></li>
+                            @endforelse
+
+                            <li class="footer"><a href="{{ route('notifications.all') }}" class="more">See all
+                                    notifications</a></li>
                         </ul>
+
                     </li>
-                    {{-- <li class="dropdown">
-                        <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown"><i
-                                class="icon-equalizer"></i></a>
-                        <ul class="dropdown-menu user-menu menu-icon">
-                            <li class="menu-heading">ACCOUNT SETTINGS</li>
-                            <li><a href="javascript:void(0);"><i class="icon-note"></i> <span>Basic</span></a></li>
-                            <li><a href="javascript:void(0);"><i class="icon-equalizer"></i>
-                                    <span>Preferences</span></a></li>
-                            <li><a href="javascript:void(0);"><i class="icon-lock"></i> <span>Privacy</span></a></li>
-                            <li><a href="javascript:void(0);"><i class="icon-bell"></i> <span>Notifications</span></a>
-                            </li>
-                            <li class="menu-heading">BILLING</li>
-                            <li><a href="javascript:void(0);"><i class="icon-credit-card"></i> <span>Payments</span></a>
-                            </li>
-                            <li><a href="javascript:void(0);"><i class="icon-printer"></i> <span>Invoices</span></a>
-                            </li>
-                            <li><a href="javascript:void(0);"><i class="icon-refresh"></i> <span>Renewals</span></a>
-                            </li>
-                        </ul>
-                    </li> --}}
+
                     <li>
-                        <a href="{{route('logout')}}" class="icon-menu"><i class="icon-login" title="Logout"></i></a>
+                        <a href="{{route('logout')}}" class="icon-menu"><i class="icon-login" title="Logout"
+                                style="font-size:20px"></i></a>
                     </li>
                 </ul>
             </div>

@@ -10,53 +10,53 @@
 
 
 <style>
-.is-invalid {
-    border-color: #dc3545 !important;
-}
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
 
-.toast-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1050;
-}
+    .toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+    }
 
-.toast {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+    .toast {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-.toast-success {
-    background-color: #28a745;
-    /* Green for success */
-}
+    .toast-success {
+        background-color: #28a745;
+        /* Green for success */
+    }
 
-.toast-error {
-    background-color: #dc3545;
-    /* Red for error */
-}
+    .toast-error {
+        background-color: #dc3545;
+        /* Red for error */
+    }
 
-.toast-close-button {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    color: white;
-    margin-left: 10px;
-}
+    .toast-close-button {
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: white;
+        margin-left: 10px;
+    }
 
-.toast-message {
-    flex: 1;
+    .toast-message {
+        flex: 1;
 
-}
+    }
 
-.c_list .avatar {
-    height: 45px;
-    width: 50px;
-}
+    .c_list .avatar {
+        height: 45px;
+        width: 50px;
+    }
 </style>
 
 
@@ -68,20 +68,21 @@
 
 
 
-<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
+<div class="text-zero top-right-button-container d-flex justify-content-end"
+    style="margin-right: 20px;margin-top: -60px;">
     <div class="dropdown">
-        <button class="btn btn-outline-primary btn-lg dropdown-toggle"
-                type="button" id="centerDropdown" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
+        <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
         </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
+            style="top:3% !important;left:13px !important;">
             @foreach($centers as $center)
-                <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
-                 style="background-color:white;"  data-id="{{ $center->id }}">
-                    {{ $center->centerName }}
-                </a>
+            <a href="javascript:void(0);"
+                class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                style="background-color:white;" data-id="{{ $center->id }}">
+                {{ $center->centerName }}
+            </a>
             @endforeach
         </div>
     </div>
@@ -95,10 +96,12 @@
         <div class="card">
             <div class="header">
                 <h2>Parent Settings<small></small> </h2>
+                @if(!empty($permissions['addParent']) && $permissions['addParent'])
                 <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
                     data-target="#addParentModal">
                     <i class="fa fa-plus"></i>&nbsp; Add Parent
                 </button>
+                @endif
             </div>
             <div class="body">
                 <div class="table-responsive">
@@ -110,8 +113,11 @@
                                 <th>Email</th>
                                 <th>Contact No.</th>
                                 <th>Children</th>
+                                @if(!empty($permissions['updateParent']) && $permissions['updateParent'])
 
                                 <th>Edit</th>
+                                @endif
+
                                 <th>Delete</th>
                             </tr>
                         </thead>
@@ -122,8 +128,11 @@
                                 <th>Email</th>
                                 <th>Contact No.</th>
                                 <th>Children</th>
+                                @if(!empty($permissions['updateParent']) && $permissions['updateParent'])
 
                                 <th>Edit</th>
+                                @endif
+
                                 <th>Delete</th>
                             </tr>
                         </tfoot>
@@ -147,16 +156,19 @@
                                 <td>{{ $staffs->email }}</td>
                                 <td>{{ $staffs->contactNo }}</td>
                                 <td>
-                                @foreach ($staffs->children as $child)
-            <li>{{ $child->name }} {{ $child->lastname }} ({{ $child->pivot->relation }})</li>
-        @endforeach
+                                    @foreach ($staffs->children as $child)
+                                    <li>{{ $child->name }} {{ $child->lastname }} ({{ $child->pivot->relation }})</li>
+                                    @endforeach
                                 </td>
+                                @if(!empty($permissions['updateParent']) && $permissions['updateParent'])
+
                                 <td>
                                     <button class="btn btn-sm btn-info"
                                         onclick="openEditParentModal({{ $staffs->id }})">
                                         <i class="fa-solid fa-pen-to-square fa-beat-fade"></i> Edit
                                     </button>
                                 </td>
+                                @endif
                                 <td>
                                     <button class="btn btn-sm btn-danger" onclick="deleteSuperadmin({{ $staffs->id }})">
                                         <i class="fa-solid fa-trash fa-fade"></i> Delete
@@ -201,7 +213,7 @@
 
                         <h6 class="mb-3">Parent Details</h6>
                         <div class="form-row">
-         
+
                             <div class="form-group col-md-6">
                                 <label>Parent Name</label>
                                 <input type="text" class="form-control" name="name" required>
@@ -228,45 +240,47 @@
                                     <option value="OTHERS">Other</option>
                                 </select>
                             </div>
-                
+
                             <div class="form-group col-12">
                                 <label>Profile Image</label>
                                 <input type="file" class="form-control" name="imageUrl" accept="image/*">
                             </div>
 
-                            
+
                         </div>
 
-                           <!-- Link Children -->
-        <h6 class="mt-4">Link Children</h6>
-        <div id="childRelationContainer">
-            <div class="child-relation-group border p-3 rounded mb-2">
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label>Child</label>
-                            <select name="children[0][childid]" class="form-control child-select" required>
-        <option value="">Select Child</option>
-        @foreach($children as $child)
-            <option value="{{ $child->id }}">{{ $child->name }} {{ $child->lastname }}</option>
-        @endforeach
-    </select>
-                    </div>
-                    <div class="form-group col-md-5">
-                        <label>Relation</label>
-                        <select name="children[0][relation]" class="form-control" required>
-                            <option value="">Select Relation</option>
-                            <option value="Mother">Mother</option>
-                            <option value="Father">Father</option>
-                            <option value="Brother">Brother</option>
-                            <option value="Sister">Sister</option>
-                            <option value="Relative">Relative</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        <!-- Link Children -->
+                        <h6 class="mt-4">Link Children</h6>
+                        <div id="childRelationContainer">
+                            <div class="child-relation-group border p-3 rounded mb-2">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label>Child</label>
+                                        <select name="children[0][childid]" class="form-control child-select" required>
+                                            <option value="">Select Child</option>
+                                            @foreach($children as $child)
+                                            <option value="{{ $child->id }}">{{ $child->name }} {{ $child->lastname }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-5">
+                                        <label>Relation</label>
+                                        <select name="children[0][relation]" class="form-control" required>
+                                            <option value="">Select Relation</option>
+                                            <option value="Mother">Mother</option>
+                                            <option value="Father">Father</option>
+                                            <option value="Brother">Brother</option>
+                                            <option value="Sister">Sister</option>
+                                            <option value="Relative">Relative</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addChildRelation()">Add Another Child</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addChildRelation()">Add
+                            Another Child</button>
 
                 </div>
 
@@ -282,71 +296,72 @@
 
 
     <div class="modal fade" id="editParentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <form id="editParentForm" enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" name="id" id="editParentId">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Parent</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-
-                <div class="modal-body" style="max-height:500px; overflow-y:auto;">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Parent Name</label>
-                            <input type="text" class="form-control" name="name" id="editName" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Email ID</label>
-                            <input type="email" class="form-control" name="email" id="editEmail" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Password <span style="color:green;">(Optional)</span></label>
-                            <input type="password" class="form-control" name="password" id="editPassword">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Contact No</label>
-                            <input type="tel" class="form-control" name="contactNo" id="editContactNo" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Gender</label>
-                            <select class="form-control" name="gender" id="editGender" required>
-                                <option value="">Select Gender</option>
-                                <option value="MALE">Male</option>
-                                <option value="FEMALE">Female</option>
-                                <option value="OTHERS">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-12">
-                            <label>Change Image <span class="text-success">(Optional)</span></label>
-                            <input type="file" class="form-control" name="imageUrl" accept="image/*">
-                        </div>
+        <div class="modal-dialog modal-lg">
+            <form id="editParentForm" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="id" id="editParentId">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Parent</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
 
-                    <h6 class="mt-4">Linked Children</h6>
-                    <div id="editChildRelationContainer"></div>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addEditChildRelation()">Add Another Child</button>
-                </div>
+                    <div class="modal-body" style="max-height:500px; overflow-y:auto;">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Parent Name</label>
+                                <input type="text" class="form-control" name="name" id="editName" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Email ID</label>
+                                <input type="email" class="form-control" name="email" id="editEmail" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Password <span style="color:green;">(Optional)</span></label>
+                                <input type="password" class="form-control" name="password" id="editPassword">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Contact No</label>
+                                <input type="tel" class="form-control" name="contactNo" id="editContactNo" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Gender</label>
+                                <select class="form-control" name="gender" id="editGender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="MALE">Male</option>
+                                    <option value="FEMALE">Female</option>
+                                    <option value="OTHERS">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-12">
+                                <label>Change Image <span class="text-success">(Optional)</span></label>
+                                <input type="file" class="form-control" name="imageUrl" accept="image/*">
+                            </div>
+                        </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" onclick="submitEditParent()" class="btn btn-primary">Update</button>
+                        <h6 class="mt-4">Linked Children</h6>
+                        <div id="editChildRelationContainer"></div>
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                            onclick="addEditChildRelation()">Add Another Child</button>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" onclick="submitEditParent()" class="btn btn-primary">Update</button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 
     <script>
-    function showToast(type, message) {
+        function showToast(type, message) {
         const isSuccess = type === 'success';
         const toastType = isSuccess ? 'toast-success' : 'toast-error';
         const ariaLive = isSuccess ? 'polite' : 'assertive';
@@ -442,9 +457,9 @@
         });
     }
 
-  
 
-   
+
+
 
     function deleteSuperadmin(id) {
         Swal.fire({
@@ -606,8 +621,8 @@ function submitEditParent() {
     </script>
 
 
-<script>
-  let childRelationIndex = 1;
+    <script>
+        let childRelationIndex = 1;
 
 function addChildRelation() {
     const index = childRelationIndex++;
@@ -656,11 +671,11 @@ function addChildRelation() {
     $(document).ready(function () {
         $('.child-select').select2({ width: '100%' });
     });
-</script>
+    </script>
 
 
-<script>
-$(document).ready(function () {
+    <script>
+        $(document).ready(function () {
     // Init existing select when modal is shown
     $('#addParentModal').on('shown.bs.modal', function () {
         $('.child-select').select2({
@@ -671,7 +686,7 @@ $(document).ready(function () {
         });
     });
 });
-</script>
+    </script>
 
 
 

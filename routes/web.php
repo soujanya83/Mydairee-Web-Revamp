@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\DailyDiaryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DBBackupController;
 use App\Http\Controllers\FileManagerController;
 use App\Http\Controllers\HeadChecks;
 use App\Http\Controllers\LessonPlanList;
@@ -26,7 +27,8 @@ use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ReflectionController;
 use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
-
+use App\Http\Controllers\Auth\NotificationController;
+use Illuminate\Support\Facades\Artisan;
 // Route::get('/', function () {
 //     return view('dashboard.university');
 // });
@@ -125,9 +127,6 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('Accident/getChildDetails', [AccidentsController::class, 'getChildDetails'])->name('Accident/getChildDetails');
 
 
-
-
-
     Route::get('surveys/list', [SurveyController::class, 'list'])->name('survey.list');
 
     // Daily Journel here
@@ -167,8 +166,10 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
 
     // Daily Journel Ends here
+    Route::get('/backup-now', [DBBackupController::class, 'runBackup']);
 
 
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
 
 
     Route::post('/logout', function () {
@@ -327,12 +328,6 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::delete('/snapshot-media/{id}', [ObservationsController::class, 'snapshotdestroyimage']);
         Route::post('/status/update', [ObservationsController::class, 'snapshotupdateStatus'])->name('status.update');
         Route::delete('snapshotsdelete/{id}', [ObservationsController::class, 'snapshotsdelete'])->name('snapshots.snapshotsdelete');
-
-
-
-
-
-
     });
 
 
