@@ -14,6 +14,8 @@ use App\Http\Controllers\LessonPlanList;
 use App\Http\Controllers\HealthyController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ObservationsController;
+use App\Http\Controllers\LnPcontroller;
+use App\Http\Controllers\Qipcontroller;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
@@ -327,6 +329,40 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::post('/status/update', [ObservationsController::class, 'snapshotupdateStatus'])->name('status.update');
         Route::delete('snapshotsdelete/{id}', [ObservationsController::class, 'snapshotsdelete'])->name('snapshots.snapshotsdelete');
     });
+
+
+
+    Route::prefix('learningandprogress')->name('learningandprogress.')->group(function () {
+
+        Route::get('/index', [LnPcontroller::class, 'index'])->name('index');
+        Route::get('/lnpdata/{id?}', [LnPcontroller::class, 'lnpData'])->name('lnpdata');
+        Route::post('/update-assessment-status', [LnPcontroller::class, 'updateAssessmentStatus'])->name('update.assessment.status');
+
+
+
+    });
+
+    Route::prefix('qip')->name('qip.')->group(function () {
+
+        Route::get('/index', [Qipcontroller::class, 'index'])->name('index');
+        Route::get('/addnew', [Qipcontroller::class, 'addnew'])->name('addnew');
+        Route::post('/update-name', [QipController::class, 'updateName'])->name('update.name');
+        Route::get('/{id}/area/{area}', [QipController::class, 'viewArea'])->name('area.view');
+        Route::get('/{qip}/element/{element}', [QipController::class, 'viewElement'])->name('element.view');
+        Route::get('/{qip}/standard/{standard}/edit', [QipController::class, 'editStandard'])->name('standard.edit');
+        Route::post('/discussion/send', [QipController::class, 'sendDiscussion'])->name('discussion.send');
+
+
+
+
+
+
+
+
+    });
+
+
+
 });
 
 

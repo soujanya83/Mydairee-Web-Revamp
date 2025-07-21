@@ -24,6 +24,52 @@
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+        <script src="{{ asset('js/sidebar-toggle.js') }}"></script>
+
+
+        <style>
+   /* Initial setup */
+   .sidebar {
+    width: 250px;
+    transition: all 0.3s ease;
+    float: left; /* or position: absolute; left: 0; */
+  }
+  
+  #main-content {
+
+    /* margin-left: 250px;  */
+    transition: all 0.3s ease;
+  }
+  
+  /* When sidebar is minimized */
+  .sidebar.minified {
+    width: 70px !important;
+  }
+  
+  .sidebar.minified ~ #main-content {
+    /* margin-left: 70px !important; */
+    width: calc(100% - 76px) !important;
+  }
+  
+  /* Hide text elements when minimized */
+  .sidebar.minified .user-name,
+  .sidebar.minified .user-account span,
+  .sidebar.minified .sidebar-nav span,
+  .sidebar.minified .nav-tabs,
+  .sidebar.minified .dropdown-arrow {
+    display: none !important;
+  }
+  
+  /* Center icons when minimized */
+  .sidebar.minified .sidebar-nav a {
+    justify-content: center;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+</style>
+
+
+
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
           @if (Request::segment(1) === 'announcements' )
@@ -157,7 +203,7 @@
             <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-markdown/bootstrap-markdown.min.css') }}"/>
         @endif
 
-        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' || Request::segment(2) === 'parent_settings' )
+        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' || Request::segment(2) === 'parent_settings' || Request::segment(1) === 'qip' )
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/dataTables.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedcolumns.bootstrap4.min.css') }}"/>
             <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedheader.bootstrap4.min.css') }}"/>
@@ -484,7 +530,7 @@
             <script src="{{ asset('assets/vendor/bootstrap-markdown/bootstrap-markdown.js') }}"></script>
         @endif
 
-        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' || Request::segment(2) === 'parent_settings' )
+        @if (Request::segment(2) === 'jquery-datatable' || Request::segment(2) === 'superadmin_settings' || Request::segment(2) === 'center_settings' || Request::segment(2) === 'staff_settings' || Request::segment(2) === 'parent_settings'  || Request::segment(1) === 'qip')
             <script src="{{ asset('assets/bundles/datatablescripts.bundle.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/dataTables.buttons.min.js') }}"></script>
             <script src="{{ asset('assets/vendor/jquery-datatable/buttons/buttons.bootstrap4.min.js') }}"></script>
@@ -626,5 +672,9 @@
 		@endif
 
         @stack('scripts')
+
+
+  
+
     </body>
 </html>

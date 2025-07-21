@@ -55,15 +55,10 @@
     <div class="col-md-4 mb-4">
         <div class="card shadow rounded-lg">
             @php
-            $imagePath = $child->imageUrl;
-
-            // If the path contains 'children_images/', strip it
-            if (Str::startsWith($imagePath, 'children_images/')) {
-            $imagePath = Str::after($imagePath, 'children_images/');
-            }
+          
             @endphp
 
-            <img src="{{ asset('storage/children_images/' . $imagePath) }}" class="card-img-top"
+            <img src="{{ $child->imageUrl ? asset($child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}" class="card-img-top"
                 style="height: 250px; object-fit: cover;border-radius: 8px;padding: 5px;" alt="{{ $child->name }}">
 
             <div class="card-body">

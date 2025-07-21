@@ -31,9 +31,10 @@
             <a href="{{route('dashboard.analytical')}}"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}"
                     alt="Lucid Logo" class="img-responsive logo"></a>
         </div>
-        <a class="btn btn-xs btn-link btn-toggle-fullwidth">
+        <a class="btn btn-xs btn-link btn-toggle-fullwidth" >
             <i class="fa fa-bars" style="font-size: 22px"></i>
         </a>
+
 
         <div class="navbar-right">
             <form id="navbar-search" class="navbar-form search-form">
@@ -118,7 +119,17 @@
 </nav>
 
 <script>
-    $('.btn-toggle-fullwidth').on('click', function() {
-                $(this).find('i').toggleClass('fa-arrow-left fa-arrow-right');
-            });
+    $('.btn-toggle-fullwidth').on('click', function(e) {
+        e.preventDefault(); 
+        
+        // Toggle the minified class on sidebar instead of layout-fullwidth on body
+        $('#left-sidebar').toggleClass('minified');
+        
+        // Toggle the icon
+        $(this).find('i').toggleClass('fa-arrow-left fa-arrow-left');
+        
+        // Prevent the default layout-fullwidth class from being added to body
+        $('body').removeClass('layout-fullwidth');
+    });
 </script>
+

@@ -547,7 +547,8 @@
                         Your browser does not support the video tag.
                     </video>
                 @endif
-                <button type="button" class="btn btn-sm btn-danger remove-btn" onclick="deleteMedia({{ $media->id }})">Remove</button>
+                <button type="button" class="btn btn-sm btn-danger remove-btn"
+    onclick="deleteMedia({{ $media->id }}, '{{ asset($media->mediaUrl) }}')">Remove</button> 
             </div>
         @endforeach
     </div>
@@ -1186,39 +1187,59 @@ $(document).ready(function () {
 
 
 <script>
-    function deleteMedia(id) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You want to delete this media?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/snapshot/snapshot-media/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        document.getElementById(`media-${id}`).remove();
-                        Swal.fire('Deleted!', 'The media has been removed.', 'success');
-                    } else {
-                        throw new Error('Delete failed');
-                    }
-                })
-                .catch(error => {
-                    Swal.fire('Error!', 'Something went wrong.', 'error');
-                });
-            }
-        });
-    }
+   function deleteMedia(id, fileUrl) {
+    Swal.fire({
+        title: 'What do you want to do?',
+        icon: 'question',
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: 'Download & Delete',
+        denyButtonText: 'Delete Only',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#0d6efd',
+        denyButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Download first
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = '';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Then delete
+            performSnapshotDelete(id);
+        } else if (result.isDenied) {
+            // Delete without download
+            performSnapshotDelete(id);
+        }
+    });
+}
+
+function performSnapshotDelete(id) {
+    fetch(`/snapshot/snapshot-media/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            document.getElementById(`media-${id}`).remove();
+            Swal.fire('Deleted!', 'The media has been removed.', 'success');
+        } else {
+            throw new Error('Delete failed');
+        }
+    })
+    .catch(() => {
+        Swal.fire('Error!', 'Something went wrong.', 'error');
+    });
+}
+
 </script>
 
 
