@@ -419,9 +419,62 @@
         </div>
     </div>
 </div>
+
+
+
+<!-- Modal -->
+<!-- Birthday Modal -->
+<div class="modal fade" id="birthdayModal" tabindex="-1" aria-labelledby="birthdayModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="birthdayModalLabel">Birthday Details</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="birthdayModalBody">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+</div>
+<!-- annoucement modal -->
+<div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="announcementModalLabel">Announcement</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="announcementModalBody">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-<script>
+<!-- <script>
+
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('/announcements/events')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Fetched announcements:', data);
+            // TODO: Display the data in DOM
+        })
+        .catch(error => {
+            console.error('Error fetching announcements:', error);
+        });
+});
+
 document.addEventListener('DOMContentLoaded', function () {
     var calendarEl = document.getElementById('calendar');
 
@@ -438,7 +491,226 @@ document.addEventListener('DOMContentLoaded', function () {
     calendar.render();
 });
 
+</script> -->
+<!-- <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'title',
+            right: 'prev,next today'
+        },
+        height: 500,
+        themeSystem: 'standard',
+        events: [] // We'll populate this later
+    });
+
+    // Fetch announcements and populate calendar
+    fetch('/announcements/events')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Fetched announcements:', data);
+
+            if (data.status === true && Array.isArray(data.events)) {
+                const events = data.events.map(item => ({
+                    title: item.title || 'No Title',
+                    date: item.eventDate, // format: 'YYYY-MM-DD'
+                    description: item.text || '', // Optional
+                }));
+
+                // Add events to calendar
+                calendar.addEventSource(events);
+            } else {
+                console.warn('Unexpected response format:', data);
+            }
+
+            calendar.render();
+        })
+        .catch(error => {
+            console.error('Error fetching announcements:', error);
+            calendar.render(); // Render calendar anyway
+        });
+
+
+ // Fetch users details and populate calendar
+    fetch('/users/birthday')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Fetched announcements:', data);
+
+            if (data.status === true && Array.isArray(data.events)) {
+                const events = data.events.map(item => ({
+                    title: item.name || 'No Title',
+                    // date: item.eventDate, // format: 'YYYY-MM-DD'
+                    // description: item.text || '', // Optional
+                }));
+
+                // Add events to calendar
+                calendar.addEventSource(events);
+            } else {
+                console.warn('Unexpected response format:', data);
+            }
+
+            calendar.render();
+        })
+        .catch(error => {
+            console.error('Error fetching announcements:', error);
+            calendar.render(); // Render calendar anyway
+        });
+
+
+});
+
+
+</script> -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'title',
+            right: 'prev,next today'
+        },
+        height: 500,
+        themeSystem: 'standard',
+        eventClick: function(info) {
+            const isBirthday = info.event.title.includes('🎂');
+            const users = info.event.extendedProps.users;
+
+            if (isBirthday && Array.isArray(users)) {
+                // Birthday modal
+                let html = '';
+                users.forEach(user => {
+                    html += `
+                        <div class="mb-3 border-bottom pb-2">
+                            <strong>Name:</strong> ${user.name}  ${user.lastname || ''} <br>
+                          
+                            <strong>Gender:</strong> ${user.gender || 'N/A'}<br>
+                            <strong>DOB:</strong> ${user.dob}
+                        </div>`;
+                });
+
+                document.getElementById('birthdayModalBody').innerHTML = html;
+                new bootstrap.Modal(document.getElementById('birthdayModal')).show();
+            } else {
+                // Announcement modal
+       const title = info.event.title || 'Announcement';
+        const date = info.event.startStr || '';
+        const description = info.event.extendedProps.description || 'No description available';
+//           const media = info.event.extendedProps.media;
+//           const mediaCount = media.length;
+//           if (mediaCount ) {
+//             console.log(`Total media files: ${media}`);
+//     console.log(`Total media files: ${mediaCount}`);
+// }
+   let media = [];
+            const raw = info.event.extendedProps.media;
+
+        let html = `
+            <div class="mb-2"><strong>Title:</strong> ${title}</div>
+            <div class="mb-2"><strong>Date:</strong> ${date}</div>
+            <div class="mb-2"><strong>Description:</strong><br>${description}</div>
+        `;
+
+        // Handle media display
+   
+
+  try {
+                media = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            } catch (e) {
+                console.error('Invalid JSON media format', e);
+            }
+
+            if (Array.isArray(media)) {
+                let html = '';
+                media.forEach(file => {
+                    const fileUrl = `/assets/media/${file}`;
+                    const ext = file.split('.').pop().toLowerCase();
+
+                    if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                        html += `<img src="${fileUrl}" style="max-width:200px;" class="img-fluid mb-2 shadow">`;
+                    } else if (ext === 'pdf') {
+                        html += `<a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm mb-2"><i class="fas fa-file-pdf"></i> Download PDF</a>`;
+                    }
+                });
+
+            }
+                document.getElementById('announcementModalBody').innerHTML = html;
+                new bootstrap.Modal(document.getElementById('announcementModal')).show();
+            }
+        }
+    });
+
+    // -------------------------------
+    // 1. Fetch announcements
+    // -------------------------------
+    fetch('/announcements/events')
+        .then(res => res.json())
+        .then(data => {
+            if (data.status && Array.isArray(data.events)) {
+                const events = data.events.map(item => ({
+                    title: item.title || 'No Title',
+                    date: item.eventDate,
+                    description: item.text || '',
+                    media:item.announcementMedia,
+                    color: '#007bff' // Blue for announcements
+                }));
+                calendar.addEventSource(events);
+            }
+        })
+        .catch(err => console.error('Announcement fetch error:', err));
+
+    // -------------------------------
+    // 2. Fetch birthdays
+    // -------------------------------
+    fetch('/users/birthday')
+        .then(res => res.json())
+        .then(data => {
+            if (data.status && Array.isArray(data.events)) {
+                const groupedByDate = {};
+
+                data.events.forEach(user => {
+                    const dob = new Date(user.dob);
+                    const eventDate = `${new Date().getFullYear()}-${String(dob.getMonth() + 1).padStart(2, '0')}-${String(dob.getDate()).padStart(2, '0')}`;
+
+                    if (!groupedByDate[eventDate]) groupedByDate[eventDate] = [];
+                    groupedByDate[eventDate].push(user);
+                });
+
+                const birthdayEvents = Object.entries(groupedByDate).map(([date, users]) => ({
+                    title: '🎂 Birthday',
+                    date,
+                    allDay: true,
+                    color: '#dc3545', // Red
+                    users
+                }));
+
+                calendar.addEventSource(birthdayEvents);
+            }
+
+            calendar.render(); // Final render after all events loaded
+        })
+        .catch(err => {
+            console.error('Birthday fetch error:', err);
+            calendar.render();
+        });
+});
 </script>
+
 
 
 @include('layout.footer')

@@ -149,11 +149,11 @@ $edit = 1;
                                         <h4>Media Upload Section</h4>
                                         <div class="media-upload-box p-4 border rounded bg-light text-center">
                                             <label for="mediaInput" class="btn btn-outline-info">
-                                                Select up to 200kb Images(png,jpeg,jpg)
+                                                Select up to 200kb Images(png,jpeg,jpg) or pdf 
                                             </label>
-                                            <input type="file" id="mediaInput" name="media[]" class="d-none" multiple
-                                                accept="image/*">
-                                            <small class="form-text text-muted mt-2">Only image allowed</small>
+                                           <input type="file" id="mediaInput" name="media[]" class="d-none" multiple accept="image/*,application/pdf">
+
+                                            <small class="form-text text-muted mt-2">Only image and pdf allowed</small>
                                         </div>
 
                                         <div id="mediaPreview" class="row mt-4"></div>
@@ -391,13 +391,61 @@ $edit = 1;
 <script>
     let selectedFiles = [];
 
+// document.getElementById('mediaInput').addEventListener('change', function (event) {
+//     const previewContainer = document.getElementById('mediaPreview');
+//     const newFiles = Array.from(event.target.files);
+//     const totalFiles = selectedFiles.length + newFiles.length;
+
+//     if (totalFiles > 1) {
+//         alert("You can upload a maximum of 1 files.");
+//         this.value = '';
+//         return;
+//     }
+
+//     newFiles.forEach((file, index) => {
+//         const reader = new FileReader();
+//         const fileIndex = selectedFiles.length;
+
+//         reader.onload = function (e) {
+//             const col = document.createElement('div');
+//             col.className = 'col-md-3 position-relative mb-3';
+
+//             let mediaContent = '';
+
+//             if (file.type.startsWith('image/')) {
+//                 mediaContent = `<img src="${e.target.result}" class="media-thumb rounded">`;
+//             } else if (file.type.startsWith('video/')) {
+//                 mediaContent = `<video src="${e.target.result}" class="media-thumb rounded" controls></video>`;
+//             }
+
+//             col.innerHTML = `
+//                 <div class="position-relative">
+//                     ${mediaContent}
+//                     <button type="button" class="btn btn-danger btn-sm remove-btn" data-index="${fileIndex}">✕</button>
+//                 </div>
+//             `;
+
+//             previewContainer.appendChild(col);
+//         };
+
+//         reader.readAsDataURL(file);
+//         selectedFiles.push(file);
+//     });
+
+//     updateFileInput();
+// });
+
 document.getElementById('mediaInput').addEventListener('change', function (event) {
     const previewContainer = document.getElementById('mediaPreview');
     const newFiles = Array.from(event.target.files);
+
+    // Ensure selectedFiles is defined globally
+    window.selectedFiles = window.selectedFiles || [];
+
     const totalFiles = selectedFiles.length + newFiles.length;
 
     if (totalFiles > 1) {
-        alert("You can upload a maximum of 1 files.");
+        alert("You can upload a maximum of 1 file.");
         this.value = '';
         return;
     }
@@ -413,15 +461,19 @@ document.getElementById('mediaInput').addEventListener('change', function (event
             let mediaContent = '';
 
             if (file.type.startsWith('image/')) {
-                mediaContent = `<img src="${e.target.result}" class="media-thumb rounded">`;
+                mediaContent = `<img src="${e.target.result}" class="media-thumb rounded w-100" alt="Image">`;
+            } else if (file.type === 'application/pdf') {
+                mediaContent = `<embed src="${e.target.result}" type="application/pdf" class="media-thumb rounded w-100" height="200px"/>`;
             } else if (file.type.startsWith('video/')) {
-                mediaContent = `<video src="${e.target.result}" class="media-thumb rounded" controls></video>`;
+                mediaContent = `<video src="${e.target.result}" class="media-thumb rounded w-100" controls></video>`;
+            } else {
+                mediaContent = `<div class="alert alert-warning">Unsupported file type</div>`;
             }
 
             col.innerHTML = `
                 <div class="position-relative">
                     ${mediaContent}
-                    <button type="button" class="btn btn-danger btn-sm remove-btn" data-index="${fileIndex}">✕</button>
+                    <button type="button" class="btn btn-danger btn-sm remove-btn position-absolute top-0 end-0 m-1" data-index="${fileIndex}">✕</button>
                 </div>
             `;
 
@@ -434,6 +486,7 @@ document.getElementById('mediaInput').addEventListener('change', function (event
 
     updateFileInput();
 });
+
 
 // Remove handler
 document.getElementById('mediaPreview').addEventListener('click', function (e) {

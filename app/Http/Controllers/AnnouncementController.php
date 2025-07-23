@@ -232,21 +232,43 @@ class AnnouncementController extends Controller
     public function AnnouncementStore(Request $request)
     {
 
-        // dd($request->all());
-        $request->validate([
-            'title'      => 'required|string|max:255',
-            'text'       => 'required|string',
-            'eventDate'  => 'nullable|date_format:d-m-Y',
-            'childId'    => 'required|array',
-            'childId.*'  => 'required|numeric|exists:child,id',
-            'media'      => 'nullable|array',
-            'media.*'    => 'file|mimes:jpeg,jpg,png|max:200', // 200KB per image
-        ], [
-            'childId.required' => 'Children are required.',
-            'text.required'    => 'Description is required.',
-            'media.*.max'      => 'Each image must be under 200KB.',
-            'media.*.mimes'    => 'Only JPG, JPEG, PNG files are allowed.',
+    $request->validate([
+    'title'      => 'required|string|max:255',
+    'text'       => 'required|string',
+    'eventDate'  => 'nullable|date_format:d-m-Y',
+    'childId'    => 'required|array',
+    'childId.*'  => 'required|numeric|exists:child,id',
+    'media'      => 'nullable|array',
+    'media.*'    => 'file|mimes:jpeg,jpg,png,pdf|max:200', // 200KB per file
+], [
+    'childId.required'    => 'Children are required.',
+    'text.required'       => 'Description is required.',
+    'media.*.max'         => 'Each file must be under 200KB.',
+    'media.*.mimes'       => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
+]);
+
+// ✅ Check if both image and PDF types are mixed
+if ($request->hasFile('media')) {
+    $hasImage = false;
+    $hasPdf = false;
+
+    foreach ($request->file('media') as $file) {
+        $mime = $file->getMimeType();
+        if (str_starts_with($mime, 'image/')) {
+            $hasImage = true;
+        } elseif ($mime === 'application/pdf') {
+            $hasPdf = true;
+        }
+    }
+
+    // ❌ Block if both types are present
+    if ($hasImage && $hasPdf) {
+        return redirect()->back()->withInput()->withErrors([
+            'media' => 'You can upload either images or PDFs, not both together.',
         ]);
+    }
+}
+
 
         try {
             $userid = Auth::user()->userid;
@@ -287,14 +309,7 @@ class AnnouncementController extends Controller
             $mediaFiles = [];
 
             // Store new files (in public/assets/media)
-            if ($request->hasFile('media')) {
-                foreach ($request->file('media') as $file) {
-                    $filename = uniqid() . '_' . $file->getClientOriginalName();
-                    $destinationPath = public_path('assets/media');
-                    $file->move($destinationPath, $filename);
-                    $mediaFiles[] = $filename;
-                }
-            }
+          
 
             // UPDATE
             if ($request->annId) {
@@ -318,6 +333,15 @@ class AnnouncementController extends Controller
                     }
                 }
 
+                  if ($request->hasFile('media')) {
+                foreach ($request->file('media') as $file) {
+                    $filename = uniqid() . '_' . $file->getClientOriginalName();
+                    $destinationPath = public_path('assets/media');
+                    $file->move($destinationPath, $filename);
+                    $mediaFiles[] = $filename;
+                }
+            }
+
                 $announcement->update([
                     'title'             => $request->title,
                     'eventDate'         => $eventDate,
@@ -332,6 +356,16 @@ class AnnouncementController extends Controller
             }
             // CREATE
             else {
+
+                if ($request->hasFile('media')) {
+                foreach ($request->file('media') as $file) {
+                    $filename = uniqid() . '_' . $file->getClientOriginalName();
+                    $destinationPath = public_path('assets/media');
+                    $file->move($destinationPath, $filename);
+                    $mediaFiles[] = $filename;
+                }
+            }
+
                 $announcement = \App\Models\AnnouncementsModel::create([
                     'title'             => $request->title,
                     'text'              => $request->text,

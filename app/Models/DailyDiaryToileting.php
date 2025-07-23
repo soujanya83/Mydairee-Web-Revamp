@@ -22,5 +22,5 @@ class DailyDiaryToileting extends Model
         'createdAt',
     ];
 
-    // public $timestamps = false;
+    public $timestamps = false;
 }

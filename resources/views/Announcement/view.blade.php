@@ -38,20 +38,35 @@
                     <div class="card-body">
                         <!-- Title & Status -->
                         <div class="d-flex-custom mb-3">
-                            @php
-                            $media = json_decode($Info->announcementMedia, true);
-                            @endphp
+                         @php
+    $media = json_decode($Info->announcementMedia, true);
+@endphp
 
-                            <td>
-                                @if (!empty($media) && is_array($media))
-                                @foreach ($media as $img)
-                                <img class="img-thumbnail" src="{{ asset('assets/media/' . $img) }}"
-                                    style="width: 80px;" alt="Image">
-                                @endforeach
-                                @else
-                                No image
-                                @endif
-                            </td>
+<td>
+    @if (!empty($media) && is_array($media))
+        <div class="d-flex flex-wrap gap-2">
+            @foreach ($media as $file)
+                @php
+                    $extension = pathinfo($file, PATHINFO_EXTENSION);
+                    $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                    $isPDF = strtolower($extension) === 'pdf';
+                @endphp
+
+                @if ($isImage)
+                    <img class="img-thumbnail" src="{{ asset('assets/media/' . $file) }}" style="width: 80px;" alt="Image">
+                @elseif ($isPDF)
+                    <a href="{{ asset('assets/media/' . $file) }}" target="_blank" class="d-block text-center">
+                        <img src="{{ asset('svg/pdf-icon.svg') }}" alt="PDF" style="width: 40px;">
+                       
+                    </a>
+                @endif
+            @endforeach
+        </div>
+    @else
+        <span class="text-muted">No media</span>
+    @endif
+</td>
+
                             <h5 class="mb-0">{{ $Info->title }}</h5>
                             <span class="badge
     {{ $Info->status === 'Sent' ? 'bg-success text-white' :

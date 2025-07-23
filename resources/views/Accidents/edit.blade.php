@@ -50,10 +50,149 @@ padding-inline:0;
     .select2{
         width:100% !important;
     }
+
+    .form-wrapper {
+    margin-bottom: 20px;
+}
+
+/* Label styling */
+.custom-label {
+    display: block;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+
+/* Input styling */
+.custom-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 14px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.custom-input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+}
+
+ .radioFlex {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.radio-pill {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    background-color: #f1f1f1;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.radio-pill input[type="radio"] {
+    display: none; /* Hide the default radio circle */
+}
+
+.radio-pill:hover {
+    background-color: #e0e0e0;
+}
+
+.radio-pill input[type="radio"]:checked + label,
+.radio-pill input[type="radio"]:checked ~ span,
+.radio-pill input[type="radio"]:checked ~ * {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+input[type="radio"]:checked + .radio-pill {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+}
+
+
+.service-title {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: #0056b3;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 5px;
+}
+
+.editbtn {
+    font-size: 0.9rem;
+    cursor: pointer;
+} 
+
+/* Base style for the switch */
+.checkbox-pill {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.checkbox-pill input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.checkbox-pill .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 50px;
+}
+
+.checkbox-pill .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.checkbox-pill input:checked + .slider {
+    background-color: #28a745; /* ON - green */
+}
+
+.checkbox-pill input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+.injuiry-ul{
+    list-style: none;
+}
 </style>
 @endsection
 @section('content')
-  <hr class="mt-5">
+  <hr class="mt-2">
     <main>
         <div class="container-fluid">
             <div class="row">
@@ -97,21 +236,21 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="name">Name</label>
-                                <input type="text" class="form-control" id="name" name="person_name" value="{{$AccidentInfo->person_name ?? ''}}">
+                                <input type="text" class="form-control custom-input" id="name" name="person_name" value="{{$AccidentInfo->person_name ?? ''}}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="role">Position Role</label>
-                                <input type="text" class="form-control" id="role" name="person_role" value="{{$AccidentInfo->person_role ?? ''}}">
+                                <input type="text" class="form-control custom-input" id="role" name="person_role" value="{{$AccidentInfo->person_role ?? ''}}">
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group col-md-3">
+                            <div class="form-group col-md-6">
                                 <label for="Record">Date Record was made</label>
-                                <input type="date" class="form-control" id="Record" name="date" value="{{$AccidentInfo->date ?? ''}}">
+                                <input type="date" class="form-control custom-input" id="Record" name="date" value="{{$AccidentInfo->date ?? ''}}">
                             </div>
-                            <div class="form-group col-md-3">
+                            <div class="form-group col-md-6">
                                 <label for="Time">Time</label>
-                                <input type="time" class="form-control" id="Time" name="time" value="{{$AccidentInfo->time ?? ''}}">
+                                <input type="time" class="form-control custom-input" id="Time" name="time" value="{{$AccidentInfo->time ?? ''}}">
                             </div>
                           
                         </div>
@@ -124,7 +263,7 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="childid" class="col-sm-12">Select Child</label>
-                             <select name="childid" id="childid" class="w-100 form-control js-example-basic-single">
+                             <select name="childid" id="childid" class="w-100 form-control js-example-basic-single custom-input">
                             <option value="">--Select Children--</option>
                           @foreach ($Childrens as $chobj)
                             <option value="{{ $chobj->id }}" {{ $chobj->id == $AccidentInfo->childid ? 'selected' : '' }}>
@@ -138,20 +277,27 @@ padding-inline:0;
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="birthdate">Date of Birth</label>
-                                <input type="date" class="form-control" id="birthdate" name="child_dob" value="">
+                                <input type="date" class="form-control custom-input" id="birthdate" name="child_dob" value="">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="age">Age</label>
-                                <input type="text" class="form-control" id="age" name="child_age" value="">     
+                                <input type="text" class="form-control custom-input" id="age" name="child_age" value="">     
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="name">Gender </label>
                                 <div class="radioFlex">
-                                    <label for="Male"><input class="m-1" type="radio" id="Male" name="gender" value="Male">Male</label>
-                                    <label for="Female"><input class="m-1" type="radio" id="Female" name="gender" value="Female">Female</label>
-                                    <label for="Others"><input class="m-1" type="radio" id="Others" name="gender" value="Others">Others</label>
+                                          <div class="radioFlex">
+    <input type="radio" id="Male" name="gender" value="Male" hidden>
+    <label class="radio-pill" for="Male">Male</label>
+
+    <input type="radio" id="Female" name="gender" value="Female" hidden>
+    <label class="radio-pill" for="Female">Female</label>
+
+    <input type="radio" id="Others" name="gender" value="Others" hidden>
+    <label class="radio-pill" for="Others">Others</label>
+</div>
                                 </div>
                             </div>
                         </div>
@@ -164,34 +310,34 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="incidentdate">Incident Date</label>
-                                <input type="date" class="form-control" id="incidentdate" name="incident_date" value="{{$AccidentInfo->incident_date ?? ''}}">     
+                                <input type="date" class="form-control custom-input" id="incidentdate" name="incident_date" value="{{$AccidentInfo->incident_date ?? ''}}">     
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="incidenttime">Time</label>
-                                <input type="time" class="form-control" id="incidenttime" name="incident_time" value="{{$AccidentInfo->incident_time ?? ''}}">
+                                <input type="time" class="form-control custom-input" id="incidenttime" name="incident_time" value="{{$AccidentInfo->incident_time ?? ''}}">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="location">Location</label>
-                                <input type="text" class="form-control" id="location" name="incident_location" value="{{$AccidentInfo->incident_location ?? ''}}">
+                                <input type="text" class="form-control custom-input" id="location" name="incident_location" value="{{$AccidentInfo->incident_location ?? ''}}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="witnessname">Name of Witness</label>
-                                <input type="text" class="form-control" id="witnessname" name="witness_name" value="{{$AccidentInfo->witness_name ?? ''}}">
+                                <input type="text" class="form-control custom-input" id="witnessname" name="witness_name" value="{{$AccidentInfo->witness_name ?? ''}}">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="witness-date">Date</label>
-                                <input type="date" class="form-control" id="witness-date" name="witness_date" value="{{$AccidentInfo->witness_date ?? ''}}">     
+                                <input type="date" class="form-control custom-input" id="witness-date" name="witness_date" value="{{$AccidentInfo->witness_date ?? ''}}">     
                             </div>
                             <div class="form-group col-md-6">
                                 <label>
                                     Signature
                                     <span class=" editbtn" data-toggle="modal" data-target="#signModal" data-identity="witness_sign"> <i class="fas fa-pencil-alt"></i></span>
                                 </label>
-                                <input type="text" class="form-control" id="witness_sign_dt" disabled>
+                                <input type="text" class="form-control custom-input" id="witness_sign_dt" disabled>
                              <div id="witness_sign">
     <input type="hidden" name="witness_sign" id="witness_sign_txt" value="">
 
@@ -207,27 +353,27 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="genActivity">General activity at the time of incident/ injury/ trauma/ illness:</label>
-                                <textarea class="form-control" id="genActivity" name="gen_actyvt">{{$AccidentInfo->gen_actyvt ?? ''}}</textarea>
+                                <textarea class="form-control custom-input" id="genActivity" name="gen_actyvt">{{$AccidentInfo->gen_actyvt ?? ''}}</textarea>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="causeInjury">Cause of injury/ trauma:</label>
-                                <textarea class="form-control" id="causeInjury" name="cause">{{$AccidentInfo->cause ?? ''}}</textarea>
+                                <textarea class="form-control custom-input" id="causeInjury" name="cause">{{$AccidentInfo->cause ?? ''}}</textarea>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="symptoms">Circumstances surrounding any illness, including apparent symptoms: </label>
-                                <textarea class="form-control" id="symptoms" name="illness_symptoms">{{$AccidentInfo->illness_symptoms ?? ''}}</textarea>
+                                <textarea class="form-control custom-input" id="symptoms" name="illness_symptoms">{{$AccidentInfo->illness_symptoms ?? ''}}</textarea>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="missingChild">Circumstances if child appeared to be missing or otherwise unaccounted for (incl duration, who found child etc.):</label>
-                                <textarea class="form-control" id="missingChild" name="missing_unaccounted">{{$AccidentInfo->missing_unaccounted ?? ''}}</textarea>
+                                <textarea class="form-control custom-input" id="missingChild" name="missing_unaccounted">{{$AccidentInfo->missing_unaccounted ?? ''}}</textarea>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="Circumstances">Circumstances if child appeared to have been taken or removed from service or was locked in/out of service (incl who took the child, duration): </label>
-                                <textarea class="form-control" id="Circumstances" name="taken_removed">{{$AccidentInfo->taken_removed ?? ''}}</textarea>
+                                <textarea class="form-control custom-input" id="Circumstances" name="taken_removed">{{$AccidentInfo->taken_removed ?? ''}}</textarea>
                             </div>
                         </div>
 
@@ -245,157 +391,60 @@ padding-inline:0;
                                     <span class="col-md-6 col-sm-12">
                                         <canvas id="c" width="500" height="500"></canvas>
                                     </span>
-                                    <span class="col-md-6 col-sm-12">
+                                    <span class="col-md-6 col-sm-12 m-0 p-0">
                                         <input type="hidden" name="injury_image" id="injury-image" value="">
-                                        <ul class="col-12 row">
-                                            <li class="col-md-6 col-sm-12">
-                                               
-                                              <label for="type1">
-                                                <input type="checkbox" name="abrasion" value="1" {{ isset($AccidentInfo->abrasion) && $AccidentInfo->abrasion == 1 ? 'checked' : '' }}>
-                                                Abrasion / Scrape
-                                            </label>
+                                <ul class="row injuiry-ul">
+    @php
+        $injuries = [
+            'abrasion' => 'Abrasion / Scrape',
+            'electric_shock' => 'Electric Shock',
+            'allergic_reaction' => 'Allergic Reaction',
+            'high_temperature' => 'High Temperature',
+            'amputation' => 'Amputation',
+            'infectious_disease' => 'Infectious Disease',
+            'anaphylaxis' => 'Anaphylaxis',
+            'ingestion' => 'Ingestion / Inhalation / Insertion',
+            'asthma' => 'Asthma / Respiratory',
+            'internal_injury' => 'Internal Injury / Infection',
+            'bite_wound' => 'Bite Wound',
+            'poisoning' => 'Poisoning',
+            'broken_bone' => 'Broken Bone / Fracture / Dislocation',
+            'rash' => 'Rash',
+            'burn' => 'Burn / Sunburn',
+            'respiratory' => 'Respiratory',
+            'choking' => 'Choking',
+            'seizure' => 'Seizure / Unconscious / Convulsion',
+            'concussion' => 'Concussion',
+            'sprain' => 'Sprain / Swelling',
+            'crush' => 'Crush / Jam',
+            'stabbing' => 'Stabbing / Piercing',
+            'cut' => 'Cut / Open Wound',
+            'tooth' => 'Tooth',
+            'drowning' => 'Drowning (Nonfatal)',
+            'venomous_bite' => 'Venomous Bite / Sting',
+            'eye_injury' => 'Eye Injury',
+            'other' => 'Other (Please specify)',
+        ];
+    @endphp
 
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type2">
-                                                    <input type="checkbox" name="electric_shock" value="1" {{ isset($AccidentInfo->electric_shock) && $AccidentInfo->electric_shock == 1 ? 'checked' : '' }}> Electric Shock
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type3">
-                                                    <input type="checkbox" name="allergic_reaction" value="1" {{ isset($AccidentInfo->allergic_reaction) && $AccidentInfo->allergic_reaction == 1 ? 'checked' : '' }}> Allergic reaction
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type4">
-                                                    <input type="checkbox" name="high_temperature" value="1" {{ isset($AccidentInfo->high_temperature) && $AccidentInfo->high_temperature == 1 ? 'checked' : '' }}> High Temperature
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type5">
-                                                    <input type="checkbox" name="amputation" value="1" {{ isset($AccidentInfo->amputation) && $AccidentInfo->amputation == 1 ? 'checked' : '' }}> Amputation
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type6">
-                                                    <input type="checkbox" name="infectious_disease" value="1" {{ isset($AccidentInfo->infectious_disease) && $AccidentInfo->infectious_disease == 1 ? 'checked' : '' }} > Infectious Disease (inc gastrointestinal)
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type7">
-                                                    <input type="checkbox" name="anaphylaxis" value="1" {{ isset($AccidentInfo->anaphylaxis) && $AccidentInfo->anaphylaxis == 1 ? 'checked' : '' }}> Anaphylaxis
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type8">
-                                                    <input type="checkbox" name="ingestion" value="1" {{ isset($AccidentInfo->ingestion) && $AccidentInfo->ingestion == 1 ? 'checked' : '' }}> Ingestion/ Inhalation/ Insertion
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type9">
-                                                    <input type="checkbox" name="asthma" value="1" {{ isset($AccidentInfo->asthma) && $AccidentInfo->asthma == 1 ? 'checked' : '' }}> Asthma/ Respiratory
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type10">
-                                                    <input type="checkbox" name="internal_injury" value="1" {{ isset($AccidentInfo->internal_injury) && $AccidentInfo->internal_injury == 1 ? 'checked' : '' }}> Internal injury/ Infection
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type11">
-                                                    <input type="checkbox" name="bite_wound" value="1" {{ isset($AccidentInfo->bite_wound) && $AccidentInfo->bite_wound == 1 ? 'checked' : '' }}> Bite Wound
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type12">
-                                                    <input type="checkbox" name="poisoning" value="1" {{ isset($AccidentInfo->poisoning) && $AccidentInfo->poisoning == 1 ? 'checked' : '' }}> Poisoning
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type13">
-                                                    <input type="checkbox" name="broken_bone" value="1" {{ isset($AccidentInfo->broken_bone) && $AccidentInfo->broken_bone == 1 ? 'checked' : '' }}> Broken Bone/ Fracture/ Dislocation
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type14">
-                                                    <input type="checkbox" name="rash" value="1" {{ isset($AccidentInfo->rash) && $AccidentInfo->rash == 1 ? 'checked' : '' }}> Rash
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type15">
-                                                    <input type="checkbox" name="burn" value="1" {{ isset($AccidentInfo->burn) && $AccidentInfo->burn == 1 ? 'checked' : '' }}> Burn/ Sunburn
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type16">
-                                                    <input type="checkbox" name="respiratory" value="1" {{ isset($AccidentInfo->respiratory) && $AccidentInfo->respiratory == 1 ? 'checked' : '' }}> Respiratory
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type17">
-                                                    <input type="checkbox" name="choking" value="1" {{ isset($AccidentInfo->choking) && $AccidentInfo->choking == 1 ? 'checked' : '' }}> Choking
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type18">
-                                                    <input type="checkbox" name="seizure" value="1" {{ isset($AccidentInfo->seizure) && $AccidentInfo->seizure == 1 ? 'checked' : '' }}> Seizure/ unconscious/ convulsion
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type19">
-                                                    <input type="checkbox" name="concussion" value="1" {{ isset($AccidentInfo->concussion) && $AccidentInfo->concussion == 1 ? 'checked' : '' }}> Concussion
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type20">
-                                                    <input type="checkbox" name="sprain" value="1" {{ isset($AccidentInfo->sprain) && $AccidentInfo->sprain == 1 ? 'checked' : '' }}> Sprain/ swelling
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type21">
-                                                    <input type="checkbox" name="crush" value="1" {{ isset($AccidentInfo->crush) && $AccidentInfo->crush == 1 ? 'checked' : '' }}> Crush/ Jam
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type22">
-                                                    <input type="checkbox" name="stabbing" value="1" {{ isset($AccidentInfo->stabbing) && $AccidentInfo->stabbing == 1 ? 'checked' : '' }}> Stabbing/ piercing
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type23">
-                                                    <input type="checkbox" name="cut" value="1" {{ isset($AccidentInfo->cut) && $AccidentInfo->cut == 1 ? 'checked' : '' }}> Cut/ Open Wound
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type24">
-                                                    <input type="checkbox" name="tooth" value="1" {{ isset($AccidentInfo->tooth) && $AccidentInfo->tooth == 1 ? 'checked' : '' }}> Tooth
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type25">
-                                                    <input type="checkbox" name="drowning" value="1" {{ isset($AccidentInfo->drowning) && $AccidentInfo->drowning == 1 ? 'checked' : '' }}> Drowning (nonfatal)
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type26">
-                                                    <input type="checkbox" name="venomous_bite" value="1" {{ isset($AccidentInfo->venomous_bite) && $AccidentInfo->venomous_bite == 1 ? 'checked' : '' }}> Venomous bite/ sting
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type27">
-                                                    <input type="checkbox" name="eye_injury" value="1" {{ isset($AccidentInfo->eye_injury) && $AccidentInfo->eye_injury == 1 ? 'checked' : '' }}> Eye Injury
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type28">
-                                                    <input type="checkbox" name="other" value="1" {{ isset($AccidentInfo->other) && $AccidentInfo->other == 1 ? 'checked' : '' }}> Other (Please specify)
-                                                </label>
-                                            </li>
-                                         <li id="injury-remarks" style="width: 100%; {{ isset($AccidentInfo->remarks) && $AccidentInfo->remarks == 1 ? 'display: block;' : 'display: none;' }}">
-    <input type="text" name="remarks" placeholder="Write here..." class="form-control col-md-6 col-sm-12" style="width: 100%;" value="{{ $AccidentInfo->remarks ?? '' }}">
-</li>
+    @foreach ($injuries as $field => $label)
+        <li class="col-md-6 col-sm-12 mb-2 d-flex align-items-center">
+            <label class="checkbox-pill me-2">
+                <input type="checkbox" name="{{ $field }}" value="1"
+                       {{ isset($AccidentInfo->$field) && $AccidentInfo->$field == 1 ? 'checked' : '' }}>
+                <span class="slider"></span>
+            </label>
+            <span class="pill-label">{{ $label }}</span>
+        </li>
+    @endforeach
 
-                                        </ul>
+    <li class="col-md-12 mt-2" id="injury-remarks"
+        style="{{ isset($AccidentInfo->other) && $AccidentInfo->other == 1 ? 'display:block;' : 'display:none;' }}">
+        <input type="text" name="remarks" class="form-control custom-input"
+               placeholder="Write here..." value="{{ $AccidentInfo->remarks ?? '' }}">
+    </li>
+</ul>
+
                                     </span>
                                 </div>
                             </div>
@@ -409,7 +458,7 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="takenAction">Details of action taken (including first aid, administration of medication etc.):</label>
-                                <textarea class="form-control" id="takenAction" name="action_taken">{{ $AccidentInfo->action_taken ?? '' }}</textarea>    
+                                <textarea class="form-control custom-input" id="takenAction" name="action_taken">{{ $AccidentInfo->action_taken ?? '' }}</textarea>    
                             </div>
                         </div>
                         <div class="form-row">
@@ -417,9 +466,13 @@ padding-inline:0;
                                 <div class="form-group row">
                                     <div class="col-12">
                                         <label>Did emergency services attend:</label>
-                                        <div class="custom-switch custom-switch-secondary-inverse mb-2">
-                                            <input class="custom-switch-input mandatory-field" id="togBtn" type="checkbox" name="emrg_serv_attend" value="1" {{ isset($AccidentInfo->emrg_serv_attend) && $AccidentInfo->emrg_serv_attend == 1 ? 'checked' : '' }}>
-                                            <label class="custom-switch-btn" for="togBtn"></label>
+                                    
+
+                                         <div class="custom-switch custom-switch-secondary-inverse mb-2 col-md-6 col-sm-12 d-flex align-items-center gap-2 mb-2">
+                                             <label class="checkbox-pill">
+        <input type="checkbox" name="emrg_serv_attend" id="togBtn" value="1" {{ isset($AccidentInfo->emrg_serv_attend) && $AccidentInfo->emrg_serv_attend == 'Yes' ? 'checked' : '' }}>
+        <span class="slider"></span>
+    </label>
                                         </div>
                                     </div>
                                 </div>
@@ -430,25 +483,29 @@ padding-inline:0;
                                 <div class="form-group row">
                                     <div class="col-12">
                                         <label>Was medical attention sought from a registered practitioner / hospital:</label>
-                                        <div class="custom-switch custom-switch-secondary-inverse mb-2">
-                                            <input class="custom-switch-input mandatory-field" id="togBtn-second" type="checkbox" name="med_attention" value="1" {{ isset($AccidentInfo->med_attention) && $AccidentInfo->med_attention == 1 ? 'checked' : '' }}>
-                                            <label class="custom-switch-btn" for="togBtn-second"></label>
-                                        </div>
+                                      
+                                                              <div class="col-md-6 col-sm-12 d-flex align-items-center gap-2 mb-2">
+    <label class="checkbox-pill">
+        <input type="checkbox" name="med_attention" id="togBtn-second" value="1" {{ isset($AccidentInfo->med_attention) && $AccidentInfo->med_attention == 'Yes' ? 'checked' : '' }}>
+        <span class="slider"></span>
+    </label>
+
+</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="provideDetails">If yes to either of the above, provide details:</label>
-                                <textarea class="form-control" id="provideDetails" name="med_attention_details">{{ $AccidentInfo->med_attention_details ?? '' }}</textarea>
+                                <textarea class="form-control custom-input" id="provideDetails" name="med_attention_details">{{ $AccidentInfo->med_attention_details ?? '' }}</textarea>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="provideDetails">List the steps that have been taken to prevent or minimise this type of incident in the future:</label>
                                 <ol>
-                                    <li><input type="text" class="form-control" id="one" name="prevention_step_1" value="{{ $AccidentInfo->prevention_step_1 ?? '' }}"></li>
-                                    <li><input type="text" class="form-control" id="two" name="prevention_step_2" value="{{ $AccidentInfo->prevention_step_2 ?? '' }}"></li>
-                                    <li><input type="text" class="form-control" id="three" name="prevention_step_3" value="{{ $AccidentInfo->prevention_step_3 ?? '' }}"></li>
+                                    <li><input type="text" class="form-control custom-input" id="one" name="prevention_step_1" value="{{ $AccidentInfo->prevention_step_1 ?? '' }}"></li>
+                                    <li><input type="text" class="form-control custom-input" id="two" name="prevention_step_2" value="{{ $AccidentInfo->prevention_step_2 ?? '' }}"></li>
+                                    <li><input type="text" class="form-control custom-input" id="three" name="prevention_step_3" value="{{ $AccidentInfo->prevention_step_3 ?? '' }}"></li>
                                 </ol>
                             </div>
                         </div>
@@ -461,63 +518,90 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="parentname">Parent/ Guardian name:</label>
-                                <input type="text" class="form-control" id="parentname" name="parent1_name" value="{{ $AccidentInfo->parent1_name ?? '' }}">    
+                                <input type="text" class="form-control custom-input" id="parentname" name="parent1_name" value="{{ $AccidentInfo->parent1_name ?? '' }}">    
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="method">Method of Contact:</label>
-                                <input type="text" class="form-control" id="method" name="contact1_method" value="{{ $AccidentInfo->contact1_method ?? '' }}">
+                                <input type="text" class="form-control custom-input" id="method" name="contact1_method" value="{{ $AccidentInfo->contact1_method ?? '' }}">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="contactDate">Date</label>
-                                <input type="date" class="form-control" id="contactDate" name="contact1_date" value="{{ $AccidentInfo->contact1_date ?? '' }}">
+                                <input type="date" class="form-control custom-input" id="contactDate" name="contact1_date" value="{{ $AccidentInfo->contact1_date ?? '' }}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="contactTime">Time</label>
-                                <input type="time" class="form-control" id="contactTime" name="contact1_time" value="{{ $AccidentInfo->contact1_time ?? '' }}">
+                                <input type="time" class="form-control custom-input" id="contactTime" name="contact1_time" value="{{ $AccidentInfo->contact1_time ?? '' }}">
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="contactmade">Contact Made: </label>
-                                <input type="checkbox" class="form-control check-control" id="contactmade" name="contact1_made" value="1" {{ isset($AccidentInfo->contact1_made) && $AccidentInfo->contact1_made == 1 ? 'checked' : '' }}>   
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="messageleft">Message Left:</label>
-                                <input type="checkbox" class="form-control check-control" id="messageleft" name="contact1_msg" value="1" {{ isset($AccidentInfo->contact1_msg) && $AccidentInfo->contact1_msg == 1 ? 'checked' : '' }}>
-                            </div>
-                        </div>
+
+            <div class="form-row">
+    <!-- Contact Made -->
+    <div class="form-group col-md-6 d-flex align-items-center gap-2 mb-3">
+        <label class="checkbox-pill mb-0">
+            <input type="checkbox" id="contactmade" name="contact1_made" value="1" {{ isset($AccidentInfo->contact1_made) && $AccidentInfo->contact1_made == 'Yes' ? 'checked' : '' }}>
+            <span class="slider"></span>
+        </label>
+        <span class="pill-label">Contact Made</span>
+    </div>
+
+    <!-- Message Left -->
+    <div class="form-group col-md-6 d-flex align-items-center gap-2 mb-3">
+        <label class="checkbox-pill mb-0">
+            <input type="checkbox" id="messageleft" name="contact1_msg" value="1" {{ isset($AccidentInfo->contact1_msg) && $AccidentInfo->contact1_msg == 'Yes' ? 'checked' : '' }}>
+            <span class="slider"></span>
+        </label>
+        <span class="pill-label">Message Left</span>
+    </div>
+</div>
+
+
+
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="parentname2">Parent/ Guardian name:</label>
-                                <input type="text" class="form-control" id="parentname2" name="parent2_name" value="{{ $AccidentInfo->parent2_name ?? '' }}">
+                                <input type="text" class="form-control custom-input" id="parentname2" name="parent2_name" value="{{ $AccidentInfo->parent2_name ?? '' }}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="method2">Method of Contact:</label>
-                                <input type="text" class="form-control" id="method2" name="contact2_method" value="{{ $AccidentInfo->contact2_method ?? '' }}">
+                                <input type="text" class="form-control custom-input" id="method2" name="contact2_method" value="{{ $AccidentInfo->contact2_method ?? '' }}">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="contactDate2">Date</label>
-                                <input type="date" class="form-control" id="contactDate2" name="contact2_date" value="{{ $AccidentInfo->contact2_date ?? '' }}"> 
+                                <input type="date" class="form-control custom-input" id="contactDate2" name="contact2_date" value="{{ $AccidentInfo->contact2_date ?? '' }}"> 
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="contactTime2">Time</label>
-                                <input type="time" class="form-control" id="contactTime2" name="contact2_time" value="{{ $AccidentInfo->contact2_time ?? '' }}">
+                                <input type="time" class="form-control custom-input" id="contactTime2" name="contact2_time" value="{{ $AccidentInfo->contact2_time ?? '' }}">
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="contactmade2">Contact Made: </label>
-                                <input type="checkbox" class="form-control check-control" id="contactmade2" name="contact2_made" value="1" {{ isset($AccidentInfo->contact2_made) && $AccidentInfo->contact2_made == 1 ? 'checked' : '' }}>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="messageleft2">Message Left:</label>
-                                <input type="checkbox" class="form-control check-control" id="messageleft2" name="contact2_msg" value="1" {{ isset($AccidentInfo->contact2_msg) && $AccidentInfo->contact2_msg == 1 ? 'checked' : '' }}>
-                            </div>
-                        </div>
+                
+
+
+
+            <div class="form-row">
+    <!-- Contact Made -->
+    <div class="form-group col-md-6 d-flex align-items-center gap-2 mb-2">
+        <label class="checkbox-pill mb-0">
+            <input type="checkbox" id="contactmade2" name="contact2_made" value="1" {{ isset($AccidentInfo->contact2_made) && $AccidentInfo->contact2_made == 'Yes' ? 'checked' : '' }}>
+            <span class="slider"></span>
+        </label>
+        <span class="pill-label">Contact Made</span>
+    </div>
+
+    <!-- Message Left -->
+    <div class="form-group col-md-6 d-flex align-items-center gap-2 mb-2">
+        <label class="checkbox-pill mb-0">
+            <input type="checkbox" id="messageleft2" name="contact2_msg" value="1" {{ isset($AccidentInfo->contact2_msg) && $AccidentInfo->contact2_msg == 'Yes' ? 'checked' : '' }}>
+            <span class="slider"></span>
+        </label>
+        <span class="pill-label">Message Left</span>
+    </div>
+</div>
+
 
                         <div class="row">
                             <div class="col-sm-12">
@@ -527,14 +611,14 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="res_pinc">Responsible Person in Charge Name:</label>
-                                <input type="text" class="form-control" id="res_pinc" name="responsible_person_name" value="{{ isset($AccidentInfo->responsible_person_name) ?? '' }}"> 
+                                <input type="text" class="form-control custom-input" id="res_pinc" name="responsible_person_name" value="{{ isset($AccidentInfo->responsible_person_name) ?? '' }}"> 
                             </div>
                             <div class="form-group col-md-6">
                                 <label>
                                     Signature
                                     <span class=" editbtn" data-toggle="modal" data-target="#signModal" data-identity="incharge_sign"> <i class="fas fa-pencil-alt"></i></span>
                                 </label>
-                                <input type="text" class="form-control" id="res_pinc_dt" disabled>
+                                <input type="text" class="form-control custom-input" id="res_pinc_dt" disabled>
                              <div id="incharge_sign">
                                 <input type="hidden" name="responsible_person_sign" id="res_pinc_txt" value="">
                                 @if (!empty($AccidentInfo->responsible_person_sign))
@@ -549,25 +633,25 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="rp_internal_notif_date">Date</label>
-                                <input type="date" class="form-control" id="rp_internal_notif_date" name="rp_internal_notif_date" value="{{ $AccidentInfo->rp_internal_notif_date ?? '' }}">
+                                <input type="date" class="form-control custom-input" id="rp_internal_notif_date" name="rp_internal_notif_date" value="{{ $AccidentInfo->rp_internal_notif_date ?? '' }}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="rp_internal_notif_time">Time</label>
-                                <input type="time" class="form-control" id="rp_internal_notif_time" name="rp_internal_notif_time" value="{{ $AccidentInfo->rp_internal_notif_time ?? '' }}">
+                                <input type="time" class="form-control custom-input" id="rp_internal_notif_time" name="rp_internal_notif_time" value="{{ $AccidentInfo->rp_internal_notif_time ?? '' }}">
                             </div>
                         </div>
                      
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="nom_sv">Nominated Supervisor Name:</label>
-                                    <input type="text" class="form-control" id="nom_sv" name="nominated_supervisor_name" value="{{ $AccidentInfo->nominated_supervisor_name ?? '' }}">
+                                    <input type="text" class="form-control custom-input" id="nom_sv" name="nominated_supervisor_name" value="{{ $AccidentInfo->nominated_supervisor_name ?? '' }}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label>
                                         Signature
                                         <span class=" editbtn" data-toggle="modal" data-target="#signModal" data-identity="supervisor_sign"><i class="fas fa-pencil-alt"></i></span>
                                     </label>
-                                    <input type="text" class="form-control" id="nom_svs_dt" disabled>
+                                    <input type="text" class="form-control custom-input" id="nom_svs_dt" disabled>
                                  <div id="supervisor_sign">
     <input type="hidden" name="nominated_supervisor_sign" id="nsv_sign_txt" value="">
 
@@ -583,11 +667,11 @@ padding-inline:0;
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="nsv_date">Date</label>
-                                    <input type="date" class="form-control" id="nsv_date" name="nsv_date" value="{{ $AccidentInfo->nominated_supervisor_date ?? '' }}">
+                                    <input type="date" class="form-control custom-input" id="nsv_date" name="nsv_date" value="{{ $AccidentInfo->nominated_supervisor_date ?? '' }}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="nsv_time">Time</label>
-                                    <input type="time" class="form-control" id="nsv_time" name="nsv_time" value="{{ $AccidentInfo->nominated_supervisor_time ?? '' }}">
+                                    <input type="time" class="form-control custom-input" id="nsv_time" name="nsv_time" value="{{ $AccidentInfo->nominated_supervisor_time ?? '' }}">
                                 </div>
                             </div>
                        
@@ -600,17 +684,17 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="otheragency">Other agency:</label>
-                                <input type="text" class="form-control" id="otheragency" name="otheragency" value="{{ $AccidentInfo->ext_notif_other_agency ?? '' }}">
+                                <input type="text" class="form-control custom-input" id="otheragency" name="otheragency" value="{{ $AccidentInfo->ext_notif_other_agency ?? '' }}">
                             </div>
                             <div class="form-group col-md-6">
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
                                         <label for="agencyDate">Date</label>
-                                        <input type="date" class="form-control" id="agencyDate" name="enor_date" value="{{ $AccidentInfo->enor_date ?? '' }}">
+                                        <input type="date" class="form-control custom-input" id="agencyDate" name="enor_date" value="{{ $AccidentInfo->enor_date ?? '' }}">
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="agencyTime">Time</label>
-                                        <input type="time" class="form-control" id="agencyTime" name="enor_time" value="{{ $AccidentInfo->enor_time ?? '' }}">
+                                        <input type="time" class="form-control custom-input" id="agencyTime" name="enor_time" value="{{ $AccidentInfo->enor_time ?? '' }}">
                                     </div>
                                 </div>
                             </div>
@@ -618,17 +702,17 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="Regulatoryauthority">Regulatory authority:</label>
-                                <input type="text" class="form-control" id="Regulatoryauthority" name="Regulatoryauthority" value="{{ $AccidentInfo->ext_notif_regulatory_auth ?? '' }}">
+                                <input type="text" class="form-control custom-input" id="Regulatoryauthority" name="Regulatoryauthority" value="{{ $AccidentInfo->ext_notif_regulatory_auth ?? '' }}">
                             </div>
                             <div class="form-group col-md-6">
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
                                         <label for="enra_date">Date</label>
-                                        <input type="date" class="form-control" id="enra_date" name="enra_date" value="{{ $AccidentInfo->enra_date ?? '' }}">
+                                        <input type="date" class="form-control custom-input" id="enra_date" name="enra_date" value="{{ $AccidentInfo->enra_date ?? '' }}">
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="enra_time">Time</label>
-                                        <input type="time" class="form-control" id="enra_time" name="enra_time" value="{{ $AccidentInfo->enra_time ?? '' }}">
+                                        <input type="time" class="form-control custom-input" id="enra_time" name="enra_time" value="{{ $AccidentInfo->enra_time ?? '' }}">
                                     </div>
                                 </div>
                             </div>
@@ -639,18 +723,18 @@ padding-inline:0;
                                 <div class="col-sm-12">
                                     <h3 class="service-title">Parental acknowledgement</h3>
                                     <div class="inlineInput">
-                                        I <input type="text" name="ack_parent_name" value="{{ $AccidentInfo->ack_parent_name ?? '' }}"> (name of parent / guardian) have been notified of my child’s incident / injury / trauma / illness.
+                                        I <input type="text" class="custom-input" name="ack_parent_name" value="{{ $AccidentInfo->ack_parent_name ?? '' }}"> (name of parent / guardian) have been notified of my child’s incident / injury / trauma / illness.
                                     </div>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="RegulatoryauthorityDate">Date</label>
-                                    <input type="date" class="form-control" id="RegulatoryauthorityDate" name="ack_date" value="{{ $AccidentInfo->ack_date ?? '' }}">
+                                    <input type="date" class="form-control custom-input" id="RegulatoryauthorityDate" name="ack_date" value="{{ $AccidentInfo->ack_date ?? '' }}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="RegulatoryauthorityTime">Time</label>
-                                    <input type="time" class="form-control" id="RegulatoryauthorityTime" name="ack_time" value="{{ $AccidentInfo->ack_time ?? '' }}">
+                                    <input type="time" class="form-control custom-input" id="RegulatoryauthorityTime" name="ack_time" value="{{ $AccidentInfo->ack_time ?? '' }}">
                                 </div>
                             </div>
                         @endif
@@ -661,7 +745,7 @@ padding-inline:0;
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-12">
-                                <textarea class="form-control" id="takenAction" name="add_notes">{{ $AccidentInfo->add_notes ?? '' }}</textarea>
+                                <textarea class="form-control custom-input" id="takenAction" name="add_notes" rows="8">{{ $AccidentInfo->add_notes ?? '' }}</textarea>
                             </div>
                         </div>
 
