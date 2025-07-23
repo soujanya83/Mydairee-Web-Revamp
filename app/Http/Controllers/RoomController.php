@@ -41,9 +41,17 @@ class RoomController extends Controller
         $child->centerid =  $request->centerid ?? null;
         $child->createdBy = Auth::user()->id;
 
+        // if ($request->hasFile('file')) {
+        //     $child->imageUrl = $request->file('file')->store('children_images', 'public');
+        // }
+
         if ($request->hasFile('file')) {
-            $child->imageUrl = $request->file('file')->store('children_images', 'public');
+            $file = $request->file('file');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/child'), $filename);
+            $child->imageUrl = 'uploads/child/' . $filename;
         }
+
 
         $daysMap = ['mon', 'tue', 'wed', 'thu', 'fri'];
         $daysString = '';
@@ -297,9 +305,16 @@ class RoomController extends Controller
         $centerId = Room::where('id', $request->id)->first();
         // Handle image upload
         $imagePath = null;
+        // if ($request->hasFile('file')) {
+        //     $file = $request->file('file');
+        //     $imagePath = $file->store('children_images', 'public');
+        // }
+
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $imagePath = $file->store('children_images', 'public');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/child'), $filename);
+            $imagePath = 'uploads/child/' . $filename;
         }
 
         // Create new child
@@ -361,8 +376,15 @@ class RoomController extends Controller
         $child->centerid =  $request->centerid ?? null;
         $child->createdBy = Auth::user()->id;
 
+        // if ($request->hasFile('file')) {
+        //     $child->imageUrl = $request->file('file')->store('children_images', 'public');
+        // }
+
         if ($request->hasFile('file')) {
-            $child->imageUrl = $request->file('file')->store('children_images', 'public');
+            $file = $request->file('file');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/child'), $filename);
+            $child->imageUrl = 'uploads/child/' . $filename;
         }
 
         $daysMap = ['mon', 'tue', 'wed', 'thu', 'fri'];
