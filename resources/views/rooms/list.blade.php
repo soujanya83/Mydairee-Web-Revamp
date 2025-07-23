@@ -15,7 +15,7 @@
 <!-- <div style="margin-top: -36px;">
     <h5>Rooms List</h5>
 
-   
+
     <hr> -->
 
 
@@ -102,29 +102,32 @@
             </div>
         </div> -->
 
-        <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: 0px;">
-    <div class="dropdown">
-        <button class="btn btn-outline-primary btn-lg dropdown-toggle"
-                type="button" id="centerDropdown" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-            {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
-        </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
-            @foreach($centers as $center)
-                <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
-                 style="background-color:white;"  data-id="{{ $center->id }}">
-                    {{ $center->centerName }}
-                </a>
-            @endforeach
+        <div class="text-zero top-right-button-container d-flex justify-content-end"
+            style="margin-right: 20px;margin-top: 0px;">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
+                    style="top:3% !important;left:13px !important;">
+                    @foreach($centers as $center)
+                    <a href="javascript:void(0);"
+                        class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                        style="background-color:white;" data-id="{{ $center->id }}">
+                        {{ $center->centerName }}
+                    </a>
+                    @endforeach
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+        @if(!empty($permissions['addRoom']) && $permissions['addRoom'])
 
         <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#roomModal"
             style="height: 36px;">
             Create Room
         </button>
+        @endif
     </div>
 
 
@@ -132,7 +135,7 @@
     <hr>
 
 
-    
+
     <!-- <div class="row clearfix" style="margin-bottom: 43px;">
         @foreach($getrooms as $room)
         <div class="col-lg-4 col-md-6 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
@@ -177,6 +180,7 @@
     <form method="POST" action="{{ route('rooms.bulk_delete') }}" id="deleteRoomsForm">
         @csrf
         @method('DELETE')
+        @if(!empty($permissions['deleteRoom']) && $permissions['deleteRoom'])
 
         <div class="d-flex justify-content-end mb-3">
 
@@ -185,7 +189,7 @@
                 <i class="fa fa-trash"></i> Delete Selected
             </button>
         </div>
-
+        @endif
         <div class="row clearfix" style="margin-bottom: 43px;">
             @foreach($getrooms as $room)
             <div class="col-lg-4 col-md-6 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
@@ -205,7 +209,7 @@
                                 &nbsp;&nbsp; {{ $room->name }}
                                 <small class="text-muted" style="font-size: 0.8rem;">({{ $room->status }})</small>
                             </h5>
-                            <i class="fa fa-ellipsis-v text-muted"></i>
+                            <i class="fa fa-ellipsis-v text-muted" style="padding:5px"></i>
                         </div>
 
                         <div class="mb-2">
@@ -322,7 +326,7 @@
 </div>
 
 
- <div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="filtersModalRight"
+<div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="filtersModalRight"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -396,7 +400,7 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
 
 <script>
     $(document).on('click', '.edit-room', function() {

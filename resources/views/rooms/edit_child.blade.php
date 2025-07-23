@@ -69,7 +69,7 @@
 
                                 <input id="uploadImg" name="file" class="form-control" type="file">
                                 @if($data->imageUrl)
-                                <img src="{{ asset('storage/' . $data->imageUrl) }}" width="80" class="mb-2">
+                                <img src="{{ asset($data->imageUrl) }}" width="80" class="mb-2">
                                 @endif
                             </div>
                         </div>

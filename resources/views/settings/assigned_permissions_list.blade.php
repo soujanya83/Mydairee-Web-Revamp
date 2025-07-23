@@ -56,21 +56,22 @@
     </button>
 </div>
 @endif
+<hr>
 <div class="row clearfix">
     <div class=>
         <div class="card">
-
             <div class="body table-responsive">
+                <div class="row mb-3">
+                    <div class="col-md-3 ms-auto">
+                        <input type="text" id="userSearchInput" class="form-control" placeholder="Search User Name...">
+                    </div>
+                </div>
                 <table class="table">
                     <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>User Name</th>
-                            <th>Action</th>
-                        </tr>
+                        <th>#</th>
+                        <th>User Name</th>
+                        <th>Action</th>
                     </thead>
-
-
                     <tbody>
                         @foreach($assignedUserList as $index => $user)
                         <tr class="{{ $user->colorClass ?? 'xl-default' }}">
@@ -148,23 +149,15 @@
                                         </form>
                                     </div>
                                 </div>
-
-
                             </td>
                         </tr>
                         @endforeach
                     </tbody>
-
-
                 </table>
-
             </div>
-
         </div>
     </div>
 </div>
-
-
 <script>
     function toggleAllPermissions(userId) {
         const isChecked = document.getElementById(`selectAll_${userId}`).checked;
@@ -173,5 +166,19 @@
     }
 </script>
 
+<script>
+    document.getElementById("userSearchInput").addEventListener("keyup", function () {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll("table tbody tr");
+
+        rows.forEach(row => {
+            let userNameCell = row.querySelector("td:nth-child(2)");
+            if (userNameCell) {
+                let userName = userNameCell.textContent.toLowerCase();
+                row.style.display = userName.includes(filter) ? "" : "none";
+            }
+        });
+    });
+</script>
 
 @stop

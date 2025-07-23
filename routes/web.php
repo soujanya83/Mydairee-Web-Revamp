@@ -7,12 +7,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\DailyDiaryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DBBackupController;
 use App\Http\Controllers\FileManagerController;
 use App\Http\Controllers\HeadChecks;
 use App\Http\Controllers\LessonPlanList;
 use App\Http\Controllers\HealthyController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ObservationsController;
+use App\Http\Controllers\LnPcontroller;
+use App\Http\Controllers\Qipcontroller;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
@@ -24,7 +27,8 @@ use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ReflectionController;
 use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
-
+use App\Http\Controllers\Auth\NotificationController;
+use Illuminate\Support\Facades\Artisan;
 // Route::get('/', function () {
 //     return view('dashboard.university');
 // });
@@ -167,8 +171,10 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     // Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
 
     // Daily Journel Ends here
+    Route::get('/backup-now', [DBBackupController::class, 'runBackup']);
 
 
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
 
 
     Route::post('/logout', function () {
@@ -182,6 +188,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
     Route::get('/edit-child/{id}', [RoomController::class, 'edit_child'])->name('edit_child');
     Route::put('/child/update/{id}', [RoomController::class, 'update_child'])->name('update_child');
+    Route::put('/update/child{id}', [RoomController::class, 'update_child_progress'])->name('update_child_progress');
     Route::post('/move-children', [RoomController::class, 'moveChildren'])->name('move_children');
     Route::post('/children/delete-selected', [RoomController::class, 'delete_selected_children'])->name('delete_selected_children');
 
@@ -189,6 +196,9 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
     Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
     Route::delete('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
+    Route::get('/childrens-list', [RoomController::class, 'childrens_list'])->name('childrens_list');
+    Route::get('/childrens-edit/{id}', [RoomController::class, 'childrens_edit'])->name('children.edit');
+    Route::delete('/childrens-delete/{id}', [RoomController::class, 'children_destroy'])->name('children.destroy');
 
     // recipe
     Route::match(['get', 'post'], '/healthy-recipe', [HealthyController::class, 'healthy_recipe'])->name('healthy_recipe');
@@ -314,6 +324,52 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
         Route::post('/filters', [ReflectionController::class, 'applyFilters'])->name('filters');
     });
+
+
+    Route::prefix('snapshot')->name('snapshot.')->group(function () {
+
+        Route::get('/index', [ObservationsController::class, 'snapshotindex'])->name('index');
+        Route::get('/addnew', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew');
+        Route::get('/addnew/{id?}', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew.optional');
+        Route::post('/store', [ObservationsController::class, 'snapshotstore'])->name('store');
+        Route::delete('/snapshot-media/{id}', [ObservationsController::class, 'snapshotdestroyimage']);
+        Route::post('/status/update', [ObservationsController::class, 'snapshotupdateStatus'])->name('status.update');
+        Route::delete('snapshotsdelete/{id}', [ObservationsController::class, 'snapshotsdelete'])->name('snapshots.snapshotsdelete');
+    });
+
+
+
+    Route::prefix('learningandprogress')->name('learningandprogress.')->group(function () {
+
+        Route::get('/index', [LnPcontroller::class, 'index'])->name('index');
+        Route::get('/lnpdata/{id?}', [LnPcontroller::class, 'lnpData'])->name('lnpdata');
+        Route::post('/update-assessment-status', [LnPcontroller::class, 'updateAssessmentStatus'])->name('update.assessment.status');
+
+
+
+    });
+
+    Route::prefix('qip')->name('qip.')->group(function () {
+
+        Route::get('/index', [Qipcontroller::class, 'index'])->name('index');
+        Route::get('/addnew', [Qipcontroller::class, 'addnew'])->name('addnew');
+        Route::post('/update-name', [QipController::class, 'updateName'])->name('update.name');
+        Route::get('/{id}/area/{area}', [QipController::class, 'viewArea'])->name('area.view');
+        Route::get('/{qip}/element/{element}', [QipController::class, 'viewElement'])->name('element.view');
+        Route::get('/{qip}/standard/{standard}/edit', [QipController::class, 'editStandard'])->name('standard.edit');
+        Route::post('/discussion/send', [QipController::class, 'sendDiscussion'])->name('discussion.send');
+
+
+
+
+
+
+
+
+    });
+
+
+
 });
 
 

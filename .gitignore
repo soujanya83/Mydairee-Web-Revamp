@@ -36,3 +36,9 @@ storage/telescope
 
 # Laravel Horizon
 horizon.log
+
+
+/public/uploads/*
+!/public/uploads/.gitkeep
+/storage/*
+!/storage/.gitkeep

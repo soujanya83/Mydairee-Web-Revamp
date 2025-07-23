@@ -215,7 +215,7 @@
                         <div class="d-flex align-items-center mb-2">
                             <!-- Checkbox for selecting child -->
 
-                            <img src="{{ $child->imageUrl ? asset('storage/'.$child->imageUrl) : asset('assets/img/default-avatar.png') }}"
+                            <img src="{{ $child->imageUrl ? asset($child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}"
                                 alt="Profile" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
                             <div class="ms-3" style="margin-left:12px">
                                 <h5 class="mb-1">
@@ -242,7 +242,7 @@
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm border-0 rounded p-3">
                 <div class="d-flex align-items-center mb-2">
-                    <img src="{{ $child->imageUrl ? asset('storage/'.$child->imageUrl) : asset('assets/img/default-avatar.png') }}"
+                    <img src="{{ $child->imageUrl ? asset('storage/'.$child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}"
                         alt="Profile" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
                     <div class="ms-3" style="margin-left:12px">
                         <h5 class="mb-1">
@@ -253,7 +253,7 @@
                         <p class="mb-0">{{ \Carbon\Carbon::parse($child->dob)->age }} years</p>
                     </div>
                 </div>
-                <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a>
+                <!-- <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a> -->
             </div>
         </div>
         @endforeach

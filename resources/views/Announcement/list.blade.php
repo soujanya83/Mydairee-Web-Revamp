@@ -4,6 +4,55 @@
 
 @section('page-styles')
 <style>
+    .pagination {
+        font-size: 0.9rem;
+        /* Slightly larger for better readability */
+        justify-content: center;
+        /* Ensure pagination is centered */
+        margin-bottom: 80px;
+    }
+
+    .page-item .page-link {
+        padding: 0.5rem 0.75rem;
+        /* Bootstrap 4 default padding for better spacing */
+        font-size: 0.9rem;
+        /* Match pagination font size */
+        line-height: 1.5;
+        /* Improved line height for readability */
+        border-radius: 0.25rem;
+        /* Keep your custom border radius */
+        color: #007bff;
+        /* Bootstrap primary color for links */
+        background-color: #fff;
+        /* Ensure background matches Bootstrap */
+        border: 1px solid #dee2e6;
+        /* Bootstrap default border */
+    }
+
+    .page-item.active .page-link {
+        background-color: #007bff;
+        /* Bootstrap primary color for active state */
+        border-color: #007bff;
+        color: #fff;
+    }
+
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        /* Bootstrap disabled color */
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+
+    /* SVG icons for Previous/Next arrows */
+    .page-item .page-link svg {
+        width: 1em;
+        /* Slightly larger for better visibility */
+        height: 1em;
+        vertical-align: middle;
+    }
+</style>
+<style>
         .hover-shadow-lg:hover {
             box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
             transform: translateY(-2px);
@@ -57,85 +106,83 @@
         }
     </style>
 <style>
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-}
-
-.card {
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.table tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-}
-
-.btn {
-    transition: all 0.2s ease;
-}
-
-.btn:hover {
-    transform: translateY(-1px);
-}
-
-.badge {
-    transition: all 0.2s ease;
-}
-
-img {
-    transition: all 0.2s ease;
-}
-
-img:hover {
-    transform: scale(1.1);
-    cursor: pointer;
-}
-
-@media (max-width: 768px) {
-    .container-fluid {
-        padding-left: 15px;
-        padding-right: 15px;
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3);
     }
-}
 
-.border-start {
-    border-left-width: 4px !important;
-}
+    .card {
+        transition: all 0.3s ease;
+    }
 
-.text-sm small {
-    font-size: 0.875rem;
-}
+    .card:hover {
+        transform: translateY(-2px);
+    }
 
-/* Custom scrollbar for better mobile experience */
-.table-responsive::-webkit-scrollbar {
-    height: 6px;
-}
+    .table tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
 
-.table-responsive::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-}
+    .btn {
+        transition: all 0.2s ease;
+    }
 
-.table-responsive::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-}
+    .btn:hover {
+        transform: translateY(-1px);
+    }
 
-.table-responsive::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
+    .badge {
+        transition: all 0.2s ease;
+    }
+
+    img {
+        transition: all 0.2s ease;
+    }
+
+    img:hover {
+        transform: scale(1.1);
+        cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+    }
+
+    .border-start {
+        border-left-width: 4px !important;
+    }
+
+    .text-sm small {
+        font-size: 0.875rem;
+    }
+
+    /* Custom scrollbar for better mobile experience */
+    .table-responsive::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
 </style>
 
 
 <style>
-
-
-        main{
-padding-block:4em;
-padding-inline:2em;
+    main {
+        padding-block: 4em;
+        padding-inline: 2em;
     }
 
     @media screen and (max-width: 600px) {
@@ -189,8 +236,11 @@ padding-inline:2em;
         @endif
 
         @if(Auth::user()->userType != 'Parent')
+        @if(!empty($permissions['addAnnouncement']) && $permissions['addAnnouncement'])
+
         <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}"
             class="btn btn-outline-info btn-lg">ADD NEW</a>
+        @endif
         @endif
     </div>
 
@@ -199,23 +249,24 @@ padding-inline:2em;
 <main class="py-4">
     <div class="container-fluid px-3 px-md-4">
         @if($records->isEmpty())
-            <!-- Empty State -->
-            <div class="row justify-content-center">
-                <div class="col-12 col-md-8 col-lg-6">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center py-5">
-                            <div class="mb-4">
-                                <i class="fas fa-bullhorn fa-4x text-muted"></i>
-                            </div>
-                            <h4 class="text-muted mb-3">No Announcements Found</h4>
-                            <p class="text-muted mb-4">You don't have any announcement data yet. Get started by creating your first announcement.</p>
-                            <a href="" class="btn btn-primary btn-lg px-4">
-                                <i class="fas fa-home me-2"></i>Go Back Home
-                            </a>
+        <!-- Empty State -->
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-bullhorn fa-4x text-muted"></i>
                         </div>
+                        <h4 class="text-muted mb-3">No Announcements Found</h4>
+                        <p class="text-muted mb-4">You don't have any announcement data yet. Get started by creating
+                            your first announcement.</p>
+                        <a href="" class="btn btn-primary btn-lg px-4">
+                            <i class="fas fa-home me-2"></i>Go Back Home
+                        </a>
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
         @else
             <!-- Search & Filter Section -->
             <div class="row mb-4">
@@ -450,21 +501,20 @@ padding-inline:2em;
                     </div>
                 @endforelse
             </div>
+            
         @endif
 
-        <!-- Pagination -->
-        @if(!$records->isEmpty())
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="d-flex justify-content-center">
-                        <div class="bg-white rounded shadow-sm p-3">
-                            {{ $records->links() }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
+    <!-- Pagination -->
+  
     </div>
+     
+   
+
+      @if(!$records->isEmpty())
+    <div class="col-12 d-flex justify-content-center mt-4">
+        {{ $records->links('vendor.pagination.bootstrap-4') }}
+    </div>
+    @endif
     </main>
 
 

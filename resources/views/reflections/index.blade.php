@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Reflection')
+@section('title', 'Reflections')
 @section('parentPageTitle', '')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -206,7 +206,7 @@
     .btn-edit {
         background: linear-gradient(135deg, #28a745, #20c997);
         color: white;
-        max-height:35px;
+        max-height: 35px;
     }
 
     .btn-edit:hover {
@@ -215,10 +215,11 @@
         box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         color: white;
     }
+
     .btn-print {
         background: linear-gradient(135deg, #57e4bf, #0f88bc);
         color: white;
-        max-height:35px;
+        max-height: 35px;
     }
 
     .btn-print:hover {
@@ -254,23 +255,23 @@
         .reflection-card {
             margin-bottom: 20px;
         }
-        
+
         .card-header {
             padding: 15px;
         }
-        
+
         .card-body {
             padding: 20px;
         }
-        
+
         .children-grid {
             justify-content: center;
         }
-        
+
         .educators-list {
             justify-content: center;
         }
-        
+
         .card-actions {
             justify-content: center;
         }
@@ -278,100 +279,121 @@
 </style>
 
 <style>
-.pagination {
-    font-size: 0.9rem; /* Slightly larger for better readability */
-    justify-content: center; /* Ensure pagination is centered */
-    margin-bottom:80px;
-}
+    .pagination {
+        font-size: 0.9rem;
+        /* Slightly larger for better readability */
+        justify-content: center;
+        /* Ensure pagination is centered */
+        margin-bottom: 80px;
+    }
 
-.page-item .page-link {
-    padding: 0.5rem 0.75rem; /* Bootstrap 4 default padding for better spacing */
-    font-size: 0.9rem; /* Match pagination font size */
-    line-height: 1.5; /* Improved line height for readability */
-    border-radius: 0.25rem; /* Keep your custom border radius */
-    color: #007bff; /* Bootstrap primary color for links */
-    background-color: #fff; /* Ensure background matches Bootstrap */
-    border: 1px solid #dee2e6; /* Bootstrap default border */
-}
+    .page-item .page-link {
+        padding: 0.5rem 0.75rem;
+        /* Bootstrap 4 default padding for better spacing */
+        font-size: 0.9rem;
+        /* Match pagination font size */
+        line-height: 1.5;
+        /* Improved line height for readability */
+        border-radius: 0.25rem;
+        /* Keep your custom border radius */
+        color: #007bff;
+        /* Bootstrap primary color for links */
+        background-color: #fff;
+        /* Ensure background matches Bootstrap */
+        border: 1px solid #dee2e6;
+        /* Bootstrap default border */
+    }
 
-.page-item.active .page-link {
-    background-color: #007bff; /* Bootstrap primary color for active state */
-    border-color: #007bff;
-    color: #fff;
-}
+    .page-item.active .page-link {
+        background-color: #007bff;
+        /* Bootstrap primary color for active state */
+        border-color: #007bff;
+        color: #fff;
+    }
 
-.page-item.disabled .page-link {
-    color: #6c757d; /* Bootstrap disabled color */
-    pointer-events: none;
-    background-color: #fff;
-    border-color: #dee2e6;
-}
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        /* Bootstrap disabled color */
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
 
-/* SVG icons for Previous/Next arrows */
-.page-item .page-link svg {
-    width: 1em; /* Slightly larger for better visibility */
-    height: 1em;
-    vertical-align: middle;
-}
+    /* SVG icons for Previous/Next arrows */
+    .page-item .page-link svg {
+        width: 1em;
+        /* Slightly larger for better visibility */
+        height: 1em;
+        vertical-align: middle;
+    }
 </style>
 
 
 <style>
-        .modal-right {
-            position: fixed;
-            margin: auto;
-            width: 320px;
-            height: 100%;
-            -webkit-transform: translate3d(0%, 0, 0);
-            -ms-transform: translate3d(0%, 0, 0);
-            -o-transform: translate3d(0%, 0, 0);
-            transform: translate3d(0%, 0, 0);
-        }
-        .modal-right .modal-dialog {
-            position: fixed;
-            margin: auto;
-            width: 320px;
-            height: 100%;
-            -webkit-transform: translate3d(0%, 0, 0);
-            -ms-transform: translate3d(0%, 0, 0);
-            -o-transform: translate3d(0%, 0, 0);
-            transform: translate3d(0%, 0, 0);
-        }
-        .modal-right .modal-content {
-            height: 100%;
-            overflow-y: auto;
-            border-radius: 0px;
-        }
-        .modal-right.fade .modal-dialog {
-            right: -320px;
-            -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
-            -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
-            -o-transition: opacity 0.3s linear, right 0.3s ease-out;
-            transition: opacity 0.3s linear, right 0.3s ease-out;
-        }
-        .modal-right.fade.show .modal-dialog {
-            right: 0;
-        }
-    </style>
+    .modal-right {
+        position: fixed;
+        margin: auto;
+        width: 320px;
+        height: 100%;
+        -webkit-transform: translate3d(0%, 0, 0);
+        -ms-transform: translate3d(0%, 0, 0);
+        -o-transform: translate3d(0%, 0, 0);
+        transform: translate3d(0%, 0, 0);
+    }
+
+    .modal-right .modal-dialog {
+        position: fixed;
+        margin: auto;
+        width: 320px;
+        height: 100%;
+        -webkit-transform: translate3d(0%, 0, 0);
+        -ms-transform: translate3d(0%, 0, 0);
+        -o-transform: translate3d(0%, 0, 0);
+        transform: translate3d(0%, 0, 0);
+    }
+
+    .modal-right .modal-content {
+        height: 100%;
+        overflow-y: auto;
+        border-radius: 0px;
+    }
+
+    .modal-right.fade .modal-dialog {
+        right: -320px;
+        -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+        -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+        -o-transition: opacity 0.3s linear, right 0.3s ease-out;
+        transition: opacity 0.3s linear, right 0.3s ease-out;
+    }
+
+    .modal-right.fade.show .modal-dialog {
+        right: 0;
+    }
+</style>
 
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<!-- Bootstrap CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
 
 @section('content')
-<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
+<div class="text-zero top-right-button-container d-flex justify-content-end"
+    style="margin-right: 20px;margin-top: -60px;">
+
+
+
+
 
 @if(Auth::user()->userType != 'Parent')
                       <!-- Filter Button -->
 <button class="btn btn-outline-primary btn-lg mr-1 filterbutton" data-toggle="modal"
         data-backdrop="static" data-target="#filtersModal">
-    FILTERS
+        <i class="fa-solid fa-filter" style="margin-right: 5px;"></i> FILTERS
 </button>
 &nbsp;&nbsp;&nbsp;
-<button type="button" class="btn btn-outline-info" onclick="window.location.href='{{ route('reflection.addnew') }}'">Add New</button>
+<button type="button" class="btn btn-outline-info" onclick="window.location.href='{{ route('reflection.addnew') }}'"><i class="icon-plus" style="margin-right: 5px;"></i>Add New</button>
 @endif &nbsp;&nbsp;&nbsp;
 
 
@@ -379,15 +401,17 @@
         <button class="btn btn-outline-primary btn-lg dropdown-toggle"
                 type="button" id="centerDropdown" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
-            {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+                <i class="fa-brands fa-centercode" style="margin-right: 5px;"></i> {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+
         </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
+            style="top:3% !important;left:13px !important;">
             @foreach($centers as $center)
-                <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
-                 style="background-color:white;"  data-id="{{ $center->id }}">
-                    {{ $center->centerName }}
-                </a>
+            <a href="javascript:void(0);"
+                class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                style="background-color:white;" data-id="{{ $center->id }}">
+                {{ $center->centerName }}
+            </a>
             @endforeach
         </div>
     </div>
@@ -402,189 +426,242 @@
 <div class="container mt-4">
     <div class="row" id="observations-list">
         @forelse($reflection as $reflectionItem)
-            <div class="col-lg-6 col-md-12">
-                <div class="card reflection-card">
-                    {{-- Image Carousel --}}
-                    <div class="image-carousel">
-                        @if($reflectionItem->media && $reflectionItem->media->count() > 0)
-                            @foreach($reflectionItem->media as $index => $media)
-                                <img src="{{ asset($media->mediaUrl) }}" 
-                                     alt="Reflection Image" 
-                                     class="carousel-image {{ $index === 0 ? 'active' : '' }}">
-                            @endforeach
-                            @if($reflectionItem->media->count() > 1)
-                                <div class="carousel-indicators">
-                                    @foreach($reflectionItem->media as $index => $media)
-                                        <div class="carousel-indicator {{ $index === 0 ? 'active' : '' }}" 
-                                             data-slide="{{ $index }}"></div>
-                                    @endforeach
-                                </div>
-                            @endif
-                        @else
-                            <div class="no-image-placeholder">
-                                <i class="fas fa-image"></i>
-                            </div>
-                        @endif
-                    </div>
-
-                    {{-- Card Header --}}
-                    <div class="card-header">
-                        <h5 class="card-title">{!! $reflectionItem->title !!}</h5>
-                        <div class="card-date">
-                            <i class="fas fa-calendar-alt"></i> 
-                            {{ $reflectionItem->created_at->format('M d, Y') }}
+        <div class="col-lg-6 col-md-12">
+            <div class="card reflection-card">
+                {{-- Image Carousel --}}
+                <div class="image-carousel">
+                    @if($reflectionItem->media && $reflectionItem->media->count() > 0)
+                    @foreach($reflectionItem->media as $index => $media)
+                    <img src="{{ asset($media->mediaUrl) }}" alt="Reflection Image"
+                        class="carousel-image {{ $index === 0 ? 'active' : '' }}">
+                    @endforeach
+                    @if($reflectionItem->media->count() > 1)
+                    <div class="carousel-indicators">
+                        @foreach($reflectionItem->media as $index => $media)
+                        <div class="carousel-indicator {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}">
                         </div>
+                        @endforeach
+                    </div>
+                    @endif
+                    @else
+                    <div class="no-image-placeholder">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    @endif
+                </div>
+
+                {{-- Card Header --}}
+                <div class="card-header">
+                    <h5 class="card-title">{!! $reflectionItem->title !!}</h5>
+                    <div class="card-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        {{ $reflectionItem->created_at ? $reflectionItem->created_at->format('M d, Y') : '' }}
+                    </div>
+                </div>
+
+                {{-- Card Body --}}
+                <div class="card-body">
+                    {{-- Children Section --}}
+                    @if($reflectionItem->children && $reflectionItem->children->count() > 0)
+                    <div class="section-title">
+                        <i class="fas fa-child"></i>
+                        Children
+                    </div>
+                    <div class="children-grid"  style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">
+                        @foreach($reflectionItem->children as $childRelation)
+
+                        @if($childRelation->child)
+                        <div class="child-item"   style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 0;
+        ">
+                            <img src="{{ $childRelation->child->imageUrl ? asset($childRelation->child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}"
+                                alt="{{ $childRelation->child->name }}" class="child-avatar">
+                            <div class="child-name">{{ $childRelation->child->name }}</div>
+                        </div>
+                        @endif
+                        @endforeach
+                    </div>
+                    @endif
+
+                    {{-- Educators Section --}}
+                    @if($reflectionItem->staff && $reflectionItem->staff->count() > 0)
+                    <div class="section-title">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        Educators
+                    </div>
+                    <div class="educators-list" style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">
+                        @foreach($reflectionItem->staff as $staffRelation)
+
+                        @php
+                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
+                        'avatar10.jpg'];
+                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
+                        'avatar7.jpg'];
+                        $avatars = $staffRelation->staff->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+                        $defaultAvatar = $avatars[array_rand($avatars)];
+                        @endphp
+
+
+                        @if($staffRelation->staff)
+                        <div class="educator-item" style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+    
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 6px;
+        ">
+                            <img src="{{ $staffRelation->staff->imageUrl ? asset($staffRelation->staff->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
+                                alt="{{ $staffRelation->staff->name }}" class="educator-avatar">
+                            <div class="educator-name">{{ $staffRelation->staff->name }}</div>
+                        </div>
+                        @endif
+                        @endforeach
+
+
+                    </div>
+                    @endif
+
+
+
+                    @if(Auth::user()->userType != 'Parent')
+
+                    @if($reflectionItem->Seen && $reflectionItem->Seen->count() > 0)
+                    <div class="section-title">
+                        <i class="fa-solid fa-users-between-lines"></i>
+                        Seen by Parents:
                     </div>
 
-                    {{-- Card Body --}}
-                    <div class="card-body">
-                        {{-- Children Section --}}
-                        @if($reflectionItem->children && $reflectionItem->children->count() > 0)
-                            <div class="section-title">
-                                <i class="fas fa-child"></i>
-                                Children
-                            </div>
-                            <div class="children-grid">
-                                @foreach($reflectionItem->children as $childRelation)
+                    <div class="educators-list" style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">
+                        @forelse($reflectionItem->Seen as $seen)
 
-                                    @if($childRelation->child)
-                                        <div class="child-item">
-                                            <img src="{{ $childRelation->child->imageUrl ? asset($childRelation->child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}" 
-                                                 alt="{{ $childRelation->child->name }}" 
-                                                 class="child-avatar">
-                                            <div class="child-name">{{ $childRelation->child->name }}</div>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        @endif
+                        @php
+                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
+                        'avatar10.jpg'];
+                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
+                        'avatar7.jpg'];
+                        $avatars = $seen->user->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+                        $defaultAvatar = $avatars[array_rand($avatars)];
+                        @endphp
 
-                        {{-- Educators Section --}}
-                        @if($reflectionItem->staff && $reflectionItem->staff->count() > 0)
-                            <div class="section-title">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                                Educators
-                            </div>
-                            <div class="educators-list">
-                                @foreach($reflectionItem->staff as $staffRelation)
-
-                                @php
-                                    $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
-                                    'avatar10.jpg'];
-                                    $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
-                                    'avatar7.jpg'];
-                                    $avatars = $staffRelation->staff->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-                                    $defaultAvatar = $avatars[array_rand($avatars)];
-                                @endphp
+                        @if($seen->user && $seen->user->userType === 'Parent')
 
 
-                                    @if($staffRelation->staff)
-                                        <div class="educator-item">
-                                            <img src="{{ $staffRelation->staff->imageUrl ? asset($staffRelation->staff->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" 
-                                                 alt="{{ $staffRelation->staff->name }}" 
-                                                 class="educator-avatar">
-                                            <div class="educator-name">{{ $staffRelation->staff->name }}</div>
-                                        </div>
-                                    @endif
-                                @endforeach
-
-
-                            </div>
-                        @endif
-
-
-
-                                @if(Auth::user()->userType != 'Parent')
-                                    
-                                     @if($reflectionItem->Seen && $reflectionItem->Seen->count() > 0)
-                                            <div class="section-title">
-                                            <i class="fa-solid fa-users-between-lines"></i>
-                                                            Seen by Parents:
-                                                        </div>
-
-                                                <div class="educators-list">
-                                                            @forelse($reflectionItem->Seen as $seen)
-
-                                                                    @php
-                                                                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
-                                                                        'avatar10.jpg'];
-                                                                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
-                                                                        'avatar7.jpg'];
-                                                                        $avatars = $seen->user->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-                                                                        $defaultAvatar = $avatars[array_rand($avatars)];
-                                                                    @endphp
-
-                                                                    @if($seen->user && $seen->user->userType === 'Parent')
-                                                                
-                                                                
-                                                                    <!-- <li style="margin-bottom: 10px;">
+                        <!-- <li style="margin-bottom: 10px;">
                                                                     <img src="{{ $seen->user->imageUrl  ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" alt="Profile Image" width="40" height="40" style="border-radius: 50%;">
-                                                                    {{ $seen->user->name }} <span style="color: #2196F3;">&#10003;&#10003;</span> 
+                                                                    {{ $seen->user->name }} <span style="color: #2196F3;">&#10003;&#10003;</span>
                                                                     </li> -->
 
-
-                                                                    <div class="educator-item">
-                                                                            <img src="{{ $seen->user->imageUrl ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" 
-                                                                                alt="{{ $seen->user->name }}" 
-                                                                                class="educator-avatar">
-                                                                            <div class="educator-name">{{ $seen->user->name }}</div>
-                                                                        </div>
-
-
-
-                                                                    @endif
-                                                                    @empty
-                                                                    <li>No parent has seen this yet.</li>
-                                                            @endforelse
-
-                                                </div>
-
-                                    @endif        
-                                @endif
-
-
-
-
-                        {{-- Action Buttons --}}
-                        <div class="card-actions">
-                        <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}" class="btn btn-edit btn-action">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                        <a href="{{ route('reflection.print', ['id' => $reflectionItem->id]) }}" target="_blank" class="btn btn-print btn-action">
-                                <i class="fas fa-print"></i> Print
-                            </a>
-                            <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
-                                  <i class="fas fa-trash-alt"></i> Delete
-                             </button>
+                          <div class="educator-item" style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+    
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 6px;
+        ">
+                            <img src="{{ $seen->user->imageUrl ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
+                                alt="{{ $seen->user->name }}" class="educator-avatar">
+                            <div class="educator-name">{{ $seen->user->name }}</div>
                         </div>
+
+
+
+                        @endif
+                        @empty
+                        <li>No parent has seen this yet.</li>
+                        @endforelse
+
+                    </div>
+
+                    @endif
+                    @endif
+
+
+
+
+                    {{-- Action Buttons --}}
+                    <div class="card-actions">
+                        @if(!empty($permissions['updatereflection']) && $permissions['updatereflection'])
+
+                        <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}"
+                            class="btn btn-edit btn-action">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        @endif
+
+                        <a href="{{ route('reflection.print', ['id' => $reflectionItem->id]) }}" target="_blank"
+                            class="btn btn-print btn-action">
+                            <i class="fas fa-print"></i> Print
+                        </a>
+                        @if(!empty($permissions['deletereflection']) && $permissions['deletereflection'])
+
+                        <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                        @endif
                     </div>
                 </div>
             </div>
+        </div>
         @empty
-            <div class="col-12">
-                <div class="alert alert-info text-center">
-                    <i class="fas fa-info-circle"></i> No reflections found.
-                </div>
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle"></i> No reflections found.
             </div>
+        </div>
         @endforelse
 
         {{-- Pagination --}}
-    @if ($reflection->hasPages())
+        @if ($reflection->hasPages())
         <div class="col-12 d-flex justify-content-center mt-4">
             {{ $reflection->links('vendor.pagination.bootstrap-4') }}
         </div>
-    @endif
+        @endif
     </div>
 
-  
+
 </div>
 
 
 
 
 <!-- Filters Modal -->
-<div class="modal fade modal-right" id="filtersModal" tabindex="-1" role="dialog"
-     aria-labelledby="filtersModalRight" aria-hidden="true">
+<div class="modal fade modal-right" id="filtersModal" tabindex="-1" role="dialog" aria-labelledby="filtersModalRight"
+    aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -657,7 +734,8 @@
                                         <label class="custom-control-label" for="added_custom">Custom Date</label>
                                     </div>
                                     <div id="custom_date_range" style="display:none; margin-top: 10px;">
-                                        <input type="date" id="from_date" class="form-control mb-2" placeholder="From Date">
+                                        <input type="date" id="from_date" class="form-control mb-2"
+                                            placeholder="From Date">
                                         <input type="date" id="to_date" class="form-control" placeholder="To Date">
                                     </div>
                                 </div>
@@ -675,12 +753,14 @@
                                     <div class="custom-control custom-checkbox mb-4">
                                         <input type="checkbox" class="custom-control-input filter_child"
                                             id="filter_child_selectall" value="All">
-                                        <label class="custom-control-label" for="filter_child_selectall">Select All</label>
+                                        <label class="custom-control-label" for="filter_child_selectall">Select
+                                            All</label>
                                     </div>
-                                    <input type="text" id="childSearchInput" class="form-control mb-3" placeholder="Search child...">
+                                    <input type="text" id="childSearchInput" class="form-control mb-3"
+                                        placeholder="Search child...">
                                     <!-- Dynamic child checkboxes will be loaded here -->
                                     <div id="child-checkboxes">
-                                  
+
                                     </div>
                                 </div>
                             </div>
@@ -709,24 +789,26 @@
 
                                     @if(Auth::user()->userType == 'Superadmin')
 
-                                            <hr>
+                                    <hr>
 
-                                          <div class="custom-control custom-checkbox mb-4">
+                                    <div class="custom-control custom-checkbox mb-4">
                                         <input type="checkbox" class="custom-control-input filter_staff"
                                             id="filter_staff_selectall" value="All">
-                                        <label class="custom-control-label" for="filter_staff_selectall">Select All</label>
+                                        <label class="custom-control-label" for="filter_staff_selectall">Select
+                                            All</label>
                                     </div>
 
 
-                                       <input type="text" id="staffSearchInput" class="form-control mb-3" placeholder="Search staff...">
+                                    <input type="text" id="staffSearchInput" class="form-control mb-3"
+                                        placeholder="Search staff...">
 
 
                                     <div id="staff-checkboxes">
-                                  
+
                                     </div>
                                     @endif
-        
-                                </div>    
+
+                                </div>
                             </div>
                         </div>
 
@@ -754,7 +836,7 @@
 
 
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
     // Set CSRF token for AJAX requests
     $.ajaxSetup({
         headers: {
@@ -786,7 +868,7 @@ $(document).ready(function() {
     $(document).on('change', '.filter_child:not(#filter_child_selectall)', function() {
         var totalChildCheckboxes = $('.filter_child:not(#filter_child_selectall)').length;
         var checkedChildCheckboxes = $('.filter_child:not(#filter_child_selectall):checked').length;
-        
+
         if (checkedChildCheckboxes === totalChildCheckboxes) {
             $('#filter_child_selectall').prop('checked', true);
         } else {
@@ -808,7 +890,7 @@ $(document).ready(function() {
     $(document).on('change', '.filter_staff:not(#filter_staff_selectall)', function() {
         var totalChildCheckboxes = $('.filter_staff:not(#filter_staff_selectall)').length;
         var checkedChildCheckboxes = $('.filter_staff:not(#filter_staff_selectall):checked').length;
-        
+
         if (checkedChildCheckboxes === totalChildCheckboxes) {
             $('#filter_staff_selectall').prop('checked', true);
         } else {
@@ -821,7 +903,7 @@ $(document).ready(function() {
     function applyFilters() {
         // Get selected child IDs
         var childs = getSelectedChildIds();
-        
+
         function getSelectedChildIds() {
             var childs = [];
             var hasSelectAll = false;
@@ -983,7 +1065,15 @@ if ($('#filter_author_any').is(':checked')) {
                         val.children.forEach(childItem => {
                             const imageUrl = childItem.child?.imageUrl || 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png';
                             childrenHtml += `
-                                <div class="child-item">
+                                <div class="child-item" style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 0;
+        ">
                                     <img src="${imageUrl}" alt="${childItem.child?.name}" class="child-avatar">
                                     <div class="child-name">${childItem.child?.name}</div>
                                 </div>
@@ -998,7 +1088,14 @@ if ($('#filter_author_any').is(':checked')) {
                             const gender = staffItem.staff?.gender === 'FEMALE' ? 'female' : 'male';
                             const imageUrl = staffItem.staff?.imageUrl || `/assets/img/xs/avatar${Math.floor(Math.random() * 10) + 1}.jpg`;
                             educatorsHtml += `
-                                <div class="educator-item">
+                                <div class="educator-item" style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+    
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 6px;
+        ">
                                     <img src="${imageUrl}" alt="${staffItem.staff?.name}" class="educator-avatar">
                                     <div class="educator-name">${staffItem.staff?.name}</div>
                                 </div>
@@ -1012,14 +1109,21 @@ if ($('#filter_author_any').is(':checked')) {
                             const gender = parentItem.gender === 'FEMALE' ? 'female' : 'male';
                             const imageUrl = parentItem.imageUrl || `/assets/img/xs/avatar${Math.floor(Math.random() * 10) + 1}.jpg`;
                             seenparentHtml += `
-                                <div class="educator-item">
+                                <div class="educator-item" style="
+          min-width: 110px;
+          flex: 0 0 auto;
+          text-align: center;
+    
+          box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
+          padding: 12px 6px;
+        ">
                                     <img src="${imageUrl}" alt="${parentItem.name}" class="educator-avatar">
                                     <div class="educator-name">${parentItem.name}</div>
                                 </div>
                             `;
                         });
                     }
- 
+
                     $('#observations-list').append(`
                         <div class="col-lg-6 col-md-12">
                             <div class="card reflection-card">
@@ -1038,17 +1142,44 @@ if ($('#filter_author_any').is(':checked')) {
                                 <div class="card-body">
                                     ${childrenHtml ? `
                                         <div class="section-title"><i class="fas fa-child"></i> Children</div>
-                                        <div class="children-grid">${childrenHtml}</div>
+                                        <div class="children-grid" style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">${childrenHtml}</div>
                                     ` : ''}
 
                                     ${educatorsHtml ? `
                                         <div class="section-title"><i class="fas fa-chalkboard-teacher"></i> Educators</div>
-                                        <div class="educators-list">${educatorsHtml}</div>
+                                        <div class="educators-list" style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">${educatorsHtml}</div>
                                     ` : ''}
 
                                     ${seenparentHtml ? `
                                         <div class="section-title"><i class="fas fa-chalkboard-teacher"></i>Seen by Parents:</div>
-                                        <div class="educators-list">${seenparentHtml}</div>
+                                        <div class="educators-list" style="
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 8px 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100vw;
+  ">${seenparentHtml}</div>
                                     ` : ''}
 
                                     <div class="card-actions">
@@ -1093,20 +1224,20 @@ if ($('#filter_author_any').is(':checked')) {
     function clearFilters() {
         // Reset status to "All"
         $('#status_all').prop('checked', true);
-        
+
         // Reset date to "None"
         $('#added_none').prop('checked', true);
         $('#custom_date_range').hide();
         $('#from_date').val('');
         $('#to_date').val('');
-        
+
         // Uncheck all children
         $('.filter_child').prop('checked', false);
-        
+
         // Reset author to "Any"
         $('.filter_author').prop('checked', false);
         $('#filter_author_any').prop('checked', true);
-        
+
         // Reload original observations
         location.reload();
     }
@@ -1241,7 +1372,7 @@ $(document).on('change', '.filter_author, .filter_staff', function () {
 
 {{-- JavaScript for auto-sliding carousel --}}
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
     // Auto-sliding carousel functionality
     $('.reflection-card').each(function() {
         const card = $(this);

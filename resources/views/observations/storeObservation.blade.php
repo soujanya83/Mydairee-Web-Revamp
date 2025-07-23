@@ -4,6 +4,205 @@
 <link rel="stylesheet" href="{{ asset('assets/vendor/summernote/dist/summernote.css') }}"/>
 
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+
+
+<style>
+/* Assessment Container Styles */
+.assessment-container {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.assessment-container:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+/* Triangle Indicator Styles */
+.triangle-indicator {
+    position: relative;
+    width: 60px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.triangle-wrapper {
+    position: relative;
+    width: 50px;
+    height: 45px;
+}
+
+.triangle-side {
+    position: absolute;
+    background: #e9ecef;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+/* Triangle Side 1 - Bottom */
+.triangle-side.side-1 {
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 4px;
+    border-radius: 2px;
+}
+
+/* Triangle Side 2 - Left */
+.triangle-side.side-2 {
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    height: 45px;
+    border-radius: 2px;
+    transform-origin: bottom center;
+    transform: rotate(30deg);
+}
+
+/* Triangle Side 3 - Right */
+.triangle-side.side-3 {
+    bottom: 0;
+    right: 0;
+    width: 4px;
+    height: 45px;
+    border-radius: 2px;
+    transform-origin: bottom center;
+    transform: rotate(-30deg);
+}
+
+/* Active Triangle States */
+.triangle-indicator.level-1 .side-1 {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    transform: scaleY(1.1);
+}
+
+.triangle-indicator.level-2 .side-1,
+.triangle-indicator.level-2 .side-2 {
+    background: linear-gradient(45deg, #ffc107, #fd7e14);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    transform: scaleY(1.1);
+}
+
+.triangle-indicator.level-2 .side-2 {
+    transform: rotate(30deg) scaleY(1.1);
+}
+
+.triangle-indicator.level-3 .side-1,
+.triangle-indicator.level-3 .side-2,
+.triangle-indicator.level-3 .side-3 {
+    background: linear-gradient(45deg, #dc3545, #e83e8c);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    transform: scaleY(1.1);
+}
+
+.triangle-indicator.level-3 .side-2 {
+    transform: rotate(30deg) scaleY(1.1);
+}
+
+.triangle-indicator.level-3 .side-3 {
+    transform: rotate(-30deg) scaleY(1.1);
+}
+
+/* Custom Radio Button Styles */
+.custom-control-input:checked ~ .assessment-label {
+    color: #007bff;
+    font-weight: 600;
+    transform: translateY(-1px);
+    transition: all 0.3s ease;
+}
+
+.assessment-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-left: 5px;
+}
+
+.assessment-label:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+}
+
+.custom-control-input:checked ~ .assessment-label {
+    background-color: #e3f2fd;
+    border: 1px solid #007bff;
+}
+
+/* Clear Button Styles */
+.clear-btn {
+    border-radius: 20px;
+    font-size: 12px;
+    padding: 6px 12px;
+    transition: all 0.3s ease;
+    border: 1px solid #dc3545;
+}
+
+.clear-btn:hover {
+    background-color: #dc3545;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Options Container */
+.options-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .triangle-indicator {
+        width: 45px;
+        height: 40px;
+    }
+    
+    .triangle-wrapper {
+        width: 35px;
+        height: 32px;
+    }
+    
+    .triangle-side.side-1 {
+        width: 35px;
+    }
+    
+    .triangle-side.side-2,
+    .triangle-side.side-3 {
+        height: 32px;
+    }
+    
+    .options-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Animation for state changes */
+@keyframes trianglePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.triangle-indicator.animate {
+    animation: trianglePulse 0.6s ease-in-out;
+}
+</style>
+
+
+
 <style>
 .media-upload-box {
     border: 2px dashed #007bff;
@@ -753,7 +952,7 @@
 
                 <!-- OBSERVATIONS Tabs -->
                 <div class="tab-pane {{ $activeTab == 'observation' ? 'show active' : '' }}" id="Home">
-                        
+
                     <form id="observationform" method="POST" enctype="multipart/form-data">
 
       <div class="row">
@@ -866,8 +1065,8 @@
                         Your browser does not support the video tag.
                     </video>
                 @endif
-                <button type="button" class="btn btn-sm btn-danger remove-btn" onclick="deleteMedia({{ $media->id }})">Remove</button>
-            </div>
+                <button type="button" class="btn btn-sm btn-danger remove-btn"
+    onclick="deleteMedia({{ $media->id }}, '{{ asset($media->mediaUrl) }}')">Remove</button>            </div>
         @endforeach
     </div>
 @endif
@@ -958,22 +1157,54 @@
                                         <div class="col-md-4">{{ $sub->title }}</div>
                                         <div class="col-md-8">
                                         @php
-    $opts = ['not_assessed'=>'Not Assessed','introduced'=>'Introduced','working'=>'Working','completed'=>'Completed'];
-    $selectedAssessment = $observation && $observation->montessoriLinks
-        ? $observation->montessoriLinks->firstWhere('idSubActivity', $sub->idSubActivity)->assesment ?? 'not_assessed'
-        : 'not_assessed';
-@endphp
-@foreach($opts as $val => $label)
-    <div class="custom-control custom-radio custom-control-inline">
-        <input type="radio"
-               class="custom-control-input"
-               id="sa-{{ $sub->idSubActivity }}-{{ $val }}"
-               name="subactivity[{{ $sub->idSubActivity }}]"
-               value="{{ $label }}"
-               {{ $selectedAssessment == $label ? 'checked' : '' }}>
-        <label class="custom-control-label" for="sa-{{ $sub->idSubActivity }}-{{ $val }}">{{ $label }}</label>
-    </div>
-@endforeach
+                $opts = ['introduced' => 'Introduced', 'working' => 'Working', 'completed' => 'Completed'];
+                $selectedAssessment = $observation && $observation->montessoriLinks
+                    ? $observation->montessoriLinks->firstWhere('idSubActivity', $sub->idSubActivity)->assesment ?? ''
+                    : '';
+            @endphp
+
+            <div class="assessment-container d-flex align-items-center">
+                <!-- Triangle Visual Indicator -->
+                <div class="triangle-indicator mr-3" id="triangle-{{ $sub->idSubActivity }}">
+                    <div class="triangle-wrapper">
+                        <div class="triangle-side side-1" data-level="1"></div>
+                        <div class="triangle-side side-2" data-level="2"></div>
+                        <div class="triangle-side side-3" data-level="3"></div>
+                    </div>
+                </div>
+
+                <!-- Radio Button Options -->
+                <div class="options-container">
+                    @foreach($opts as $val => $label)
+                    @php
+                        $displayLabel = ($label === 'Working') ? 'Practicing' : $label;
+                    @endphp
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio"
+                                   class="custom-control-input assessment-radio"
+                                   id="sa-{{ $sub->idSubActivity }}-{{ $val }}"
+                                   name="subactivity[{{ $sub->idSubActivity }}]"
+                                   value="{{ $label }}"
+                                   data-sub-id="{{ $sub->idSubActivity }}"
+                                   data-level="{{ $loop->iteration }}"
+                                   {{ $selectedAssessment == $label ? 'checked' : '' }}>
+                            <label class="custom-control-label assessment-label" style="margin-right:14px !important;"
+                                   for="sa-{{ $sub->idSubActivity }}-{{ $val }}">
+                                {{ $displayLabel }}
+                            </label>
+                        </div>
+                    @endforeach
+
+                    <!-- Clear Button -->
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger ml-2 clear-btn"
+                            onclick="clearAssessment('{{ $sub->idSubActivity }}')"
+                            title="Clear Selection">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+
                                         </div>
                                     </div>
                                 @endforeach
@@ -990,7 +1221,7 @@
 <button type="button" id="saveMontessoriData" class="btn btn-primary">Save Montessori Assessment</button>
 
 
-      </div> 
+      </div>
 
 
       <div class="tab-pane {{ $activesubTab == 'EYLF' ? 'show active' : '' }}" id="EYLF" role="tabpanel">
@@ -1055,7 +1286,7 @@
 
 
 
-      </div> 
+      </div>
 
 
       <div class="tab-pane {{ $activesubTab == 'MILESTONE' ? 'show active' : '' }}" id="MILESTONE">
@@ -1128,11 +1359,11 @@
 
 
 
-      </div> 
+      </div>
 
 
 </div>
-             
+
                 </div>
              <!-- end ASSESSMENT -->
 
@@ -1170,14 +1401,14 @@
 
             @if($linked)
                 <div class="col-md-4 mb-3">
-                  
+
                     <div class="card h-100 shadow-sm obs-card">
                     @php
                        $media = $linked->media->first();
                        $imageUrl = $media && $media->mediaUrl ? asset($media->mediaUrl) : 'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
                    @endphp
 
-<img src="{{ $imageUrl }}" class="card-img-top obs-img" alt="{{ $linked->obestitle ?? 'Untitled' }}"> 
+<img src="{{ $imageUrl }}" class="card-img-top obs-img" alt="{{ $linked->obestitle ?? 'Untitled' }}">
                         <div class="card-body">
                         <h5 class="card-title">{!! $linked->obestitle ?? 'Untitled' !!}</h5>
                             <p class="card-text"><small class="text-muted">Created by: {{ $linked->user->name ?? 'Unknown' }}</small></p>
@@ -1200,7 +1431,7 @@
                 </div>
                 <div class="modal-body" style="overflow-y:auto;max-height:550px;">
                     <input type="text" id="searchObservation" class="form-control mb-3" placeholder="Search by title...">
-                 
+
                     <div id="observationList" class="row mb-3"></div>
                 </div>
                 <div class="modal-footer">
@@ -1605,7 +1836,7 @@ $(document).ready(function () {
     $('#observationform').on('submit', function (e) {
         e.preventDefault();
 
-     
+
 
         const form = $('#observationform')[0];
         const formData = new FormData(form);
@@ -1656,39 +1887,59 @@ $(document).ready(function () {
 </script>
 
 <script>
-    function deleteMedia(id) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You want to delete this media?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/observation/observation-media/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        document.getElementById(`media-${id}`).remove();
-                        Swal.fire('Deleted!', 'The media has been removed.', 'success');
-                    } else {
-                        throw new Error('Delete failed');
-                    }
-                })
-                .catch(error => {
-                    Swal.fire('Error!', 'Something went wrong.', 'error');
-                });
-            }
-        });
-    }
+ function deleteMedia(id, fileUrl) {
+    Swal.fire({
+        title: 'What do you want to do?',
+        icon: 'question',
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: 'Download & Delete',
+        denyButtonText: 'Delete Only',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#0d6efd',
+        denyButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Download first
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = '';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Then delete
+            performDelete(id);
+        } else if (result.isDenied) {
+            // Delete without download
+            performDelete(id);
+        }
+    });
+}
+
+function performDelete(id) {
+    fetch(`/observation/observation-media/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            document.getElementById(`media-${id}`).remove();
+            Swal.fire('Deleted!', 'The media has been removed.', 'success');
+        } else {
+            throw new Error('Delete failed');
+        }
+    })
+    .catch(() => {
+        Swal.fire('Error!', 'Something went wrong.', 'error');
+    });
+}
+
 </script>
 
 
@@ -1969,7 +2220,7 @@ $(function() {
                     Object.values(xhr.responseJSON.errors).forEach(err => showToast('error', err[0]));
                 } else showToast('error', 'Server error occurred');
 
-                
+
             }
         });
     });
@@ -2210,8 +2461,104 @@ document.getElementById('submitSelectedObs').addEventListener('click', function 
 </script>
 
 
+<script>
+// Initialize triangle states on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all triangles based on checked radio buttons
+    const radios = document.querySelectorAll('.assessment-radio');
+    radios.forEach(radio => {
+        if (radio.checked) {
+            updateTriangle(radio.dataset.subId, radio.dataset.level);
+        }
+    });
+    
+    // Add event listeners to all radio buttons
+    radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                updateTriangle(this.dataset.subId, this.dataset.level);
+            }
+        });
+    });
+});
+
+function updateTriangle(subId, level) {
+    const triangle = document.getElementById(`triangle-${subId}`);
+    if (!triangle) return;
+    
+    // Remove all existing level classes
+    triangle.classList.remove('level-1', 'level-2', 'level-3');
+    
+    // Add animation class
+    triangle.classList.add('animate');
+    
+    // Add new level class
+    if (level) {
+        triangle.classList.add(`level-${level}`);
+    }
+    
+    // Remove animation class after animation completes
+    setTimeout(() => {
+        triangle.classList.remove('animate');
+    }, 600);
+}
+
+function clearAssessment(subId) {
+    // Clear radio buttons
+    const radios = document.getElementsByName(`subactivity[${subId}]`);
+    radios.forEach(radio => radio.checked = false);
+    
+    // Clear triangle visualization
+    updateTriangle(subId, null);
+    
+    // Add a subtle feedback animation
+    const triangle = document.getElementById(`triangle-${subId}`);
+    if (triangle) {
+        triangle.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            triangle.style.transform = 'scale(1)';
+        }, 150);
+    }
+}
+
+// Add smooth transitions when hovering over options
+document.querySelectorAll('.assessment-label').forEach(label => {
+    label.addEventListener('mouseenter', function() {
+        const radio = this.previousElementSibling;
+        const subId = radio.dataset.subId;
+        const level = radio.dataset.level;
+        const triangle = document.getElementById(`triangle-${subId}`);
+        
+        // Only show hover effect if no option is currently selected
+        const allRadios = document.getElementsByName(`subactivity[${subId}]`);
+        const hasSelection = Array.from(allRadios).some(r => r.checked);
+        
+        if (triangle && !hasSelection) {
+            triangle.style.opacity = '0.6';
+            triangle.classList.add(`level-${level}`);
+        }
+    });
+    
+    label.addEventListener('mouseleave', function() {
+        const radio = this.previousElementSibling;
+        const subId = radio.dataset.subId;
+        const triangle = document.getElementById(`triangle-${subId}`);
+        
+        // Only clear hover effect if no option is currently selected
+        const allRadios = document.getElementsByName(`subactivity[${subId}]`);
+        const hasSelection = Array.from(allRadios).some(r => r.checked);
+        
+        if (triangle && !hasSelection) {
+            triangle.style.opacity = '1';
+            triangle.classList.remove('level-1', 'level-2', 'level-3');
+        }
+    });
+});
+</script>
+
 @include('layout.footer')
 @stop
+
 
 
 
