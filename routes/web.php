@@ -107,6 +107,11 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('headchecks/getCenterRooms', [HeadChecks::class, 'getCenterRooms'])->name('headchecks.getCenterRooms');
     Route::post('headcheckdelete', [HeadChecks::class, 'headcheckDelete'])->name('headcheck.delete');
 
+
+    Route::get('/notifications/mark-all-read', function () {
+        Auth::user()->unreadNotifications->markAsRead();
+        return redirect()->back();
+    })->name('notifications.markAllRead');
     // sleep check
     Route::get('sleepcheck/list', [SleepCheckController::class, 'getSleepChecksList'])->name('sleepcheck.list');
     Route::post('sleepcheck/save', [SleepCheckController::class, 'sleepcheckSave'])->name('sleepcheck.save');

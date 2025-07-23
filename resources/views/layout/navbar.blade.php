@@ -77,7 +77,12 @@
 
                         <ul class="dropdown-menu notifications" style="background-color: aliceblue">
                             <li class="mb-2"><strong>You have {{ $notifications->count() }} new Notifications</strong>
+                                <a href="{{ route('notifications.markAllRead') }}"
+                                    class="d-flex justify-content-between align-items-center"
+                                    style="margin-left:78%;color: rgb(67, 133, 204);margin-top:-36px">Mark all
+                                    read</a>
                             </li>
+
 
                             @forelse ($notifications as $notification)
                             <li>
@@ -101,7 +106,7 @@
                             </li>
                             @endforelse
 
-                            <li class="footer"><a href="{{ route('notifications.all') }}" class="more">See all
+                            <li class="footer"><a href="{{ route('notifications.all') }}" class="more" style="margin-left:67%;">See all
                                     notifications</a></li>
                         </ul>
 

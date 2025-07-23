@@ -7,13 +7,7 @@
 <!-- FullCalendar CSS -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
 
-<style>
-    #calendar {
-        min-height: 350px;
-        padding: 10px;
-        margin-top: -49px;
-    }
-</style>
+
 <style>
     .fc .fc-button {
         background-color: #007bff;
@@ -33,9 +27,7 @@
         color: white
     }
 
-    .fc-toolbar-chunk {
-        margin-left: 90px;
-    }
+
 </style>
 
 
@@ -119,9 +111,7 @@
     <!-- Calendar Column -->
     <div class="col-md-12 col-lg-6">
         <div class="card">
-            <div class="header">
-                <h2>Calendar</h2>
-            </div>
+
             <div class="body">
                 <div id="calendar"></div>
             </div>
