@@ -8,7 +8,7 @@ class DailyDiarySleep extends Model
 {
 
     protected $table = "dailydiarysleep";
-    // public $timestamps = false;
+    public $timestamps = false;
    protected $fillable = [
     'childid',
     'diarydate',

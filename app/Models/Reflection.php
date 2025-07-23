@@ -9,6 +9,7 @@ class Reflection extends Model
     use HasFactory;
 
     protected $table = 'reflection';
+    public $timestamps = false;
 
     protected $fillable = [
         'title',

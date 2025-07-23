@@ -33,19 +33,31 @@ class LessonPlanList extends Controller
 {
     public function programPlanList(Request $request)
 {
-  
-  
         $user = Auth::user();
         if (!$user) {
     return response()->json(['error' => 'User not found or not authenticated'], 401);
 }
         $authId = $user->id;
         // $centerId = Session('user_center_id');
-        $centerId = $request->centerid;
-      
+       $validator = Validator::make($request->all(), [
+    'centerid' => 'required|integer|min:1|exists:centers,id', // Adjust table/column as needed
+], [
+    'centerid.required' => 'Center ID is required.',
+    'centerid.integer'  => 'Center ID must be an integer.',
+    'centerid.min'      => 'Center ID must be greater than 0.',
+    'centerid.exists'   => 'Selected Center ID does not exist.',
+]);
 
+if ($validator->fails()) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Validation failed.',
+        'errors'  => $validator->errors(),
+    ], 422);
+}
 
-
+$validated = $validator->validated();
+$centerId = $validated['centerid'];
 
         if ($user->userType == "Superadmin") {
             // dd('here');
@@ -121,23 +133,46 @@ class LessonPlanList extends Controller
 }
 
 
-public function programPlanPrintPage($id)
+public function programPlanPrintPage(Request $request)
 {
-    // Check if user is authenticated
-    // if (!Auth::check()) {
-    //     return redirect('login');
-    // }
-    // dd($id);
+
+  $validator = Validator::make($request->all(),[
+    'id' => 'required|integer|min:1', // or add `exists:table,id` for DB check
+], [
+    'id.required' => 'ID is required.',
+    'id.integer'  => 'ID must be an integer.',
+    'id.min'      => 'ID must be greater than 0.',
+]);
+
+  if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed.',
+            'errors'  => $validator->errors(),
+        ], 422);
+    }
+
+$validated = $validator->validated();
+$id = $validated['id'];
+
 
     // Fetch the program plan by ID
     $plan = ProgramPlanTemplateDetailsAdd::find($id);
 
-    if (!$plan) {
-        abort(404); // Show 404 if not found
+     if (!$plan) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Program plan not found.'
+        ], 404);
     }
 
     // Convert month number to full uppercase name
-    $month_name = strtoupper(\Carbon\Carbon::createFromDate(null, $plan->months)->format('F'));
+ $month_name = $plan->months
+        ? strtoupper(\Carbon\Carbon::createFromDate(null, $plan->months)->format('F'))
+        : '';
+
+  
+
 
     // Get room name
     $room_name = optional($plan->room)->name ?? 'Unknown Room';
@@ -174,11 +209,29 @@ public function programPlanPrintPage($id)
       $authId = Auth::user()->userid; 
       $user = Auth::user();
     // $centerId = Session('user_center_id');
-     $centerId = $request->user_center_id;
+$validator = Validator::make($request->all(), [
+    'centerid' => 'required|integer|min:1',
+], [
+    'user_center_id.required' => 'Center ID is required.',
+    'user_center_id.integer'  => 'Center ID must be an integer.',
+    'user_center_id.min'      => 'Center ID must be greater than 0.',
+]);
+
+if ($validator->fails()) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Validation failed.',
+        'errors'  => $validator->errors(),
+    ], 422);
+}
+
+// ✅ Passed validation
+$validated = $validator->validated();
+$centerId = $validated['centerid'];
 
     // dd($centerId);
         // if (Auth::check()) {
-            $centerid = $request->centerid;
+            // $centerid = $request->centerid;
             // dd($centerid);
             // $userid = session('LoginId');
             // $usertype = session('UserType');
@@ -246,11 +299,25 @@ public function programPlanPrintPage($id)
 
 public function getRoomUsers(Request $request)
 {
-    $request->validate([
-        'room_id' => 'required|integer|exists:room_staff,roomid',
-    ]);
+   $validator = Validator::make($request->all(), [
+    'room_id' => 'required|integer|exists:room_staff,roomid',
+], [
+    'room_id.required' => 'Room ID is required.',
+    'room_id.integer'  => 'Room ID must be an integer.',
+    'room_id.exists'   => 'The selected Room ID does not exist in room_staff.',
+]);
 
-    $roomId = $request->room_id;
+if ($validator->fails()) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Validation failed.',
+        'errors'  => $validator->errors(),
+    ], 422);
+}
+
+// ✅ Passed validation
+$validated = $validator->validated();
+$roomId = $validated['room_id'];
 
     // Get staff IDs assigned to the room
     $staffIds = RoomStaff::where('roomid', $roomId)->pluck('staffid');
@@ -278,9 +345,25 @@ public function getRoomUsers(Request $request)
 
 public function getRoomChildren(Request $request)
 {
-    $request->validate([
-        'room_id' => 'required|integer|exists:child,room'
-    ]);
+  $validator = Validator::make($request->all(), [
+    'room_id' => 'required|integer|exists:child,room'
+], [
+    'room_id.required' => 'Room ID is required.',
+    'room_id.integer'  => 'Room ID must be an integer.',
+    'room_id.exists'   => 'Selected room ID does not exist.',
+]);
+
+if ($validator->fails()) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Validation failed.',
+        'errors' => $validator->errors(),
+    ], 422);
+}
+
+// If validation passes:
+$validated = $validator->validated();
+$roomId = $validated['room_id'];
 
     $roomId = $request->input('room_id');
 
@@ -314,12 +397,38 @@ public function saveProgramPlan(Request $request)
 {
     // Validate required fields
     // dd('here');
-    $validated = $request->validate([
-        'room_id' => 'required|integer',
-        'months' => 'required|string',
-        'users' => 'required|array',
-        'children' => 'required|array',
-    ]);
+ $validator = Validator::make($request->all(), [
+    'room_id'  => 'required|integer',
+    'months'   => 'required|string',
+    'users'    => 'required|array',
+    'children' => 'required|array',
+    'centerid' => 'required',
+], [
+    'centerid.required' => 'Center ID is required',
+    'room_id.required'  => 'Room ID is required.',
+    'room_id.integer'   => 'Room ID must be an integer.',
+    'months.required'   => 'Month is required.',
+    'months.string'     => 'Month must be a string.',
+    'users.required'    => 'At least one user is required.',
+    'users.array'       => 'Users must be an array.',
+    'children.required' => 'At least one child is required.',
+    'children.array'    => 'Children must be an array.',
+]);
+
+if ($validator->fails()) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Validation failed.',
+        'errors'  => $validator->errors(),
+    ], 422);
+}
+
+$validated = $validator->validated();
+$roomId = $validated['room_id'];
+$months = $validated['months'];
+$users = $validated['users'];
+$children = $validated['children'];
+$centerId = $validated['centerid'];
     // dd('here');
     
 
@@ -329,11 +438,11 @@ public function saveProgramPlan(Request $request)
 
     // Prepare data
     $programData = [
-        'room_id' => $request->input('room_id'),
-        'months' => $request->input('months'),
+        'room_id' => $roomId,
+        'months' => $months,
         'years' => $request->input('years'),
-        'centerid' => $request->input('centerid'),
-        'created_by' => $request->input('user_id'),
+        'centerid' => $centerId,
+        'created_by' => Auth::user()->userid,
         'educators' => $educators,
         'children' => $children,
         'practical_life' => $request->input('practical_life'),
@@ -370,14 +479,14 @@ public function saveProgramPlan(Request $request)
 
         if ($updated) {
             return response()->json([
-                'success' => true,
+                'status' => true,
                 'message' => 'Program plan updated successfully',
                
             ]);
         }
 
         return response()->json([
-            'status' => 'error',
+            'status' => false,
             'message' => 'Error updating program plan. Please try again.'
         ]);
     } else {
@@ -387,14 +496,14 @@ public function saveProgramPlan(Request $request)
 
         if ($newPlan) {
             return response()->json([
-                'success' => true,
+                'status' => true,
                 'message' => 'Program plan created successfully',
               
             ]);
         }
 
         return response()->json([
-            'status' => 'error',
+            'status' => false,
             'message' => 'Error creating program plan. Please try again.'
         ]);
     }
