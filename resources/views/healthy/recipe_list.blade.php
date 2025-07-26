@@ -139,12 +139,10 @@
                         </div>
                     </div>
 
-                    @php
-                    $mediaFile = Str::replaceFirst('uploads/recipes/', '', $recipe->mediaUrl);
-                    @endphp
 
-                    <img src="{{ asset('uploads/recipes/' . $mediaFile) }}"
-                        onerror="this.onerror=null;this.src='{{ asset('storage/uploads/recipes/' . $mediaFile) }}';"
+
+                    <img src="{{ asset('storage/'.$recipe->mediaUrl) }}"
+                        onerror="this.onerror=null;this.src='{{ asset('storage/../'.$recipe->mediaUrl) }}';"
                         class="card-img-top" alt="{{ $recipe->itemName }}"
                         style="height: 180px; object-fit: cover; padding: 3px;">
 

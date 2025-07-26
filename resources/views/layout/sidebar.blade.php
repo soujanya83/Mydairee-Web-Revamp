@@ -23,9 +23,9 @@
             display: block;
         }
     </style>
- 
 
-    
+
+
     <div class="sidebar-scroll" style="    margin-top: 54px;">
         <div class="user-account">
 
@@ -139,7 +139,7 @@
                             </a>
                         </li>
 
-                    
+
 
 
                         @if(!empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement'])
@@ -147,7 +147,7 @@
                         <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
                             <a href="{{ route('announcements.list') }}" data-toggle="tooltip" data-placement="right"> <i class="fa fa-bullhorn"
                                     style="font-size: 25px;"></i><span
-                                    style="font-size: 18px; margin-left:-1px">Announcements</span></a>
+                                    style="font-size: 18px; margin-left:-1px">&nbsp; Announcements</span></a>
 
                         </li>
                         @endif
@@ -201,10 +201,6 @@
                                 </li>
                             </ul>
                         </li>
-
-
-
-
 
                         <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
                             <a href="/ServiceDetails" data-toggle="tooltip" data-placement="right">
@@ -292,11 +288,12 @@
                         <div class="blush"></div>
                         <span>Blush</span>
                     </li>
+                    
                 </ul>
                 <hr>
 
             </div>
-    
+
         </div>
     </div>
 </div>

@@ -694,6 +694,75 @@ class DailyDiaryController extends Controller
     }
 
 
+    // public function storeBreakfast(Request $request)
+    // {
+    //     // Validate the request
+    //     $validated = $request->validate([
+    //         'date' => 'required|date',
+    //         'child_ids' => 'required|array',
+    //         'child_ids.*' => 'exists:child,id',
+    //         'time' => 'required|date_format:H:i',
+    //         'item' => 'required|string|max:255',
+    //         'comments' => 'nullable|string'
+    //     ]);
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         $authId = Auth::user()->id;
+
+    //         $count = 0;
+    //         $errors = [];
+
+    //         foreach ($request->child_ids as $childId) {
+    //             // Check if entry already exists for this child and date
+    //             $existingEntry = DailyDiaryBreakfast::where('childid', $childId)
+    //                 ->whereDate('diarydate', $request->date)
+    //                 ->first();
+
+    //             if ($existingEntry) {
+    //                 // Update existing entry
+    //                 $diary = '';
+    //                 $existingEntry->update([
+    //                     'startTime' => $request->time,
+    //                     'item' => $request->item,
+    //                     'comments' => $request->comments
+    //                 ]);
+    //                 $count++;
+    //             } else {
+    //                 // Create new entry
+    //                 $diary = DailyDiaryBreakfast::create([
+    //                     'childid' => $childId,
+    //                     'diarydate' => $request->date,
+    //                     'startTime' => $request->time,
+    //                     'item' => $request->item,
+    //                     'comments' => $request->comments,
+    //                     'createdBy' => $authId
+    //                 ]);
+    //                 $count++;
+
+    //             }
+    //         }
+
+    //         DB::commit();
+    //         // Notify user(s) - adjust logic as needed
+    //         $admin = User::find(1); // Replace with dynamic role if needed
+    //         $admin->notify(new DailyDiaryAdded($diary));
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => $count > 1
+    //                 ? "Breakfast entries updated/created successfully for {$count} children"
+    //                 : "Breakfast entry updated/created successfully"
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Failed to save breakfast entries: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
     public function storeBreakfast(Request $request)
     {
         // Validate the request
@@ -709,20 +778,17 @@ class DailyDiaryController extends Controller
         try {
             DB::beginTransaction();
 
-            $authId = Auth::user()->id;
+            $authId = Auth::id(); // cleaner
 
             $count = 0;
-            $errors = [];
 
             foreach ($request->child_ids as $childId) {
-                // Check if entry already exists for this child and date
+                // Check if entry exists
                 $existingEntry = DailyDiaryBreakfast::where('childid', $childId)
                     ->whereDate('diarydate', $request->date)
                     ->first();
 
                 if ($existingEntry) {
-                    // Update existing entry
-                    $diary = '';
                     $existingEntry->update([
                         'startTime' => $request->time,
                         'item' => $request->item,
@@ -730,23 +796,31 @@ class DailyDiaryController extends Controller
                     ]);
                     $count++;
                 } else {
-                    // Create new entry
                     $diary = DailyDiaryBreakfast::create([
                         'childid' => $childId,
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
                         'item' => $request->item,
                         'comments' => $request->comments,
-                        'createdBy' => $authId
+                        'createdBy' => $authId,
+
+
                     ]);
                     $count++;
+
+                    // Notify all parents of this child
+                    $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+
+                    $parentUsers = User::whereIn('id', $parentIds)->get();
+
+                    foreach ($parentUsers as $parent) {
+                        $parent->notify(new DailyDiaryAdded($diary));
+                    }
                 }
             }
 
             DB::commit();
-            // Notify user(s) - adjust logic as needed
-            $admin = User::find(1); // Replace with dynamic role if needed
-            $admin->notify(new DailyDiaryAdded($diary));
+
             return response()->json([
                 'status' => 'success',
                 'message' => $count > 1
@@ -754,6 +828,7 @@ class DailyDiaryController extends Controller
                     : "Breakfast entry updated/created successfully"
             ]);
         } catch (\Exception $e) {
+            dd($e);
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
@@ -800,15 +875,24 @@ class DailyDiaryController extends Controller
                     $count++;
                 } else {
                     // Create new entry
-                    DailyDiaryLunch::create([
+                    $diary = DailyDiaryLunch::create([
                         'childid' => $childId,
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
                         'item' => $request->item,
                         'comments' => $request->comments,
                         'createdBy' => $authId
+
                     ]);
                     $count++;
+
+                    $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+
+                    $parentUsers = User::whereIn('id', $parentIds)->get();
+
+                    foreach ($parentUsers as $parent) {
+                        $parent->notify(new DailyDiaryAdded($diary));
+                    }
                 }
             }
 
@@ -866,7 +950,7 @@ class DailyDiaryController extends Controller
                     $count++;
                 } else {
                     // Create new entry
-                    DailyDiaryMorningTea::create([
+                    $diary = DailyDiaryMorningTea::create([
                         'childid' => $childId,
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
@@ -874,6 +958,13 @@ class DailyDiaryController extends Controller
                         'createdBy' => $authId
                     ]);
                     $count++;
+                    $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+
+                    $parentUsers = User::whereIn('id', $parentIds)->get();
+
+                    foreach ($parentUsers as $parent) {
+                        $parent->notify(new DailyDiaryAdded($diary));
+                    }
                 }
             }
 
@@ -937,7 +1028,7 @@ class DailyDiaryController extends Controller
                     $existingEntry->update($updateData);
                 } else {
                     // Create new entry
-                    DailyDiarySleep::create([
+                    $diary = DailyDiarySleep::create([
                         'childid' => $childId,
                         'diarydate' => $request->date,
                         'startTime' => $request->sleep_time,
@@ -946,6 +1037,14 @@ class DailyDiaryController extends Controller
                         'createdBy' => $authId
                     ]);
                     $count++;
+
+                    $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+
+                    $parentUsers = User::whereIn('id', $parentIds)->get();
+
+                    foreach ($parentUsers as $parent) {
+                        $parent->notify(new DailyDiaryAdded($diary));
+                    }
                 }
             }
 
@@ -1000,7 +1099,7 @@ class DailyDiaryController extends Controller
                     ]);
                 } else {
                     // Create new
-                    DailyDiaryAfternoonTea::create([
+                    $diary = DailyDiaryAfternoonTea::create([
                         'childid' => $childId,
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
@@ -1009,6 +1108,13 @@ class DailyDiaryController extends Controller
                     ]);
                 }
                 $count++;
+                $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+
+                $parentUsers = User::whereIn('id', $parentIds)->get();
+
+                foreach ($parentUsers as $parent) {
+                    $parent->notify(new DailyDiaryAdded($diary));
+                }
             }
 
             DB::commit();
@@ -1059,7 +1165,7 @@ class DailyDiaryController extends Controller
                         'comments' => $request->comments
                     ]);
                 } else {
-                    DailyDiarySnacks::create([
+                    $diary =  DailyDiarySnacks::create([
                         'childid' => $childId,
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
@@ -1069,6 +1175,13 @@ class DailyDiaryController extends Controller
                     ]);
                 }
                 $count++;
+                $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+
+                $parentUsers = User::whereIn('id', $parentIds)->get();
+
+                foreach ($parentUsers as $parent) {
+                    $parent->notify(new DailyDiaryAdded($diary));
+                }
             }
 
             DB::commit();
@@ -1116,7 +1229,7 @@ class DailyDiaryController extends Controller
                         'comments' => $request->comments
                     ]);
                 } else {
-                    DailyDiarySunscreen::create([
+                    $diary = DailyDiarySunscreen::create([
                         'childid' => $childId,
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
@@ -1125,6 +1238,13 @@ class DailyDiaryController extends Controller
                     ]);
                 }
                 $count++;
+                $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+
+                $parentUsers = User::whereIn('id', $parentIds)->get();
+
+                foreach ($parentUsers as $parent) {
+                    $parent->notify(new DailyDiaryAdded($diary));
+                }
             }
 
             DB::commit();
@@ -1173,7 +1293,7 @@ class DailyDiaryController extends Controller
                         'comments' => $request->comments
                     ]);
                 } else {
-                    DailyDiaryToileting::create([
+                    $diary = DailyDiaryToileting::create([
                         'childid' => $childId,
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
@@ -1183,6 +1303,14 @@ class DailyDiaryController extends Controller
                     ]);
                 }
                 $count++;
+
+                $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+
+                $parentUsers = User::whereIn('id', $parentIds)->get();
+
+                foreach ($parentUsers as $parent) {
+                    $parent->notify(new DailyDiaryAdded($diary));
+                }
             }
 
             DB::commit();
@@ -1229,7 +1357,7 @@ class DailyDiaryController extends Controller
                         'updated_at' => now()
                     ]);
                 } else {
-                    DailyDiaryBottle::create([
+                    $diary = DailyDiaryBottle::create([
                         'childid' => $childId,
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
@@ -1238,6 +1366,14 @@ class DailyDiaryController extends Controller
                     ]);
                 }
                 $count++;
+
+                $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+
+                $parentUsers = User::whereIn('id', $parentIds)->get();
+
+                foreach ($parentUsers as $parent) {
+                    $parent->notify(new DailyDiaryAdded($diary));
+                }
             }
 
             DB::commit();

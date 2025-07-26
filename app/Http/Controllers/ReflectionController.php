@@ -274,8 +274,29 @@ class ReflectionController extends Controller
             }
 
             DB::commit();
-            $user = User::find(1); // You can loop over multiple users too
-            $user->notify(new ReflectionAdded($reflection));
+            // $user = User::find(1); // You can loop over multiple users too
+            // $user->notify(new ReflectionAdded($reflection));
+
+
+            $selectedChildren = explode(',', $request->input('selected_children'));
+
+            foreach ($selectedChildren as $childId) {
+                $childId = trim($childId);
+                if ($childId !== '') {
+                    // Get all related parent entries for this child
+                    $parentRelations = Childparent::where('childid', $childId)->get();
+
+                    foreach ($parentRelations as $relation) {
+                        $parentUser = User::find($relation->parentid); // assuming users table stores parent records
+
+                        if ($parentUser) {
+                            $parentUser->notify(new ReflectionAdded($reflection));
+                        }
+                    }
+                }
+            }
+
+
             return response()->json([
                 'status' => 'success',
                 'message' => $isEdit ? 'Reflection updated successfully.' : 'Reflection saved successfully.',

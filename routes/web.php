@@ -28,6 +28,7 @@ use App\Http\Controllers\ReflectionController;
 use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\Auth\NotificationController;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Artisan;
 // Route::get('/', function () {
 //     return view('dashboard.university');
@@ -114,7 +115,22 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Auth::user()->unreadNotifications->markAsRead();
         return redirect()->back();
     })->name('notifications.markAllRead');
-    // sleep check
+
+    Route::post('/notifications/read/{id}', function ($id) {
+        $notification = DatabaseNotification::find($id);
+
+        if ($notification && $notification->notifiable_id == Auth::id()) {
+            $notification->markAsRead();
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false], 404);
+    })->name('notifications.read');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
+
+
+
     Route::get('sleepcheck/list', [SleepCheckController::class, 'getSleepChecksList'])->name('sleepcheck.list');
     Route::post('sleepcheck/save', [SleepCheckController::class, 'sleepcheckSave'])->name('sleepcheck.save');
     Route::post('sleepcheck/update', [SleepCheckController::class, 'sleepcheckUpdate'])->name('sleepcheck.update');
@@ -174,7 +190,6 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::get('/backup-now', [DBBackupController::class, 'runBackup']);
 
 
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
 
 
     Route::post('/logout', function () {
@@ -342,9 +357,6 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::get('/index', [LnPcontroller::class, 'index'])->name('index');
         Route::get('/lnpdata/{id?}', [LnPcontroller::class, 'lnpData'])->name('lnpdata');
         Route::post('/update-assessment-status', [LnPcontroller::class, 'updateAssessmentStatus'])->name('update.assessment.status');
-
-
-
     });
 
     Route::prefix('qip')->name('qip.')->group(function () {
@@ -356,18 +368,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::get('/{qip}/element/{element}', [QipController::class, 'viewElement'])->name('element.view');
         Route::get('/{qip}/standard/{standard}/edit', [QipController::class, 'editStandard'])->name('standard.edit');
         Route::post('/discussion/send', [QipController::class, 'sendDiscussion'])->name('discussion.send');
-
-
-
-
-
-
-
-
     });
-
-
-
 });
 
 

@@ -292,14 +292,30 @@
                             <ul style="max-height:60px;overflow-y:auto;">
                                 @forelse($observation->Seen as $seen)
 
-                                @php
+                                {{-- @php
                                 $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
                                 'avatar10.jpg'];
                                 $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
                                 'avatar7.jpg'];
                                 $avatars = $seen->user->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
                                 $defaultAvatar = $avatars[array_rand($avatars)];
+                                @endphp --}}
+
+                                @php
+                                $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
+                                'avatar10.jpg'];
+                                $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
+                                'avatar7.jpg'];
+
+                                if ($seen->user && $seen->user->gender === 'FEMALE') {
+                                $avatars = $femaleAvatars;
+                                } else {
+                                $avatars = $maleAvatars;
+                                }
+
+                                $defaultAvatar = $avatars[array_rand($avatars)];
                                 @endphp
+
 
                                 @if($seen->user && $seen->user->userType === 'Parent')
                                 <li style="margin-bottom: 10px;">

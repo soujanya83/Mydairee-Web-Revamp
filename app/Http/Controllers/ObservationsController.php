@@ -514,7 +514,7 @@ class ObservationsController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-    } 
+    }
 
 
 
@@ -579,26 +579,26 @@ class ObservationsController extends Controller
             ]);
         }
 
-    $childIds = ObservationChild::where('observationId',$request->observationId)->pluck('childId')->toArray();
+        $childIds = ObservationChild::where('observationId', $request->observationId)->pluck('childId')->toArray();
 
-    Userprogressplan::where('observationId', $request->observationId)->delete();
+        Userprogressplan::where('observationId', $request->observationId)->delete();
 
 
-    // Insert into Userprogressplan
-    foreach ($childIds as $childId) {
-        foreach ($request->subactivities as $entry) {
-            Userprogressplan::create([
-                'observationId' => $request->observationId,
-                'childid'       => $childId,
-                'subid'         => $entry['idSubActivity'],
-                'status'        => $entry['assesment'],
-                'created_by'    => Auth::id(),
-                'created_at'    => now(),
-                'updated_by'    => Auth::id(),
-                'updated_at'    => now(),
-            ]);
+        // Insert into Userprogressplan
+        foreach ($childIds as $childId) {
+            foreach ($request->subactivities as $entry) {
+                Userprogressplan::create([
+                    'observationId' => $request->observationId,
+                    'childid'       => $childId,
+                    'subid'         => $entry['idSubActivity'],
+                    'status'        => $entry['assesment'],
+                    'created_by'    => Auth::id(),
+                    'created_at'    => now(),
+                    'updated_by'    => Auth::id(),
+                    'updated_at'    => now(),
+                ]);
+            }
         }
-    }
 
 
         return response()->json(['message' => 'Saved successfully', 'status' => 'success', 'id' => $request->observationId]);
@@ -863,6 +863,9 @@ class ObservationsController extends Controller
             'selected_children' => 'required|string',
         ];
 
+
+
+
         if (!$isEdit) {
             $rules['media'] = 'required|array|min:1';
         } else {
@@ -953,8 +956,24 @@ class ObservationsController extends Controller
 
             DB::commit();
 
-            $user = User::find(1); // Or loop over multiple users
-            $user->notify(new ObservationAdded($observation));
+
+            $selectedChildren = explode(',', $request->input('selected_children'));
+
+            foreach ($selectedChildren as $childId) {
+                $childId = trim($childId);
+                if ($childId !== '') {
+                    // Get all related parent entries for this child
+                    $parentRelations = Childparent::where('childid', $childId)->get();
+
+                    foreach ($parentRelations as $relation) {
+                        $parentUser = User::find($relation->parentid); // assuming users table stores parent records
+
+                        if ($parentUser) {
+                            $parentUser->notify(new ObservationAdded($observation));
+                        }
+                    }
+                }
+            }
 
             return response()->json([
                 'status' => 'success',

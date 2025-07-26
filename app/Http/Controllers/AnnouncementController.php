@@ -16,7 +16,7 @@ use App\Models\Center;
 use Illuminate\Support\Facades\DB;
 use App\Models\Child;
 use Carbon\Carbon;
-
+use App\Notifications\AnnouncementAdded;
 
 class AnnouncementController extends Controller
 {
@@ -360,6 +360,15 @@ class AnnouncementController extends Controller
                         'aid'     => $announcementId,
                         'childid' => $childId,
                     ]);
+                }
+            }
+            $userIds = Usercenter::where('centerid', $centerid)
+                ->pluck('userid')
+                ->unique();
+            foreach ($userIds as $userId) {
+                $user = User::find($userId);
+                if ($user) {
+                    $user->notify(new AnnouncementAdded($announcement));
                 }
             }
 
