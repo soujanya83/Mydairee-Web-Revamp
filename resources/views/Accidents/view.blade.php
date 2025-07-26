@@ -126,7 +126,144 @@ padding-inline:0;
             }
         }
 
+  .form-wrapper {
+    margin-bottom: 20px;
+}
 
+/* Label styling */
+.custom-label {
+    display: block;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+
+/* Input styling */
+.custom-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 14px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.custom-input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+}
+
+ .radioFlex {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.radio-pill {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    background-color: #f1f1f1;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.radio-pill input[type="radio"] {
+    display: none; /* Hide the default radio circle */
+}
+
+.radio-pill:hover {
+    background-color: #e0e0e0;
+}
+
+.radio-pill input[type="radio"]:checked + label,
+.radio-pill input[type="radio"]:checked ~ span,
+.radio-pill input[type="radio"]:checked ~ * {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+input[type="radio"]:checked + .radio-pill {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+}
+
+
+.service-title {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: #0056b3;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 5px;
+}
+
+.editbtn {
+    font-size: 0.9rem;
+    cursor: pointer;
+} 
+
+/* Base style for the switch */
+.checkbox-pill {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.checkbox-pill input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.checkbox-pill .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 50px;
+}
+
+.checkbox-pill .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.checkbox-pill input:checked + .slider {
+    background-color: #28a745; /* ON - green */
+}
+
+.checkbox-pill input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+.injuiry-ul{
+    list-style: none;
+}
 
     </style>
 @endsection
@@ -190,28 +327,28 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="name">Name</label>
-                                <input type="text" class="form-control" id="name" name="person_name" placeholder="<?= $AccidentInfo->person_name; ?>" value="<?= $AccidentInfo->person_name; ?>">
+                                <input type="text" class="form-control custom-input" id="name" name="person_name" placeholder="<?= $AccidentInfo->person_name; ?>" value="<?= $AccidentInfo->person_name; ?>">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="role">Position Role</label>
-                                <input type="text" class="form-control" id="role" name="person_role" placeholder="<?= $AccidentInfo->person_role; ?>" value="<?= $AccidentInfo->person_role; ?>">
+                                <input type="text" class="form-control custom-input" id="role" name="person_role" placeholder="<?= $AccidentInfo->person_role; ?>" value="<?= $AccidentInfo->person_role; ?>">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-3">
                                 <label for="Record">Date Record was made</label>
-                                <input type="date" class="form-control" id="Record" name="date" placeholder="<?= $AccidentInfo->date; ?>" value="<?= $AccidentInfo->date; ?>">
+                                <input type="date" class="form-control custom-input custom-input" id="Record" name="date" placeholder="<?= $AccidentInfo->date; ?>" value="<?= $AccidentInfo->date; ?>">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="Time">Time</label>
-                                <input type="text" class="form-control" id="Time" name="time" placeholder="<?= $AccidentInfo->time; ?>" value="<?= $AccidentInfo->time; ?>">
+                                <input type="text" class="form-control custom-input custom-input" id="Time" name="time" placeholder="<?= $AccidentInfo->time; ?>" value="<?= $AccidentInfo->time; ?>">
                             </div>
                             <div class="form-group col-md-6">
                                 <label>
                                     Signature&nbsp;
                                     <span class="editbtn text-primary" data-toggle="modal" data-target="#signModal" data-identity="person_sign"><i class="simple-icon-pencil"></i></span>
                                 </label>
-                                <input type="hidden" class="form-control" id="person_sign_dt" disabled>
+                                <input type="hidden" class="form-control custom-input custom-input" id="person_sign_dt" disabled>
                                 <div id="#person_sign">
                                     <input type="hidden" name="person_sign" id="person_sign_txt"  value="{{ $AccidentInfo->person_sign }}">
                                     <input type="hidden" name="student_id" id="student_id"  value="<?= $AccidentInfo->childid; ?>">
@@ -229,25 +366,26 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="childid" class="col-sm-12 pl-0">Child</label>
-                                <select name="childid" id="childid" class="form-control js-example-basic-single">
+                                <select name="childid" id="childid" class="form-control js-example-basic-single custom-input">
                                     <option value="<?php $AccidentInfo->child_name ?>"> <span class="no-print3"><?php echo $AccidentInfo->child_name ?></span> </option>
                                 </select>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="birthdate">Date of Birth</label>
-                                <input type="text" class="form-control" id="birthdate" name="child_dob" value="<?php echo $AccidentInfo->child_dob ?>" placeholder="<?php echo $AccidentInfo->child_dob ?>">
+                                <input type="text" class="form-control custom-input" id="birthdate" name="child_dob" value="<?php echo $AccidentInfo->child_dob ?>" placeholder="<?php echo $AccidentInfo->child_dob ?>">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="age">Age</label>
-                                <input type="text" class="form-control" id="age" name="child_age" value="<?= $AccidentInfo->child_age; ?>" placeholder="<?= $AccidentInfo->child_age; ?>">     
+                                <input type="text" class="form-control custom-input" id="age" name="child_age" value="<?= $AccidentInfo->child_age; ?>" placeholder="<?= $AccidentInfo->child_age; ?>">     
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="gender">Gender </label>
                                 <div class="radioFlex">
-                                    <label for="gender"><input class="m-1" type="radio" id="<?= $AccidentInfo->child_gender; ?>" name="gender" value="<?= $AccidentInfo->child_gender; ?>" <?php if($AccidentInfo->child_gender) { echo "checked"; } ?> ><span class="no-print2"><?= $AccidentInfo->child_gender; ?></span></label>
                                    
+                                    <input type="radio" id="<?= $AccidentInfo->child_gender; ?>" name="gender" value="<?= $AccidentInfo->child_gender; ?>" <?php if($AccidentInfo->child_gender) { echo "checked"; } ?> hidden>
+                               <label class="radio-pill" for="Others"><?= $AccidentInfo->child_gender; ?></label>
                                 </div>
                             </div>
                         </div>
@@ -260,27 +398,27 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="incidentdate">Incident Date</label>
-                                <input type="text" class="form-control" id="incidentdate" name="incident_date" value="<?= $AccidentInfo->incident_date; ?>" placeholder="<?= $AccidentInfo->incident_date; ?>">     
+                                <input type="text" class="form-control custom-input" id="incidentdate" name="incident_date" value="<?= $AccidentInfo->incident_date; ?>" placeholder="<?= $AccidentInfo->incident_date; ?>">     
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="incidenttime">Time</label>
-                                <input type="text" class="form-control" id="incidenttime" name="incident_time" value="<?= $AccidentInfo->incident_time; ?>" placeholder="<?= $AccidentInfo->incident_time; ?>">
+                                <input type="text" class="form-control custom-input" id="incidenttime" name="incident_time" value="<?= $AccidentInfo->incident_time; ?>" placeholder="<?= $AccidentInfo->incident_time; ?>">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="location">Location</label>
-                                <input type="text" class="form-control" id="location" name="incident_location" value="<?= $AccidentInfo->incident_location; ?>" placeholder="<?= $AccidentInfo->incident_location; ?>">
+                                <input type="text" class="form-control custom-input" id="location" name="incident_location" value="<?= $AccidentInfo->incident_location; ?>" placeholder="<?= $AccidentInfo->incident_location; ?>">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="witnessname">Name of Witness</label>
-                                <input type="text" class="form-control" id="witnessname" name="witness_name" value="<?= $AccidentInfo->witness_name; ?>" placeholder="<?= $AccidentInfo->witness_name; ?>">
+                                <input type="text" class="form-control custom-input" id="witnessname" name="witness_name" value="<?= $AccidentInfo->witness_name; ?>" placeholder="<?= $AccidentInfo->witness_name; ?>">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="witness-date">Date</label>
-                                <input type="text" class="form-control" id="witness-date" name="witness_date" value="<?= $AccidentInfo->witness_date; ?>" placeholder="<?= $AccidentInfo->witness_date; ?>">     
+                                <input type="text" class="form-control custom-input" id="witness-date" name="witness_date" value="<?= $AccidentInfo->witness_date; ?>" placeholder="<?= $AccidentInfo->witness_date; ?>">     
                             </div>
                             <div class="form-group col-md-6">
                                 <label>
@@ -297,27 +435,27 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="genActivity">General activity at the time of incident/ injury/ trauma/ illness:</label>
-                                <textarea class="form-control" id="genActivity" name="gen_actyvt"><?= $AccidentInfo->gen_actyvt; ?></textarea>
+                                <textarea class="form-control custom-input" id="genActivity" name="gen_actyvt"><?= $AccidentInfo->gen_actyvt; ?></textarea>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="causeInjury">Cause of injury/ trauma:</label>
-                                <textarea class="form-control" id="causeInjury" name="cause"><?= $AccidentInfo->cause; ?></textarea>
+                                <textarea class="form-control custom-input" id="causeInjury" name="cause"><?= $AccidentInfo->cause; ?></textarea>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="symptoms">Circumstances surrounding any illness, including apparent symptoms: </label>
-                                <textarea class="form-control" id="symptoms" name="illness_symptoms"><?= $AccidentInfo->illness_symptoms; ?></textarea>
+                                <textarea class="form-control custom-input" id="symptoms" name="illness_symptoms"><?= $AccidentInfo->illness_symptoms; ?></textarea>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="missingChild">Circumstances if child appeared to be missing or otherwise unaccounted for (incl duration, who found child etc.):</label>
-                                <textarea class="form-control" id="missingChild" name="missing_unaccounted"><?= $AccidentInfo->missing_unaccounted; ?></textarea>
+                                <textarea class="form-control custom-input" id="missingChild" name="missing_unaccounted"><?= $AccidentInfo->missing_unaccounted; ?></textarea>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="Circumstances">Circumstances if child appeared to have been taken or removed from service or was locked in/out of service (incl who took the child, duration): </label>
-                                <textarea class="form-control" id="Circumstances" name="taken_removed"><?= $AccidentInfo->taken_removed; ?></textarea>
+                                <textarea class="form-control custom-input" id="Circumstances" name="taken_removed"><?= $AccidentInfo->taken_removed; ?></textarea>
                             </div>
                         </div>
 
@@ -340,151 +478,57 @@ padding-inline:0;
 
                                     <span class="col-md-6 col-sm-12">
                                         <input type="hidden" name="injury_image" id="injury-image" value="">
-                                        <ul class="col-12 row">
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type1">
-                                                    <input type="checkbox" name="abrasion" value="1" <?php if($AccidentInfo->abrasion){ echo "checked"; } ?>> Abrasion/ Scrape
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type2">
-                                                    <input type="checkbox" name="electric_shock" value="1" <?php if($AccidentInfo->electric_shock){ echo "checked"; } ?>> Electric Shock
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type3">
-                                                    <input type="checkbox" name="allergic_reaction" value="1" <?php if($AccidentInfo->allergic_reaction){ echo "checked"; } ?>> Allergic reaction
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type4">
-                                                    <input type="checkbox" name="high_temperature" value="1" <?php if($AccidentInfo->high_temperature){ echo "checked"; } ?>> High Temperature
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type5">
-                                                    <input type="checkbox" name="amputation" value="1" <?php if($AccidentInfo->amputation){ echo "checked"; } ?>> Amputation
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type6">
-                                                    <input type="checkbox" name="infectious_disease" value="1" <?php if($AccidentInfo->infectious_disease){ echo "checked"; } ?>> Infectious Disease (inc gastrointestinal)
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type7">
-                                                    <input type="checkbox" name="anaphylaxis" value="1" <?php if($AccidentInfo->anaphylaxis){ echo "checked"; } ?>> Anaphylaxis
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type8">
-                                                    <input type="checkbox" name="ingestion" value="1" <?php if($AccidentInfo->ingestion){ echo "checked"; } ?>> Ingestion/ Inhalation/ Insertion
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type9">
-                                                    <input type="checkbox" name="asthma" value="1" <?php if($AccidentInfo->asthma){ echo "checked"; } ?>> Asthma/ Respiratory
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type10">
-                                                    <input type="checkbox" name="internal_injury" value="1" <?php if($AccidentInfo->internal_injury){ echo "checked"; } ?>> Internal injury/ Infection
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type11">
-                                                    <input type="checkbox" name="bite_wound" value="1" <?php if($AccidentInfo->bite_wound){ echo "checked"; } ?>> Bite Wound
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type12">
-                                                    <input type="checkbox" name="poisoning" value="1" <?php if($AccidentInfo->poisoning){ echo "checked"; } ?>> Poisoning
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type13">
-                                                    <input type="checkbox" name="broken_bone" value="1" <?php if($AccidentInfo->broken_bone){ echo "checked"; } ?>> Broken Bone/ Fracture/ Dislocation
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type14">
-                                                    <input type="checkbox" name="rash" value="1" <?php if($AccidentInfo->rash){ echo "checked"; } ?>> Rash
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type15">
-                                                    <input type="checkbox" name="burn" value="1" <?php if($AccidentInfo->burn){ echo "checked"; } ?>> Burn/ Sunburn
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type16">
-                                                    <input type="checkbox" name="respiratory" value="1" <?php if($AccidentInfo->respiratory){ echo "checked"; } ?>> Respiratory
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type17">
-                                                    <input type="checkbox" name="choking" value="1" <?php if($AccidentInfo->choking){ echo "checked"; } ?>> Choking
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type18">
-                                                    <input type="checkbox" name="seizure" value="1" <?php if($AccidentInfo->seizure){ echo "checked"; } ?>> Seizure/ unconscious/ convulsion
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type19">
-                                                    <input type="checkbox" name="concussion" value="1" <?php if($AccidentInfo->concussion){ echo "checked"; } ?>> Concussion
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type20">
-                                                    <input type="checkbox" name="sprain" value="1" <?php if($AccidentInfo->sprain){ echo "checked"; } ?>> Sprain/ swelling
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type21">
-                                                    <input type="checkbox" name="crush" value="1" <?php if($AccidentInfo->crush){ echo "checked"; } ?>> Crush/ Jam
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type22">
-                                                    <input type="checkbox" name="stabbing" value="1" <?php if($AccidentInfo->stabbing){ echo "checked"; } ?>> Stabbing/ piercing
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type23">
-                                                    <input type="checkbox" name="cut" value="1" <?php if($AccidentInfo->cut){ echo "checked"; } ?>> Cut/ Open Wound
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type24">
-                                                    <input type="checkbox" name="tooth" value="1" <?php if($AccidentInfo->tooth){ echo "checked"; } ?>> Tooth
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type25">
-                                                    <input type="checkbox" name="drowning" value="1" <?php if($AccidentInfo->drowning){ echo "checked"; } ?>> Drowning (nonfatal)
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type26">
-                                                    <input type="checkbox" name="venomous_bite" value="1" <?php if($AccidentInfo->venomous_bite){ echo "checked"; } ?>> Venomous bite/ sting
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type27">
-                                                    <input type="checkbox" name="eye_injury" value="1" <?php if($AccidentInfo->eye_injury){ echo "checked"; } ?>> Eye Injury
-                                                </label>
-                                            </li>
-                                            <li class="col-md-6 col-sm-12">
-                                                <label for="type28">
-                                                    <input type="checkbox" name="other" value="1" <?php if($AccidentInfo->other){ echo "checked"; } ?>> Other (Please specify)
-                                                </label>
-                                            </li>
-                                            <li id="injury-remarks" style="width: 100%;display: none;">
-                                                <input type="text" name="remarks" placeholder="Write here..." class="form-control col-md-6 col-sm-12" style="width: 100%;" <?php if($AccidentInfo->remarks){ echo "checked"; } ?>>
-                                            </li>
-                                        </ul>
+                                          <ul class="row injuiry-ul">
+    @php
+        $injuries = [
+            'abrasion' => 'Abrasion / Scrape',
+            'electric_shock' => 'Electric Shock',
+            'allergic_reaction' => 'Allergic Reaction',
+            'high_temperature' => 'High Temperature',
+            'amputation' => 'Amputation',
+            'infectious_disease' => 'Infectious Disease',
+            'anaphylaxis' => 'Anaphylaxis',
+            'ingestion' => 'Ingestion / Inhalation / Insertion',
+            'asthma' => 'Asthma / Respiratory',
+            'internal_injury' => 'Internal Injury / Infection',
+            'bite_wound' => 'Bite Wound',
+            'poisoning' => 'Poisoning',
+            'broken_bone' => 'Broken Bone / Fracture / Dislocation',
+            'rash' => 'Rash',
+            'burn' => 'Burn / Sunburn',
+            'respiratory' => 'Respiratory',
+            'choking' => 'Choking',
+            'seizure' => 'Seizure / Unconscious / Convulsion',
+            'concussion' => 'Concussion',
+            'sprain' => 'Sprain / Swelling',
+            'crush' => 'Crush / Jam',
+            'stabbing' => 'Stabbing / Piercing',
+            'cut' => 'Cut / Open Wound',
+            'tooth' => 'Tooth',
+            'drowning' => 'Drowning (Nonfatal)',
+            'venomous_bite' => 'Venomous Bite / Sting',
+            'eye_injury' => 'Eye Injury',
+            'other' => 'Other (Please specify)',
+        ];
+    @endphp
+
+    @foreach ($injuries as $field => $label)
+        <li class="col-md-6 col-sm-12 mb-2 d-flex align-items-center">
+            <label class="checkbox-pill me-2">
+                <input type="checkbox" name="{{ $field }}" value="1"
+                       {{ isset($AccidentInfo->$field) && $AccidentInfo->$field == 1 ? 'checked' : '' }}>
+                <span class="slider"></span>
+            </label>
+            <span class="pill-label">{{ $label }}</span>
+        </li>
+    @endforeach
+
+    <li class="col-md-12 mt-2" id="injury-remarks"
+        style="{{ isset($AccidentInfo->other) && $AccidentInfo->other == 1 ? 'display:block;' : 'display:none;' }}">
+        <input type="text" name="remarks" class="form-control custom-input"
+               placeholder="Write here..." value="{{ $AccidentInfo->remarks ?? '' }}">
+    </li>
+</ul>
                                     </span>
                                 </div>
                             </div>
@@ -498,7 +542,7 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="takenAction">Details of action taken (including first aid, administration of medication etc.):</label>
-                                <textarea class="form-control" id="takenAction" name="action_taken"><?= $AccidentInfo->action_taken; ?></textarea>    
+                                <textarea class="form-control custom-input" id="takenAction" name="action_taken"><?= $AccidentInfo->action_taken; ?></textarea>    
                             </div>
                         </div>
                         <div class="form-row">
@@ -528,16 +572,16 @@ padding-inline:0;
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="provideDetails">If yes to either of the above, provide details:</label>
-                                <textarea class="form-control" id="provideDetails" name="med_attention_details"><?= $AccidentInfo->med_attention_details;?></textarea>
+                                <textarea class="form-control custom-input" id="provideDetails" name="med_attention_details"><?= $AccidentInfo->med_attention_details;?></textarea>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="provideDetails">List the steps that have been taken to prevent or minimise this type of incident in the future:</label>
                                 <ol>
-                                    <li><input type="text" class="form-control" id="one" name="prevention_step_1" value="<?= $AccidentInfo->prevention_step_1;?>" placeholder="<?= $AccidentInfo->prevention_step_1;?>"></li>
-                                    <li><input type="text" class="form-control" id="two" name="prevention_step_2" value="<?= $AccidentInfo->prevention_step_2;?>" placeholder="<?= $AccidentInfo->prevention_step_2;?>"></li>
-                                    <li><input type="text" class="form-control" id="three" name="prevention_step_3" value="<?= $AccidentInfo->prevention_step_3;?>" placeholder="<?= $AccidentInfo->prevention_step_3;?>"></li>
+                                    <li><input type="text" class="form-control custom-input" id="one" name="prevention_step_1" value="<?= $AccidentInfo->prevention_step_1;?>" placeholder="<?= $AccidentInfo->prevention_step_1;?>"></li>
+                                    <li><input type="text" class="form-control custom-input" id="two" name="prevention_step_2" value="<?= $AccidentInfo->prevention_step_2;?>" placeholder="<?= $AccidentInfo->prevention_step_2;?>"></li>
+                                    <li><input type="text" class="form-control custom-input" id="three" name="prevention_step_3" value="<?= $AccidentInfo->prevention_step_3;?>" placeholder="<?= $AccidentInfo->prevention_step_3;?>"></li>
                                 </ol>
                             </div>
                         </div>
@@ -550,61 +594,61 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="parentname">Parent/ Guardian name:</label>
-                                <input type="text" class="form-control" id="parentname" name="parent1_name" value="<?= $AccidentInfo->parent1_name;?>" placeholder="<?= $AccidentInfo->parent1_name;?>">    
+                                <input type="text" class="form-control custom-input" id="parentname" name="parent1_name" value="<?= $AccidentInfo->parent1_name;?>" placeholder="<?= $AccidentInfo->parent1_name;?>">    
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="method">Method of Contact:</label>
-                                <input type="text" class="form-control" id="method" name="contact1_method" value="<?= $AccidentInfo->contact1_method;?>" placeholder="<?= $AccidentInfo->contact1_method;?>">
+                                <input type="text" class="form-control custom-input" id="method" name="contact1_method" value="<?= $AccidentInfo->contact1_method;?>" placeholder="<?= $AccidentInfo->contact1_method;?>">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="contactDate">Date</label>
-                                <input type="text" class="form-control" id="contactDate" name="contact1_date" value="<?= $AccidentInfo->contact1_date;?>" placeholder="<?= $AccidentInfo->contact1_date;?>">
+                                <input type="text" class="form-control custom-input" id="contactDate" name="contact1_date" value="<?= $AccidentInfo->contact1_date;?>" placeholder="<?= $AccidentInfo->contact1_date;?>">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="contactTime">Time</label>
-                                <input type="text" class="form-control" id="contactTime" name="contact1_time" value="<?= $AccidentInfo->contact1_time;?>" placeholder="<?= $AccidentInfo->contact1_time;?>">
+                                <input type="text" class="form-control custom-input" id="contactTime" name="contact1_time" value="<?= $AccidentInfo->contact1_time;?>" placeholder="<?= $AccidentInfo->contact1_time;?>">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="contactmade">Contact Made: </label>
-                                <input type="text" class="form-control" id="contactmade" name="contact1_made" value="<?= $AccidentInfo->contact1_made;?>" placeholder="<?= $AccidentInfo->contact1_made;?>">   
+                                <input type="text" class="form-control custom-input" id="contactmade" name="contact1_made" value="<?= $AccidentInfo->contact1_made;?>" placeholder="<?= $AccidentInfo->contact1_made;?>">   
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="messageleft">Message Left:</label>
-                                <input type="text" class="form-control" id="messageleft" name="contact1_msg" value="<?= $AccidentInfo->contact1_msg;?>" placeholder="<?= $AccidentInfo->contact1_msg;?>">
+                                <input type="text" class="form-control custom-input" id="messageleft" name="contact1_msg" value="<?= $AccidentInfo->contact1_msg;?>" placeholder="<?= $AccidentInfo->contact1_msg;?>">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="parentname2">Parent/ Guardian name:</label>
-                                <input type="text" class="form-control" id="parentname2" name="parent2_name" value="<?= $AccidentInfo->parent2_name;?>" placeholder="<?= $AccidentInfo->parent2_name;?>">
+                                <input type="text" class="form-control custom-input" id="parentname2" name="parent2_name" value="<?= $AccidentInfo->parent2_name;?>" placeholder="<?= $AccidentInfo->parent2_name;?>">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="method2">Method of Contact:</label>
-                                <input type="text" class="form-control" id="method2" name="contact2_method" value="<?= $AccidentInfo->contact2_method;?>" placeholder="<?= $AccidentInfo->contact2_method;?>">
+                                <input type="text" class="form-control custom-input" id="method2" name="contact2_method" value="<?= $AccidentInfo->contact2_method;?>" placeholder="<?= $AccidentInfo->contact2_method;?>">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="contactDate2">Date</label>
-                                <input type="text" class="form-control" id="contactDate2" name="contact2_date" value="<?= $AccidentInfo->contact2_date;?>" placeholder="<?= $AccidentInfo->contact2_date;?>"> 
+                                <input type="text" class="form-control custom-input" id="contactDate2" name="contact2_date" value="<?= $AccidentInfo->contact2_date;?>" placeholder="<?= $AccidentInfo->contact2_date;?>"> 
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="contactTime2">Time</label>
-                                <input type="text" class="form-control" id="contactTime2" name="contact2_time" value="<?= $AccidentInfo->contact2_time;?>" placeholder="<?= $AccidentInfo->contact2_time;?>">
+                                <input type="text" class="form-control custom-input" id="contactTime2" name="contact2_time" value="<?= $AccidentInfo->contact2_time;?>" placeholder="<?= $AccidentInfo->contact2_time;?>">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="contactmade2">Contact Made: </label>
-                                <input type="text" class="form-control" id="contactmade2" name="contact2_made" value="<?= $AccidentInfo->contact2_made;?>" placeholder="<?= $AccidentInfo->contact2_made;?>">
+                                <input type="text" class="form-control custom-input" id="contactmade2" name="contact2_made" value="<?= $AccidentInfo->contact2_made;?>" placeholder="<?= $AccidentInfo->contact2_made;?>">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="messageleft2">Message Left:</label>
-                                <input type="text" class="form-control" id="messageleft2" name="contact2_msg" value="<?= $AccidentInfo->contact2_msg;?>" placeholder="<?= $AccidentInfo->contact2_msg;?>">
+                                <input type="text" class="form-control custom-input" id="messageleft2" name="contact2_msg" value="<?= $AccidentInfo->contact2_msg;?>" placeholder="<?= $AccidentInfo->contact2_msg;?>">
                             </div>
                         </div>
 
@@ -616,7 +660,7 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="res_pinc">Responsible Person in Charge Name:</label>
-                                <input type="text" class="form-control" id="res_pinc" name="responsible_person_name" value="<?= $AccidentInfo->responsible_person_name;?>" placeholder="<?= $AccidentInfo->responsible_person_name;?>"> 
+                                <input type="text" class="form-control custom-input" id="res_pinc" name="responsible_person_name" value="<?= $AccidentInfo->responsible_person_name;?>" placeholder="<?= $AccidentInfo->responsible_person_name;?>"> 
                             </div>
                             <div class="form-group col-md-6">
                                 <label>
@@ -633,11 +677,11 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="rp_internal_notif_date">Date</label>
-                                <input type="text" class="form-control" id="rp_internal_notif_date" name="rp_internal_notif_date" value="<?= $AccidentInfo->rp_internal_notif_date; ?>" placeholder="<?= $AccidentInfo->rp_internal_notif_date;?>">
+                                <input type="text" class="form-control custom-input" id="rp_internal_notif_date" name="rp_internal_notif_date" value="<?= $AccidentInfo->rp_internal_notif_date; ?>" placeholder="<?= $AccidentInfo->rp_internal_notif_date;?>">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="rp_internal_notif_time">Time</label>
-                                <input type="text" class="form-control" id="rp_internal_notif_time" name="rp_internal_notif_time" value="<?= $AccidentInfo->rp_internal_notif_time; ?>" placeholder="<?= $AccidentInfo->rp_internal_notif_time;?>">
+                                <input type="text" class="form-control custom-input" id="rp_internal_notif_time" name="rp_internal_notif_time" value="<?= $AccidentInfo->rp_internal_notif_time; ?>" placeholder="<?= $AccidentInfo->rp_internal_notif_time;?>">
                             </div>
                         </div>
                     @if(!empty($AccidentInfo->id))
@@ -649,7 +693,7 @@ padding-inline:0;
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="nom_sv">Nominated Supervisor Name:</label>
-                                    <input type="text" class="form-control" id="nom_sv" name="nominated_supervisor_name" value="<?= $AccidentInfo->nominated_supervisor_name;?>" placeholder="<?= $AccidentInfo->nominated_supervisor_name;?>">
+                                    <input type="text" class="form-control custom-input" id="nom_sv" name="nominated_supervisor_name" value="<?= $AccidentInfo->nominated_supervisor_name;?>" placeholder="<?= $AccidentInfo->nominated_supervisor_name;?>">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label>
@@ -666,11 +710,11 @@ padding-inline:0;
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="nsv_date">Date</label>
-                                    <input type="text" class="form-control" id="nsv_date" name="nsv_date" value="<?= $AccidentInfo->nominated_supervisor_date;?>" placeholder="<?= $AccidentInfo->nominated_supervisor_date;?>">
+                                    <input type="text" class="form-control custom-input" id="nsv_date" name="nsv_date" value="<?= $AccidentInfo->nominated_supervisor_date;?>" placeholder="<?= $AccidentInfo->nominated_supervisor_date;?>">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="nsv_time">Time</label>
-                                    <input type="text" class="form-control" id="nsv_time" name="nsv_time" value="<?= $AccidentInfo->nominated_supervisor_time;?>" placeholder="<?= $AccidentInfo->nominated_supervisor_time;?>">
+                                    <input type="text" class="form-control custom-input" id="nsv_time" name="nsv_time" value="<?= $AccidentInfo->nominated_supervisor_time;?>" placeholder="<?= $AccidentInfo->nominated_supervisor_time;?>">
                                 </div>
                             </div>
                         @endif
@@ -683,17 +727,17 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="otheragency">Other agency:</label>
-                                <input type="text" class="form-control" id="otheragency" name="otheragency" value="<?= $AccidentInfo->ext_notif_other_agency;?>" placeholder="<?= $AccidentInfo->ext_notif_other_agency;?>">
+                                <input type="text" class="form-control custom-input" id="otheragency" name="otheragency" value="<?= $AccidentInfo->ext_notif_other_agency;?>" placeholder="<?= $AccidentInfo->ext_notif_other_agency;?>">
                             </div>
                             <div class="form-group col-md-6">
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
                                         <label for="agencyDate">Date</label>
-                                        <input type="text" class="form-control" id="agencyDate" name="enor_date" value="<?= $AccidentInfo->enor_date;?>" placeholder="<?= $AccidentInfo->enor_date;?>">
+                                        <input type="text" class="form-control custom-input" id="agencyDate" name="enor_date" value="<?= $AccidentInfo->enor_date;?>" placeholder="<?= $AccidentInfo->enor_date;?>">
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="agencyTime">Time</label>
-                                        <input type="text" class="form-control" id="agencyTime" name="enor_time" value="<?= $AccidentInfo->enor_time;?>" placeholder="<?= $AccidentInfo->enor_time;?>">
+                                        <input type="text" class="form-control custom-input" id="agencyTime" name="enor_time" value="<?= $AccidentInfo->enor_time;?>" placeholder="<?= $AccidentInfo->enor_time;?>">
                                     </div>
                                 </div>
                             </div>
@@ -701,13 +745,13 @@ padding-inline:0;
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="Regulatoryauthority">Regulatory authority:</label>
-                                <input type="text" class="form-control" id="Regulatoryauthority" name="Regulatoryauthority" value="<?= $AccidentInfo->ext_notif_regulatory_auth;?>" placeholder="<?= $AccidentInfo->ext_notif_regulatory_auth;?>">
+                                <input type="text" class="form-control custom-input" id="Regulatoryauthority" name="Regulatoryauthority" value="<?= $AccidentInfo->ext_notif_regulatory_auth;?>" placeholder="<?= $AccidentInfo->ext_notif_regulatory_auth;?>">
                             </div>
                             <div class="form-group col-md-6">
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
                                         <label for="enra_date">Date</label>
-                                    <input type="date" class="form-control" id="enra_date" name="enra_date"
+                                    <input type="date" class="form-control custom-input" id="enra_date" name="enra_date"
                                     value="{{ isset($AccidentInfo->enra_date) ? \Carbon\Carbon::parse($AccidentInfo->enra_date)->format('Y-m-d') : '' }}"
                                     placeholder="{{ isset($AccidentInfo->enra_date) ? \Carbon\Carbon::parse($AccidentInfo->enra_date)->format('Y-m-d') : '' }}">
 
@@ -724,23 +768,23 @@ padding-inline:0;
                             <div class="row">
                                 <div class="col-sm-12">
                                     <h3 class="service-title">Parental acknowledgement</h3>
-                                    <div class="form-group col-md-6">
+                                    <div class="form-group col-md-12">
                                     <label for="ack_parent_name">Parental acknowledgement</label>
-                                         <input type="text" name="ack_parent_name" value="<?= $AccidentInfo->ack_parent_name;?>" placeholder="<?= $AccidentInfo->ack_parent_name;?>"> (name of parent / guardian) have been notified of my child's incident / injury / trauma / illness.
+                                         <input type="text" name="ack_parent_name" class="form-control custom-input col-12" value="<?= $AccidentInfo->ack_parent_name;?>" placeholder="<?= $AccidentInfo->ack_parent_name;?>"> (name of parent / guardian) have been notified of my child's incident / injury / trauma / illness.
                                     </div>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="RegulatoryauthorityDate">Date</label>
-<input type="date" class="form-control" id="RegulatoryauthorityDate" name="ack_date"
+<input type="date" class="form-control custom-input" id="RegulatoryauthorityDate" name="ack_date"
        value="{{ isset($AccidentInfo->ack_date) ? \Carbon\Carbon::parse($AccidentInfo->ack_date)->format('Y-m-d') : '' }}">
 
 
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="RegulatoryauthorityTime">Time</label>
-                                    <input type="text" class="form-control" id="RegulatoryauthorityTime" name="ack_time" value="<?= $AccidentInfo->ack_time;?>" placeholder="<?= $AccidentInfo->ack_time;?>">
+                                    <input type="text" class="form-control custom-input" id="RegulatoryauthorityTime" name="ack_time" value="<?= $AccidentInfo->ack_time;?>" placeholder="<?= $AccidentInfo->ack_time;?>">
                                 </div>
                             </div>
                         @endif
@@ -751,7 +795,7 @@ padding-inline:0;
                         </div>
                         <div class="form-row mb-5">
                             <div class="form-group col-md-12">
-                                <textarea class="form-control" id="takenAction" name="add_notes"><?= $AccidentInfo->add_notes;?></textarea>
+                                <textarea class="form-control custom-input" id="takenAction" name="add_notes" rows="8"><?= $AccidentInfo->add_notes;?></textarea>
                             </div>
                         </div>
 

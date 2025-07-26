@@ -23,6 +23,7 @@ class SettingsController extends Controller
     public function updateUserPermissions(Request $request, $userId)
     {
         $permissions = $request->input('permissions', []);
+        // dd( $permissions);
         $allColumns = Schema::getColumnListing('permissions');
 
         // Exclude non-permission columns

@@ -78,6 +78,7 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 // Route group with middleware this middleware use after login
 Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function () {
     Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
+     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
     // service details
     Route::get('ServiceDetails', [ServiceDetailsController::class, 'create'])->name('create.serviceDetails');
     Route::post('ServiceDetails', [ServiceDetailsController::class, 'store'])->name('store.serviceDetails');
@@ -103,6 +104,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('announcements/store', [AnnouncementController::class, 'AnnouncementStore'])->name('announcements.store');
     Route::delete('announcements/delete', [AnnouncementController::class, 'AnnouncementDelete'])->name('announcements.delete');
     Route::get('announcements/view/{annid}', [AnnouncementController::class, 'AnnouncementView'])->name('announcements.view');
+        Route::get('announcements/events', [DashboardController::class, 'getEvents'])->name('announcements.events');
 
     // headchecks
     Route::get('headChecks', [HeadChecks::class, 'index'])->name('headChecks');
@@ -148,7 +150,10 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('Accident/getChildDetails', [AccidentsController::class, 'getChildDetails'])->name('Accident/getChildDetails');
 
 
-    Route::get('surveys/list', [SurveyController::class, 'list'])->name('survey.list');
+
+
+
+    // Route::get('surveys/list', [SurveyController::class, 'list'])->name('survey.list');
 
     // Daily Journel here
     Route::get('DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.list');
@@ -168,23 +173,23 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('dailyDiary/deleteBottleTime', [DailyDiaryController::class, 'deleteBottleTime'])->name('dailyDiary.deleteBottleTime');
 
     Route::post('dailyDiary/updateBottleTimes', [DailyDiaryController::class, 'updateBottleTimes'])->name('dailyDiary.updateBottleTimes');
-    Route::post('dailyDiary/addToiletingRecord', [DailyDiaryController::class, 'addToiletingRecord'])->name('dailyDiary.addToiletingRecord');
-    Route::post('dailyDiary/addSunscreenRecord', [DailyDiaryController::class, 'addSunscreenRecord'])->name('dailyDiary.addSunscreenRecord');
-    Route::post('dailyDiary/addBottle', [DailyDiaryController::class, 'addBottle'])->name('dailyDiary.addBottle');
-    Route::post('dailyDiary/deleteBottleTime', [DailyDiaryController::class, 'deleteBottleTime'])->name('dailyDiary.deleteBottleTime');
+    // Route::post('dailyDiary/addToiletingRecord', [DailyDiaryController::class, 'addToiletingRecord'])->name('dailyDiary.addToiletingRecord');
+    // Route::post('dailyDiary/addSunscreenRecord', [DailyDiaryController::class, 'addSunscreenRecord'])->name('dailyDiary.addSunscreenRecord');
+    // Route::post('dailyDiary/addBottle', [DailyDiaryController::class, 'addBottle'])->name('dailyDiary.addBottle');
+    // Route::post('dailyDiary/deleteBottleTime', [DailyDiaryController::class, 'deleteBottleTime'])->name('dailyDiary.deleteBottleTime');
 
 
     Route::get('dailyDiary/viewChildDiary', [DailyDiaryController::class, 'viewChildDiary'])->name('dailyDiary.viewChildDiary');
 
-    Route::post('/activities/breakfast', [DailyDiaryController::class, 'storeBreakfast']);
-    Route::post('/activities/morning-tea', [DailyDiaryController::class, 'storeMorningTea']);
-    Route::post('/activities/lunch', [DailyDiaryController::class, 'storeLunch']);
-    Route::post('/activities/sleep', [DailyDiaryController::class, 'storeSleep']);
-    Route::post('/activities/afternoon-tea', [DailyDiaryController::class, 'storeAfternoonTea']);
-    Route::post('/activities/snacks', [DailyDiaryController::class, 'storeSnacks']);
-    Route::post('/activities/sunscreen', [DailyDiaryController::class, 'storeSunscreen']);
-    Route::post('/activities/toileting', [DailyDiaryController::class, 'storeToileting']);
-    Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
+    // Route::post('/activities/breakfast', [DailyDiaryController::class, 'storeBreakfast']);
+    // Route::post('/activities/morning-tea', [DailyDiaryController::class, 'storeMorningTea']);
+    // Route::post('/activities/lunch', [DailyDiaryController::class, 'storeLunch']);
+    // Route::post('/activities/sleep', [DailyDiaryController::class, 'storeSleep']);
+    // Route::post('/activities/afternoon-tea', [DailyDiaryController::class, 'storeAfternoonTea']);
+    // Route::post('/activities/snacks', [DailyDiaryController::class, 'storeSnacks']);
+    // Route::post('/activities/sunscreen', [DailyDiaryController::class, 'storeSunscreen']);
+    // Route::post('/activities/toileting', [DailyDiaryController::class, 'storeToileting']);
+    // Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
 
     // Daily Journel Ends here
     Route::get('/backup-now', [DBBackupController::class, 'runBackup']);
@@ -215,6 +220,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::get('/childrens-edit/{id}', [RoomController::class, 'childrens_edit'])->name('children.edit');
     Route::delete('/childrens-delete/{id}', [RoomController::class, 'children_destroy'])->name('children.destroy');
 
+    // recipe
     Route::match(['get', 'post'], '/healthy-recipe', [HealthyController::class, 'healthy_recipe'])->name('healthy_recipe');
     Route::get('/recipes/{id}/edit', [HealthyController::class, 'edit'])->name('recipes.edit');
     Route::delete('/recipes/{id}/delete', [HealthyController::class, 'destroy'])->name('recipes.destroy');
@@ -232,7 +238,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('/save-recipes', [HealthyController::class, 'store_menu'])->name('menu.store');
     Route::delete('/menu/{id}', [HealthyController::class, 'menu_destroy'])->name('menu.destroy');
 
-
+// settings
     Route::post('/change-center', [SettingsController::class, 'changeCenter'])->name('change.center');
 
 
@@ -241,9 +247,10 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     Route::get('Observation/getSubjects', [ObservationController::class, 'getSubjects'])->name('Observation.getSubjects');
 
-    Route::get('Observation/getActivitiesBySubject', [ObservationController::class, 'addSubActivity'])->name('Observation.addSubActivity');
+    Route::get('Observation/getActivitiesBySubject', [ObservationController::class, 'getActivitiesBySubject'])->name('Observation.getActivitiesBySubject');
+    
 
-    Route::get('Observation/addSubActivity', [ObservationController::class, 'getActivitiesBySubject'])->name('Observation.getActivitiesBySubject');
+    Route::get('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name('Observation.addSubActivity');
 
     Route::prefix('settings')->name('settings.')->group(function () {
 

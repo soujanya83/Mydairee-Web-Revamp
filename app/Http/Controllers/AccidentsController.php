@@ -431,6 +431,12 @@ public function sendEmail(Request $request)
 // }
 public function saveAccident(Request $request)
 {
+  $request->validate([
+    'childid' => 'required'
+], [
+    'childid.required' => 'Child is required.'
+]);
+
     $data = $request->all();
 
     // Add Auth/session fields

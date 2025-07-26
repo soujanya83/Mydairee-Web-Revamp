@@ -48,7 +48,7 @@ class AnnouncementController extends Controller
             $query->where('createdBy', $userId);
         }
 
-        $records = $query->orderByDesc('id')->paginate(10); // ✅ Pagination applied
+        $records = $query->orderByDesc('id')->get(); // ✅ Pagination applied
     } else {
         // For Parents or other roles - get related children announcements
         $childIds = ChildParent::where('parentid', $userId)->pluck('childid');
@@ -57,7 +57,7 @@ class AnnouncementController extends Controller
             ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
             ->whereIn('announcementchild.childid', $childIds)
             ->orderByDesc('announcement.id')
-            ->paginate(10); // ✅ Pagination here too
+            ->get(); // ✅ Pagination here too
     }
 
     // Attach creator name manually if needed

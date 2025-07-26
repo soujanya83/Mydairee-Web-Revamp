@@ -90,17 +90,17 @@
                                 @if(!empty($permissions['viewDailyDiary']) && $permissions['viewDailyDiary'])
 
                                 <li class="{{ Route::is('dailyDiary.list') ? 'active' : '' }}">
-                                    <a href="{{ route('dailyDiary.list') }}" data-toggle="tooltip" data-placement="right" >Daily Diary</a>
+                                    <a href="{{ route('dailyDiary.list') }}" data-toggle="tooltip" data-placement="right" > &nbsp;Daily Diary</a>
                                 </li>
                                 @endif
                                 <li class="{{ Route::is('headChecks') ? 'active' : '' }}">
-                                    <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right" >Head Checks</a>
+                                    <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right" >   &nbsp;Head Checks</a>
                                 </li>
                                 <li class="{{ Route::is('sleepcheck.list') ? 'active' : '' }}">
-                                    <a href="{{ route('sleepcheck.list') }}" data-toggle="tooltip" data-placement="right" >Sleep Check List</a>
+                                    <a href="{{ route('sleepcheck.list') }}" data-toggle="tooltip" data-placement="right" >  &nbsp;Sleep Check List</a>
                                 </li>
                                 <li class="{{ Route::is('Accidents.list') ? 'active' : '' }}">
-                                    <a href="{{ route('Accidents.list') }}" data-toggle="tooltip" data-placement="right">Accidents</a>
+                                    <a href="{{ route('Accidents.list') }}" data-toggle="tooltip" data-placement="right">  &nbsp;Accidents</a>
                                 </li>
                             </ul>
                         </li>
@@ -191,13 +191,13 @@
                             </a>
                             <ul>
                                 <li class="{{ Route::is('healthy_menu') ? 'active' : '' }}">
-                                    <a href="{{ route('healthy_menu') }}" data-toggle="tooltip" data-placement="right">Menu</a>
+                                    <a href="{{ route('healthy_menu') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp;Menu</a>
                                 </li>
                                 <li class="{{ Route::is('healthy_recipe') ? 'active' : '' }}">
-                                    <a href="{{ route('healthy_recipe') }}" data-toggle="tooltip" data-placement="right">Recipe</a>
+                                    <a href="{{ route('healthy_recipe') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp;Recipe</a>
                                 </li>
                                 <li class="{{ Route::is('recipes.Ingredients') ? 'active' : '' }}">
-                                    <a href="{{ route('recipes.Ingredients') }}" data-toggle="tooltip" data-placement="right">Ingredients</a>
+                                    <a href="{{ route('recipes.Ingredients') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp;Ingredients</a>
                                 </li>
                             </ul>
                         </li>
@@ -223,7 +223,7 @@
                                 @endphp
                                 @if($userId == 1)
                                 <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}">
-                                    <a href="{{ route('settings.superadmin_settings') }}" data-toggle="tooltip" data-placement="right">Super-Admin Settings</a>
+                                    <a href="{{ route('settings.superadmin_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Super-Admin Settings</a>
                                 </li>
                                 @endif
 
@@ -235,23 +235,23 @@
                                 == 'Superadmin'))
 
                                 <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}">
-                                    <a href="{{ route('settings.center_settings') }}" data-toggle="tooltip" data-placement="right">Center Settings</a>
+                                    <a href="{{ route('settings.center_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Center Settings</a>
                                 </li>
                                 @endif
                                 @if($userType == 'Superadmin')
                                 <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}">
-                                    <a href="{{ route('settings.staff_settings') }}" data-toggle="tooltip" data-placement="right">Staffs Settings</a>
+                                    <a href="{{ route('settings.staff_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Staffs Settings</a>
                                 </li>
                                 @endif
                                 @if(!empty($permissions['viewParent']) && $permissions['viewParent'])
 
                                 <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}">
-                                    <a href="{{ route('settings.parent_settings') }}" data-toggle="tooltip" data-placement="right">Parents Settings</a>
+                                    <a href="{{ route('settings.parent_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Parents Settings</a>
                                 </li>
                                 @endif
 
                                 <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}">
-                                    <a href="{{ route('settings.manage_permissions') }}" data-toggle="tooltip" data-placement="right">Manage Permissions</a>
+                                    <a href="{{ route('settings.manage_permissions') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Manage Permissions</a>
                                 </li>
                             </ul>
                         </li>
@@ -288,7 +288,7 @@
                         <div class="blush"></div>
                         <span>Blush</span>
                     </li>
-                    
+
                 </ul>
                 <hr>
 
