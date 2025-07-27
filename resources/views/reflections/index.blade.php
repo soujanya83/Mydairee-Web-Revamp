@@ -455,7 +455,9 @@
                     <h5 class="card-title">{!! $reflectionItem->title !!}</h5>
                     <div class="card-date">
                         <i class="fas fa-calendar-alt"></i>
-                        {{ $reflectionItem->created_at ? $reflectionItem->created_at->format('M d, Y') : '' }}
+                        @if ($reflectionItem->created_at)
+    {{ (new \DateTime($reflectionItem->created_at))->format('M d, Y') }}
+@endif
                     </div>
                 </div>
 
