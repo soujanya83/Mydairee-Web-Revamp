@@ -86,12 +86,12 @@ class DailyDiaryController extends Controller
                 ->map(function ($child) use ($selectedDate) {
                     return [
                         'child' => $child,
-                        'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+                        'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+                        'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+                        'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
                         'snacks' => DailyDiarySnacks::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
                         'afternoon_tea' => DailyDiaryAfternoonTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+                        'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
                         'lunch' => DailyDiaryLunch::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
                         'morning_tea' => DailyDiaryMorningTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
                         'breakfast' => DailyDiaryBreakfast::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
@@ -1391,4 +1391,353 @@ class DailyDiaryController extends Controller
             ], 500);
         }
     }
+
+
+
+    // in DailyDiaryBreakfastController
+
+        public function getBreakfast2(Request $request)
+        {
+            $childId = $request->query('child_id');
+            $date = $request->query('selected_date');
+
+            $breakfast = DailyDiaryBreakfast::where('childid', $childId)
+                ->where('diarydate', $date)
+                ->first();
+
+            return response()->json(['data' => $breakfast]);
+        }
+
+        public function storeOrUpdateBreakfast(Request $request)
+        {
+            $childId = $request->input('child_id');
+            $date = $request->input('selected_date');
+            $authId = auth()->user()->id;
+
+            $breakfast = DailyDiaryBreakfast::updateOrCreate(
+                [
+                    'childid' => $childId,
+                    'diarydate' => $date,
+                ],
+                [
+                    'startTime' => $request->input('startTime'),
+                    'item' => $request->input('item'),
+                    'comments' => $request->input('comments'),
+                    'createdBy' => $authId
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Breakfast entry saved successfully!',
+                'data' => $breakfast
+            ]);
+        }
+
+
+        public function getMorningTea2(Request $request)
+        {
+            $childId = $request->query('child_id');
+            $date = $request->query('selected_date');
+
+            $morningTea = DailyDiaryMorningTea::where('childid', $childId)
+                ->where('diarydate', $date)
+                ->first();
+
+            return response()->json(['data' => $morningTea]);
+        }
+
+        public function storeOrUpdateMorningTea(Request $request)
+        {
+            $childId = $request->input('child_id');
+            $date = $request->input('selected_date');
+            $authId = auth()->user()->id;
+
+            $morningTea = DailyDiaryMorningTea::updateOrCreate(
+                [
+                    'childid' => $childId,
+                    'diarydate' => $date,
+                ],
+                [
+                    'startTime' => $request->input('startTime'),
+                    'comments' => $request->input('comments'),
+                    'createdBy' => $authId
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Morning tea entry saved successfully!',
+                'data' => $morningTea
+            ]);
+        }
+
+
+        public function getLunch2(Request $request)
+        {
+            $childId = $request->query('child_id');
+            $date = $request->query('selected_date');
+
+            $lunch = DailyDiaryLunch::where('childid', $childId)
+                ->where('diarydate', $date)
+                ->first();
+
+            return response()->json(['data' => $lunch]);
+        }
+
+        public function storeOrUpdateLunch(Request $request)
+        {
+            $childId = $request->input('child_id');
+            $date = $request->input('selected_date');
+            $authId = auth()->user()->id;
+
+            $lunch = DailyDiaryLunch::updateOrCreate(
+                [
+                    'childid' => $childId,
+                    'diarydate' => $date,
+                ],
+                [
+                    'startTime' => $request->input('startTime'),
+                    'item' => $request->input('item'),
+                    'comments' => $request->input('comments'),
+                    'createdBy' => $authId
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lunch entry saved successfully!',
+                'data' => $lunch
+            ]);
+        }
+
+
+        public function getAfternoonTea2(Request $request)
+        {
+            $childId = $request->query('child_id');
+            $date = $request->query('selected_date');
+
+            $afternoonTea = DailyDiaryAfternoonTea::where('childid', $childId)
+                ->where('diarydate', $date)
+                ->first();
+
+            return response()->json(['data' => $afternoonTea]);
+        }
+
+        public function storeOrUpdateAfternoonTea(Request $request)
+        {
+            $childId = $request->input('child_id');
+            $date = $request->input('selected_date');
+            $authId = auth()->user()->id;
+
+            $afternoonTea = DailyDiaryAfternoonTea::updateOrCreate(
+                [
+                    'childid' => $childId,
+                    'diarydate' => $date,
+                ],
+                [
+                    'startTime' => $request->input('startTime'),
+                    'comments' => $request->input('comments'),
+                    'createdBy' => $authId
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Afternoon tea entry saved successfully!',
+                'data' => $afternoonTea
+            ]);
+        }
+
+
+
+        public function getSnacks2(Request $request)
+        {
+            $childId = $request->query('child_id');
+            $date = $request->query('selected_date');
+
+            $snacks = DailyDiarySnacks::where('childid', $childId)
+                ->where('diarydate', $date)
+                ->first();
+
+            return response()->json(['data' => $snacks]);
+        }
+
+        public function storeOrUpdateSnacks(Request $request)
+        {
+            $childId = $request->input('child_id');
+            $date = $request->input('selected_date');
+            $authId = auth()->user()->id;
+
+            $snacks = DailyDiarySnacks::updateOrCreate(
+                [
+                    'childid' => $childId,
+                    'diarydate' => $date,
+                ],
+                [
+                    'startTime' => $request->input('startTime'),
+                    'item' => $request->input('item'),
+                    'comments' => $request->input('comments'),
+                    'createdBy' => $authId
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Snack entry saved successfully!',
+                'data' => $snacks
+            ]);
+        }
+
+
+        public function show2($id) {
+            $entry = DailyDiarySleep::findOrFail($id);
+            return response()->json(['data' => $entry]);
+        }
+        
+        public function store2(Request $request) {
+            $authId = auth()->user()->id;
+            $entry = DailyDiarySleep::create([
+                'childid' => $request->child_id,
+                'diarydate' => $request->selected_date,
+                'startTime' => $request->startTime,
+                'endTime' => $request->endTime,
+                'comments' => $request->comments,
+                'createdBy' => $authId
+            ]);
+        
+            return response()->json([
+                'success' => true,
+                'message' => 'Sleep entry added successfully!',
+                'data' => $entry
+            ]);
+        }
+        
+        public function update2(Request $request, $id) {
+            $entry = DailyDiarySleep::findOrFail($id);
+            $entry->update([
+                'startTime' => $request->startTime,
+                'endTime' => $request->endTime,
+                'comments' => $request->comments,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Sleep entry updated successfully!',
+                'data' => $entry
+            ]);
+        }
+
+
+
+        public function show3($id) {
+            $entry = DailyDiarySunscreen::findOrFail($id);
+            return response()->json(['data' => $entry]);
+        }
+        
+        public function store3(Request $request) {
+            $authId = auth()->user()->id;
+            $entry = DailyDiarySunscreen::create([
+                'childid' => $request->child_id,
+                'diarydate' => $request->selected_date,
+                'startTime' => $request->startTime,
+                'comments' => $request->comments,
+                'createdBy' => $authId
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Sunscreen application added!',
+                'data' => $entry
+            ]);
+        }
+        
+        public function update3(Request $request, $id) {
+            $entry = DailyDiarySunscreen::findOrFail($id);
+            $entry->update([
+                'startTime' => $request->startTime,
+                'comments' => $request->comments,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Sunscreen application updated!',
+                'data' => $entry
+            ]);
+        }
+        
+
+
+        public function show4($id) {
+            $entry = DailyDiaryToileting::findOrFail($id);
+            return response()->json(['data' => $entry]);
+        }
+        
+        public function store4(Request $request) {
+            $authId = auth()->user()->id;
+            $entry = DailyDiaryToileting::create([
+                'childid' => $request->child_id,
+                'diarydate' => $request->selected_date,
+                'startTime' => $request->startTime,
+                'status' => $request->status,
+                'comments' => $request->comments,
+                'createdBy' => $authId
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Toileting record added!',
+                'data' => $entry
+            ]);
+        }
+        
+        public function update4(Request $request, $id) {
+            $entry = DailyDiaryToileting::findOrFail($id);
+            $entry->update([
+                'startTime' => $request->startTime,
+                'status' => $request->status,
+                'comments' => $request->comments,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Toileting entry updated!',
+                'data' => $entry
+            ]);
+        }
+        
+        
+
+        public function show5($id) {
+            $entry = DailyDiaryBottle::findOrFail($id);
+            return response()->json(['data' => $entry]);
+        }
+        
+        public function store5(Request $request) {
+            $authId = auth()->user()->id;
+            $entry = DailyDiaryBottle::create([
+                'childid'   => $request->child_id, 
+                'diarydate' => $request->selected_date,
+                'startTime' => $request->startTime,
+                'comments'  => $request->comments ?? null, // Add/remove as needed
+                'createdBy' => $authId,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Bottle feeding entry added!',
+                'data' => $entry
+            ]);
+        }
+        
+        public function update5(Request $request, $id) {
+            $entry = DailyDiaryBottle::findOrFail($id);
+            $entry->update([
+                'startTime' => $request->startTime,
+                'comments'  => $request->comments ?? null, // Add/remove as needed
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Bottle feeding entry updated!',
+                'data' => $entry
+            ]);
+        }
+        
+
+
+
 }

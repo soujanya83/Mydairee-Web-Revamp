@@ -5,7 +5,12 @@
 
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- (Optional) Flatpickr Theme Example -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <style>
 /* Assessment Container Styles */
 .assessment-container {
@@ -898,6 +903,20 @@
 
 @if(isset($observation) && $observation->id)
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
+
+
+{{-- Date Display and Picker --}}
+<div id="createdAtContainer" class="mr-3" style="cursor:pointer;">
+    <span id="createdAtDisplay" class="badge badge-info" style="font-size:16px; padding:8px;">
+        <i class="far fa-calendar-alt mr-1"></i>
+        {{ \Carbon\Carbon::parse($observation->created_at)->format('d M Y') }}
+    </span>
+    <input type="text" id="editCreatedAt" class="form-control"
+        style="display:none; min-width:170px;"
+        value="{{ \Carbon\Carbon::parse($observation->created_at)->format('d M Y') }}">
+</div>
+
+
     <button type="button" id="publishObservation" class="btn btn-success shadow-lg btn-animated mr-2">
         <i class="fas fa-upload mr-1"></i> Publish Now
     </button>
@@ -2554,6 +2573,101 @@ document.querySelectorAll('.assessment-label').forEach(label => {
         }
     });
 });
+</script>
+
+
+<script>
+
+
+function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+    const display = document.getElementById('createdAtDisplay');
+    const input = document.getElementById('editCreatedAt');
+
+    // Initialize Flatpickr on the input
+    const fp = flatpickr(input, {
+        dateFormat: "d M Y",
+        defaultDate: input.value,
+        onChange: function(selectedDates, dateStr, instance) {
+            // Send AJAX only if a date is selected
+            if(selectedDates.length) {
+                const formatted = selectedDates[0].toISOString().split('T')[0];
+                fetch('{{ route("observation.changeCreatedAt") }}', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify({
+                        id: {{ $observation->id ?? 'null' }},
+                        created_at: formatted
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        // Update display with new formatted date
+                        display.innerHTML = '<i class="far fa-calendar-alt mr-1"></i>' + dateStr;
+                        showToast('success', 'Date Changed Successfully');
+                    } else {
+                        showToast('error', data.message ?? 'Could not update');
+                    }
+                    input.style.display = "none";
+                    display.style.display = "inline-block";
+                })
+                .catch(err => {
+                    showToast('error', 'Error: ' + err.message);
+                    input.style.display = "none";
+                    display.style.display = "inline-block";
+                });
+            }
+        },
+        allowInput: true,
+        clickOpens: true
+    });
+
+    // Show flatpickr input when span clicked
+    display.addEventListener('click', function() {
+        display.style.display = "none";
+        input.style.display = "inline-block";
+        fp.open();
+    });
+
+    // Hide input on blur (after a short delay to allow date selection)
+    input.addEventListener('blur', function(){
+        setTimeout(function(){
+            input.style.display = "none";
+            display.style.display = "inline-block";
+        }, 200);
+    });
+});
+
+
 </script>
 
 @include('layout.footer')

@@ -1350,4 +1350,14 @@ class ObservationsController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+    
+
+    public function changeCreatedAt(Request $request)
+    {
+        $obs = Observation::find($request->id);
+        if(!$obs) return response()->json(['success' => false, 'message' => 'Observation not found']);
+        $obs->created_at = $request->created_at;
+        $obs->save();
+        return response()->json(['success' => true]);
+    }
 }
