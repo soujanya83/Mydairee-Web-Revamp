@@ -1356,8 +1356,12 @@ class ObservationsController extends Controller
     {
         $obs = Observation::find($request->id);
         if(!$obs) return response()->json(['success' => false, 'message' => 'Observation not found']);
-        $obs->created_at = $request->created_at;
+
+        $newDate = \Carbon\Carbon::parse($request->created_at)->addDay();
+
+        $obs->created_at = $newDate;
         $obs->save();
+
         return response()->json(['success' => true]);
     }
 }

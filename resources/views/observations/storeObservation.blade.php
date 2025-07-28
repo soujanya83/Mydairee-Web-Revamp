@@ -1076,8 +1076,8 @@
     <div id="uploadedMedia" class="row mt-4">
         @foreach($observation->media as $media)
             <div class="col-md-3 position-relative mb-3" id="media-{{ $media->id }}">
-                @if(Str::startsWith($media->mediaType, 'image'))
-                    <img src="{{ asset($media->mediaUrl) }}" class="media-thumb img-fluid rounded">
+            @if(Str::startsWith($media->mediaType, ['image', 'Image']))
+                                <img src="{{ asset($media->mediaUrl) }}" class="media-thumb img-fluid rounded">
                 @elseif(Str::startsWith($media->mediaType, 'video'))
                     <video controls class="media-thumb rounded">
                         <source src="{{ asset($media->mediaUrl) }}" type="{{ $media->mediaType }}">
