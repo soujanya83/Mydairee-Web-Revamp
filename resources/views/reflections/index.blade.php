@@ -279,6 +279,7 @@
 
 
     .status-badge {
+        z-index: 10;
             position: absolute;
             top: 15px;
             right: 20px;
@@ -454,10 +455,11 @@
         @endphp
 
         <div class="col-lg-6 col-md-12">
+        <span class="status-badge {{ $statusClass }}">{{ $reflectionItem->status }}</span>
             <div class="card reflection-card">
                 {{-- Image Carousel --}}
                 <div class="image-carousel">
-                <span class="status-badge {{ $statusClass }}">{{ $reflectionItem->status }}</span>
+
                     @if($reflectionItem->media && $reflectionItem->media->count() > 0)
                     @foreach($reflectionItem->media as $index => $media)
                     <img src="{{ asset($media->mediaUrl) }}" alt="Reflection Image"

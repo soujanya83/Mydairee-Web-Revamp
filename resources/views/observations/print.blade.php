@@ -204,7 +204,7 @@
 
                 @if($observation->media && $observation->media->isNotEmpty())
                 @foreach($observation->media as $mediaItem)
-                @if(Str::startsWith($mediaItem->mediaType, 'image'))
+                @if(Str::startsWith($mediaItem->mediaType, ['image', 'Image']))
                 <img src="{{ asset($mediaItem->mediaUrl) }}" class="child-image" alt="Observation Media">
                 @endif
                 @endforeach

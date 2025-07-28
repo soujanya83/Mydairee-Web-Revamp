@@ -77,6 +77,35 @@ class DailyDiaryController extends Controller
 
         // Filter children by attendance on selected date
         $children = collect();
+
+        if (auth()->user()->userType == 'Parent') {
+
+            $parentId = auth()->user()->id;
+
+$childIds = ChildParent::where('parentid', $parentId)->pluck('childid');
+
+$children = Child::whereIn('id', $childIds)
+    ->get()
+    ->filter(function ($child) use ($dayIndex) {
+        return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
+    })
+    ->map(function ($child) use ($selectedDate) {
+        return [
+            'child' => $child,
+            'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+            'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+            'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+            'snacks' => DailyDiarySnacks::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+            'afternoon_tea' => DailyDiaryAfternoonTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+            'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+            'lunch' => DailyDiaryLunch::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+            'morning_tea' => DailyDiaryMorningTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+            'breakfast' => DailyDiaryBreakfast::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+        ];
+    })
+    ->values();
+
+        } elseif (in_array(auth()->user()->userType, ['Superadmin', 'Staff']) && $selectedroom) {
         if ($selectedroom) {
             $children = Child::where('room', $selectedroom->id)
                 ->get()
@@ -99,6 +128,7 @@ class DailyDiaryController extends Controller
                 })
                 ->values();
         }
+    }
 
         // dd($children);
 
@@ -117,8 +147,10 @@ class DailyDiaryController extends Controller
 
             if ($user->userType === 'Superadmin') {
                 $rooms = $this->getroomsforSuperadmin();
-            } else {
+            } elseif($user->userType === 'Staff') {
                 $rooms = $this->getroomsforStaff();
+            }else{
+                $rooms = $this->getroomsforParent();
             }
 
             return $rooms;
@@ -159,6 +191,22 @@ class DailyDiaryController extends Controller
         $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
 
         $rooms = Room::where('id', $allRoomIds)->get();
+        return $rooms;
+    }
+
+    private function getroomsforParent()
+    {
+        $authId = Auth::user()->id;
+    
+        // Step 1: Get child IDs linked to the parent
+        $childIds = ChildParent::where('parentid', $authId)->pluck('childid');
+    
+        // Step 2: Get room IDs from Child records
+        $roomIds = Child::whereIn('id', $childIds)->pluck('room');
+    
+        // Step 3: Get Room data for those room IDs
+        $rooms = Room::whereIn('id', $roomIds)->get();
+    
         return $rooms;
     }
 

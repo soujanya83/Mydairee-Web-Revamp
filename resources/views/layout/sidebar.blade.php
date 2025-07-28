@@ -87,8 +87,10 @@
                                 <i class="fa fa-chevron-right dropdown-arrow"></i>
                             </a>
                             <ul>
-                                @if(!empty($permissions['viewDailyDiary']) && $permissions['viewDailyDiary'])
-
+                            @if(
+    in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewDailyDiary']) && $permissions['viewDailyDiary'])
+)
                                 <li class="{{ Route::is('dailyDiary.list') ? 'active' : '' }}">
                                     <a href="{{ route('dailyDiary.list') }}" data-toggle="tooltip" data-placement="right" > &nbsp;Daily Diary</a>
                                 </li>
@@ -104,7 +106,8 @@
                                 </li>
                             </ul>
                         </li>
-                        @if(!empty($permissions['viewProgramPlan']) && $permissions['viewProgramPlan'])
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewProgramPlan']) && $permissions['viewProgramPlan']))
 
                         <li class="{{ Request::is('programPlanList*') ? 'active' : '' }}">
                             <a href="/programPlanList" data-toggle="tooltip" data-placement="right">
@@ -114,7 +117,8 @@
                             </a>
                         </li>
                         @endif
-                        @if(!empty($permissions['viewAllReflection']) && $permissions['viewAllReflection'])
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllReflection']) && $permissions['viewAllReflection']))
 
                         <li class="{{ Request::is('reflection*') ? 'active' : null }}">
                             <a href="{{route('reflection.index')}}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-window-restore"
@@ -123,7 +127,8 @@
                         </li>
                         @endif
 
-                        @if(!empty($permissions['viewAllObservation']) && $permissions['viewAllObservation'])
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllObservation']) && $permissions['viewAllObservation']))
 
                         <li class="{{ Request::is('observation*') ? 'active' : null }}">
                             <a href="{{route('observation.index')}}" data-toggle="tooltip" data-placement="right">
@@ -142,7 +147,8 @@
 
 
 
-                        @if(!empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement'])
+                        @if(  in_array(auth()->user()->userType, ['Superadmin']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement']))
 
                         <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
                             <a href="{{ route('announcements.list') }}" data-toggle="tooltip" data-placement="right"> <i class="fa fa-bullhorn"
@@ -153,7 +159,8 @@
                         @endif
 
 
-                        @if(!empty($permissions['viewRoom']) && $permissions['viewRoom'])
+                        @if(  in_array(auth()->user()->userType, ['Superadmin']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewRoom']) && $permissions['viewRoom']))
 
                         <li class="{{ Request::is('room*') ? 'active' : null }}">
                             <a href="{{ route('rooms_list') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-users-viewfinder"

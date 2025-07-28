@@ -837,9 +837,11 @@ body {
                 </div>
                 <div class="col-md-4 text-right">
                     <div class="btn-group">
+                    @if(auth()->user()->userType !== 'Parent')
                     <button class="btn btn-primary" data-toggle="modal" data-target="#addEntryModal">
     <i class="fas fa-plus mr-2"></i>Add Entry
 </button>
+@endif
                         <!-- <button class="btn btn-outline-primary"><i class="fas fa-download mr-2"></i>Export</button> -->
                     </div>
                 </div>
@@ -923,6 +925,7 @@ body {
                             </div>
                             <div class="collapse show" id="Breakfast-{{ $childId }}">
                                 <div class="activity-content">
+                                @if(auth()->user()->userType !== 'Parent')
                                 <button 
                                         class="btn btn-outline-primary open-diary-modal" 
                                         style="float:right;"
@@ -930,7 +933,8 @@ body {
                                         data-selected-date="{{ request('selected_date') ?? '' }}"
                                     >
                                         <i class="fa-solid fa-plus"></i>
-                                    </button>       
+                                    </button>  
+                                    @endif     
                        <div class="activity-entry activity-breakfast">
                                         <div class="entry-row">
                                             <div class="entry-item">
@@ -972,6 +976,7 @@ body {
                             </div>
                             <div class="collapse" id="Morning-{{ $childId }}">
                                 <div class="activity-content">
+                                @if(auth()->user()->userType !== 'Parent')
                                 <button 
                                     class="btn btn-outline-warning open-morningtea-modal"
                                     style="float:right;"
@@ -980,6 +985,7 @@ body {
                                 >
                                     <i class="fa fa-plus"></i>
                                 </button>
+                                @endif
                                     <div class="activity-entry activity-morning-tea">
                                         <div class="entry-row">
                                             <div class="entry-item">
@@ -1012,6 +1018,7 @@ body {
                             </div>
                             <div class="collapse" id="Lunch-{{ $childId }}">
                                 <div class="activity-content">
+                                @if(auth()->user()->userType !== 'Parent')
                                 <button
                                     class="btn btn-outline-success open-lunch-modal"
                                     style="float:right;"
@@ -1020,6 +1027,7 @@ body {
                                 >
                                     <i class="fa fa-plus"></i>
                                 </button>
+                                @endif
                                     <div class="activity-entry activity-lunch">
                                         <div class="entry-row">
                                             <div class="entry-item">
@@ -1061,6 +1069,7 @@ body {
                             <div class="collapse" id="Sleep-{{ $childId }}">
                                 <div class="activity-content">
                                 <div class="text-right">
+                                @if(auth()->user()->userType !== 'Parent')
                                 <button
                                     class="btn btn-outline-primary mb-2 open-sleep-modal"
                                     data-child-id="{{ $child }}"
@@ -1069,9 +1078,11 @@ body {
                                 >
                                     <i class="fa fa-plus"></i> Add Sleep
                                 </button>
+                                @endif
                                 </div>
                                     @forelse ($sleep as $entry)
                                         <div class="activity-entry activity-sleep">
+                                        @if(auth()->user()->userType !== 'Parent')
                                         <button
                                             class="btn btn-link p-0 open-sleep-modal"
                                             style="float:right;"
@@ -1082,6 +1093,7 @@ body {
                                         >
                                             <i class="fa fa-edit"></i> Edit
                                         </button>
+                                        @endif
                                             <div class="entry-row">
                                                 <div class="entry-item">
                                                     <span class="entry-label">Sleep Time:</span>
@@ -1123,6 +1135,7 @@ body {
                             </div>
                             <div class="collapse" id="Afternoon-{{ $childId }}">
                                 <div class="activity-content">
+                                @if(auth()->user()->userType !== 'Parent')
                                 <button
                                     class="btn btn-outline-info open-afternoontea-modal"
                                     style="float:right;"
@@ -1131,6 +1144,7 @@ body {
                                 >
                                     <i class="fa fa-plus"></i>
                                 </button>
+                                @endif
                                     <div class="activity-entry activity-afternoon-tea">
                                         <div class="entry-row">
                                             <div class="entry-item">
@@ -1163,6 +1177,7 @@ body {
                             </div>
                             <div class="collapse" id="Snacks-{{ $childId }}">
                                 <div class="activity-content">
+                                @if(auth()->user()->userType !== 'Parent')
                                 <button
                                     class="btn btn-outline-dark open-snacks-modal"
                                     style="float:right;"
@@ -1171,6 +1186,7 @@ body {
                                 >
                                     <i class="fa fa-plus"></i>
                                 </button>
+                                @endif
                                     <div class="activity-entry activity-snacks">
                                         <div class="entry-row">
                                             <div class="entry-item">
@@ -1212,6 +1228,7 @@ body {
                             <div class="collapse" id="Sunscreen-{{ $childId }}">
                                 <div class="activity-content">
                                     <div class="text-right">
+                                    @if(auth()->user()->userType !== 'Parent')
                                 <button
                                     class="btn btn-outline-warning mb-2 open-sunscreen-modal"
                                     data-child-id="{{ $child }}"
@@ -1220,10 +1237,12 @@ body {
                                 >
                                     <i class="fa fa-plus"></i> Add Sunscreen
                                 </button>
+                                @endif
                                 </div>
                                     @forelse ($sunscreen as $entry)
                                         <div class="activity-entry activity-sunscreen">
                                         <div class="text-right">
+                                        @if(auth()->user()->userType !== 'Parent')
                                             <button
                                                 class="btn btn-link p-0 open-sunscreen-modal"
                                                 data-child-id="{{ $child }}"
@@ -1233,6 +1252,7 @@ body {
                                             >
                                                 <i class="fa fa-edit"></i> Edit
                                             </button>
+                                            @endif
                                         </div>
                                             <div class="entry-row">
                                                 <div class="entry-item">
@@ -1271,6 +1291,7 @@ body {
                             <div class="collapse" id="Toileting-{{ $childId }}">
                                 <div class="activity-content">
                                 <div class="text-right">
+                                @if(auth()->user()->userType !== 'Parent')
                                 <button
                                     class="btn btn-outline-secondary mb-2 open-toileting-modal"
                                     data-child-id="{{ $child }}"
@@ -1279,10 +1300,12 @@ body {
                                 >
                                     <i class="fa fa-plus"></i> Add Toileting
                                 </button>
+                                @endif
                                 </div>
                                     @forelse ($toileting as $entry)
                                         <div class="activity-entry activity-toileting">
                                         <div class="text-right">
+                                        @if(auth()->user()->userType !== 'Parent')
                                             <button
                                                 class="btn btn-link p-0 open-toileting-modal"
                                                 data-child-id="{{ $child }}"
@@ -1292,6 +1315,7 @@ body {
                                             >
                                                 <i class="fa fa-edit"></i> Edit
                                             </button>
+                                            @endif
                                         </div>
                                             <div class="entry-row">
                                                 <div class="entry-item">
@@ -1339,6 +1363,7 @@ body {
                             <div class="collapse" id="Bottel-{{ $childId }}">
                                 <div class="activity-content">
                                     <div class="text-right">
+                                    @if(auth()->user()->userType !== 'Parent')
                                     <button
                                         class="btn btn-outline-info mb-2 open-bottle-modal"
                                         data-child-id="{{ $child }}"
@@ -1347,10 +1372,12 @@ body {
                                     >
                                         <i class="fa fa-plus"></i> Add Bottle
                                     </button>
+                                    @endif
                                     </div>
                                     @forelse ($bottle as $entry)
                                         <div class="activity-entry activity-bottle">
                                         <div class="text-right">
+                                        @if(auth()->user()->userType !== 'Parent')
                                             <button
                                                 class="btn btn-link p-0 open-bottle-modal"
                                                 data-child-id="{{ $child }}"
@@ -1360,6 +1387,7 @@ body {
                                             >
                                                 <i class="fa fa-edit"></i> Edit
                                             </button>
+                                            @endif
                                         </div>
                                             <div class="entry-row">
                                                 <div class="entry-item">
