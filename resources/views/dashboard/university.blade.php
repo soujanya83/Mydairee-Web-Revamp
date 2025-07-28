@@ -187,11 +187,9 @@
         </div>
 
         <!-- Weather Card -->
-        <div class="card" style="margin-top: -48px;    margin-bottom: 82px;">
-            <div class="header" style="    margin-bottom: -28px;">
-                <h2>Weather</h2>
-            </div>
-            <div class="body text-center">
+
+
+            <div class="body text-center" style="margin-top: -50px;    margin-bottom: 82px;">
                 <object data="https://www.sunsmart.com.au/uvalert/default.asp?version=australia&locationid=161"
                     height="300" width="100%" id="sunsmart">
                     <embed src="https://www.sunsmart.com.au/uvalert/default.asp?version=australia&locationid=161"
@@ -200,7 +198,7 @@
                     Error: Embedded data could not be displayed.
                 </object>
             </div>
-        </div>
+
 
     </div>
 
@@ -645,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     html += `
                         <div class="mb-3 border-bottom pb-2">
                             <strong>Name:</strong> ${user.name}  ${user.lastname || ''} <br>
-                          
+
                             <strong>Gender:</strong> ${user.gender || 'N/A'}<br>
                             <strong>DOB:</strong> ${user.dob}
                         </div>`;
@@ -674,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
 
         // Handle media display
-   
+
 
   try {
                 media = typeof raw === 'string' ? JSON.parse(raw) : raw;

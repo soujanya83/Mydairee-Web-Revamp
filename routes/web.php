@@ -57,7 +57,7 @@ Route::get('app/inbox', [AppController::class, 'inbox'])->name('app.inbox');
 Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.profile1');
 
 Route::post('create-superadmin', [UserController::class, 'store'])->name('create_superadmin');
-Route::post('login', [UserController::class, 'login'])->name('user_login');
+Route::post('login-submit', [UserController::class, 'login'])->name('user_login');
 Route::get('create-center', [UserController::class, 'create_center'])->name('create_center');
 Route::post('store-center', [UserController::class, 'store_center'])->name('center_store');
 Route::post('reset-password', [ResetPassword::class, 'reset_password'])->name('reset_password');
@@ -69,7 +69,7 @@ Route::post('/resend-otp', [ResetPassword::class, 'resend_otp'])->name('resend_o
 Route::post('/verify-otp', [ResetPassword::class, 'verifyOtp'])->name('verify_otp.submit');
 Route::get('register', [AuthenticationController::class, 'register'])->name('authentication.register');
 Route::get('authentication/forgot-password', [AuthenticationController::class, 'forgotPassword'])->name('authentication.forgot-password');
-Route::get('login-page', [AuthenticationController::class, 'login'])->name('login');
+Route::get('login-page', [AuthenticationController::class, 'login_page'])->name('login');
 Route::get('login', [AuthenticationController::class, 'login'])->name('authentication.login');
 
 
@@ -248,7 +248,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::get('Observation/getSubjects', [ObservationController::class, 'getSubjects'])->name('Observation.getSubjects');
 
     Route::get('Observation/getActivitiesBySubject', [ObservationController::class, 'getActivitiesBySubject'])->name('Observation.getActivitiesBySubject');
-    
+
 
     Route::get('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name('Observation.addSubActivity');
 

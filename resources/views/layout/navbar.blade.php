@@ -64,10 +64,10 @@
                     <li class="dropdown">
                         <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown"
                             title="Notifications">
-                            <i class="fa fa-bell" style="font-size: 22px;color:rgb(180, 155, 10)"></i>
+                            <i class="fa fa-bell" style="font-size: 22px;color:rgb(73 201 185)"></i>
                             <span style="
                                     display: inline-block; min-width: 20px;height: 20px; padding: 0 6px;font-size: 12px; color: white;
-                                    text-align: center;background-color: rgb(180, 155, 10);border-radius: 50%;`line-height: 20px;
+                                    text-align: center;background-color: rgb(73 201 185);border-radius: 50%;`line-height: 20px;
                                     margin-left: 0px;
                                 ">
                                 {{ $notifications->count() }}
@@ -123,10 +123,10 @@
                         </ul>
 
                     </li>
-                    <li>
+                    {{-- <li>
                         <a href="{{route('logout')}}" class="icon-menu"><i class="icon-login" title="Logout"
-                                style="font-size:20px"></i></a>
-                    </li>
+                                style="font-size:22px;color:rgb(73 201 185);"></i></a>
+                    </li> --}}
                 </ul>
             </div>
         </div>
