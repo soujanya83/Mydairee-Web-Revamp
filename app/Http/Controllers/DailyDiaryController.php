@@ -9,7 +9,7 @@ use App\Models\Usercenter;
 use App\Models\Center;
 use App\Models\Room;
 use App\Models\User;
-use App\Models\ChildParent;
+use App\Models\Childparent;
 use App\Models\Child;
 use App\Models\RoomStaff;
 use App\Models\DailyDiarySettings;
@@ -59,6 +59,7 @@ class DailyDiaryController extends Controller
         }
 
         $room = $this->getrooms5();
+        // dd($room);
 
         // Try to find the selected room in the available rooms
         $selectedroom = $room->where('id', $request->query('room_id'))->first();
@@ -82,7 +83,7 @@ class DailyDiaryController extends Controller
 
             $parentId = auth()->user()->id;
 
-$childIds = ChildParent::where('parentid', $parentId)->pluck('childid');
+$childIds = Childparent::where('parentid', $parentId)->pluck('childid');
 
 $children = Child::whereIn('id', $childIds)
     ->get()
@@ -145,11 +146,13 @@ $children = Child::whereIn('id', $childIds)
             $user = Auth::user();
             $rooms = collect();
 
-            if ($user->userType === 'Superadmin') {
+            if ($user->userType === 'Superadmin' || $user->userType === 'Staff') {
                 $rooms = $this->getroomsforSuperadmin();
-            } elseif($user->userType === 'Staff') {
-                $rooms = $this->getroomsforStaff();
-            }else{
+            } 
+            // elseif($user->userType === 'Staff') {
+            //     $rooms = $this->getroomsforStaff();
+            // }
+            else{
                 $rooms = $this->getroomsforParent();
             }
 
@@ -199,7 +202,7 @@ $children = Child::whereIn('id', $childIds)
         $authId = Auth::user()->id;
     
         // Step 1: Get child IDs linked to the parent
-        $childIds = ChildParent::where('parentid', $authId)->pluck('childid');
+        $childIds = Childparent::where('parentid', $authId)->pluck('childid');
     
         // Step 2: Get room IDs from Child records
         $roomIds = Child::whereIn('id', $childIds)->pluck('room');
@@ -446,7 +449,7 @@ $children = Child::whereIn('id', $childIds)
         }
 
         // Step 1: Get child IDs for the parent
-        $childIds = ChildParent::where('parentid', $userid)->pluck('childid');
+        $childIds = Childparent::where('parentid', $userid)->pluck('childid');
 
         if ($childIds->isEmpty()) {
             return collect();
