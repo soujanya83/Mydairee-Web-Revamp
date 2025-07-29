@@ -10,19 +10,19 @@
 
 <style>
     .fc .fc-button {
-        background-color: #007bff;
+        background-color: #17a2b8;
         /* Bootstrap primary */
-        border-color: #007bff;
+        border-color:#17a2b8;
         color: #fff;
     }
 
     .fc .fc-button:hover {
-        background-color: #0056b3;
-        border-color: #004999;
+        background-color:rgb(76, 170, 185);
+        border-color:rgb(81, 161, 174);
     }
 
     .fc .fc-button:disabled {
-        background-color: #0e0e0e;
+        background-color:rgb(103, 100, 100);
         border-color: #eaeff4;
         color: white
     }
@@ -531,7 +531,7 @@ document.addEventListener('DOMContentLoaded', function () {
         initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'title',
-            right: 'prev,next today'
+            right: 'prev,next Today'
         },
         height: 500,
         themeSystem: 'standard',
