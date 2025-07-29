@@ -58,6 +58,7 @@ Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.
 Route::post('create-superadmin', [UserController::class, 'store'])->name('create_superadmin');
 Route::post('login', [UserController::class, 'login'])->name('user_login');
 Route::get('create-center', [UserController::class, 'create_center'])->name('create_center');
+
 Route::post('store-center', [UserController::class, 'store_center'])->name('center_store');
 Route::post('reset-password', [ResetPassword::class, 'reset_password'])->name('reset_password');
 Route::get('verify-otp', [ResetPassword::class, 'show_verify_otp'])->name('verify_otp');
@@ -235,6 +236,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::prefix('settings')->name('settings.')->group(function () {
 
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
+        Route::get('/filter-admins', [SettingsController::class, 'filterByAdminName'])->name('filter-admins');
         Route::delete('/superadmin/{id}', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
         Route::post('/superadmin/store', [SettingsController::class, 'store'])->name('superadmin.store');
         Route::get('/superadmin/{id}/edit', [SettingsController::class, 'edit'])->name('superadmin.edit');
@@ -244,10 +246,15 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::get('/center/{id}/edit', [SettingsController::class, 'center_edit'])->name('center.edit');
         Route::post('/center/{id}', [SettingsController::class, 'center_update'])->name('center.update');
         Route::delete('/center/{id}', [SettingsController::class, 'destroycenter'])->name('center.destroy');
+        // filter
+Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])->name('filter-centers');
+// filter by center ends 
+
 
         Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
-
+        Route::get('filter-staffs', [SettingsController::class, 'filterStaffByName'])->name('filter-staffs');
         Route::post('/staff/store', [SettingsController::class, 'staff_store'])->name('staff.store');
+      
 
         Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
         Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
@@ -257,6 +264,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
 
         Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
+        Route::get('/filter-parents', [SettingsController::class, 'filterByParentName']);
+
         Route::get('/manage_permissions', [SettingsController::class, 'manage_permissions'])->name('manage_permissions');
         Route::get('user/permissions', [SettingsController::class, 'user_permissions'])->name('allusers_permissions');
         Route::post('/parent/store', [SettingsController::class, 'parent_store'])->name('parent.store');

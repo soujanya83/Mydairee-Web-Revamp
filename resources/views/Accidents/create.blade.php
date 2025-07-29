@@ -355,11 +355,14 @@ input[type="radio"]:checked + .radio-pill {
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
                                 <label for="symptoms">Circumstances surrounding any illness, including apparent symptoms: </label>
                                 <textarea class="form-control custom-input" id="symptoms" name="illness_symptoms"></textarea>
                             </div>
-                            <div class="form-group col-md-6">
+                          
+                        </div>
+                        <div class="form-row">
+  <div class="form-group col-md-12">
                                 <label for="missingChild">Circumstances if child appeared to be missing or otherwise unaccounted for (incl duration, who found child etc.):</label>
                                 <textarea class="form-control custom-input" id="missingChild" name="missing_unaccounted"></textarea>
                             </div>

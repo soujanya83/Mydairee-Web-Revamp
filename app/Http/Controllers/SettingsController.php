@@ -20,6 +20,129 @@ use Illuminate\Support\Facades\Mail;
 class SettingsController extends Controller
 {
 
+ public function filterByParentName(Request $request)
+{
+    $request->validate([
+        'parent_name' => 'nullable|string'
+    ]);
+
+    $authId = Auth::id();
+    $centerid = Session('user_center_id');
+
+    $userIds = Usercenter::where('centerid', $centerid)->pluck('userid');
+
+    $query = User::with(['children' => function ($query) {
+            $query->select('child.id', 'name', 'lastname');
+        }])
+        ->whereIn('id', $userIds)
+        ->where('id', '!=', $authId)
+        ->where('userType', 'Parent');
+
+    if (!empty($request->parent_name)) {
+        $query->where('name', 'like', '%' . $request->parent_name . '%');
+    }
+
+    $parents = $query->get();
+
+    return response()->json([
+        'success' => true,
+        'parents' => $parents->map(function ($parent) {
+            return [
+                'id' => $parent->id,
+                'name' => $parent->name,
+                'email' => $parent->email,
+                'contactNo' => $parent->contactNo,
+                'gender' => $parent->gender,
+                'imageUrl' => $parent->imageUrl ? asset($parent->imageUrl) : null,
+                'children' => $parent->children->map(function ($child) {
+                    return [
+                        'name' => $child->name,
+                        'lastname' => $child->lastname,
+                        'relation' => $child->pivot->relation ?? '',
+                    ];
+                })
+            ];
+        })
+    ]);
+}
+
+
+   public function filterStaffByName(Request $request)
+{
+    $request->validate([
+        'staff_name' => 'nullable|string'
+    ]);
+
+    $authId = Auth::id();
+    $centerid = Session('user_center_id');
+
+    // Get all user IDs in the center
+    $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
+
+    // Base query for staff
+    $query = User::whereIn('id', $usersid)
+        ->where('id', '!=', $authId)
+        ->where('userType', 'Staff');
+
+    // Apply filter if name is provided
+    if (!empty($request->staff_name)) {
+        $query->where('name', 'like', '%' . $request->staff_name . '%');
+    }
+
+    $staff = $query->get();
+
+    return response()->json([
+        'success' => true,
+        'staff' => $staff
+    ]);
+}
+
+
+public function filterByAdminName(Request $request)
+{
+    $validated = $request->validate([
+        'admin_name' => ['nullable', 'string']
+    ]);
+
+    $superadmins = User::query()
+        ->where('userType', 'Superadmin')
+        ->when($validated['admin_name'] ?? null, function ($query, $name) {
+            $query->where('name', 'like', "%{$name}%");
+        })
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'superadmins' => $superadmins
+    ]);
+}
+
+
+ public function filterByCenterName(Request $request)
+{
+    $request->validate([
+        'centername' => 'nullable|string'
+    ]);
+
+    $userid = Auth::id();
+    $centerIds = Usercenter::where('userid', $userid)->pluck('centerid');
+
+    $query = Center::whereIn('id', $centerIds);
+
+    if ($request->filled('centername')) {
+        $query->where('centerName', 'like', '%' . $request->centername . '%');
+    }
+
+    $centers = $query->get();
+
+    return response()->json([
+        'success' => true,
+        'centers' => $centers
+    ]);
+}
+
+
+
     public function updateUserPermissions(Request $request, $userId)
     {
         $permissions = $request->input('permissions', []);

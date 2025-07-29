@@ -502,9 +502,11 @@
 <div class="modal fade" id="birthdayModal" tabindex="-1" aria-labelledby="birthdayModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content shadow">
-      <div class="modal-header bg-primary text-white">
+      <div class="modal-header bg-info text-white">
         <h5 class="modal-title" id="birthdayModalLabel">Birthday Details</h5>
-        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+         <button type="button" class="btn btn-sm btn-light text-danger border-0" style="cursor: pointer;"  data-dismiss="modal" aria-label="Close">
+ &times;
+</button>
       </div>
       <div class="modal-body" id="birthdayModalBody">
         <!-- Populated dynamically -->
@@ -516,9 +518,11 @@
 <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content shadow">
-      <div class="modal-header bg-primary text-white">
+      <div class="modal-header bg-info text-white">
         <h5 class="modal-title" id="announcementModalLabel">Announcement</h5>
-        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+     <button type="button" class="btn btn-sm btn-light text-danger border-0" style="cursor: pointer;"  data-dismiss="modal" aria-label="Close">
+ &times;
+</button>
       </div>
       <div class="modal-body" id="announcementModalBody">
         <!-- Dynamic content -->
@@ -542,7 +546,7 @@ document.addEventListener('DOMContentLoaded', function () {
             right: 'prev,next today'
         },
         height: 500,
-        themeSystem: 'standard', // default; can also try 'bootstrap'
+        themeSystem: 'standard',
     });
 
     calendar.render();
@@ -644,6 +648,7 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         height: 500,
         themeSystem: 'standard',
+
         eventClick: function(info) {
             const isBirthday = info.event.title.includes('🎂');
             const users = info.event.extendedProps.users;
@@ -724,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     date: item.eventDate,
                     description: item.text || '',
                     media:item.announcementMedia,
-                    color: '#007bff' // Blue for announcements
+                   color: '#17a2b8' // Blue for announcements
                 }));
                 calendar.addEventSource(events);
             }

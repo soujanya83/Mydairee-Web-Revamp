@@ -112,10 +112,10 @@
                                             <label>Head Count</label>
                                             <input type="number" class="form-control" name="headCount[]" value="{{ $hc->headcount }}">
                                         </div>
-                                        <div class="form-group col-md-3">
+                                        <!-- <div class="form-group col-md-3">
                                             <label>Signature</label>
                                             <input type="text" class="form-control" name="signature[]" value="{{ $hc->signature }}">
-                                        </div>
+                                        </div> -->
                                         <div class="form-group col-md-3">
                                             <label>Comments</label>
                                             <input type="text" class="form-control" name="comments[]" value="{{ $hc->comments }}">
