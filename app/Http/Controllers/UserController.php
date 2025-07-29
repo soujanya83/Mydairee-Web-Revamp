@@ -151,14 +151,21 @@ class UserController extends Controller
 
                 session(['user_id' => $user->id]);
 
-                $centerstatus = \App\Models\User::where('id', $user->id)->where('center_status', 1)->first();
-                if ($centerstatus) {
-                    $center_id = \App\Models\Usercenter::where('userid', $user->id)->first();
-                    session(['user_center_id' => $center_id->centerid ?? null]);
-                    return redirect()->route('dashboard.university');
-                } else {
-                    return redirect()->route('create_center');
+                $chackSuperadmin = User::where(['id' => $user->id, 'userType' => 'Superadmin'])->first();
+                if ($chackSuperadmin) {
+                    $centerstatus = User::where(['id' => $user->id])->where('center_status', 1)->first();
+                    if ($centerstatus) {
+                        $center_id = Usercenter::where('userid', $user->id)->first();
+                        session(['user_center_id' => $center_id->centerid ?? null]);
+                        return redirect()->route('dashboard.university');
+                    } else {
+                        return redirect()->route('create_center');
+                    }
                 }
+
+                $center_id = Usercenter::where('userid', $user->id)->first();
+                session(['user_center_id' => $center_id->centerid ?? null]);
+                return redirect()->route('dashboard.university');
             }
         }
 
