@@ -50,74 +50,59 @@
     width: 50px;
 }
 </style>
-
-<div class="row clearfix" style="margin-top:30px">
-
-
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="header">
+    <div class="header float-end text-zero top-right-button-container d-flex justify-content-between">
                 <h2>Super-Admin Settings<small></small> </h2>  
                 <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal" data-target="#addSuperadminModal">
                 <i class="fa fa-plus"></i>&nbsp;  Add Superadmin
 </button>                    
             </div>
-            <div class="body">
-            <div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover dataTable js-exportable c_list">
-        <thead class="thead-light">
-            <tr>
-                <th>Sr. No.</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Contact No.</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-        </thead>
-        <tfoot>
-            <tr>
-                <th>Sr. No.</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Contact No.</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-        </tfoot>
-        <tbody>
-            @foreach($superadmins as $index => $admin)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>
-    @php
-        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
-        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
-        $avatars = $admin->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-        $defaultAvatar = $avatars[array_rand($avatars)];
-    @endphp
-    <img src="{{ $admin->imageUrl ? asset($admin->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}" class="rounded-circle avatar" alt="">
-    <span class="c_name">{{ $admin->name }} </span>
-</td>
-                    <td>{{ $admin->email }}</td>
-                    <td>{{ $admin->contactNo }}</td>
-                    <td>
-    <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $admin->id }})">
-        <i class="fa-solid fa-pen-to-square fa-beat-fade"></i> Edit
-    </button>
-</td>
-<td>
-    <button class="btn btn-sm btn-danger" onclick="deleteSuperadmin({{ $admin->id }})">
-        <i class="fa-solid fa-trash fa-fade"></i> Delete
-    </button>
-</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+
+                     <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
+    <i class="fas fa-filter mx-2 text-muted "></i>
+    <input 
+        type="text" 
+        name="filterbyCentername" 
+        class="form-control border-info" 
+        placeholder="Filter by name" onkeyup="filterbyAdminName(this.value)">
+</div>
+            
+<div class="row clearfix" style="margin-top:30px">
+    <div class="col-lg-12">
+        <div class="">
+    
+
+    <div class="row admin-data">
+    @foreach($superadmins as $admin)
+        @php
+            $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+            $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+            $avatars = $admin->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+            $defaultAvatar = $avatars[array_rand($avatars)];
+            $avatar = $admin->imageUrl ? asset($admin->imageUrl) : asset('assets/img/xs/' . $defaultAvatar);
+        @endphp
+
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body text-center">
+                    <img src="{{ $avatar }}" class="rounded-circle mb-3" width="80" height="80" alt="Avatar">
+                    <h5 class="card-title mb-1">{{ $admin->name }}</h5>
+                    <p class="card-text mb-1"><strong>Email:</strong> {{ $admin->email }}</p>
+                    <p class="card-text mb-2"><strong>Contact:</strong> {{ $admin->contactNo }}</p>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $admin->id }})">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $admin->id }})">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
 </div>
 
-        </div>
     </div>
 
 </div>
@@ -485,7 +470,68 @@ function deleteSuperadmin(id) {
 
     </script>
 
+<script>
 
+function filterbyAdminName(name) {
+    console.log(name);
+    $.ajax({
+        url: 'filter-admins', // Your route
+        method: 'GET',
+        data: { admin_name: name },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            console.log(response);
+            var container = $(".admin-data");
+            container.empty();
+
+            if (!response.success || response.superadmins.length === 0) {
+                container.append('<div class="col-12"><p>No Superadmins found.</p></div>');
+                return;
+            }
+
+            response.superadmins.forEach(function(admin, index) {
+                var avatars = admin.gender === 'FEMALE'
+                    ? ['avatar2.jpg','avatar3.jpg','avatar4.jpg','avatar6.jpg','avatar7.jpg']
+                    : ['avatar1.jpg','avatar5.jpg','avatar8.jpg','avatar9.jpg','avatar10.jpg'];
+
+                var defaultAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+                var avatarUrl = admin.imageUrl
+                    ? admin.imageUrl  // assuming it’s already a full URL, else prepend asset path
+                    : '/assets/img/xs/' + defaultAvatar;
+
+                var cardHtml = `
+                <div class="col-md-3 mb-4">
+                  <div class="card shadow-sm border-primary h-100">
+                    <div class="card-body text-center">
+                      <img src="${avatarUrl}" class="rounded-circle mb-3" width="80" height="80" alt="Avatar">
+                      <h5 class="card-title mb-1">${admin.name}</h5>
+                      <p class="card-text mb-1"><strong>Email:</strong> ${admin.email}</p>
+                      <p class="card-text mb-2"><strong>Contact:</strong> ${admin.contactNo}</p>
+                      <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-sm btn-info mr-2" onclick="openEditSuperadminModal(${admin.id})">
+                          <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSuperadmin(${admin.id})">
+                          <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>`;
+
+                container.append(cardHtml);
+            });
+        },
+        error: function(xhr) {
+            console.error('AJAX error:', xhr.responseText);
+        }
+    });
+}
+
+
+</script>
 
 @include('layout.footer')
 @stop

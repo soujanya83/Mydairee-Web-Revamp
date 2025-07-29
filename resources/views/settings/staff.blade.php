@@ -60,9 +60,9 @@
 
 @section('content')
 
-<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
+<div class="text-zero top-right-button-container d-flex justify-content-end g-2" style="margin-right: 20px;margin-top: -60px;">
     <div class="dropdown">
-        <button class="btn btn-outline-primary btn-lg dropdown-toggle"
+        <button class="btn btn-outline-info btn-lg dropdown-toggle"
                 type="button" id="centerDropdown" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
@@ -77,81 +77,64 @@
             @endforeach
         </div>
     </div>
+
+    <div class="header float-end text-zero top-right-button-container d-flex justify-content-end">
+                    <!-- <h2>Staff Settings<small></small> </h2> -->
+                    <button class="btn btn-outline-info btn-lg ml-2" style="float:right;margin-bottom:20px;" data-toggle="modal"
+                        data-target="#addSuperadminModal">
+                        <i class="fa fa-plus"></i>&nbsp; Add Staff
+                    </button>
+    </div>
+    
 </div>
 
+                  <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
+    <i class="fas fa-filter mx-2 text-muted "></i>
+    <input 
+        type="text" 
+        name="filterbyCentername" 
+        class="form-control border-info" 
+        placeholder="Filter by name" onkeyup="filterbyStaffName(this.value)">
+</div>
 
 <div class="row clearfix" style="margin-top:30px">
 
-
     <div class="col-lg-12">
-        <div class="card">
-            <div class="header">
-                <h2>Staff Settings<small></small> </h2>
-                <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
-                    data-target="#addSuperadminModal">
-                    <i class="fa fa-plus"></i>&nbsp; Add Staff
-                </button>
-            </div>
+        <div class="">
+          
             <div class="body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-hover dataTable js-exportable c_list">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Sr. No.</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Contact No.</th>
+           <div class="row staff-data">
+    @foreach($staff as $index => $staffs)
+        @php
+            $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+            $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+            $avatars = $staffs->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+            $defaultAvatar = $avatars[array_rand($avatars)];
+            $avatar = $staffs->imageUrl ? asset($staffs->imageUrl) : asset('assets/img/xs/' . $defaultAvatar);
+        @endphp
 
-                                <th>Edit</th>
-                                <th>Delete</th>
-                            </tr>
-                        </thead>
-                        <tfoot>
-                            <tr>
-                                <th>Sr. No.</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Contact No.</th>
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm border-primary">
+                <div class="card-body text-center">
+                    <img src="{{ $avatar }}" alt="Avatar" class="rounded-circle mb-3" width="80" height="80">
+                    <h5 class="card-title mb-1">{{ $staffs->name }}</h5>
+                    <p class="card-text mb-1"><strong>Email:</strong> {{ $staffs->email }}</p>
+                    <p class="card-text mb-2"><strong>Contact:</strong> {{ $staffs->contactNo }}</p>
 
-                                <th>Edit</th>
-                                <th>Delete</th>
-                            </tr>
-                        </tfoot>
-                        <tbody>
-                            @foreach($staff as $index => $staffs)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>
-                                    @php
-                                    $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
-                                    'avatar10.jpg'];
-                                    $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
-                                    'avatar7.jpg'];
-                                    $avatars = $staffs->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-                                    $defaultAvatar = $avatars[array_rand($avatars)];
-                                    @endphp
-                                    <img src="{{ $staffs->imageUrl ? asset($staffs->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
-                                        class="rounded-circle avatar" alt="">
-                                    <span class="c_name">{{ $staffs->name }} </span>
-                                </td>
-                                <td>{{ $staffs->email }}</td>
-                                <td>{{ $staffs->contactNo }}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-info"
-                                        onclick="openEditSuperadminModal({{ $staffs->id }})">
-                                        <i class="fa-solid fa-pen-to-square fa-beat-fade"></i> Edit
-                                    </button>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteSuperadmin({{ $staffs->id }})">
-                                        <i class="fa-solid fa-trash fa-fade"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $staffs->id }})">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $staffs->id }})">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
                 </div>
+            </div>
+        </div>
+    @endforeach
+</div>
+
 
             </div>
         </div>
@@ -495,6 +478,65 @@
             }
         });
     }
+
+  function filterbyStaffName(Staffname) {
+    var staff_data = $('.staff-data');
+    // console.log(Staffname);
+
+    $.ajax({
+        url: 'filter-staffs', // Update with your correct route
+        method: 'GET',
+        data: { staff_name: Staffname },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            //  console.log(response);
+            staff_data.empty();
+
+            if (response.staff.length === 0) {
+                staff_data.append('<p class="text-muted">No matching staff found.</p>');
+                return;
+            }
+
+            $.each(response.staff, function(index, staff) {
+                let defaultAvatars = staff.gender === 'FEMALE'
+                    ? ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg']
+                    : ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+
+                let defaultAvatar = defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
+                let avatar = staff.imageUrl ? staff.imageUrl : '/assets/img/xs/' + defaultAvatar;
+
+                let card = `
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100 shadow-sm border-primary">
+                            <div class="card-body text-center">
+                                <img src="${avatar}" class="rounded-circle mb-3" width="80" height="80">
+                                <h5 class="card-title mb-1">${staff.name}</h5>
+                                <p class="card-text mb-1"><strong>Email:</strong> ${staff.email}</p>
+                                <p class="card-text mb-2"><strong>Contact:</strong> ${staff.contactNo}</p>
+
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal(${staff.id})">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin(${staff.id})">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                staff_data.append(card);
+            });
+        },
+        error: function(xhr) {
+            console.error('AJAX error:', xhr.responseText);
+        }
+    });
+}
+
     </script>
 
 

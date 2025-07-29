@@ -55,12 +55,7 @@
 @section('content')
 
 
-<div class="row clearfix" style="margin-top:30px">
-
-
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="header">
+       <div class="header float-end text-zero top-right-button-container d-flex justify-content-between" >
                 <h2>Centers Settings<small></small> </h2>
                 @if(!empty($permissions['addCenters']) && $permissions['addCenters'])
 
@@ -71,72 +66,55 @@
                 @endif
 
             </div>
-            <div class="body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-hover dataTable js-exportable c_list">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Sr. No.</th>
-                                <th>Center Name</th>
-                                <th>Street Address</th>
-                                <th>City Address</th>
-                                <th>State Address</th>
-                                <th>Zip</th>
-                                @if(!empty($permissions['updateCenters']) && $permissions['updateCenters'])
-                                <th>Edit</th>
-                                @endif
-                                <th>Delete</th>
-                            </tr>
-                        </thead>
-                        <tfoot>
-                            <tr>
-                                <th>Sr. No.</th>
-                                <th>Center Name</th>
-                                <th>Street Address</th>
-                                <th>City Address</th>
-                                <th>State Address</th>
-                                <th>Zip</th>
-                                @if(!empty($permissions['updateCenters']) && $permissions['updateCenters'])
+ <hr class="mt-3">
+            <!-- filter  -->
+             <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
+    <i class="fas fa-filter mx-2 text-muted "></i>
+    <input 
+        type="text" 
+        name="filterbyCentername" 
+        class="form-control border-info" 
+        placeholder="Filter by center name" onkeyup="filterbycentername(this.value)">
+</div>
+             <!-- filter ends here  -->
+ 
+<div class="row clearfix" style="margin-top:30px">
 
-                                <th>Edit</th>
-                                @endif
-                                <th>Delete</th>
-                            </tr>
-                        </tfoot>
-                        <tbody>
-                            @foreach($centers as $index => $center)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>
-                                    <span class="c_name">{{ $center->centerName }} </span>
-                                </td>
-                                <td>{{ $center->adressStreet }}</td>
-                                <td>{{ $center->addressCity }}</td>
-                                <td>{{ $center->addressState }}</td>
-                                <td>{{ $center->addressZip }}</td>
-                                @if(!empty($permissions['updateCenters']) && $permissions['updateCenters'])
+    <div class="col-lg-12">
+       
+        <div class="">
+      
+<div class="row filter-data">
+    @foreach($centers as $index => $center)
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-light bg-white h-100" style="background-color:white;">
+                <div class="card-body">
+                    <h5 class="card-title text-black"> {{ $center->centerName }}</h5>
+                    
+                    <p class="mb-1"><strong>Street:</strong> {{ $center->adressStreet }}</p>
+                    <p class="mb-1"><strong>City:</strong> {{ $center->addressCity }}</p>
+                    <p class="mb-1"><strong>State:</strong> {{ $center->addressState }}</p>
+                    <p class="mb-2"><strong>Zip:</strong> {{ $center->addressZip }}</p>
 
-                                <td>
-                                    <button class="btn btn-sm btn-info"
-                                        onclick="openEditcenterModal({{ $center->id }})">
-                                        <i class="fa-solid fa-pen-to-square fa-beat-fade"></i> Edit
-                                    </button>
-                                </td>
-                                @endif
-                                <td>
-                                    @if(count($centers) > 1)
-                                    <button class="btn btn-sm btn-danger" onclick="deletecenter({{ $center->id }})">
-                                        <i class="fa-solid fa-trash fa-fade"></i> Delete
-                                    </button>
-                                    @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <div class="d-flex justify-content-start gap-2 mt-3">
+                        @if(!empty($permissions['updateCenters']) && $permissions['updateCenters'])
+                            <button class="btn btn-sm btn-info mr-2" onclick="openEditcenterModal({{ $center->id }})">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+                        @endif
+
+                        @if(count($centers) > 1)
+                            <button class="btn btn-sm btn-danger" onclick="deletecenter({{ $center->id }})">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        @endif
+                    </div>
                 </div>
-
             </div>
+        </div>
+    @endforeach
+</div>
+
         </div>
 
     </div>
@@ -248,6 +226,61 @@
             </div>
         </div>
     </div>
+
+<!-- filter -->
+<script>
+ function filterbycentername(value) {
+    console.log(value);
+    var filterdatadiv = $('.filter-data');
+
+    $.ajax({
+        url: 'filter-centers', // Your Laravel route
+        method: 'GET',
+        data: { centername: value },
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            filterdatadiv.empty(); // Clear previous results
+
+            if (response.centers.length === 0) {
+                filterdatadiv.append('<div class="col-12"><p>No centers found.</p></div>');
+                return;
+            }
+
+            response.centers.forEach(function(center, index) {
+                let card = `
+                    <div class="col-md-3 mb-4">
+                        <div class="card shadow-sm border-light bg-white h-100">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary"> ${center.centerName}</h5>
+                                <p class="mb-1"><strong>Street:</strong> ${center.adressStreet}</p>
+                                <p class="mb-1"><strong>City:</strong> ${center.addressCity}</p>
+                                <p class="mb-1"><strong>State:</strong> ${center.addressState}</p>
+                                <p class="mb-2"><strong>Zip:</strong> ${center.addressZip}</p>
+
+                                <div class="d-flex justify-content-start gap-2 mt-3">
+                                    <button class="btn btn-sm btn-info mr-2" onclick="openEditcenterModal(${center.id})">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deletecenter(${center.id})">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                filterdatadiv.append(card);
+            });
+        },
+        error: function(xhr) {
+            console.error("AJAX Error:", xhr.responseText);
+        }
+    });
+}
+
+</script>
 
 
 
