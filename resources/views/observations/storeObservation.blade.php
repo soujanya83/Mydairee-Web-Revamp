@@ -168,21 +168,21 @@
         width: 45px;
         height: 40px;
     }
-    
+
     .triangle-wrapper {
         width: 35px;
         height: 32px;
     }
-    
+
     .triangle-side.side-1 {
         width: 35px;
     }
-    
+
     .triangle-side.side-2,
     .triangle-side.side-3 {
         height: 32px;
     }
-    
+
     .options-container {
         flex-direction: column;
         align-items: flex-start;
@@ -2471,7 +2471,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateTriangle(radio.dataset.subId, radio.dataset.level);
         }
     });
-    
+
     // Add event listeners to all radio buttons
     radios.forEach(radio => {
         radio.addEventListener('change', function() {
@@ -2485,18 +2485,18 @@ document.addEventListener('DOMContentLoaded', function() {
 function updateTriangle(subId, level) {
     const triangle = document.getElementById(`triangle-${subId}`);
     if (!triangle) return;
-    
+
     // Remove all existing level classes
     triangle.classList.remove('level-1', 'level-2', 'level-3');
-    
+
     // Add animation class
     triangle.classList.add('animate');
-    
+
     // Add new level class
     if (level) {
         triangle.classList.add(`level-${level}`);
     }
-    
+
     // Remove animation class after animation completes
     setTimeout(() => {
         triangle.classList.remove('animate');
@@ -2507,10 +2507,10 @@ function clearAssessment(subId) {
     // Clear radio buttons
     const radios = document.getElementsByName(`subactivity[${subId}]`);
     radios.forEach(radio => radio.checked = false);
-    
+
     // Clear triangle visualization
     updateTriangle(subId, null);
-    
+
     // Add a subtle feedback animation
     const triangle = document.getElementById(`triangle-${subId}`);
     if (triangle) {
@@ -2528,26 +2528,26 @@ document.querySelectorAll('.assessment-label').forEach(label => {
         const subId = radio.dataset.subId;
         const level = radio.dataset.level;
         const triangle = document.getElementById(`triangle-${subId}`);
-        
+
         // Only show hover effect if no option is currently selected
         const allRadios = document.getElementsByName(`subactivity[${subId}]`);
         const hasSelection = Array.from(allRadios).some(r => r.checked);
-        
+
         if (triangle && !hasSelection) {
             triangle.style.opacity = '0.6';
             triangle.classList.add(`level-${level}`);
         }
     });
-    
+
     label.addEventListener('mouseleave', function() {
         const radio = this.previousElementSibling;
         const subId = radio.dataset.subId;
         const triangle = document.getElementById(`triangle-${subId}`);
-        
+
         // Only clear hover effect if no option is currently selected
         const allRadios = document.getElementsByName(`subactivity[${subId}]`);
         const hasSelection = Array.from(allRadios).some(r => r.checked);
-        
+
         if (triangle && !hasSelection) {
             triangle.style.opacity = '1';
             triangle.classList.remove('level-1', 'level-2', 'level-3');

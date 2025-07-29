@@ -68,10 +68,8 @@ class UserController extends Controller
         return redirect()->route('dashboard.university')->with('success', 'Center registered successfully.');
     }
 
-
     public function login(Request $request)
     {
-        // Validate input
         $validator = Validator::make($request->all(), [
             'email'    => 'required|email',
             'password' => 'required|string|min:6',
@@ -83,34 +81,64 @@ class UserController extends Controller
                 ->withInput();
         }
 
-        $credentials = $request->only('email', 'password');
-        $remember = $request->has('remember');
+        $user = \App\Models\User::where('email', $request->email)->first();
 
-        // Attempt login
-        if (Auth::attempt($credentials, $remember)) {
-            $user_id = Auth::user()->id; // Now user is authenticated
-            session(['user_id' => $user_id]);
+        if ($user) {
+            $plainPassword = $request->password;
+            $storedPassword = $user->password;
 
-            $centerstatus = User::where('id', $user_id)->where('center_status', 1)->first();
-            if ($centerstatus) {
-                $center_id = Usercenter::where('userid', $user_id)->first();
+            $isBcrypt = false;
+            $isLegacy = false;
 
-                session(['user_center_id' => $center_id->centerid ?? null]);
-
-                return redirect()->route('dashboard.university');
+            // Check if it's a bcrypt password
+            if (Str::startsWith($storedPassword, '$2y$')) {
+                $isBcrypt = Hash::check($plainPassword, $storedPassword);
             } else {
-                return redirect()->route('create_center');
+                // Fallback for SHA1 or legacy hash
+                $isLegacy = sha1($plainPassword) === $storedPassword;
+            }
+
+            if ($isBcrypt || $isLegacy) {
+                Auth::login($user, $request->has('remember'));
+
+                // Upgrade legacy password to bcrypt
+                if ($isLegacy) {
+                    $user->password = Hash::make($plainPassword);
+                    $user->save();
+                }
+
+                session(['user_id' => $user->id]);
+
+                // If Superadmin
+                if ($user->userType === 'Superadmin') {
+                    $centerstatus = $user->center_status == 1;
+                    if ($centerstatus) {
+                        $center = Usercenter::where('userid', $user->id)->first();
+                        session(['user_center_id' => $center->centerid ?? null]);
+                        return redirect()->route('dashboard.university');
+                    } else {
+                        return redirect()->route('create_center');
+                    }
+                }
+
+                // All other users
+                $center = Usercenter::where('userid', $user->id)->first();
+                session(['user_center_id' => $center->centerid ?? null]);
+                return redirect()->route('dashboard.university');
             }
         }
+
         return redirect()->back()
             ->withErrors(['email' => 'Invalid email or password.'])
             ->withInput();
     }
 
 
+
+
+
     // public function login(Request $request)
     // {
-    //     // Validate input
     //     $validator = Validator::make($request->all(), [
     //         'email'    => 'required|email',
     //         'password' => 'required|string|min:6',
@@ -122,29 +150,58 @@ class UserController extends Controller
     //             ->withInput();
     //     }
 
-    //     $credentials = [
-    //         'email'    => $request->email,
-    //         'password' => $request->password,
-    //     ];
+    //     $user = \App\Models\User::where('email', $request->email)->first();
 
-    //     $remember = $request->has('remember');
+    //     if ($user) {
+    //         $plainPassword = $request->password;
+    //         $storedPassword = $user->password;
 
-    //     $user_id = Auth::user();
-    //     dd($user_id);
+    //         $isBcrypt = false;
+    //         $isLegacy = false;
 
-    //     session(['user_id' => $user_id]);
-    //     $centerstatus = User::where('id', $user_id)->where('center_status', 1)->first();
-    //     if ($centerstatus) {
-    //         if (Auth::attempt($credentials, $remember)) {
+    //         // Check if password starts with Bcrypt format
+    //         if (Str::startsWith($storedPassword, '$2y$')) {
+    //             $isBcrypt = Hash::check($plainPassword, $storedPassword);
+    //         } else {
+    //             // SHA1 legacy check
+    //             $isLegacy = sha1($plainPassword) === $storedPassword;
+    //         }
+
+    //         if ($isBcrypt || $isLegacy) {
+    //             Auth::login($user, $request->has('remember'));
+
+    //             // Upgrade legacy password to bcrypt
+    //             if ($isLegacy) {
+    //                 $user->password = Hash::make($plainPassword);
+    //                 $user->save();
+    //             }
+
+    //             session(['user_id' => $user->id]);
+
+    //             $chackSuperadmin = User::where(['id' => $user->id, 'userType' => 'Superadmin'])->first();
+    //             if ($chackSuperadmin) {
+    //                 $centerstatus = User::where(['id' => $user->id])->where('center_status', 1)->first();
+    //                 if ($centerstatus) {
+    //                     $center_id = Usercenter::where('userid', $user->id)->first();
+    //                     session(['user_center_id' => $center_id->centerid ?? null]);
+    //                     return redirect()->route('dashboard.university');
+    //                 } else {
+    //                     return redirect()->route('create_center');
+    //                 }
+    //             }
+
+    //             $center_id = Usercenter::where('userid', $user->id)->first();
+    //             session(['user_center_id' => $center_id->centerid ?? null]);
     //             return redirect()->route('dashboard.university');
     //         }
-    //     } else {
-    //         return redirect()->route('create_center');
     //     }
+
     //     return redirect()->back()
     //         ->withErrors(['email' => 'Invalid email or password.'])
     //         ->withInput();
     // }
+
+
 
     public function store(Request $request)
     {

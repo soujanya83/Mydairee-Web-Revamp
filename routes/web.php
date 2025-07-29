@@ -28,6 +28,7 @@ use App\Http\Controllers\ReflectionController;
 use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\Auth\NotificationController;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Artisan;
 // Route::get('/', function () {
 //     return view('dashboard.university');
@@ -56,7 +57,7 @@ Route::get('app/inbox', [AppController::class, 'inbox'])->name('app.inbox');
 Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.profile1');
 
 Route::post('create-superadmin', [UserController::class, 'store'])->name('create_superadmin');
-Route::post('login', [UserController::class, 'login'])->name('user_login');
+Route::post('login-submit', [UserController::class, 'login'])->name('user_login');
 Route::get('create-center', [UserController::class, 'create_center'])->name('create_center');
 
 Route::post('store-center', [UserController::class, 'store_center'])->name('center_store');
@@ -69,7 +70,7 @@ Route::post('/resend-otp', [ResetPassword::class, 'resend_otp'])->name('resend_o
 Route::post('/verify-otp', [ResetPassword::class, 'verifyOtp'])->name('verify_otp.submit');
 Route::get('register', [AuthenticationController::class, 'register'])->name('authentication.register');
 Route::get('authentication/forgot-password', [AuthenticationController::class, 'forgotPassword'])->name('authentication.forgot-password');
-Route::get('login-page', [AuthenticationController::class, 'login'])->name('login');
+Route::get('login-page', [AuthenticationController::class, 'login_page'])->name('login');
 Route::get('login', [AuthenticationController::class, 'login'])->name('authentication.login');
 
 
@@ -112,7 +113,27 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('headchecks/getCenterRooms', [HeadChecks::class, 'getCenterRooms'])->name('headchecks.getCenterRooms');
     Route::post('headcheckdelete', [HeadChecks::class, 'headcheckDelete'])->name('headcheck.delete');
 
-    // sleep check
+
+    Route::get('/notifications/mark-all-read', function () {
+        Auth::user()->unreadNotifications->markAsRead();
+        return redirect()->back();
+    })->name('notifications.markAllRead');
+
+    Route::post('/notifications/read/{id}', function ($id) {
+        $notification = DatabaseNotification::find($id);
+
+        if ($notification && $notification->notifiable_id == Auth::id()) {
+            $notification->markAsRead();
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false], 404);
+    })->name('notifications.read');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
+
+
+
     Route::get('sleepcheck/list', [SleepCheckController::class, 'getSleepChecksList'])->name('sleepcheck.list');
     Route::post('sleepcheck/save', [SleepCheckController::class, 'sleepcheckSave'])->name('sleepcheck.save');
     Route::post('sleepcheck/update', [SleepCheckController::class, 'sleepcheckUpdate'])->name('sleepcheck.update');
@@ -175,7 +196,6 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::get('/backup-now', [DBBackupController::class, 'runBackup']);
 
 
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
 
 
     Route::post('/logout', function () {
@@ -229,7 +249,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::get('Observation/getSubjects', [ObservationController::class, 'getSubjects'])->name('Observation.getSubjects');
 
     Route::get('Observation/getActivitiesBySubject', [ObservationController::class, 'getActivitiesBySubject'])->name('Observation.getActivitiesBySubject');
-    
+
 
     Route::get('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name('Observation.addSubActivity');
 
@@ -353,9 +373,6 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
         Route::get('/index', [LnPcontroller::class, 'index'])->name('index');
         Route::get('/lnpdata/{id?}', [LnPcontroller::class, 'lnpData'])->name('lnpdata');
         Route::post('/update-assessment-status', [LnPcontroller::class, 'updateAssessmentStatus'])->name('update.assessment.status');
-
-
-
     });
 
     Route::prefix('qip')->name('qip.')->group(function () {
@@ -367,18 +384,7 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
         Route::get('/{qip}/element/{element}', [QipController::class, 'viewElement'])->name('element.view');
         Route::get('/{qip}/standard/{standard}/edit', [QipController::class, 'editStandard'])->name('standard.edit');
         Route::post('/discussion/send', [QipController::class, 'sendDiscussion'])->name('discussion.send');
-
-
-
-
-
-
-
-
     });
-
-
-
 });
 
 

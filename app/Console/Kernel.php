@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('db:daily-backup')
-            ->dailyAt('00:00')
+            ->dailyAt('19:00')
             ->timezone('Australia/Sydney'); // ⬅️ Set Sydney timezone
     }
 
