@@ -80,15 +80,15 @@ public function AccidentsList(Request $request)
         $accArr = AccidentsModel::select('accidents.id', 'accidents.child_name', 'accidents.child_gender', 'accidents.roomid', 'accidents.incident_date', 'accidents.ack_parent_name', 'accidents.added_by')
             ->join('childparent', 'childparent.childid', '=', 'accidents.childid')
             ->where('childparent.parentid', $userid)
-            ->paginate(10); // paginated
+            ->paginate(12); // paginated
     } else {
         if ($roomid === null) {
             $accArr = AccidentsModel::select('id', 'child_name', 'child_gender', 'roomid', 'incident_date', 'ack_parent_name', 'added_by')
-                ->paginate(10);
+                ->paginate(12);
         } else {
             $accArr = AccidentsModel::select('id', 'child_name', 'child_gender', 'roomid', 'incident_date', 'ack_parent_name', 'added_by')
                 ->where('roomid', $roomid)
-                ->paginate(10);
+                ->paginate(12);
         }
     }
 

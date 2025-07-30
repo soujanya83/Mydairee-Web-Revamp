@@ -53,7 +53,7 @@ public function programPlanList(Request $request)
             $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
                 ->where('centerid', $centerId)
                 ->orderByDesc('created_at')
-                ->paginate(10);
+                ->paginate(12);
         } elseif ($user->userType === 'Staff') {
             $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
                 ->where('centerid', $centerId)
@@ -62,7 +62,7 @@ public function programPlanList(Request $request)
                           ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
                 })
                 ->orderByDesc('created_at')
-                ->paginate(10);
+                ->paginate(12);
         } elseif ($user->userType === 'Parent') {
             $childIds = ChildParent::where('parentid', $authId)->pluck('childid');
 
@@ -75,7 +75,7 @@ public function programPlanList(Request $request)
                         }
                     })
                     ->orderByDesc('created_at')
-                    ->paginate(10);
+                    ->paginate(12);
             }
         }
 

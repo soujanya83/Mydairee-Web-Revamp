@@ -106,6 +106,8 @@
         }
     </style>
 <style>
+
+    
     .bg-gradient-primary {
         background: linear-gradient(135deg, #007bff, #0056b3);
     }
@@ -458,34 +460,45 @@
                                     <small class="text-muted">{{ \Carbon\Carbon::parse($announcement->eventDate)->diffForHumans() }}</small>
                                 </div>
 
-                                <!-- Actions -->
-                                <div class="mt-auto">
-                                    <div class="d-flex gap-2 justify-content-center">
-                                        <!-- View -->
-                                        <a href="{{ route('announcements.view', $announcement->id) }}" class="  btn btn-outline-success btn-sm" title="">
-                                            <i class="fas fa-eye me-1"></i>
-                                        </a>
+           <!-- Actions -->
+<!-- Actions -->
+<div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
+    <!-- View -->
+    <a href="{{ route('announcements.view', $announcement->id) }}"
+       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+       style="min-width: 38px; height: 38px;"
+       title="View">
+        <i class="fas fa-eye"></i>
+    </a>
 
-                                        <!-- Edit -->
-                                        @if($permissions && $permissions->updateAnnouncement == 1)
-                                            <a href="{{ route('announcements.create', $announcement->id) }}" class=" btn btn-outline-info btn-sm " title="">
-                                                <i class="fas fa-edit me-1"></i>
-                                            </a>
-                                        @endif
+    <!-- Edit -->
+    @if($permissions && $permissions->updateAnnouncement == 1)
+        <a href="{{ route('announcements.create', $announcement->id) }}"
+           class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+           style="min-width: 38px; height: 38px;"
+           title="Edit">
+            <i class="fas fa-pen-to-square"></i>
+        </a>
+    @endif
 
-                                        <!-- Delete -->
-                                        @if($permissions && $permissions->deleteAnnouncement == 1)
-                                            <form action="{{ route('announcements.delete') }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <input type="hidden" name="announcementid" value="{{ $announcement->id }}">
-                                                <button type="button" class="btn btn-outline-danger btn-sm delete-btn" title="">
-                                                    <i class="fas fa-trash-alt me-1"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </div>
-                                </div>
+    <!-- Delete -->
+    @if($permissions && $permissions->deleteAnnouncement == 1)
+        <form action="{{ route('announcements.delete') }}" method="POST" class="d-inline">
+            @csrf
+            @method('DELETE')
+            <input type="hidden" name="announcementid" value="{{ $announcement->id }}">
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center delete-btn"
+                    style="min-width: 38px; height: 38px;"
+                    title="Delete">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </form>
+    @endif
+</div>
+
+
+
                             </div>
                         </div>
                     </div>
