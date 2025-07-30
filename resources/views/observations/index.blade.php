@@ -465,7 +465,7 @@
                         </div>
 
                         <!-- Child Filter -->
-                        <div class="border">
+                        <div class="border" style="max-height:450px;overflow-y:auto;">
                             <button class="btn btn-link dropdown-toggle collapsed" data-toggle="collapse"
                                 data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                                 Child
@@ -489,7 +489,7 @@
                         </div>
 
                         <!-- Author Filter -->
-                        <div class="border">
+                        <div class="border" style="max-height:450px;overflow-y:auto;">
                             <button class="btn btn-link dropdown-toggle collapsed" data-toggle="collapse"
                                 data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
                                 Author

@@ -276,6 +276,30 @@
             justify-content: center;
         }
     }
+
+
+    .status-badge {
+        z-index: 10;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-published {
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+        }
+
+        .status-draft {
+            background: rgba(255, 193, 7, 0.9);
+            color: #856404;
+        }
 </style>
 
 <style>
@@ -426,10 +450,16 @@
 <div class="container mt-4">
     <div class="row" id="observations-list">
         @forelse($reflection as $reflectionItem)
+        @php
+        $statusClass = strtolower($reflectionItem->status) === 'published' ? 'status-published' : 'status-draft';
+        @endphp
+
         <div class="col-lg-6 col-md-12">
+        <span class="status-badge {{ $statusClass }}">{{ $reflectionItem->status }}</span>
             <div class="card reflection-card">
                 {{-- Image Carousel --}}
                 <div class="image-carousel">
+
                     @if($reflectionItem->media && $reflectionItem->media->count() > 0)
                     @foreach($reflectionItem->media as $index => $media)
                     <img src="{{ asset($media->mediaUrl) }}" alt="Reflection Image"
@@ -455,7 +485,9 @@
                     <h5 class="card-title">{!! $reflectionItem->title !!}</h5>
                     <div class="card-date">
                         <i class="fas fa-calendar-alt"></i>
-                        {{ $reflectionItem->created_at ? $reflectionItem->created_at->format('M d, Y') : '' }}
+                        @if ($reflectionItem->created_at)
+    {{ (new \DateTime($reflectionItem->created_at))->format('M d, Y') }}
+@endif
                     </div>
                 </div>
 
@@ -743,7 +775,7 @@
                         </div>
 
                         <!-- Child Filter -->
-                        <div class="border">
+                        <div class="border" style="max-height:450px;overflow-y:auto;">
                             <button class="btn btn-link dropdown-toggle collapsed" data-toggle="collapse"
                                 data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                                 Child
@@ -767,7 +799,7 @@
                         </div>
 
                         <!-- Author Filter -->
-                        <div class="border">
+                        <div class="border" style="max-height:450px;overflow-y:auto;">
                             <button class="btn btn-link dropdown-toggle collapsed" data-toggle="collapse"
                                 data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
                                 Author
@@ -1186,6 +1218,12 @@ if ($('#filter_author_any').is(':checked')) {
                                         <a href="/reflection/addnew/${val.id}" class="btn btn-edit btn-action">
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
+
+                                        <a href="/reflection/print/${val.id}" target="_blank"
+                            class="btn btn-print btn-action">
+                            <i class="fas fa-print"></i> Print
+                        </a>
+
                                         <button class="btn btn-delete btn-action delete-reflection" data-id="${val.id}">
                                             <i class="fas fa-trash-alt"></i> Delete
                                         </button>

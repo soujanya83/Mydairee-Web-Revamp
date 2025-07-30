@@ -404,7 +404,7 @@
         <div class="row" id="childrenContainer">
             @foreach($children as $c)
             @php
-                $image = $c->imageUrl ?? 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=300&h=300&fit=crop&crop=face';
+                $image = asset($c->imageUrl) ?? 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=300&h=300&fit=crop&crop=face';
                 $dob = \Carbon\Carbon::parse($c->dob);
                 $age = $dob->age;
                 $genderClass = strtolower($c->gender);

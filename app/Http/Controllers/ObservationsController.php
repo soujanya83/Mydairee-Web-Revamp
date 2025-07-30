@@ -1350,4 +1350,18 @@ class ObservationsController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+    
+
+    public function changeCreatedAt(Request $request)
+    {
+        $obs = Observation::find($request->id);
+        if(!$obs) return response()->json(['success' => false, 'message' => 'Observation not found']);
+
+        $newDate = \Carbon\Carbon::parse($request->created_at)->addDay();
+
+        $obs->created_at = $newDate;
+        $obs->save();
+
+        return response()->json(['success' => true]);
+    }
 }

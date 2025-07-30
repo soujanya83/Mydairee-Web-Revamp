@@ -113,11 +113,15 @@ class LnPcontroller extends Controller
         
         // Get room IDs where user is the owner (userId matches)
         $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
+
         
         // Merge both collections and remove duplicates
         $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
+       
+        // dd($allRoomIds);
     
-        $rooms = Room::where('id', $allRoomIds)->get();
+        $rooms = Room::whereIn('id', $allRoomIds->toArray())->get();
+        // dd($rooms);
         return $rooms;
     }
     

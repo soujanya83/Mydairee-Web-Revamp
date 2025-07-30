@@ -102,8 +102,9 @@
         }
 
         .child-image {
+            margin:10px;
             width: 100%;
-            height: 150px;
+            height: 140px;
             object-fit: cover;
             border-radius: 8px;
             border: 1px solid #bbb;
@@ -147,7 +148,7 @@
 
         .photo-gallery {
 
-            gap: 2px;
+            gap: 15px;
             /* Reduce space between images */
 
         }
@@ -205,11 +206,10 @@
         <div class="info-block">
             <strong>Child's Photos:</strong>
             <div class="photo-gallery">
-                <img src="{{ asset('assets/profile_1739442700.jpeg') }}" alt="NEXTGEN Montessori"
-                    class="circular-image">
+               
 
                 @foreach($reflection->media ?? [] as $mediaItem)
-                @if(Str::startsWith($mediaItem->mediaType, 'image'))
+                @if(Str::startsWith($mediaItem->mediaType, ['image', 'Image']))
                 <img src="{{ asset($mediaItem->mediaUrl) }}" class="child-image" alt="Photo">
                 @endif
                 @endforeach
