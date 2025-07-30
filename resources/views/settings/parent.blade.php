@@ -71,7 +71,7 @@
 <div class="text-zero top-right-button-container d-flex justify-content-end"
     style="margin-right: 20px;margin-top: -60px;">
     <div class="dropdown">
-        <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
+        <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="centerDropdown"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
         </button>
@@ -86,99 +86,74 @@
             @endforeach
         </div>
     </div>
-</div>
 
-
-<div class="row clearfix" style="margin-top:30px">
-
-
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="header">
-                <h2>Parent Settings<small></small> </h2>
+     <div class="header float-end text-zero top-right-button-container d-flex justify-content-end">
+                <!-- <h2>Parent Settings<small></small> </h2> -->
                 @if(!empty($permissions['addParent']) && $permissions['addParent'])
-                <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
+                <button class="btn btn-outline-info btn-lg ml-2" style="float:right;margin-bottom:20px;" data-toggle="modal"
                     data-target="#addParentModal">
                     <i class="fa fa-plus"></i>&nbsp; Add Parent
                 </button>
                 @endif
             </div>
+</div>
+
+             <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
+    <i class="fas fa-filter mx-2 text-muted "></i>
+    <input 
+        type="text" 
+        name="filterbyCentername" 
+        class="form-control border-info" 
+        placeholder="Filter by name" onkeyup="filterbyParentsName(this.value)">
+</div>
+
+<div class="row clearfix" style="margin-top:30px">
+  
+
+    <div class="col-lg-12">
+        <div class="">
+         
             <div class="body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-hover dataTable js-exportable c_list">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Sr. No.</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Contact No.</th>
-                                <th>Children</th>
-                                @if(!empty($permissions['updateParent']) && $permissions['updateParent'])
+                <div class="row parent-data">
+    @foreach($parents as $index => $parent)
+        @php
+            $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+            $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+            $avatars = $parent->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+            $defaultAvatar = $avatars[array_rand($avatars)];
+            $avatar = $parent->imageUrl ? asset($parent->imageUrl) : asset('assets/img/xs/' . $defaultAvatar);
+        @endphp
 
-                                <th>Edit</th>
-                                @endif
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm h-100 border-info">
+                <div class="card-body text-center">
+                    <img src="{{ $avatar }}" class="rounded-circle mb-3" width="80" height="80" alt="Parent Avatar">
+                    <h5 class="card-title mb-1">{{ $parent->name }}</h5>
+                    <p class="card-text mb-1"><strong>Email:</strong> {{ $parent->email }}</p>
+                    <p class="card-text mb-1"><strong>Contact:</strong> {{ $parent->contactNo }}</p>
+                    <p class="card-text mb-1"><strong>Children:</strong></p>
+                    <ul class="list-unstyled">
+                        @foreach ($parent->children as $child)
+                            <li>{{ $child->name }} {{ $child->lastname }} ({{ $child->pivot->relation }})</li>
+                        @endforeach
+                    </ul>
 
-                                <th>Delete</th>
-                            </tr>
-                        </thead>
-                        <tfoot>
-                            <tr>
-                                <th>Sr. No.</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Contact No.</th>
-                                <th>Children</th>
-                                @if(!empty($permissions['updateParent']) && $permissions['updateParent'])
-
-                                <th>Edit</th>
-                                @endif
-
-                                <th>Delete</th>
-                            </tr>
-                        </tfoot>
-                        <tbody>
-                            @foreach($parents as $index => $staffs)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>
-                                    @php
-                                    $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
-                                    'avatar10.jpg'];
-                                    $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
-                                    'avatar7.jpg'];
-                                    $avatars = $staffs->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-                                    $defaultAvatar = $avatars[array_rand($avatars)];
-                                    @endphp
-                                    <img src="{{ $staffs->imageUrl ? asset($staffs->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
-                                        class="rounded-circle avatar" alt="">
-                                    <span class="c_name">{{ $staffs->name }} </span>
-                                </td>
-                                <td>{{ $staffs->email }}</td>
-                                <td>{{ $staffs->contactNo }}</td>
-                                <td>
-                                    @foreach ($staffs->children as $child)
-                                    <li>{{ $child->name }} {{ $child->lastname }} ({{ $child->pivot->relation }})</li>
-                                    @endforeach
-                                </td>
-                                @if(!empty($permissions['updateParent']) && $permissions['updateParent'])
-
-                                <td>
-                                    <button class="btn btn-sm btn-info"
-                                        onclick="openEditParentModal({{ $staffs->id }})">
-                                        <i class="fa-solid fa-pen-to-square fa-beat-fade"></i> Edit
-                                    </button>
-                                </td>
-                                @endif
-                                <td>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteSuperadmin({{ $staffs->id }})">
-                                        <i class="fa-solid fa-trash fa-fade"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <div class="d-flex justify-content-center mt-3">
+                        @if(!empty($permissions['updateParent']) && $permissions['updateParent'])
+                            <button class="btn btn-sm btn-info mr-2" onclick="openEditParentModal({{ $parent->id }})">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+                        @endif
+                        <button class="btn btn-sm btn-danger" onclick="deleteSuperadmin({{ $parent->id }})">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
                 </div>
+            </div>
+        </div>
+    @endforeach
+</div>
+
 
             </div>
         </div>
@@ -688,7 +663,75 @@ function addChildRelation() {
 });
     </script>
 
+<script>
+ function filterbyParentsName(parentName) {
+    console.log(parentName);
+    $.ajax({
+        url: 'filter-parents', // Update this route to match your Laravel route
+        method: 'GET',
+        data: { parent_name: parentName },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Ensure CSRF token if needed
+        },
+        success: function(response) {
+            console.log(response);
+            const parentContainer = $('.parent-data');
+            parentContainer.empty();
 
+            if (response.parents.length === 0) {
+                parentContainer.append('<p class="text-muted">No parents found.</p>');
+                return;
+            }
+
+            response.parents.forEach(function(parent) {
+                let defaultAvatars = parent.gender === 'FEMALE'
+                    ? ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg']
+                    : ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+
+                let avatar = parent.imageUrl
+                    ? parent.imageUrl
+                    : '/assets/img/xs/' + defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
+
+                let childrenList = '';
+                if (parent.children && parent.children.length > 0) {
+                    parent.children.forEach(child => {
+                        childrenList += `<li>${child.name} ${child.lastname} (${child.relation})</li>`;
+                    });
+                }
+
+                let cardHtml = `
+                    <div class="col-md-3 mb-4">
+                        <div class="card shadow-sm h-100 border-info">
+                            <div class="card-body text-center">
+                                <img src="${avatar}" class="rounded-circle mb-3" width="80" height="80" alt="Parent Avatar">
+                                <h5 class="card-title mb-1">${parent.name}</h5>
+                                <p class="card-text mb-1"><strong>Email:</strong> ${parent.email}</p>
+                                <p class="card-text mb-1"><strong>Contact:</strong> ${parent.contactNo}</p>
+                                <p class="card-text mb-1"><strong>Children:</strong></p>
+                                <ul class="list-unstyled">${childrenList}</ul>
+                                <div class="d-flex justify-content-center mt-3">
+                                    
+                                        <button class="btn btn-sm btn-info mr-2" onclick="openEditParentModal(${parent.id})">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteSuperadmin(${parent.id})">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                parentContainer.append(cardHtml);
+            });
+        },
+        error: function(xhr) {
+            console.error('AJAX error:', xhr.responseText);
+        }
+    });
+}
+
+</script>
 
     @include('layout.footer')
     @stop

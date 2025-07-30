@@ -4,6 +4,55 @@
 
 @section('page-styles')
 <style>
+    .pagination {
+        font-size: 0.9rem;
+        /* Slightly larger for better readability */
+        justify-content: center;
+        /* Ensure pagination is centered */
+        margin-bottom: 80px;
+    }
+
+    .page-item .page-link {
+        padding: 0.5rem 0.75rem;
+        /* Bootstrap 4 default padding for better spacing */
+        font-size: 0.9rem;
+        /* Match pagination font size */
+        line-height: 1.5;
+        /* Improved line height for readability */
+        border-radius: 0.25rem;
+        /* Keep your custom border radius */
+        color: #007bff;
+        /* Bootstrap primary color for links */
+        background-color: #fff;
+        /* Ensure background matches Bootstrap */
+        border: 1px solid #dee2e6;
+        /* Bootstrap default border */
+    }
+
+    .page-item.active .page-link {
+        background-color: #007bff;
+        /* Bootstrap primary color for active state */
+        border-color: #007bff;
+        color: #fff;
+    }
+
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        /* Bootstrap disabled color */
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+
+    /* SVG icons for Previous/Next arrows */
+    .page-item .page-link svg {
+        width: 1em;
+        /* Slightly larger for better visibility */
+        height: 1em;
+        vertical-align: middle;
+    }
+</style>
+<style>
     :root {
         --primary-color: #667eea;
         --secondary-color: #764ba2;
@@ -660,120 +709,76 @@
         </div> -->
 
     <!-- Main Content -->
-    <div class="container-fluid px-0">
-        <div class="program-plan-container">
-            <div class="row">
-                <div class="col-12">
-                    <div class="program-plan-card">
-                        <div class="card-header-custom">
-                            <h5 class="card-header-title">
-                                <i class="fas fa-table"></i>
-                                Program Plans Overview
+ <div class="container-fluid px-0">
+    <div class="program-plan-container">
+        <div class="card-header-custom mb-3">
+            <h5 class="card-header-title">
+                <i class="fas fa-table"></i> Program Plans
+            </h5>
+        </div>
+
+        <div class="row">
+            @forelse ($programPlans as $index => $plan)
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm rounded-3">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-2">
+                                {{ $getMonthName($plan->months) }} {{ $plan->years ?? '' }}
                             </h5>
-                        </div>
-                        <div class="table-container">
-                            <div class="table-responsive">
-                                <table class="table table-borderless">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Month</th>
-                                            <th>Room</th>
-                                            <th>Created By</th>
-                                            <th>Created Date</th>
-                                            <th>Updated Date</th>
-                                            <th width="240">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($programPlans as $index => $plan)
-                                        <tr>
-                                            <td data-label="ID">
-                                                <span class="id-badge">{{ ($programPlans->currentPage() - 1) *
-                                                    $programPlans->perPage() + $loop->iteration }}
-                                                </span>
-                                            </td>
-                                            <td data-label="Month">
-                                                <span class="month-badge">
-                                                    {{ $getMonthName($plan->months) }} {{ $plan->years ?? 'N/A' }}
-                                                </span>
-                                            </td>
-                                            <td data-label="Room">
-                                                <span class="info-text">{{ $plan->room->name ?? 'N/A' }}</span>
-                                            </td>
-                                            <td data-label="Created By">
-                                                <span class="info-text">{{ $plan->creator->name ?? 'N/A' }}</span>
-                                            </td>
-                                            <td data-label="Created Date">
-                                                <span class="date-text">{{
-                                                    \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i')
-                                                    }}</span>
-                                            </td>
-                                            <td data-label="Updated Date">
-                                                <span class="date-text">{{
-                                                    \Carbon\Carbon::parse($plan->updated_at)->format('d M Y / H:i')
-                                                    }}</span>
-                                            </td>
-                                            <td data-label="Actions">
-                                                <div class="action-buttons">
-                                                    <a href="{{ route('print.programplan', $plan->id) }}"
-                                                        class="btn btn-action btn-print" title="Print">
-                                                        <i class="fas fa-print animated-icon"></i>
-                                                    </a>
 
-                                                    @if(Auth::user()->userType != 'Parent')
-                                                    @if(!empty($permissions['editProgramPlan']) &&
-                                                    $permissions['editProgramPlan'])
+                            <ul class="list-unstyled mb-3">
+                                <!-- <li><strong>S No:</strong> {{ ($programPlans->currentPage() - 1) * $programPlans->perPage() + $loop->iteration }}</li> -->
+                                <li><strong>Room:</strong> {{ $plan->room->name ?? '' }}</li>
+                                <li><strong>Created By:</strong> {{ $plan->creator->name ?? '' }}</li>
+                                <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li>
+                                <li><strong>Updated:</strong> {{ \Carbon\Carbon::parse($plan->updated_at)->format('d M Y / H:i') }}</li>
+                            </ul>
 
-                                                    <a href="{{ route('create.programplan', ['centerId' => $centerId, 'planId' => $plan->id]) }}"
-                                                        class="btn btn-action btn-edit" title="Edit">
-                                                        <i class="fas fa-pen-to-square animated-icon"></i>
-                                                    </a>
-                                                    @endif
+                            <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
+                                <a href="{{ route('print.programplan', $plan->id) }}"
+                                   class="btn btn-outline-primary btn-sm" title="Print">
+                                    <i class="fas fa-print"></i>
+                                </a>
 
-                                                    @if(!empty($permissions['deleteProgramPlan']) &&
-                                                    $permissions['deleteProgramPlan'])
+                                @if(Auth::user()->userType != 'Parent')
+                                    @if(!empty($permissions['editProgramPlan']) && $permissions['editProgramPlan'])
+                                        <a href="{{ route('create.programplan', ['centerId' => $centerId, 'planId' => $plan->id]) }}"
+                                           class="btn btn-outline-info btn-sm" title="Edit">
+                                            <i class="fas fa-pen-to-square"></i>
+                                        </a>
+                                    @endif
 
-                                                    <button type="button"
-                                                        class="btn btn-action btn-delete delete-program"
-                                                        data-id="{{ $plan->id }}" title="Delete">
-                                                        <i class="fa-solid fa-trash animated-icon"></i>
-                                                    </button>
-                                                    @endif
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @empty
-                                        <tr>
-                                            <td colspan="7" class="empty-state text-center">
-                                                <i class="fas fa-clipboard-list"></i>
-                                                <p>No program plans found</p>
-                                            </td>
-                                        </tr>
-                                        @endforelse
-                                    </tbody>
-
-                                </table>
+                                    @if(!empty($permissions['deleteProgramPlan']) && $permissions['deleteProgramPlan'])
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm delete-program"
+                                                data-id="{{ $plan->id }}" title="Delete">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    @endif
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Pagination -->
-            @if ($programPlans->hasPages())
-            <div class="pagination-container">
-                <nav aria-label="Program plans pagination">
-                    <ul class="pagination justify-content-center mb-0">
-                        {{ $programPlans->appends(request()->query())->links() }}
-                    </ul>
-                </nav>
-            </div>
-            @endif
-
+            @empty
+                <div class="col-12 text-center">
+                    <div class="alert alert-info">
+                        <i class="fas fa-clipboard-list me-1"></i> No program plans found.
+                    </div>
+                </div>
+            @endforelse
         </div>
+
+ 
+
+              @if(!$programPlans->isEmpty())
+    <div class="col-12 d-flex justify-content-center mt-4 mb-5">
+        {{ $programPlans->links('vendor.pagination.bootstrap-4') }}
     </div>
+    @endif
+    </div>
+</div>
+
 </div>
 
 @endsection

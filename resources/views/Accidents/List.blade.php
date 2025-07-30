@@ -3,6 +3,55 @@
 @section('parentPageTitle', 'Dashboard')
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .pagination {
+        font-size: 0.9rem;
+        /* Slightly larger for better readability */
+        justify-content: center;
+        /* Ensure pagination is centered */
+        margin-bottom: 80px;
+    }
+
+    .page-item .page-link {
+        padding: 0.5rem 0.75rem;
+        /* Bootstrap 4 default padding for better spacing */
+        font-size: 0.9rem;
+        /* Match pagination font size */
+        line-height: 1.5;
+        /* Improved line height for readability */
+        border-radius: 0.25rem;
+        /* Keep your custom border radius */
+        color: #007bff;
+        /* Bootstrap primary color for links */
+        background-color: #fff;
+        /* Ensure background matches Bootstrap */
+        border: 1px solid #dee2e6;
+        /* Bootstrap default border */
+    }
+
+    .page-item.active .page-link {
+        background-color: #007bff;
+        /* Bootstrap primary color for active state */
+        border-color: #007bff;
+        color: #fff;
+    }
+
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        /* Bootstrap disabled color */
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+
+    /* SVG icons for Previous/Next arrows */
+    .page-item .page-link svg {
+        width: 1em;
+        /* Slightly larger for better visibility */
+        height: 1em;
+        vertical-align: middle;
+    }
+</style>
  <style>
         :root {
             --primary-color: #667eea;
@@ -677,87 +726,51 @@ padding-inline:0;
   <hr class="mt-3">
 
 
-       <div class="container-fluid px-0" style="padding-block:2em;padding-inline:2em;">
-            <div class="program-plan-container">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="program-plan-card">
-                            <!-- <div class="card-header-custom">
-                                <h5 class="card-header-title">
-                                    <i class="fas fa-table"></i>
-                                    Program Plans Overview
-                                </h5>
-                            </div> -->
-                            <div class="table-container">
-                                <div class="table-responsive">
-                                    <table class="table table-borderless">
-                                        <thead>
-                                <tr>
-                                    <th scope="col">S No</th>
-                                    <th scope="col">Child Name</th>
-                                    <th scope="col">Created By</th>
-                                    <th scope="col">Date</th>
-                                </tr>
-                            </thead>
-                                        <tbody>
-                                            <!-- Sample Data Row 1 -->
-                                               @foreach ($accidents as $index => $accident)
-                                            <tr>
-                                                <td data-label="ID">
-                                                    <span class="id-badge">{{ $loop->iteration + ($accidents->currentPage() - 1) * $accidents->perPage() }}</span>
-                                                </td>
-                                                <td data-label="Month">
-                                                    <span class="month-badge">
-                                                                                    <a  class="text-white" href="{{ route('Accidents.details') }}?id={{ $accident->id }}&centerid={{ $centerid }}&roomid={{ $roomid }}">
-    {{ $accident->child_name }}
-</a>
-                                                    </span>
-                                                    <a href="{{ route('Accidents.edit') }}?id={{ $accident->id }}&centerid={{ $centerid }}&roomid={{ $roomid }}"
-   class="ml-2 text-info"
-   data-toggle="tooltip"
-   data-placement="top"
-   title="Edit Record">
-   <i class="fas fa-pencil-alt"></i>
-</a>
-                                                </td>
-                                                <td data-label="Room">
-                                                    <span class="info-text">{{ $accident->username }}</span>
-                                                </td>
-                                             
-                                                <td data-label="Created Date">
-                                                    <span class="date-text">{{ \Carbon\Carbon::parse($accident->incident_date)->format('d.m.Y') }}</span>
-                                                </td>
-                                            
-                                            </tr>
-   @endforeach
-                                            <!-- Empty State Example (uncomment to see) -->
-                                            <!--
-                                            <tr>
-                                                <td colspan="7" class="empty-state">
-                                                    <i class="fas fa-clipboard-list"></i>
-                                                    <p>No program plans found</p>
-                                                </td>
-                                            </tr>
-                                            -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+ <div class="container-fluid px-0" style="padding-block:2em;padding-inline:2em;">
+    <div class="program-plan-container">
+        <div class="row">
+            @forelse ($accidents as $index => $accident)
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card shadow rounded-3 h-100">
+                        <div class="card-body">
+                            <h5 class="card-title mb-2">
+                                <a class="text-dark fw-bold" href="{{ route('Accidents.details') }}?id={{ $accident->id }}&centerid={{ $centerid }}&roomid={{ $roomid }}">
+                                    {{ $accident->child_name }}
+                                </a>
+                                <a href="{{ route('Accidents.edit') }}?id={{ $accident->id }}&centerid={{ $centerid }}&roomid={{ $roomid }}"
+                                   class="text-info float-end"
+                                   data-toggle="tooltip"
+                                   data-placement="top"
+                                   title="Edit Record">
+                                   <i class="fas fa-pencil-alt"></i>
+                                </a>
+                            </h5>
+
+                            <p class="mb-1"><strong>Created By:</strong> {{ $accident->username }}</p>
+                            <p class="mb-1"><strong>Date:</strong> {{ \Carbon\Carbon::parse($accident->incident_date)->format('d.m.Y') }}</p>
+                            <!-- <p class="mb-0"><strong>S No:</strong> {{ $loop->iteration + ($accidents->currentPage() - 1) * $accidents->perPage() }}</p> -->
                         </div>
                     </div>
                 </div>
-
-                <!-- Pagination -->
-                <div class="pagination-container">
-                    <nav aria-label="Program plans pagination">
-                        <ul class="pagination justify-content-center mb-0">
-                          <span class="page-link"> {{ $accidents->appends(request()->query())->links() }}</span>
-                           
-                        </ul>
-                    </nav>
+            @empty
+                <div class="col-12 text-center">
+                    <div class="alert alert-info">
+                        <i class="fas fa-clipboard-list me-1"></i> No accident records found.
+                    </div>
                 </div>
-            </div>
+            @endforelse
         </div>
+
+        <!-- Pagination -->
+           @if(!$accidents->isEmpty())
+    <div class="col-12 d-flex justify-content-center mt-4 mb-5">
+        {{ $accidents->links('vendor.pagination.bootstrap-4') }}
+    </div>
+    @endif
+    
+    </div>
+</div>
+
     </div>
 
     @endsection
