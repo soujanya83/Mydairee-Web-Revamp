@@ -171,12 +171,7 @@
 
                         </li>
 
-                        <li class="{{ Request::is('learningandprogress*') ? 'active' : null }}">
-                            <a href="{{ route('learningandprogress.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-chart-simple"
-                                    style="font-size: 25px;"></i><span
-                                    style="font-size: 18px; margin-left:12px">Lession & Plan</span></a>
-
-                        </li>
+                       
 
                         <li class="{{ Request::is('qip*') ? 'active' : null }}">
                             <a href="{{ route('qip.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-clipboard"
@@ -185,10 +180,21 @@
 
                         </li>
                         @endif
+
+                        <li class="{{ Request::is('learningandprogress*') ? 'active' : null }}">
+                            <a href="{{ route('learningandprogress.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-chart-simple"
+                                    style="font-size: 25px;"></i><span
+                                    style="font-size: 18px; margin-left:12px">Lession & Plan</span></a>
+
+                        </li>
+
+
                         @php
                         $isHealthyActive = Route::is('healthy_menu') || Route::is('healthy_recipe') ||
                         Route::is('recipes.Ingredients');
                         @endphp
+
+                        @if(auth()->user()->userType != 'Parent')
 
                         <li class="{{ $isHealthyActive ? 'active open' : '' }}">
                             <a href="javascript:void(0);" data-toggle="tooltip" data-placement="right" class="d-flex justify-content-between align-items-center">
@@ -211,13 +217,19 @@
                             </ul>
                         </li>
 
+                        @endif
+                    
+                    @if(auth()->user()->userType != 'Parent')
+
                         <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
                             <a href="/ServiceDetails" data-toggle="tooltip" data-placement="right">
                                 <i class="fa fa-info-circle" style="font-size: 25px;"></i>
                                 <span style="font-size: 18px;margin-left:6px">Service Details</span>
                             </a>
                         </li>
+                    @endif
 
+                        @if(auth()->user()->userType != 'Parent')
                         <li class="{{ Request::segment(1) === 'settings' ? 'active open' : null }}">
                             <a href="#settings" data-toggle="tooltip" data-placement="right" class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -264,6 +276,7 @@
                                 </li>
                             </ul>
                         </li>
+                        @endif
 
                     </ul>
 

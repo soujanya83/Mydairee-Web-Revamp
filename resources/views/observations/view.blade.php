@@ -337,40 +337,40 @@
                                             <tr>
                                                 <td><strong>Title:</strong></td>
                                                 <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
-                                                    {!! $observation->obestitle ? $observation->obestitle : 'Not Update' !!}
+                                                    {!! $observation->obestitle ? html_entity_decode($observation->obestitle) : 'Not Update' !!}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td><strong>Observation:</strong></td>
                                                 <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
-                                                {!! $observation->title ? $observation->title : 'Not Update' !!}
+                                                {!! $observation->title ? html_entity_decode($observation->title) : 'Not Update' !!}
 
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td><strong>Notes:</strong></td>
                                                 <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
-                                                {!! $observation->notes ? $observation->notes : 'Not Update' !!}
+                                                {!! $observation->notes ? html_entity_decode($observation->notes) : 'Not Update' !!}
 
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td><strong>Reflection:</strong></td>
                                                 <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
-                                                {!! $observation->reflection ? $observation->reflection : 'Not Update' !!}
+                                                {!! $observation->reflection ? html_entity_decode($observation->reflection) : 'Not Update' !!}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td><strong>Future Plan:</strong></td>
                                                 <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
-                                                {!! $observation->future_plan ? $observation->future_plan : 'Not Update' !!}
+                                                {!! $observation->future_plan ? html_entity_decode($observation->future_plan) : 'Not Update' !!}
 
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td><strong>Child Voice:</strong></td>
                                                 <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
-                                                {!! $observation->child_voice ? $observation->child_voice : 'Not Update' !!}
+                                                {!! $observation->child_voice ? html_entity_decode($observation->child_voice) : 'Not Update' !!}
 
                                                 </td>
                                             </tr>

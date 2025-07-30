@@ -223,7 +223,7 @@
                     <div class="assessment-item-wrapper mb-3">
                         <div class="assessment-container-clickable d-flex align-items-center">
                             <!-- Clickable Triangle Visual Indicator -->
-                            <div class="triangle-indicator-clickable" 
+                            <div class="triangle-indicator-clickable  {{ auth()->user()->userType === 'Parent' ? 'not-clickable' : '' }}" 
                                  id="triangle-{{ $assessment->id }}"
                                  data-assessment-id="{{ $assessment->id }}"
                                  data-current-status="{{ $assessment->status }}"
@@ -448,6 +448,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add click event listener
         triangle.addEventListener('click', function() {
+            if (this.classList.contains('not-clickable')) {
+        return;
+    }
             handleTriangleClick(this);
         });
     });
