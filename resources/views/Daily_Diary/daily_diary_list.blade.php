@@ -792,11 +792,11 @@ body {
             style="top:3% !important;left:13px !important;">
             @foreach($room as $rooms)
             <a href="javascript:void(0);"
-            onclick="window.location.href='{{ url('DailyDiary/list') }}?room_id={{ $rooms->id }}&center_id={{ session('user_center_id') }}'"
-                class="dropdown-item center-option {{ $selectedroom->id == $rooms->id ? 'active font-weight-bold text-primary' : '' }}"
-                style="background-color:white;">
-                {{ $rooms->name }}
-            </a>
+   onclick="window.location.href='{{ url('DailyDiary/list') }}?room_id={{ $rooms->id }}&center_id={{ session('user_center_id') }}&t={{ time() }}'"
+   class="dropdown-item center-option {{ optional($selectedroom)->id == $rooms->id ? 'active font-weight-bold text-primary' : '' }}"
+   style="background-color:white;">
+   {{ $rooms->name }}
+</a>
             @endforeach
         </div>
     </div>
