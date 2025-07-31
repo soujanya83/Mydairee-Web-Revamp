@@ -287,48 +287,134 @@
                                 {{ \Carbon\Carbon::parse($observation->created_at)->format('d.m.Y') }}
                             </p>
 
-                            @if(Auth::user()->userType != 'Parent' && $observation->Seen->isNotEmpty())
-                            <p><strong>Seen by Parents:</strong></p>
-                            <ul style="max-height:60px;overflow-y:auto;">
-                                @forelse($observation->Seen as $seen)
+                            
 
-                                {{-- @php
-                                $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
-                                'avatar10.jpg'];
-                                $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
-                                'avatar7.jpg'];
-                                $avatars = $seen->user->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-                                $defaultAvatar = $avatars[array_rand($avatars)];
-                                @endphp --}}
+                            @if(Auth::user()->userType != 'Parent' && $observation->Seen->isNotEmpty())
+                                <div style="margin-top:8px;">
+                                    <!-- Eye icon with count -->
+                                    <button type="button" class="btn btn-light position-relative" data-toggle="modal" data-target="#seenParentsModal_{{ $observation->id }}">
+                                        <i class="fa fa-eye"></i>
+                                        <span class="badge badge-pill badge-primary position-absolute" style="top: -5px; right: -10px;">
+                                            {{ $observation->Seen->where('user.userType', 'Parent')->count() }}
+                                        </span>
+                                    </button>
+                                    <!-- <small class="text-muted">Seen by Parents</small> -->
+                                </div>
+                            @endif
+
+                                <!-- Modal for Seen Parents -->
+                                <div class="modal fade" id="seenParentsModal_{{ $observation->id }}" tabindex="-1" role="dialog" aria-labelledby="seenParentsModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="seenParentsModalLabel">Seen by Parents</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @php
+                                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg','avatar10.jpg'];
+                                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg','avatar7.jpg'];
+                                        $seenParents = $observation->Seen->filter(fn($seen) => $seen->user && $seen->user->userType === 'Parent');
+                                        @endphp
+
+                                        @if($seenParents->isEmpty())
+                                        <p>No parent has seen this yet.</p>
+                                        @else
+                                        <ul class="list-unstyled" style="max-height:280px;overflow-y:auto;">
+                                            @foreach($seenParents as $seen)
+                                            @php
+                                                if ($seen->user->gender === 'FEMALE') {
+                                                $avatars = $femaleAvatars;
+                                                } else {
+                                                $avatars = $maleAvatars;
+                                                }
+                                                $defaultAvatar = $avatars[array_rand($avatars)];
+                                            @endphp
+                                            <li class="media mb-3 align-items-center">
+                                                <img class="mr-3 rounded-circle border" width="48" height="48"
+                                                src="{{ $seen->user->imageUrl ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
+                                                alt="Avatar">
+                                                <div class="media-body">
+                                                <h6 class="mt-0 mb-1">{{ $seen->user->name }}</h6>
+                                                <small class="text-muted">
+                                                    <i class="fa fa-check text-primary"></i> Seen
+                                                </small>
+                                                </div>
+                                            </li>
+                                            @endforeach
+                                        </ul>
+                                        @endif
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+
+
 
                                 @php
-                                $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
-                                'avatar10.jpg'];
-                                $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
-                                'avatar7.jpg'];
-
-                                if ($seen->user && $seen->user->gender === 'FEMALE') {
-                                $avatars = $femaleAvatars;
-                                } else {
-                                $avatars = $maleAvatars;
-                                }
-
-                                $defaultAvatar = $avatars[array_rand($avatars)];
+                                    $commentCount = $observation->comments->count();
                                 @endphp
+                                <!-- Comment/Chat icon trigger -->
+                                <div style="margin-top:8px;">
+                                <button type="button"
+                                        class="btn btn-light position-relative"
+                                        data-toggle="modal"
+                                        data-target="#commentsModal_{{ $observation->id }}">
+                                    <i class="fa fa-comments"></i>
+                                    @if($commentCount)
+                                        <span class="badge badge-pill badge-danger position-absolute" style="top:-5px;right:-10px;">
+                                            {{ $commentCount }}
+                                        </span>
+                                    @endif
+                                </button>
+                            </div>
+                                <!-- <small class="text-muted">Comments</small> -->
 
 
-                                @if($seen->user && $seen->user->userType === 'Parent')
-                                <li style="margin-bottom: 10px;">
-                                    <img src="{{ $seen->user->imageUrl  ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
-                                        alt="Profile Image" width="40" height="40" style="border-radius: 50%;">
-                                    {{ $seen->user->name }} <span style="color: #2196F3;">&#10003;&#10003;</span>
-                                </li>
-                                @endif
-                                @empty
-                                <li>No parent has seen this yet.</li>
-                                @endforelse
-                            </ul>
-                            @endif
+                                <div class="modal fade" id="commentsModal_{{ $observation->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Comments</h5>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    </div>
+                                    <div class="modal-body p-0">
+                                        <div class="chat-body" id="chatBody_{{ $observation->id }}" style="max-height:320px;overflow-y:auto;padding:1rem;">
+                                            @foreach($observation->comments()->orderBy('created_at')->get() as $comment)
+                                                @php
+                                                    $isMe = Auth::id() === $comment->user_id;
+                                                @endphp
+                                                <div class="d-flex mb-3 {{ $isMe ? 'justify-content-end' : 'justify-content-start' }}">
+                                                <div style="max-width:68%;">
+                                                    <div class="p-2 rounded {{ $isMe ? 'bg-primary text-white' : 'bg-light text-dark' }}"
+                                                        style="min-width:120px;word-wrap:break-word;">
+                                                    {!! nl2br(e($comment->comments)) !!}
+                                                    </div>
+                                                    <div class="small text-muted mt-1 {{ $isMe ? 'text-right' : '' }}">
+                                                    {{ $comment->user->name ?? 'Unknown' }},
+                                                    {{ $comment->created_at->diffForHumans() }}
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form class="w-100 d-flex" onsubmit="return sendComment{{ $observation->id }}(event)">
+                                            <input type="text" class="form-control mr-2" id="commentInput_{{ $observation->id }}" placeholder="Type your message..." required>
+                                            <button type="submit" class="btn btn-primary">Send</button>
+                                        </form>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    </div>
+
+
+
+
+
 
                     </div>
 
@@ -552,6 +638,10 @@
         <!-- Filtered observations will be loaded here -->
     </div>
 </div>
+
+
+
+
 
 <!-- jQuery and Bootstrap JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

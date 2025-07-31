@@ -66,4 +66,9 @@ public function Seen()
     return $this->hasMany(SeenObservation::class, 'observation_id');
 }
 
+public function comments()
+{
+    return $this->hasMany(ObservationComment::class, 'observationId');
+}
+
 }

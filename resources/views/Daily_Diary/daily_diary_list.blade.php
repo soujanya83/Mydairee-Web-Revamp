@@ -792,7 +792,7 @@ body {
             style="top:3% !important;left:13px !important;">
             @foreach($room as $rooms)
             <a href="javascript:void(0);"
-                onclick="window.location.href='{{ route('dailyDiary.list', ['room_id' => $rooms->id, 'center_id' => session('user_center_id')]) }}'"
+            onclick="window.location.href='{{ url('DailyDiary/list') }}?room_id={{ $rooms->id }}&center_id={{ session('user_center_id') }}'"
                 class="dropdown-item center-option {{ $selectedroom->id == $rooms->id ? 'active font-weight-bold text-primary' : '' }}"
                 style="background-color:white;">
                 {{ $rooms->name }}
@@ -803,17 +803,22 @@ body {
     &nbsp;&nbsp;&nbsp;&nbsp;
 
 
+    @if(isset($selectedroom) && isset($selectedDate))
     <form method="GET" action="{{ route('dailyDiary.list') }}" id="dateRoomForm">
         <input type="hidden" name="room_id" value="{{ $selectedroom->id }}">
         <input type="hidden" name="center_id" value="{{ session('user_center_id') }}">
 
         <div class="form-group">
-            <!-- <label for="datePicker" class="font-weight-bold">Select Date:</label> -->
-            <input type="date" class="form-control custom-datepicker btn-outline-primary btn-lg" id="datePicker"
-                name="selected_date" value="{{ $selectedDate->format('Y-m-d') }}" onclick="this.showPicker()"
-                onchange="document.getElementById('dateRoomForm').submit();">
+            <input type="date"
+                   class="form-control custom-datepicker btn-outline-primary btn-lg"
+                   id="datePicker"
+                   name="selected_date"
+                   value="{{ $selectedDate ? $selectedDate->format('Y-m-d') : '' }}"
+                   onclick="this.showPicker()"
+                   onchange="document.getElementById('dateRoomForm').submit();">
         </div>
     </form>
+@endif
 
 
 </div>
