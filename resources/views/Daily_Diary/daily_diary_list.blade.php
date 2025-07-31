@@ -791,9 +791,9 @@ body {
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
             style="top:3% !important;left:13px !important;">
             @foreach($room as $rooms)
-            <a href="javascript:void(0);"
-   onclick="window.location.href='{{ url('DailyDiary/list') }}?room_id={{ $rooms->id }}&center_id={{ session('user_center_id') }}&t={{ time() }}'"
-   class="dropdown-item center-option {{ optional($selectedroom)->id == $rooms->id ? 'active font-weight-bold text-primary' : '' }}"
+            <a href="#"
+   class="dropdown-item room-selector {{ optional($selectedroom)->id == $rooms->id ? 'active font-weight-bold text-primary' : '' }}"
+   data-url="{{ url('DailyDiary/list') }}?room_id={{ $rooms->id }}&center_id={{ session('user_center_id') }}"
    style="background-color:white;">
    {{ $rooms->name }}
 </a>
@@ -827,6 +827,7 @@ body {
 
 
 </div>
+
 
 
 
@@ -3577,6 +3578,23 @@ $('#bottleForm').on('submit', function(e) {
 
 
 
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.room-selector').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+            e.preventDefault(); // Prevent default anchor behavior
+            e.stopPropagation(); // Stop Bootstrap dropdown from interfering
+
+            const targetUrl = this.dataset.url;
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            }
+        });
+    });
+});
 </script>
 
 
