@@ -691,6 +691,51 @@
     </div>
 
 </div>
+
+ <hr class="mt-3"> 
+  <!-- filter  -->
+             <div class="col-6 d-flex justify-content-end align-items-center top-right-button-container">
+     <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
+    <input 
+        type="text" 
+        name="filterbyCentername" 
+        class="form-control border-info" 
+        id="FilterbyRoomName"
+        placeholder="Filter by Room name" onkeyup="filterProgramPlan()">
+
+          <input 
+        type="text" 
+        name="filterbyCentername" 
+        class="form-control border-info mx-2" 
+        id="FilterbyCreatedBy"
+        placeholder="Filter by Created by" onkeyup="filterProgramPlan()">
+
+<!-- <input list="monthsList" 
+       id="FilterbyMonth" 
+       class="form-control border-info mx-2" 
+       placeholder="Month" 
+       oninput="updateMonthDisplay(); filterProgramPlan()" 
+       onfocus="this.showPicker && this.showPicker()">
+
+<datalist id="monthsList">
+    <option value="0">January</option>
+    <option value="1">February</option>
+    <option value="2">March</option>
+    <option value="3">April</option>
+    <option value="4">May</option>
+    <option value="5">June</option>
+    <option value="6">July</option>
+    <option value="7">August</option>
+    <option value="8">September</option>
+    <option value="9">October</option>
+    <option value="10">November</option>
+    <option value="11">December</option>
+</datalist> -->
+
+
+
+</div>
+             <!-- filter ends here  -->
 <!-- resources/views/program_plan_list.blade.php -->
 
 <div class="main-container">
@@ -716,10 +761,12 @@
                 <i class="fas fa-table"></i> Program Plans
             </h5>
         </div>
+<div class="program-plan">
+
 
         <div class="row">
             @forelse ($programPlans as $index => $plan)
-                <div class="col-md-6 col-lg-4 mb-4">
+                <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card h-100 shadow-sm rounded-3">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title mb-2">
@@ -776,6 +823,8 @@
         {{ $programPlans->links('vendor.pagination.bootstrap-4') }}
     </div>
     @endif
+
+</div>
     </div>
 </div>
 
@@ -870,6 +919,146 @@
 
         // Re-initialize on window resize
         window.addEventListener('resize', makeTableResponsive);
+
+  function filterProgramPlan() {
+    // Show loading indicator
+    $('.program-plan').html(`
+        <div class="col-12 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading program plans...</p>
+        </div>
+    `);
+
+    // ✅ Get filter input values
+    var room = $('#FilterbyRoomName').val() || '';
+    var createdBy = $('#FilterbyCreatedBy').val() || '';
+    var month = $('#FilterbyMonth').val() || '';
+
+    // ✅ Pass centerId from blade if needed
+    var centerId = "{{ $centerId ?? '' }}";
+
+    console.log('Filters:', room, createdBy,month);
+
+    $.ajax({
+        url: 'LessonPlanList/filter-program-plans', // Your route
+        type: 'GET',
+        data: {
+            room: room,
+            created_by: createdBy,
+            center_id: centerId,
+            month:month // ✅ filter by center
+        },
+        dataType: 'json',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            console.log('Response:', response);
+
+            // ✅ Check status
+            if (response.status === true) {
+                $('.program-plan').empty();
+
+                // ✅ Check if data exists
+                if (Array.isArray(response.data) && response.data.length > 0) {
+                    let html = '<div class="row">';
+
+                    response.data.forEach(function(plan) {
+                        // ✅ Safe fallback values
+                        let monthName = plan.month_name || '';
+                        let year = plan.years || '';
+                        let roomName = plan.room_name || '';
+                        let creator = plan.creator_name || '';
+                        let createdAt = plan.created_at_formatted || '';
+                        let updatedAt = plan.updated_at_formatted || '';
+                        let canEdit = plan.can_edit || false;
+                        let canDelete = plan.can_delete || false;
+
+                        html += `
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card h-100 shadow-sm rounded-3">
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title mb-2">${monthName} ${year}</h5>
+                                        
+                                        <ul class="list-unstyled mb-3">
+                                            <li><strong>Room:</strong> ${roomName}</li>
+                                            <li><strong>Created By:</strong> ${creator}</li>
+                                            <li><strong>Created:</strong> ${createdAt}</li>
+                                            <li><strong>Updated:</strong> ${updatedAt}</li>
+                                        </ul>
+                                        
+                                        <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
+                                            <a href="/print/programplan/${plan.id}" 
+                                               class="btn btn-outline-primary btn-sm" title="Print">
+                                                <i class="fas fa-print"></i>
+                                            </a>
+
+                                            ${canEdit ? `
+                                                <a href="programPlan/create?centerId=${centerId}&planId=${plan.id}"
+                                                   class="btn btn-outline-info btn-sm" title="Edit">
+                                                    <i class="fas fa-pen-to-square"></i>
+                                                </a>` : ''}
+
+                                            ${canDelete ? `
+                                                <button type="button"
+                                                        class="btn btn-outline-danger btn-sm delete-program"
+                                                        data-id="${plan.id}" title="Delete">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += '</div>';
+                    $('.program-plan').html(html);
+
+                } else {
+                    // ✅ No results
+                    $('.program-plan').html(`
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-clipboard-list me-1"></i> No program plans found matching your criteria.
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+            } else {
+                // ✅ API returned error
+                $('.program-plan').html(`
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-1"></i> 
+                                ${response.message || 'Error loading program plans. Please try again.'}
+                            </div>
+                        </div>
+                    </div>
+                `);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', error);
+            $('.program-plan').html(`
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-1"></i> 
+                            Error loading program plans. Please try again.
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+    });
+}
+
 </script>
 
 <script>
@@ -932,6 +1121,30 @@
         });
     });
 });
+
+
+function updateMonthDisplay() {
+    const monthInput = document.getElementById('FilterbyMonth');
+    const value = monthInput.value.trim();
+
+    const months = [
+        'January', 'February', 'March', 'April',
+        'May', 'June', 'July', 'August',
+        'September', 'October', 'November', 'December'
+    ];
+
+    // If input is empty, just leave it empty (do nothing)
+    if (value === '') {
+        return;
+    }
+
+    // Only convert if it's a valid number
+    if (!isNaN(value) && value >= 0 && value <= 11) {
+        monthInput.value = months[parseInt(value)];
+    }
+}
+
+
 </script>
 
 @endpush

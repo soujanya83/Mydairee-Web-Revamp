@@ -86,6 +86,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
 
     Route::get('programPlanList', [LessonPlanList::class, 'programPlanList'])->name('programPlanList');
+    Route::get('LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans');
     Route::get('programPlan/create', [LessonPlanList::class, 'createForm'])->name('create.programplan');
     Route::post('LessonPlanList/deletedataofprogramplan', [LessonPlanList::class, 'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
 
@@ -101,6 +102,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name(' Observation.addSubActivity');
 
     Route::get('announcements/list', [AnnouncementController::class, 'list'])->name('announcements.list');
+        Route::get('announcements/Filterlist', [AnnouncementController::class, 'Filterlist'])->name('announcements.Filterlist');
     Route::get('announcements/create/{id?}', [AnnouncementController::class, 'AnnouncementCreate'])->name('announcements.create');
     Route::post('announcements/store', [AnnouncementController::class, 'AnnouncementStore'])->name('announcements.store');
     Route::delete('announcements/delete', [AnnouncementController::class, 'AnnouncementDelete'])->name('announcements.delete');
@@ -135,12 +137,14 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
 
     Route::get('sleepcheck/list', [SleepCheckController::class, 'getSleepChecksList'])->name('sleepcheck.list');
+        Route::get('sleepcheck/filter-sleep-list-by-child', [SleepCheckController::class, 'fetchSleepChecks'])->name('sleepcheck.filter-sleep-list-by-child');
     Route::post('sleepcheck/save', [SleepCheckController::class, 'sleepcheckSave'])->name('sleepcheck.save');
     Route::post('sleepcheck/update', [SleepCheckController::class, 'sleepcheckUpdate'])->name('sleepcheck.update');
     Route::post('sleepcheck/delete', [SleepCheckController::class, 'sleepcheckDelete'])->name('sleepcheck.delete');
 
     // Accidents
     Route::get('Accidents/list', [AccidentsController::class, 'AccidentsList'])->name('Accidents.list');
+        Route::get('Accidents/filter-by-child', [AccidentsController::class, 'filterByChild'])->name('filter-by-child');
     Route::post('Accidents/getCenterRooms', [AccidentsController::class, 'getCenterRooms'])->name('Accidents.getCenterRooms');
     Route::put('Accidents/update/{id}', [AccidentsController::class, 'AccidentsUpdate'])->name('accidents.update');
     Route::get('Accidents/details', [AccidentsController::class, 'getAccidentDetails'])->name('Accidents.details');

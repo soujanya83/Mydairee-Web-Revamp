@@ -69,7 +69,7 @@
  <hr class="mt-3">
             <!-- filter  -->
              <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
-    <i class="fas fa-filter mx-2 text-muted "></i>
+     <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
     <input 
         type="text" 
         name="filterbyCentername" 

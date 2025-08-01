@@ -21,6 +21,93 @@ use Illuminate\Support\Facades\Validator;
 class SleepCheckController extends Controller
 {
   
+ public function fetchSleepChecks(Request $request)
+{
+    $user = Auth::user();
+    $userid = $user->userid;
+    $userType = $user->userType;
+
+    // Get selected center (from request or session)
+    $centerid = $request->centerid ?? session('user_center_id');
+    if (empty($centerid)) {
+        $centerid = Usercenter::where('userid', $userid)->pluck('centerid')->first();
+    }
+
+    // Get centers for dropdown
+    if ($userType === "Superadmin") {
+        $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
+        $centers = Center::whereIn('id', $centerIds)->get();
+    } else {
+        $centers = Center::where('id', $centerid)->get();
+    }
+
+    // Room filter
+    $roomid = $request->roomid ?? Room::where('centerid', $centerid)->value('id');
+    $room   = Room::find($roomid);
+    $roomname  = $room->name ?? '';
+    $roomcolor = $room->color ?? '';
+    $centerRooms = Room::where('centerid', $centerid)->get();
+
+    // Date filter
+    $date = $request->date 
+        ? \Carbon\Carbon::createFromFormat('d-m-Y', $request->date)->format('Y-m-d') 
+        : now()->format('Y-m-d');
+
+    // Build children query
+    $childrenQuery = Child::where('room', $roomid);
+
+    if (!empty($request->child_name)) {
+        $childrenQuery->where(function($q) use ($request) {
+            $q->where('name', 'like', '%'.$request->child_name.'%')
+              ->orWhere('lastname', 'like', '%'.$request->child_name.'%');
+        });
+    }
+
+    $children = $childrenQuery->get();
+
+    // Fetch sleep checks filtered by room and date
+    $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
+        ->whereDate('created_at', $date)
+        ->get();
+
+    // Prepare JSON response
+    $result = [];
+
+    foreach ($children as $child) {
+        $childChecks = $sleepChecks->where('childid', $child->id)->sortBy('time')->values();
+
+        $result[] = [
+            'child' => [
+                'id'       => $child->id,
+                'name'     => $child->name,
+                'lastname' => $child->lastname,
+                'image'    => $child->imageUrl ? asset('assets/media/'.$child->imageUrl) : null,
+            ],
+            'sleep_checks' => $childChecks->map(function($check){
+                return [
+                    'id'               => $check->id,
+                    'time'             => $check->time,
+                    'breathing'        => $check->breathing,
+                    'body_temperature' => $check->body_temperature,
+                    'notes'            => $check->notes,
+                ];
+            })->toArray()
+        ];
+    }
+
+    return response()->json([
+        'centerid' => $centerid,
+        'roomid'   => $roomid,
+        'date'     => $date,
+        'roomname' => $roomname,
+        'roomcolor'=> $roomcolor,
+        'centers'  => $centers,
+        'rooms'    => $centerRooms,
+        'data'     => $result
+    ]);
+}
+
+
 
 public function getSleepChecksList(Request $request)
 {

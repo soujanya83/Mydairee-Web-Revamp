@@ -33,6 +33,197 @@ use App\Http\Controllers\Illuminate\Pagination\Paginator;
 class LessonPlanList extends Controller
 {
 
+// public function filterProgramPlan(Request $request)
+// {
+//     if (!Auth::check()) {
+//         return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+//     }
+
+//     $user = Auth::user();
+//     $authId = $user->id;
+//     $defaultCenterId = session('user_center_id');
+
+//     // Determine which center to use
+//     $centerId = $request->center_id ?? $defaultCenterId;
+
+//     // Base query with relationships
+//     $query = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
+//         ->where('centerid', $centerId);
+
+//     // Filter by user type
+//     if ($user->userType === 'Superadmin') {
+//         // Optionally validate superadmin's centers
+//         $accessibleCenters = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+//         if (!in_array($centerId, $accessibleCenters)) {
+//             return response()->json(['success' => false, 'message' => 'Unauthorized center access'], 403);
+//         }
+
+//     } elseif ($user->userType === 'Staff') {
+//         $query->where(function ($q) use ($authId) {
+//             $q->where('created_by', $authId)
+//               ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
+//         });
+
+//     } elseif ($user->userType === 'Parent') {
+//         $childIds = ChildParent::where('parentid', $authId)->pluck('childid');
+//         if ($childIds->isNotEmpty()) {
+//             $query->where(function ($q) use ($childIds) {
+//                 foreach ($childIds as $childId) {
+//                     $q->orWhereRaw('FIND_IN_SET(?, children)', [$childId]);
+//                 }
+//             });
+//         } else {
+//             return response()->json(['success' => true, 'data' => []]);
+//         }
+//     }
+
+//     // 🔹 Optional filters
+//     if ($request->filled('room')) {
+//         $query->whereHas('room', function ($q) use ($request) {
+//             $q->where('name', 'like', '%' . $request->room . '%');
+//         });
+//     }
+
+//     if ($request->filled('created_by')) {
+//         $query->whereHas('creator', function ($q) use ($request) {
+//             $q->where('name', 'like', '%' . $request->created_by . '%');
+//         });
+//     }
+
+//     if($request->month){
+//   $query->whereHas('creator', function ($q) use ($request) {
+//             $q->where('name', 'like', '%' . $request->created_by . '%');
+//         });
+//     }
+
+//     // Fetch data
+//     $programPlans = $query->orderByDesc('created_at')->get();
+
+//     // Transform response
+//     $data = $programPlans->map(function ($plan) {
+//         return [
+//             'id' => $plan->id,
+//             'month' => $plan->months,
+//             'month_name' => \Carbon\Carbon::create()->month($plan->months)->format('F'),
+//             'years' => $plan->years,
+//             'room_name' => $plan->room->name ?? '',
+//             'creator_name' => $plan->creator->name ?? '',
+//             'created_at_formatted' => $plan->created_at->format('d M Y / H:i'),
+//             'updated_at_formatted' => $plan->updated_at->format('d M Y / H:i'),
+//             'can_edit' => auth()->user()->userType !== 'Parent',  // example permission
+//             'can_delete' => auth()->user()->userType === 'Superadmin', // example permission
+//         ];
+//     });
+
+//     return response()->json([
+//         'status' => true,
+//         'data' => $data
+//     ]);
+// }
+public function filterProgramPlan(Request $request)
+{
+    if (!Auth::check()) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    $user = Auth::user();
+    $authId = $user->id;
+    $defaultCenterId = session('user_center_id');
+
+    // Determine which center to use
+    $centerId = $request->center_id ?? $defaultCenterId;
+
+    // Base query
+    $query = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
+        ->where('centerid', $centerId);
+
+    // 🔹 User type filters
+    if ($user->userType === 'Superadmin') {
+        $accessibleCenters = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+        if (!in_array($centerId, $accessibleCenters)) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized center access'], 403);
+        }
+
+    } elseif ($user->userType === 'Staff') {
+        $query->where(function ($q) use ($authId) {
+            $q->where('created_by', $authId)
+              ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
+        });
+
+    } elseif ($user->userType === 'Parent') {
+        $childIds = ChildParent::where('parentid', $authId)->pluck('childid');
+        if ($childIds->isNotEmpty()) {
+            $query->where(function ($q) use ($childIds) {
+                foreach ($childIds as $childId) {
+                    $q->orWhereRaw('FIND_IN_SET(?, children)', [$childId]);
+                }
+            });
+        } else {
+            return response()->json(['success' => true, 'data' => []]);
+        }
+    }
+
+    // 🔹 Optional filters
+    if ($request->filled('room')) {
+        $query->whereHas('room', function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->room . '%');
+        });
+    }
+
+    if ($request->filled('created_by')) {
+        $query->whereHas('creator', function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->created_by . '%');
+        });
+    }
+
+    // dd($request->month);
+
+    // $months = ['january' => 1 , 'febuary' => 1 , 'march' => 2 , 'april' => 4];
+
+    // foreach($months as $key=>$month){
+    //     if($request->month == $key){
+    //         $month = $value;
+
+    //     }
+
+
+    // }
+    // // 🔹 Month filter (0-11 or 1-12 based on DB)
+    // if ($request->filled('month')) {
+    //     $query->where('months', $month);
+    // }
+
+    // Fetch data
+    $programPlans = $query->orderByDesc('created_at')->get();
+
+    // Transform response
+    $data = $programPlans->map(function ($plan) {
+        $monthNumber = (int) $plan->months;
+        $monthName = $monthNumber > 0 
+            ? \Carbon\Carbon::create()->month($monthNumber)->format('F')
+            : 'December'; // if 0 is December in your DB
+
+        return [
+            'id' => $plan->id,
+            'month' => $plan->months,
+            'month_name' => $monthName,
+            'years' => $plan->years,
+            'room_name' => $plan->room->name ?? '',
+            'creator_name' => $plan->creator->name ?? '',
+            'created_at_formatted' => $plan->created_at->format('d M Y / H:i'),
+            'updated_at_formatted' => $plan->updated_at->format('d M Y / H:i'),
+            'can_edit' => auth()->user()->userType !== 'Parent',
+            'can_delete' => auth()->user()->userType === 'Superadmin',
+        ];
+    });
+
+    return response()->json([
+        'status' => true,
+        'data' => $data
+    ]);
+}
+
+
 public function programPlanList(Request $request)
 {
     if (Auth::check()) {
@@ -273,7 +464,7 @@ public function saveProgramPlan(Request $request)
         'users' => 'required|array',
         'children' => 'required|array',
     ]);
-    dd($request->all());
+    // dd($request->all());
 
     // Convert arrays to comma-separated strings
     $educators = implode(',', $request->input('users'));
