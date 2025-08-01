@@ -115,14 +115,14 @@ class ObservationsController extends Controller
 
         if (Auth::user()->userType == "Superadmin") {
 
-            $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
                 ->where('centerid', $centerid)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
 
         } elseif (Auth::user()->userType == "Staff") {
 
-            $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
                 ->where('userId', $authId)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
@@ -135,7 +135,7 @@ class ObservationsController extends Controller
                 ->unique()
                 ->toArray();
             // dd($childids);
-            $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
                 ->whereIn('id', $observationIds)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
@@ -1349,5 +1349,19 @@ class ObservationsController extends Controller
         $snapshot->delete();
 
         return response()->json(['status' => 'success']);
+    }
+    
+
+    public function changeCreatedAt(Request $request)
+    {
+        $obs = Observation::find($request->id);
+        if(!$obs) return response()->json(['success' => false, 'message' => 'Observation not found']);
+
+        $newDate = \Carbon\Carbon::parse($request->created_at)->addDay();
+
+        $obs->created_at = $newDate;
+        $obs->save();
+
+        return response()->json(['success' => true]);
     }
 }

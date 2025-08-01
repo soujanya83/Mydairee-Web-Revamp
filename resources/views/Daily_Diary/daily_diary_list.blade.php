@@ -757,7 +757,7 @@ body {
 
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -60px;">
+    style="margin-right: 20px;margin-top: -35px;">
 
 
 
@@ -791,29 +791,34 @@ body {
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
             style="top:3% !important;left:13px !important;">
             @foreach($room as $rooms)
-            <a href="javascript:void(0);"
-                onclick="window.location.href='{{ route('dailyDiary.list', ['room_id' => $rooms->id, 'center_id' => session('user_center_id')]) }}'"
-                class="dropdown-item center-option {{ $selectedroom->id == $rooms->id ? 'active font-weight-bold text-primary' : '' }}"
-                style="background-color:white;">
-                {{ $rooms->name }}
-            </a>
+            <a href="#"
+   class="dropdown-item room-selector {{ optional($selectedroom)->id == $rooms->id ? 'active font-weight-bold text-primary' : '' }}"
+   data-url="{{ url('DailyDiary/list') }}?room_id={{ $rooms->id }}&center_id={{ session('user_center_id') }}"
+   style="background-color:white;">
+   {{ $rooms->name }}
+</a>
             @endforeach
         </div>
     </div>
     &nbsp;&nbsp;&nbsp;&nbsp;
 
 
+    @if(isset($selectedroom) && isset($selectedDate))
     <form method="GET" action="{{ route('dailyDiary.list') }}" id="dateRoomForm">
         <input type="hidden" name="room_id" value="{{ $selectedroom->id }}">
         <input type="hidden" name="center_id" value="{{ session('user_center_id') }}">
 
         <div class="form-group">
-            <!-- <label for="datePicker" class="font-weight-bold">Select Date:</label> -->
-            <input type="date" class="form-control custom-datepicker btn-outline-primary btn-lg" id="datePicker"
-                name="selected_date" value="{{ $selectedDate->format('Y-m-d') }}" onclick="this.showPicker()"
-                onchange="document.getElementById('dateRoomForm').submit();">
+            <input type="date"
+                   class="form-control custom-datepicker btn-outline-primary btn-lg"
+                   id="datePicker"
+                   name="selected_date"
+                   value="{{ $selectedDate ? $selectedDate->format('Y-m-d') : '' }}"
+                   onclick="this.showPicker()"
+                   onchange="document.getElementById('dateRoomForm').submit();">
         </div>
     </form>
+@endif
 
 
 </div>
@@ -822,6 +827,7 @@ body {
 
 
 </div>
+
 
 
 
@@ -837,9 +843,11 @@ body {
                 </div>
                 <div class="col-md-4 text-right">
                     <div class="btn-group">
+                    @if(auth()->user()->userType !== 'Parent')
                     <button class="btn btn-primary" data-toggle="modal" data-target="#addEntryModal">
     <i class="fas fa-plus mr-2"></i>Add Entry
 </button>
+@endif
                         <!-- <button class="btn btn-outline-primary"><i class="fas fa-download mr-2"></i>Export</button> -->
                     </div>
                 </div>
@@ -923,9 +931,20 @@ body {
                             </div>
                             <div class="collapse show" id="Breakfast-{{ $childId }}">
                                 <div class="activity-content">
-                                    <div class="activity-entry activity-breakfast">
+                                @if(auth()->user()->userType !== 'Parent')
+                                <button 
+                                        class="btn btn-outline-primary open-diary-modal" 
+                                        style="float:right;"
+                                        data-child-id="{{ $child }}"
+                                        data-selected-date="{{ request('selected_date') ?? '' }}"
+                                    >
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>  
+                                    @endif     
+                       <div class="activity-entry activity-breakfast">
                                         <div class="entry-row">
                                             <div class="entry-item">
+                                               
                                                 <span class="entry-label">Time:</span>
                                               
                                                 <span class="entry-value">{{ $breakfast->startTime ?? 'Not-Update' }}</span>
@@ -963,6 +982,16 @@ body {
                             </div>
                             <div class="collapse" id="Morning-{{ $childId }}">
                                 <div class="activity-content">
+                                @if(auth()->user()->userType !== 'Parent')
+                                <button 
+                                    class="btn btn-outline-warning open-morningtea-modal"
+                                    style="float:right;"
+                                    data-child-id="{{ $child }}"
+                                    data-selected-date="{{ request('selected_date') ?? '' }}"
+                                >
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                                @endif
                                     <div class="activity-entry activity-morning-tea">
                                         <div class="entry-row">
                                             <div class="entry-item">
@@ -995,6 +1024,16 @@ body {
                             </div>
                             <div class="collapse" id="Lunch-{{ $childId }}">
                                 <div class="activity-content">
+                                @if(auth()->user()->userType !== 'Parent')
+                                <button
+                                    class="btn btn-outline-success open-lunch-modal"
+                                    style="float:right;"
+                                    data-child-id="{{ $child }}"
+                                    data-selected-date="{{ request('selected_date') ?? '' }}"
+                                >
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                                @endif
                                     <div class="activity-entry activity-lunch">
                                         <div class="entry-row">
                                             <div class="entry-item">
@@ -1020,40 +1059,70 @@ body {
                         <!-- Sleep -->
                         <div class="activity-section">
                             <div class="activity-header" data-toggle="collapse" data-target="#Sleep-{{ $childId }}">
-                                <h5>
-                                    <i class="fas fa-bed activity-icon"></i>
-                                    Sleep
-                                    @if($sleep)
-                                    <span class="badge badge-info badge-status ml-2">2 Entries</span>
-                                    @else
+                            <h5>
+                                <i class="fas fa-bed activity-icon"></i>
+                                Sleep
+
+                                @if($sleep->count())
+                                    <span class="badge badge-info badge-status ml-2">{{ $sleep->count() }} Entries</span>
+                                @else
                                     <span class="badge badge-danger badge-status ml-2">0 Entries</span>
-                                    @endif
-                                    <i class="fas fa-chevron-down collapse-icon"></i>
-                                </h5>
+                                @endif
+
+                                <i class="fas fa-chevron-down collapse-icon"></i>
+                            </h5>
                             </div>
                             <div class="collapse" id="Sleep-{{ $childId }}">
                                 <div class="activity-content">
-                                    <div class="activity-entry activity-sleep">
-                                        <div class="entry-row">
-                                            <div class="entry-item">
-                                                <span class="entry-label">Sleep Time:</span>
-                                                <span class="entry-value">{{ $sleep->startTime ?? 'Not-Update' }}</span>
+                                <div class="text-right">
+                                @if(auth()->user()->userType !== 'Parent')
+                                <button
+                                    class="btn btn-outline-primary mb-2 open-sleep-modal"
+                                    data-child-id="{{ $child }}"
+                                    data-selected-date="{{ request('selected_date') ?? '' }}"
+                                    data-mode="add"
+                                >
+                                    <i class="fa fa-plus"></i> Add Sleep
+                                </button>
+                                @endif
+                                </div>
+                                    @forelse ($sleep as $entry)
+                                        <div class="activity-entry activity-sleep">
+                                        @if(auth()->user()->userType !== 'Parent')
+                                        <button
+                                            class="btn btn-link p-0 open-sleep-modal"
+                                            style="float:right;"
+                                            data-child-id="{{ $child }}"
+                                            data-selected-date="{{ request('selected_date') ?? '' }}"
+                                            data-mode="edit"
+                                            data-entry-id="{{ $entry->id }}"
+                                        >
+                                            <i class="fa fa-edit"></i> Edit
+                                        </button>
+                                        @endif
+                                            <div class="entry-row">
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Sleep Time:</span>
+                                                    <span class="entry-value">{{ $entry->startTime ?? 'Not-Update' }}</span>
+                                                </div>
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Wake Time:</span>
+                                                    <span class="entry-value">{{ $entry->endTime ?? 'Not-Update' }}</span>
+                                                </div>
                                             </div>
-                                            <div class="entry-item">
-                                                <span class="entry-label">Wake Time:</span>
-                                                <span class="entry-value">{{ $sleep->endTime ?? 'Not-Update' }}</span>
+                                            <div class="entry-row">
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Comments:</span>
+                                                    <span class="entry-value">{{ $entry->comments ?? 'Not-Update' }}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="entry-row">
-                                            <div class="entry-item">
-                                                <span class="entry-label">Comments:</span>
-                                                <span class="entry-value">{{ $sleep->comments ?? 'Not-Update' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                  
+                                    @empty
+                                        <p>No sleep data available.</p>
+                                    @endforelse
                                 </div>
                             </div>
+
                         </div>
 
                         <!-- Afternoon Tea -->
@@ -1072,6 +1141,16 @@ body {
                             </div>
                             <div class="collapse" id="Afternoon-{{ $childId }}">
                                 <div class="activity-content">
+                                @if(auth()->user()->userType !== 'Parent')
+                                <button
+                                    class="btn btn-outline-info open-afternoontea-modal"
+                                    style="float:right;"
+                                    data-child-id="{{ $child }}"
+                                    data-selected-date="{{ request('selected_date') ?? '' }}"
+                                >
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                                @endif
                                     <div class="activity-entry activity-afternoon-tea">
                                         <div class="entry-row">
                                             <div class="entry-item">
@@ -1104,6 +1183,16 @@ body {
                             </div>
                             <div class="collapse" id="Snacks-{{ $childId }}">
                                 <div class="activity-content">
+                                @if(auth()->user()->userType !== 'Parent')
+                                <button
+                                    class="btn btn-outline-dark open-snacks-modal"
+                                    style="float:right;"
+                                    data-child-id="{{ $child }}"
+                                    data-selected-date="{{ request('selected_date') ?? '' }}"
+                                >
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                                @endif
                                     <div class="activity-entry activity-snacks">
                                         <div class="entry-row">
                                             <div class="entry-item">
@@ -1132,40 +1221,59 @@ body {
                                 <h5>
                                     <i class="fas fa-sun activity-icon"></i>
                                     Sunscreen
-                                    @if($sunscreen)
-                                    <span class="badge badge-info badge-status ml-2">2 Applications</span>
+
+                                    @if($sunscreen->count())
+                                        <span class="badge badge-info badge-status ml-2">{{ $sunscreen->count() }} Applications</span>
                                     @else
-                                    <span class="badge badge-danger badge-status ml-2">0 Applications</span>
+                                        <span class="badge badge-danger badge-status ml-2">0 Applications</span>
                                     @endif
+
                                     <i class="fas fa-chevron-down collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse" id="Sunscreen-{{ $childId }}">
                                 <div class="activity-content">
-                                    <div class="activity-entry activity-sunscreen">
-                                        <div class="entry-row">
-                                            <div class="entry-item">
-                                                <span class="entry-label">Time:</span>
-                                                <span class="entry-value">{{ $sunscreen->startTime ?? 'Not-Update' }}</span>
-                                            </div>
-                                            <div class="entry-item">
-                                                <span class="entry-label">Comments:</span>
-                                                <span class="entry-value">{{ $sunscreen->comments ?? 'Not-Update' }}</span>
+                                    <div class="text-right">
+                                    @if(auth()->user()->userType !== 'Parent')
+                                <button
+                                    class="btn btn-outline-warning mb-2 open-sunscreen-modal"
+                                    data-child-id="{{ $child }}"
+                                    data-selected-date="{{ request('selected_date') ?? '' }}"
+                                    data-mode="add"
+                                >
+                                    <i class="fa fa-plus"></i> Add Sunscreen
+                                </button>
+                                @endif
+                                </div>
+                                    @forelse ($sunscreen as $entry)
+                                        <div class="activity-entry activity-sunscreen">
+                                        <div class="text-right">
+                                        @if(auth()->user()->userType !== 'Parent')
+                                            <button
+                                                class="btn btn-link p-0 open-sunscreen-modal"
+                                                data-child-id="{{ $child }}"
+                                                data-selected-date="{{ request('selected_date') ?? '' }}"
+                                                data-mode="edit"
+                                                data-entry-id="{{ $entry->id }}"
+                                            >
+                                                <i class="fa fa-edit"></i> Edit
+                                            </button>
+                                            @endif
+                                        </div>
+                                            <div class="entry-row">
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Time:</span>
+                                                    <span class="entry-value">{{ $entry->startTime ?? 'Not-Update' }}</span>
+                                                </div>
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Comments:</span>
+                                                    <span class="entry-value">{{ $entry->comments ?? 'Not-Update' }}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <!-- <div class="activity-entry activity-sunscreen">
-                                        <div class="entry-row">
-                                            <div class="entry-item">
-                                                <span class="entry-label">Time:</span>
-                                                <span class="entry-value">2:45 PM</span>
-                                            </div>
-                                            <div class="entry-item">
-                                                <span class="entry-label">Comments:</span>
-                                                <span class="entry-value">Reapplied after nap for afternoon outdoor time</span>
-                                            </div>
-                                        </div>
-                                    </div> -->
+                                    @empty
+                                        <p>No sunscreen applications recorded.</p>
+                                    @endforelse
                                 </div>
                             </div>
                         </div>
@@ -1176,55 +1284,69 @@ body {
                                 <h5>
                                     <i class="fas fa-baby activity-icon"></i>
                                     Toileting
-                                    @if($toileting)
-                                    <span class="badge badge-info badge-status ml-2">4 Changes</span>
+
+                                    @if($toileting->count())
+                                        <span class="badge badge-info badge-status ml-2">{{ $toileting->count() }} Changes</span>
                                     @else
-                                    <span class="badge badge-warning badge-status ml-2">Not Update</span>
+                                        <span class="badge badge-warning badge-status ml-2">Not Update</span>
                                     @endif
+
                                     <i class="fas fa-chevron-down collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse" id="Toileting-{{ $childId }}">
                                 <div class="activity-content">
-                                    <div class="activity-entry activity-toileting">
-                                        <div class="entry-row">
-                                            <div class="entry-item">
-                                                <span class="entry-label">Time:</span>
-                                                <span class="entry-value">{{ $toileting->startTime ?? 'Not-Update' }}</span>
+                                <div class="text-right">
+                                @if(auth()->user()->userType !== 'Parent')
+                                <button
+                                    class="btn btn-outline-secondary mb-2 open-toileting-modal"
+                                    data-child-id="{{ $child }}"
+                                    data-selected-date="{{ request('selected_date') ?? '' }}"
+                                    data-mode="add"
+                                >
+                                    <i class="fa fa-plus"></i> Add Toileting
+                                </button>
+                                @endif
+                                </div>
+                                    @forelse ($toileting as $entry)
+                                        <div class="activity-entry activity-toileting">
+                                        <div class="text-right">
+                                        @if(auth()->user()->userType !== 'Parent')
+                                            <button
+                                                class="btn btn-link p-0 open-toileting-modal"
+                                                data-child-id="{{ $child }}"
+                                                data-selected-date="{{ request('selected_date') ?? '' }}"
+                                                data-mode="edit"
+                                                data-entry-id="{{ $entry->id }}"
+                                            >
+                                                <i class="fa fa-edit"></i> Edit
+                                            </button>
+                                            @endif
+                                        </div>
+                                            <div class="entry-row">
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Time:</span>
+                                                    <span class="entry-value">{{ $entry->startTime ?? 'Not-Update' }}</span>
+                                                </div>
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Status:</span>
+                                                    <span class="badge badge-warning">{{ $entry->status ?? 'Not-Update' }}</span>
+                                                </div>
                                             </div>
-                                            <div class="entry-item">
-                                                <span class="entry-label">Status:</span>
-                                                <span class="badge badge-warning">{{ $toileting->status ?? 'Not-Update' }}</span>
+                                            <div class="entry-row">
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Comments:</span>
+                                                    <span class="entry-value">{{ $entry->comments ?? 'Not-Update' }}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="entry-row">
-                                            <div class="entry-item">
-                                                <span class="entry-label">Comments:</span>
-                                                <span class="entry-value">{{ $toileting->comments ?? 'Not-Update' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- <div class="activity-entry activity-toileting">
-                                        <div class="entry-row">
-                                            <div class="entry-item">
-                                                <span class="entry-label">Time:</span>
-                                                <span class="entry-value">11:20 AM</span>
-                                            </div>
-                                            <div class="entry-item">
-                                                <span class="entry-label">Status:</span>
-                                                <span class="badge badge-success">Clean</span>
-                                            </div>
-                                        </div>
-                                        <div class="entry-row">
-                                            <div class="entry-item">
-                                                <span class="entry-label">Comments:</span>
-                                                <span class="entry-value">Routine check</span>
-                                            </div>
-                                        </div>
-                                    </div> -->
+                                    @empty
+                                        <p>No toileting changes recorded.</p>
+                                    @endforelse
                                 </div>
                             </div>
                         </div>
+
 
 
 
@@ -1232,29 +1354,65 @@ body {
                          <div class="activity-section">
                             <div class="activity-header" data-toggle="collapse" data-target="#Bottel-{{ $childId }}">
                                 <h5>
-                                    <i class="fas fa-bottel-water activity-icon"></i>
+                                    <i class="fa-solid fa-bottle-water activity-icon"></i>
                                     Bottle
-                                    @if($bottle)
-                                    <span class="badge badge-primary badge-status ml-2">Completed</span>
+
+                                    @if($bottle->count())
+                                        <span class="badge badge-primary badge-status ml-2">{{ $bottle->count() }} Feedings</span>
                                     @else
-                                    <span class="badge badge-secondary badge-status ml-2">Pending</span>
+                                        <span class="badge badge-secondary badge-status ml-2">Pending</span>
                                     @endif
+
                                     <i class="fas fa-chevron-down collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse" id="Bottel-{{ $childId }}">
                                 <div class="activity-content">
-                                    <div class="activity-entry activity-bottle">
-                                        <div class="entry-row">
-                                            <div class="entry-item">
-                                                <span class="entry-label">Time:</span>
-                                                <span class="entry-value">{{ $bottle->startTime ?? 'Not-Update' }}</span>
+                                    <div class="text-right">
+                                    @if(auth()->user()->userType !== 'Parent')
+                                    <button
+                                        class="btn btn-outline-info mb-2 open-bottle-modal"
+                                        data-child-id="{{ $child }}"
+                                        data-selected-date="{{ request('selected_date') ?? '' }}"
+                                        data-mode="add"
+                                    >
+                                        <i class="fa fa-plus"></i> Add Bottle
+                                    </button>
+                                    @endif
+                                    </div>
+                                    @forelse ($bottle as $entry)
+                                        <div class="activity-entry activity-bottle">
+                                        <div class="text-right">
+                                        @if(auth()->user()->userType !== 'Parent')
+                                            <button
+                                                class="btn btn-link p-0 open-bottle-modal"
+                                                data-child-id="{{ $child }}"
+                                                data-selected-date="{{ request('selected_date') ?? '' }}"
+                                                data-mode="edit"
+                                                data-entry-id="{{ $entry->id }}"
+                                            >
+                                                <i class="fa fa-edit"></i> Edit
+                                            </button>
+                                            @endif
+                                        </div>
+                                            <div class="entry-row">
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Time:</span>
+                                                    <span class="entry-value">{{ $entry->startTime ?? 'Not-Update' }}</span>
+                                                </div>
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Comments:</span>
+                                                    <span class="entry-value">{{ $entry->comments ?? 'Not-Update' }}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    @empty
+                                        <p>No bottle feeding recorded.</p>
+                                    @endforelse
                                 </div>
                             </div>
                         </div>
+
 
 
 
@@ -1338,7 +1496,7 @@ body {
                                 <span>Toileting</span>
                             </a>
                             <a href="#" class="nav-item" data-activity="bottle">
-                                <i class="fas fa-bottle-water"></i>
+                                <i class="fa-solid fa-bottle-water"></i>
                                 <span>Bottle</span>
                             </a>
                         </div>
@@ -1723,6 +1881,353 @@ body {
 </div>
 
 
+
+
+<!-- Modal -->
+<div class="modal fade" id="breakfastModal" tabindex="-1" role="dialog" aria-labelledby="breakfastModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form id="breakfastForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="breakfastModalLabel">Add/Edit Breakfast</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="child_id" id="modal_child_id">
+          <input type="hidden" name="selected_date" id="modal_selected_date">
+
+          <div class="form-group">
+            <label>Time</label>
+            <input type="time" name="startTime" class="form-control" id="modal_start_time">
+          </div>
+          <div class="form-group">
+            <label>Item</label>
+            <input type="text" name="item" class="form-control" id="modal_item">
+          </div>
+          <div class="form-group">
+            <label>Comments</label>
+            <textarea name="comments" class="form-control" id="modal_comments"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" id="saveBreakfastBtn">Save</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+
+
+
+<div class="modal fade" id="morningTeaModal" tabindex="-1" role="dialog" aria-labelledby="morningTeaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="morningTeaForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="morningTeaModalLabel">Add/Edit Morning Tea</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="child_id" id="mt_modal_child_id">
+                    <input type="hidden" name="selected_date" id="mt_modal_selected_date">
+                    
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" name="startTime" class="form-control" id="mt_modal_start_time">
+                    </div>
+                    <div class="form-group">
+                        <label>Comments</label>
+                        <textarea name="comments" class="form-control" id="mt_modal_comments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="lunchModal" tabindex="-1" role="dialog" aria-labelledby="lunchModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="lunchForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="lunchModalLabel">Add/Edit Lunch</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="child_id" id="lunch_modal_child_id">
+                    <input type="hidden" name="selected_date" id="lunch_modal_selected_date">
+
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" name="startTime" class="form-control" id="lunch_modal_start_time">
+                    </div>
+                    <div class="form-group">
+                        <label>Item</label>
+                        <input type="text" name="item" class="form-control" id="lunch_modal_item">
+                    </div>
+                    <div class="form-group">
+                        <label>Comments</label>
+                        <textarea name="comments" class="form-control" id="lunch_modal_comments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="afternoonTeaModal" tabindex="-1" role="dialog" aria-labelledby="afternoonTeaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="afternoonTeaForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="afternoonTeaModalLabel">Add/Edit Afternoon Tea</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="child_id" id="at_modal_child_id">
+                    <input type="hidden" name="selected_date" id="at_modal_selected_date">
+
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" name="startTime" class="form-control" id="at_modal_start_time">
+                    </div>
+                    <div class="form-group">
+                        <label>Comments</label>
+                        <textarea name="comments" class="form-control" id="at_modal_comments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="snacksModal" tabindex="-1" role="dialog" aria-labelledby="snacksModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="snacksForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="snacksModalLabel">Add/Edit Late Snack</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="child_id" id="snacks_modal_child_id">
+                    <input type="hidden" name="selected_date" id="snacks_modal_selected_date">
+
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" name="startTime" class="form-control" id="snacks_modal_start_time">
+                    </div>
+                    <div class="form-group">
+                        <label>Item</label>
+                        <input type="text" name="item" class="form-control" id="snacks_modal_item">
+                    </div>
+                    <div class="form-group">
+                        <label>Comments</label>
+                        <textarea name="comments" class="form-control" id="snacks_modal_comments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-dark">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="sleepModal" tabindex="-1" role="dialog" aria-labelledby="sleepModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="sleepForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sleepModalLabel">Add/Edit Sleep</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="child_id" id="sleep_modal_child_id">
+                    <input type="hidden" name="selected_date" id="sleep_modal_selected_date">
+                    <input type="hidden" name="sleep_entry_id" id="sleep_modal_entry_id"> <!-- this is only used in edit mode -->
+
+                    <div class="form-group">
+                        <label>Sleep Time</label>
+                        <input type="time" name="startTime" class="form-control" id="sleep_modal_start_time">
+                    </div>
+                    <div class="form-group">
+                        <label>Wake Time</label>
+                        <input type="time" name="endTime" class="form-control" id="sleep_modal_end_time">
+                    </div>
+                    <div class="form-group">
+                        <label>Comments</label>
+                        <textarea name="comments" class="form-control" id="sleep_modal_comments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="sunscreenModal" tabindex="-1" role="dialog" aria-labelledby="sunscreenModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="sunscreenForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sunscreenModalLabel">Add/Edit Sunscreen Application</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="child_id" id="sunscreen_modal_child_id">
+                    <input type="hidden" name="selected_date" id="sunscreen_modal_selected_date">
+                    <input type="hidden" name="sunscreen_entry_id" id="sunscreen_modal_entry_id">
+
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" name="startTime" class="form-control" id="sunscreen_modal_start_time">
+                    </div>
+                    <div class="form-group">
+                        <label>Comments</label>
+                        <textarea name="comments" class="form-control" id="sunscreen_modal_comments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="modal fade" id="toiletingModal" tabindex="-1" role="dialog" aria-labelledby="toiletingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="toiletingForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="toiletingModalLabel">Add/Edit Toileting</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="child_id" id="toileting_modal_child_id">
+                    <input type="hidden" name="selected_date" id="toileting_modal_selected_date">
+                    <input type="hidden" name="toileting_entry_id" id="toileting_modal_entry_id">
+
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" name="startTime" class="form-control" id="toileting_modal_start_time">
+                    </div>
+                    <div class="form-group">
+                        <label>Nappy Status</label>
+                        <select name="status" class="form-control" id="toileting_modal_status">
+                            <option value="">Select Status</option>
+                            <option value="clean">Clean</option>
+                                                        <option value="wet">Wet</option>
+                                                        <option value="soiled">Soiled</option>
+                                                        <option value="successful">Successful (Toilet)</option>
+                            <!-- Add or change status options as needed -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Comments</label>
+                        <textarea name="comments" class="form-control" id="toileting_modal_comments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-secondary">Save</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="bottleModal" tabindex="-1" role="dialog" aria-labelledby="bottleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="bottleForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bottleModalLabel">Add/Edit Bottle Entry</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="child_id" id="bottle_modal_child_id">
+                    <input type="hidden" name="selected_date" id="bottle_modal_selected_date">
+                    <input type="hidden" name="bottle_entry_id" id="bottle_modal_entry_id">
+
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" name="startTime" class="form-control" id="bottle_modal_start_time">
+                    </div>
+                    <div class="form-group">
+                        <label>Comments</label>
+                        <textarea name="comments" class="form-control" id="bottle_modal_comments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info">Save</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+
 <script>
 $(document).ready(function() {
     // Handle activity switching in the sidebar
@@ -1967,6 +2472,1130 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script> -->
 
+
+
+<script>
+
+function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+function getSelectedDate() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let date = urlParams.get('selected_date');
+    // fallback to today 'YYYY-MM-DD' if not present
+    if (!date) {
+        let d = new Date();
+        let month = (d.getMonth() + 1).toString().padStart(2, '0');
+        let day = d.getDate().toString().padStart(2, '0');
+        date = d.getFullYear() + '-' + month + '-' + day;
+    }
+    return date;
+}
+
+
+$(document).on('click', '.open-diary-modal', function() {
+    const childId = $(this).data('child-id');
+    let selected_date = $(this).data('selected-date');
+    if (!selected_date) selected_date = getSelectedDate();
+
+    // console.log(childId.id);
+
+    // Reset form
+    $('#breakfastForm')[0].reset();
+    $('#modal_child_id').val(childId.id);
+    $('#modal_selected_date').val(selected_date);
+
+    // fetch data by AJAX
+    $.ajax({
+        url: '/daily-diary/breakfast2',  // Make appropriate API route
+        method: 'GET',
+        data: {
+            child_id: childId,
+            selected_date: selected_date,
+        },
+        success: function(res) {
+            if (res.data) {
+                // Fill modal with response data
+                $('#modal_start_time').val(res.data.startTime || '');
+                $('#modal_item').val(res.data.item || '');
+                $('#modal_comments').val(res.data.comments || '');
+            } else {
+                // reset fields for add
+                $('#modal_start_time').val('');
+                $('#modal_item').val('');
+                $('#modal_comments').val('');
+            }
+            $('#breakfastModal').modal('show');
+        },
+        error: function() {
+            showToast('error', 'Error fetching data');
+        }
+    });
+});
+
+$('#breakfastForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const childId = $('#modal_child_id').val();
+    const diaryDate = $('#modal_selected_date').val();
+
+    $.ajax({
+        url: '/daily-diary/breakfast2',
+        method: 'POST',
+        data: {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime: $('#modal_start_time').val(),
+            item: $('#modal_item').val(),
+            comments: $('#modal_comments').val(),
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(res) {
+            if(res.success){
+                $('#breakfastModal').modal('hide');
+                showToast('success', res.message);
+                window.location.reload(); // or update UI via JS
+            } else {
+                showToast('error', res.message || 'Something went wrong');
+            }
+        },
+        error: function(xhr) {
+            let msg = xhr.responseJSON?.message || 'Something went wrong';
+            showToast('error', msg);
+        }
+    });
+});
+
+
+</script>
+
+<script>
+    function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+function getSelectedDate() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let date = urlParams.get('selected_date');
+    if (!date) {
+        let d = new Date();
+        let month = (d.getMonth() + 1).toString().padStart(2, '0');
+        let day = d.getDate().toString().padStart(2, '0');
+        date = d.getFullYear() + '-' + month + '-' + day;
+    }
+    return date;
+}
+
+
+$(document).on('click', '.open-morningtea-modal', function() {
+    const childId = $(this).data('child-id');
+    let selected_date = $(this).data('selected-date');
+    if (!selected_date) selected_date = getSelectedDate();
+
+    // Reset form fields
+    $('#morningTeaForm')[0].reset();
+    $('#mt_modal_child_id').val(childId.id);
+    $('#mt_modal_selected_date').val(selected_date);
+
+    // Get the data (by child and date)
+    $.ajax({
+        url: '/daily-diary/morning-tea2',
+        method: 'GET',
+        data: {
+            child_id: childId,
+            selected_date: selected_date,
+        },
+        success: function(res) {
+            if (res.data) {
+                $('#mt_modal_start_time').val(res.data.startTime || '');
+                $('#mt_modal_comments').val(res.data.comments || '');
+            } else {
+                $('#mt_modal_start_time').val('');
+                $('#mt_modal_comments').val('');
+            }
+            $('#morningTeaModal').modal('show');
+        },
+        error: function() {
+            showToast('error', 'Error fetching morning tea data');
+        }
+    });
+});
+
+
+$('#morningTeaForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const childId = $('#mt_modal_child_id').val();
+    const diaryDate = $('#mt_modal_selected_date').val();
+
+    $.ajax({
+        url: '/daily-diary/morning-tea2',
+        method: 'POST',
+        data: {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime: $('#mt_modal_start_time').val(),
+            comments: $('#mt_modal_comments').val(),
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(res) {
+            if(res.success){
+                $('#morningTeaModal').modal('hide');
+                showToast('success', res.message);
+                window.location.reload(); // Or refresh only the required section
+            } else {
+                showToast('error', res.message || 'Something went wrong');
+            }
+        },
+        error: function(xhr) {
+            let msg = xhr.responseJSON?.message || 'Something went wrong';
+            showToast('error', msg);
+        }
+    });
+});
+
+</script>
+
+<script>
+
+function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+    function getSelectedDate() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let date = urlParams.get('selected_date');
+    if (!date) {
+        let d = new Date();
+        let month = (d.getMonth() + 1).toString().padStart(2, '0');
+        let day = d.getDate().toString().padStart(2, '0');
+        date = d.getFullYear() + '-' + month + '-' + day;
+    }
+    return date;
+}
+
+$(document).on('click', '.open-lunch-modal', function() {
+    const childId = $(this).data('child-id');
+    let selected_date = $(this).data('selected-date');
+    if (!selected_date) selected_date = getSelectedDate();
+
+    // Reset form fields
+    $('#lunchForm')[0].reset();
+    $('#lunch_modal_child_id').val(childId.id);
+    $('#lunch_modal_selected_date').val(selected_date);
+
+    // Fetch data from API
+    $.ajax({
+        url: '/daily-diary/lunch',
+        method: 'GET',
+        data: {
+            child_id: childId,
+            selected_date: selected_date,
+        },
+        success: function(res) {
+            if (res.data) {
+                $('#lunch_modal_start_time').val(res.data.startTime || '');
+                $('#lunch_modal_item').val(res.data.item || '');
+                $('#lunch_modal_comments').val(res.data.comments || '');
+            } else {
+                $('#lunch_modal_start_time').val('');
+                $('#lunch_modal_item').val('');
+                $('#lunch_modal_comments').val('');
+            }
+            $('#lunchModal').modal('show');
+        },
+        error: function() {
+            showToast('error', 'Error fetching lunch data');
+        }
+    });
+});
+
+
+$('#lunchForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const childId = $('#lunch_modal_child_id').val();
+    const diaryDate = $('#lunch_modal_selected_date').val();
+
+    $.ajax({
+        url: '/daily-diary/lunch',
+        method: 'POST',
+        data: {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime: $('#lunch_modal_start_time').val(),
+            item: $('#lunch_modal_item').val(),
+            comments: $('#lunch_modal_comments').val(),
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(res) {
+            if(res.success){
+                $('#lunchModal').modal('hide');
+                showToast('success', res.message);
+                window.location.reload();
+            } else {
+                showToast('error', res.message || 'Something went wrong');
+            }
+        },
+        error: function(xhr) {
+            let msg = xhr.responseJSON?.message || 'Something went wrong';
+            showToast('error', msg);
+        }
+    });
+});
+
+
+</script>
+
+<script>
+
+
+function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+
+       function getSelectedDate() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let date = urlParams.get('selected_date');
+    if (!date) {
+        let d = new Date();
+        let month = (d.getMonth() + 1).toString().padStart(2, '0');
+        let day = d.getDate().toString().padStart(2, '0');
+        date = d.getFullYear() + '-' + month + '-' + day;
+    }
+    return date;
+}
+
+
+$(document).on('click', '.open-afternoontea-modal', function() {
+    const childId = $(this).data('child-id');
+    let selected_date = $(this).data('selected-date');
+    if (!selected_date) selected_date = getSelectedDate();
+
+    // Clear modal form
+    $('#afternoonTeaForm')[0].reset();
+    $('#at_modal_child_id').val(childId.id);
+    $('#at_modal_selected_date').val(selected_date);
+
+    // Fetch existing data, if any
+    $.ajax({
+        url: '/daily-diary/afternoon-tea',
+        method: 'GET',
+        data: {
+            child_id: childId,
+            selected_date: selected_date,
+        },
+        success: function(res) {
+            if (res.data) {
+                $('#at_modal_start_time').val(res.data.startTime || '');
+                $('#at_modal_comments').val(res.data.comments || '');
+            } else {
+                $('#at_modal_start_time').val('');
+                $('#at_modal_comments').val('');
+            }
+            $('#afternoonTeaModal').modal('show');
+        },
+        error: function() {
+            showToast('error', 'Error fetching afternoon tea data');
+        }
+    });
+});
+
+
+$('#afternoonTeaForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const childId = $('#at_modal_child_id').val();
+    const diaryDate = $('#at_modal_selected_date').val();
+
+    $.ajax({
+        url: '/daily-diary/afternoon-tea',
+        method: 'POST',
+        data: {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime: $('#at_modal_start_time').val(),
+            comments: $('#at_modal_comments').val(),
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(res) {
+            if(res.success){
+                $('#afternoonTeaModal').modal('hide');
+                showToast('success', res.message);
+                window.location.reload();
+            } else {
+                showToast('error', res.message || 'Something went wrong');
+            }
+        },
+        error: function(xhr) {
+            let msg = xhr.responseJSON?.message || 'Something went wrong';
+            showToast('error', msg);
+        }
+    });
+});
+
+</script>
+
+<script>
+
+function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+
+       function getSelectedDate() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let date = urlParams.get('selected_date');
+    if (!date) {
+        let d = new Date();
+        let month = (d.getMonth() + 1).toString().padStart(2, '0');
+        let day = d.getDate().toString().padStart(2, '0');
+        date = d.getFullYear() + '-' + month + '-' + day;
+    }
+    return date;
+}
+
+
+$(document).on('click', '.open-snacks-modal', function() {
+    const childId = $(this).data('child-id');
+    let selected_date = $(this).data('selected-date');
+    if (!selected_date) selected_date = getSelectedDate();
+
+    // Reset form fields
+    $('#snacksForm')[0].reset();
+    $('#snacks_modal_child_id').val(childId.id);
+    $('#snacks_modal_selected_date').val(selected_date);
+
+    // Fetch snack data via AJAX
+    $.ajax({
+        url: '/daily-diary/snacks',
+        method: 'GET',
+        data: {
+            child_id: childId,
+            selected_date: selected_date,
+        },
+        success: function(res) {
+            if (res.data) {
+                $('#snacks_modal_start_time').val(res.data.startTime || '');
+                $('#snacks_modal_item').val(res.data.item || '');
+                $('#snacks_modal_comments').val(res.data.comments || '');
+            } else {
+                $('#snacks_modal_start_time').val('');
+                $('#snacks_modal_item').val('');
+                $('#snacks_modal_comments').val('');
+            }
+            $('#snacksModal').modal('show');
+        },
+        error: function() {
+            showToast('error', 'Error fetching snack data');
+        }
+    });
+});
+
+
+$('#snacksForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const childId = $('#snacks_modal_child_id').val();
+    const diaryDate = $('#snacks_modal_selected_date').val();
+
+    $.ajax({
+        url: '/daily-diary/snacks',
+        method: 'POST',
+        data: {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime: $('#snacks_modal_start_time').val(),
+            item: $('#snacks_modal_item').val(),
+            comments: $('#snacks_modal_comments').val(),
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(res) {
+            if(res.success){
+                $('#snacksModal').modal('hide');
+                showToast('success', res.message);
+                window.location.reload();
+            } else {
+                showToast('error', res.message || 'Something went wrong');
+            }
+        },
+        error: function(xhr) {
+            let msg = xhr.responseJSON?.message || 'Something went wrong';
+            showToast('error', msg);
+        }
+    });
+});
+
+
+</script>
+
+
+<script>
+
+function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+
+       function getSelectedDate() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let date = urlParams.get('selected_date');
+    if (!date) {
+        let d = new Date();
+        let month = (d.getMonth() + 1).toString().padStart(2, '0');
+        let day = d.getDate().toString().padStart(2, '0');
+        date = d.getFullYear() + '-' + month + '-' + day;
+    }
+    return date;
+}
+
+
+$(document).on('click', '.open-sleep-modal', function() {
+    const mode = $(this).data('mode'); // 'add' or 'edit'
+    const childId = $(this).data('child-id');
+    let selected_date = $(this).data('selected-date');
+    const entryId = $(this).data('entry-id') || '';
+
+    if (!selected_date) selected_date = getSelectedDate();
+
+    // Reset modal
+    $('#sleepForm')[0].reset();
+    $('#sleep_modal_child_id').val(childId.id);
+    $('#sleep_modal_selected_date').val(selected_date);
+    $('#sleep_modal_entry_id').val('');
+
+    if (mode === 'edit' && entryId) {
+        // Fetch the specific entry for editing
+        $.ajax({
+            url: '/daily-diary/sleep/' + entryId,
+            method: 'GET',
+            success: function(res) {
+                if (res.data) {
+                    $('#sleep_modal_start_time').val(res.data.startTime || '');
+                    $('#sleep_modal_end_time').val(res.data.endTime || '');
+                    $('#sleep_modal_comments').val(res.data.comments || '');
+                    $('#sleep_modal_entry_id').val(res.data.id);
+                }
+                $('#sleepModal').modal('show');
+            },
+            error: function() {
+                showToast('error', 'Error fetching sleep entry');
+            }
+        });
+    } else {
+        // Add mode: just open with blank fields
+        $('#sleep_modal_entry_id').val('');
+        $('#sleepModal').modal('show');
+    }
+});
+
+
+$('#sleepForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const childId = $('#sleep_modal_child_id').val();
+    const diaryDate = $('#sleep_modal_selected_date').val();
+    const entryId = $('#sleep_modal_entry_id').val();
+    const startTime = $('#sleep_modal_start_time').val();
+    const endTime = $('#sleep_modal_end_time').val();
+    const comments = $('#sleep_modal_comments').val();
+
+    let url, method, data;
+    if (entryId) {
+        // Edit
+        url = '/daily-diary/sleep/' + entryId;
+        method = 'PUT';
+        data = {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime,
+            endTime,
+            comments,
+            _token: '{{ csrf_token() }}'
+        };
+    } else {
+        // Add
+        url = '/daily-diary/sleep';
+        method = 'POST';
+        data = {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime,
+            endTime,
+            comments,
+            _token: '{{ csrf_token() }}'
+        };
+    }
+
+    $.ajax({
+        url: url,
+        method: method,
+        data: data,
+        success: function(res) {
+            if(res.success){
+                $('#sleepModal').modal('hide');
+                showToast('success', res.message);
+                window.location.reload();
+            } else {
+                showToast('error', res.message || 'Something went wrong');
+            }
+        },
+        error: function(xhr) {
+            let msg = xhr.responseJSON?.message || 'Something went wrong';
+            showToast('error', msg);
+        }
+    });
+});
+
+
+
+</script>
+
+
+
+
+<script>
+
+function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+
+       function getSelectedDate() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let date = urlParams.get('selected_date');
+    if (!date) {
+        let d = new Date();
+        let month = (d.getMonth() + 1).toString().padStart(2, '0');
+        let day = d.getDate().toString().padStart(2, '0');
+        date = d.getFullYear() + '-' + month + '-' + day;
+    }
+    return date;
+}
+
+
+$(document).on('click', '.open-sunscreen-modal', function() {
+    const mode = $(this).data('mode'); // 'add' or 'edit'
+    const childId = $(this).data('child-id');
+    let selected_date = $(this).data('selected-date');
+    const entryId = $(this).data('entry-id') || '';
+
+    if (!selected_date) selected_date = getSelectedDate();
+
+    // Reset form
+    $('#sunscreenForm')[0].reset();
+    $('#sunscreen_modal_child_id').val(childId.id);
+    $('#sunscreen_modal_selected_date').val(selected_date);
+    $('#sunscreen_modal_entry_id').val('');
+
+    if (mode === 'edit' && entryId) {
+        // Edit Mode: Fetch entry and fill modal
+        $.ajax({
+            url: '/daily-diary/sunscreen/' + entryId,
+            method: 'GET',
+            success: function(res) {
+                if (res.data) {
+                    $('#sunscreen_modal_start_time').val(res.data.startTime || '');
+                    $('#sunscreen_modal_comments').val(res.data.comments || '');
+                    $('#sunscreen_modal_entry_id').val(res.data.id);
+                }
+                $('#sunscreenModal').modal('show');
+            },
+            error: function() {
+                showToast('error', 'Error fetching sunscreen entry');
+            }
+        });
+    } else {
+        // Add Mode: Show empty modal
+        $('#sunscreen_modal_entry_id').val('');
+        $('#sunscreenModal').modal('show');
+    }
+});
+
+
+$('#sunscreenForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const childId = $('#sunscreen_modal_child_id').val();
+    const diaryDate = $('#sunscreen_modal_selected_date').val();
+    const entryId = $('#sunscreen_modal_entry_id').val();
+    const startTime = $('#sunscreen_modal_start_time').val();
+    const comments = $('#sunscreen_modal_comments').val();
+
+    let url, method, data;
+    if (entryId) {
+        // Edit
+        url = '/daily-diary/sunscreen/' + entryId;
+        method = 'PUT';
+        data = {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime,
+            comments,
+            _token: '{{ csrf_token() }}'
+        };
+    } else {
+        // Add
+        url = '/daily-diary/sunscreen';
+        method = 'POST';
+        data = {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime,
+            comments,
+            _token: '{{ csrf_token() }}'
+        };
+    }
+
+    $.ajax({
+        url: url,
+        method: method,
+        data: data,
+        success: function(res) {
+            if(res.success){
+                $('#sunscreenModal').modal('hide');
+                showToast('success', res.message);
+                window.location.reload();
+            } else {
+                showToast('error', res.message || 'Something went wrong');
+            }
+        },
+        error: function(xhr) {
+            let msg = xhr.responseJSON?.message || 'Something went wrong';
+            showToast('error', msg);
+        }
+    });
+});
+
+
+
+</script>
+
+
+
+<script>
+
+function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+
+       function getSelectedDate() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let date = urlParams.get('selected_date');
+    if (!date) {
+        let d = new Date();
+        let month = (d.getMonth() + 1).toString().padStart(2, '0');
+        let day = d.getDate().toString().padStart(2, '0');
+        date = d.getFullYear() + '-' + month + '-' + day;
+    }
+    return date;
+}
+
+
+$(document).on('click', '.open-toileting-modal', function() {
+    const mode = $(this).data('mode'); // 'add' or 'edit'
+    const childId = $(this).data('child-id');
+    let selected_date = $(this).data('selected-date');
+    const entryId = $(this).data('entry-id') || '';
+
+    if (!selected_date) selected_date = getSelectedDate();
+
+    // Reset form fields
+    $('#toiletingForm')[0].reset();
+    $('#toileting_modal_child_id').val(childId.id);
+    $('#toileting_modal_selected_date').val(selected_date);
+    $('#toileting_modal_entry_id').val('');
+
+    if (mode === 'edit' && entryId) {
+        // Fetch entry and fill modal for edit
+        $.ajax({
+            url: '/daily-diary/toileting/' + entryId,
+            method: 'GET',
+            success: function(res) {
+                if (res.data) {
+                    $('#toileting_modal_start_time').val(res.data.startTime || '');
+                    $('#toileting_modal_status').val(res.data.status || '');
+                    $('#toileting_modal_comments').val(res.data.comments || '');
+                    $('#toileting_modal_entry_id').val(res.data.id);
+                }
+                $('#toiletingModal').modal('show');
+            },
+            error: function() {
+                showToast('error', 'Error fetching toileting entry');
+            }
+        });
+    } else {
+        // Add Mode: show empty
+        $('#toileting_modal_entry_id').val('');
+        $('#toiletingModal').modal('show');
+    }
+});
+
+
+$('#toiletingForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const childId = $('#toileting_modal_child_id').val();
+    const diaryDate = $('#toileting_modal_selected_date').val();
+    const entryId = $('#toileting_modal_entry_id').val();
+    const startTime = $('#toileting_modal_start_time').val();
+    const status = $('#toileting_modal_status').val();
+    const comments = $('#toileting_modal_comments').val();
+
+    let url, method, data;
+    if (entryId) {
+        url = '/daily-diary/toileting/' + entryId;
+        method = 'PUT';
+        data = {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime,
+            status,
+            comments,
+            _token: '{{ csrf_token() }}'
+        };
+    } else {
+        url = '/daily-diary/toileting';
+        method = 'POST';
+        data = {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime,
+            status,
+            comments,
+            _token: '{{ csrf_token() }}'
+        };
+    }
+
+    $.ajax({
+        url: url,
+        method: method,
+        data: data,
+        success: function(res) {
+            if(res.success){
+                $('#toiletingModal').modal('hide');
+                showToast('success', res.message);
+                window.location.reload();
+            } else {
+                showToast('error', res.message || 'Something went wrong');
+            }
+        },
+        error: function(xhr) {
+            let msg = xhr.responseJSON?.message || 'Something went wrong';
+            showToast('error', msg);
+        }
+    });
+});
+
+
+
+</script>
+
+
+
+<script>
+
+function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+
+       function getSelectedDate() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let date = urlParams.get('selected_date');
+    if (!date) {
+        let d = new Date();
+        let month = (d.getMonth() + 1).toString().padStart(2, '0');
+        let day = d.getDate().toString().padStart(2, '0');
+        date = d.getFullYear() + '-' + month + '-' + day;
+    }
+    return date;
+}
+
+
+$(document).on('click', '.open-bottle-modal', function() {
+    const mode = $(this).data('mode');
+    const childId = $(this).data('child-id');
+    let selected_date = $(this).data('selected-date');
+    const entryId = $(this).data('entry-id') || '';
+
+    if (!selected_date) selected_date = getSelectedDate();
+
+    // Reset
+    $('#bottleForm')[0].reset();
+    $('#bottle_modal_child_id').val(childId.id);
+    $('#bottle_modal_selected_date').val(selected_date);
+    $('#bottle_modal_entry_id').val('');
+
+    if (mode === 'edit' && entryId) {
+        $.ajax({
+            url: '/daily-diary/bottle/' + entryId,
+            method: 'GET',
+            success: function(res) {
+                if (res.data) {
+                    $('#bottle_modal_start_time').val(res.data.startTime || '');
+                    $('#bottle_modal_comments').val(res.data.comments || '');
+                    $('#bottle_modal_entry_id').val(res.data.id);
+                }
+                $('#bottleModal').modal('show');
+            },
+            error: function() {
+                showToast('error', 'Error fetching bottle entry');
+            }
+        });
+    } else {
+        $('#bottle_modal_entry_id').val('');
+        $('#bottleModal').modal('show');
+    }
+});
+
+
+$('#bottleForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const childId = $('#bottle_modal_child_id').val();
+    const diaryDate = $('#bottle_modal_selected_date').val();
+    const entryId = $('#bottle_modal_entry_id').val();
+    const startTime = $('#bottle_modal_start_time').val();
+    const comments = $('#bottle_modal_comments').val();
+
+    let url, method, data;
+    if (entryId) {
+        url = '/daily-diary/bottle/' + entryId;
+        method = 'PUT';
+        data = {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime,
+            comments,
+            _token: '{{ csrf_token() }}'
+        };
+    } else {
+        url = '/daily-diary/bottle';
+        method = 'POST';
+        data = {
+            child_id: childId,
+            selected_date: diaryDate,
+            startTime,
+            comments,
+            _token: '{{ csrf_token() }}'
+        };
+    }
+
+    $.ajax({
+        url: url,
+        method: method,
+        data: data,
+        success: function(res) {
+            if(res.success){
+                $('#bottleModal').modal('hide');
+                showToast('success', res.message);
+                window.location.reload();
+            } else {
+                showToast('error', res.message || 'Something went wrong');
+            }
+        },
+        error: function(xhr) {
+            let msg = xhr.responseJSON?.message || 'Something went wrong';
+            showToast('error', msg);
+        }
+    });
+}); 
+
+
+
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.room-selector').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+            e.preventDefault(); // Prevent default anchor behavior
+            e.stopPropagation(); // Stop Bootstrap dropdown from interfering
+
+            const targetUrl = this.dataset.url;
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            }
+        });
+    });
+});
+</script>
 
 
 @include('layout.footer')
