@@ -328,7 +328,7 @@
         @if($records->isEmpty())
         <!-- Empty State -->
         <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-6">
+            <div class="col-12 col-md-12 col-lg-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body text-center py-5">
                         <div class="mb-4">
@@ -337,7 +337,7 @@
                         <h4 class="text-muted mb-3">No Announcements Found</h4>
                         <p class="text-muted mb-4">You don't have any announcement data yet. Get started by creating
                             your first announcement.</p>
-                        <a href="" class="btn btn-primary btn-lg px-4">
+                        <a href="list" class="btn btn-info btn-lg px-4">
                             <i class="fas fa-home me-2"></i>Go Back Home
                         </a>
                     </div>
@@ -442,12 +442,25 @@
                                         <span class="small fw-semibold">{{ ucfirst($announcement->createdBy) }}</span>
                                     </div>
                                 </div>
+@php
+    $eventDate = \Carbon\Carbon::parse($announcement->eventDate);
+    $today = \Carbon\Carbon::today();
 
+    $diffDays = $today->diffInDays($eventDate, false); // false = signed difference
+
+    if ($diffDays > 0) {
+        $eventDateHuman = "Event in {$diffDays} day" . ($diffDays > 1 ? 's' : '');
+    } elseif ($diffDays === 0) {
+        $eventDateHuman = "Event is today";
+    } else {
+        $eventDateHuman = "Event passed " . abs($diffDays) . " day" . (abs($diffDays) > 1 ? 's' : '') . " ago";
+    }
+@endphp
                                 <!-- Event Date -->
                                 <div class="mb-3">
                                     <small class="text-muted d-block">Event Date</small>
                                     <div class="fw-semibold">{{ \Carbon\Carbon::parse($announcement->eventDate)->format('d M Y') }}</div>
-                                    <small class="text-muted">{{ \Carbon\Carbon::parse($announcement->eventDate)->diffForHumans() }}</small>
+                                    <small class="text-muted">{{ $eventDateHuman }}</small>
                                 </div>
 
            <!-- Actions -->
@@ -526,32 +539,6 @@
 @endsection
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-    const deleteButtons = document.querySelectorAll('.delete-btn');
-
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you really want to delete this announcement?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Submit the form if user confirms
-                    button.closest('form').submit();
-                }
-            });
-        });
-    });
-});
-</script>
 
 <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -635,12 +622,13 @@
             }
         });
 
-    function filterProgramPlan() {
+function filterProgramPlan() {
     var Title        = $('#FilterbyTitle').val();
     var CreatedBy    = $('#FilterbyCreatedBy').val();
     var date_from    = $('#Filterbydate_from').val();
     var date_to      = $('#Filterbydate_to').val();
     var statusFilter = $('#statusFilter').val();
+
     console.log('data:', Title, CreatedBy, date_from, date_to, statusFilter);
 
     $.ajax({
@@ -664,31 +652,40 @@
                 $.each(res.records, function (i, announcement) {
                     // --- MEDIA SECTION ---
                     let mediaHtml = '';
-                    let mediaArr = announcement.announcementMedia || [];
+                    let mediaArr = [];
+
+                    // Parse media JSON safely
+                    try {
+                        if (typeof announcement.announcementMedia === 'string') {
+                            mediaArr = JSON.parse(announcement.announcementMedia);
+                        } else if (Array.isArray(announcement.announcementMedia)) {
+                            mediaArr = announcement.announcementMedia;
+                        }
+                    } catch (e) {
+                        console.error('Invalid media JSON:', announcement.announcementMedia);
+                    }
 
                     if (mediaArr.length > 0) {
                         let firstMedia = mediaArr[0];
                         let extension = firstMedia.split('.').pop().toLowerCase();
-                        let fileUrl = "{{ asset('assets/media') }}/" + firstMedia;
 
-                        if (['jpg', 'jpeg', 'png'].includes(extension)) {
+                        // Build file URL (assuming files stored in public/assets/media)
+                        let fileUrl = '/assets/media/' + firstMedia;
+
+                        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) {
                             mediaHtml = `<img src="${fileUrl}" class="card-img-top" style="height:180px;object-fit:cover;" alt="Announcement Image">`;
                         } else if (extension === 'pdf') {
                             mediaHtml = `
                                 <div class="d-flex align-items-center justify-content-center bg-light" style="height:180px;">
                                     <a href="${fileUrl}" target="_blank" class="text-decoration-none">
-                                        <img src="{{ asset('svg/pdf-icon.svg') }}" style="width:80px;height:80px;" alt="PDF">
+                                        <img src="/svg/pdf-icon.svg" style="width:80px;height:80px;" alt="PDF">
                                         <div class="text-center mt-2 text-muted">PDF Document</div>
                                     </a>
                                 </div>`;
-                        }
-
-                        if (mediaArr.length > 1) {
-                            mediaHtml += `
-                                <div class="position-absolute top-0 end-0 m-2">
-                                    <span class="badge bg-dark bg-opacity-75">
-                                        <i class="fas fa-images me-1"></i>${mediaArr.length}
-                                    </span>
+                        } else {
+                            mediaHtml = `
+                                <div class="d-flex align-items-center justify-content-center bg-light" style="height:180px;">
+                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none text-muted">Download File</a>
                                 </div>`;
                         }
 
@@ -711,6 +708,19 @@
                     let statusIcon =
                         announcement.status === 'Sent' ? 'fa-check' :
                         announcement.status === 'Pending' ? 'fa-clock' : 'fa-times';
+
+                        let eventDate = new Date(announcement.eventDate);
+let today = new Date();
+let diffTime = eventDate - today; 
+let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+let eventDateHuman = '';
+if (diffDays > 0) {
+    eventDateHuman = `Event in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+} else if (diffDays === 0) {
+    eventDateHuman = `Event is today`;
+} else {
+    eventDateHuman = `Event passed ${Math.abs(diffDays)} day${Math.abs(diffDays) > 1 ? 's' : ''} ago`;
+}
 
                     // --- CARD HTML ---
                     html += `
@@ -740,30 +750,30 @@
                                         </div>
                                         <div>
                                             <small class="text-muted d-block">Created by</small>
-                                            <span class="small fw-semibold">${announcement.createdBy}</span>
+                                            <span class="small fw-semibold">${announcement.creator.name}</span>
                                         </div>
                                     </div>
 
                                     <div class="mb-3">
                                         <small class="text-muted d-block">Event Date</small>
-                                        <div class="fw-semibold">${announcement.eventDateFormatted}</div>
-                                        <small class="text-muted">${announcement.eventDateHuman}</small>
+                                        <div class="fw-semibold">${announcement.eventDate}</div>
+                                        <small class="text-muted">${eventDateHuman}</small>
                                     </div>
 
                                     <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
-                                        <a href="${announcement.viewUrl}" 
+                                        <a href="view/${announcement.id}" 
                                            class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
                                            style="min-width:38px;height:38px;" title="View">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        ${announcement.canEdit ? `
-                                        <a href="${announcement.editUrl}" 
+                                        ${res.permission.addAnnouncement ? `
+                                        <a href="create/${announcement.id}" 
                                            class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
                                            style="min-width:38px;height:38px;" title="Edit">
                                             <i class="fas fa-pen-to-square"></i>
                                         </a>` : ''}
-                                        ${announcement.canDelete ? `
-                                        <form action="${announcement.deleteUrl}" method="POST" class="d-inline delete-form">
+                                        ${res.permission.deleteAnnouncement ? `
+                                        <form action="delete" method="POST" class="d-inline delete-form">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                             <input type="hidden" name="_method" value="DELETE">
                                             <input type="hidden" name="announcementid" value="${announcement.id}">
@@ -802,8 +812,58 @@
 
 
 
+
+
+
            
 
     </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to delete this announcement?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit the form if user confirms
+                    button.closest('form').submit();
+                }
+            });
+        });
+    });
+});
+
+$(document).on('click', '.delete-btn', function (e) {
+    e.preventDefault();
+
+    const button = this;
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to delete this announcement?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            button.closest('form').submit();
+        }
+    });
+});
+
+</script>
 @endpush
 @include('layout.footer')

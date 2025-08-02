@@ -75,10 +75,15 @@ class AnnouncementController extends Controller
         $announcement->creatorName = $creator->name ?? 'Not Available';
     }
 
+      $permissions = PermissionsModel::where('userid', $userId)
+            ->where('centerid', $centerId)
+            ->first();
+
     return response()->json([
         'status' => true,          // ✅ Boolean status
         'count' => $records->count(),
-        'records' => $records
+        'records' => $records,
+        'permission' => $permissions
     ]);
 }
 
