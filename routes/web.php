@@ -80,6 +80,7 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function () {
     Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
      Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
+     Route::get('/api/events', [DashboardController::class, 'getEvents']);
     // service details
     Route::get('ServiceDetails', [ServiceDetailsController::class, 'create'])->name('create.serviceDetails');
     Route::post('ServiceDetails', [ServiceDetailsController::class, 'store'])->name('store.serviceDetails');

@@ -528,7 +528,7 @@
             line-height: 1.25;
             color: var(--primary-color);
             text-decoration: none;
-            background-color: #fff;
+            background-color: #17a2b8;
             border: 1px solid #dee2e6;
             border-radius: 0.375rem;
             transition: all 0.2s ease;
@@ -538,7 +538,7 @@
             z-index: 2;
             color: white;
             text-decoration: none;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, var(--info-color), var(--info-color));
             border-color: var(--primary-color);
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
@@ -547,13 +547,13 @@
         .page-item.active .page-link {
             z-index: 1;
             color: white;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, var(--info-color), var(--info-color));
             border-color: var(--primary-color);
             box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
         }
 
         .page-item.disabled .page-link {
-            color: #6c757d;
+            color: #17a2b8;
             pointer-events: none;
             cursor: auto;
             background-color: #fff;
@@ -716,7 +716,14 @@ padding-inline:0;
                     @if(Auth::user()->userType != 'Parent')
                  
                      
-                        <a href="{{ route('Accidents.create', ['centerid' => $selectedCenter ?? $centers->first()->id,'roomid' => $roomid ?? $rooms->first()->id]) }}" class="btn btn-info btn-lg">ADD NEW ACCIDENT</a>
+                       <a href="{{ route('Accidents.create', [
+    'centerid' => $selectedCenter ?? optional($centers->first())->id,
+    'roomid'   => $roomid ?? optional($rooms->first())->id
+]) }}" 
+class="btn btn-info btn-lg">
+    ADD NEW ACCIDENT
+</a>
+
                     
 
                     @endif

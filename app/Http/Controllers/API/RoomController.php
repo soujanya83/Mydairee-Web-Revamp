@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Center;
 use App\Models\Child;
 use App\Models\Room;
+use App\Models\User;
 use App\Models\RoomStaff;
 use App\Models\Usercenter;
 use Illuminate\Http\Request;
@@ -16,6 +17,37 @@ use Illuminate\Support\Str;
 
 class RoomController extends Controller
 {
+
+      public function staffs()
+{
+    try {
+        $staff = User::where('userType', 'Staff')
+                     ->orderBy('name', 'asc') // Optional: sort by name
+                     ->get();
+
+        if ($staff->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No staff found.',
+                'data' => []
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Staff fetched successfully.',
+            'count' => $staff->count(),
+            'data' => $staff
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong while fetching staff.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+} 
 public function bulkDelete(Request $request)
 {
    
