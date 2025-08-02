@@ -8,6 +8,7 @@ use App\Models\Child;
 use App\Models\Room;
 use App\Models\RoomStaff;
 use App\Models\Usercenter;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,9 @@ use Illuminate\Support\Str;
 
 class RoomController extends Controller
 {
+
+
+
 
     public function update_child_progress(Request $request, $id)
     {
