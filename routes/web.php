@@ -226,15 +226,15 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     Route::get('dailyDiary/viewChildDiary', [DailyDiaryController::class, 'viewChildDiary'])->name('dailyDiary.viewChildDiary');
 
-    // Route::post('/activities/breakfast', [DailyDiaryController::class, 'storeBreakfast']);
-    // Route::post('/activities/morning-tea', [DailyDiaryController::class, 'storeMorningTea']);
-    // Route::post('/activities/lunch', [DailyDiaryController::class, 'storeLunch']);
-    // Route::post('/activities/sleep', [DailyDiaryController::class, 'storeSleep']);
-    // Route::post('/activities/afternoon-tea', [DailyDiaryController::class, 'storeAfternoonTea']);
-    // Route::post('/activities/snacks', [DailyDiaryController::class, 'storeSnacks']);
-    // Route::post('/activities/sunscreen', [DailyDiaryController::class, 'storeSunscreen']);
-    // Route::post('/activities/toileting', [DailyDiaryController::class, 'storeToileting']);
-    // Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
+    Route::post('/activities/breakfast', [DailyDiaryController::class, 'storeBreakfast']);
+    Route::post('/activities/morning-tea', [DailyDiaryController::class, 'storeMorningTea']);
+    Route::post('/activities/lunch', [DailyDiaryController::class, 'storeLunch']);
+    Route::post('/activities/sleep', [DailyDiaryController::class, 'storeSleep']);
+    Route::post('/activities/afternoon-tea', [DailyDiaryController::class, 'storeAfternoonTea']);
+    Route::post('/activities/snacks', [DailyDiaryController::class, 'storeSnacks']);
+    Route::post('/activities/sunscreen', [DailyDiaryController::class, 'storeSunscreen']);
+    Route::post('/activities/toileting', [DailyDiaryController::class, 'storeToileting']);
+    Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
 
     // Daily Journel Ends here
     Route::get('/backup-now', [DBBackupController::class, 'runBackup']);
