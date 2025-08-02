@@ -725,6 +725,16 @@ padding-inline:0;
 </div>
   <hr class="mt-3">
 
+      <!-- filter  -->
+             <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
+     <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
+    <input 
+        type="text" 
+        name="filterbyCentername" 
+        class="form-control border-info" 
+        placeholder="Filter by Child name" onkeyup="filterbyChildname(this.value)">
+</div>
+             <!-- filter ends here  -->
 
  <div class="container-fluid px-0" style="padding-block:2em;padding-inline:2em;">
     <div class="program-plan-container">
@@ -912,6 +922,81 @@ $(function () {
             console.error("AJAX error:", textStatus);
         });
     });
+
+function filterbyChildname(childname) {
+    // Get selected room ID
+    var roomid = $('#roomDropdown').data('selected-room') || '{{ request("roomid", $roomid) }}';
+
+    console.log("Filtering by Child Name:", childname, "Room ID:", roomid);
+
+    $.ajax({
+        url: 'filter-by-child', // <-- Your JSON endpoint
+        method: 'GET',
+        data: {
+            child_name: childname,
+            roomid: roomid
+        },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            console.log("Filtered Results:", response);
+
+            let container = $('.program-plan-container');
+            container.empty(); // ✅ Clear old content
+
+            let row = $('<div class="row"></div>');
+
+            if (response.accidents.length > 0) {
+                response.accidents.forEach(accident => {
+                    // Build correct detail/edit URLs
+                    let detailUrl = `{{ route('Accidents.details') }}?id=${accident.id}&centerid=${response.centerid}&roomid=${response.roomid}`;
+                    let editUrl   = `{{ route('Accidents.edit') }}?id=${accident.id}&centerid=${response.centerid}&roomid=${response.roomid}`;
+
+                    let card = `
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card shadow rounded-3 h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-2">
+                                        <a class="text-dark fw-bold" href="${detailUrl}">
+                                            ${accident.child_name}
+                                        </a>
+                                        <a href="${editUrl}"
+                                           class="text-info float-end"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Edit Record">
+                                           <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                    </h5>
+                                    <p class="mb-1"><strong>Created By:</strong> ${accident.username}</p>
+                                    <p class="mb-1"><strong>Date:</strong> ${accident.incident_date}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    row.append(card);
+                });
+            } else {
+                row.html(`
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-clipboard-list me-1"></i> No accident records found.
+                        </div>
+                    </div>
+                `);
+            }
+
+            container.append(row);
+            $('[data-toggle="tooltip"]').tooltip();
+        },
+        error: function(xhr) {
+            console.error('AJAX error:', xhr.responseText);
+        }
+    });
+}
+
+
 </script>
 
     @endpush

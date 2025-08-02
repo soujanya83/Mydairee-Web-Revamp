@@ -4,6 +4,51 @@
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
 <style>
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.toast-success {
+    background-color: #28a745;
+    /* Green for success */
+}
+
+.toast-error {
+    background-color: #dc3545;
+    /* Red for error */
+}
+
+.toast-close-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
+    margin-left: 10px;
+}
+
+.toast-message {
+    flex: 1;
+
+}
+
+
+
    /* Wrapper styling */
 .form-wrapper {
     margin-bottom: 20px;
@@ -237,21 +282,37 @@ input[type="radio"]:checked + .radio-pill {
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="name" class="custom-label">Name</label>
-                                <input type="text" class="form-control custom-input"  id="name" name="person_name" value="">
+                         <input type="text" 
+           class="form-control custom-input @error('person_name') is-invalid @enderror"  
+           id="name" 
+           name="person_name" 
+           value="{{ old('person_name') }}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="role" class="custom-label">Position Role</label>
-                                <input type="text" class="form-control custom-input" id="role" name="person_role" value="">
+                            <input type="text" 
+       class="form-control custom-input @error('person_role') is-invalid @enderror" 
+       id="role" 
+       name="person_role" 
+       value="{{ old('person_role') }}">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="Record" class="custom-label">Date Record was made</label>
-                                <input type="date" class="form-control custom-input" id="Record" name="date" value="">
+                               <input type="date" 
+       class="form-control custom-input @error('date') is-invalid @enderror" 
+       id="Record" 
+       name="date" 
+       value="{{ old('date') }}">
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="Time" class="custom-label">Time</label>
-                                <input type="time" class="form-control custom-input" id="Time" name="time" value="">
+                          <input type="time" 
+       class="form-control custom-input @error('time') is-invalid @enderror" 
+       id="Time" 
+       name="time" 
+       value="{{ old('time') }}">
                             </div>
                           
                         </div>
@@ -261,43 +322,49 @@ input[type="radio"]:checked + .radio-pill {
                                 <h3 class="service-title">Child Details</h3>
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="childid" class="col-sm-12">Select Child</label>
-                                <select name="childid" id="childid" class="w-100 form-control js-example-basic-single custom-input">
-                                    <option>--Select Children--</option>
-                                    <?php foreach ($Childrens as $chkey => $chobj) { ?>
-                                    <option value="<?= $chobj->id;?>"><?= $chobj->details;?></option>
-                                    <?php } ?>
-                                </select>
-                                <input type="hidden" class="form-control" id="childfullname" name="child_name" value="">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="birthdate">Date of Birth</label>
-                                <input type="date" class="form-control custom-input" id="birthdate" name="child_dob" value="">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="age">Age</label>
-                                <input type="text" class="form-control custom-input" id="age" name="child_age" value="">     
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="name">Gender </label>
-          <div class="radioFlex">
-    <input type="radio" id="Male" name="gender" value="Male" hidden>
-    <label class="radio-pill" for="Male">Male</label>
+                       <div class="form-row">
+    <div class="form-group col-md-6">
+        <label for="childid" class="col-sm-12">Select Child</label>
+        <select name="childid" id="childid" 
+                class="w-100 form-control js-example-basic-single custom-input @error('childid') is-invalid @enderror">
+            <option value="">--Select Children--</option>
+            @foreach ($Childrens as $chobj)
+                <option value="{{ $chobj->id }}" {{ old('childid') == $chobj->id ? 'selected' : '' }}>
+                    {{ $chobj->details }}
+                </option>
+            @endforeach
+        </select>
+      
+        <input type="hidden" class="form-control" id="childfullname" name="child_name" value="{{ old('child_name') }}">
+    </div>
 
-    <input type="radio" id="Female" name="gender" value="Female" hidden>
-    <label class="radio-pill" for="Female">Female</label>
-
-    <input type="radio" id="Others" name="gender" value="Others" hidden>
-    <label class="radio-pill" for="Others">Others</label>
+    <div class="form-group col-md-6">
+        <label for="birthdate">Date of Birth</label>
+        <input type="date" class="form-control custom-input" id="birthdate" name="child_dob" value="{{ old('child_dob') }}">
+    </div>
 </div>
 
+<div class="form-row">
+    <div class="form-group col-md-6">
+        <label for="age">Age</label>
+        <input type="text" class="form-control custom-input" id="age" name="child_age" value="{{ old('child_age') }}">
+    </div>
 
-                            </div>
-                        </div>
+    <div class="form-group col-md-6">
+        <label for="name">Gender</label>
+        <div class="radioFlex">
+            <input type="radio" id="Male" name="gender" value="Male" {{ old('gender') == 'Male' ? 'checked' : '' }} hidden>
+            <label class="radio-pill" for="Male">Male</label>
+
+            <input type="radio" id="Female" name="gender" value="Female" {{ old('gender') == 'Female' ? 'checked' : '' }} hidden>
+            <label class="radio-pill" for="Female">Female</label>
+
+            <input type="radio" id="Others" name="gender" value="Others" {{ old('gender') == 'Others' ? 'checked' : '' }} hidden>
+            <label class="radio-pill" for="Others">Others</label>
+        </div>
+    </div>
+</div>
+
 
                    <div class="row mb-4">
     <div class="col-12">
@@ -306,7 +373,12 @@ input[type="radio"]:checked + .radio-pill {
 
     <div class="col-md-6 mb-3">
         <label for="incidentdate" class="form-label">Incident Date</label>
-        <input type="date" class="form-control shadow-sm custom-input" id="incidentdate" name="incident_date">
+ <input type="date" 
+       class="form-control shadow-sm custom-input @error('incident_date') is-invalid @enderror" 
+       id="incidentdate" 
+       name="incident_date" 
+       value="{{ old('incident_date') }}">
+
     </div>
 
     <div class="col-md-6 mb-3">
@@ -889,6 +961,7 @@ input[type="radio"]:checked + .radio-pill {
                             </div>
                         </div>
                     </form>
+                     <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
                 </div>
             </div> 
         </div>
@@ -919,6 +992,19 @@ input[type="radio"]:checked + .radio-pill {
   </div>
 </div>
                                     </div>
+
+                                   
+
+                                    @if ($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @foreach ($errors->all() as $error)
+                showToast('error', @json($error));
+            @endforeach
+        });
+    </script>
+@endif
+
 @endsection
 @push("scripts")
 <!-- jQuery -->
@@ -1121,6 +1207,24 @@ function saveImage() {
 			});
 		}
 	});
+</script>
+
+<script>
+    function showToast(type, message) {
+        const toastType = type === 'success' ? 'toast-success' : 'toast-error';
+        const toast = `
+            <div class="toast ${toastType}" style="min-width: 250px; margin-bottom: 10px; color: white;" aria-live="assertive">
+                <button type="button" class="toast-close-button" onclick="this.parentElement.remove()">×</button>
+                <div class="toast-message">${message}</div>
+            </div>
+        `;
+        $('#toast-container').append(toast);
+        setTimeout(() => {
+            $('.toast').fadeOut(500, function () {
+                $(this).remove();
+            });
+        }, 3000);
+    }
 </script>
 @endpush
 @include('layout.footer')

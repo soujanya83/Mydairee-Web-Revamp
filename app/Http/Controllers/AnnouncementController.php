@@ -21,6 +21,68 @@ use App\Notifications\AnnouncementAdded;
 class AnnouncementController extends Controller
 {
 
+    public function Filterlist(Request $request)
+{
+    $centerId = Session::get('user_center_id');
+    $user = Auth::user();
+    $userId = $user->userid;
+    $userType = $user->userType;
+
+    // Base query - must filter by current center
+    if ($userType === 'Staff' || $userType === 'Superadmin') {
+        $query = AnnouncementsModel::with('creator')
+            ->where('centerid', $centerId);
+
+        if ($userType === 'Staff') {
+            $query->where('createdBy', $userId);
+        }
+    } else {
+        $childIds = ChildParent::where('parentid', $userId)->pluck('childid');
+
+        $query = AnnouncementsModel::select('announcement.*')
+            ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
+            ->where('announcement.centerid', $centerId)
+            ->whereIn('announcementchild.childid', $childIds);
+    }
+
+    // ✅ Apply filters
+    if ($request->filled('title')) {
+        $query->where('title', 'like', "%{$request->title}%");
+    }
+
+    if ($request->filled('createdBy')) {
+        $query->where('createdBy', $request->createdBy);
+    }
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    if ($request->filled('date_from')) {
+        $query->whereDate('createdAt', '>=', $request->date_from);
+    }
+
+    if ($request->filled('date_to')) {
+        $query->whereDate('createdAt', '<=', $request->date_to);
+    }
+
+    // ✅ Fetch all filtered records
+    $records = $query->orderByDesc('id')->get();
+
+    // Attach creator name manually
+    foreach ($records as $announcement) {
+        $creator = User::where('userid', $announcement->createdBy)->first();
+        $announcement->creatorName = $creator->name ?? 'Not Available';
+    }
+
+    return response()->json([
+        'status' => true,          // ✅ Boolean status
+        'count' => $records->count(),
+        'records' => $records
+    ]);
+}
+
+
     public function list(Request $request)
     {
         // dd('here');

@@ -39,6 +39,8 @@ Route::post('/store', [RagisterController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+
+  Route::get('/centers',[LessonPlanList::class,'centers'])->name('centers');
     // program plan
         Route::get('/programPlanList',[LessonPlanList::class,'programPlanList'])->name('programPlanList');
     Route::post('LessonPlanList/deletedataofprogramplan',[LessonPlanList::class,'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
