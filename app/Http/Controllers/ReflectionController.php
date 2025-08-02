@@ -74,6 +74,7 @@ class ReflectionController extends Controller
             // dd($childids);
             $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
                 ->whereIn('id', $reflectionIds)
+                ->where('status',"Published")
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
 

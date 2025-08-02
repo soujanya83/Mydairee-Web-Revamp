@@ -1,7 +1,7 @@
 @extends('layout.master')
 @section('title', 'Observation')
 @section('parentPageTitle', '')
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
     .pagination {
         font-size: 0.9rem;
@@ -163,6 +163,21 @@
         right: 0;
     }
 </style>
+<style>
+    .chat-body {
+    background: #f8f9fb;
+    border-radius: 8px;
+}
+.bg-primary.text-white {
+    background:#2196F3!important;
+    color: #fff!important;
+}
+.bg-light.text-dark {
+    background:#e9ecef!important;
+    color: #333!important;
+}
+
+</style>
 
 
 <!-- Bootstrap CSS -->
@@ -287,7 +302,7 @@
                                 {{ \Carbon\Carbon::parse($observation->created_at)->format('d.m.Y') }}
                             </p>
 
-                            
+
 
                             @if(Auth::user()->userType != 'Parent' && $observation->Seen->isNotEmpty())
                                 <div style="margin-top:8px;">
@@ -384,20 +399,34 @@
                                         <div class="chat-body" id="chatBody_{{ $observation->id }}" style="max-height:320px;overflow-y:auto;padding:1rem;">
                                             @foreach($observation->comments()->orderBy('created_at')->get() as $comment)
                                                 @php
-                                                    $isMe = Auth::id() === $comment->user_id;
+                                                    $isMe = Auth::id() === $comment->userId;
                                                 @endphp
-                                                <div class="d-flex mb-3 {{ $isMe ? 'justify-content-end' : 'justify-content-start' }}">
-                                                <div style="max-width:68%;">
-                                                    <div class="p-2 rounded {{ $isMe ? 'bg-primary text-white' : 'bg-light text-dark' }}"
-                                                        style="min-width:120px;word-wrap:break-word;">
-                                                    {!! nl2br(e($comment->comments)) !!}
-                                                    </div>
-                                                    <div class="small text-muted mt-1 {{ $isMe ? 'text-right' : '' }}">
-                                                    {{ $comment->user->name ?? 'Unknown' }},
-                                                    {{ $comment->created_at->diffForHumans() }}
-                                                    </div>
-                                                </div>
-                                                </div>
+
+                                               @php
+    $canDelete = Auth::user()->userType === 'Superadmin' || Auth::id() === $comment->userId;
+@endphp
+
+<div id="comment_{{ $comment->id }}" class="d-flex mb-3 {{ $isMe ? 'justify-content-end' : 'justify-content-start' }}">
+    <div style="max-width:68%; position: relative;">
+        <div class="p-2 rounded {{ $isMe ? 'bg-primary text-white' : 'bg-light text-dark' }}"
+             style="min-width:120px;word-wrap:break-word;">
+            {!! nl2br(e($comment->comments)) !!}
+        </div>
+        <div class="small text-muted mt-1 {{ $isMe ? 'text-right' : '' }}">
+          {{ $comment->user->name ?? 'Unknown' }},
+          {{ $comment->created_at->diffForHumans() }}
+        </div>
+
+        @if($canDelete)
+            <button type="button" class="btn btn-sm btn-danger position-absolute" 
+                style="top: 0;  {{ $isMe ? 'left' : 'right' }}: -30px;" 
+                onclick="deleteComment({{ $comment->id }}, {{ $observation->id }})" 
+                title="Delete comment">
+                &times;
+            </button>
+        @endif
+    </div>
+</div>
                                             @endforeach
                                         </div>
                                     </div>
@@ -411,6 +440,100 @@
                                     </div>
                                     </div>
 
+<script>
+            function sendComment{{ $observation->id }}(e) {
+                e.preventDefault();
+                console.log('sendComment called');
+                var input = document.getElementById('commentInput_{{ $observation->id }}');
+                var text = input.value.trim();
+                if (!text) return;
+                input.disabled = true;
+
+                $.ajax({
+                    url: "{{ route('observations.comments.store', $observation->id) }}", // Route should accept POST
+                    method: "POST",
+                    data: {
+                        comments: text,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        // Append new comment to chat body (simulate chat bubble)
+                        let chatBody = $('#chatBody_{{ $observation->id }}');
+                        let now = 'just now';
+                        let chatBubble = `
+                        <div class="d-flex mb-3 justify-content-end">
+                        <div style="max-width:68%;">
+                            <div class="p-2 rounded bg-primary text-white"
+                                style="min-width:120px;word-wrap:break-word;">
+                            ${$('<div/>').text(response.comment.comments).html().replace(/\n/g,'<br>')}
+                            </div>
+                            <div class="small text-muted mt-1 text-right">
+                            ${response.comment.user_name}, ${now}
+                            </div>
+                        </div>
+                        </div>
+                        `;
+                        chatBody.append(chatBubble);
+                        input.value = '';
+                        input.disabled = false;
+                        // Optionally scroll down:
+                        chatBody.scrollTop(chatBody.prop("scrollHeight"));
+                        // Update comment count badge
+                        let badge = $('button[data-target="#commentsModal_{{ $observation->id }}"] .badge');
+                        let n = parseInt(badge.text() || '0');
+                        badge.text(n+1);
+                    },
+                    error: function(xhr) {
+                        alert('Failed to send comment.');
+                        input.disabled = false;
+                    }
+                });
+                return false;
+            }
+
+            function deleteComment(commentId, observationId) {
+                if (!confirm('Are you sure you want to delete this comment?')) return;
+
+                $.ajax({
+                    url: "{{ url('/observations/comments') }}/" + commentId,
+                    method: 'DELETE',
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        if(response.success){
+                            // Remove the comment div from the modal
+                            // Use a selector to find the comment bubble by commentId
+                            // Since your markup doesn't have id on div, let's add it or find a way:
+                            const commentSelector = `#comment_${commentId}`;
+                            const commentDiv = document.querySelector(commentSelector);
+                            if(commentDiv){
+                                commentDiv.remove();
+                            } else {
+                                // As fallback, reload modal comments
+                                location.reload();
+                            }
+
+                            // Optionally, update the comment count badge
+                            let badge = $('button[data-target="#commentsModal_' + observationId + '"] .badge');
+                            let n = parseInt(badge.text() || '1');
+                            if(n > 0){
+                                badge.text(n-1);
+                                if(n-1 === 0){
+                                    badge.remove();
+                                }
+                            }
+                        } else {
+                            alert(response.message || 'Failed to delete comment.');
+                        }
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON?.message || 'Error deleting comment.');
+                    }
+                });
+            }
+
+</script>
 
 
 
@@ -431,8 +554,8 @@
                 <i class="fa-sharp fa-solid fa-trash fa-lg" style="color: #da0711; cursor: pointer;"
                     onclick="deleteObservation({{ $obsId }})"></i>
                 @else
-                <i class="fa-solid fa-comment fa-bounce fa-sm" style="color: #74C0FC; cursor: pointer;"
-                    onclick="openAddCommentModal({{ $obsId }})"></i>
+                <!-- <i class="fa-solid fa-comment fa-bounce fa-sm" style="color: #74C0FC; cursor: pointer;"
+                    onclick="openAddCommentModal({{ $obsId }})"></i> -->
                 @endif
             </div>
         </div>
@@ -834,131 +957,136 @@ if ($('#filter_author_any').is(':checked')) {
             },
             dataType: 'json',
             success: function(response) {
-                if (response.status === "success") {
-                    $('#observations-list').empty();
+    cleanupDynamicModals();
+    if (response.status === "success") {
+        $('#observations-list').empty();
 
-                    if (response.observations.length === 0) {
-                        $('#observations-list').append(`
-                            <div class="col">
-                                <div class="text-center">
-                                    <h6 class="mb-4">No observations found matching your filters.</h6>
-                                    <button class="btn btn-info btn-lg btn-shadow" id="btn-clear-filters-inline">
-                                        <i class="fa-solid fa-filter-circle-xmark fa-lg" style="color: #74C0FC;"></i>&nbsp;
-                                        Clear Filters
-                                    </button>
+        if (response.observations.length === 0) {
+            $('#observations-list').append(`
+                <div class="col">
+                    <div class="text-center">
+                        <h6 class="mb-4">No observations found matching your filters.</h6>
+                        <button class="btn btn-info btn-lg btn-shadow" id="btn-clear-filters-inline">
+                            <i class="fa-solid fa-filter-circle-xmark fa-lg" style="color: #74C0FC;"></i>&nbsp;
+                            Clear Filters
+                        </button>
+                    </div>
+                </div>
+            `);
+        } else {
+            $.each(response.observations, function(key, val) {
+                var _status = '';
+                var _mediaUrl = '';
+                var _role = val.userRole; // Use val.userRole instead of response.userRole
+
+                // Media Handling
+                if (!val.media || val.media.mediaUrl === "") {
+                    _mediaUrl = "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg";
+                } else {
+                    let cleanPath = val.media.mediaUrl.replace(/^\/?observation\//, '');
+                    _mediaUrl = window.location.origin + '/' + cleanPath;
+                }
+
+                // Status Badge
+                if (val.status === "Published") {
+                    _status = `<span class="badge badge-pill position-absolute badge-top-right badge-success" style="top:8px;right: -7px; background: rgba(40, 167, 69, 0.9); color: white;">PUBLISHED</span>`;
+                } else {
+                    _status = `<span class="badge badge-pill position-absolute badge-top-right badge-danger" style="top:8px;right: -7px; background: rgba(255, 193, 7, 0.9); color: #856404;">DRAFT</span>`;
+                }
+
+                // Link based on Role
+                var viewLink = (_role !== "Parent") ?
+                    "/observation/view/" + val.id :
+                    "/observation/print/" + val.id;
+                var targetAttr = (_role !== "Parent") ? '' : 'target="_blank"';
+
+                // Seen functionality for non-parent users
+                var seenButtonHtml = '';
+                if (_role !== "Parent" && val.seen && val.seen.length > 0) {
+                    var seenParentsCount = val.seen.filter(s => s.userType === 'Parent').length;
+                    if (seenParentsCount > 0) {
+                        seenButtonHtml = `
+                            <div style="margin-top:8px;">
+                                <button type="button" class="btn btn-light position-relative" data-toggle="modal" data-target="#seenParentsModal_${val.id}">
+                                    <i class="fa fa-eye"></i>
+                                    <span class="badge badge-pill badge-primary position-absolute" style="top: -5px; right: -10px;">
+                                        ${seenParentsCount}
+                                    </span>
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+
+                // Comment functionality
+                var commentCount = val.comments ? val.comments.length : 0;
+                var commentButtonHtml = `
+                    <div style="margin-top:8px;">
+                        <button type="button"
+                                class="btn btn-light position-relative"
+                                data-toggle="modal"
+                                data-target="#commentsModal_${val.id}">
+                            <i class="fa fa-comments"></i>
+                            ${commentCount > 0 ? `<span class="badge badge-pill badge-danger position-absolute" style="top:-5px;right:-10px;">${commentCount}</span>` : ''}
+                        </button>
+                    </div>
+                `;
+
+                // Icons on Right side
+                var iconsHtml = '';
+                if (_role !== "Parent") {
+                    iconsHtml = `
+                        <a href="/observation/print/${val.id}" target="_blank" class="mb-2">
+                            <i class="fa-solid fa-print fa-lg" style="color: #74C0FC;"></i>
+                        </a>
+                        <i class="fa-sharp fa-solid fa-trash fa-lg" style="color: #da0711;cursor:pointer;" onclick="deleteObservation(${val.id})"></i>
+                    `;
+                }
+
+                // Build observation card - Fix HTML entities
+                var title = val.obestitle || val.title;
+                // Strip HTML tags and decode entities
+                var tempDiv = $('<div>').html(title);
+                var cleanTitle = tempDiv.text();
+                var displayTitle = cleanTitle.length > 40 ? cleanTitle.substring(0, 40) + '...' : cleanTitle;
+
+                $('#observations-list').append(`
+                    <div class="col-lg-6 col-md-3">
+                        <div class="d-flex flex-row mb-3 bg-white br-10 align-items-center justify-content-between p-3 card">
+                            <div class="d-flex flex-row align-items-center">
+                                <a class="d-block position-relative" href="${viewLink}" ${targetAttr}>
+                                    <img src="${_mediaUrl}" alt="Media" class="list-thumbnail border-0" style="width:100px;height:100px;object-fit:cover;">
+                                    ${_status}
+                                </a>
+                                <div class="pl-3">
+                                    <a href="${viewLink}" class="obs-link" ${targetAttr}>
+                                        <p class="list-item-heading mb-1">${displayTitle}</p>
+                                    </a>
+                                    <p class="text-muted mb-1 text-small">By: ${val.userName || 'Unknown'}</p>
+                                    <p class="text-primary text-small font-weight-medium mb-0">${val.date_added}</p>
+                                    ${seenButtonHtml}
+                                    ${commentButtonHtml}
                                 </div>
                             </div>
-                        `);
-                    } else {
-                        $.each(response.observations, function(key, val) {
-                            var _status = '';
-                            var _mediaUrl = '';
-                            var _role = response.userRole;
+                            <div class="d-flex flex-column align-items-center icon-actions">
+                                ${iconsHtml}
+                            </div>
+                        </div>
+                    </div>
+                `);
 
+                // Generate modals after appending the card - Pass currentUserId
+                generateModalsForObservation(val, _role, val.currentUserId);
+            });
+        }
 
-
-                            // Media Handling
-                            if (!val.media || val.media.mediaUrl === "") {
-                                _mediaUrl = "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg";
-                            } else {
-                                let cleanPath = val.media.mediaUrl.replace(/^\/?observation\//, '');
-                                _mediaUrl = window.location.origin + '/' + cleanPath;
-                            }
-
-                            // console.log("djkjda",_mediaUrl);
-
-                            // Status Badge
-                            if (val.status === "Published") {
-                                _status = `<span class="badge badge-pill position-absolute badge-top-right badge-success" style="top:8px;right: -7px;">PUBLISHED</span>`;
-                            } else {
-                                _status = `<span class="badge badge-pill position-absolute badge-top-right badge-danger" style="top:8px;right: -7px;">DRAFT</span>`;
-                            }
-
-                            // Link based on Role
-                            var viewLink = (_role !== "Parent") ?
-                                "/observation/view/" + val.id :
-                                "/observation/print/" + val.id;
-
-                            var targetAttr = (_role !== "Parent") ? '' : 'target="_blank"';
-
-                            // Icons on Right side
-                            var iconsHtml = '';
-                            if (_role !== "Parent") {
-                                iconsHtml = `
-                                    <a href="/observation/print/${val.id}" target="_blank" class="mb-2">
-                                        <i class="fa-solid fa-print fa-lg fa-beat" style="color: #74C0FC;"></i>
-                                    </a>
-                                    <i class="fa-sharp fa-solid fa-trash fa-lg fa-fade" style="color: #da0711;cursor:pointer;" onclick="deleteObservation(${val.id})"></i>
-                                `;
-                            } else {
-                                iconsHtml = `
-                                    <i class="fa-solid fa-comment fa-bounce fa-sm" style="color: #74C0FC;cursor:pointer;" onclick="openAddCommentModal(${val.id})"></i>
-                                `;
-                            }
-
-                               // ⭐ Seen by Parents HTML Generation
-                                var seenByParentsHtml = '';
-                                if (_role !== "Parent") {
-                                    seenByParentsHtml += '<p><strong>Seen by Parents:</strong></p><ul style="max-height:60px;overflow-y:auto;">';
-                                    if (val.seen && val.seen.length > 0) {
-                                        $.each(val.seen, function(index, seen) {
-                                            const maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
-                                            const femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
-                                            const avatars = seen.gender === 'FEMALE' ? femaleAvatars : maleAvatars;
-                                            const defaultAvatar = avatars[Math.floor(Math.random() * avatars.length)];
-
-                                            const imageUrl = seen.imageUrl ? `{{ asset('') }}${seen.imageUrl}` : `{{ asset('assets/img/xs/') }}/${defaultAvatar}`;
-
-                                            seenByParentsHtml += `
-                                                <li style="margin-bottom: 10px;">
-                                                    <img src="${imageUrl}" alt="Profile Image" width="40" height="40" style="border-radius: 50%;">
-                                                    ${seen.name} <span style="color: #2196F3;">&#10003;&#10003;</span>
-                                                </li>
-                                            `;
-                                        });
-                                    } else {
-                                        seenByParentsHtml += '<li>No parent has seen this yet.</li>';
-                                    }
-                                    seenByParentsHtml += '</ul>';
-                                }
-
-                            // Build observation card
-                            var title = val.obestitle || val.title;
-                            var displayTitle = title.length > 40 ? title.substring(0, 40) + '...' : title;
-
-                            $('#observations-list').append(`
-                                <div class="col-lg-6 col-md-3">
-                                    <div class="d-flex flex-row mb-3 bg-white br-10 align-items-center justify-content-between p-3 card">
-                                        <div class="d-flex flex-row align-items-center">
-                                            <a class="d-block position-relative" href="${viewLink}" ${targetAttr}>
-                                                <img src="${_mediaUrl}" alt="Media" class="list-thumbnail border-0" style="width:100px;height:100px;object-fit:cover;">
-                                                ${_status}
-                                            </a>
-                                            <div class="pl-3">
-                                                <a href="${viewLink}" class="obs-link" ${targetAttr}>
-                                                    <p class="list-item-heading mb-1">${displayTitle}</p>
-                                                </a>
-                                                <p class="text-muted mb-1 text-small">By: ${val.userName || 'Unknown'}</p>
-                                                <p class="text-primary text-small font-weight-medium mb-0">${val.date_added}</p>
-                                                ${seenByParentsHtml}
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-column align-items-center icon-actions">
-                                            ${iconsHtml}
-                                        </div>
-                                    </div>
-                                </div>
-                            `);
-                        });
-                    }
-
-                    $('#btn-apply-filters').prop('disabled', false).html('Apply Filters');
-                    $('#filtersModal').modal('hide');
-                } else {
-                    alert(response.message || 'An error occurred while filtering observations.');
-                    $('#btn-apply-filters').prop('disabled', false).html('Apply Filters');
-                }
-            },
+        $('#btn-apply-filters').prop('disabled', false).html('Apply Filters');
+        $('#filtersModal').modal('hide');
+    } else {
+        alert(response.message || 'An error occurred while filtering observations.');
+        $('#btn-apply-filters').prop('disabled', false).html('Apply Filters');
+    }
+},
             error: function(xhr, status, error) {
                 console.error('Filter error:', error);
                 alert('An error occurred while filtering observations.');
@@ -974,6 +1102,202 @@ if ($('#filter_author_any').is(':checked')) {
         );
         applyFilters();
     });
+
+
+
+    function generateModalsForObservation(observation, userRole, currentUserId) {
+    // Generate Seen Parents Modal
+    if (userRole !== "Parent") {
+        var seenModalHtml = `
+            <div class="modal fade" id="seenParentsModal_${observation.id}" tabindex="-1" role="dialog" aria-labelledby="seenParentsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="seenParentsModalLabel">Seen by Parents</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+        `;
+
+        if (!observation.seen || observation.seen.filter(s => s.userType === 'Parent').length === 0) {
+            seenModalHtml += '<p>No parent has seen this yet.</p>';
+        } else {
+            seenModalHtml += '<ul class="list-unstyled" style="max-height:280px;overflow-y:auto;">';
+            observation.seen.forEach(function(seen) {
+                if (seen.userType === 'Parent') {
+                    const maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+                    const femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+                    const avatars = seen.gender === 'FEMALE' ? femaleAvatars : maleAvatars;
+                    const defaultAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+                    
+                    // Fix the asset path - remove Laravel blade syntax
+                    const imageUrl = seen.imageUrl ? 
+                        (seen.imageUrl.startsWith('http') ? seen.imageUrl : window.location.origin + '/' + seen.imageUrl) : 
+                        window.location.origin + '/assets/img/xs/' + defaultAvatar;
+
+                    seenModalHtml += `
+                        <li class="media mb-3 align-items-center">
+                            <img class="mr-3 rounded-circle border" width="48" height="48"
+                                 src="${imageUrl}" alt="Avatar">
+                            <div class="media-body">
+                                <h6 class="mt-0 mb-1">${seen.name}</h6>
+                                <small class="text-muted">
+                                    <i class="fa fa-check text-primary"></i> Seen
+                                </small>
+                            </div>
+                        </li>
+                    `;
+                }
+            });
+            seenModalHtml += '</ul>';
+        }
+
+        seenModalHtml += `
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('body').append(seenModalHtml);
+    }
+
+    // Generate Comments Modal
+    var commentsModalHtml = `
+        <div class="modal fade" id="commentsModal_${observation.id}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Comments</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="chat-body" id="chatBody_${observation.id}" style="max-height:320px;overflow-y:auto;padding:1rem;">
+    `;
+
+    if (observation.comments && observation.comments.length > 0) {
+        observation.comments.forEach(function(comment) {
+            var isMe = comment.userId == currentUserId; // Now use the passed currentUserId
+            var canDelete = userRole === 'Superadmin' || comment.userId == currentUserId;
+            
+            commentsModalHtml += `
+                <div id="comment_${comment.id}" class="d-flex mb-3 ${isMe ? 'justify-content-end' : 'justify-content-start'}">
+                    <div style="max-width:68%; position: relative;">
+                        <div class="p-2 rounded ${isMe ? 'bg-primary text-white' : 'bg-light text-dark'}"
+                             style="min-width:120px;word-wrap:break-word;">
+                            ${comment.comments.replace(/\n/g, '<br>')}
+                        </div>
+                        <div class="small text-muted mt-1 ${isMe ? 'text-right' : ''}">
+                            ${comment.user_name || 'Unknown'}, ${comment.created_at_human || 'recently'}
+                        </div>
+                        ${canDelete ? `
+                            <button type="button" class="btn btn-sm btn-danger position-absolute" 
+                                style="top: 0; ${isMe ? 'left' : 'right'}: -30px;" 
+                                onclick="deleteComment(${comment.id}, ${observation.id})" 
+                                title="Delete comment">
+                                &times;
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    commentsModalHtml += `
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <form class="w-100 d-flex" onsubmit="return sendCommentDynamic(event, ${observation.id})">
+                            <input type="text" class="form-control mr-2" id="commentInput_${observation.id}" placeholder="Type your message..." required>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    $('body').append(commentsModalHtml);
+}
+
+
+
+
+window.sendCommentDynamic = function(e, observationId) {
+    e.preventDefault();
+    var input = document.getElementById('commentInput_' + observationId);
+    var text = input.value.trim();
+    if (!text) return;
+    input.disabled = true;
+
+    $.ajax({
+        url: "/observations/" + observationId + "/comments",
+        method: "POST",
+        data: {
+            comments: text,
+            _token: $('meta[name="csrf-token"]').attr('content') // Use meta tag instead
+        },
+        success: function(response) {
+            let chatBody = $('#chatBody_' + observationId);
+            let now = 'just now';
+            let chatBubble = `
+                <div id="comment_${response.comment.id}" class="d-flex mb-3 justify-content-end">
+                    <div style="max-width:68%; position: relative;">
+                        <div class="p-2 rounded bg-primary text-white"
+                             style="min-width:120px;word-wrap:break-word;">
+                            ${$('<div/>').text(response.comment.comments).html().replace(/\n/g,'<br>')}
+                        </div>
+                        <div class="small text-muted mt-1 text-right">
+                            ${response.comment.user_name}, ${now}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute" 
+                            style="top: 0; left: -30px;" 
+                            onclick="deleteComment(${response.comment.id}, ${observationId})" 
+                            title="Delete comment">
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            `;
+            chatBody.append(chatBubble);
+            input.value = '';
+            input.disabled = false;
+            chatBody.scrollTop(chatBody.prop("scrollHeight"));
+            
+            // Update comment count badge
+            let badge = $('button[data-target="#commentsModal_' + observationId + '"] .badge');
+            let n = parseInt(badge.text() || '0');
+            if (badge.length === 0) {
+                $('button[data-target="#commentsModal_' + observationId + '"]').append('<span class="badge badge-pill badge-danger position-absolute" style="top:-5px;right:-10px;">1</span>');
+            } else {
+                badge.text(n + 1);
+            }
+        },
+        error: function(xhr) {
+            alert('Failed to send comment.');
+            input.disabled = false;
+            console.log(xhr.responseText); // Add this for debugging
+        }
+    });
+    return false;
+}
+
+// Clean up modals when filtering again
+function cleanupDynamicModals() {
+    $('[id^="seenParentsModal_"], [id^="commentsModal_"]').each(function() {
+        if ($(this).hasClass('show')) {
+            $(this).modal('hide');
+        }
+        $(this).remove();
+    });
+}
+
+
+
+
+
+
 
     // Clear filters functionality
     function clearFilters() {
@@ -1108,6 +1432,8 @@ $(document).on('change', '.filter_author, .filter_staff', function () {
 
 });
 </script>
+
+
 
 
 
