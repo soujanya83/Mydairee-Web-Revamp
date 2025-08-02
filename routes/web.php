@@ -161,6 +161,10 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     // Route::get('surveys/list', [SurveyController::class, 'list'])->name('survey.list');
 
+    Route::post('/observations/{observation}/comments', [ObservationsController::class, 'commentstore'])->name('observations.comments.store');
+    Route::delete('/observations/comments/{comment}', [ObservationsController::class, 'destroycomment'])
+     ->name('observations.comments.destroy');
+
     // Daily Journel here
     Route::get('DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.list');
     Route::post('dailyDiary/storeBottle', [DailyDiaryController::class, 'storeBottle'])->name('dailyDiary.storeBottle');
@@ -373,6 +377,8 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
         Route::get('/observationslink', [ObservationsController::class, 'linkobservationdata']);
         Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
         Route::post('/change-created-at', [ObservationsController::class, 'changeCreatedAt'])->name('changeCreatedAt');
+        Route::delete('/{id}', [ObservationsController::class, 'destroy'])->name('destroy');
+
     });
 
 

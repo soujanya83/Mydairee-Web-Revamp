@@ -137,6 +137,7 @@ class ObservationsController extends Controller
             // dd($childids);
             $observations = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
                 ->whereIn('id', $observationIds)
+                ->where('status',"Published")
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
 
@@ -157,7 +158,7 @@ class ObservationsController extends Controller
             $centerid = Session('user_center_id');
 
 
-            $query = Observation::with(['user', 'child', 'media', 'Seen.user'])
+            $query = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
                 ->where('centerid', $centerid);
             // Status filter
             if ($request->has('observations') && !empty($request->observations)) {
@@ -302,12 +303,29 @@ class ObservationsController extends Controller
                         if ($seen->user && $seen->user->userType === 'Parent') {
                             return [
                                 'name' => $seen->user->name,
+                                'userType' => $seen->user->userType,
                                 'imageUrl' => $seen->user->imageUrl,
                                 'gender' => $seen->user->gender,
                             ];
                         }
                         return null;
                     })->filter(),
+
+                  // Add comments data
+        'comments' => $observation->comments->map(function ($comment) {
+            return [
+                'id' => $comment->id,
+                'comments' => $comment->comments,
+                'userId' => $comment->userId,
+                'user_name' => $comment->user->name ?? 'Unknown',
+                'created_at_human' => $comment->created_at->diffForHumans(),
+                'created_at' => $comment->created_at->format('Y-m-d H:i:s'),
+            ];
+        }),
+        
+
+                    'userRole' => Auth::user()->userType,
+                    'currentUserId' => Auth::id(),
                 ];
             });
 
@@ -854,8 +872,8 @@ class ObservationsController extends Controller
 
         $rules = [
             'selected_rooms'    => 'required',
-            'obestitle'         => 'required|string|max:255',
-            'title'             => 'required|string|max:255',
+            'obestitle'         => 'required|string',
+            'title'             => 'required|string',
             'notes'             => 'required|string',
             'reflection'        => 'required|string',
             'child_voice'       => 'required|string',
@@ -1188,7 +1206,7 @@ class ObservationsController extends Controller
 
         $rules = [
             'selected_rooms'    => 'required',
-            'title'             => 'required|string|max:255',
+            'title'             => 'required|string',
             'about'             => 'required|string',
             'selected_children' => 'required|string',
         ];
@@ -1364,4 +1382,66 @@ class ObservationsController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function commentstore(Request $request, Observation $observation) {
+        $validated = $request->validate([
+            'comments' => 'required|string|max:1000'
+        ]);
+        $comment = $observation->comments()->create([
+            'userId' => auth()->id(),
+            'comments' => $validated['comments'],
+        ]);
+        return response()->json([
+            'success' => true,
+            'comment' => [
+                'comments' => $comment->comments,
+                'user_name' => $comment->user->name,
+                'created_at' => $comment->created_at->diffForHumans()
+            ]
+        ]);
+    }
+
+    public function destroycomment(Request $request, ObservationComment $comment)
+    {
+        $user = $request->user();
+
+        // Authorization: superadmin or owner of comment
+        if ($user->userType === 'Superadmin' || $user->id === $comment->userId) {
+            $comment->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment deleted successfully'
+            ]);
+        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized to delete this comment'
+        ], 403);
+    }
+
+
+    public function destroy($id)
+    {
+        try {
+            // Find the observation by ID
+            $observation = Observation::findOrFail($id);
+            
+            // Delete the observation
+            $observation->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Observation deleted successfully!'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting observation. Please try again.'
+            ], 500);
+        }
+    }
+
+    
 }
