@@ -376,6 +376,8 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
         Route::get('/observationslink', [ObservationsController::class, 'linkobservationdata']);
         Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
         Route::post('/change-created-at', [ObservationsController::class, 'changeCreatedAt'])->name('changeCreatedAt');
+        Route::delete('/{id}', [ObservationsController::class, 'destroy'])->name('destroy');
+
     });
 
 

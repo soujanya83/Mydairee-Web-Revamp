@@ -1433,6 +1433,54 @@ $(document).on('change', '.filter_author, .filter_staff', function () {
 });
 </script>
 
+<script>
+function deleteObservation(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Get CSRF token
+            var token = $('meta[name="csrf-token"]').attr('content');
+            
+            $.ajax({
+                url: '/observation/' + id,
+                type: 'DELETE',
+                data: {
+                    "_token": token,
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire(
+                            'Deleted!',
+                            response.message,
+                            'success'
+                        ).then(() => {
+                            // Remove the row from table or reload page
+                            location.reload(); // or remove specific row
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong. Please try again.',
+                        'error'
+                    );
+                }
+            });
+        }
+    });
+}
+
+</script>
+
 
 
 

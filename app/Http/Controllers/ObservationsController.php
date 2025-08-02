@@ -1420,5 +1420,28 @@ class ObservationsController extends Controller
         ], 403);
     }
 
+
+    public function destroy($id)
+    {
+        try {
+            // Find the observation by ID
+            $observation = Observation::findOrFail($id);
+            
+            // Delete the observation
+            $observation->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Observation deleted successfully!'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting observation. Please try again.'
+            ], 500);
+        }
+    }
+
     
 }
