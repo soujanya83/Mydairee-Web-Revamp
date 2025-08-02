@@ -163,7 +163,7 @@ class ReflectionController extends Controller
 
         $rules = [
             'selected_rooms'    => 'required',
-            'title'             => 'required|string|max:255',
+            'title'             => 'required|string',
             'about'             => 'required|string',
             'eylf'              => 'required|string',
             'selected_children' => 'required|string',

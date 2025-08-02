@@ -872,8 +872,8 @@ class ObservationsController extends Controller
 
         $rules = [
             'selected_rooms'    => 'required',
-            'obestitle'         => 'required|string|max:255',
-            'title'             => 'required|string|max:255',
+            'obestitle'         => 'required|string',
+            'title'             => 'required|string',
             'notes'             => 'required|string',
             'reflection'        => 'required|string',
             'child_voice'       => 'required|string',
@@ -1206,7 +1206,7 @@ class ObservationsController extends Controller
 
         $rules = [
             'selected_rooms'    => 'required',
-            'title'             => 'required|string|max:255',
+            'title'             => 'required|string',
             'about'             => 'required|string',
             'selected_children' => 'required|string',
         ];
