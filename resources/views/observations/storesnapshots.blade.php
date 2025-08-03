@@ -589,11 +589,11 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="max-height:550px;overflow-y:auto;">
         <div id="childrenList" class="row"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" id="confirmChildren" class="btn btn-success">Confirm Selection</button>
+        <button type="button" id="confirmChildren" class="btn btn-success" data-dismiss="modal">Confirm Selection</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
     </div>
@@ -609,11 +609,11 @@
         <h5>Select Rooms</h5>
         <input type="text" id="roomSearch" class="form-control ml-3" placeholder="Search rooms..." style="max-width: 250px;">
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="max-height:550px;overflow-y:auto;">
         <div id="roomsList" class="row"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" id="confirmRooms" class="btn btn-success">Confirm</button>
+        <button type="button" id="confirmRooms" class="btn btn-success" data-dismiss="modal">Confirm</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
     </div>
@@ -765,7 +765,7 @@ $(document).ready(function () {
                                 <div class="form-check">
                                     <input class="form-check-input child-checkbox" type="checkbox" value="${child.id}" id="child-${child.id}" ${checked}>
                                     <label class="form-check-label" for="child-${child.id}">
-                                        ${child.name}
+                                        ${child.name} ${child.lastname}
                                     </label>
                                 </div>
                             </div>
@@ -797,7 +797,7 @@ $(document).ready(function () {
 
         $('#selected_children').val([...selectedChildren].join(','));
         $('#selectedChildrenPreview').html(nameHtml);
-        $('#childrenModal').modal('hide');
+        // $('#childrenModal').modal('hide');
     });
 
 
@@ -840,7 +840,7 @@ $('#confirmRooms').on('click', function () {
     });
     $('#selected_rooms').val([...selectedRooms].join(','));
     $('#selectedRoomsPreview').html(nameHtml);
-    $('#roomsModal').modal('hide');
+    // $('#roomsModal').modal('hide');
 });
 
 
