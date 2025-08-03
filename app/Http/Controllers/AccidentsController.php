@@ -378,6 +378,7 @@ public function sendEmail(Request $request)
 
 public function saveAccident(Request $request)
 {
+
   $request->validate([
     'childid' => 'required',
     'date' => 'required',
@@ -391,6 +392,8 @@ public function saveAccident(Request $request)
 ]);
 
     $data = $request->all();
+
+    dd($data);
 
     // Add Auth/session fields
     $request->merge([

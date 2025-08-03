@@ -57,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // annoucement
     Route::get('announcements/list',[AnnouncementController::class,'list'])->name('announcements.list');
-Route::get('announcements/create/{id?}',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
+Route::get('announcements/create',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
 Route::post('announcements/store',[AnnouncementController::class,'AnnouncementStore'])->name('announcements.store');
 Route::delete('announcements/delete',[AnnouncementController::class,'AnnouncementDelete'])->name('announcements.delete');
 Route::get('announcements/view',[AnnouncementController::class,'AnnouncementView'])->name('announcements.view');
