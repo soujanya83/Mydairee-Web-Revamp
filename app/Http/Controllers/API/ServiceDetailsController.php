@@ -13,6 +13,7 @@ use App\Models\Childparent; // Add this at the top if not already added
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class ServiceDetailsController extends Controller
 {
@@ -72,73 +73,85 @@ class ServiceDetailsController extends Controller
 }
 
 
-    function store(Request $request){
-        // dd('here');
-        $request->validate([
-  'serviceName' => 'required',
-  'serviceApprovalNumber' => 'required',
-  'serviceStreet' => 'required',
-  'serviceSuburb' => 'required',
-  'serviceState' => 'required',
-  'servicePostcode' => 'required',
-  'contactTelephone' => 'required',
-  'contactMobile' => 'required',
-  'contactFax' => 'required',
-  'contactEmail' => 'required|email',
-  'providerContact' => 'required',
-  'providerTelephone' => 'required',
-  'providerMobile' => 'required',
-  'providerFax' => 'required',
-  'providerEmail' => 'required|email',
-  'supervisorName' => 'required',
-  'supervisorTelephone' => 'required',
-  'supervisorMobile' => 'required',
-  'supervisorFax' => 'required',
-  'supervisorEmail' => 'required|email',
-  'postalStreet' => 'required',
-  'postalSuburb' => 'required',
-  'postalState' => 'required',
-  'postalPostcode' => 'required',
-  'eduLeaderName' => 'required', 
-  'eduLeaderTelephone' => 'required',
-  'eduLeaderEmail' => 'required|email ',
-  'strengthSummary' => 'required',
-  'childGroupService' => 'required',
-  'personSubmittingQip' => 'required',
-  'educatorsData' => 'required',
-  'philosophyStatement' => 'required',
-    ]);
+public function store(Request $request)
+{
+    // Define validation rules
+    $rules = [
+        'serviceName'           => 'required|string|max:80',
+        'serviceApprovalNumber' => 'required|string|max:80',
+        'serviceStreet'         => 'required|string|max:80',
+        'serviceSuburb'         => 'required|string|max:80',
+        'serviceState'          => 'required|string|max:80',
+        'servicePostcode'       => 'required|string|max:10',
 
-    // dd('here');
-        // $centerid = Session('user_center_id');
-        $centerid = $request->centerid;
-// check if the service details already present or not based on center_id 
-   $check = ServiceDetailsModel::where('centerid', $centerid)->first();
+        'contactTelephone'      => 'required|string|max:20',
+        'contactMobile'         => 'required|string|max:20',
+        'contactFax'            => 'required|string|max:20',
+        'contactEmail'          => 'required|email|max:80',
 
+        'providerContact'       => 'required|string|max:80',
+        'providerTelephone'     => 'required|string|max:20',
+        'providerMobile'        => 'required|string|max:20',
+        'providerFax'           => 'required|string|max:20',
+        'providerEmail'         => 'required|email|max:80',
 
-    if($check){
-        $request->merge(['centerid' => $centerid]);
-        $response = $check->update($request->all());
+        'supervisorName'        => 'required|string|max:80',
+        'supervisorTelephone'   => 'required|string|max:20',
+        'supervisorMobile'      => 'required|string|max:20',
+        'supervisorFax'         => 'required|string|max:20',
+        'supervisorEmail'       => 'required|email|max:80',
 
-         if($response){
-            $msg = "Service details updated successfully";
-        }else{
-            $msg = " Error! Service details could not be updated. Please try again";
-        }
+        'postalStreet'          => 'required|string|max:80',
+        'postalSuburb'          => 'required|string|max:80',
+        'postalState'           => 'required|string|max:30',
+        'postalPostcode'        => 'required|string|max:10',
 
-    }else{
-        $request->merge(['centerid' => $centerid]);
-        $response = ServiceDetailsModel::create($request->all());
+        'eduLeaderName'         => 'required|string|max:60',
+        'eduLeaderTelephone'    => 'required|string|max:20',
+        'eduLeaderEmail'        => 'required|email|max:80',
 
-        if($response){
-            $msg = "Service details created successfully";
-        }else{
-            $msg = " Error! Service details could not be created. Please try again";
-        }
+        'strengthSummary'       => 'required|string',
+        'childGroupService'     => 'required|string',
+        'personSubmittingQip'   => 'required|string',
+        'educatorsData'         => 'required|string',
+        'philosophyStatement'   => 'required|string',
+
+        'centerid'              => 'nullable|integer',
+    ];
+
+    // Validate request manually
+    $validator = Validator::make($request->all(), $rules);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
     }
 
-    return response()->json(['status' => true , 'msg'=> $msg ]);
+    $validated = $validator->validated();
+    $centerid = $validated['centerid'] ?? null;
 
+    // Check if a record exists for this center
+    $check = ServiceDetailsModel::where('centerid', $centerid)->first();
 
+    // Prepare data to insert/update
+    $data = collect($validated)->except('centerid')->merge(['centerid' => $centerid])->toArray();
+
+    if ($check) {
+        $updated = $check->update($data);
+        $msg = $updated 
+            ? "Service details updated successfully" 
+            : "Error! Service details could not be updated. Please try again";
+    } else {
+        $created = ServiceDetailsModel::create($data);
+        $msg = $created 
+            ? "Service details created successfully" 
+            : "Error! Service details could not be created. Please try again";
     }
+
+    return response()->json(['status' => true, 'message' => $msg]);
+}
+
 }
