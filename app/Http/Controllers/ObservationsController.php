@@ -923,7 +923,9 @@ class ObservationsController extends Controller
             $observation->reflection   = $request->input('reflection');
             $observation->child_voice  = $request->input('child_voice');
             $observation->future_plan  = $request->input('future_plan');
-            $observation->userId       = $authId;
+            if (!$isEdit) {
+                $observation->userId   = $authId; // Only set when creating
+            }
             $observation->centerid     = $centerid;
             $observation->save();
 
