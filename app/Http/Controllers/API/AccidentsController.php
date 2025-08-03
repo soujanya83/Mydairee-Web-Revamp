@@ -74,13 +74,13 @@ public function AccidentsList(Request $request)
         $accArr = AccidentsModel::select('accidents.id', 'accidents.child_name', 'accidents.child_gender', 'accidents.roomid', 'accidents.incident_date', 'accidents.ack_parent_name', 'accidents.added_by')
             ->join('childparent', 'childparent.childid', '=', 'accidents.childid')
             ->where('childparent.parentid', $userid)
-            ->paginate(10);
+            ->get();
     } else {
         $query = AccidentsModel::select('id', 'child_name', 'child_gender', 'roomid', 'incident_date', 'ack_parent_name', 'added_by');
         if (!empty($roomid)) {
             $query->where('roomid', $roomid);
         }
-        $accArr = $query->paginate(10);
+        $accArr = $query->get();
     }
 
     // Append username to each accident

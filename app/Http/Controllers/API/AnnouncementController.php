@@ -86,9 +86,9 @@ class AnnouncementController extends Controller
 
 
 
-public function AnnouncementCreate(Request $request,$announcementid=null)
+public function AnnouncementCreate(Request $request)
 {
-    // dd('here');
+    
     $announcement = null;
     
     // $centerid = Session('user_center_id');
@@ -104,8 +104,11 @@ public function AnnouncementCreate(Request $request,$announcementid=null)
     $Groups = [];
     $Rooms = [];
 
+    $announcementid = $request->id;
+
     if($announcementid){
         $announcement = AnnouncementsModel::find($announcementid);
+        // dd($announcement);
     }
 
 
@@ -228,14 +231,14 @@ public function AnnouncementCreate(Request $request,$announcementid=null)
     $userid = Auth::user()->userid;
     // $userid = $request->userid;
     // dd($userid);
-    $user = User::where('userid',$userid)->first();
-    $permissions = $user->userType === 'Superadmin'
-        ? null
-        : PermissionsModel::where('userid',$userid)
+    $user = Auth::user();
+ 
+
+          
+   $permissions = PermissionsModel::where('userid',$userid)
             ->where('centerid', $centerid)
             ->get();
-
-            // dd($announcement);
+       
 return response()->json([
     'status' => true,
     'message' => 'Announcement create data fetched successfully',
