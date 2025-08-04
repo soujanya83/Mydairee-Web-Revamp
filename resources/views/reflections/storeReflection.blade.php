@@ -729,7 +729,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveEylfSelections">Save selections</button>
+                <button type="button" class="btn btn-primary" id="saveEylfSelections" data-dismiss="modal">Save selections</button>
             </div>
         </div>
     </div>
@@ -938,7 +938,7 @@ $('#saveEylfSelections').on('click', function () {
     }
 
     $('#eylfData').val(JSON.stringify(selectedActivities));
-    $('#eylfModal').modal('hide');
+    // $('#eylfModal').modal('hide');
 });
 
 
