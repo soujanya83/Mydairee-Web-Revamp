@@ -24,97 +24,90 @@ class SleepCheckController extends Controller
      
 public function getSleepChecksList(Request $request)
 {
-    try {
-        // $user = User::where('userid', $request->userid)->first();
+    $user = Auth::user();
+    $userid = $user->userid;
+    $userType = $user->userType;
 
-      
-        $user = Auth::user();
-        // dd($user);
-  if (!$user) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid user.'
-            ], 404);
-        }
-        $userid = $user->userid;
-        $userType = $user->userType;
-
-        $centerid = $request->centerid;
-        if (empty($centerid)) {
-            $centerId = Usercenter::where('userid', $userid)->pluck('centerid')->first();
-            $center = Center::find($centerId);
-            $centerid = $center?->id;
-        } else {
-            $centerId = $centerid;
-        }
-
-        if ($userType === "Superadmin") {
-            $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
-            $centers = Center::whereIn('id', $centerIds)->get();
-        } else {
-            $centers = Center::where('id', $centerId)->get();
-        }
-
-        if (empty($request->roomid)) {
-            $centerRoom = Room::where('centerid', $centerid)->first();
-            $roomid = $centerRoom->id ?? null;
-            $roomname = $centerRoom->name ?? '';
-            $roomcolor = $centerRoom->color ?? '';
-            $centerRooms = Room::where('centerid', $centerid)->get();
-        } else {
-            $roomid = $request->roomid;
-            $room = Room::find($roomid);
-            $roomname = $room->name ?? '';
-            $roomcolor = $room->color ?? '';
-            $centerRooms = Room::where('centerid', $centerid)->get();
-        }
-
-        $roomid = $roomid ?? $room->id ?? null;
-        $roomname = $roomname ?? $room->name ?? null;
-        $roomcolor = $roomcolor ?? $room->color ?? null;
-
-        $date = !empty($request->date)
-            ? date('Y-m-d', strtotime($request->date))
-            : date('Y-m-d');
-
-        // Permissions
-        $permission = null;
-        if ($userType === "Staff") {
-            $permission = \App\Models\PermissionsModel::where('userid', $userid)
-                ->where('centerid', $centerId)
-                ->first();
-        }
-
-        $children = Child::where('room', $roomid)->get();
-        $sleepChecks = DailyDiarySleepCheckList::where(['createdBy' => $userid, 'roomid' => $roomid])
-            ->whereDate('created_at', $date)
-            ->get();
-
-        return response()->json([
-            'status' => 'true',
-            'message' => 'Sleep checks fetched successfully.',
-            'data' => [
-                'centerid'    => $centerid,
-                'date'        => $date,
-                'roomid'      => $roomid,
-                'roomname'    => $roomname,
-                'roomcolor'   => $roomcolor,
-                'rooms'       => $centerRooms,
-                'children'    => $children,
-                'sleepChecks' => $sleepChecks,
-                'permissions' => $permission,
-                'centers'     => $centers,
-            ]
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'false',
-            'message' => 'Something went wrong!',
-            'error' => $e->getMessage()
-        ], 500);
+    // Determine center ID
+    $centerid = Session('user_center_id');
+    if (empty($centerid)) {
+        $centerId = Usercenter::where('userid', $userid)->pluck('centerid')->first();
+        $centerid = $centerId;
+    } else {
+        $centerId = $centerid;
     }
+
+    // Fetch centers for user
+    if ($userType === "Superadmin") {
+        $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
+        $centers = Center::whereIn('id', $centerIds)->get();
+    } else {
+        $centers = Center::where('id', $centerId)->get();
+    }
+
+    // Determine room
+    if (empty($request->roomid)) {
+        $centerRoom = Room::where('centerid', $centerid)->first();
+        $roomid = $centerRoom->id ?? null;
+        $roomname = $centerRoom->name ?? '';
+        $roomcolor = $centerRoom->color ?? '';
+        $centerRooms = Room::where('centerid', $centerid)->get();
+    } else {
+        $roomid = $request->roomid;
+        $room = Room::find($roomid);
+        $roomname = $room->name ?? '';
+        $roomcolor = $room->color ?? '';
+        $centerRooms = Room::where('centerid', $centerid)->get();
+    }
+
+    $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
+
+    // Fetch children
+    $children = Child::where('room', $roomid)
+        ->where('status', 'Active')
+        ->get();
+// dd($children);
+    // Fetch all sleep checks for the room and date
+    $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
+        ->whereDate('created_at', $date)
+        ->get()
+        ->groupBy('childid'); // Group by child ID
+
+    // Attach sleepchecks to children
+    $childrenWithSleepChecks = $children->map(function ($child) use ($sleepChecks) {
+        $child->sleepchecks = $sleepChecks->get($child->id, collect([])); // Empty collection if none
+        return $child;
+    });
+
+    // Handle permissions
+    $role = $user->userType;
+    if ($role === "Superadmin") {
+        $permission = null;
+    } elseif ($role === "Staff") {
+        $permission = \App\Models\PermissionsModel::where('userid', $userid)
+            ->where('centerid', $centerId)
+            ->first();
+    } else {
+        $permission = null;
+    }
+
+    // Return JSON response
+    return response()->json([
+        'status'      => true,
+        'message'     => 'Sleep checks list fetched successfully.',
+        'centerid'    => $centerid,
+        'date'        => $date,
+        'roomid'      => $roomid,
+        'roomname'    => $roomname,
+        'roomcolor'   => $roomcolor,
+        'children'    => $childrenWithSleepChecks,
+        'rooms'       => $centerRooms ?? [],
+        'permissions' => $permission,
+        'centers'     => $centers
+    ]);
 }
+
+
 
 
         public function sleepcheckSave(Request $request)
@@ -162,13 +155,15 @@ public function getSleepChecksList(Request $request)
     if ($check) {
         return response()->json([
             'status' => true,
-            'message' => 'Saved successfully'
+            'message' => 'Saved successfully',
+             'data' => $check->id
         ]);
     }
 
     return response()->json([
         'status' => false,
-        'message' => 'Failed to save'
+        'message' => 'Failed to save',
+       
     ]);
 }
 

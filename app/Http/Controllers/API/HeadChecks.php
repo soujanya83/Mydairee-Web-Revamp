@@ -73,7 +73,7 @@ public function index(Request $request)
     $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
 
     // Get permissions if staff
-    $permission = null;
+    // $permission = null;
     if ($userType === 'Staff') {
         $permission = PermissionsModel::where('userid', $userId)
             ->where('centerid', $centerId)

@@ -393,7 +393,7 @@ public function saveAccident(Request $request)
 
     $data = $request->all();
 
-    dd($data);
+    // dd($data);
 
     // Add Auth/session fields
     $request->merge([
