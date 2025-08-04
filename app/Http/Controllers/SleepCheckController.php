@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Validator;
 class SleepCheckController extends Controller
 {
   
- public function fetchSleepChecks(Request $request)
+    public function fetchSleepChecks(Request $request)
 {
     $user = Auth::user();
     $userid = $user->userid;
@@ -53,17 +53,8 @@ class SleepCheckController extends Controller
         ? \Carbon\Carbon::createFromFormat('d-m-Y', $request->date)->format('Y-m-d') 
         : now()->format('Y-m-d');
 
-    // Build children query
-    $childrenQuery = Child::where('room', $roomid);
-
-    if (!empty($request->child_name)) {
-        $childrenQuery->where(function($q) use ($request) {
-            $q->where('name', 'like', '%'.$request->child_name.'%')
-              ->orWhere('lastname', 'like', '%'.$request->child_name.'%');
-        });
-    }
-
-    $children = $childrenQuery->get();
+    // Fetch children in the selected room
+    $children = Child::where('room', $roomid)->get();
 
     // Fetch sleep checks filtered by room and date
     $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
@@ -106,7 +97,6 @@ class SleepCheckController extends Controller
         'data'     => $result
     ]);
 }
-
 
 
 public function getSleepChecksList(Request $request)
