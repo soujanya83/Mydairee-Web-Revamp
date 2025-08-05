@@ -451,7 +451,7 @@ class ObservationsController extends Controller
             $user = Auth::user();
             $children = collect();
 
-            if ($user->userType === 'Superadmin') {
+            if ($user->userType === 'Superadmin' || $user->userType === 'Staff') {
                 $staff = $this->getStaffForSuperadmin();
             }
             // elseif($user->userType === 'Staff'){
@@ -500,7 +500,7 @@ class ObservationsController extends Controller
         // Merge both collections and remove duplicates
         $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
 
-        $rooms = Room::where('id', $allRoomIds)->get();
+        $rooms = Room::whereIn('id', $allRoomIds)->get();
         return $rooms;
     }
 

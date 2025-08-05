@@ -587,7 +587,40 @@
 
 
 
+<style>
+    /* New close button on the middle left side of the modal */
 
+    .modal-right .close-left {
+  position: absolute;
+  top: 50%;
+  left: -9px; /* Adjust for spacing outside the modal */
+  transform: translateY(-50%);
+  border: none;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(60,60,60,0.10), 0 1.5px 3px rgba(60,60,60,0.08);
+  border-radius: 50%;
+  font-size: 1.6rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+  cursor: pointer;
+  color: #6c757d; /* Bootstrap secondary text color */
+  z-index: 1051;
+  outline: none;
+}
+
+.modal-right .close-left:hover,
+.modal-right .close-left:focus {
+  background: #e9ecef; /* Bootstrap's light gray */
+  color: #0056b3;      /* Bootstrap's primary darker shade */
+  box-shadow: 0 4px 16px rgba(0, 86, 179, 0.12);
+}
+
+
+    </style>
 
 
 <!-- Filters Modal -->
@@ -595,6 +628,11 @@
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+        <button type="button" class="close-left" data-dismiss="modal" aria-label="Close">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+    <path d="M18 24L10 14L18 4" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
             <div class="modal-header">
                 <h5 class="modal-title">Filters</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
