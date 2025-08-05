@@ -4,7 +4,315 @@
 
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    /* Label styling */
+.custom-label {
+    display: block;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 6px;
+    font-size: 15px;
+}
 
+/* Input styling */
+.custom-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 14px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.custom-input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+}
+</style>
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --success-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --info-color: #36b9cc;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+            --gradient-primary: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            --gradient-success: linear-gradient(180deg, #1cc88a 10%, #13855c 100%);
+        }
+
+        body {
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            padding: 2rem 0;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .breadcrumb-text {
+            color: var(--dark-color);
+            font-size: 1.1rem;
+        }
+
+        .breadcrumb-text a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .breadcrumb-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        } */
+
+        .headcheck-card {
+            background: linear-gradient(145deg, #ffffff, #f8f9fc);
+            border: none;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .headcheck-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .headcheck-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .headcheck-card .card-body {
+            padding: 2rem;
+        }
+
+        .custom-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .custom-input {
+            border: 2px solid #e3e6f0;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .custom-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+            background: #fff;
+        }
+
+        .time-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .form-number {
+            width: 70px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .time-separator {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .time-icon {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-left: 0.5rem;
+        }
+
+        .form-time {
+            margin-top: 0.5rem;
+        }
+
+        .btn-custom {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-add {
+            background: var(--gradient-success);
+            color: white;
+            box-shadow: 0 4px 15px rgba(28, 200, 138, 0.4);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(28, 200, 138, 0.6);
+            color: white;
+        }
+
+        .btn-save {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(78, 115, 223, 0.6);
+            color: white;
+        }
+
+        .btn-remove {
+            background: linear-gradient(180deg,rgb(229, 182, 182) 10%,hsl(0, 36.60%, 83.90%) 100%);
+            color: red;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-remove:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(231, 74, 59, 0.4);
+            color: red;
+        }
+
+        .empty-state {
+            background: linear-gradient(145deg, #f8f9fc, #ffffff);
+            border: 2px dashed #e3e6f0;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--info-color);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            color: var(--dark-color);
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            color: #858796;
+            font-size: 1.1rem;
+        }
+
+        .action-buttons {
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 2px solid #e3e6f0;
+            margin-top: 2rem;
+        }
+
+        .card-number {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: var(--gradient-primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .form-container {
+                padding: 1.5rem;
+            }
+            
+            .headcheck-card .card-body {
+                padding: 1.5rem;
+            }
+            
+            .time-input-group {
+                justify-content: center;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 @endsection
 @section('content')
 
@@ -54,102 +362,145 @@
     @endphp
     <div class="form-group mb-0">
         <div class="input-group date">
-            <input type="text" class="form-control drop-down" id="txtCalendar" name="start_date" value="{{ $calDate }}">
-            <span class="input-group-text input-group-append custom-cal">
+            <input type="text" class="form-control drop-down btn btn-outline-info btn-lg" id="txtCalendar" name="start_date" value="{{ $calDate }}">
+            <span class="">
                 <i class="simple-icon-calendar"></i>
             </span>
         </div>
     </div>
 
 </div>
+<hr>
 
+  <main class="main-container default-transition" style="padding-block:2em;padding-inline:2em;">
+        <div class="default-transition">
+            <div class="container-fluid">
+                <div class="row">
+                    <!-- Page Header -->
+                    <!-- <div class="col-12 mb-4">
+                        <div class="page-header fade-in">
+                            <div class="d-flex justify-content-between align-items-end flex-wrap">
+                                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end gap-4">
+                                    <h1 class="page-title mb-0">
+                                        <i class="fas fa-clipboard-check me-3"></i>Daily Head Check
+                                    </h1>
+                                    <p class="breadcrumb-text mb-0 mx-md-4">
+                                        <a href=""><i class="fas fa-home me-1"></i>Dashboard</a>
+                                        <span class="mx-2">|</span> 
+                                        <span><i class="fas fa-users me-1"></i>Head Checks</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
 
-<main class="default-transition" style="padding-block:5em;padding-inline:2em;">
-    <div class="default-transition">
-        <div class="container-fluid">
-            <div class="row">
-                    <!-- <div class="col-12 service-details-header">
-    <div class="d-flex justify-content-between align-items-end flex-wrap">
- <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end gap-4">
-  <h2 class="mb-0">Daily Journel</h2>
-  <p class="mb-0 text-muted mx-md-4">
-    <a href="">Dashboard</a><span class="mx-2">|</span> <span>Head Checks</span>
-  </p>
-</div>
+                    <!-- Head Check Form -->
+                    <div class="col-12">
+                        <div class="form-container fade-in">
+                            <form action="{{ route('headchecks.store') }}" method="POST" id="headCheckForm">
+                                @csrf
+                                <input type="hidden" name="roomid" value="{{ request('roomid', $roomid) }}">
+                                <input type="hidden" name="centerid" value="{{ request('centerid', $centerid) }}">
+                                <input type="hidden" name="diarydate" value="{{ $calDate }}">
 
-    </div>
-    <hr class="mt-3">
-  </div>    -->
-
-                {{-- Head Check Form --}}
-                <div class="col-12">
-                    <form action="{{ route('headchecks.store') }}" method="POST" id="headCheckForm">
-                        @csrf
-                        <input type="hidden" name="roomid" value="{{ request('roomid', $roomid) }}">
-                        <input type="hidden" name="centerid" value="{{ request('centerid', $centerid) }}">
-                        <input type="hidden" name="diarydate" value="{{ $calDate }}">
-
-                        <div class="card p-4">
-                            <div id="form-fields">
-                                @php $i = 1; @endphp
-                                @forelse($headChecks as $key => $hc)
-                                    @php
-                                        [$hour, $mins] = $hc->time 
-                                            ? explode(':', str_replace(['h','m'], '', $hc->time)) 
-                                            : [now()->format('G'), now()->format('i')];
-                                    @endphp
-
-                                    <div class="form-row row InnerHeadCheck w-100">
-                                        <div class="form-group col-md-3">
-                                            <label>Time</label><br>
-                                            <input type="hidden" name="headcheck" id="headcheckid" value="{{$hc->id}}">
-                                            <input type="number" name="hour[]" min="0" max="24" class="form-hour form-number w-40" value="{{ $hour }}"> H :
-                                            <input type="number" name="mins[]" min="0" max="59" class="form-mins form-number w-40" value="{{ $mins }}"> M
-                                            <i class="fa-solid fa-clock"></i>
-                                            <input type="time" name="timePicker[]" class="form-time" value="{{ sprintf('%02d:%02d', $hour, $mins) }}">
+                                <div id="form-fields">
+                                    @php $i = 1; @endphp
+                                    @forelse($headChecks as $key => $hc)
+                                        @php
+                                            [$hour, $mins] = $hc->time 
+                                                ? explode(':', str_replace(['h','m'], '', $hc->time)) 
+                                                : [now()->format('G'), now()->format('i')];
+                                        @endphp
+                                        
+                                        <div class="headcheck-card card fade-in">
+                                            <div class="card-number">{{ $i }}</div>
+                                            <div class="card-body">
+                                                <input type="hidden" name="headcheck[]" id="headcheckid"value="{{ $hc->id }}">
+                                                <div class="row">
+                                                    <div class="col-lg-3 col-md-6 mb-3">
+                                                        <label class="custom-label">
+                                                            <i class="fas fa-clock me-2"></i>Time
+                                                        </label>
+                                                        <div class="time-input-group">
+                                                            <input type="number" name="hour[]" min="0" max="24" 
+                                                                   class="form-number custom-input" value="{{ $hour }}" placeholder="HH">
+                                                            <span class="time-separator">:</span>
+                                                            <input type="number" name="mins[]" min="0" max="59" 
+                                                                   class="form-number custom-input" value="{{ $mins }}" placeholder="MM">
+                                                            <i class="fas fa-clock time-icon"></i>
+                                                        </div>
+                                                        <input type="time" name="timePicker[]" class="form-time custom-input mt-2" 
+                                                               value="{{ sprintf('%02d:%02d', $hour, $mins) }}">
+                                                    </div>
+                                                    
+                                                    <div class="col-lg-3 col-md-6 mb-3">
+                                                        <label class="custom-label">
+                                                            <i class="fas fa-users me-2"></i>Head Count
+                                                        </label>
+                                                        <input type="number" class="custom-input" name="headCount[]" 
+                                                               value="{{ $hc->headcount }}" placeholder="Enter count">
+                                                    </div>
+                                                    
+                                                    <div class="col-lg-5 col-md-8 mb-3">
+                                                        <label class="custom-label">
+                                                            <i class="fas fa-comment me-2"></i>Comments
+                                                        </label>
+                                                        <input type="text" class="custom-input" name="comments[]" 
+                                                               value="{{ $hc->comments }}" placeholder="Enter any comments or observations">
+                                                    </div>
+                                                    
+                                                    @if($i = 1 && $date == now()->format('Y-m-d'))
+                                                    <div class="col-lg-1 col-md-4 mb-3 d-flex align-items-end justify-content-center">
+                                                        <button type="button" class="btn-remove minus-btn" title="Remove Entry">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="form-group col-md-3">
-                                            <label>Head Count</label>
-                                            <input type="number" class="form-control" name="headCount[]" value="{{ $hc->headcount }}">
-                                        </div>
-                                        <!-- <div class="form-group col-md-3">
-                                            <label>Signature</label>
-                                            <input type="text" class="form-control" name="signature[]" value="{{ $hc->signature }}">
-                                        </div> -->
-                                        <div class="form-group col-md-3">
-                                            <label>Comments</label>
-                                            <input type="text" class="form-control" name="comments[]" value="{{ $hc->comments }}">
-                                        </div>
-
-                                        @if($i != 1 && $date == now()->format('Y-m-d'))
-                                            <div class="form-group col-md-1 mt-4">
-                                                <a href="#!" class="btn btn-outline-danger minus-btn">Remove</a>
+                                       
+                                    @empty
+                                        @if(!($date ?? now()->format('Y-m-d')) == now()->format('Y-m-d'))
+                                            <!-- Empty State for Past Dates -->
+                                            <div class="empty-state">
+                                                <div class="empty-state-icon">
+                                                    <i class="fas fa-clipboard-check"></i>
+                                                </div>
+                                                <h5 class="empty-state-title">No Head Checks Found</h5>
+                                                <p class="empty-state-text">No head check entries were recorded for this date.</p>
+                                            </div>
+                                        @else
+                                            <!-- Empty State for Today -->
+                                            <div class="empty-state" id="empty-state">
+                                                <div class="empty-state-icon">
+                                                    <i class="fas fa-clipboard-check"></i>
+                                                </div>
+                                                <h5 class="empty-state-title">No Head Checks Found</h5>
+                                                <p class="empty-state-text">Click the "Add New Entry" button to create your first head check entry.</p>
                                             </div>
                                         @endif
-                                    </div>
-                                    @php $i++; @endphp
-                                @empty
-                                    {{-- Empty form if no records 
-                                     @include('headchecks.partials.empty-row')
-                                   --}}
-                                @endforelse
-                              
-                            </div>
-
-                            {{-- Action Buttons --}}
-                            @if(($date ?? now()->format('Y-m-d')) == now()->format('Y-m-d'))
-                                <div class="text-right mt-3">
-                                    <button type="button" class="btn btn-outline-primary add-btn">+ New</button>
-                                    <button type="submit" class="btn btn-outline-success" id="save_headcheck">Save</button>
+                                    @endforelse
                                 </div>
-                            @endif
+
+                                <!-- Action Buttons -->
+                                @if(($date ?? now()->format('Y-m-d')) == now()->format('Y-m-d'))
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn btn-custom btn-add me-3" id="add-btn">
+                                            <i class="fas fa-plus mx-1"></i>Add New
+                                        </button>
+                                        <button type="submit" class="btn btn-custom btn-save" id="save_headcheck">
+                                            <i class="fas fa-save mx-1"></i>Save
+                                        </button>
+                                    </div>
+                                @endif
+                            </form>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
 @endsection
 @push('scripts')
 	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -161,8 +512,192 @@
         maxDate: "today"
     });
 </script>
+<!-- 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script> -->
+    
+    <script>
+        $(document).ready(function() {
+            // Get initial entry count from existing entries
+            let entryCount = $('.headcheck-card').length;
 
+            // Hide empty state if we have entries
+            if (entryCount > 0) {
+                $('#empty-state').addClass('d-none');
+            }
 
+            // Add new entry
+            $('#add-btn').click(function() {
+                entryCount++;
+                const currentTime = new Date();
+                const hours = currentTime.getHours().toString().padStart(2, '0');
+                const minutes = currentTime.getMinutes().toString().padStart(2, '0');
+                
+                const newEntry = `
+                    <div class="headcheck-card card fade-in">
+                        <div class="card-number">${entryCount}</div>
+                        <div class="card-body">
+                            <input type="hidden" name="headcheck[]" value="">
+                            <div class="row">
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <label class="custom-label">
+                                        <i class="fas fa-clock me-2"></i>Time
+                                    </label>
+                                    <div class="time-input-group">
+                                        <input type="number" name="hour[]" min="0" max="24" 
+                                               class="form-number custom-input" value="${hours}" placeholder="HH">
+                                        <span class="time-separator">:</span>
+                                        <input type="number" name="mins[]" min="0" max="59" 
+                                               class="form-number custom-input" value="${minutes}" placeholder="MM">
+                                        <i class="fas fa-clock time-icon"></i>
+                                    </div>
+                                    <input type="time" name="timePicker[]" class="form-time custom-input mt-2" value="${hours}:${minutes}">
+                                </div>
+                                
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <label class="custom-label">
+                                        <i class="fas fa-users me-2"></i>Head Count
+                                    </label>
+                                    <input type="number" class="custom-input" name="headCount[]" 
+                                           placeholder="Enter count">
+                                </div>
+                                
+                                <div class="col-lg-5 col-md-8 mb-3">
+                                    <label class="custom-label">
+                                        <i class="fas fa-comment me-2"></i>Comments
+                                    </label>
+                                    <input type="text" class="custom-input" name="comments[]" 
+                                           placeholder="Enter any comments or observations">
+                                </div>
+                                
+                                <div class="col-lg-1 col-md-4 mb-3 d-flex align-items-end justify-content-center">
+                                    <button type="button" class="btn-remove" title="Remove Entry">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Hide empty state and append new entry
+                $('#empty-state').addClass('d-none');
+                $('#form-fields').append(newEntry);
+                updateCardNumbers();
+            });
+
+            // Remove entry
+            $(document).on('click', '.btn-remove', function() {
+                $(this).closest('.headcheck-card').fadeOut(300, function() {
+                    $(this).remove();
+                    entryCount--;
+                    updateCardNumbers();
+                    checkEmptyState();
+                });
+            });
+
+            // Update card numbers
+            function updateCardNumbers() {
+                $('.headcheck-card').each(function(index) {
+                    $(this).find('.card-number').text(index + 1);
+                });
+            }
+
+            // Check if we should show empty state
+            function checkEmptyState() {
+                if ($('.headcheck-card').length === 0) {
+                    $('#empty-state').removeClass('d-none');
+                } else {
+                    $('#empty-state').addClass('d-none');
+                }
+            }
+
+            // Sync time inputs
+            $(document).on('change', '.form-number', function() {
+                const row = $(this).closest('.row');
+                const hours = row.find('input[name="hour[]"]').val().padStart(2, '0');
+                const minutes = row.find('input[name="mins[]"]').val().padStart(2, '0');
+                row.find('input[name="timePicker[]"]').val(`${hours}:${minutes}`);
+            });
+
+            $(document).on('change', '.form-time', function() {
+                const row = $(this).closest('.row');
+                const timeValue = $(this).val();
+                const [hours, minutes] = timeValue.split(':');
+                row.find('input[name="hour[]"]').val(parseInt(hours));
+                row.find('input[name="mins[]"]').val(parseInt(minutes));
+            });
+
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+                let errors = [];
+
+                $('.headcheck-card').each(function(index) {
+                    const cardNum = index + 1;
+                    const headCount = $(this).find('input[name="headCount[]"]').val();
+                    const hour = $(this).find('input[name="hour[]"]').val();
+                    const mins = $(this).find('input[name="mins[]"]').val();
+
+                    if (!headCount || headCount < 0) {
+                        errors.push(`Entry ${cardNum}: Head count is required and must be positive`);
+                        isValid = false;
+                    }
+
+                    if (!hour || hour < 0 || hour > 23) {
+                        errors.push(`Entry ${cardNum}: Valid hour (0-23) is required`);
+                        isValid = false;
+                    }
+
+                    if (!mins || mins < 0 || mins > 59) {
+                        errors.push(`Entry ${cardNum}: Valid minutes (0-59) is required`);
+                        isValid = false;
+                    }
+                });
+
+                if (!isValid) {
+                    alert('Please fix the following errors:\n\n' + errors.join('\n'));
+                }
+
+                return isValid;
+            }
+
+            // Form submission - Remove preventDefault to allow actual form submission
+            $('#headCheckForm').submit(function(e) {
+                // Validate form before submission
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Show loading state
+                const saveBtn = $('#save_headcheck');
+                const originalText = saveBtn.html();
+                saveBtn.html('<i class="fas fa-spinner fa-spin me-2"></i>Saving...').prop('disabled', true);
+                
+                // Allow form to submit naturally to Laravel
+                // The loading state will be reset on page reload/redirect
+            });
+
+            // Auto-save functionality (optional)
+            let autoSaveTimeout;
+            $(document).on('input', '.custom-input', function() {
+                clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(function() {
+                    // Show auto-save indicator
+                    if ($('#auto-save-indicator').length === 0) {
+                        $('body').append('<div id="auto-save-indicator" class="position-fixed" style="top: 20px; right: 20px; z-index: 9999;"><div class="alert alert-info alert-sm"><i class="fas fa-save me-2"></i>Auto-saving...</div></div>');
+                        
+                        setTimeout(function() {
+                            $('#auto-save-indicator').fadeOut(function() {
+                                $(this).remove();
+                            });
+                        }, 2000);
+                    }
+                }, 3000);
+            });
+        });
+    </script>
 <script>
 $(document).ready(function() {
 
@@ -200,28 +735,32 @@ $(document).ready(function() {
         const [hour, mins] = currentTime.split(':');
 
         const newRow = `
-            <div class="row rowInnerHeadCheck form-row w-100">
+       
+        <div class="col-12 card px-lg-4 py-lg-3">
+            <div class="row rowInnerHeadCheck form-row w-100 ">
                 <div class="form-group col-md-3 col-sm-12">
                     <label>Time</label><br>
-                    <input type="number" min="0" max="24" value="${hour}" name="hour[]" class="form-hour form-number w-40"> H :
-                    <input type="number" min="00" max="59" value="${mins}" name="mins[]" class="form-mins form-number w-40"> M
-                    &nbsp;<i class="fa-solid fa-clock"></i>&nbsp;<input type="time" name="timePicker[]" class="form-time" value="${currentTime}">
+                    <input type="number" min="0" max="24" value="${hour}" name="hour[]" class="form-hour form-number w-40 custom-input my-1"> H :
+                    <input type="number" min="00" max="59" value="${mins}" name="mins[]" class="form-mins form-number w-40 custom-input my-1"> M
+                    &nbsp;<i class="fa-solid fa-clock"></i>&nbsp;<input type="time" name="timePicker[]" class="form-time custom-input my-1" value="${currentTime}">
                 </div>
                 <div class="form-group col-md-3 col-sm-12">
                     <label>Head Count</label>
-                    <input type="number" class="form-control" name="headCount[]">
+                    <input type="number" class="form-control custom-input my-1" name="headCount[]">
                 </div>
                 
                 <div class="form-group commentGroup col-md-3 col-sm-12">
                     <label>Comments</label>
-                    <input type="text" class="form-control commentField" name="comments[]">
+                    <input type="text" class="form-control commentField custom-input my-1" name="comments[]">
                 </div>
                 <div class="btn-group" style="display:contents;">
                     <div class="form-group lastGroup col-md-1 col-sm-12" style="margin-top: 28px;">
-                        <a href="#!" class="btn btn-outline-danger minus-btn btn-block" style="width: fit-content;">Remove</a>
+                        <a href="#!" class="btn btn-outline-danger minus-btn btn-block custom-input my-1" style="width: fit-content;">Remove</a>
                     </div>
                 </div>
             </div>
+            </div>
+             <hr>
         `;
 
         $('#form-fields').append(newRow);
@@ -231,11 +770,13 @@ $(document).ready(function() {
 
     $(document).on('click', '.minus-btn', function () {
       
+      
 
-          let row = $(this).closest('.rowInnerHeadCheck, .InnerHeadCheck');
+          let row = $(this).closest('.headcheck-card');
 
     // This finds the input with class .headcheckid inside only that row
     let headCheckId = row.find('#headcheckid').val();
+    //   alert(headCheckId);
     // alert(headCheckId);
 
   if (headCheckId) {
@@ -358,6 +899,7 @@ $(document).ready(function() {
 // });
 
 </script>
+
 
 @endpush
 @include('layout.footer')
