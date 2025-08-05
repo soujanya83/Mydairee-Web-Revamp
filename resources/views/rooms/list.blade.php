@@ -192,7 +192,7 @@
         @endif
         <div class="row clearfix" style="margin-bottom: 43px;">
             @foreach($getrooms as $room)
-            <div class="col-lg-4 col-md-6 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
+            <div class="col-lg-3 col-md-3 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
                 <div class="card shadow-sm border-0 rounded p-3 hover-shadow position-relative"
                     style="    height: 165px;">
 

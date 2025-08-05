@@ -172,8 +172,8 @@
 
                         <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
                             <li class="dropdown-header text-center">
-                                <span style="font-size: 18px"><i class="fa fa-user me-2"></i > {{ Auth::user()->name }}</span><br>
-                                <span style="font-size: 16px"> <i class="fa fa-envelope me-2"></i> <u>{{ Auth::user()->email }}</u> </span>
+                                <span style="font-size: 18px;float:left;"><i class="fa fa-user me-2"></i > {{ Auth::user()->name }}</span><br>
+                                <span style="font-size: 16px;float:left;"> <i class="fa fa-envelope me-2"></i> <u>{{ Auth::user()->email }}</u> </span>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">

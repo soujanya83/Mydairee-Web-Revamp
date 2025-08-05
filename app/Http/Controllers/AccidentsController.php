@@ -32,6 +32,123 @@ use Illuminate\Pagination\Paginator;
 class AccidentsController extends Controller
 {
 
+
+public function filterByChild(Request $request)
+{
+    $user = Auth::user();
+    $userid = $user->userid;
+    $userType = $user->userType;
+    $centerid = Session('user_center_id');
+
+    if (empty($centerid)) {
+        $centerId = Usercenter::where('userid', $userid)->pluck('centerid')->first();
+        $centerid = $centerId;
+    }
+
+    // Fetch centers
+    if ($userType === "Superadmin") {
+        $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
+        $centers = Center::whereIn('id', $centerIds)->get();
+    } else {
+        $centers = Center::where('id', $centerid)->get();
+    }
+
+    // Handle room selection
+    $room = null;
+    if (empty($request->roomid)) {
+        $centerRoom = Room::where('centerid', $centerid)->first();
+        $roomid = $centerRoom->id ?? null;
+        $roomname = $centerRoom->name ?? '';
+        $roomcolor = $centerRoom->color ?? '';
+        $centerRooms = Room::where('centerid', $centerid)->get();
+    } else {
+        $roomid = $request->roomid;
+        $room = Room::find($roomid);
+        $roomname = $room->name ?? '';
+        $roomcolor = $room->color ?? '';
+        $centerRooms = Room::where('centerid', $centerid)->get();
+    }
+
+    if ($room) {
+        $roomid = $room->id;
+        $roomname = $room->name;
+        $roomcolor = $room->color;
+    }
+
+    $date = !empty($request->date)
+        ? date('Y-m-d', strtotime($request->date))
+        : date('Y-m-d');
+
+    // Build accident query
+    if ($userType == "Parent") {
+        $accQuery = AccidentsModel::select(
+                'accidents.id',
+                'accidents.child_name',
+                'accidents.child_gender',
+                'accidents.roomid',
+                'accidents.incident_date',
+                'accidents.ack_parent_name',
+                'accidents.added_by'
+            )
+            ->join('childparent', 'childparent.childid', '=', 'accidents.childid')
+            ->where('childparent.parentid', $userid)
+            ->where('centerid',Session('user_center_id'))
+            ->where('roomid',$roomid)
+            ->orderBy('added_at', 'desc');
+    } else {
+        $accQuery = AccidentsModel::select(
+                'id',
+                'child_name',
+                'child_gender',
+                'roomid',
+                'incident_date',
+                'ack_parent_name',
+                'added_by'
+            )
+            ->orderBy('added_at', 'desc');
+
+        if (Session('user_center_id') !== null) {
+            $accQuery->where('centerid', Session('user_center_id'));
+
+        }
+          if ($roomid !== null) {
+            $accQuery->where('roomid', $roomid);
+
+        }
+    }
+
+    // ✅ Filter by child name if provided
+    if ($request->filled('child_name')) {
+        $accQuery->where('child_name', 'like', '%' . $request->child_name . '%');
+    }
+
+    $accArr = $accQuery->get();
+
+    // Add username for each accident
+    foreach ($accArr as $acc) {
+        $userData = User::find($acc->added_by);
+        $acc->username = $userData->name ?? 'Unknown';
+    }
+
+    $childs = Child::where('room', $roomid)->get();
+
+    // Return JSON
+    return response()->json([
+        'centerid'       => $centerid,
+        'date'           => $date,
+        'roomid'         => $roomid,
+        'roomname'       => $roomname,
+        'roomcolor'      => $roomcolor,
+        'rooms'          => $centerRooms,
+        'childs'         => $childs,
+        'accidents'      => $accArr,
+        'centers'        => $centers,
+        'selectedCenter' => $request->centerid,
+    ]);
+}
+
+
+
 public function AccidentsList(Request $request)
 {
     $user = Auth::user();
@@ -80,14 +197,17 @@ public function AccidentsList(Request $request)
         $accArr = AccidentsModel::select('accidents.id', 'accidents.child_name', 'accidents.child_gender', 'accidents.roomid', 'accidents.incident_date', 'accidents.ack_parent_name', 'accidents.added_by')
             ->join('childparent', 'childparent.childid', '=', 'accidents.childid')
             ->where('childparent.parentid', $userid)
+            
+            ->orderBy('added_at','desc')
             ->paginate(12); // paginated
     } else {
         if ($roomid === null) {
             $accArr = AccidentsModel::select('id', 'child_name', 'child_gender', 'roomid', 'incident_date', 'ack_parent_name', 'added_by')
-                ->paginate(12);
+                  ->orderBy('added_at','desc')->paginate(12);
         } else {
             $accArr = AccidentsModel::select('id', 'child_name', 'child_gender', 'roomid', 'incident_date', 'ack_parent_name', 'added_by')
                 ->where('roomid', $roomid)
+                  ->orderBy('added_at','desc')
                 ->paginate(12);
         }
     }
@@ -256,188 +376,24 @@ public function sendEmail(Request $request)
     ]);
 }
 
-
-// public function saveAccident(Request $request)
-// {
-//     // dd('here');
-//     $data = $request->all();
-//     // dd($request->all());
-//     // $data['userid'] = Auth::user()->userid;
-//     // $data['username'] = Auth::user()->name;
-//     // $data['centerid'] = session('user_center_id');
-//     // $data['roomid'] = $request->roomid;
-
-//     $request->merge([
-//     'userid' => Auth::user()->userid,
-//     'username' => Auth::user()->name,
-//     'centerid' => session('user_center_id'),
-//     'roomid' => $request->roomid,
-// ]);
-
-//     $accidentId = null;
-//     if (!empty($request->accidentid)) {
-//         $this->updateAccident((object)$data);  // Ensure cast to object if needed
-//         $accidentId = $request->accidentid;
-//     } else {
-//         $accidentId = $this->insertAccident($request);
-//         if (!$accidentId) {
-//             return response()->json([
-//                 'Status' => 'ERROR',
-//                 'Message' => 'Something went wrong!'
-//             ], 401);
-//         }
-//     }
-
-//     // Save signatures/images
-//     $targetPath = public_path('assets/media/');
-//     File::ensureDirectoryExists($targetPath);
-
-//     $imageMappings = [
-//         'person_sign' => "personSign-$accidentId.png",
-//         'witness_sign' => "witnessSign-$accidentId.png",
-//         'injury_image' => "injuryImage-$accidentId.png",
-//         'responsible_person_sign' => "personInchargeSign-$accidentId.png",
-//         'nominated_supervisor_sign' => "supervisorSign-$accidentId.png",
-//     ];
-
-//     foreach ($imageMappings as $field => $filename) {
-//         if (!empty($data[$field])) {
-//             $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data[$field]));
-//             file_put_contents($targetPath . $filename, $imageData);
-
-//             // Update image field in DB
-//             AccidentsModel::where('id', $accidentId)->update([$field => $filename]);
-//         }
-//     }
-
-//     // Update illness
-//     $data['accidentid'] = $accidentId;
-//      return redirect()->route('Accidents.list');
-// //     if ($this->updateIllness((object)$data)) {
-// //         return response()->json([
-// //             'Status' => 'SUCCESS',
-// //             'Message' => 'Accident record saved!'
-// //         ], 200);
-// //     } else {
-// //         return response()->json([
-// //             'Status' => 'ERROR',
-// //             'Message' => "Can't update illness!"
-// //         ], 401);
-// //     }
-// }
-
-// public function saveAccident(Request $request)
-// {
-//     $data = $request->all();
-
-//     // dd($data);
-
-//     // Merge additional fields from session/auth
-//     $request->merge([
-//         'userid' => Auth::user()->userid,
-//         'username' => Auth::user()->name,
-//         'centerid' => session('user_center_id'),
-//         'roomid' => $request->roomid,
-//     ]);
-
-//     $accidentId = null;
-
-//     // Insert or Update Accident
-//     if (!empty($request->id)) {
-//         // dd($request->all());
-//      $accidentId =   $this->updateAccident($request);  // Make sure updateAccident handles casting
-//         $accidentId = $request->accidentid;
-//     // Save Signature / Injury Images
-//     $targetPath = public_path('assets/media/');
-//     File::ensureDirectoryExists($targetPath);
-// // Fetch existing record
-// $existingAccident = AccidentsModel::find($accidentId);
-
-
-//     $imageMappings = [
-//         'person_sign' => "personSign-$accidentId.png",
-//         'witness_sign' => "witnessSign-$accidentId.png",
-//         'injury_image' => "injuryImage-$accidentId.png",
-//         'responsible_person_sign' => "personInchargeSign-$accidentId.png",
-//         'nominated_supervisor_sign' => "supervisorSign-$accidentId.png",
-//     ];
-
-//     foreach ($imageMappings as $field => $filename) {
-//         if (!empty($data[$field])) {
-//             $base64 = $data[$field];
-
-//             // Strip base64 prefix and decode
-//             $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64));
-
-//             // Save file
-//             file_put_contents($targetPath . $filename, $imageData);
-
-//             // Update DB with image filename
-//             AccidentsModel::where('id', $accidentId)->update([
-//                 $field => $filename
-//             ]);
-//         }
-//     }
-
-
-
-//     } else {
-
-//         $accidentId = $this->insertAccident($request);
-//         if (!$accidentId) {
-//             return response()->json([
-//                 'Status' => 'ERROR',
-//                 'Message' => 'Something went wrong while saving accident record!'
-//             ], 500);
-//         }
-
-//             // Save Signature / Injury Images
-//     $targetPath = public_path('assets/media/');
-//     File::ensureDirectoryExists($targetPath);
-
-//     $imageMappings = [
-//         'person_sign' => "personSign-$accidentId.png",
-//         'witness_sign' => "witnessSign-$accidentId.png",
-//         'injury_image' => "injuryImage-$accidentId.png",
-//         'responsible_person_sign' => "personInchargeSign-$accidentId.png",
-//         'nominated_supervisor_sign' => "supervisorSign-$accidentId.png",
-//     ];
-
-//     foreach ($imageMappings as $field => $filename) {
-//         if (!empty($data[$field])) {
-//             $base64 = $data[$field];
-
-//             // Strip base64 prefix and decode
-//             $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64));
-
-//             // Save file
-//             file_put_contents($targetPath . $filename, $imageData);
-
-//             // Update DB with image filename
-//             AccidentsModel::where('id', $accidentId)->update([
-//                 $field => $filename
-//             ]);
-//         }
-//     }
-//     }
-
-
-
-//     // Optionally update related illness data (commented out for now)
-//     // $data['accidentid'] = $accidentId;
-//     // $this->updateIllness((object)$data);
-
-//     return redirect()->route('Accidents.list')->with('success', 'Accident record saved successfully.');
-// }
 public function saveAccident(Request $request)
 {
+
   $request->validate([
-    'childid' => 'required'
+    'childid' => 'required',
+    'date' => 'required',
+    'time' => 'required',
+    'incident_date' => 'required'
 ], [
-    'childid.required' => 'Child is required.'
+    'childid.required' => 'Child is required.',
+    'date.required' => 'accident date is required',
+    'time.required' => 'accident time required'
+
 ]);
 
     $data = $request->all();
+
+    // dd($data);
 
     // Add Auth/session fields
     $request->merge([

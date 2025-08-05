@@ -9,6 +9,9 @@ use App\Models\User;
 use App\Models\Room;
 use App\Models\Usercenter;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
+use App\Models\AnnouncementChildModel;
+use Carbon\Carbon;
 
 class DashboardController extends BaseController
 {
@@ -26,41 +29,77 @@ class DashboardController extends BaseController
 
         return view('dashboard.university', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes'));
     }
-    public function getEvents()
-    {
-        $events = [
-            ['title' => 'Sample Event', 'start' => '2025-07-04'],
-            // Add your events from DB here
-        ];
+public function getEvents()
+{
+    $auth = Auth::user();
+    $userid = $auth->userid;
+    $usertype = $auth->userType;
 
-        $events = AnnouncementsModel::all();
+    if ($usertype === 'Parent') {
+        // 1. Get all children for this parent
+        $childIds = Child::where('user_id', $userid)->pluck('id');
 
-        $data = [
-            'status' => true,
-            'message' => 'events fetched successfully',
-            'events' => $events
-        ];
+        // 2. Get announcement IDs linked to these children
+        $announcementIds = AnnouncementChildModel::whereIn('childid', $childIds)
+            ->pluck('aid');
 
-        return response()->json($data);
+        // 3. Fetch only announcements for these IDs
+        $announcements = AnnouncementsModel::whereIn('id', $announcementIds)->get();
+    } else {
+        // Not a parent → fetch all announcements
+        $announcements = AnnouncementsModel::all();
     }
 
+   $events = $announcements->map(function ($announcement) {
+    return [
+        'id'                => $announcement->id,
+        'title'             => $announcement->title,
+        'text'              => $announcement->text ?? '',
+        'status'            => $announcement->status ?? '',
+        'announcementMedia' => $announcement->announcementMedia ?? '',
+        'eventDate'         => $announcement->eventDate 
+                                ? Carbon::parse($announcement->eventDate)->format('Y-m-d')
+                                : null,
+        'createdAt'         => $announcement->createdAt 
+                                ? Carbon::parse($announcement->createdAt)->format('Y-m-d H:i:s')
+                                : null,
+        'start'             => $announcement->eventDate 
+                                ? Carbon::parse($announcement->eventDate)->format('Y-m-d')
+                                : Carbon::parse($announcement->createdAt)->format('Y-m-d'),
+    ];
+});
 
-    public function getUser()
-    {
-        $events = [
-            ['title' => 'Sample Event', 'start' => '2025-07-04'],
-            // Add your events from DB here
-        ];
+    return response()->json([
+        'status'  => true,
+        'message' => 'Events fetched successfully',
+        'events'  => $events,
+    ]);
+}
 
-        $events = Child::all();
 
-        $data = [
-            'status' => true,
-            'message' => 'childs fetched successfully',
-            'events' => $events
-        ];
 
-        return response()->json($data);
+ public function getUser()
+{
+    $auth = Auth::user();
+    $userid = $auth->userid;
+    $usertype = $auth->userType;
+
+    if ($usertype === 'parents') {
+        // Show only children of the logged-in parent
+        $children = Child::where('user_id', $userid)->get();
+    } else {
+        // Show all children for other user types (admin, teacher, etc.)
+        $children = Child::all();
     }
+
+    $data = [
+        'status' => true,
+        'message' => 'Children fetched successfully',
+        'events' => $children
+    ];
+
+    return response()->json($data);
+}
+
 
 }

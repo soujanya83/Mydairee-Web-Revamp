@@ -89,8 +89,10 @@
                                 <i class="fa fa-chevron-right dropdown-arrow"></i>
                             </a>
                             <ul>
-                                @if(!empty($permissions['viewDailyDiary']) && $permissions['viewDailyDiary'])
-
+                            @if(
+    in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewDailyDiary']) && $permissions['viewDailyDiary'])
+)
                                 <li class="{{ Route::is('dailyDiary.list') ? 'active' : '' }}">
                                     <a href="{{ route('dailyDiary.list') }}" data-toggle="tooltip" data-placement="right" > &nbsp;Daily Diary</a>
                                 </li>
@@ -106,7 +108,8 @@
                                 </li>
                             </ul>
                         </li>
-                        @if(!empty($permissions['viewProgramPlan']) && $permissions['viewProgramPlan'])
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewProgramPlan']) && $permissions['viewProgramPlan']))
 
                         <li class="{{ Request::is('programPlanList*') ? 'active' : '' }}">
                             <a href="/programPlanList" data-toggle="tooltip" data-placement="right">
@@ -116,7 +119,8 @@
                             </a>
                         </li>
                         @endif
-                        @if(!empty($permissions['viewAllReflection']) && $permissions['viewAllReflection'])
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllReflection']) && $permissions['viewAllReflection']))
 
                         <li class="{{ Request::is('reflection*') ? 'active' : null }}">
                             <a href="{{route('reflection.index')}}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-window-restore"
@@ -125,7 +129,8 @@
                         </li>
                         @endif
 
-                        @if(!empty($permissions['viewAllObservation']) && $permissions['viewAllObservation'])
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllObservation']) && $permissions['viewAllObservation']))
 
                         <li class="{{ Request::is('observation*') ? 'active' : null }}">
                             <a href="{{route('observation.index')}}" data-toggle="tooltip" data-placement="right">
@@ -144,7 +149,8 @@
 
 
 
-                        @if(!empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement'])
+                        @if(  in_array(auth()->user()->userType, ['Superadmin']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement']))
 
                         <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
                             <a href="{{ route('announcements.list') }}" data-toggle="tooltip" data-placement="right"> <i class="fa fa-bullhorn"
@@ -155,7 +161,8 @@
                         @endif
 
 
-                        @if(!empty($permissions['viewRoom']) && $permissions['viewRoom'])
+                        @if(  in_array(auth()->user()->userType, ['Superadmin']) || 
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewRoom']) && $permissions['viewRoom']))
 
                         <li class="{{ Request::is('room*') ? 'active' : null }}">
                             <a href="{{ route('rooms_list') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-users-viewfinder"
@@ -164,12 +171,7 @@
 
                         </li>
 
-                        <li class="{{ Request::is('learningandprogress*') ? 'active' : null }}">
-                            <a href="{{ route('learningandprogress.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-chart-simple"
-                                    style="font-size: 25px;"></i><span
-                                    style="font-size: 18px; margin-left:12px">Lession & Plan</span></a>
-
-                        </li>
+                       
 
                         <li class="{{ Request::is('qip*') ? 'active' : null }}">
                             <a href="{{ route('qip.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-clipboard"
@@ -178,10 +180,21 @@
 
                         </li>
                         @endif
+
+                        <li class="{{ Request::is('learningandprogress*') ? 'active' : null }}">
+                            <a href="{{ route('learningandprogress.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-chart-simple"
+                                    style="font-size: 25px;"></i><span
+                                    style="font-size: 18px; margin-left:12px">Lession & Plan</span></a>
+
+                        </li>
+
+
                         @php
                         $isHealthyActive = Route::is('healthy_menu') || Route::is('healthy_recipe') ||
                         Route::is('recipes.Ingredients');
                         @endphp
+
+                        @if(auth()->user()->userType != 'Parent')
 
                         <li class="{{ $isHealthyActive ? 'active open' : '' }}">
                             <a href="javascript:void(0);" data-toggle="tooltip" data-placement="right" class="d-flex justify-content-between align-items-center">
@@ -204,13 +217,19 @@
                             </ul>
                         </li>
 
+                        @endif
+                    
+                    @if(auth()->user()->userType != 'Parent')
+
                         <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
                             <a href="/ServiceDetails" data-toggle="tooltip" data-placement="right">
                                 <i class="fa fa-info-circle" style="font-size: 25px;"></i>
                                 <span style="font-size: 18px;margin-left:6px">Service Details</span>
                             </a>
                         </li>
+                    @endif
 
+                        @if(auth()->user()->userType != 'Parent')
                         <li class="{{ Request::segment(1) === 'settings' ? 'active open' : null }}">
                             <a href="#settings" data-toggle="tooltip" data-placement="right" class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -257,6 +276,7 @@
                                 </li>
                             </ul>
                         </li>
+                        @endif
 
                     </ul>
 

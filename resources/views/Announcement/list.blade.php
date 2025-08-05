@@ -179,7 +179,20 @@
         background: #a8a8a8;
     }
 </style>
+<style>
+    /* Make all inputs uniform */
+    .uniform-input {
+        width: 180px;    /* same width for all */
+        height: 36px;    /* same height */
+        font-size: 0.875rem;
+        margin-inline: 0.5rem;
+    }
 
+    /* Make sure labels don't misalign the row */
+    .top-right-button-container label {
+        line-height: 1;
+    }
+</style>
 
 <style>
     main {
@@ -207,7 +220,7 @@
         });
 </script>
 @endif
-<hr>
+<!-- <hr> -->
 <div class="text-zero top-right-button-container d-flex justify-content-end"
     style="margin-right: 20px;margin-top: -60px;">
 
@@ -248,12 +261,74 @@
 
 </div>
 
+ <hr class="mt-3"> 
+
+
+
 <main class="py-4">
+  <div class="col-12 d-flex justify-content-end align-items-end flex-wrap gap-2 top-right-button-container mb-4">
+
+    <!-- Filter Icon -->
+    <i class="fas fa-filter text-info" style="font-size: 1.2rem; position:relative; top:-8px;"></i>
+
+    <!-- Title Filter -->
+    <input 
+        type="text" 
+        name="filterbyTitle" 
+        class="form-control border-info form-control-sm uniform-input"
+        id="FilterbyTitle"
+        placeholder="Filter by Title"
+        onkeyup="filterProgramPlan()">
+
+    <!-- Created By Filter -->
+    <input 
+        type="text" 
+        name="filterbyCreatedBy" 
+        class="form-control border-info form-control-sm uniform-input"
+        id="FilterbyCreatedBy"
+        placeholder="Filter by Created by"
+        onkeyup="filterProgramPlan()">
+
+    <!-- From Date -->
+    <div class="d-flex flex-column">
+        <label for="Filterbydate_from" class="text-info small mb-1">From Date</label>
+        <input type="date" 
+               class="form-control border-info form-control-sm uniform-input"
+               id="Filterbydate_from"
+               name="date_from"
+               value="{{ request('date_from') }}"
+               onchange="filterProgramPlan()">
+    </div>
+
+    <!-- To Date -->
+    <div class="d-flex flex-column">
+        <label for="Filterbydate_to" class="text-info small mb-1">To Date</label>
+        <input type="date" 
+               class="form-control border-info form-control-sm uniform-input"
+               id="Filterbydate_to"
+               name="date_to"
+               value="{{ request('date_to') }}"
+               onchange="filterProgramPlan()">
+    </div>
+
+    <!-- Status Filter -->
+    <div class="d-flex flex-column">
+        <label for="statusFilter" class="text-info small mb-1">Status</label>
+        <select class="form-control form-control-sm border-info uniform-input" name="status" id="statusFilter" onchange="filterProgramPlan()">
+            <option value="">All Status</option>
+            <option value="Sent" {{ request('status') == 'Sent' ? 'selected' : '' }}>Sent</option>
+            <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+            <option value="Failed" {{ request('status') == 'Failed' ? 'selected' : '' }}>Failed</option>
+        </select>
+    </div>
+</div>
+
+
     <div class="container-fluid px-3 px-md-4">
         @if($records->isEmpty())
         <!-- Empty State -->
         <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-6">
+            <div class="col-12 col-md-12 col-lg-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body text-center py-5">
                         <div class="mb-4">
@@ -262,120 +337,31 @@
                         <h4 class="text-muted mb-3">No Announcements Found</h4>
                         <p class="text-muted mb-4">You don't have any announcement data yet. Get started by creating
                             your first announcement.</p>
-                        <a href="" class="btn btn-primary btn-lg px-4">
+                        <a href="list" class="btn btn-info btn-lg px-4">
                             <i class="fas fa-home me-2"></i>Go Back Home
                         </a>
                     </div>
                 </div>
             </div>
-<<<<<<< HEAD
+
         @else
             <!-- Search & Filter Section -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-gradient-primary text-white border-0">
+                        <div class="card-header text-white border-0" style="background-color:#17a2b8
+;">
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <h5 class="mb-0">
-                                    <i class="fas fa-bullhorn me-2"></i>Announcements List
+                                    <i class="fas fa-bullhorn me-2 mx-1"></i>Announcements
                                 </h5>
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="badge bg-white text-primary fs-6">
+                                    <div class="badge bg-white  fs-6" style="color:#17a2b8
+;">
                                         {{ $records->total() ?? count($records) }} Total
                                     </div>
-                                    <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#searchFilters" aria-expanded="false">
-                                        <i class="fas fa-filter me-1"></i>Filters
-                                    </button>
+
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Search and Filters -->
-                        <div class="collapse" id="searchFilters">
-                            <div class="card-body bg-light">
-                                <form method="GET" action="{{ request()->url() }}" id="searchForm">
-                                    <div class="row g-3">
-                                        <!-- Text Search -->
-                                        <div class="col-12 col-md-4">
-                                            <label class="form-label fw-semibold">
-                                                <i class="fas fa-search me-1"></i>Search
-                                            </label>
-                                            <input type="text" 
-                                                   class="form-control" 
-                                                   name="search" 
-                                                   value="{{ request('search') }}" 
-                                                   placeholder="Search title, creator..."
-                                                   id="searchInput">
-                                        </div>
-
-                                        <!-- Status Filter -->
-                                        <div class="col-12 col-md-2">
-                                            <label class="form-label fw-semibold">
-                                                <i class="fas fa-flag me-1"></i>Status
-                                            </label>
-                                            <select class="form-select" name="status" id="statusFilter">
-                                                <option value="">All Status</option>
-                                                <option value="Sent" {{ request('status') == 'Sent' ? 'selected' : '' }}>Sent</option>
-                                                <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                                <option value="Failed" {{ request('status') == 'Failed' ? 'selected' : '' }}>Failed</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Creator Filter -->
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label fw-semibold">
-                                                <i class="fas fa-user me-1"></i>Created By
-                                            </label>
-                                            <select class="form-select" name="creator" id="creatorFilter">
-                                                <option value="">All Creators</option>
-                                                @if(isset($creators))
-                                                    @foreach($creators as $creator)
-                                                        <option value="{{ $creator }}" {{ request('creator') == $creator ? 'selected' : '' }}>
-                                                            {{ ucfirst($creator) }}
-                                                        </option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                        </div>
-
-                                        <!-- Date Range -->
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label fw-semibold">
-                                                <i class="fas fa-calendar me-1"></i>Date Range
-                                            </label>
-                                            <div class="row g-1">
-                                                <div class="col-6">
-                                                    <input type="date" 
-                                                           class="form-control form-control-sm" 
-                                                           name="date_from" 
-                                                           value="{{ request('date_from') }}"
-                                                           placeholder="From">
-                                                </div>
-                                                <div class="col-6">
-                                                    <input type="date" 
-                                                           class="form-control form-control-sm" 
-                                                           name="date_to" 
-                                                           value="{{ request('date_to') }}"
-                                                           placeholder="To">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Filter Buttons -->
-                                    <div class="row mt-3">
-                                        <div class="col-12">
-                                            <div class="d-flex gap-2 justify-content-end">
-                                                <button type="button" class="btn btn-outline-secondary btn-sm" id="clearFilters">
-                                                    <i class="fas fa-times me-1"></i>Clear
-                                                </button>
-                                                <button type="submit" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-search me-1"></i>Apply Filters
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
                             </div>
                         </div>
                     </div>
@@ -383,6 +369,9 @@
             </div>
 
             <!-- Announcements Cards -->
+             <div class="annoucement-list">
+
+           
             <div class="row g-3">
                 @forelse($records as $announcement)
                     @php $media = json_decode($announcement->announcementMedia, true); @endphp
@@ -444,7 +433,8 @@
 
                                 <!-- Created By -->
                                 <div class="d-flex align-items-center mb-3">
-                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                    <div class=" rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;background-color:#17a2b8
+;">
                                         <small class="text-white fw-bold">{{ strtoupper(substr($announcement->createdBy, 0, 1)) }}</small>
                                     </div>
                                     <div>
@@ -452,12 +442,25 @@
                                         <span class="small fw-semibold">{{ ucfirst($announcement->createdBy) }}</span>
                                     </div>
                                 </div>
+@php
+    $eventDate = \Carbon\Carbon::parse($announcement->eventDate);
+    $today = \Carbon\Carbon::today();
 
+    $diffDays = $today->diffInDays($eventDate, false); // false = signed difference
+
+    if ($diffDays > 0) {
+        $eventDateHuman = "Event in {$diffDays} day" . ($diffDays > 1 ? 's' : '');
+    } elseif ($diffDays === 0) {
+        $eventDateHuman = "Event is today";
+    } else {
+        $eventDateHuman = "Event passed " . abs($diffDays) . " day" . (abs($diffDays) > 1 ? 's' : '') . " ago";
+    }
+@endphp
                                 <!-- Event Date -->
                                 <div class="mb-3">
                                     <small class="text-muted d-block">Event Date</small>
                                     <div class="fw-semibold">{{ \Carbon\Carbon::parse($announcement->eventDate)->format('d M Y') }}</div>
-                                    <small class="text-muted">{{ \Carbon\Carbon::parse($announcement->eventDate)->diffForHumans() }}</small>
+                                    <small class="text-muted">{{ $eventDateHuman }}</small>
                                 </div>
 
            <!-- Actions -->
@@ -518,16 +521,17 @@
         @endif
 
     <!-- Pagination -->
-  
+       @if(!$records->isEmpty())
+    <div class="col-12 d-flex justify-content-center mt-4" >
+        {{ $records->links('vendor.pagination.bootstrap-4') }}
+    </div>
+    @endif
+      </div>
     </div>
      
    
 
-      @if(!$records->isEmpty())
-    <div class="col-12 d-flex justify-content-center mt-4">
-        {{ $records->links('vendor.pagination.bootstrap-4') }}
-    </div>
-    @endif
+ 
     </main>
 
 
@@ -535,32 +539,6 @@
 @endsection
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-    const deleteButtons = document.querySelectorAll('.delete-btn');
-
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you really want to delete this announcement?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Submit the form if user confirms
-                    button.closest('form').submit();
-                }
-            });
-        });
-    });
-});
-</script>
 
 <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -643,6 +621,249 @@
                 });
             }
         });
+
+function filterProgramPlan() {
+    var Title        = $('#FilterbyTitle').val();
+    var CreatedBy    = $('#FilterbyCreatedBy').val();
+    var date_from    = $('#Filterbydate_from').val();
+    var date_to      = $('#Filterbydate_to').val();
+    var statusFilter = $('#statusFilter').val();
+
+    console.log('data:', Title, CreatedBy, date_from, date_to, statusFilter);
+
+    $.ajax({
+        url: "{{ route('announcements.Filterlist') }}",
+        type: "GET",
+        dataType: "json",
+        data: {
+            title: Title,
+            created_by: CreatedBy,
+            date_from: date_from,
+            date_to: date_to,
+            status: statusFilter
+        },
+        beforeSend: function () {
+            $('.annoucement-list').html('<div class="text-center py-5">Loading...</div>');
+        },
+        success: function (res) {
+            if (res.status && res.records.length > 0) {
+                let html = '';
+
+                $.each(res.records, function (i, announcement) {
+                    // --- MEDIA SECTION ---
+                    let mediaHtml = '';
+                    let mediaArr = [];
+
+                    // Parse media JSON safely
+                    try {
+                        if (typeof announcement.announcementMedia === 'string') {
+                            mediaArr = JSON.parse(announcement.announcementMedia);
+                        } else if (Array.isArray(announcement.announcementMedia)) {
+                            mediaArr = announcement.announcementMedia;
+                        }
+                    } catch (e) {
+                        console.error('Invalid media JSON:', announcement.announcementMedia);
+                    }
+
+                    if (mediaArr.length > 0) {
+                        let firstMedia = mediaArr[0];
+                        let extension = firstMedia.split('.').pop().toLowerCase();
+
+                        // Build file URL (assuming files stored in public/assets/media)
+                        let fileUrl = '/assets/media/' + firstMedia;
+
+                        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) {
+                            mediaHtml = `<img src="${fileUrl}" class="card-img-top" style="height:180px;object-fit:cover;" alt="Announcement Image">`;
+                        } else if (extension === 'pdf') {
+                            mediaHtml = `
+                                <div class="d-flex align-items-center justify-content-center bg-light" style="height:180px;">
+                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none">
+                                        <img src="/svg/pdf-icon.svg" style="width:80px;height:80px;" alt="PDF">
+                                        <div class="text-center mt-2 text-muted">PDF Document</div>
+                                    </a>
+                                </div>`;
+                        } else {
+                            mediaHtml = `
+                                <div class="d-flex align-items-center justify-content-center bg-light" style="height:180px;">
+                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none text-muted">Download File</a>
+                                </div>`;
+                        }
+
+                        mediaHtml = `<div class="position-relative">${mediaHtml}</div>`;
+                    } else {
+                        mediaHtml = `
+                            <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:180px;">
+                                <div class="text-center">
+                                    <i class="fas fa-image fa-3x mb-2"></i>
+                                    <div>No Media</div>
+                                </div>
+                            </div>`;
+                    }
+
+                    // --- STATUS BADGE ---
+                    let statusBadgeClass =
+                        announcement.status === 'Sent' ? 'bg-success' :
+                        announcement.status === 'Pending' ? 'bg-warning text-dark' : 'bg-danger';
+
+                    let statusIcon =
+                        announcement.status === 'Sent' ? 'fa-check' :
+                        announcement.status === 'Pending' ? 'fa-clock' : 'fa-times';
+
+                        let eventDate = new Date(announcement.eventDate);
+let today = new Date();
+let diffTime = eventDate - today; 
+let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+let eventDateHuman = '';
+if (diffDays > 0) {
+    eventDateHuman = `Event in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+} else if (diffDays === 0) {
+    eventDateHuman = `Event is today`;
+} else {
+    eventDateHuman = `Event passed ${Math.abs(diffDays)} day${Math.abs(diffDays) > 1 ? 's' : ''} ago`;
+}
+
+                    // --- CARD HTML ---
+                    html += `
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                            <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition-all">
+                                <div class="card-header bg-light border-0 pb-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <span class="badge text-dark small">notification</span>
+                                        <span class="text-white badge fs-6 ${statusBadgeClass}">
+                                            <i class="fas ${statusIcon} me-1"></i>
+                                            ${announcement.status.charAt(0).toUpperCase() + announcement.status.slice(1)}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                ${mediaHtml}
+
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title fw-bold mb-3 text-truncate" title="${announcement.title}">
+                                        ${announcement.title.charAt(0).toUpperCase() + announcement.title.slice(1)}
+                                    </h6>
+
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                             style="width:30px;height:30px;background-color:#17a2b8;">
+                                            <small class="text-white fw-bold">${announcement.creatorName.charAt(0).toUpperCase()}</small>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">Created by</small>
+                                            <span class="small fw-semibold">${announcement.creator.name}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">Event Date</small>
+                                        <div class="fw-semibold">${announcement.eventDate}</div>
+                                        <small class="text-muted">${eventDateHuman}</small>
+                                    </div>
+
+                                    <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
+                                        <a href="view/${announcement.id}" 
+                                           class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
+                                           style="min-width:38px;height:38px;" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        ${res.permission.addAnnouncement ? `
+                                        <a href="create/${announcement.id}" 
+                                           class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
+                                           style="min-width:38px;height:38px;" title="Edit">
+                                            <i class="fas fa-pen-to-square"></i>
+                                        </a>` : ''}
+                                        ${res.permission.deleteAnnouncement ? `
+                                        <form action="delete" method="POST" class="d-inline delete-form">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <input type="hidden" name="announcementid" value="${announcement.id}">
+                                            <button type="button" class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center delete-btn" 
+                                                    style="min-width:38px;height:38px;" title="Delete">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+
+                $('.annoucement-list').html(`<div class="row g-3">${html}</div>`);
+
+            } else {
+                $('.annoucement-list').html(`
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center py-5 text-muted">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                <h5>No announcements found</h5>
+                                <p class="mb-0">Create your first announcement to get started.</p>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            }
+        },
+        error: function () {
+            $('.annoucement-list').html('<div class="text-center py-5 text-danger">Error loading announcements</div>');
+        }
+    });
+}
+
+
+
+
+
+
+           
+
     </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to delete this announcement?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit the form if user confirms
+                    button.closest('form').submit();
+                }
+            });
+        });
+    });
+});
+
+$(document).on('click', '.delete-btn', function (e) {
+    e.preventDefault();
+
+    const button = this;
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to delete this announcement?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            button.closest('form').submit();
+        }
+    });
+});
+
+</script>
 @endpush
 @include('layout.footer')

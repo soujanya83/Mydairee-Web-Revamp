@@ -80,12 +80,14 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function () {
     Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
      Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
+     Route::get('/api/events', [DashboardController::class, 'getEvents']);
     // service details
     Route::get('ServiceDetails', [ServiceDetailsController::class, 'create'])->name('create.serviceDetails');
     Route::post('ServiceDetails', [ServiceDetailsController::class, 'store'])->name('store.serviceDetails');
 
 
     Route::get('programPlanList', [LessonPlanList::class, 'programPlanList'])->name('programPlanList');
+    Route::get('LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans');
     Route::get('programPlan/create', [LessonPlanList::class, 'createForm'])->name('create.programplan');
     Route::post('LessonPlanList/deletedataofprogramplan', [LessonPlanList::class, 'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
 
@@ -101,6 +103,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name(' Observation.addSubActivity');
 
     Route::get('announcements/list', [AnnouncementController::class, 'list'])->name('announcements.list');
+        Route::get('announcements/Filterlist', [AnnouncementController::class, 'Filterlist'])->name('announcements.Filterlist');
     Route::get('announcements/create/{id?}', [AnnouncementController::class, 'AnnouncementCreate'])->name('announcements.create');
     Route::post('announcements/store', [AnnouncementController::class, 'AnnouncementStore'])->name('announcements.store');
     Route::delete('announcements/delete', [AnnouncementController::class, 'AnnouncementDelete'])->name('announcements.delete');
@@ -135,12 +138,14 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
 
     Route::get('sleepcheck/list', [SleepCheckController::class, 'getSleepChecksList'])->name('sleepcheck.list');
+        Route::get('sleepcheck/filter-sleep-list-by-child', [SleepCheckController::class, 'fetchSleepChecks'])->name('sleepcheck.filter-sleep-list-by-child');
     Route::post('sleepcheck/save', [SleepCheckController::class, 'sleepcheckSave'])->name('sleepcheck.save');
     Route::post('sleepcheck/update', [SleepCheckController::class, 'sleepcheckUpdate'])->name('sleepcheck.update');
     Route::post('sleepcheck/delete', [SleepCheckController::class, 'sleepcheckDelete'])->name('sleepcheck.delete');
 
     // Accidents
     Route::get('Accidents/list', [AccidentsController::class, 'AccidentsList'])->name('Accidents.list');
+        Route::get('Accidents/filter-by-child', [AccidentsController::class, 'filterByChild'])->name('filter-by-child');
     Route::post('Accidents/getCenterRooms', [AccidentsController::class, 'getCenterRooms'])->name('Accidents.getCenterRooms');
     Route::put('Accidents/update/{id}', [AccidentsController::class, 'AccidentsUpdate'])->name('accidents.update');
     Route::get('Accidents/details', [AccidentsController::class, 'getAccidentDetails'])->name('Accidents.details');
@@ -155,6 +160,10 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
 
     // Route::get('surveys/list', [SurveyController::class, 'list'])->name('survey.list');
+
+    Route::post('/observations/{observation}/comments', [ObservationsController::class, 'commentstore'])->name('observations.comments.store');
+    Route::delete('/observations/comments/{comment}', [ObservationsController::class, 'destroycomment'])
+     ->name('observations.comments.destroy');
 
     // Daily Journel here
     Route::get('DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.list');
@@ -180,17 +189,53 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     // Route::post('dailyDiary/deleteBottleTime', [DailyDiaryController::class, 'deleteBottleTime'])->name('dailyDiary.deleteBottleTime');
 
 
+    Route::get('/daily-diary/breakfast2', [DailyDiaryController::class, 'getBreakfast2']);
+    Route::post('/daily-diary/breakfast2', [DailyDiaryController::class, 'storeOrUpdateBreakfast']);
+
+    Route::get('/daily-diary/morning-tea2', [DailyDiaryController::class, 'getMorningTea2']);
+    Route::post('/daily-diary/morning-tea2', [DailyDiaryController::class, 'storeOrUpdateMorningTea']);
+
+
+    Route::get('/daily-diary/lunch', [DailyDiaryController::class, 'getLunch2']);
+    Route::post('/daily-diary/lunch', [DailyDiaryController::class, 'storeOrUpdateLunch']);
+
+    Route::get('/daily-diary/afternoon-tea', [DailyDiaryController::class, 'getAfternoonTea2']);
+    Route::post('/daily-diary/afternoon-tea', [DailyDiaryController::class, 'storeOrUpdateAfternoonTea']);
+
+    Route::get('/daily-diary/snacks', [DailyDiaryController::class, 'getSnacks2']);
+    Route::post('/daily-diary/snacks', [DailyDiaryController::class, 'storeOrUpdateSnacks']);
+
+
+    Route::get('/daily-diary/sleep/{id}', [DailyDiaryController::class, 'show2']); // Get one
+    Route::post('/daily-diary/sleep', [DailyDiaryController::class, 'store2']);    // Add
+    Route::put('/daily-diary/sleep/{id}', [DailyDiaryController::class, 'update2']); // Edit
+
+
+    Route::get('/daily-diary/sunscreen/{id}', [DailyDiaryController::class, 'show3']); // Single entry
+    Route::post('/daily-diary/sunscreen', [DailyDiaryController::class, 'store3']);    // Add new
+    Route::put('/daily-diary/sunscreen/{id}', [DailyDiaryController::class, 'update3']); // Edit
+
+    Route::get('/daily-diary/toileting/{id}', [DailyDiaryController::class, 'show4']); // View one entry
+    Route::post('/daily-diary/toileting', [DailyDiaryController::class, 'store4']);    // Add new
+    Route::put('/daily-diary/toileting/{id}', [DailyDiaryController::class, 'update4']); // Edit
+
+
+    Route::get('/daily-diary/bottle/{id}', [DailyDiaryController::class, 'show5']);
+    Route::post('/daily-diary/bottle', [DailyDiaryController::class, 'store5']);
+    Route::put('/daily-diary/bottle/{id}', [DailyDiaryController::class, 'update5']);
+
+
     Route::get('dailyDiary/viewChildDiary', [DailyDiaryController::class, 'viewChildDiary'])->name('dailyDiary.viewChildDiary');
 
-    // Route::post('/activities/breakfast', [DailyDiaryController::class, 'storeBreakfast']);
-    // Route::post('/activities/morning-tea', [DailyDiaryController::class, 'storeMorningTea']);
-    // Route::post('/activities/lunch', [DailyDiaryController::class, 'storeLunch']);
-    // Route::post('/activities/sleep', [DailyDiaryController::class, 'storeSleep']);
-    // Route::post('/activities/afternoon-tea', [DailyDiaryController::class, 'storeAfternoonTea']);
-    // Route::post('/activities/snacks', [DailyDiaryController::class, 'storeSnacks']);
-    // Route::post('/activities/sunscreen', [DailyDiaryController::class, 'storeSunscreen']);
-    // Route::post('/activities/toileting', [DailyDiaryController::class, 'storeToileting']);
-    // Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
+    Route::post('/activities/breakfast', [DailyDiaryController::class, 'storeBreakfast']);
+    Route::post('/activities/morning-tea', [DailyDiaryController::class, 'storeMorningTea']);
+    Route::post('/activities/lunch', [DailyDiaryController::class, 'storeLunch']);
+    Route::post('/activities/sleep', [DailyDiaryController::class, 'storeSleep']);
+    Route::post('/activities/afternoon-tea', [DailyDiaryController::class, 'storeAfternoonTea']);
+    Route::post('/activities/snacks', [DailyDiaryController::class, 'storeSnacks']);
+    Route::post('/activities/sunscreen', [DailyDiaryController::class, 'storeSunscreen']);
+    Route::post('/activities/toileting', [DailyDiaryController::class, 'storeToileting']);
+    Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
 
     // Daily Journel Ends here
     Route::get('/backup-now', [DBBackupController::class, 'runBackup']);
@@ -331,6 +376,9 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
         Route::get('/view/{id}', [ObservationsController::class, 'view'])->name('view');
         Route::get('/observationslink', [ObservationsController::class, 'linkobservationdata']);
         Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
+        Route::post('/change-created-at', [ObservationsController::class, 'changeCreatedAt'])->name('changeCreatedAt');
+        Route::delete('/{id}', [ObservationsController::class, 'destroy'])->name('destroy');
+
     });
 
 

@@ -14,13 +14,13 @@
 
      <style>
         .drop-down{
-            border: 1px solid #008ecc!important;
-            border-bottom-left-radius: 50px!important;
-            border-bottom-right-radius: 50px!important;
-            border-top-left-radius: 50px!important;
-            border-top-right-radius: 50px!important;
+            border: 1px solid #17a2b8 !important;
+            /* border-bottom-left-radius: 50px!important;
+            border-bottom-right-radius: 50px!important; */
+            /* border-top-left-radius: 50px!important; */
+            /* border-top-right-radius: 50px!important; */
             background-color: transparent!important;
-            color: #008ecc!important;
+            color: #17a2b8 !important;
             text-transform: uppercase!important;
             font-weight: bold!important;
             display: block!important;
@@ -43,7 +43,7 @@
 
         .drop-down:hover{
             color: #ffffff!important;
-            background-color: #008ecc!important;
+            background-color: #17a2b8 !important;
         }
         .custom-cal{
             position: absolute;
@@ -51,7 +51,7 @@
             top: 8px;
             right: 10px;
             border: none;
-            color: #0085bf;
+            color: #17a2b8;
             background: transparent;
             pointer-events: none;
         }
@@ -60,7 +60,7 @@
             background-color: transparent;
         }
         .input-group-text{
-            color: #008ecc!important;
+            color: #17a2b8 !important;
             background-color: transparent!important;
         }
         .btn-lg{
@@ -220,7 +220,7 @@
         @if(empty($rooms))
             <div class="btn btn-outline-info btn-lg dropdown-toggle">NO ROOMS AVAILABLE</div>
         @else
-            <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="roomDropdown" data-toggle="dropdown">
+            <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="roomDropdown" data-toggle="dropdown" data-selected-room="{{ request('roomid', $roomid) }}">
                 {{ strtoupper($rooms->firstWhere('id', request('roomid', $roomid))->name ?? 'Select Room') }}
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="roomDropdown">
@@ -250,8 +250,21 @@
 
 </div>
 
+ <hr class="mt-3">
+      <!-- filter  -->
+    
+             <!-- filter ends here  -->
 
-<main class="default-transition" style="padding-block:5em;padding-inline:2em;">
+<main class="default-transition" style="padding-block:1em;padding-inline:2em;">
+           <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container mb-4">
+    <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
+
+    <input 
+        type="text" 
+        name="filterbyCentername" 
+        class="form-control border-info" 
+        placeholder="Filter by Child name" onkeyup="filterbyChildname(this.value)">
+</div>
     <div class="default-transition">
         <div class="container-fluid">
             <div class="row">
@@ -277,7 +290,7 @@
 <input type="hidden" id="roomid" value="{{ $roomid }}" >
 <input type="hidden" id="date" value="{{ $calDate }}" >
 
-<div class="container">
+<div class="container sleepcheck-data">
   @foreach($children as $child)
     <div class="child-section" id="child{{ $child->id }}">
       <div class="child-header">
@@ -631,6 +644,130 @@
         const url = "{{ route('sleepcheck.list') }}?centerid=" + centerid + "&roomid=" + roomid + "&date=" + date;
         window.location.href = url;
     });
+
+
+function filterbyChildname(childname) {
+    let roomid = $('#roomDropdown').data('selected-room');
+    let date   = $('#txtCalendar').val();
+    console.log(roomid + ' ' + date + ' ' + childname);
+
+    $.ajax({
+        url: 'filter-sleep-list-by-child',
+        method: 'GET',
+        data: {
+            roomid: roomid,
+            date: date,
+            child_name:childname
+        },
+        success: function(response) {
+          console.log(response);
+            let container = $('.sleepcheck-data');
+            container.empty(); // Clear old data
+
+            response.data.forEach(item => {
+                let child = item.child;
+                let checks = item.sleep_checks;
+
+                // Avatar handling
+                let avatar = child.image 
+                    ? `<img src="${child.image}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`
+                    : `<div style="width:40px;height:40px;border-radius:50%;background:#ccc;display:flex;align-items:center;justify-content:center;">
+                           <span style="font-size:18px;color:#666;">${child.name.charAt(0).toUpperCase()}</span>
+                       </div>`;
+
+                let html = `
+                    <div class="child-section" id="child${child.id}">
+                        <div class="child-header">
+                            <div class="child-avatar" style="display:inline-block;margin-right:10px;">${avatar}</div>
+                            <span>${child.name} ${child.lastname}</span>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Breathing</th>
+                                    <th>Body Temperature</th>
+                                    <th>Notes</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                // Existing sleep checks
+                checks.forEach(sleep => {
+                    html += `
+                        <tr data-id="${sleep.id}">
+                            <td><input type="time" value="${sleep.time}" /></td>
+                            <td>
+                                <select>
+                                    <option value="">Select</option>
+                                    <option value="Regular" ${sleep.breathing === 'Regular' ? 'selected' : ''}>Regular</option>
+                                    <option value="Fast" ${sleep.breathing === 'Fast' ? 'selected' : ''}>Fast</option>
+                                    <option value="Difficult" ${sleep.breathing === 'Difficult' ? 'selected' : ''}>Difficult</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="">Select</option>
+                                    <option value="Warm" ${sleep.body_temperature === 'Warm' ? 'selected' : ''}>Warm</option>
+                                    <option value="Cool" ${sleep.body_temperature === 'Cool' ? 'selected' : ''}>Cool</option>
+                                    <option value="Hot" ${sleep.body_temperature === 'Hot' ? 'selected' : ''}>Hot</option>
+                                </select>
+                            </td>
+                            <td><textarea rows="2">${sleep.notes ?? ''}</textarea></td>
+                            <td>
+                                <button class="update-row-btn btn-outline-info" onclick="updateRow(this, '${child.id}', '${sleep.id}')">Update</button>
+                                <button class="delete-row-btn btn-outline-info" onclick="deleteRow(this, '${sleep.id}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                // Empty row for new entry
+                html += `
+                    <tr>
+                        <td><input type="time" name="children[${child.id}][time][]"></td>
+                        <td>
+                            <select name="children[${child.id}][breathing][]">
+                                <option value="">Select</option>
+                                <option value="Regular">Regular</option>
+                                <option value="Fast">Fast</option>
+                                <option value="Difficult">Difficult</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="children[${child.id}][temperature][]">
+                                <option value="">Select</option>
+                                <option value="Warm">Warm</option>
+                                <option value="Cool">Cool</option>
+                                <option value="Hot">Hot</option>
+                            </select>
+                        </td>
+                        <td><textarea rows="2" name="children[${child.id}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
+                        <td>
+                            <button class="save-row-btn btn-outline-info" onclick="saveRow(this, '${child.id}')">Save</button>
+                            <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>
+                        </td>
+                    </tr>
+                `;
+
+                html += `
+                            </tbody>
+                        </table>
+                        <button class="add-row-btn" onclick="addRow('child${child.id}', '${child.id}')">+ Add 10-Min Entry</button>
+                    </div>
+                `;
+
+                container.append(html);
+            });
+        },
+        error: function(xhr) {
+            console.error('AJAX error:', xhr.responseText);
+        }
+    });
+}
+
 </script>
 
 @endpush

@@ -301,7 +301,7 @@
                         <!-- Observation Tab -->
                         <div class="tab-pane fade show active" id="observation" role="tabpanel">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <div class="info-card">
                                         <h5><i class="fas fa-info-circle text-primary mr-2"></i>Basic Information</h5>
                                         <table class="table table-borderless">
@@ -329,7 +329,57 @@
                                         </table>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+
+                                <div class="col-md-12">
+                                <div class="info-card">
+                                        <h5><i class="fas fa-info-circle text-primary mr-2"></i>Observation Information</h5>
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td><strong>Title:</strong></td>
+                                                <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
+                                                    {!! $observation->obestitle ? html_entity_decode($observation->obestitle) : 'Not Update' !!}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Observation:</strong></td>
+                                                <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
+                                                {!! $observation->title ? html_entity_decode($observation->title) : 'Not Update' !!}
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Notes:</strong></td>
+                                                <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
+                                                {!! $observation->notes ? html_entity_decode($observation->notes) : 'Not Update' !!}
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Reflection:</strong></td>
+                                                <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
+                                                {!! $observation->reflection ? html_entity_decode($observation->reflection) : 'Not Update' !!}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Future Plan:</strong></td>
+                                                <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
+                                                {!! $observation->future_plan ? html_entity_decode($observation->future_plan) : 'Not Update' !!}
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Child Voice:</strong></td>
+                                                <td style="max-width:350px; word-break:break-word; white-space:pre-line;">
+                                                {!! $observation->child_voice ? html_entity_decode($observation->child_voice) : 'Not Update' !!}
+
+                                                </td>
+                                            </tr>
+                                            
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
                                     <div class="info-card">
                                         <h5><i class="fas fa-images text-info mr-2"></i>Media Files</h5>
                                         @if($observation->media && $observation->media->count() > 0)
@@ -368,13 +418,35 @@
                                     <div class="col-md-6 mb-3">
                                         <div class="child-card">
                                             <div class="child-avatar">
+                                                @if($childLink->child->imageUrl)
+                                                <img src="{{ asset($childLink->child->imageUrl) }}" width="45px" height="45px" style="border-radius:50%;" >
+                                                @else
                                                 <i class="fas fa-user-circle fa-3x text-primary"></i>
+                                                @endif
                                             </div>
                                             <div class="child-info">
                                                 <h6>{{ $childLink->child->name }}</h6>
-                                                <p class="text-muted mb-1">Age: {{ $childLink->child->age ?? 'N/A' }}
-                                                </p>
-                                                <p class="text-muted mb-0">ID: {{ $childLink->child->id }}</p>
+
+
+                                                
+                                                @php
+    $dob = $childLink->child->dob ?? null;
+    $ageText = 'N/A';
+    if ($dob) {
+        $dobCarbon = \Carbon\Carbon::parse($dob); 
+        $now = \Carbon\Carbon::now();
+        $years = intval($dobCarbon->diffInYears($now));
+        $months = intval($dobCarbon->copy()->addYears($years)->diffInMonths($now));
+        $ageParts = [];
+        if($years) $ageParts[] = $years.' year'.($years > 1 ? 's' : '');
+        if($months) $ageParts[] = $months.' month'.($months > 1 ? 's' : '');
+        $ageText = $ageParts ? implode(', ', $ageParts) : '0 month';
+    }
+@endphp
+
+<p class="text-muted mb-1">Age: {{ $ageText }}</p>
+                                        <p class="text-muted mb-0">DOB: {{ $dob ? \Carbon\Carbon::parse($dob)->format('d M Y') : 'N/A' }}</p>
+
                                             </div>
                                         </div>
                                     </div>

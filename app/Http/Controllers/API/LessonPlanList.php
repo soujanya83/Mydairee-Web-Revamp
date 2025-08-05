@@ -31,11 +31,38 @@ use App\Http\Controllers\Illuminate\Pagination\Paginator;
 
 class LessonPlanList extends Controller
 {
+
+    public function centers(){
+         $user = Auth::user();
+            $authId = $user->id;
+             if ($user->userType == "Superadmin") {
+            // dd('here');
+            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
+        } else {
+              $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $centers
+        ]);
+
+    }
+    
     public function programPlanList(Request $request)
 {
+    
         $user = Auth::user();
+        // dd($user);
         if (!$user) {
-    return response()->json(['error' => 'User not found or not authenticated'], 401);
+              return response()->json([
+        'success' => false,
+        'message' => 'User not found or not authenticated',
+        
+    ], 401);
+    // return response()->json(['error' => 'User not found or not authenticated'], 401);
 }
         $authId = $user->id;
         // $centerId = Session('user_center_id');
@@ -116,7 +143,7 @@ $centerId = $validated['centerid'];
         //     'programPlans', 'userType', 'userId', 'centerId', 'centers', 'getMonthName'
         // ));
         return response()->json([
-    'success' => true,
+    'status' => true,
     'data' => [
         'programPlans' => $programPlans,
         'userType' => $userType,
@@ -396,7 +423,7 @@ $roomId = $validated['room_id'];
 public function saveProgramPlan(Request $request)
 {
     // Validate required fields
-    // dd('here');
+    // dd($request->all());
  $validator = Validator::make($request->all(), [
     'room_id'  => 'required|integer',
     'months'   => 'required|string',

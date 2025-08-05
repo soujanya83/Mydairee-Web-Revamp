@@ -39,6 +39,8 @@ Route::post('/store', [RagisterController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+
+  Route::get('/centers',[LessonPlanList::class,'centers'])->name('centers');
     // program plan
         Route::get('/programPlanList',[LessonPlanList::class,'programPlanList'])->name('programPlanList');
     Route::post('LessonPlanList/deletedataofprogramplan',[LessonPlanList::class,'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
@@ -55,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // annoucement
     Route::get('announcements/list',[AnnouncementController::class,'list'])->name('announcements.list');
-Route::get('announcements/create/{id?}',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
+Route::get('announcements/create',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
 Route::post('announcements/store',[AnnouncementController::class,'AnnouncementStore'])->name('announcements.store');
 Route::delete('announcements/delete',[AnnouncementController::class,'AnnouncementDelete'])->name('announcements.delete');
 Route::get('announcements/view',[AnnouncementController::class,'AnnouncementView'])->name('announcements.view');
@@ -89,9 +91,10 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
     Route::post('/child/update', [RoomController::class, 'update_child'])->name('update_child');
     Route::post('/move-children', [RoomController::class, 'moveChildren'])->name('move_children');
     Route::post('/children/delete-selected', [RoomController::class, 'delete_selected_children'])->name('delete_selected_children');
-
+    Route::get('/staffs', [RoomController::class, 'staffs'])->name('staffs');
     Route::post('add-children', [RoomController::class, 'add_new_children'])->name('add_children');
     Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
+
     Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
     Route::delete('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
 

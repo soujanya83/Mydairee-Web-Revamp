@@ -25,6 +25,7 @@ use App\Models\Accident;
 use App\Models\AccidentIllnessModel;
 use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Validator;
 
 class AccidentsController extends Controller
 {
@@ -74,13 +75,13 @@ public function AccidentsList(Request $request)
         $accArr = AccidentsModel::select('accidents.id', 'accidents.child_name', 'accidents.child_gender', 'accidents.roomid', 'accidents.incident_date', 'accidents.ack_parent_name', 'accidents.added_by')
             ->join('childparent', 'childparent.childid', '=', 'accidents.childid')
             ->where('childparent.parentid', $userid)
-            ->paginate(10);
+            ->get();
     } else {
         $query = AccidentsModel::select('id', 'child_name', 'child_gender', 'roomid', 'incident_date', 'ack_parent_name', 'added_by');
         if (!empty($roomid)) {
             $query->where('roomid', $roomid);
         }
-        $accArr = $query->paginate(10);
+        $accArr = $query->get();
     }
 
     // Append username to each accident
@@ -293,6 +294,8 @@ public function saveAccident(Request $request)
 {
     $data = $request->all();
 
+    // dd($data);
+
     // Add Auth/session fields
     $request->merge([
         'userid' => Auth::user()->userid,
@@ -314,7 +317,11 @@ public function saveAccident(Request $request)
 
     // Insert or Update
     if (!empty($request->id)) {
-        $this->updateAccident($request); // you must return accidentId from this if needed
+       $updateResponse = $this->updateAccident($request); // you must return accidentId from this if needed
+          // If updateAccident returned a Response (validation fail or 404)
+        if ($updateResponse instanceof \Illuminate\Http\JsonResponse) {
+            return $updateResponse; // return immediately
+        }
         $accidentId = $request->id;
     } else {
         $accidentId = $this->insertAccident($request);
@@ -379,19 +386,18 @@ public function saveAccident(Request $request)
 
 public function updateAccident($request)
 {
-    $request->validate([
-        'id' => 'required|integer|exists:accidents,id',
-        // You can add more validation rules here as needed
-    ]);
 
-    $accident = AccidentsModel::find($request->id);
+
+//   dd($request->id);
+ $accident = AccidentsModel::find($request->id);
 
     if (!$accident) {
         return response()->json([
-            'success' => false,
+            'status' => false,
             'message' => 'Accident record not found.'
         ], 404);
     }
+  
 
    $accident =  $accident->update([
           'centerid' => $request->centerid ?? '',
@@ -569,7 +575,7 @@ public function updateIllness($data)
 
 public function create(Request $request)
 {
-    $centerid = Session::get('user_center_id');
+    $centerid = $request->centerid;
     $user = Auth::user();
     $roomid = $request->roomid;
 
@@ -582,12 +588,17 @@ public function create(Request $request)
             return $child;
         });
 
-    return view('Accidents.create', [
-        'Childrens' => $children,
-        'centerid' => $centerid,
-        'roomid' => $roomid,
+    return response()->json([
+        'status' => true,
+        'message' => 'Accident creation data fetched successfully.',
+        'data' => [
+            'Childrens' => $children,
+            'centerid' => $centerid,
+            'roomid' => $roomid,
+        ]
     ]);
 }
+
  
 public function getChildDetails(Request $request)
 {

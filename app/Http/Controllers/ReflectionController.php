@@ -54,15 +54,15 @@ class ReflectionController extends Controller
 
         } elseif (Auth::user()->userType == "Staff") {
 
-            //    $reflection = Reflection::with(['user', 'child','media'])
-            //    ->where('userId', $authId)
-            //    ->orderBy('id', 'desc') // optional: to show latest first
-            //    ->paginate(10); // 10 items per page
+               $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+               ->where('createdBy', $authId)
+               ->orderBy('id', 'desc') // optional: to show latest first
+               ->paginate(10); // 10 items per page
 
-            $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-                ->where('centerid', $centerid)
-                ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page
+            // $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+            //     ->where('centerid', $centerid)
+            //     ->orderBy('id', 'desc') // optional: to show latest first
+            //     ->paginate(10); // 10 items per page
 
         } else {
 
@@ -74,6 +74,7 @@ class ReflectionController extends Controller
             // dd($childids);
             $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
                 ->whereIn('id', $reflectionIds)
+                ->where('status',"Published")
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
 
@@ -162,7 +163,7 @@ class ReflectionController extends Controller
 
         $rules = [
             'selected_rooms'    => 'required',
-            'title'             => 'required|string|max:255',
+            'title'             => 'required|string',
             'about'             => 'required|string',
             'eylf'              => 'required|string',
             'selected_children' => 'required|string',
@@ -209,7 +210,9 @@ class ReflectionController extends Controller
             $reflection->about        = $request->input('about');
             $reflection->eylf         = $request->input('eylf');
             $reflection->centerid     = $centerid;
+            if (!$isEdit) {
             $reflection->createdBy    = $authId;
+            }
             $reflection->save();
 
             $reflectionId = $reflection->id;
@@ -477,9 +480,9 @@ class ReflectionController extends Controller
 
 
             $user = Auth::user();
-            // if ($user->userType === 'Staff') {
-            //     $query->where('createdBy', Auth::id());
-            // }
+            if ($user->userType === 'Staff') {
+                $query->where('createdBy', Auth::id());
+            }
 
             // Apply user-specific filters based on role
             // $user = Auth::user();

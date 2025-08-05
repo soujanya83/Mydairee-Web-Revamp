@@ -58,7 +58,7 @@
             </div>
 
                      <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
-    <i class="fas fa-filter mx-2 text-muted "></i>
+    <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
     <input 
         type="text" 
         name="filterbyCentername" 
@@ -217,7 +217,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Edit Superadmin</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
         </div>
@@ -261,7 +261,7 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           <button type="button" onclick="updateSuperadmin()" class="btn btn-primary">Update</button>
         </div>
       </div>

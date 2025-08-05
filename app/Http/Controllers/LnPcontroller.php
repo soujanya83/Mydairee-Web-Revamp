@@ -8,7 +8,7 @@ use Illuminate\support\Facades\Auth;
 use App\Models\Usercenter; 
 use App\Models\Center; 
 use App\Models\Room;
-use App\Models\ChildParent;
+use App\Models\Childparent;
 use App\Models\Userprogressplan;
 use App\Models\MontessoriSubject;
 use App\Models\Child;
@@ -57,9 +57,22 @@ class LnPcontroller extends Controller
         }
 
         $children = collect();
+
+        if (auth()->user()->userType == 'Parent') {
+            $parentId = auth()->user()->id;
+
+            $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
+
+            $children = Child::whereIn('id', $childIds)
+            ->get();
+
+        }else{
+
         if ($selectedroom) {
             $children = Child::where('room', $selectedroom->id)
                 ->get();
+        }
+
         }
 
         return view('LnP.index', compact('centers', 'room', 'selectedroom', 'children'));
@@ -77,8 +90,10 @@ class LnPcontroller extends Controller
             
         if($user->userType === 'Superadmin') {
             $rooms = $this->getroomsforSuperadmin();
-            }else{
+            }elseif($user->userType === 'Staff'){
             $rooms = $this->getroomsforStaff();
+            }else{
+            $rooms = $this->getroomsforParent();
             }
     
             return $rooms;
@@ -113,11 +128,32 @@ class LnPcontroller extends Controller
         
         // Get room IDs where user is the owner (userId matches)
         $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
+
         
         // Merge both collections and remove duplicates
         $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
+       
+        // dd($allRoomIds);
     
-        $rooms = Room::where('id', $allRoomIds)->get();
+        $rooms = Room::whereIn('id', $allRoomIds->toArray())->get();
+        // dd($rooms);
+        return $rooms;
+    }
+
+
+    private function getroomsforParent()
+    {
+        $authId = Auth::user()->id;
+    
+        // Step 1: Get child IDs linked to the parent
+        $childIds = Childparent::where('parentid', $authId)->pluck('childid');
+    
+        // Step 2: Get room IDs from Child records
+        $roomIds = Child::whereIn('id', $childIds)->pluck('room');
+    
+        // Step 3: Get Room data for those room IDs
+        $rooms = Room::whereIn('id', $roomIds)->get();
+    
         return $rooms;
     }
     
