@@ -133,76 +133,6 @@ class UserController extends Controller
             ->withInput();
     }
 
-
-
-
-
-    // public function login(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'email'    => 'required|email',
-    //         'password' => 'required|string|min:6',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return redirect()->back()
-    //             ->withErrors($validator)
-    //             ->withInput();
-    //     }
-
-    //     $user = \App\Models\User::where('email', $request->email)->first();
-
-    //     if ($user) {
-    //         $plainPassword = $request->password;
-    //         $storedPassword = $user->password;
-
-    //         $isBcrypt = false;
-    //         $isLegacy = false;
-
-    //         // Check if password starts with Bcrypt format
-    //         if (Str::startsWith($storedPassword, '$2y$')) {
-    //             $isBcrypt = Hash::check($plainPassword, $storedPassword);
-    //         } else {
-    //             // SHA1 legacy check
-    //             $isLegacy = sha1($plainPassword) === $storedPassword;
-    //         }
-
-    //         if ($isBcrypt || $isLegacy) {
-    //             Auth::login($user, $request->has('remember'));
-
-    //             // Upgrade legacy password to bcrypt
-    //             if ($isLegacy) {
-    //                 $user->password = Hash::make($plainPassword);
-    //                 $user->save();
-    //             }
-
-    //             session(['user_id' => $user->id]);
-
-    //             $chackSuperadmin = User::where(['id' => $user->id, 'userType' => 'Superadmin'])->first();
-    //             if ($chackSuperadmin) {
-    //                 $centerstatus = User::where(['id' => $user->id])->where('center_status', 1)->first();
-    //                 if ($centerstatus) {
-    //                     $center_id = Usercenter::where('userid', $user->id)->first();
-    //                     session(['user_center_id' => $center_id->centerid ?? null]);
-    //                     return redirect()->route('dashboard.university');
-    //                 } else {
-    //                     return redirect()->route('create_center');
-    //                 }
-    //             }
-
-    //             $center_id = Usercenter::where('userid', $user->id)->first();
-    //             session(['user_center_id' => $center_id->centerid ?? null]);
-    //             return redirect()->route('dashboard.university');
-    //         }
-    //     }
-
-    //     return redirect()->back()
-    //         ->withErrors(['email' => 'Invalid email or password.'])
-    //         ->withInput();
-    // }
-
-
-
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -290,5 +220,5 @@ class UserController extends Controller
         return view('forms.create_center');
     }
 
- 
+
 }

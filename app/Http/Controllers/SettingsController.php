@@ -20,126 +20,126 @@ use Illuminate\Support\Facades\Mail;
 class SettingsController extends Controller
 {
 
- public function filterByParentName(Request $request)
-{
-    $request->validate([
-        'parent_name' => 'nullable|string'
-    ]);
+    public function filterByParentName(Request $request)
+    {
+        $request->validate([
+            'parent_name' => 'nullable|string'
+        ]);
 
-    $authId = Auth::id();
-    $centerid = Session('user_center_id');
+        $authId = Auth::id();
+        $centerid = Session('user_center_id');
 
-    $userIds = Usercenter::where('centerid', $centerid)->pluck('userid');
+        $userIds = Usercenter::where('centerid', $centerid)->pluck('userid');
 
-    $query = User::with(['children' => function ($query) {
+        $query = User::with(['children' => function ($query) {
             $query->select('child.id', 'name', 'lastname');
         }])
-        ->whereIn('id', $userIds)
-        ->where('id', '!=', $authId)
-        ->where('userType', 'Parent');
+            ->whereIn('id', $userIds)
+            ->where('id', '!=', $authId)
+            ->where('userType', 'Parent');
 
-    if (!empty($request->parent_name)) {
-        $query->where('name', 'like', '%' . $request->parent_name . '%');
+        if (!empty($request->parent_name)) {
+            $query->where('name', 'like', '%' . $request->parent_name . '%');
+        }
+
+        $parents = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'parents' => $parents->map(function ($parent) {
+                return [
+                    'id' => $parent->id,
+                    'name' => $parent->name,
+                    'email' => $parent->email,
+                    'contactNo' => $parent->contactNo,
+                    'gender' => $parent->gender,
+                    'imageUrl' => $parent->imageUrl ? asset($parent->imageUrl) : null,
+                    'children' => $parent->children->map(function ($child) {
+                        return [
+                            'name' => $child->name,
+                            'lastname' => $child->lastname,
+                            'relation' => $child->pivot->relation ?? '',
+                        ];
+                    })
+                ];
+            })
+        ]);
     }
 
-    $parents = $query->get();
 
-    return response()->json([
-        'success' => true,
-        'parents' => $parents->map(function ($parent) {
-            return [
-                'id' => $parent->id,
-                'name' => $parent->name,
-                'email' => $parent->email,
-                'contactNo' => $parent->contactNo,
-                'gender' => $parent->gender,
-                'imageUrl' => $parent->imageUrl ? asset($parent->imageUrl) : null,
-                'children' => $parent->children->map(function ($child) {
-                    return [
-                        'name' => $child->name,
-                        'lastname' => $child->lastname,
-                        'relation' => $child->pivot->relation ?? '',
-                    ];
-                })
-            ];
-        })
-    ]);
-}
+    public function filterStaffByName(Request $request)
+    {
+        $request->validate([
+            'staff_name' => 'nullable|string'
+        ]);
 
+        $authId = Auth::id();
+        $centerid = Session('user_center_id');
 
-   public function filterStaffByName(Request $request)
-{
-    $request->validate([
-        'staff_name' => 'nullable|string'
-    ]);
+        // Get all user IDs in the center
+        $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
 
-    $authId = Auth::id();
-    $centerid = Session('user_center_id');
+        // Base query for staff
+        $query = User::whereIn('id', $usersid)
+            ->where('id', '!=', $authId)
+            ->where('userType', 'Staff');
 
-    // Get all user IDs in the center
-    $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
+        // Apply filter if name is provided
+        if (!empty($request->staff_name)) {
+            $query->where('name', 'like', '%' . $request->staff_name . '%');
+        }
 
-    // Base query for staff
-    $query = User::whereIn('id', $usersid)
-        ->where('id', '!=', $authId)
-        ->where('userType', 'Staff');
+        $staff = $query->get();
 
-    // Apply filter if name is provided
-    if (!empty($request->staff_name)) {
-        $query->where('name', 'like', '%' . $request->staff_name . '%');
+        return response()->json([
+            'success' => true,
+            'staff' => $staff
+        ]);
     }
 
-    $staff = $query->get();
 
-    return response()->json([
-        'success' => true,
-        'staff' => $staff
-    ]);
-}
+    public function filterByAdminName(Request $request)
+    {
+        $validated = $request->validate([
+            'admin_name' => ['nullable', 'string']
+        ]);
 
+        $superadmins = User::query()
+            ->where('userType', 'Superadmin')
+            ->when($validated['admin_name'] ?? null, function ($query, $name) {
+                $query->where('name', 'like', "%{$name}%");
+            })
+            ->get();
 
-public function filterByAdminName(Request $request)
-{
-    $validated = $request->validate([
-        'admin_name' => ['nullable', 'string']
-    ]);
-
-    $superadmins = User::query()
-        ->where('userType', 'Superadmin')
-        ->when($validated['admin_name'] ?? null, function ($query, $name) {
-            $query->where('name', 'like', "%{$name}%");
-        })
-        ->get();
-
-    return response()->json([
-        'success' => true,
-        'superadmins' => $superadmins
-    ]);
-}
-
-
- public function filterByCenterName(Request $request)
-{
-    $request->validate([
-        'centername' => 'nullable|string'
-    ]);
-
-    $userid = Auth::id();
-    $centerIds = Usercenter::where('userid', $userid)->pluck('centerid');
-
-    $query = Center::whereIn('id', $centerIds);
-
-    if ($request->filled('centername')) {
-        $query->where('centerName', 'like', '%' . $request->centername . '%');
+        return response()->json([
+            'success' => true,
+            'superadmins' => $superadmins
+        ]);
     }
 
-    $centers = $query->get();
 
-    return response()->json([
-        'success' => true,
-        'centers' => $centers
-    ]);
-}
+    public function filterByCenterName(Request $request)
+    {
+        $request->validate([
+            'centername' => 'nullable|string'
+        ]);
+
+        $userid = Auth::id();
+        $centerIds = Usercenter::where('userid', $userid)->pluck('centerid');
+
+        $query = Center::whereIn('id', $centerIds);
+
+        if ($request->filled('centername')) {
+            $query->where('centerName', 'like', '%' . $request->centername . '%');
+        }
+
+        $centers = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'centers' => $centers
+        ]);
+    }
 
 
 
@@ -163,9 +163,9 @@ public function filterByAdminName(Request $request)
         }
 
         if ($permissionRow) {
-           Permission::where('userid', $userId)->update($data);
+            Permission::where('userid', $userId)->update($data);
         } else {
-           Permission::insert($data);
+            Permission::insert($data);
         }
 
         return redirect()->back()->with('success', 'Permissions updated successfully!');
@@ -744,40 +744,40 @@ public function filterByAdminName(Request $request)
 
 
     private function sendWelcomeEmail($email, $password, $childrenData)
-{
-    try {
-        // Get child details for each child ID
-        $childrenDetails = [];
-        foreach ($childrenData as $child) {
-            $childId = $child['childid'];
-            $relation = $child['relation'];
+    {
+        try {
+            // Get child details for each child ID
+            $childrenDetails = [];
+            foreach ($childrenData as $child) {
+                $childId = $child['childid'];
+                $relation = $child['relation'];
 
-            // Query to get child details from Child model
-            $childInfo = Child::select('name', 'lastname', 'dob', 'imageUrl')
-                            ->where('id', $childId)
-                            ->first();
+                // Query to get child details from Child model
+                $childInfo = Child::select('name', 'lastname', 'dob', 'imageUrl')
+                    ->where('id', $childId)
+                    ->first();
 
-            if ($childInfo) {
-                $childArray = $childInfo->toArray();
-                $childArray['relation'] = $relation;
-                $childrenDetails[] = $childArray;
-            }
-        }
-
-        // Generate HTML for each child
-        $childrenHTML = '';
-        foreach ($childrenDetails as $child) {
-            // Handle child image URL
-            if (!empty($child['imageUrl'])) {
-                $childImageUrl = asset($child['imageUrl']);
-            } else {
-                $childImageUrl = 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=150&h=150&fit=crop&crop=face';
+                if ($childInfo) {
+                    $childArray = $childInfo->toArray();
+                    $childArray['relation'] = $relation;
+                    $childrenDetails[] = $childArray;
+                }
             }
 
-            $childFullName = trim($child['name'] . ' ' . $child['lastname']);
-            $dob = !empty($child['dob']) ? date('d M Y', strtotime($child['dob'])) : 'Not provided';
+            // Generate HTML for each child
+            $childrenHTML = '';
+            foreach ($childrenDetails as $child) {
+                // Handle child image URL
+                if (!empty($child['imageUrl'])) {
+                    $childImageUrl = asset($child['imageUrl']);
+                } else {
+                    $childImageUrl = 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=150&h=150&fit=crop&crop=face';
+                }
 
-            $childrenHTML .= '
+                $childFullName = trim($child['name'] . ' ' . $child['lastname']);
+                $dob = !empty($child['dob']) ? date('d M Y', strtotime($child['dob'])) : 'Not provided';
+
+                $childrenHTML .= '
             <div class="child-card">
                 <div class="child-photo">
                     <img src="' . $childImageUrl . '" alt="' . htmlspecialchars($childFullName) . '" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #e3f2fd;">
@@ -788,10 +788,10 @@ public function filterByAdminName(Request $request)
                     <p><strong>Your Relation:</strong> ' . htmlspecialchars($child['relation']) . '</p>
                 </div>
             </div>';
-        }
+            }
 
-        // Create HTML email with Bootstrap 4 inspired design
-        $messageContent = '
+            // Create HTML email with Bootstrap 4 inspired design
+            $messageContent = '
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -1122,22 +1122,21 @@ public function filterByAdminName(Request $request)
         </body>
         </html>';
 
-        // Send email using Laravel Mail
-        Mail::send([], [], function ($mail) use ($email, $messageContent) {
-            $mail->to($email)
+            // Send email using Laravel Mail
+            Mail::send([], [], function ($mail) use ($email, $messageContent) {
+                $mail->to($email)
                     ->from('mydairee47@gmail.com', 'MyDiaree Support')
                     ->subject('🎉 Welcome to MyDiaree - Your Child\'s Learning Journey Begins!')
                     ->html($messageContent);
-        });
+            });
 
-        return true;
-
-    } catch (\Exception $e) {
-        // Log the error
-        Log::error('Failed to send welcome email: ' . $e->getMessage());
-        return false;
+            return true;
+        } catch (\Exception $e) {
+            // Log the error
+            // Log::error('Failed to send welcome email: ' . $e->getMessage());
+            return false;
+        }
     }
-}
 
 
 
@@ -1205,14 +1204,14 @@ public function filterByAdminName(Request $request)
         $existing = Childparent::where('parentid', $user->id)->pluck('id')->toArray();
         $submitted = collect($request->children)->pluck('id')->filter()->toArray();
 
-    $user = User::findOrFail($request->id);
-    $user->fill([
-        'name' => $request->name,
-        'emailid' => $request->email,
-        'email' => $request->email,
-        'contactNo' => $request->contactNo,
-        'gender' => $request->gender,
-    ]);
+        $user = User::findOrFail($request->id);
+        $user->fill([
+            'name' => $request->name,
+            'emailid' => $request->email,
+            'email' => $request->email,
+            'contactNo' => $request->contactNo,
+            'gender' => $request->gender,
+        ]);
         // Delete removed relations
         $toDelete = array_diff($existing, $submitted);
         if (!empty($toDelete)) {
@@ -1354,4 +1353,3 @@ public function filterByAdminName(Request $request)
         return response()->json(['status' => 'success']);
     }
 }
-
