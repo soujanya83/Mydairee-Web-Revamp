@@ -107,17 +107,18 @@ public function getCenterRooms(Request $request)
 
 
  public function headchecksStore(Request $request){
-
+//  dd($request->all());
     $validated = $request->validate([
         'hour'      => 'required|array',
         'mins'      => 'required|array',
         'headCount' => 'required|array',
-        'signature' => 'required|array',
+      
         'comments'  => 'required|array',
         'roomid'    => 'required|integer',
         'centerid'  => 'required|integer',
         'diarydate' => 'required|string',
     ]);
+   
 
     $diaryDate = str_replace("/", "-", $request->input('diarydate'));
     $diaryDate = date('Y-m-d', strtotime($diaryDate));
@@ -136,7 +137,7 @@ public function getCenterRooms(Request $request)
             'time'      => $validated['hour'][$i] . 'h:' . $validated['mins'][$i] . 'm',
             'diarydate' => $diaryDate,
             'headCount' => $validated['headCount'][$i],
-            'signature' => $validated['signature'][$i],
+        
             'comments'  => $validated['comments'][$i],
             'roomid'    => $validated['roomid'],
             'createdBy' => Auth::user()->userid,

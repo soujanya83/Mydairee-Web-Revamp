@@ -952,7 +952,7 @@ input[type="radio"]:checked + .radio-pill {
                             <div class="col-sm-12 text-right">
                                 <div class="formSubmit">
                                     <button type="button" id="form-submit" class="btn btn-default btn-success">Save &amp; Next</button>
-                                    <!-- <button type="button" class="btn btn-default btn-danger">Cancel</button> -->
+                                    <button type="button" class="btn btn-default btn-danger">Cancel</button>
                                    <a href="{{ route('Accidents.list', ['centerid' => request()->get('centerid'), 'roomid' => request()->get('roomid')]) }}">
    Cancel
 </a>

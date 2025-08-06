@@ -33,6 +33,34 @@ use App\Http\Controllers\Illuminate\Pagination\Paginator;
 class LessonPlanList extends Controller
 {
 
+    public function updatestatus(Request $r)
+{
+    $validator = Validator::make($r->all(), [
+        'planid' => 'required|exists:programplantemplatedetailsadd,id',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Validation failed',
+            'errors'  => $validator->errors(),
+        ], 422);
+    }
+
+    // Find plan
+    $plan = ProgramPlanTemplateDetailsAdd::find($r->planid);
+
+    // Toggle status
+    $plan->status = ($plan->status == 'Draft') ? 'Published' : 'Draft';
+    $plan->save();
+
+    return response()->json([
+        'status'  => true,
+        'message' => 'Status updated successfully',
+        'new_status' => $plan->status
+    ]);
+}
+
 // public function filterProgramPlan(Request $request)
 // {
 //     if (!Auth::check()) {
@@ -176,6 +204,12 @@ public function filterProgramPlan(Request $request)
         });
     }
 
+      if ($request->filled('status')) {
+      
+            $query->where('status', 'like', '%' . $request->status . '%');
+      
+    }
+
     // dd($request->month);
 
     // $months = ['january' => 1 , 'febuary' => 1 , 'march' => 2 , 'april' => 4];
@@ -214,6 +248,7 @@ public function filterProgramPlan(Request $request)
             'updated_at_formatted' => $plan->updated_at->format('d M Y / H:i'),
             'can_edit' => auth()->user()->userType !== 'Parent',
             'can_delete' => auth()->user()->userType === 'Superadmin',
+            'status' => $plan->status ?? ''
         ];
     });
 
@@ -411,24 +446,27 @@ public function programPlanPrintPage($id)
     }
 
     // ajax here 
-    public function getRoomUsers(Request $request)
+public function getRoomUsers(Request $request)
 {
     $request->validate([
-        'room_id' => 'required|integer|exists:room_staff,roomid',
-        'center_id' => 'required|integer', // You can add validation if needed
+        'room_id' => 'required|array',
+        'room_id.*' => 'exists:room_staff,roomid', // validate each room ID
+        'center_id' => 'required|integer', 
     ]);
 
-    $roomId = $request->input('room_id');
+    $roomIds = $request->input('room_id');
 
-    // Get staff IDs assigned to the room
-    $staffIds = RoomStaff::where('roomid', $roomId)
-        ->pluck('staffid');
+    // Get unique staff IDs from selected rooms
+    $staffIds = RoomStaff::whereIn('roomid', $roomIds)
+        ->pluck('staffid')
+        ->unique()
+        ->values();
 
     if ($staffIds->isEmpty()) {
         return response()->json([]);
     }
 
-    // Get user details
+    // Get user details for all staff
     $users = User::whereIn('userid', $staffIds)
         ->select('userid as id', 'name')
         ->get();
@@ -436,30 +474,40 @@ public function programPlanPrintPage($id)
     return response()->json($users);
 }
 
+
 public function getRoomChildren(Request $request)
 {
-    $roomId = $request->input('room_id');
-    $centerId = $request->input('center_id'); // You can use this if needed later
+    $request->validate([
+        'room_id' => 'required|array',
+        'room_id.*' => 'exists:room,id', // ideally validate against rooms table
+        'center_id' => 'required|integer',
+    ]);
 
-    $children = Child::where('room', $roomId)
+    $roomIds = $request->input('room_id');
+    // dd($roomIds);
+
+    $children = Child::whereIn('room', $roomIds)
         ->select('id', 'name', 'lastname')
         ->get()
         ->map(function ($child) {
             return [
                 'id' => $child->id,
-                'name' => $child->name . ' ' . $child->lastname,
+                'name' => trim($child->name . ' ' . $child->lastname),
             ];
-        });
+        })
+        ->unique('id')  // ensure no duplicates if a child is linked multiple times
+        ->values();     // reset array keys
 
     return response()->json($children);
 }
+
 
 // 
 public function saveProgramPlan(Request $request)
 {
     // Validate required fields
     $validated = $request->validate([
-        'room' => 'required|integer',
+        'room' => 'required|array',
         'months' => 'required|string',
         'users' => 'required|array',
         'children' => 'required|array',
@@ -469,10 +517,11 @@ public function saveProgramPlan(Request $request)
     // Convert arrays to comma-separated strings
     $educators = implode(',', $request->input('users'));
     $children = implode(',', $request->input('children'));
+        $room = implode(',', $request->input('room'));
 
     // Prepare data
     $programData = [
-        'room_id' => $request->input('room'),
+        'room_id' => $room,
         'months' => $request->input('months'),
         'years' => $request->input('years'),
         'centerid' => $request->input('centerid'),

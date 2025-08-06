@@ -32,6 +32,34 @@ use App\Http\Controllers\Illuminate\Pagination\Paginator;
 class LessonPlanList extends Controller
 {
 
+public function updatestatus(Request $r)
+{
+    $validator = Validator::make($r->all(), [
+        'planid' => 'required|exists:program_plan_template_details_adds,id',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Validation failed',
+            'errors'  => $validator->errors(),
+        ], 422);
+    }
+
+    // Find plan
+    $plan = ProgramPlanTemplateDetailsAdd::find($r->planid);
+
+    // Toggle status
+    $plan->status = ($plan->status == 'Draft') ? 'Published' : 'Draft';
+    $plan->save();
+
+    return response()->json([
+        'status'  => true,
+        'message' => 'Status updated successfully',
+        'new_status' => $plan->status
+    ]);
+}
+
     public function centers(){
          $user = Auth::user();
             $authId = $user->id;

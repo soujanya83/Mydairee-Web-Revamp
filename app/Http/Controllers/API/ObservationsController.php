@@ -106,9 +106,6 @@ class ObservationsController extends Controller
 
    public function index(Request $request)
 {
- 
-    // $centerid = $request->center_id;
-    // dd($centerid);
 
         $validator = Validator::make($request->all(), [
         'center_id' => 'required|integer|min:1'
@@ -612,10 +609,13 @@ $centerid = $validator->validated()['center_id'];
 
 
 
-public function storepage(Request $request,$id = null, $activeTab = 'observation', $activesubTab = 'MONTESSORI')
+public function storepage(Request $request)
 {
     $authId = Auth::user()->id; 
     $centerid = $request->center_id;
+    $id = $request->id;
+    $activeTab = 'observation';
+    $activesubTab = 'MONTESSORI';
 
     if(Auth::user()->userType == "Superadmin"){
         $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
@@ -623,7 +623,7 @@ public function storepage(Request $request,$id = null, $activeTab = 'observation
     } else {
         $centers = Center::where('id', $centerid)->get();
     }
-
+// dd($id);
     $observation = null;
     if ($id) {
         $observation = Observation::with(['media','child.child','montessoriLinks','eylfLinks','devMilestoneSubs','links'])->find($id);
