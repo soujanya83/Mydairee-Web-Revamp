@@ -238,7 +238,7 @@ public function updateAssessmentStatus(Request $request)
         ]);
 
     } catch (\Exception $e) {
-        \Log::error('Error updating assessment status', [
+        Log::error('Error updating assessment status', [
             'error' => $e->getMessage(),
             'assessment_id' => $request->assessment_id ?? null,
             'status' => $request->status ?? null

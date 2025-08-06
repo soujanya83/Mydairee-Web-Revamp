@@ -31,6 +31,57 @@
     outline: none;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
 }
+
+
+<style>
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.toast-success {
+    background-color: #28a745;
+    /* Green for success */
+}
+
+.toast-error {
+    background-color: #dc3545;
+    /* Red for error */
+}
+
+.toast-close-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
+    margin-left: 10px;
+}
+
+.toast-message {
+    flex: 1;
+
+}
+
+.c_list .avatar {
+    height: 45px;
+    width: 50px;
+}
+</style>
 </style>
     <style>
         :root {
@@ -423,14 +474,14 @@
                                                         </label>
                                                         <div class="time-input-group">
                                                             <input type="number" name="hour[]" min="0" max="24" 
-                                                                   class="form-number custom-input" value="{{ $hour }}" placeholder="HH">
+                                                                   class="form-number custom-input" value="{{ $hour }}" placeholder="HH" required>
                                                             <span class="time-separator">:</span>
                                                             <input type="number" name="mins[]" min="0" max="59" 
-                                                                   class="form-number custom-input" value="{{ $mins }}" placeholder="MM">
+                                                                   class="form-number custom-input" value="{{ $mins }}" placeholder="MM" required>
                                                             <i class="fas fa-clock time-icon"></i>
                                                         </div>
                                                         <input type="time" name="timePicker[]" class="form-time custom-input mt-2" 
-                                                               value="{{ sprintf('%02d:%02d', $hour, $mins) }}">
+                                                               value="{{ sprintf('%02d:%02d', $hour, $mins) }}" required>
                                                     </div>
                                                     
                                                     <div class="col-lg-3 col-md-6 mb-3">
@@ -438,7 +489,7 @@
                                                             <i class="fas fa-users me-2"></i>Head Count
                                                         </label>
                                                         <input type="number" class="custom-input" name="headCount[]" 
-                                                               value="{{ $hc->headcount }}" placeholder="Enter count">
+                                                               value="{{ $hc->headcount }}" placeholder="Enter count" required>
                                                     </div>
                                                     
                                                     <div class="col-lg-5 col-md-8 mb-3">
@@ -446,7 +497,7 @@
                                                             <i class="fas fa-comment me-2"></i>Comments
                                                         </label>
                                                         <input type="text" class="custom-input" name="comments[]" 
-                                                               value="{{ $hc->comments }}" placeholder="Enter any comments or observations">
+                                                               value="{{ $hc->comments }}" placeholder="Enter any comments or observations" required>
                                                     </div>
                                                     
                                                     @if($i = 1 && $date == now()->format('Y-m-d'))
@@ -495,12 +546,19 @@
                                     </div>
                                 @endif
                             </form>
+
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div id="toast-container" class="toast-bottom-right"
+        style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
     </main>
+
+
 @endsection
 @push('scripts')
 	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -545,13 +603,13 @@
                                     </label>
                                     <div class="time-input-group">
                                         <input type="number" name="hour[]" min="0" max="24" 
-                                               class="form-number custom-input" value="${hours}" placeholder="HH">
+                                               class="form-number custom-input" value="${hours}" placeholder="HH" required>
                                         <span class="time-separator">:</span>
                                         <input type="number" name="mins[]" min="0" max="59" 
-                                               class="form-number custom-input" value="${minutes}" placeholder="MM">
+                                               class="form-number custom-input" value="${minutes}" placeholder="MM" required>
                                         <i class="fas fa-clock time-icon"></i>
                                     </div>
-                                    <input type="time" name="timePicker[]" class="form-time custom-input mt-2" value="${hours}:${minutes}">
+                                    <input type="time" name="timePicker[]" class="form-time custom-input mt-2" value="${hours}:${minutes}" required>
                                 </div>
                                 
                                 <div class="col-lg-3 col-md-6 mb-3">
@@ -559,7 +617,7 @@
                                         <i class="fas fa-users me-2"></i>Head Count
                                     </label>
                                     <input type="number" class="custom-input" name="headCount[]" 
-                                           placeholder="Enter count">
+                                           placeholder="Enter count" required>
                                 </div>
                                 
                                 <div class="col-lg-5 col-md-8 mb-3">
@@ -567,7 +625,7 @@
                                         <i class="fas fa-comment me-2"></i>Comments
                                     </label>
                                     <input type="text" class="custom-input" name="comments[]" 
-                                           placeholder="Enter any comments or observations">
+                                           placeholder="Enter any comments or observations" required>
                                 </div>
                                 
                                 <div class="col-lg-1 col-md-4 mb-3 d-flex align-items-end justify-content-center">
@@ -636,11 +694,18 @@
                 $('.headcheck-card').each(function(index) {
                     const cardNum = index + 1;
                     const headCount = $(this).find('input[name="headCount[]"]').val();
+                    const comments = $(this).find('input[name="comments[]"]').val();
+                    
                     const hour = $(this).find('input[name="hour[]"]').val();
                     const mins = $(this).find('input[name="mins[]"]').val();
 
                     if (!headCount || headCount < 0) {
                         errors.push(`Entry ${cardNum}: Head count is required and must be positive`);
+                        isValid = false;
+                    }
+
+                    if (!comments || comments ) {
+                       errors.push(`Entry ${cardNum}: comment is required`);
                         isValid = false;
                     }
 
@@ -656,7 +721,9 @@
                 });
 
                 if (!isValid) {
-                    alert('Please fix the following errors:\n\n' + errors.join('\n'));
+
+
+                    showtoast('error', errors.join('\n'));
                 }
 
                 return isValid;
@@ -697,6 +764,29 @@
                 }, 3000);
             });
         });
+
+        function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+        const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+        // Append the toast to the container
+        $('#toast-container').append(toast);
+
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
     </script>
 <script>
 $(document).ready(function() {

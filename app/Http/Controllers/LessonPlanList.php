@@ -294,6 +294,7 @@ public function programPlanList(Request $request)
 
             if ($childIds->isNotEmpty()) {
                 $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
+                ->where('status','Published')
                     ->where('centerid', $centerId)
                     ->where(function ($query) use ($childIds) {
                         foreach ($childIds as $childId) {

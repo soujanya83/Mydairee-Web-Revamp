@@ -39,6 +39,17 @@ Route::post('/store', [RagisterController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+        Route::prefix('snapshot')->name('snapshot.')->group(function () {
+
+        Route::get('/index', [ObservationsController::class, 'snapshotindex'])->name('index');
+        Route::get('/addnew', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew');
+        // Route::get('/addnew/{id?}', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew.optional');
+        Route::post('/store', [ObservationsController::class, 'snapshotstore'])->name('store');
+        Route::delete('/snapshot-media/{id}', [ObservationsController::class, 'snapshotdestroyimage']);
+        Route::post('/status/update', [ObservationsController::class, 'snapshotupdateStatus'])->name('status.update');
+        Route::delete('snapshotsdelete/{id}', [ObservationsController::class, 'snapshotsdelete'])->name('snapshots.snapshotsdelete');
+    });
+
        Route::prefix('learningandprogress')->name('learningandprogress.')->group(function () {
 
         Route::get('/index', [LnPcontroller::class, 'index'])->name('index');
