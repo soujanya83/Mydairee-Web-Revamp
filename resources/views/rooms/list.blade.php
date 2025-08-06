@@ -140,7 +140,6 @@
         @foreach($getrooms as $room)
         <div class="col-lg-4 col-md-6 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
 
-            <a href="{{ route('room.children', $room->roomid) }}" style="text-decoration: none; color: inherit;">
                 <div class="card shadow-sm border-0 rounded p-3 hover-shadow">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h5 class="mb-0">
@@ -202,7 +201,7 @@
                         style="top: 18px; left: 26px; z-index: 1;width: 15px; height: 15px;">
 
                     {{-- Card content (still clickable, but not interfering with checkbox) --}}
-                    <a href="{{ route('room.children', $room->roomid) }}"
+                    <a href="{{ route('room.children', ['roomid' => $room->id]) }}"
                         style="text-decoration: none; color: inherit; margin-left: 20px;">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="mb-0">
