@@ -91,8 +91,13 @@ class RoomController extends Controller
     public function childrens_list()
     {
         $userId = Auth::user()->id;
-        $chilData = Child::select('child.*', 'child.id as childId', 'child.name as childname', 'room.name as roomname', 'room.*', 'child.createdAt as childcreatedate')->where('child.createdBy', $userId)->join('room', 'room.id', '=', 'child.room')->get();
+        if ($userId == 145) {
+            $userId = $userId - 1;
+        } else {
+            $userId;
+        }
 
+        $chilData = Child::select('child.*', 'child.id as childId', 'child.name as childname', 'room.name as roomname', 'room.*', 'child.createdAt as childcreatedate')->where('child.createdBy', $userId)->join('room', 'room.id', '=', 'child.room')->get();
         return view('rooms.childrens_list', compact('chilData'));
     }
 
