@@ -86,7 +86,7 @@
                 
     <div class="form-group mb-4">
         <label for="room">Select Room</label>
-        <select class="form-control" id="room" name="room" required>
+        <select class="form-control select2-multiple" id="room" name="room[]" multiple="multiple" required>
             <option value="">Select Room</option>
              @foreach($rooms as $room)
                 <option value="<?= $room->id ?>" <?= (isset($plan_data) && $plan_data->room_id == $room->id) ? 'selected' : '' ?>><?= $room->name ?></option>
@@ -284,11 +284,13 @@
                     <div class="form-group">
         <button type="submit" class="btn btn-info" id="updateBtn">Update</button>
        &nbsp;&nbsp;&nbsp; <button type="button" class="btn btn-info" style="background-color:#2eefb7;border-color:#2eefb7;color:black;" id="saveAsNewBtn">Save as New Data</button>
+         <button type="button" class="btn btn-default btn-danger" id="cancel-btn">Cancel</button>
     </div>
 
                 <?php else: ?>
                     <div class="form-group">
                     <button type="submit" class="btn btn-info">Submit</button>
+                      <button type="button" class="btn btn-default btn-danger" id="cancel-btn">Cancel</button>
                 </div>
                 <?php endif; ?>
                 
@@ -895,6 +897,9 @@
 @push('scripts')
     <!-- all the script here of this page only -->
 <script>
+       document.getElementById('cancel-btn').addEventListener('click', function () {
+        history.back(); // ✅ Go to the last visited page
+    });
 $(document).ready(function () {
     // alert('loaded');
     console.log(jQuery.fn.jquery); // Check jQuery version

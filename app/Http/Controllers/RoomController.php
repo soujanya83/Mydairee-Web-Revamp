@@ -221,8 +221,19 @@ class RoomController extends Controller
         if ($centerid) {
             $getrooms->where('room.centerid', $centerid);
         }
-        $getrooms = $getrooms->get();
 
+
+        if(Auth::user()->userType == "Superadmin"){
+            $getrooms = $getrooms->get();
+        }else{
+             // Get room IDs assigned to staff
+         $roomIds = RoomStaff::where('staffid', $authId)->pluck('roomid');
+
+    // Get room data using those room IDs
+    $getrooms = Room::whereIn('id', $roomIds)->get();
+        }
+        
+        // dd($getrooms);
 
         foreach ($getrooms as $room) {
             $room->children = Child::where('room', $room->roomid)->get();

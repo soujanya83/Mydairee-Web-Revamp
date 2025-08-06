@@ -710,6 +710,13 @@
         id="FilterbyCreatedBy"
         placeholder="Filter by Created by" onkeyup="filterProgramPlan()">
 
+          <input 
+        type="text" 
+        name="filterbyCentername" 
+        class="form-control border-info mx-2" 
+        id="FilterbyStatus"
+        placeholder="Filter by Status" onkeyup="filterProgramPlan()">
+
 <!-- <input list="monthsList" 
        id="FilterbyMonth" 
        class="form-control border-info mx-2" 
@@ -769,9 +776,24 @@
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card h-100 shadow-sm rounded-3">
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title mb-2">
+                            <div class="d-flex justify-content-between">
+  <h5 class="card-title mb-2">
                                 {{ $getMonthName($plan->months) }} {{ $plan->years ?? '' }}
                             </h5>
+<p class="text-xs mb-2">
+    <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
+          style="transition: 0.2s; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"
+          onclick="updatestatus('{{ $plan->status ?? `` }}', '{{ $plan->id }}')"
+          onmouseover="this.style.opacity='0.8';"
+          onmouseout="this.style.opacity='1';">
+        {{ ucfirst($plan->status ?? 'Draft') }}
+    </span>
+</p>
+
+
+
+                            </div>
+                          
 
                             <ul class="list-unstyled mb-3">
                                 <!-- <li><strong>S No:</strong> {{ ($programPlans->currentPage() - 1) * $programPlans->perPage() + $loop->iteration }}</li> -->
@@ -935,6 +957,7 @@
     var room = $('#FilterbyRoomName').val() || '';
     var createdBy = $('#FilterbyCreatedBy').val() || '';
     var month = $('#FilterbyMonth').val() || '';
+    var status = $('#FilterbyStatus').val() || '';
 
     // ✅ Pass centerId from blade if needed
     var centerId = "{{ $centerId ?? '' }}";
@@ -948,7 +971,8 @@
             room: room,
             created_by: createdBy,
             center_id: centerId,
-            month:month // ✅ filter by center
+            month:month ,// ✅ filter by center,
+            status:status
         },
         dataType: 'json',
         headers: {
@@ -975,12 +999,37 @@
                         let updatedAt = plan.updated_at_formatted || '';
                         let canEdit = plan.can_edit || false;
                         let canDelete = plan.can_delete || false;
+                        let status = plan.status || '';
+                        let planid = plan.id;
 
                         html += `
                             <div class="col-md-6 col-lg-3 mb-4">
                                 <div class="card h-100 shadow-sm rounded-3">
                                     <div class="card-body d-flex flex-column">
-                                        <h5 class="card-title mb-2">${monthName} ${year}</h5>
+                                
+
+                                    
+     <div class="d-flex justify-content-between">
+  <h5 class="">
+                                ${monthName} ${year}
+                            </h5>
+<p class="text-xs mb-2">
+    <span class="badge bg-info text-light rounded-pill px-3 py-2 shadow-sm cursor-pointer"
+                   style="transition: 0.2s; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"
+          onclick="updatestatus('${status}', '${planid}')"
+          onmouseover="this.style.opacity='0.8';"
+          onmouseout="this.style.opacity='1';">
+        ${status}
+    </span>
+</p>
+
+
+
+                            </div>
+
+
+
+
                                         
                                         <ul class="list-unstyled mb-3">
                                             <li><strong>Room:</strong> ${roomName}</li>
@@ -1144,6 +1193,54 @@ function updateMonthDisplay() {
     }
 }
 
+function updatestatus(status, planid) {
+    console.log("Updating Plan ID:", planid, "to status:", status);
+
+    $.ajax({
+        url: '/update-program-plan-status',
+        dataType: 'json',
+        type: 'post',
+        data: {
+            status: status,
+            planid: planid
+        },
+         headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        beforeSend: function () {
+            // Optional: Show loading indicator
+            Swal.fire({
+                title: "Updating...",
+                text: "Please wait",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        },
+        success: function (response) {
+            Swal.close(); // Hide loader
+
+            if (response.status === true) {
+                Swal.fire({
+                    title: "Updated!",
+                    text: "Program plan status updated successfully.",
+                    icon: "success",
+                    timer: 1200,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload(); // ✅ Correct reload
+                });
+            } else {
+                Swal.fire("Error!", response.message || "Failed to update status.", "error");
+            }
+        },
+        error: function (xhr, error, status) {
+            Swal.close();
+            Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+        }
+    });
+}
 
 </script>
 

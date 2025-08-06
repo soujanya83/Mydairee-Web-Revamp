@@ -19,7 +19,7 @@ use App\Http\Controllers\API\ObservationsController;
 use App\Http\Controllers\API\ReflectionController;
 use App\Http\Controllers\API\DailyDiaryController;
 use App\Http\Controllers\API\SettingsController;
-
+use App\Http\Controllers\API\LnPcontroller;
 
 
 
@@ -39,6 +39,13 @@ Route::post('/store', [RagisterController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+       Route::prefix('learningandprogress')->name('learningandprogress.')->group(function () {
+
+        Route::get('/index', [LnPcontroller::class, 'index'])->name('index');
+        Route::get('/lnpdata', [LnPcontroller::class, 'lnpData'])->name('lnpdata');
+        Route::post('/update-assessment-status', [LnPcontroller::class, 'updateAssessmentStatus'])->name('update.assessment.status');
+    });
+
 
   Route::get('/centers',[LessonPlanList::class,'centers'])->name('centers');
     // program plan
@@ -50,6 +57,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/LessonPlanList/save_program_planinDB', [LessonPlanList::class, 'saveProgramPlan'])->name('LessonPlanList.save_program_planinDB');
     Route::get('/programPlan/create',[LessonPlanList::class,'createForm'])->name('create.programplan');
     Route::post('/programPlan',[LessonPlanList::class,'store'])->name('store.programPlan');
+Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus'])->name('update-program-plan-status');
+    
 
     // service details 
         Route::get('ServiceDetails', [ServiceDetailsController::class, 'create'])->name('create.serviceDetails');
@@ -106,7 +115,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
     
 
     // observations
-       Route::prefix('observation')->name('observation.')->group(function () {
+       Route::prefix('observation')->name('observation')->group(function () {
 
         Route::get('/index', [ObservationsController::class, 'index'])->name('index');
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
@@ -117,7 +126,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
 
 
         Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
-        Route::get('/addnew/{id?}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
+        // Route::get('/addnew/{id?}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
 
 
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get.children');
