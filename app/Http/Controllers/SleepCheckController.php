@@ -54,7 +54,10 @@ class SleepCheckController extends Controller
         : now()->format('Y-m-d');
 
     // Fetch children in the selected room
-    $children = Child::where('room', $roomid)->get();
+ $children = Child::where('room', $roomid)
+                 ->where('name', 'like', '%' . $request->child_name . '%')
+                 ->get();
+
 
     // Fetch sleep checks filtered by room and date
     $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
