@@ -1209,7 +1209,7 @@ public function destroyimage(Request $request)
 {
     $id = $request->id;
 
-    $mediaItems = ObservationMedia::where('observationId', $id)->get();
+    $mediaItems = ObservationMedia::where('id', $id)->get();
 
     foreach ($mediaItems as $media) {
         if (file_exists(public_path($media->mediaUrl))) {
@@ -1219,7 +1219,7 @@ public function destroyimage(Request $request)
         $media->delete();
     }
 
-    return response()->json(['status' => true, 'message' => 'All media deleted for this observation.']);
+    return response()->json(['status' => true, 'message' => 'selected media deleted for this observation.']);
 }
 
 
@@ -1287,8 +1287,6 @@ if ($observation->room) {
             ->implode(', ') ?: 'N/A';
     }
 }
-// dd($roomNames);
-
         // Generate PDF
        $pdf = Pdf::loadView('observations.apiPrint', compact('observation', 'roomNames'))
           ->setPaper('a4', 'landscape');
