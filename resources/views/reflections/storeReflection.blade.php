@@ -559,7 +559,30 @@
 
         <!-- Submit -->
         <div class="col-12 mt-4">
-            <button type="submit" style="float:right" class="btn btn-primary submit-btn"><i class="fas fa-arrow-right"></i>Submit</button>
+
+         <!-- Status Selection Buttons -->
+         @php
+    $selectedStatus = isset($reflection->status) ? strtoupper($reflection->status) : 'DRAFT';
+@endphp
+
+<div class="btn-group mr-2" role="group" aria-label="Status buttons" data-selected="{{ $selectedStatus }}">
+    <button type="button"
+        class="btn status-btn {{ $selectedStatus === 'DRAFT' ? 'active btn-secondary' : 'btn-outline-secondary' }}"
+        data-status="DRAFT">
+        <i class="fas fa-file-alt mr-1"></i> Make Draft
+    </button>
+
+    <button type="button"
+        class="btn status-btn {{ $selectedStatus === 'PUBLISHED' ? 'active btn-success' : 'btn-outline-success' }}"
+        data-status="PUBLISHED">
+        <i class="fas fa-upload mr-1"></i> Publish Now
+    </button>
+</div>
+
+<input type="hidden" name="status" id="statusInput" value="{{ $selectedStatus }}">
+
+
+        <button type="submit" style="float:right;" class="btn btn-primary submit-btn"><i class="fas fa-arrow-right"></i>Submit</button>
         </div>
 
     </div>
@@ -1183,6 +1206,31 @@ $(document).ready(function () {
 
 
 </script>
+
+<script>
+$(document).ready(function () {
+    // Ensure hidden field matches selected status
+    const selectedStatus = $('.btn-group[role="group"]').data('selected') || 'DRAFT';
+    $('#statusInput').val(selectedStatus);
+
+    $('.status-btn').on('click', function () {
+        $('.status-btn')
+            .removeClass('active btn-secondary btn-success btn-outline-success btn-outline-secondary');
+
+        const selected = $(this).data('status');
+        $('#statusInput').val(selected);
+
+        if (selected === 'DRAFT') {
+            $(this).addClass('active btn-secondary');
+            $('.status-btn[data-status="PUBLISHED"]').addClass('btn-outline-success');
+        } else {
+            $(this).addClass('active btn-success');
+            $('.status-btn[data-status="DRAFT"]').addClass('btn-outline-secondary');
+        }
+    });
+});
+</script>
+
 
 
 <script>
