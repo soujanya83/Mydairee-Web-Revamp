@@ -66,7 +66,7 @@
         </div>
 
         <div class="navbar-brand" style="margin-top: -12px;">
-            <a href="{{route('dashboard.university')}}"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}"
+            <a href="/"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}"
                     alt="Lucid Logo" class="img-responsive logo"></a>
         </div>
         <a class="btn btn-xs btn-link btn-toggle-fullwidth">
@@ -177,29 +177,38 @@
                     </li>
 
                     {{-- Profile Dropdown --}}
-                    <li class="nav-item dropdown" style="margin-right: 30px;">
-                        <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false"  style="color:black">
-                            <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
-                                class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
-                            <strong style="color:black;font-size:16px"> &nbsp;  {{ Auth::user()->name }}</strong>
-                        </a>
+                    <li class="nav-item dropdown" style="margin-right: 20px;">
+    <a href="#" class="nav-link dropdown-toggle d-flex align-items-end p-0" id="userDropdown" role="button"
+       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:black;">
+        <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
+             class="rounded-circle mr-2" style="width: 36px; height: 36px; object-fit: cover;">
+        <span class="d-none d-sm-inline-block font-weight-bold" style="font-size: 15px; line-height: 1;">
+            {{ Str::limit(Auth::user()->name, 20) }}
+        </span>
+    </a>
 
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-                            <li class="dropdown-header text-center">
-                                <span style="font-size: 18px;float:left;"><i class="fa fa-user me-2"></i > {{ Auth::user()->name }}</span><br>
-                                <span style="font-size: 16px;float:left;"> <i class="fa fa-envelope me-2"></i> <u>{{ Auth::user()->email }}</u> </span>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="{{ route('settings.profile') }}"><i
-                                        class="fa fa-user me-2"></i > &nbsp;  My Profile</a></li>
-                                        <hr>
-                            <li><a class="dropdown-item text-danger" href="{{ route('logout') }}"><i
-                                        class="fa fa-power-off me-2"></i>  &nbsp; Logout</a></li>
-                        </ul>
-                    </li>
+    <div class="dropdown-menu dropdown-menu-right shadow-sm" aria-labelledby="userDropdown" style="min-width: 230px; top : 48px !important; left :-6px !important;margin-top:48px;">
+        <div class="px-3 py-2">
+            <div class="font-weight-bold text-truncate" style="font-size: 15px;">
+                <i class="fa fa-user mr-2"></i>{{ Auth::user()->name }}
+            </div>
+            <div class="text-muted text-truncate" style="font-size: 13px;">
+                <i class="fa fa-envelope mr-2"></i>{{ Auth::user()->email }}
+            </div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <a class="dropdown-item" href="{{ route('settings.profile') }}">
+            <i class="fa fa-user mr-2 text-primary"></i> My Profile
+        </a>
+
+        <a class="dropdown-item text-danger" href="{{ route('logout') }}">
+            <i class="fa fa-power-off mr-2"></i> Logout
+        </a>
+    </div>
+</li>
+
 
                 </ul>
             </div>
