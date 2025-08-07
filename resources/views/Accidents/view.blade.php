@@ -353,7 +353,7 @@ input[type="radio"]:checked + .radio-pill {
                                     <input type="hidden" name="person_sign" id="person_sign_txt"  value="{{ $AccidentInfo->person_sign }}">
                                     <input type="hidden" name="student_id" id="student_id"  value="<?= $AccidentInfo->childid; ?>">
 
-                                    <img src="{{ asset('assets/media/'.$AccidentInfo->person_sign) }}" height="120px" width="300px" id="person_sign_img">
+                                    <img src="{{ $AccidentInfo->person_sign }}" height="120px" width="300px" id="person_sign_img">
                                 </div>
                             </div>
                         </div>
@@ -428,7 +428,7 @@ input[type="radio"]:checked + .radio-pill {
                                 <!-- <input type="text" class="form-control" id="witness_sign_dt" disabled> -->
                                 <div id="#witness_sign " class="bordered">
                                     <input type="hidden" name="witness_sign" id="witness_sign_txt" value="_{{ $AccidentInfo->witness_sign }}">
-                                    <img src="{{ asset('assets/media/'.$AccidentInfo->witness_sign) }}" class="bordered" height="120px" width="300px" id="witness_sign_img">
+                                    <img src="{{ $AccidentInfo->witness_sign }}" class="bordered" height="120px" width="300px" id="witness_sign_img">
                                 </div>
                             </div>
                         </div>
@@ -472,7 +472,7 @@ input[type="radio"]:checked + .radio-pill {
                                 <div class="svgFlex col-12 row">
                                  <span class="col-md-6 col-sm-12">
     <img 
-        src="{{ asset('assets/media/' . $AccidentInfo->injury_image) }}" 
+        src="{{ $AccidentInfo->injury_image }}" 
         alt="Injury Image"
         class="img-fluid border rounded" 
         style="max-width: 100%; height: auto; display: block;"
@@ -673,7 +673,7 @@ input[type="radio"]:checked + .radio-pill {
                                 <!-- <input type="text" class="form-control" id="res_pinc_dt" disabled> -->
                                 <div id="incharge_sign">
                                     <!-- <input type="hidden" name="responsible_person_sign" id="res_pinc_txt" value=""> -->
-                                    <img src="{{ asset('assets/media/'.$AccidentInfo->responsible_person_sign) }}" height="120px" width="300px" id="res_pinc_img">
+                                    <img src="{{ $AccidentInfo->responsible_person_sign }}" height="120px" width="300px" id="res_pinc_img">
                                 </div>
                             </div>
                         </div>
@@ -706,7 +706,7 @@ input[type="radio"]:checked + .radio-pill {
                                     <!-- <input type="text" class="form-control" id="nom_svs_dt" disabled placeholder="<?#= $AccidentInfo->nominated_supervisor_sign;?>"> -->
                                     <div id="supervisor_sign">
                                         <!-- <input type="hidden" name="nominated_supervisor_sign" id="nsv_sign_txt" value="" placeholder="<?#= $AccidentInfo->nominated_supervisor_sign;?>"> -->
-                                        <img src="{{ asset('assets/media/'.$AccidentInfo->nominated_supervisor_sign) }}" height="120px" width="300px" id="nsv_sign_img">
+                                        <img src="{{ $AccidentInfo->nominated_supervisor_sign }}" height="120px" width="300px" id="nsv_sign_img">
                                     </div>
                                 </div>
                             </div>

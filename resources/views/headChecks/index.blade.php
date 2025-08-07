@@ -5,6 +5,16 @@
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
+    .print-btn {
+        transition: 0.3s;
+    }
+    .print-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+</style>
+<style>
+    
     /* Label styling */
 .custom-label {
     display: block;
@@ -426,6 +436,20 @@
   <main class="main-container default-transition" style="padding-block:2em;padding-inline:2em;">
         <div class="default-transition">
             <div class="container-fluid">
+                
+                <div class="d-flex justify-content-end mb-3">
+                    <form action="{{ route('headcheck.print')}}" method="post" class="class">
+                                   <input type="hidden" name="roomid" value="{{ request('roomid', $roomid) }}">
+                                   @csrf
+                                <input type="hidden" name="centerid" value="{{ request('centerid', $centerid) }}">
+                                <input type="hidden" name="diarydate" value="{{ $calDate }}">
+    <button class="btn btn-primary shadow-sm px-4 py-2 rounded-pill print-btn"
+            type="submit">
+        🖨 view
+    </button>
+    </form>
+</div>
+
                 <div class="row">
                     <!-- Page Header -->
                     <!-- <div class="col-12 mb-4">
@@ -458,58 +482,80 @@
                                     @php $i = 1; @endphp
                                     @forelse($headChecks as $key => $hc)
                                         @php
-                                            [$hour, $mins] = $hc->time 
-                                                ? explode(':', str_replace(['h','m'], '', $hc->time)) 
-                                                : [now()->format('G'), now()->format('i')];
+                                         
+
+                                                 preg_match('/(\d+)h:(\d+)m/', $hc->time, $matches);
+    $formattedTime = sprintf('%02d:%02d', $matches[1], $matches[2]);
                                         @endphp
                                         
-                                        <div class="headcheck-card card fade-in">
-                                            <div class="card-number">{{ $i }}</div>
-                                            <div class="card-body">
-                                                <input type="hidden" name="headcheck[]" id="headcheckid"value="{{ $hc->id }}">
-                                                <div class="row">
-                                                    <div class="col-lg-3 col-md-6 mb-3">
-                                                        <label class="custom-label">
-                                                            <i class="fas fa-clock me-2"></i>Time
-                                                        </label>
-                                                        <div class="time-input-group">
-                                                            <input type="number" name="hour[]" min="0" max="24" 
-                                                                   class="form-number custom-input" value="{{ $hour }}" placeholder="HH" required>
-                                                            <span class="time-separator">:</span>
-                                                            <input type="number" name="mins[]" min="0" max="59" 
-                                                                   class="form-number custom-input" value="{{ $mins }}" placeholder="MM" required>
-                                                            <i class="fas fa-clock time-icon"></i>
-                                                        </div>
-                                                        <input type="time" name="timePicker[]" class="form-time custom-input mt-2" 
-                                                               value="{{ sprintf('%02d:%02d', $hour, $mins) }}" required>
-                                                    </div>
-                                                    
-                                                    <div class="col-lg-3 col-md-6 mb-3">
-                                                        <label class="custom-label">
-                                                            <i class="fas fa-users me-2"></i>Head Count
-                                                        </label>
-                                                        <input type="number" class="custom-input" name="headCount[]" 
-                                                               value="{{ $hc->headcount }}" placeholder="Enter count" required>
-                                                    </div>
-                                                    
-                                                    <div class="col-lg-5 col-md-8 mb-3">
-                                                        <label class="custom-label">
-                                                            <i class="fas fa-comment me-2"></i>Comments
-                                                        </label>
-                                                        <input type="text" class="custom-input" name="comments[]" 
-                                                               value="{{ $hc->comments }}" placeholder="Enter any comments or observations" required>
-                                                    </div>
-                                                    
-                                                    @if($i = 1 && $date == now()->format('Y-m-d'))
-                                                    <div class="col-lg-1 col-md-4 mb-3 d-flex align-items-end justify-content-center">
-                                                        <button type="button" class="btn-remove minus-btn" title="Remove Entry">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
+        <div class="headcheck-card card fade-in mb-3 position-relative">
+    <div class="card-number">{{ $i }}</div>
+    <div class="card-body">
+        <input type="hidden" name="headcheck[]" id="headcheckid" value="{{ $hc->id }}">
+
+        <div class="row g-3">
+            <!-- Time -->
+            <div class="col-lg-3 col-md-6">
+                <label class="custom-label">
+                    <i class="fas fa-clock me-2"></i>Time
+                </label>
+
+                @php
+
+              
+                    preg_match('/(\d+)h:(\d+)m/', $hc->time, $matches);
+                    $formattedTime = sprintf('%02d:%02d', $matches[1], $matches[2]);
+                @endphp
+                <input type="time" name="timePicker[]" class="custom-input" value="{{ $formattedTime }}" required>
+            </div>
+
+            <!-- Head Count -->
+            <div class="col-lg-3 col-md-6">
+                <label class="custom-label">
+                    <i class="fas fa-users me-2"></i>Head Count
+                </label>
+                <input type="number" class="custom-input" name="headCount[]" value="{{ $hc->headcount }}"
+                       placeholder="Enter count" required>
+            </div>
+
+               <!-- <div class="col-lg-2 col-md-4">
+                <label class="custom-label">
+                    <i class="fas fa-pen-nib me-2"></i>Signature
+                </label>
+                <select name="signature[]" class="custom-input">
+                    <option value="">Select</option>
+                    @foreach($staffs as $staff)
+                        <option value="{{ $staff->name }}">{{ $staff->name }}</option>
+                    @endforeach
+                </select>
+            </div> -->
+
+            <!-- Comments -->
+            <div class="col-lg-5 col-md-8">
+                <label class="custom-label">
+                    <i class="fas fa-comment me-2"></i>Signature
+                </label>
+                <input type="text" class="custom-input" name="signature[]" value="{{ $hc->signature }}"
+                       placeholder="Signature" required>
+            </div>
+
+            <!-- Signature -->
+         
+        </div>
+
+        <!-- Remove Button at Bottom Right -->
+        @if($i == 1 && $date == now()->format('Y-m-d'))
+          <div class="d-flex justify-content-end mt-3">
+    <button type="button" class="btn btn-danger btn-sm minus-btn" title="Remove Entry">
+        <i class="fas fa-trash-alt"></i>
+    </button>
+</div>
+ 
+        @endif
+    </div>
+</div>
+
+
                                        
                                     @empty
                                         @if(!($date ?? now()->format('Y-m-d')) == now()->format('Y-m-d'))
@@ -591,52 +637,48 @@
                 const hours = currentTime.getHours().toString().padStart(2, '0');
                 const minutes = currentTime.getMinutes().toString().padStart(2, '0');
                 
-                const newEntry = `
-                    <div class="headcheck-card card fade-in">
-                        <div class="card-number">${entryCount}</div>
-                        <div class="card-body">
-                            <input type="hidden" name="headcheck[]" value="">
-                            <div class="row">
-                                <div class="col-lg-3 col-md-6 mb-3">
-                                    <label class="custom-label">
-                                        <i class="fas fa-clock me-2"></i>Time
-                                    </label>
-                                    <div class="time-input-group">
-                                        <input type="number" name="hour[]" min="0" max="24" 
-                                               class="form-number custom-input" value="${hours}" placeholder="HH" required>
-                                        <span class="time-separator">:</span>
-                                        <input type="number" name="mins[]" min="0" max="59" 
-                                               class="form-number custom-input" value="${minutes}" placeholder="MM" required>
-                                        <i class="fas fa-clock time-icon"></i>
-                                    </div>
-                                    <input type="time" name="timePicker[]" class="form-time custom-input mt-2" value="${hours}:${minutes}" required>
-                                </div>
-                                
-                                <div class="col-lg-3 col-md-6 mb-3">
-                                    <label class="custom-label">
-                                        <i class="fas fa-users me-2"></i>Head Count
-                                    </label>
-                                    <input type="number" class="custom-input" name="headCount[]" 
-                                           placeholder="Enter count" required>
-                                </div>
-                                
-                                <div class="col-lg-5 col-md-8 mb-3">
-                                    <label class="custom-label">
-                                        <i class="fas fa-comment me-2"></i>Comments
-                                    </label>
-                                    <input type="text" class="custom-input" name="comments[]" 
-                                           placeholder="Enter any comments or observations" required>
-                                </div>
-                                
-                                <div class="col-lg-1 col-md-4 mb-3 d-flex align-items-end justify-content-center">
-                                    <button type="button" class="btn-remove" title="Remove Entry">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+         const newEntry = `
+    <div class="headcheck-card card fade-in mb-3 position-relative">
+        <div class="card-number">${entryCount}</div>
+        <div class="card-body">
+            <input type="hidden" name="headcheck[]" id="headcheckid" value="">
+
+            <div class="row g-3">
+                <!-- Time -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="custom-label">
+                        <i class="fas fa-clock me-2"></i>Time
+                    </label>
+                    <input type="time" name="timePicker[]" class="custom-input" value="${hours}:${minutes}" required>
+                </div>
+
+                <!-- Head Count -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="custom-label">
+                        <i class="fas fa-users me-2"></i>Head Count
+                    </label>
+                    <input type="number" class="custom-input" name="headCount[]" placeholder="Enter count" required>
+                </div>
+
+                <!-- Comments / Signature -->
+                <div class="col-lg-5 col-md-8">
+                    <label class="custom-label">
+                        <i class="fas fa-comment me-2"></i>Signature
+                    </label>
+                    <input type="text" class="custom-input" name="signature[]" placeholder="Signature" required>
+                </div>
+            </div>
+
+            <!-- Remove Button -->
+            <div class="d-flex justify-content-end mt-3">
+                <button type="button" class="btn btn-danger btn-sm minus-btn" title="Remove Entry">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+`;
+
                 
                 // Hide empty state and append new entry
                 $('#empty-state').addClass('d-none');
@@ -787,7 +829,78 @@
             });
         }, 3000);
     }
+
+    function print(headchecks){
+        console.log(headchecks);
+
+    }
     </script>
+
+
+<script>
+  // Your sample JSON
+  const headchecks = @json($headChecks);
+
+//   const container = document.getElementById('data-container');
+
+  // Create card layout dynamically
+  headchecks.forEach(item => {
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background:#fff; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);
+      padding:15px; width:260px; margin:10px; display:inline-block; vertical-align:top;
+    `;
+    
+    card.innerHTML = `
+      <h3 style="color:#4CAF50; margin:0 0 10px 0;">Head Check #${item.id}</h3>
+      <p><strong>Date:</strong> ${item.diarydate}</p>
+      <p><strong>Time:</strong> ${item.time}</p>
+      <p><strong>Headcount:</strong> ${item.headcount}</p>
+      <p><strong>Room:</strong> ${item.roomid}</p>
+      <p><strong>Comments:</strong> ${item.comments}</p>
+      <button style="
+        background:linear-gradient(135deg,#4CAF50,#45a049);
+        color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;width:100%;
+      " onclick='openInNewTab(${JSON.stringify(item)})'>Open in New Tab</button>
+    `;
+    
+    container.appendChild(card);
+  });
+
+  // Function to open the data in a new tab
+  function print(data) {
+    const newTab = window.open('', '_blank');
+    newTab.document.write(`
+      <html>
+        <head>
+          <title>Head Check #${data.id}</title>
+          <style>
+            body { font-family: Arial; padding: 20px; }
+            h2 { color: #4CAF50; }
+            p { font-size: 16px; }
+            button { 
+              margin-top: 20px; padding:8px 16px; background:#4CAF50; color:#fff; 
+              border:none; border-radius:6px; cursor:pointer;
+            }
+          </style>
+        </head>
+        <body>
+          <h2>Head Check #${data.id}</h2>
+          <p><strong>Date:</strong> ${data.diarydate}</p>
+          <p><strong>Time:</strong> ${data.time}</p>
+          <p><strong>Headcount:</strong> ${data.headcount}</p>
+          <p><strong>Room ID:</strong> ${data.roomid}</p>
+          <p><strong>Comments:</strong> ${data.comments}</p>
+          <p><strong>Created By:</strong> ${data.createdBy}</p>
+          <button onclick="window.print()">Print</button>
+        </body>
+      </html>
+    `);
+    newTab.document.close();
+  }
+</script>
+
+
 <script>
 $(document).ready(function() {
 
@@ -840,7 +953,7 @@ $(document).ready(function() {
                 </div>
                 
                 <div class="form-group commentGroup col-md-3 col-sm-12">
-                    <label>Comments</label>
+                    <label>Signature</label>
                     <input type="text" class="form-control commentField custom-input my-1" name="comments[]">
                 </div>
                 <div class="btn-group" style="display:contents;">
@@ -858,47 +971,55 @@ $(document).ready(function() {
         syncTimePicker(addedRow);
     });
 
-    $(document).on('click', '.minus-btn', function () {
-      
-      
-
-          let row = $(this).closest('.headcheck-card');
-
-    // This finds the input with class .headcheckid inside only that row
+ $(document).on('click', '.minus-btn', function () {
+    let button = $(this);
+    let row = button.closest('.headcheck-card');
     let headCheckId = row.find('#headcheckid').val();
-    //   alert(headCheckId);
-    // alert(headCheckId);
 
-  if (headCheckId) {
-    $.ajax({
-        url: "{{ route('headcheck.delete') }}",
-        type: "POST",
-        dataType: "json",
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to delete this entry?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+        customClass: {
+            confirmButton: headCheckId ? 'btn btn-sm btn-danger mx-2' : 'btn btn-sm btn-warning',
+            cancelButton: 'btn btn-sm btn-secondary'
         },
-        data: {
-            headCheckId: headCheckId
-        },
-        success: function(response) {
-            if (response.Status === 'SUCCESS') {
-                // alert('Deleted successfully');
-               window.location.href = "{{ route('headChecks') }}";
-
-                // Optionally remove the row from DOM
-                // $(this).closest('.rowInnerHeadCheck').remove();
+        buttonsStyling: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (headCheckId) {
+                $.ajax({
+                    url: "{{ route('headcheck.delete') }}",
+                    type: "POST",
+                    dataType: "json",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: { headCheckId: headCheckId },
+                    success: function(response) {
+                        if (response.Status === 'SUCCESS') {
+                            // Redirect or remove row
+                            window.location.href = "{{ route('headChecks') }}";
+                        } else {
+                            Swal.fire('Error', response.Message || 'Failed to delete', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX error:', error);
+                        Swal.fire('Error', 'Something went wrong!', 'error');
+                    }
+                });
             } else {
-                alert(response.Message || 'Failed to delete');
+                // Remove row directly if there's no ID
+                button.closest('.rowInnerHeadCheck, .InnerHeadCheck, .headcheck-card').remove();
             }
-        },
-        error: function(xhr, status, error) {
-            console.error('AJAX error:', error);
         }
     });
-}else{
-  $(this).closest('.rowInnerHeadCheck, .InnerHeadCheck').remove();
-}
-    });
+});
+
 
     // Fetch rooms based on center ID
     $(document).on('change', '#centerId', function () {

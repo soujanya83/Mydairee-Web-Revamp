@@ -745,7 +745,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     title: '🎂 Birthday',
                     date,
                     allDay: true,
-                    color: '#dc3545', // Red
+                    color: '#74a5c9', // Red
                     users
                 }));
 
