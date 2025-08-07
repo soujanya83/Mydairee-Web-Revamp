@@ -129,52 +129,7 @@
         </button>
         @endif
     </div>
-
-
-
     <hr>
-
-
-
-    <!-- <div class="row clearfix" style="margin-bottom: 43px;">
-        @foreach($getrooms as $room)
-        <div class="col-lg-4 col-md-6 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
-
-                <div class="card shadow-sm border-0 rounded p-3 hover-shadow">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="mb-0">
-                            {{ $room->name }}
-                            <small class="text-muted" style="font-size: 0.8rem;">({{ $room->status }})</small>
-                        </h5>
-                        <i class="fa fa-ellipsis-v text-muted"></i>
-                    </div>
-
-                    <div class="mb-2">
-                        <i class="fa fa-child text-warning me-2"></i>
-                        {{ count($room->children) }} Children
-                    </div>
-
-                    <div class="mb-2">
-                        <i class="fa fa-chalkboard-teacher text-primary me-2"></i>
-                        Educators:
-                        @foreach($room->educators as $educator)
-                        <img src="{{ isset($educator->person_sign) && $educator->person_sign ? asset('storage/' . $educator->person_sign) : asset('assets/img/default-avatar.png') }}"
-                            class="rounded-circle border"
-                            style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px;"
-                            title="{{ ucfirst($educator->person_name ?? '') }}">
-
-                        @endforeach
-                    </div>
-
-                    <div class="mb-1">
-                        <i class="fa fa-user text-secondary me-2"></i>
-                        <span class="text-muted">Lead:</span> {{ Auth::user()->username ?? 'Not Assigned' }}
-                    </div>
-                </div>
-            </a>
-        </div>
-        @endforeach
-    </div>  -->
 
     <form method="POST" action="{{ route('rooms.bulk_delete') }}" id="deleteRoomsForm">
         @csrf
@@ -189,57 +144,58 @@
             </button>
         </div>
         @endif
+
         <div class="row clearfix" style="margin-bottom: 43px;">
             @foreach($getrooms as $room)
             <div class="col-lg-3 col-md-3 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
                 <div class="card shadow-sm border-0 rounded p-3 hover-shadow position-relative"
                     style="    height: 165px;">
 
-                    {{-- Checkbox --}}
                     <input type="checkbox" name="selected_rooms[]" value="{{ $room->roomid }}"
                         class="form-check-input position-absolute"
-                        style="top: 18px; left: 26px; z-index: 1;width: 15px; height: 15px;">
+                        style="top: 13px; left: 26px; z-index: 2;width: 15px; height: 15px;">
 
-                    {{-- Card content (still clickable, but not interfering with checkbox) --}}
-                    <a href="{{ route('room.children', ['roomid' => $room->id]) }}"
-                        style="text-decoration: none; color: inherit; margin-left: 20px;">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="d-flex justify-content-between align-items-start mb-2"
+                        style="margin-left: 20px; margin-top: -3px;">
+                        <a href="{{ route('room.children', ['roomid' => $room->id]) }}"
+                            style="text-decoration: none; color: inherit;">
                             <h5 class="mb-0">
-                                &nbsp;&nbsp; {{ $room->name }}
+                                {{ $room->name }}
                                 <small class="text-muted" style="font-size: 0.8rem;">({{ $room->status }})</small>
                             </h5>
-                            <i class="fa fa-ellipsis-v text-muted" style="padding:5px"></i>
-                        </div>
+                        </a>
 
-                        <div class="mb-2">
-                            <i class="fa fa-child text-warning me-2"></i>
-                            {{ count($room->children) }} Children
-                        </div>
+                        <!-- Trigger -->
+                        <button type="button" class="btn btn-sm " onclick='openEditModal(@json($room))' style="background-color: #f0ece4;">
+                            <i class="fa fa-edit" class="d-flex justify-content-between align-items-start"></i>
+                        </button>
+                    </div>
 
-                        <div class="mb-2">
-                            <i class="fa fa-chalkboard-teacher text-primary me-2"></i>
-                            Educators:
-                            @foreach($room->educators as $educator)
-                            <img src="{{ isset($educator->person_sign) && $educator->person_sign ? asset('storage/' . $educator->person_sign) : asset('assets/img/default-avatar.png') }}"
-                                class="rounded-circle border"
-                                style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px;"
-                                title="{{ ucfirst($educator->person_name ?? '') }}">
-                            @endforeach
-                        </div>
+                    <div class="mb-2">
+                        <i class="fa fa-child text-warning me-2"></i>
+                       Childrens: {{ count($room->children) }}
+                    </div>
 
-                        <div class="mb-1">
-                            <i class="fa fa-user text-secondary me-2"></i>
-                            <span class="text-muted">Lead:</span> {{ Auth::user()->username ?? 'Not Assigned' }}
-                        </div>
-                    </a>
+                    <div class="mb-2">
+                        <i class="fa fa-chalkboard-teacher text-primary me-2"></i>
+                        Educators:
+                        @foreach($room->educators as $educator)
+                        <img src="{{ isset($educator->person_sign) && $educator->person_sign ? asset('storage/' . $educator->person_sign) : asset('assets/img/default-avatar.png') }}"
+                            class="rounded-circle border"
+                            style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px;"
+                            title="{{ ucfirst($educator->person_name ?? '') }}">
+                        @endforeach
+                    </div>
+
+                    <div class="mb-1">
+                        <i class="fa fa-user text-secondary me-2"></i>
+                        <span class="text-muted">Lead:</span>  &nbsp;{{ Auth::user()->username ?? 'Not Assigned' }}
+                    </div>
                 </div>
             </div>
             @endforeach
         </div>
     </form>
-
-
-
 </div>
 
 <!-- Room Creation Modal -->
@@ -324,97 +280,109 @@
     </div>
 </div>
 
-
-<div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="filtersModalRight"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="roomModalLabel">Add Room</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<!-- Edit Room Modal -->
+<div class="modal fade" id="editRoomModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <form method="POST" id="editRoomForm">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Room</h5>
+                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <form action="" id="form-room" method="post" enctype="multipart/form-data">
-                            <input type="hidden" name="dcenterid" value="">
-                            <div class="form-group">
-                                <label for="txtRoomName">Name</label>
-                                <input type="text" name="room_name" id="txtRoomName" placeholder="e.g Adventures"
-                                    class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="txtRoomCapacity">Capacity</label>
-                                <input type="text" name="room_capacity" id="txtRoomCapacity" placeholder="e.g 20"
-                                    class="form-control">
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label for="txtFromAge">From Age</label>
-                                        <input type="text" name="ageFrom" id="txtFromAge" min="0" placeholder="e.g 0"
-                                            class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label for="txtToAge">To Age</label>
-                                        <input type="text" name="ageTo" id="txtToAge" min="0" placeholder="e.g 5"
-                                            class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label for="txtRoomStatus">Status</label>
-                                        <select name="room_status" id="txtRoomStatus" class="form-control">
-                                            <option value="Active">Active</option>
-                                            <option value="Inactive">Inactive</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label for="txtRoomColor">Color</label>
-                                        <input type="color" name="room_color" id="txtRoomColor" value="#009DFF"
-                                            class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="txtRoomEducators">Educators</label>
+                </div>
 
-                            </div>
-                        </form>
+                <div class="modal-body row">
+                    <input type="hidden" id="editRoomId" name="room_id">
+
+                    <div class="form-group col-md-6">
+                        <label for="editRoomName">Room Name</label>
+                        <input type="text" name="room_name" id="editRoomName" class="form-control" required>
                     </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="editRoomCapacity">Room Capacity</label>
+                        <input type="number" name="room_capacity" id="editRoomCapacity" class="form-control" required>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="editAgeFrom">Age From</label>
+                        <input type="number" name="ageFrom" id="editAgeFrom" class="form-control" required>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="editAgeTo">Age To</label>
+                        <input type="number" name="ageTo" id="editAgeTo" class="form-control" required>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="editRoomStatus">Room Status</label>
+                        <select name="room_status" id="editRoomStatus" class="form-control" required>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="editRoomColor">Room Color</label>
+                        <input type="color" name="room_color" id="editRoomColor" class="form-control form-control-color"
+                            required  style="height: 35px;">
+                    </div>
+
+                    <div class="form-group col-6">
+                        <label>Educators</label>
+                        <div class="border rounded p-2" style="height: 150px; overflow-y: auto;">
+                            @foreach($roomStaffs as $data)
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="educator_{{ $data->staffid }}"
+                                    name="educators[]" value="{{ $data->staffid }}">
+                                <label class="form-check-label" for="educator_{{ $data->staffid }}">{{ $data->name
+                                    }}</label>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info">Update Room</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="save-room-btn" data-dismiss="modal">Save
-                    changes</button>
-            </div>
-        </div>
+        </form>
     </div>
 </div>
 
+<!-- Script -->
 <script>
-    $(document).on('click', '.edit-room', function() {
-		$('#form-room').append(`<input type='hidden' class='hidden-room-id' name='id' value='` + $(this).data('roomid') + `'>`);
-		$('#roomModalLabel').text('Edit Room');
-		$('#save-room-btn').prop('id', 'edit-room-btn');
-	});
+    function openEditModal(room) {
+        // Set form fields
+        document.getElementById('editRoomId').value = room.id;
+        document.getElementById('editRoomName').value = room.name;
+        document.getElementById('editRoomCapacity').value = room.capacity;
+        document.getElementById('editAgeFrom').value = room.ageFrom;
+        document.getElementById('editAgeTo').value = room.ageTo;
+        document.getElementById('editRoomStatus').value = room.status;
+        document.getElementById('editRoomColor').value = room.color;
+        // Clear all checkboxes first
+        document.querySelectorAll('#editEducators input[type="checkbox"]').forEach(cb => cb.checked = false);
 
-	$(document).on('click', '.add-room', function() {
-		$("#form-room").find('.hidden-room-id').remove();
-		$('#roomModalLabel').text('New Room');
-		$('#edit-room-btn').prop('id', 'save-room-btn');
-		$('#form-room').trigger("reset");
-		$("#txtRoomEducators").val([]).change();
-	});
+        // Check the ones belonging to room
+        if (Array.isArray(room.educators)) {
+            room.educators.forEach(id => {
+                const checkbox = document.getElementById('educator_' + id);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        }
+        // Set form action
+        document.getElementById('editRoomForm').action = `/rooms/update/${room.id}`;
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('editRoomModal'));
+        modal.show();
+    }
 </script>
 
 <script>

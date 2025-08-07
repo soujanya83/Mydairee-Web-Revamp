@@ -52,14 +52,14 @@
 <hr>
 <div class="row">
     @foreach($chilData as $child)
-    <div class="col-md-4 mb-4">
+    <div class="col-md-3 mb-2">
         <div class="card shadow rounded-lg">
             @php
-          
+
             @endphp
 
             <img src="{{ $child->imageUrl ? asset($child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}" class="card-img-top"
-                style="height: 250px; object-fit: cover;border-radius: 8px;padding: 5px;" alt="{{ $child->name }}">
+                style="height: 200px; object-fit: cover;border-radius: 8px;padding: 5px;" alt="{{ $child->name }}">
 
             <div class="card-body">
                 <h5 class="card-title">{{ $child->childname }} {{ $child->lastname }}</h5>
