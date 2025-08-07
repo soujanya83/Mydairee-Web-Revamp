@@ -31,7 +31,7 @@
 </style>
 
 
-<div class="row clearfix" style="margin-top:30px">
+{{-- <div class="row clearfix" style="margin-top:30px">
     <div class="col-lg-3 col-md-6">
         <div class="card top_counter">
             <div class="body">
@@ -102,7 +102,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
 
@@ -125,7 +125,7 @@
         <div class="icon-cards-row mt-0">
             <div class="row mb-4">
                 <!-- Rooms -->
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" style="display:none">
                     <a href="{{ route('rooms_list') }}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="fa-solid fa-people-roof fa-2x mb-2"></i>
@@ -135,7 +135,7 @@
                 </div>
 
                 <!-- Children -->
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" style="display:none">
                     <a href="{{ route('childrens_list') }}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="fa-solid fa-children fa-2x mb-2"></i>
@@ -145,7 +145,7 @@
                 </div>
 
                 <!-- Educators -->
-                <div class="col-md-4 mb-4" style="display: none">
+                <div class="col-md-4 mb-4" style="display:none">
                     <a href="{{ route('settings.staff_settings') }}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="fa-solid fa-chalkboard-user fa-2x mb-2"></i>
@@ -154,7 +154,7 @@
                     </a>
                 </div>
 
-                 <div class="col-md-4 mb-4">
+                     <div class="col-md-6 mb-4">
                     <a href="{{ route('announcements.list') }}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="fa-solid fa-bullhorn fa-2x mb-2"></i>
@@ -163,17 +163,17 @@
                     </a>
                 </div>
                 <!-- Observations -->
-                <div class="col-md-4 mb-4" style="margin-top: -26px;">
+                <div class="col-md-6 mb-4" >
                     <a href="{{route('observation.index')}}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="icon-equalizer fa-2x mb-2"></i>
-                            <p class="card-text mb-0 title">Observations</p>
+                            <p class="card-text mb-1 title">Observations</p>
                         </div>
                     </a>
                 </div>
 
                 <!-- Daily Reflections -->
-                <div class="col-md-4 mb-4" style="margin-top: -26px;">
+                <div class="col-md-6 mb-4" style="margin-top:-25px">
                     <a href="{{route('reflection.index')}}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="fa-solid fa-notes-medical fa-2x mb-2"></i>
@@ -183,7 +183,7 @@
                 </div>
 
                 <!-- Daily Diary -->
-                <div class="col-md-4 mb-4" style="margin-top: -26px;">
+                <div class="col-md-6 mb-4" style="margin-top:-25px">
                     <a href="{{ route('dailyDiary.list') }}" class="card shadow-sm">
                         <div class="card-body text-center" style="color:#0e0e0e">
                             <i class="fa-solid fa-wallet fa-2x mb-2"></i>
@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', function () {
         initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'title',
-            right: 'prev,next Today'
+            right: 'prev,next today'
         },
         height: 500,
         themeSystem: 'standard',
