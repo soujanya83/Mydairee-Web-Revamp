@@ -99,7 +99,7 @@
                 CHILDREN </button>
         </div>
     </div>
-    <hr>
+
     @if ($errors->any())
     <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:-22px">
         <ul class="mb-0">
@@ -187,8 +187,7 @@
         </div>
     </div>
 
-
-    <div class="container mt-4">
+    {{-- <div class="container mt-4">
         <!-- Form for moving children -->
         <form action="{{ route('move_children') }}" method="POST">
             @csrf
@@ -223,7 +222,7 @@
                                         }}</a>
                                 </h5>
                                 <p class="mb-0">Date of Birth: {{ date('d-M-Y', strtotime($child->dob)) }}</p>
-                                <p class="mb-0">Joining Date: {{ date('d-M-Y', strtotime($child->joining_date)) }}</p>
+                                <p class="mb-0">Joining Date: {{ date('d-M-Y', strtotime($child->startDate)) }}</p>
                                 <p class="mb-0">{{ \Carbon\Carbon::parse($child->dob)->age }} years</p>
                             </div>
                         </div>
@@ -235,29 +234,145 @@
                 @endforeach
             </div>
         </form>
-    </div>
+    </div> --}}
 
-    {{-- <div class="row">
-        @foreach($allchilds as $child)
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm border-0 rounded p-3">
-                <div class="d-flex align-items-center mb-2">
-                    <img src="{{ $child->imageUrl ? asset('storage/'.$child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}"
-                        alt="Profile" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
-                    <div class="ms-3" style="margin-left:12px">
-                        <h5 class="mb-1">
-                            <a href="{{ route('edit_child', ['id' => $child->id]) }}">{{ ucfirst($child->name) }}</a>
-                        </h5>
-                        <p class="mb-0">Date of Birth: {{ date('d-M-Y', strtotime($child->dob)) }}</p>
-                        <p class="mb-0">Joining Date: {{ date('d-M-Y', strtotime($child->joining_date)) }}</p>
-                        <p class="mb-0">{{ \Carbon\Carbon::parse($child->dob)->age }} years</p>
+    <div class="container mt-4">
+        <!-- Bootstrap Nav Tabs -->
+        <ul class="nav nav-tabs mb-3" id="roomTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="children-tab" data-bs-toggle="tab" href="#children"
+                    role="tab">Children</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="educators-tab" data-bs-toggle="tab" href="#educators" role="tab">Educators</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="roomTabContent">
+            <!-- CHILDREN TAB -->
+            <div class="tab-pane fade show active" id="children" role="tabpanel" aria-labelledby="children-tab">
+                <form action="{{ route('move_children') }}" method="POST">
+                    @csrf
+                    <div class="d-flex justify-content-end mb-3 align-items-center">
+                        <select name="room_id" class="form-control mr-2" style="width: 200px;" id="roomSelect" disabled>
+                            <option value="" selected>Select a room</option>
+                            @foreach($rooms as $room)
+                            <option value="{{ $room->id }}">{{ $room->name }}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="btn btn-outline-primary btn-xs" id="moveButton"
+                            disabled>MOVE</button>
+                        &nbsp;&nbsp;
+                        <button type="submit" formaction="{{ route('delete_selected_children') }}"
+                            class="btn btn-outline-danger btn-xs" id="deleteButton"
+                            onclick="return confirm('Are you sure you want to delete the selected children?')" disabled>
+                            DELETE
+                        </button>
                     </div>
+
+                    <div class="row">
+                        @foreach($allchilds as $child)
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow-sm border-0 rounded p-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <img src="{{ $child->imageUrl ? asset($child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}"
+                                        alt="Profile" class="rounded-circle" width="50" height="50"
+                                        style="object-fit: cover;">
+                                    <div class="ms-3" style="margin-left:12px">
+                                        <h5 class="mb-1">
+                                            <a href="{{ route('edit_child', ['id' => $child->id]) }}">{{
+                                                ucfirst($child->name) }}</a>
+                                        </h5>
+                                        <p class="mb-0">Date of Birth: {{ date('d-M-Y', strtotime($child->dob)) }}</p>
+                                        <p class="mb-0">Joining Date: {{ date('d-M-Y', strtotime($child->startDate)) }}
+                                        </p>
+                                        <p class="mb-0">{{ \Carbon\Carbon::parse($child->dob)->age }} years</p>
+                                    </div>
+                                </div>
+                                <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a>
+                                <input type="checkbox" name="child_ids[]" value="{{ $child->id }}"
+                                    class="child-checkbox mr-2"
+                                    style="margin-left: 148px;z-index: 1;width: 15px; height: 15px;">
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </form>
+            </div>
+
+            <!-- EDUCATORS TAB -->
+            <div class="tab-pane fade" id="educators" role="tabpanel" aria-labelledby="educators-tab">
+
+                <button type="button" class="btn btn-outline-info mb-3" data-bs-toggle="modal"
+                    data-bs-target="#manageEducatorsModal" style="margin-left: 84%">
+                    Manage Educators
+                </button>
+
+
+                <div class="row">
+                    @foreach($roomEducators as $educator)
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded p-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="{{ $educator->imageUrl ? asset($educator->imageUrl) : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}"
+                                    alt="Profile" class="rounded-circle" width="50" height="50"
+                                    style="object-fit: cover;">
+                                <div class="ms-3" style="margin-left:12px">
+                                    <h5 class="mb-1">{{ ucfirst($educator->name) }}</h5>
+                                    <p class="mb-0">{{ $educator->gender }}</p>
+                                </div>
+                            </div>
+                            {{-- <a href="#" class="btn btn-outline-secondary btn-sm mt-2">View Profile</a> --}}
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
-                <!-- <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a> -->
             </div>
         </div>
-        @endforeach
-    </div> --}}
+    </div>
+
+
+
+
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="manageEducatorsModal" tabindex="-1" aria-labelledby="manageEducatorsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content card">
+            <form method="POST" action="{{ route('rooms.assign.educators', $roomid) }}">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="manageEducatorsModalLabel">Manage Educators</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal">X</button>
+                </div>
+                <hr>
+                <div class="modal-body">
+                    @foreach ($AllEducators as $educator)
+                    <div class="form-check d-flex align-items-center mb-2">
+                        <img src="{{ asset('storage/' . $educator->imageUrl) }}" class="rounded-circle ms-2 me-2"
+                            width="40" height="40">
+
+                        <input class="form-check-input" type="checkbox" name="educators[]"
+                            value="{{ $educator->userid }}" {{ in_array($educator->userid, $assignedEducatorIds) ?
+                        'checked' : '' }}>
+
+                        <label class="form-check-label">{{ $educator->name }}</label>
+                    </div>
+                    @endforeach
+
+                </div>
+
+                <div class="modal-footer">
+                    {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> --}}
+                    <button type="submit" class="btn btn-info">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- Modal -->
@@ -528,6 +643,9 @@
         });
     });
 </script>
+
+
+
 
 @include('layout.footer')
 @stop

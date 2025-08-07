@@ -51,7 +51,7 @@
         </div>
 
         <div class="navbar-brand" style="margin-top: -12px;">
-            <a href="{{route('dashboard.analytical')}}"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}"
+            <a href="/"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}"
                     alt="Lucid Logo" class="img-responsive logo"></a>
         </div>
         <a class="btn btn-xs btn-link btn-toggle-fullwidth">
@@ -164,25 +164,38 @@
                     {{-- Profile Dropdown --}}
                     <li class="nav-item dropdown" style="margin-right: 30px;">
                         <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false"  style="color:black">
+                            data-bs-toggle="dropdown" aria-expanded="false" style="color:black">
                             <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
                                 class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
-                            <strong style="color:black;font-size:16px"> &nbsp;  {{ Auth::user()->name }}</strong>
+                            <strong style="color:black;font-size:16px"> &nbsp; {{ Auth::user()->name }}</strong>
                         </a>
 
                         <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
                             <li class="dropdown-header text-center">
-                                <span style="font-size: 18px;float:left;"><i class="fa fa-user me-2"></i > {{ Auth::user()->name }}</span><br>
-                                <span style="font-size: 16px;float:left;"> <i class="fa fa-envelope me-2"></i> <u>{{ Auth::user()->email }}</u> </span>
+                                <span style="font-size: 18px;float:left;"><i class="fa fa-user me-2 mb-2"></i> {{
+                                    Auth::user()->name }}</span><br>
+                                <span style="font-size: 13px; float: left;" class="mb-2">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    (
+                                    @if (Auth::user()->userType == 'Superadmin')
+                                    SuperAdmin
+                                    @else
+                                    {{ Auth::user()->userType }}
+                                    @endif
+                                    )
+                                </span>
+                                <br>
+                                <span style="font-size: 16px;float:left;"> <i class="fa fa-envelope me-2"></i> {{
+                                    Auth::user()->email }} </span>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li><a class="dropdown-item" href="{{ route('settings.profile') }}"><i
-                                        class="fa fa-user me-2"></i > &nbsp;  My Profile</a></li>
-                                        <hr>
+                                        class="fa fa-user me-2"></i> &nbsp; My Profile</a></li>
+                            <hr>
                             <li><a class="dropdown-item text-danger" href="{{ route('logout') }}"><i
-                                        class="fa fa-power-off me-2"></i>  &nbsp; Logout</a></li>
+                                        class="fa fa-power-off me-2"></i> &nbsp; Logout</a></li>
                         </ul>
                     </li>
 

@@ -269,6 +269,10 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::get('/childrens-edit/{id}', [RoomController::class, 'childrens_edit'])->name('children.edit');
     Route::delete('/childrens-delete/{id}', [RoomController::class, 'children_destroy'])->name('children.destroy');
 
+   Route::post('/rooms/update/{id}', [RoomController::class, 'rooms_update'])->name('room_update');
+Route::post('/rooms/{roomid}/assign-educators', [RoomController::class, 'assignEducators'])->name('rooms.assign.educators');
+
+
     // recipe
     Route::match(['get', 'post'], '/healthy-recipe', [HealthyController::class, 'healthy_recipe'])->name('healthy_recipe');
     Route::get('/recipes/{id}/edit', [HealthyController::class, 'edit'])->name('recipes.edit');
@@ -316,13 +320,13 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::delete('/center/{id}', [SettingsController::class, 'destroycenter'])->name('center.destroy');
         // filter
 Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])->name('filter-centers');
-// filter by center ends 
+// filter by center ends
 
 
         Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
         Route::get('filter-staffs', [SettingsController::class, 'filterStaffByName'])->name('filter-staffs');
         Route::post('/staff/store', [SettingsController::class, 'staff_store'])->name('staff.store');
-      
+
 
         Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
         Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');

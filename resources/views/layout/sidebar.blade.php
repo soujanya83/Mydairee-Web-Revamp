@@ -90,7 +90,7 @@
                             </a>
                             <ul>
                             @if(
-    in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+    in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
     (auth()->user()->userType == 'Staff' && !empty($permissions['viewDailyDiary']) && $permissions['viewDailyDiary'])
 )
                                 <li class="{{ Route::is('dailyDiary.list') ? 'active' : '' }}">
@@ -108,7 +108,7 @@
                                 </li>
                             </ul>
                         </li>
-                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
     (auth()->user()->userType == 'Staff' && !empty($permissions['viewProgramPlan']) && $permissions['viewProgramPlan']))
 
                         <li class="{{ Request::is('programPlanList*') ? 'active' : '' }}">
@@ -119,7 +119,7 @@
                             </a>
                         </li>
                         @endif
-                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
     (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllReflection']) && $permissions['viewAllReflection']))
 
                         <li class="{{ Request::is('reflection*') ? 'active' : null }}">
@@ -129,7 +129,7 @@
                         </li>
                         @endif
 
-                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) || 
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
     (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllObservation']) && $permissions['viewAllObservation']))
 
                         <li class="{{ Request::is('observation*') ? 'active' : null }}">
@@ -149,7 +149,7 @@
 
 
 
-                        @if(  in_array(auth()->user()->userType, ['Superadmin']) || 
+                        @if(  in_array(auth()->user()->userType, ['Superadmin']) ||
     (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement']))
 
                         <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
@@ -161,7 +161,7 @@
                         @endif
 
 
-                        @if(  in_array(auth()->user()->userType, ['Superadmin']) || 
+                        @if(  in_array(auth()->user()->userType, ['Superadmin']) ||
     (auth()->user()->userType == 'Staff' && !empty($permissions['viewRoom']) && $permissions['viewRoom']))
 
                         <li class="{{ Request::is('room*') ? 'active' : null }}">
@@ -171,7 +171,7 @@
 
                         </li>
 
-                       
+
 
                         <li class="{{ Request::is('qip*') ? 'active' : null }}">
                             <a href="{{ route('qip.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-clipboard"
@@ -194,7 +194,7 @@
                         Route::is('recipes.Ingredients');
                         @endphp
 
-                        @if(auth()->user()->userType != 'Parent')
+                        @if(auth()->user()->userType == 'Parent')
 
                         <li class="{{ $isHealthyActive ? 'active open' : '' }}">
                             <a href="javascript:void(0);" data-toggle="tooltip" data-placement="right" class="d-flex justify-content-between align-items-center">
@@ -218,7 +218,7 @@
                         </li>
 
                         @endif
-                    
+
                     @if(auth()->user()->userType != 'Parent')
 
                         <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
@@ -229,7 +229,7 @@
                         </li>
                     @endif
 
-                        @if(auth()->user()->userType != 'Parent')
+                        @if(auth()->user()->userType == 'Superadmin')
                         <li class="{{ Request::segment(1) === 'settings' ? 'active open' : null }}">
                             <a href="#settings" data-toggle="tooltip" data-placement="right" class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -252,18 +252,21 @@
                                 $userType=Auth::user()->userType; @endphp
 
 
-                                @if((!empty($permissions['viewCenters']) && $permissions['viewCenters']) || ($userType
-                                == 'Superadmin'))
+                                @if((!empty($permissions['viewCenters']) && $permissions['viewCenters']))
 
                                 <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.center_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Center Settings</a>
                                 </li>
                                 @endif
-                                @if($userType == 'Superadmin')
+                                {{-- @if($userType == 'Superadmin') --}}
                                 <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.staff_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Staffs Settings</a>
                                 </li>
-                                @endif
+
+                                 <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}">
+                                    <a href="{{ route('settings.manage_permissions') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Manage Permissions</a>
+                                </li>
+                                {{-- @endif --}}
                                 @if(!empty($permissions['viewParent']) && $permissions['viewParent'])
 
                                 <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}">
@@ -271,9 +274,7 @@
                                 </li>
                                 @endif
 
-                                <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}">
-                                    <a href="{{ route('settings.manage_permissions') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Manage Permissions</a>
-                                </li>
+
                             </ul>
                         </li>
                         @endif
