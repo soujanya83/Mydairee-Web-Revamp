@@ -13,6 +13,7 @@ class DailyDiarySunscreen extends Model
     'childid',
     'diarydate',
     'startTime',
+    'signature',
     'comments',
     'createdBy',
     'createdAt',

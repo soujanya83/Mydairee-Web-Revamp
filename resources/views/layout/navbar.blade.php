@@ -56,6 +56,8 @@
     line-height: 1.4;
 }
 
+
+
 </style>
 <nav class="navbar navbar-fixed-top" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
     <div class="container-fluid">
@@ -64,7 +66,7 @@
         </div>
 
         <div class="navbar-brand" style="margin-top: -12px;">
-            <a href="{{route('dashboard.analytical')}}"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}"
+            <a href="{{route('dashboard.university')}}"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}"
                     alt="Lucid Logo" class="img-responsive logo"></a>
         </div>
         <a class="btn btn-xs btn-link btn-toggle-fullwidth">
@@ -185,7 +187,7 @@
         </span>
     </a>
 
-    <div class="dropdown-menu dropdown-menu-right shadow-sm" aria-labelledby="userDropdown" style="min-width: 230px;">
+    <div class="dropdown-menu dropdown-menu-right shadow-sm" aria-labelledby="userDropdown" style="min-width: 230px; top : 48px !important; left :-6px !important;margin-top:48px;">
         <div class="px-3 py-2">
             <div class="font-weight-bold text-truncate" style="font-size: 15px;">
                 <i class="fa fa-user mr-2"></i>{{ Auth::user()->name }}
