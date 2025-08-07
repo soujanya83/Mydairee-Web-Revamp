@@ -207,6 +207,7 @@ class ReflectionController extends Controller
 
             $reflection->roomids      = $request->input('selected_rooms');
             $reflection->title        = $request->input('title');
+            $reflection->status        = $request->input('status');
             $reflection->about        = $request->input('about');
             $reflection->eylf         = $request->input('eylf');
             $reflection->centerid     = $centerid;
