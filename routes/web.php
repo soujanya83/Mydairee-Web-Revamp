@@ -116,6 +116,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('headchecks/store', [HeadChecks::class, 'headchecksStore'])->name('headchecks.store');
     Route::post('headchecks/getCenterRooms', [HeadChecks::class, 'getCenterRooms'])->name('headchecks.getCenterRooms');
     Route::post('headcheckdelete', [HeadChecks::class, 'headcheckDelete'])->name('headcheck.delete');
+    Route::post('headcheck/print', [HeadChecks::class, 'headcheckprint'])->name('headcheck.print');
+    
 
 
     Route::get('/notifications/mark-all-read', function () {

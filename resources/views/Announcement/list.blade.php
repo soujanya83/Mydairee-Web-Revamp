@@ -461,6 +461,8 @@
                                     <small class="text-muted d-block">Event Date</small>
                                     <div class="fw-semibold">{{ \Carbon\Carbon::parse($announcement->eventDate)->format('d M Y') }}</div>
                                     <small class="text-muted">{{ $eventDateHuman }}</small>
+                                               <small class="text-muted d-block">Created At</small>
+                                    <div class="fw-semibold">{{ \Carbon\Carbon::parse($announcement->createdAt)->format('d M Y') }}</div>
                                 </div>
 
            <!-- Actions -->
@@ -710,6 +712,12 @@ function filterProgramPlan() {
                         announcement.status === 'Pending' ? 'fa-clock' : 'fa-times';
 
                         let eventDate = new Date(announcement.eventDate);
+                     let createdAt = new Date(announcement.createdAt);
+let formattedDate = createdAt.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+});
 let today = new Date();
 let diffTime = eventDate - today; 
 let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
@@ -758,6 +766,8 @@ if (diffDays > 0) {
                                         <small class="text-muted d-block">Event Date</small>
                                         <div class="fw-semibold">${announcement.eventDate}</div>
                                         <small class="text-muted">${eventDateHuman}</small>
+                                                       <small class="text-muted d-block">Created At</small>
+                                    <div class="fw-semibold">${formattedDate}</div>
                                     </div>
 
                                     <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">

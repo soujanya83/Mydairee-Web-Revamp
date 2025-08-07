@@ -429,39 +429,41 @@ public function saveAccident(Request $request)
     $existingAccident = AccidentsModel::find($accidentId);
 
     // Handle image uploads
-    foreach ($imageMappings as $field => $prefix) {
-        if (!empty($data[$field])) {
-            $filename = "$prefix-$accidentId.png";
-            $filepath = $targetPath . $filename;
+foreach ($imageMappings as $field => $prefix) {
+    if (!empty($data[$field])) {
+        $filename = "$prefix-$accidentId.png";
+        $relativePath = "uploads/accidents/$filename";
+        $absolutePath = public_path($relativePath);
 
-            // Remove old image file if it exists
-            if ($existingAccident && !empty($existingAccident->$field)) {
-                $oldPath = $targetPath . $existingAccident->$field;
-                if (File::exists($oldPath)) {
-                    File::delete($oldPath);
-                }
+        // Delete old image
+        if ($existingAccident && !empty($existingAccident->$field)) {
+            $oldPath = public_path("uploads/accidents/" . basename($existingAccident->$field));
+            if (File::exists($oldPath)) {
+                File::delete($oldPath);
             }
+        }
 
-            // Decode and save new image
-            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data[$field]));
-            file_put_contents($filepath, $imageData);
+        // Decode and save image
+        $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data[$field]));
+        File::ensureDirectoryExists(public_path('uploads/accidents'));
+        File::put($absolutePath, $imageData);
 
-            // Update the filename in DB
-            AccidentsModel::where('id', $accidentId)->update([
-                $field => $filename
-            ]);
+        // Generate full URL to image
+        $imageUrl = url($relativePath); // Or use asset($relativePath)
 
-            $request->merge([
-                'id' => $accidentId
-            ]);
+        // Update DB with full URL
+        AccidentsModel::where('id', $accidentId)->update([
+            $field => $imageUrl
+        ]);
 
+        // Pass accidentId for any follow-up actions
+        $request->merge(['id' => $accidentId]);
 
-                    if ($accidentId){
-
-                        $this->updateIllness($request);
-                    }
+        if ($accidentId) {
+            $this->updateIllness($request);
         }
     }
+}
 
     return redirect()->route('Accidents.list')->with('success', 'Accident record saved successfully.');
 }

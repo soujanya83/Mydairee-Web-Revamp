@@ -79,12 +79,12 @@
       margin: 0;
       padding: 0;
     }
-    body {
+    /* body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f4f8;
+      background-color:white;
       padding: 20px;
       color: #333;
-    }
+    } */
     .container {
       max-width: 1200px;
       margin: auto;
@@ -98,9 +98,9 @@
     }
     .child-header {
       font-size: 1.5rem;
-      font-weight: 600;
+    
       margin-bottom: 20px;
-      color: #2c3e50;
+      color:rgb(95, 96, 98);
     }
     table {
       width: 100%;
@@ -113,7 +113,7 @@
       border-bottom: 1px solid #e1e4e8;
     }
     th {
-      background-color: #ecf0f1;
+      background-color:rgb(254, 255, 255);
       font-weight: 600;
     }
     input[type="time"],
@@ -292,7 +292,7 @@
 
 <div class="container sleepcheck-data">
   @foreach($children as $child)
-    <div class="child-section" id="child{{ $child->id }}">
+    <div class="card child-section" id="child{{ $child->id }}">
       <div class="child-header">
         @if (!empty($child->imageUrl))
           <div class="child-avatar" style="display: inline-block; margin-right: 10px;">
@@ -676,7 +676,7 @@ function filterbyChildname(childname) {
                        </div>`;
 
                 let html = `
-                    <div class="child-section" id="child${child.id}">
+                    <div class="card child-section" id="child${child.id}">
                         <div class="child-header">
                             <div class="child-avatar" style="display:inline-block;margin-right:10px;">${avatar}</div>
                             <span>${child.name} ${child.lastname}</span>
