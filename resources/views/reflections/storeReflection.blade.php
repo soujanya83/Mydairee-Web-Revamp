@@ -301,7 +301,7 @@
     
     .toggle-icon {
         cursor: pointer;
-        width: 20px;
+        /* width: 20px; */
         text-align: center;
     }
     
@@ -669,14 +669,12 @@
 
 
 
-
 <!-- EYLF Modal -->
 @php
     $existingEylf = old('eylf', $reflection->eylf ?? '');
     $selectedLines = preg_split('/\r\n|\r|\n/', $existingEylf);
 @endphp
 
-<!-- EYLF Modal -->
 <div class="modal" id="eylfModal" tabindex="-1" role="dialog" aria-labelledby="eylfModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -684,36 +682,31 @@
                 <h5 class="modal-title">Select EYLF</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
             </div>
+
             <div class="modal-body" style="max-height:500px; overflow-y:auto;">
                 <div class="eylf-tree">
                     <ul class="list-group">
                         <li class="list-group-item">
-                            <div class="d-flex align-items-center">
-                                <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#eylfFramework">
-                                    <i class="fa fa-chevron-right"></i>
-                                </span>
+                            <div class="d-flex align-items-center toggle-icon" data-target="#eylfFramework">
+                                <i class="fa fa-chevron-right mr-2"></i>
                                 <span>Early Years Learning Framework (EYLF) - Australia (V2.0 2022)</span>
                             </div>
-                            <div id="eylfFramework" class="collapse mt-2">
+                            <div id="eylfFramework" class="collapse mt-2" data-parent=".eylf-tree">
                                 <ul class="list-group">
                                     <li class="list-group-item">
-                                        <div class="d-flex align-items-center">
-                                            <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#eylfOutcomes">
-                                                <i class="fa fa-chevron-right"></i>
-                                            </span>
+                                        <div class="d-flex align-items-center toggle-icon" data-target="#eylfOutcomes">
+                                            <i class="fa fa-chevron-right mr-2"></i>
                                             <span>EYLF Learning Outcomes</span>
                                         </div>
-                                        <div id="eylfOutcomes" class="collapse mt-2">
+                                        <div id="eylfOutcomes" class="collapse mt-2" data-parent="#eylfFramework">
                                             <ul class="list-group">
                                                 @foreach($outcomes as $outcome)
                                                     <li class="list-group-item">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#outcome{{ $outcome->id }}">
-                                                                <i class="fa fa-chevron-right"></i>
-                                                            </span>
+                                                        <div class="d-flex align-items-center toggle-icon" data-target="#outcome{{ $outcome->id }}">
+                                                            <i class="fa fa-chevron-right mr-2"></i>
                                                             <span>{{ $outcome->title }} - {{ $outcome->name }}</span>
                                                         </div>
-                                                        <div id="outcome{{ $outcome->id }}" class="collapse mt-2">
+                                                        <div id="outcome{{ $outcome->id }}" class="collapse mt-2" data-parent="#eylfOutcomes">
                                                             <ul class="list-group">
                                                                 @foreach($outcome->activities as $activity)
                                                                     @php
@@ -750,6 +743,7 @@
                     </ul>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="saveEylfSelections" data-dismiss="modal">Save selections</button>
@@ -927,9 +921,12 @@ $('#confirmStaff').on('click', function () {
 
 <script>
   // Toggle icons
-$(document).on('click', '.toggle-icon', function () {
-    const icon = $(this).find('i');
-    icon.toggleClass('fa-chevron-right fa-chevron-down');
+  $(document).on('click', '.toggle-icon', function () {
+    let target = $(this).data('target');
+    $(target).collapse('toggle'); // Bootstrap collapse
+
+    // Rotate chevron icon
+    $(this).find('i').toggleClass('fa-chevron-right fa-chevron-down');
 });
 
 // Save EYLF Selections
