@@ -157,7 +157,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::get('Accidents/edit', [AccidentsController::class, 'AccidentEdit'])->name('Accidents.edit');
     Route::post('Accident/saveAccident', [AccidentsController::class, 'saveAccident'])->name('Accidents.saveAccident');
     Route::post('Accident/getChildDetails', [AccidentsController::class, 'getChildDetails'])->name('Accident/getChildDetails');
-
+    Route::post('Accident/delete', [AccidentsController::class, 'AccidentDelete'])->name('Accident.delete');
 
 
 
