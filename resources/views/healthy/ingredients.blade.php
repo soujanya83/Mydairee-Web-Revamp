@@ -89,7 +89,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true">
+<div class="modal" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form id="ingredientForm" method="POST">
             @csrf

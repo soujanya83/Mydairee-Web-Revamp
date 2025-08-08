@@ -175,7 +175,7 @@ $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks
     </div>
 
     <!-- Image View Modal -->
-    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content bg-dark">
                 <div class="modal-header border-0">
@@ -257,7 +257,7 @@ $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks
 <!-- Include Bootstrap JS for tab functionality -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<div class="modal fade" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true">
+<div class="modal" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form id="ingredientForm" method="POST" action="{{ route('menu.store') }}">
             @csrf

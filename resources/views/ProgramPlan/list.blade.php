@@ -4,6 +4,18 @@
 
 @section('page-styles')
 <style>
+    .swal2-confirm.published-btn {
+    background: linear-gradient(135deg, var(--danger-color), var(--secondary-color)) !important;
+    color: #fff !important;
+    border: none;
+}
+
+.swal2-cancel.draft-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    color: #fff !important;
+    border: none;
+}
+
     .pagination {
         font-size: 0.9rem;
         /* Slightly larger for better readability */
@@ -781,6 +793,7 @@
                                 {{ $getMonthName($plan->months) }} {{ $plan->years ?? '' }}
                             </h5>
 <p class="text-xs mb-2">
+    @if($plan->status == 'Draft')
     <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
           style="transition: 0.2s; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"
           onclick="updatestatus('{{ $plan->status ?? `` }}', '{{ $plan->id }}')"
@@ -788,6 +801,15 @@
           onmouseout="this.style.opacity='1';">
         {{ ucfirst($plan->status ?? 'Draft') }}
     </span>
+    @else
+  <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
+          style="transition: 0.2s; background: linear-gradient(135deg, var(--danger-color), var(--secondary-color));"
+          onclick="updatestatus('{{ $plan->status ?? `` }}', '{{ $plan->id }}')"
+          onmouseover="this.style.opacity='0.8';"
+          onmouseout="this.style.opacity='1';">
+        {{ ucfirst($plan->status ?? 'Draft') }}
+    </span>
+    @endif
 </p>
 
 
@@ -856,8 +878,8 @@
 
 @push('scripts')
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.1.1/js/bootstrap.min.js"></script> -->
 <script>
     // Add smooth animations and interactions
         document.addEventListener('DOMContentLoaded', function() {
@@ -1014,13 +1036,16 @@
                                 ${monthName} ${year}
                             </h5>
 <p class="text-xs mb-2">
-    <span class="badge bg-info text-light rounded-pill px-3 py-2 shadow-sm cursor-pointer"
-                   style="transition: 0.2s; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"
-          onclick="updatestatus('${status}', '${planid}')"
-          onmouseover="this.style.opacity='0.8';"
-          onmouseout="this.style.opacity='1';">
-        ${status}
-    </span>
+ <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-pointer"
+      style="transition: 0.2s; background: linear-gradient(135deg, ${status === 'Draft' ? 'var(--primary-color)' : 'var(--danger-color)'}, var(--secondary-color));"
+      onclick="updatestatus('${status}', '${planid}')"
+      onmouseover="this.style.opacity='0.8';"
+      onmouseout="this.style.opacity='1';">
+    ${status}
+</span>
+
+
+    
 </p>
 
 
@@ -1122,7 +1147,7 @@
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
+            confirmButtonColor: '#6DAFE0',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
@@ -1141,11 +1166,14 @@
                     dataType: 'json',
                     success: function(response) {
                         if (response.status === 'success') {
-                            Swal.fire(
-                                'Deleted!',
-                                response.message,
-                                'success'
-                            );
+                          Swal.fire(
+    'Deleted!',
+    response.message,
+    'success'
+).then(() => {
+    location.reload();
+});
+
                             // Remove the row from the table
                             row.fadeOut(400, function() {
                                 $(this).remove();
@@ -1193,54 +1221,78 @@ function updateMonthDisplay() {
     }
 }
 
-function updatestatus(status, planid) {
-    console.log("Updating Plan ID:", planid, "to status:", status);
+function updatestatus(currentStatus, planid) {
+    Swal.fire({
+        title: "Change Plan Status",
+        text: "Select the new status for the plan:",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Published",
+        cancelButtonText: "Draft",
+        reverseButtons: true,
+            customClass: {
+        confirmButton: 'published-btn',
+        cancelButton: 'draft-btn'
+    }
+    }).then((result) => {
+        let newStatus = null;
 
-    $.ajax({
-        url: '/update-program-plan-status',
-        dataType: 'json',
-        type: 'post',
-        data: {
-            status: status,
-            planid: planid
-        },
-         headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        beforeSend: function () {
-            // Optional: Show loading indicator
-            Swal.fire({
-                title: "Updating...",
-                text: "Please wait",
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
+        if (result.isConfirmed) {
+            newStatus = 'Published';
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            newStatus = 'Draft';
+        }
+
+        if (newStatus) {
+            // Send AJAX with selected status
+            $.ajax({
+                url: '/update-program-plan-status',
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    status: newStatus,
+                    planid: planid
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function () {
+                    Swal.fire({
+                        title: "Updating...",
+                        text: "Please wait",
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
+                success: function (response) {
+                    Swal.close();
+
+                    if (response.status === true) {
+                        Swal.fire({
+                            title: "Updated!",
+                            text: "Program plan status updated to " + newStatus + ".",
+                            icon: "success",
+                            timer: 1200,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire("Error!", response.message || "Failed to update status.", "error");
+                    }
+                },
+                error: function (xhr, error, status) {
+                    Swal.close();
+                    Swal.fire("Error!", "Something went wrong. Please try again.", "error");
                 }
             });
-        },
-        success: function (response) {
-            Swal.close(); // Hide loader
-
-            if (response.status === true) {
-                Swal.fire({
-                    title: "Updated!",
-                    text: "Program plan status updated successfully.",
-                    icon: "success",
-                    timer: 1200,
-                    showConfirmButton: false
-                }).then(() => {
-                    location.reload(); // ✅ Correct reload
-                });
-            } else {
-                Swal.fire("Error!", response.message || "Failed to update status.", "error");
-            }
-        },
-        error: function (xhr, error, status) {
-            Swal.close();
-            Swal.fire("Error!", "Something went wrong. Please try again.", "error");
         }
     });
 }
+
+
 
 </script>
 

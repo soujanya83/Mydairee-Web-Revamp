@@ -1261,7 +1261,8 @@ $children = Child::whereIn('id', $childIds)
             'child_ids' => 'required|array',
             'child_ids.*' => 'exists:child,id',
             'time' => 'required|date_format:H:i',
-            'comments' => 'nullable|string'
+            'comments' => 'nullable|string',
+            'signature' => 'nullable|string'
         ]);
 
         try {
@@ -1277,7 +1278,8 @@ $children = Child::whereIn('id', $childIds)
                 if ($existingEntry) {
                     $existingEntry->update([
                         'startTime' => $request->time,
-                        'comments' => $request->comments
+                        'comments' => $request->comments,
+                        'signature' => $request->signature
                     ]);
                 } else {
                     $diary = DailyDiarySunscreen::create([
@@ -1285,6 +1287,7 @@ $children = Child::whereIn('id', $childIds)
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
                         'comments' => $request->comments,
+                        'signature' => $request->signature,
                         'createdBy' => $authId
                     ]);
                 }
@@ -1324,7 +1327,8 @@ $children = Child::whereIn('id', $childIds)
             'child_ids.*' => 'exists:child,id',
             'time' => 'required|date_format:H:i',
             'status' => 'required|in:clean,wet,soiled,successful',
-            'comments' => 'nullable|string'
+            'comments' => 'nullable|string',
+            'signature' => 'nullable|string'
         ]);
 
         try {
@@ -1341,7 +1345,8 @@ $children = Child::whereIn('id', $childIds)
                     $existingEntry->update([
                         'startTime' => $request->time,
                         'status' => $request->status,
-                        'comments' => $request->comments
+                        'comments' => $request->comments,
+                        'signature' => $request->signature
                     ]);
                 } else {
                     $diary = DailyDiaryToileting::create([
@@ -1350,6 +1355,7 @@ $children = Child::whereIn('id', $childIds)
                         'startTime' => $request->time,
                         'status' => $request->status,
                         'comments' => $request->comments,
+                        'signature' => $request->signature,
                         'createdBy' => $authId
                     ]);
                 }
@@ -1692,6 +1698,7 @@ $children = Child::whereIn('id', $childIds)
                 'diarydate' => $request->selected_date,
                 'startTime' => $request->startTime,
                 'comments' => $request->comments,
+                'signature' => $request->signature,
                 'createdBy' => $authId
             ]);
             return response()->json([
@@ -1706,6 +1713,7 @@ $children = Child::whereIn('id', $childIds)
             $entry->update([
                 'startTime' => $request->startTime,
                 'comments' => $request->comments,
+                'signature' => $request->signature,
             ]);
             return response()->json([
                 'success' => true,
@@ -1729,6 +1737,7 @@ $children = Child::whereIn('id', $childIds)
                 'startTime' => $request->startTime,
                 'status' => $request->status,
                 'comments' => $request->comments,
+                'signature' => $request->signature,
                 'createdBy' => $authId
             ]);
             return response()->json([
@@ -1744,6 +1753,7 @@ $children = Child::whereIn('id', $childIds)
                 'startTime' => $request->startTime,
                 'status' => $request->status,
                 'comments' => $request->comments,
+                'signature' => $request->signature,
             ]);
             return response()->json([
                 'success' => true,

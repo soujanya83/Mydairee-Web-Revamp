@@ -725,7 +725,7 @@
 
 
 <!-- Filters Modal -->
-<div class="modal fade modal-right" id="filtersModal" tabindex="-1" role="dialog" aria-labelledby="filtersModalRight"
+<div class="modal modal-right" id="filtersModal" tabindex="-1" role="dialog" aria-labelledby="filtersModalRight"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
