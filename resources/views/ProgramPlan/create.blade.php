@@ -306,7 +306,7 @@
 
 
 <!-- EYLF Modal -->
-<div class="modal fade" id="eylfModal" tabindex="-1" role="dialog" aria-labelledby="eylfModalLabel" aria-hidden="true">
+<div class="modal" id="eylfModal" tabindex="-1" role="dialog" aria-labelledby="eylfModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -397,7 +397,7 @@
 
 
   <!-- Modal Structure -->
-  <div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel" aria-hidden="true">
+  <div class="modal" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -433,7 +433,7 @@
 
 
 <!-- Modal Structure -->
-<div class="modal fade" id="subActivityModal" tabindex="-1" aria-labelledby="subActivityModalLabel" aria-hidden="true">
+<div class="modal" id="subActivityModal" tabindex="-1" aria-labelledby="subActivityModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -479,7 +479,7 @@
 
 
 <!-- Practical Life Modal -->
-<div class="modal fade" id="practicalLifeModal" tabindex="-1" role="dialog" aria-labelledby="practicalLifeModalLabel" aria-hidden="true">
+<div class="modal" id="practicalLifeModal" tabindex="-1" role="dialog" aria-labelledby="practicalLifeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -558,7 +558,7 @@
 
 
 <!-- Sensorial Modal -->
-<div class="modal fade" id="sensorialModal" tabindex="-1" role="dialog" aria-labelledby="sensorialModalLabel" aria-hidden="true">
+<div class="modal" id="sensorialModal" tabindex="-1" role="dialog" aria-labelledby="sensorialModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -637,7 +637,7 @@
 
 
 <!-- Math Modal -->
-<div class="modal fade" id="mathModal" tabindex="-1" role="dialog" aria-labelledby="mathModalLabel" aria-hidden="true">
+<div class="modal" id="mathModal" tabindex="-1" role="dialog" aria-labelledby="mathModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -722,7 +722,7 @@
 
 
 <!-- Language Modal -->
-<div class="modal fade" id="languageModal" tabindex="-1" role="dialog" aria-labelledby="languageModalLabel" aria-hidden="true">
+<div class="modal" id="languageModal" tabindex="-1" role="dialog" aria-labelledby="languageModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -806,7 +806,7 @@
 
 
 <!-- Culture Modal -->
-<div class="modal fade" id="cultureModal" tabindex="-1" role="dialog" aria-labelledby="cultureModalLabel" aria-hidden="true">
+<div class="modal" id="cultureModal" tabindex="-1" role="dialog" aria-labelledby="cultureModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">

@@ -214,7 +214,7 @@ $edit = 1;
 </main>
 
 
-<div class="modal fade modal-right" id="selectChildrenModal" tabindex="-1" role="dialog"
+<div class="modal modal-right" id="selectChildrenModal" tabindex="-1" role="dialog"
     aria-labelledby="selectChildrenModal" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

@@ -1441,7 +1441,7 @@
 
 
     <!-- Modal -->
-    <div class="modal fade" id="observationModal" tabindex="-1" role="dialog" aria-labelledby="obsModalLabel" aria-hidden="true">
+    <div class="modal" id="observationModal" tabindex="-1" role="dialog" aria-labelledby="obsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1484,7 +1484,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
+<div class="modal" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header d-flex align-items-center justify-content-between">
@@ -1507,7 +1507,7 @@
 
 
 
-<div class="modal fade" id="roomsModal" tabindex="-1">
+<div class="modal" id="roomsModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header d-flex justify-content-between">

@@ -111,7 +111,7 @@
 
 
 <!-- Modal Form -->
-<div class="modal fade" id="addSuperadminModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+<div class="modal" id="addSuperadminModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
 
@@ -211,7 +211,7 @@
 </div>
 
 
-<div class="modal fade" id="editSuperadminModal" tabindex="-1" aria-hidden="true">
+<div class="modal" id="editSuperadminModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <form id="editSuperadminForm">
       <div class="modal-content">

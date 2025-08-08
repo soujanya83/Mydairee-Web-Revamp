@@ -1511,7 +1511,7 @@ body {
 </style>
 
 <!-- Add Entry Modal -->
-<div class="modal fade" id="addEntryModal" tabindex="-1" role="dialog" aria-labelledby="addEntryModalLabel" aria-hidden="true">
+<div class="modal" id="addEntryModal" tabindex="-1" role="dialog" aria-labelledby="addEntryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullwidth" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -1965,7 +1965,7 @@ body {
 
 
 <!-- Modal -->
-<div class="modal fade" id="breakfastModal" tabindex="-1" role="dialog" aria-labelledby="breakfastModalLabel" aria-hidden="true">
+<div class="modal" id="breakfastModal" tabindex="-1" role="dialog" aria-labelledby="breakfastModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <form id="breakfastForm">
       <div class="modal-content">
@@ -2007,7 +2007,7 @@ body {
 
 
 
-<div class="modal fade" id="morningTeaModal" tabindex="-1" role="dialog" aria-labelledby="morningTeaModalLabel" aria-hidden="true">
+<div class="modal" id="morningTeaModal" tabindex="-1" role="dialog" aria-labelledby="morningTeaModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="morningTeaForm">
             <div class="modal-content">
@@ -2042,7 +2042,7 @@ body {
 
 
 
-<div class="modal fade" id="lunchModal" tabindex="-1" role="dialog" aria-labelledby="lunchModalLabel" aria-hidden="true">
+<div class="modal" id="lunchModal" tabindex="-1" role="dialog" aria-labelledby="lunchModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="lunchForm">
             <div class="modal-content">
@@ -2080,7 +2080,7 @@ body {
 
 
 
-<div class="modal fade" id="afternoonTeaModal" tabindex="-1" role="dialog" aria-labelledby="afternoonTeaModalLabel" aria-hidden="true">
+<div class="modal" id="afternoonTeaModal" tabindex="-1" role="dialog" aria-labelledby="afternoonTeaModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="afternoonTeaForm">
             <div class="modal-content">
@@ -2114,7 +2114,7 @@ body {
 
 
 
-<div class="modal fade" id="snacksModal" tabindex="-1" role="dialog" aria-labelledby="snacksModalLabel" aria-hidden="true">
+<div class="modal" id="snacksModal" tabindex="-1" role="dialog" aria-labelledby="snacksModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="snacksForm">
             <div class="modal-content">
@@ -2153,7 +2153,7 @@ body {
 
 
 
-<div class="modal fade" id="sleepModal" tabindex="-1" role="dialog" aria-labelledby="sleepModalLabel" aria-hidden="true">
+<div class="modal" id="sleepModal" tabindex="-1" role="dialog" aria-labelledby="sleepModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="sleepForm">
             <div class="modal-content">
@@ -2192,7 +2192,7 @@ body {
 
 
 
-<div class="modal fade" id="sunscreenModal" tabindex="-1" role="dialog" aria-labelledby="sunscreenModalLabel" aria-hidden="true">
+<div class="modal" id="sunscreenModal" tabindex="-1" role="dialog" aria-labelledby="sunscreenModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="sunscreenForm">
             <div class="modal-content">
@@ -2230,7 +2230,7 @@ body {
 </div>
 
 
-<div class="modal fade" id="toiletingModal" tabindex="-1" role="dialog" aria-labelledby="toiletingModalLabel" aria-hidden="true">
+<div class="modal" id="toiletingModal" tabindex="-1" role="dialog" aria-labelledby="toiletingModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="toiletingForm">
             <div class="modal-content">
@@ -2280,7 +2280,7 @@ body {
 
 
 
-<div class="modal fade" id="bottleModal" tabindex="-1" role="dialog" aria-labelledby="bottleModalLabel" aria-hidden="true">
+<div class="modal" id="bottleModal" tabindex="-1" role="dialog" aria-labelledby="bottleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="bottleForm">
             <div class="modal-content">
