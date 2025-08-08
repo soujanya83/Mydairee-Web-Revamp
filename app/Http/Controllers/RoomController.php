@@ -18,131 +18,7 @@ use Illuminate\Support\Str;
 class RoomController extends Controller
 {
 
-    public function assignEducators(Request $request, $roomid)
-    {
-        DB::table('room_staff')->where('roomid', $roomid)->delete();
-        if ($request->has('educators')) {
-            foreach ($request->educators as $staffid) {
-                DB::table('room_staff')->updateOrInsert(
-                    ['roomid' => $roomid, 'staffid' => $staffid], // Unique constraint
-                    [] // No fields to update (only insert if not exists)
-                );
-            }
-        }
 
-        return redirect()->back()->with('success', 'Educators updated successfully.');
-    }
-
-
-    public function rooms_update(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'room_name' => 'required|string|max:255',
-            'room_capacity' => 'required|integer|min:1',
-            'ageFrom' => 'required|numeric|min:0',
-            'ageTo' => 'required|numeric|min:' . $request->input('ageFrom'),
-            'room_status' => 'required|in:Active,Inactive',
-            'room_color' => 'required|string',
-            'educators' => 'array',
-            'educators.*' => 'exists:users,userid',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        try {
-            DB::beginTransaction();
-
-            $room = Room::findOrFail($id);
-            $room->update([
-                'name' => $request->input('room_name'),
-                'capacity' => $request->input('room_capacity'),
-                'ageFrom' => $request->input('ageFrom'),
-                'ageTo' => $request->input('ageTo'),
-                'status' => $request->input('room_status'),
-                'color' => $request->input('room_color'),
-            ]);
-
-            // Remove existing educators and add new
-            RoomStaff::where('roomid', $id)->delete();
-            if ($request->has('educators')) {
-                foreach ($request->input('educators') as $educatorId) {
-                    RoomStaff::create([
-                        'roomid' => $id,
-                        'staffid' => $educatorId,
-                    ]);
-                }
-            }
-
-            DB::commit();
-            return redirect()->back()->with('success', 'Room updated successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Failed to update room: ' . $e->getMessage());
-        }
-    }
-
-
-    public function rooms_create(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'room_name' => 'required|string|max:255',
-            'room_capacity' => 'required|integer|min:1',
-            'ageFrom' => 'required|numeric|min:0',
-            'ageTo' => 'required|numeric|min:' . $request->input('ageFrom'),
-            'room_status' => 'required|in:Active,Inactive',
-            'room_color' => 'required|string',
-            'educators' => 'array',
-            'educators.*' => 'exists:users,userid',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        try {
-            // Start DB transaction (optional but good for grouped operations)
-            DB::beginTransaction();
-
-            // Generate a unique 10-digit ID
-            do {
-                $roomId = random_int(100000000, 999999999);
-            } while (\App\Models\Room::where('id', $roomId)->exists());
-
-            $room = Room::create([
-                'id' => $roomId,
-                'name' => $request->input('room_name'),
-                'capacity' => $request->input('room_capacity'),
-                'ageFrom' => $request->input('ageFrom'),
-                'ageTo' => $request->input('ageTo'),
-                'status' => $request->input('room_status'),
-                'color' => $request->input('room_color'),
-                'centerid' => $request->input('dcenterid'),
-                'created_by' => Auth::user()->id,
-                'userId' => Auth::user()->id,
-            ]);
-
-            // Assign educators
-            if ($request->has('educators')) {
-                foreach ($request->input('educators') as $educatorId) {
-                    RoomStaff::create([
-                        'roomid' => $roomId,
-                        'staffid' => $educatorId,
-                    ]);
-                }
-            }
-
-            DB::commit(); // Success, commit transaction
-            return redirect()->back()->with('success', 'Room created successfully.');
-        } catch (\Exception $e) {
-            dd($e);
-            DB::rollBack(); // Rollback on error
-            return redirect()->back()->with('error', 'Failed to create room: ' . $e->getMessage());
-        }
-    }
 
 
     public function update_child_progress(Request $request, $id)
@@ -212,39 +88,13 @@ class RoomController extends Controller
         return redirect()->back()->with('success', 'Children deleted successfully.');
     }
 
-    public function childrens_list(Request $request)
+    public function childrens_list()
     {
         $userId = Auth::user()->id;
-        if ($userId == 145) {
-            $userId = $userId - 1;
-        }
+        $chilData = Child::select('child.*', 'child.id as childId', 'child.name as childname', 'room.name as roomname', 'room.*', 'child.createdAt as childcreatedate')->where('child.createdBy', $userId)->join('room', 'room.id', '=', 'child.room')->get();
 
-        $rooms = Room::where('name' ,'!=', null)->get();
-
-        $chilData = Child::select(
-            'child.*',
-            'child.id as childId',
-            'child.name as childname',
-            'room.name as roomname',
-            'room.*',
-            'child.createdAt as childcreatedate'
-        )
-            ->where('child.createdBy', $userId)
-            ->join('room', 'room.id', '=', 'child.room');
-
-        if ($request->filled('roomId')) {
-            $chilData->where('child.room', $request->roomId);
-        }
-
-        $chilData = $chilData->get();
-
-        return view('rooms.childrens_list', [
-            'chilData' => $chilData,
-            'rooms' => $rooms,
-            'selectedRoom' => $request->roomId
-        ]);
+        return view('rooms.childrens_list', compact('chilData'));
     }
-
 
 
     public function bulkDelete(Request $request)
@@ -281,6 +131,65 @@ class RoomController extends Controller
 
 
 
+    public function rooms_create(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'room_name' => 'required|string|max:255',
+            'room_capacity' => 'required|integer|min:1',
+            'ageFrom' => 'required|numeric|min:0',
+            'ageTo' => 'required|numeric|min:' . $request->input('ageFrom'),
+            'room_status' => 'required|in:Active,Inactive',
+            'room_color' => 'required|string',
+            'educators' => 'array',
+            'educators.*' => 'exists:users,userid',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            // Start DB transaction (optional but good for grouped operations)
+            DB::beginTransaction();
+
+            // Generate a unique 10-digit ID
+            do {
+                $roomId = random_int(100000000, 999999999);
+            } while (\App\Models\Room::where('id', $roomId)->exists());
+
+            $room = Room::create([
+                'id' => $roomId,
+                'name' => $request->input('room_name'),
+                'capacity' => $request->input('room_capacity'),
+                'ageFrom' => $request->input('ageFrom'),
+                'ageTo' => $request->input('ageTo'),
+                'status' => $request->input('room_status'),
+                'color' => $request->input('room_color'),
+                'centerid' => $request->input('dcenterid'),
+                'created_by' => Auth::user()->id,
+                'userId' => Auth::user()->id,
+            ]);
+
+            // Assign educators
+            if ($request->has('educators')) {
+                foreach ($request->input('educators') as $educatorId) {
+                    RoomStaff::create([
+                        'roomid' => $roomId,
+                        'staffid' => $educatorId,
+                    ]);
+                }
+            }
+
+            DB::commit(); // Success, commit transaction
+            return redirect()->back()->with('success', 'Room created successfully.');
+        } catch (\Exception $e) {
+            dd($e);
+            DB::rollBack(); // Rollback on error
+            return redirect()->back()->with('error', 'Failed to create room: ' . $e->getMessage());
+        }
+    }
 
 
     public function rooms_list(Request $request)
@@ -307,8 +216,19 @@ class RoomController extends Controller
         if ($centerid) {
             $getrooms->where('room.centerid', $centerid);
         }
-        $getrooms = $getrooms->get();
 
+
+        if(Auth::user()->userType == "Superadmin"){
+            $getrooms = $getrooms->get();
+        }else{
+             // Get room IDs assigned to staff
+         $roomIds = RoomStaff::where('staffid', $authId)->pluck('roomid');
+
+    // Get room data using those room IDs
+    $getrooms = Room::whereIn('id', $roomIds)->get();
+        }
+        
+        // dd($getrooms);
 
         foreach ($getrooms as $room) {
             $room->children = Child::where('room', $room->roomid)->get();
@@ -373,22 +293,7 @@ class RoomController extends Controller
         $rooms = Room::where('capacity', '!=', 0)->where('status', 'Active')->get();
         $roomcapacity = Room::where('id', $roomid)->first();
 
-        $educatorsQuery = DB::table('room_staff')
-            ->leftJoin('users', 'users.userid', '=', 'room_staff.staffid')
-            ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl');
-
-        // Get all unique educators (across all rooms)
-        $AllEducators = $educatorsQuery
-            ->groupBy('users.userid', 'users.name', 'users.gender', 'users.imageUrl') // ensure uniqueness
-            ->get();
-
-        // Get educators for a specific room
-        $roomEducators = (clone $educatorsQuery)
-            ->where('room_staff.roomid', $roomid)
-            ->get();
-        $assignedEducatorIds = $roomEducators->pluck('userid')->toArray();
-
-        return view('rooms.children_details', compact('assignedEducatorIds', 'roomEducators', 'AllEducators', 'attendance', 'roomcapacity', 'rooms', 'allchilds', 'activechilds', 'enrolledchilds', 'malechilds', 'femalechilds', 'roomid', 'totalAttendance', 'patterns', 'breakdowns'));
+        return view('rooms.children_details', compact('attendance', 'roomcapacity', 'rooms', 'allchilds', 'activechilds', 'enrolledchilds', 'malechilds', 'femalechilds', 'roomid', 'totalAttendance', 'patterns', 'breakdowns'));
     }
 
 
