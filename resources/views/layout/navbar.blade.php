@@ -280,35 +280,3 @@
 </script>
 
 
-<script>
-    // paste both functions here
-    function isAnimationDisabled() {
-        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        let startTime = performance.now();
-        let frames = 0;
-        function checkFPS(now) {
-            frames++;
-            if (now - startTime < 500) {
-                requestAnimationFrame(checkFPS);
-            }
-        }
-        requestAnimationFrame(checkFPS);
-        return new Promise(resolve => {
-            setTimeout(() => {
-                let fps = frames * 2;
-                resolve(prefersReducedMotion || fps < 20);
-            }, 500);
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        isAnimationDisabled().then(disable => {
-            if (disable) {
-                console.warn("Animations disabled – removing fade from modals.");
-                document.querySelectorAll(".modal.fade").forEach(modal => {
-                    modal.classList.remove("fade");
-                });
-            }
-        });
-    });
-</script>
