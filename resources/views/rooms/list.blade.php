@@ -186,18 +186,18 @@
                         $total = count($educators);
                         @endphp
 
-                        @foreach($educators->take(3) as $educator)
+                        @foreach($educators->take(2) as $educator)
                         <img src="{{ isset($educator->imageUrl) && $educator->imageUrl ? asset($educator->imageUrl) : asset('storage/children/images/download.jpg') }}"
                             class="rounded-circle border"
                             style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px;"
                             title="{{ ucfirst($educator->person_name ?? '') }}">
                         @endforeach
 
-                        @if($total > 3)
+                        @if($total > 2)
                         <span
                             class="rounded-circle border bg-light d-inline-flex align-items-center justify-content-center"
                             style="width: 35px; height: 35px; font-size: 14px; font-weight: bold; margin-right: 4px;">
-                            +{{ $total - 3 }}
+                            +{{ $total - 2 }}
                         </span>
                         @endif
                     </div>
