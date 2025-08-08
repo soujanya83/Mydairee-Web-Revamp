@@ -185,8 +185,8 @@
                                     )
                                 </span>
                                 <br>
-                                <span style="font-size: 16px;float:left;"> <i class="fa fa-envelope me-2"></i> {{
-                                    Auth::user()->email }} </span>
+                                {{-- <span style="font-size: 16px;float:left;"> <i class="fa fa-envelope me-2"></i> {{
+                                    Auth::user()->email }} </span> --}}
                             </li>
                             <li>
                                 <hr class="dropdown-divider">
