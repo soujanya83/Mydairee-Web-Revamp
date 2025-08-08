@@ -667,7 +667,12 @@
   </div>
 </div>
 
-
+<style>
+    #eylfModal .modal-body {
+    max-height: none !important;
+    overflow-y: auto;
+}
+    </style>
 
 <!-- EYLF Modal -->
 @php
@@ -675,6 +680,7 @@
     $selectedLines = preg_split('/\r\n|\r|\n/', $existingEylf);
 @endphp
 
+<!-- EYLF Modal -->
 <div class="modal" id="eylfModal" tabindex="-1" role="dialog" aria-labelledby="eylfModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -683,30 +689,36 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
             </div>
 
-            <div class="modal-body" >
+            <div class="modal-body">
                 <div class="eylf-tree">
                     <ul class="list-group">
                         <li class="list-group-item">
-                            <div class="d-flex align-items-center toggle-icon" data-target="#eylfFramework">
-                                <i class="fa fa-chevron-right mr-2"></i>
+                            <div class="d-flex align-items-center">
+                                <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#eylfFramework">
+                                    <i class="fa fa-chevron-right"></i>
+                                </span>
                                 <span>Early Years Learning Framework (EYLF) - Australia (V2.0 2022)</span>
                             </div>
-                            <div id="eylfFramework" class="collapse mt-2" data-parent=".eylf-tree">
+                            <div id="eylfFramework" class="collapse mt-2">
                                 <ul class="list-group">
                                     <li class="list-group-item">
-                                        <div class="d-flex align-items-center toggle-icon" data-target="#eylfOutcomes">
-                                            <i class="fa fa-chevron-right mr-2"></i>
+                                        <div class="d-flex align-items-center">
+                                            <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#eylfOutcomes">
+                                                <i class="fa fa-chevron-right"></i>
+                                            </span>
                                             <span>EYLF Learning Outcomes</span>
                                         </div>
-                                        <div id="eylfOutcomes" class="collapse mt-2" data-parent="#eylfFramework">
+                                        <div id="eylfOutcomes" class="collapse mt-2">
                                             <ul class="list-group">
                                                 @foreach($outcomes as $outcome)
                                                     <li class="list-group-item">
-                                                        <div class="d-flex align-items-center toggle-icon" data-target="#outcome{{ $outcome->id }}">
-                                                            <i class="fa fa-chevron-right mr-2"></i>
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#outcome{{ $outcome->id }}">
+                                                                <i class="fa fa-chevron-right"></i>
+                                                            </span>
                                                             <span>{{ $outcome->title }} - {{ $outcome->name }}</span>
                                                         </div>
-                                                        <div id="outcome{{ $outcome->id }}" class="collapse mt-2" data-parent="#eylfOutcomes">
+                                                        <div id="outcome{{ $outcome->id }}" class="collapse mt-2">
                                                             <ul class="list-group">
                                                                 @foreach($outcome->activities as $activity)
                                                                     @php
@@ -921,13 +933,36 @@ $('#confirmStaff').on('click', function () {
 
 <script>
   // Toggle icons
-  $(document).on('click', '.toggle-icon', function () {
-    let target = $(this).data('target');
-    $(target).collapse('toggle'); // Bootstrap collapse
+  $(document).ready(function () {
 
-    // Rotate chevron icon
-    $(this).find('i').toggleClass('fa-chevron-right fa-chevron-down');
+// Rotate chevrons
+$(document).on('show.bs.collapse', function (e) {
+    $(e.target).prev().find('.fa')
+        .removeClass('fa-chevron-right')
+        .addClass('fa-chevron-down');
 });
+
+$(document).on('hide.bs.collapse', function (e) {
+    $(e.target).prev().find('.fa')
+        .removeClass('fa-chevron-down')
+        .addClass('fa-chevron-right');
+});
+
+// Fix collapse height issue on RDP / scroll containers
+$(document).on('show.bs.collapse', function (e) {
+    let $el = $(e.target);
+    setTimeout(function () {
+        $el.css('height', $el.get(0).scrollHeight + 'px');
+    }, 10);
+});
+
+// Recalculate modal height after collapse
+$(document).on('shown.bs.collapse hidden.bs.collapse', function () {
+    $('#eylfModal').modal('handleUpdate');
+});
+
+});
+
 
 // Save EYLF Selections
 $('#saveEylfSelections').on('click', function () {
