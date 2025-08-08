@@ -342,7 +342,7 @@ input[type="radio"]:checked + .radio-pill {
     <input type="hidden" name="witness_sign" id="witness_sign_txt" value="">
 
     @if (!empty($AccidentInfo->witness_sign))
-        <img src="{{ asset('assets/media/' . $AccidentInfo->witness_sign) }}" height="120px" width="300px" id="witness_sign_img">
+        <img src="{{ $AccidentInfo->witness_sign }}" height="120px" width="300px" id="witness_sign_img">
     @else
         <img src="" height="120px" width="300px" id="witness_sign_img">
     @endif
@@ -626,7 +626,7 @@ input[type="radio"]:checked + .radio-pill {
                              <div id="incharge_sign">
                                 <input type="hidden" name="responsible_person_sign" id="res_pinc_txt" value="">
                                 @if (!empty($AccidentInfo->responsible_person_sign))
-                                    <img src="{{ asset('assets/media/' . $AccidentInfo->responsible_person_sign) }}" height="120px" width="300px" id="res_pinc_img">
+                                    <img src="{{ $AccidentInfo->responsible_person_sign }}" height="120px" width="300px" id="res_pinc_img">
                                 @else
                                     <img src="" height="120px" width="300px" id="res_pinc_img">
                                 @endif
@@ -660,7 +660,7 @@ input[type="radio"]:checked + .radio-pill {
     <input type="hidden" name="nominated_supervisor_sign" id="nsv_sign_txt" value="">
 
     @if (!empty($AccidentInfo->nominated_supervisor_sign))
-        <img src="{{ asset('assets/media/' . $AccidentInfo->nominated_supervisor_sign) }}" height="120px" width="300px" id="nsv_sign_img">
+        <img src="{{ $AccidentInfo->nominated_supervisor_sign }}" height="120px" width="300px" id="nsv_sign_img">
     @else
         <img src="" height="120px" width="300px" id="nsv_sign_img">
     @endif
@@ -773,7 +773,7 @@ input[type="radio"]:checked + .radio-pill {
 
 <!-- Signature Modal -->
 
-<div class="modal fade" id="signModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="opacity: 1;">
+<div class="modal" id="signModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="opacity: 1;">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -1129,7 +1129,7 @@ canvas.freeDrawingBrush.color = '#000000'; // Simple color
 canvas1.freeDrawingBrush.width = 2; // Thinner lines
 canvas1.freeDrawingBrush.color = '#000000'; // Simple color
 
-fabric.Image.fromURL("{{ asset('assets/media/'.$AccidentInfo->injury_image)}}", function(myImg) {
+fabric.Image.fromURL("{{ $AccidentInfo->injury_image }}", function(myImg) {
     var img1 = myImg.set({ 
         left: 0, 
         top: 0,

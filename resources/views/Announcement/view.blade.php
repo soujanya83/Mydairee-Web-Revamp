@@ -53,7 +53,7 @@
                 @endphp
 
                 @if ($isImage)
-                    <img class="img-thumbnail" src="{{ asset('assets/media/' . $file) }}" style="width: 80px;" alt="Image">
+                    <img class="img-thumbnail" src="{{ public_path('assets/media/' . $file) }}" style="width: 80px;" alt="Image">
                 @elseif ($isPDF)
                     <a href="{{ asset('assets/media/' . $file) }}" target="_blank" class="d-block text-center">
                         <img src="{{ asset('svg/pdf-icon.svg') }}" alt="PDF" style="width: 40px;">

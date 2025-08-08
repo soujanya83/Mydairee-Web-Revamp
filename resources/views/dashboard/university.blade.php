@@ -495,7 +495,7 @@
 
 <!-- Modal -->
 <!-- Birthday Modal -->
-<div class="modal fade" id="birthdayModal" tabindex="-1" aria-labelledby="birthdayModalLabel" aria-hidden="true">
+<div class="modal" id="birthdayModal" tabindex="-1" aria-labelledby="birthdayModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content shadow">
       <div class="modal-header bg-info text-white">
@@ -511,7 +511,7 @@
   </div>
 </div>
 <!-- annoucement modal -->
-<div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+<div class="modal" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content shadow">
       <div class="modal-header bg-info text-white">
@@ -753,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     title: '🎂 Birthday',
                     date,
                     allDay: true,
-                    color: '#dc3545', // Red
+                    color: '#74a5c9', // Red
                     users
                 }));
 

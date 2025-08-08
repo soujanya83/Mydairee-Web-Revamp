@@ -245,10 +245,44 @@
 
         @stack('after-styles')
 
+        @if (Request::segment(1) === 'programPlanList' )
         @if (trim($__env->yieldContent('page-styles')))
             @yield('page-styles')
         @endif
+        @endif
 
+            @if (Request::segment(1) === 'sleepcheck' )
+        @if (trim($__env->yieldContent('page-styles')))
+            @yield('page-styles')
+        @endif
+        @endif
+
+            @if (Request::segment(1) === 'headChecks' )
+        @if (trim($__env->yieldContent('page-styles')))
+            @yield('page-styles')
+        @endif
+        @endif
+
+
+                    @if (Request::segment(1) === 'announcements' )
+        @if (trim($__env->yieldContent('page-styles')))
+            @yield('page-styles')
+        @endif
+        @endif
+
+        
+
+                    @if (Request::segment(1) === 'ServiceDetails' )
+        @if (trim($__env->yieldContent('page-styles')))
+            @yield('page-styles')
+        @endif
+        @endif
+
+                 @if (Request::segment(1) === 'Accidents' )
+        @if (trim($__env->yieldContent('page-styles')))
+            @yield('page-styles')
+        @endif
+        @endif
     </head>
 
     <?php

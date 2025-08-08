@@ -1441,7 +1441,7 @@
 
 
     <!-- Modal -->
-    <div class="modal fade" id="observationModal" tabindex="-1" role="dialog" aria-labelledby="obsModalLabel" aria-hidden="true">
+    <div class="modal" id="observationModal" tabindex="-1" role="dialog" aria-labelledby="obsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1484,7 +1484,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
+<div class="modal" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header d-flex align-items-center justify-content-between">
@@ -1498,7 +1498,7 @@
         <div id="childrenList" class="row"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" id="confirmChildren" class="btn btn-success" data-dismiss="modal">Confirm Selection</button>
+        <button type="button" id="confirmChildren" class="btn btn-success" >Confirm Selection</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
     </div>
@@ -1507,7 +1507,7 @@
 
 
 
-<div class="modal fade" id="roomsModal" tabindex="-1">
+<div class="modal" id="roomsModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header d-flex justify-content-between">
@@ -1518,7 +1518,7 @@
         <div id="roomsList" class="row"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" id="confirmRooms" class="btn btn-success" data-dismiss="modal">Confirm</button>
+        <button type="button" id="confirmRooms" class="btn btn-success">Confirm</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
     </div>
@@ -1585,7 +1585,7 @@ $(document).ready(function () {
         $('#selected_children').val([...selectedChildren].join(','));
         $('#selectedChildrenPreview').html(nameHtml);
         
-        // $('#childrenModal').modal('hide');
+        $('#childrenModal').modal('hide');
     });
 
 
@@ -1628,7 +1628,7 @@ $('#confirmRooms').on('click', function () {
     });
     $('#selected_rooms').val([...selectedRooms].join(','));
     $('#selectedRoomsPreview').html(nameHtml);
-    // $('#roomsModal').modal('hide');
+    $('#roomsModal').modal('hide');
 });
 
 

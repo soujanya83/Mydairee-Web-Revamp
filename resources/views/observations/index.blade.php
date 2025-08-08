@@ -318,7 +318,7 @@
                             @endif
 
                                 <!-- Modal for Seen Parents -->
-                                <div class="modal fade" id="seenParentsModal_{{ $observation->id }}" tabindex="-1" role="dialog" aria-labelledby="seenParentsModalLabel" aria-hidden="true">
+                                <div class="modal" id="seenParentsModal_{{ $observation->id }}" tabindex="-1" role="dialog" aria-labelledby="seenParentsModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                     <div class="modal-content">
                                     <div class="modal-header">
@@ -388,7 +388,7 @@
                                 <!-- <small class="text-muted">Comments</small> -->
 
 
-                                <div class="modal fade" id="commentsModal_{{ $observation->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal" id="commentsModal_{{ $observation->id }}" tabindex="-1" role="dialog" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered" role="document">
                                     <div class="modal-content">
                                     <div class="modal-header">
@@ -624,7 +624,7 @@
 
 
 <!-- Filters Modal -->
-<div class="modal fade modal-right" id="filtersModal" tabindex="-1" role="dialog" aria-labelledby="filtersModalRight"
+<div class="modal modal-right" id="filtersModal" tabindex="-1" role="dialog" aria-labelledby="filtersModalRight"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -1147,7 +1147,7 @@ if ($('#filter_author_any').is(':checked')) {
     // Generate Seen Parents Modal
     if (userRole !== "Parent") {
         var seenModalHtml = `
-            <div class="modal fade" id="seenParentsModal_${observation.id}" tabindex="-1" role="dialog" aria-labelledby="seenParentsModalLabel" aria-hidden="true">
+            <div class="modal" id="seenParentsModal_${observation.id}" tabindex="-1" role="dialog" aria-labelledby="seenParentsModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -1203,7 +1203,7 @@ if ($('#filter_author_any').is(':checked')) {
 
     // Generate Comments Modal
     var commentsModalHtml = `
-        <div class="modal fade" id="commentsModal_${observation.id}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal" id="commentsModal_${observation.id}" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">

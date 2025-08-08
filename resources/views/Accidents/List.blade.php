@@ -4,6 +4,15 @@
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
+       .uniform-input {
+        width: 180px;    /* same width for all */
+        height: 36px;    /* same height */
+        font-size: 0.875rem;
+        margin-inline: 0.5rem;
+    }
+        .top-right-button-container label {
+        line-height: 1;
+    }
     .pagination {
         font-size: 0.9rem;
         /* Slightly larger for better readability */
@@ -747,7 +756,7 @@ class="btn btn-info btn-lg">
     <div class="program-plan-container">
         <div class="row">
             @forelse ($accidents as $index => $accident)
-                <div class="col-md-6 col-lg-4 mb-4">
+                <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card shadow rounded-3 h-100">
                         <div class="card-body">
                             <h5 class="card-title mb-2">
@@ -759,13 +768,50 @@ class="btn btn-info btn-lg">
                                    data-toggle="tooltip"
                                    data-placement="top"
                                    title="Edit Record">
-                                   <i class="fas fa-pencil-alt"></i>
+                                  
                                 </a>
                             </h5>
 
                             <p class="mb-1"><strong>Created By:</strong> {{ $accident->username }}</p>
-                            <p class="mb-1"><strong>Date:</strong> {{ \Carbon\Carbon::parse($accident->incident_date)->format('d.m.Y') }}</p>
+                            <p class="mb-1"><strong>Incident Date:</strong> {{ \Carbon\Carbon::parse($accident->incident_date)->format('d.m.Y') }}</p>
+                            <p class="mb-1"><strong>Created At:</strong> {{ \Carbon\Carbon::parse($accident->added_at)->format('d.m.Y') }}</p>
                             <!-- <p class="mb-0"><strong>S No:</strong> {{ $loop->iteration + ($accidents->currentPage() - 1) * $accidents->perPage() }}</p> -->
+                           <!-- Edit -->
+
+     <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
+    <!-- View -->
+    <a href="{{ route('Accidents.details') }}?id={{ $accident->id }}&centerid={{ $centerid }}&roomid={{ $roomid }}"
+       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+       style="min-width: 30px; height: 30px;"
+       title="View">
+        <i class="fas fa-eye"></i>
+    </a>
+
+    <!-- Edit -->
+    @if($permission && $permission->updateAccidents == 1)
+        <a href="{{ route('Accidents.edit') }}?id={{ $accident->id }}&centerid={{ $centerid }}&roomid={{ $roomid }}"
+           class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+           style="min-width: 30px; height: 30px;"
+           title="Edit">
+            <i class="fas fa-pen-to-square"></i>
+        </a>
+    @endif
+
+    <!-- Delete -->
+    <!-- @if($permission && $permission->deleteAnnouncement == 1) -->
+     <form action="{{ route('Accident.delete') }}" method="POST" class="d-inline delete-form">
+    @csrf
+    <input type="hidden" name="accidentid" value="{{ $accident->id }}">
+    <button type="submit"
+            class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+            style="min-width: 30px; height: 30px;"
+            title="Delete">
+        <i class="fa-solid fa-trash"></i>
+    </button>
+</form>
+    <!-- @endif -->
+</div>
+
                         </div>
                     </div>
                 </div>
@@ -793,7 +839,30 @@ class="btn btn-info btn-lg">
     @endsection
     @push('scripts')
     	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.delete-form').forEach(function(form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault(); // stop normal form submission
 
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This accident record will be deleted permanently!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // proceed with deletion
+                }
+            });
+        });
+    });
+});
+</script>  
          <script>
         // Add smooth animations and interactions
         document.addEventListener('DOMContentLoaded', function() {
@@ -878,7 +947,6 @@ class="btn btn-info btn-lg">
         // Re-initialize on window resize
         window.addEventListener('resize', makeTableResponsive);
     </script>
-        
 
    
 <script>
@@ -959,29 +1027,63 @@ function filterbyChildname(childname) {
                     // Build correct detail/edit URLs
                     let detailUrl = `{{ route('Accidents.details') }}?id=${accident.id}&centerid=${response.centerid}&roomid=${response.roomid}`;
                     let editUrl   = `{{ route('Accidents.edit') }}?id=${accident.id}&centerid=${response.centerid}&roomid=${response.roomid}`;
+                    let deleteurl = `{{ route('Accident.delete') }}`;
+                    let csrfToken = @json(csrf_token());
 
-                    let card = `
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card shadow rounded-3 h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title mb-2">
-                                        <a class="text-dark fw-bold" href="${detailUrl}">
-                                            ${accident.child_name}
-                                        </a>
-                                        <a href="${editUrl}"
-                                           class="text-info float-end"
-                                           data-toggle="tooltip"
-                                           data-placement="top"
-                                           title="Edit Record">
-                                           <i class="fas fa-pencil-alt"></i>
-                                        </a>
-                                    </h5>
-                                    <p class="mb-1"><strong>Created By:</strong> ${accident.username}</p>
-                                    <p class="mb-1"><strong>Date:</strong> ${accident.incident_date}</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+         let card = `
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card shadow rounded-3 h-100">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title mb-2">
+                    <a class="text-dark fw-bold" href="${detailUrl}">
+                        ${accident.child_name}
+                    </a>
+                    <a href="${editUrl}"
+                       class="text-info float-end"
+                       data-toggle="tooltip"
+                       data-placement="top"
+                       title="Edit Record">
+                       <i class="fas fa-pencil-alt"></i>
+                    </a>
+                </h5>
+                <p class="mb-1"><strong>Created By:</strong> ${accident.username}</p>
+                <p class="mb-1"><strong>Date:</strong> ${accident.incident_date}</p>
+
+                <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
+                    <!-- View -->
+                    <a href="${detailUrl}"
+                       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+                       style="min-width: 30px; height: 30px;"
+                       title="View">
+                        <i class="fas fa-eye"></i>
+                    </a>
+
+                    <!-- Edit (only if permission is allowed) -->
+                    ${response.permission && response.permission.updateAccidents == 1 ? `
+                        <a href="${editUrl}"
+                           class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+                           style="min-width: 30px; height: 30px;"
+                           title="Edit">
+                            <i class="fas fa-pen-to-square"></i>
+                        </a>
+                    ` : ''}
+
+                    <!-- Delete -->
+                    <form action="${deleteurl}" method="POST" class="d-inline delete-form">
+                        <input type="hidden" name="_token" value="${csrfToken}">
+                        <input type="hidden" name="accidentid" value="${accident.id}">
+                        <button type="submit"
+                                class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+                                style="min-width: 30px; height: 30px;"
+                                title="Delete">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+`;
                     row.append(card);
                 });
             } else {
@@ -1005,6 +1107,7 @@ function filterbyChildname(childname) {
 
 
 </script>
+    
 
     @endpush
     @include('layout.footer')
