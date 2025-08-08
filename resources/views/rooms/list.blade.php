@@ -147,7 +147,7 @@
 
         <div class="row clearfix" style="margin-bottom: 43px;">
             @foreach($getrooms as $room)
-            <div class="col-lg-3 col-md-3 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
+            <div class="col-lg-4 col-md-4 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
                 <div class="card shadow-sm border-0 rounded p-3 hover-shadow position-relative"
                     style="    height: 165px;">
 
@@ -186,18 +186,18 @@
                         $total = count($educators);
                         @endphp
 
-                        @foreach($educators->take(2) as $educator)
+                        @foreach($educators->take(5) as $educator)
                         <img src="{{ isset($educator->imageUrl) && $educator->imageUrl ? asset($educator->imageUrl) : asset('storage/children/images/download.jpg') }}"
                             class="rounded-circle border"
                             style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px;"
                             title="{{ ucfirst($educator->person_name ?? '') }}">
                         @endforeach
 
-                        @if($total > 2)
+                        @if($total > 5)
                         <span
                             class="rounded-circle border bg-light d-inline-flex align-items-center justify-content-center"
                             style="width: 35px; height: 35px; font-size: 14px; font-weight: bold; margin-right: 4px;">
-                            +{{ $total - 2 }}
+                            +{{ $total - 5 }}
                         </span>
                         @endif
                     </div>
