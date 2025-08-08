@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Login;
 use App\Models\Accident;
 use App\Models\AccidentIllnessModel;
+use App\Models\Permission;
 use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
 
@@ -31,6 +32,50 @@ use Illuminate\Pagination\Paginator;
 
 class AccidentsController extends Controller
 {
+
+public function AccidentDelete(Request $r)
+{
+    $r->validate([
+        'accidentid' => 'required|integer'
+    ]);
+
+    // Find the accident record
+    $accident = AccidentsModel::find($r->accidentid);
+
+    if (!$accident) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Accident record not found'
+        ], 404);
+    }
+
+    // Map DB columns to file name prefixes
+    $imageMappings = [
+        'person_sign' => "personSign",
+        'witness_sign' => "witnessSign",
+        'injury_image' => "injuryImage",
+        'responsible_person_sign' => "personInchargeSign",
+        'nominated_supervisor_sign' => "supervisorSign",
+    ];
+
+    // Delete each related image file if exists
+    foreach ($imageMappings as $field => $prefix) {
+        if (!empty($accident->$field)) {
+            $oldPath = public_path("uploads/accidents/" . basename($accident->$field));
+            if (File::exists($oldPath)) {
+                File::delete($oldPath);
+            }
+        }
+    }
+
+    // Delete related illness records
+    AccidentIllnessModel::where('accident_id', $r->accidentid)->delete();
+
+    // Delete accident record
+    $accident->delete();
+
+    return redirect()->route('Accidents.list');
+}
 
 
 public function filterByChild(Request $request)
@@ -132,6 +177,8 @@ public function filterByChild(Request $request)
 
     $childs = Child::where('room', $roomid)->get();
 
+      $permission = Permission::where('userid',Auth::user()->userid)->where('centerid', $centerid)->first();
+
     // Return JSON
     return response()->json([
         'centerid'       => $centerid,
@@ -144,6 +191,7 @@ public function filterByChild(Request $request)
         'accidents'      => $accArr,
         'centers'        => $centers,
         'selectedCenter' => $request->centerid,
+        'permission' => $permission
     ]);
 }
 
@@ -219,6 +267,8 @@ public function AccidentsList(Request $request)
 
     $childs = Child::where('room', $roomid)->get();
 
+    $permission = Permission::where('userid',Auth::user()->userid)->where('centerid', $centerid)->first();
+
     return view('Accidents.List', [
         'centerid'   => $centerid,
         'date'       => $date,
@@ -229,7 +279,8 @@ public function AccidentsList(Request $request)
         'childs'     => $childs,
         'accidents'  => $accArr,
         'centers'    => $centers,
-        'selectedCenter' => $request->centerid
+        'selectedCenter' => $request->centerid,
+        'permission' => $permission
     ]);
 }
 
