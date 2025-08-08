@@ -601,7 +601,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
+<div class="modal" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header d-flex align-items-center justify-content-between">
@@ -624,7 +624,7 @@
 
 
 
-<div class="modal fade" id="roomsModal" tabindex="-1">
+<div class="modal" id="roomsModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header d-flex justify-content-between">
@@ -646,7 +646,7 @@
 
 
 <!-- Staff Modal -->
-<div class="modal fade" id="staffModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true">
+<div class="modal" id="staffModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header d-flex align-items-center justify-content-between">
