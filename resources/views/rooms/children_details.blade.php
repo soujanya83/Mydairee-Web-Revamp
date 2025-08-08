@@ -293,7 +293,7 @@
                                 <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a>
                                 <input type="checkbox" name="child_ids[]" value="{{ $child->id }}"
                                     class="child-checkbox mr-2"
-                                    style="margin-left: 148px;z-index: 1;width: 15px; height: 15px;">
+                                    style="margin-left: 140px;z-index: 1;width: 15px; height: 15px;">
                             </div>
                         </div>
                         @endforeach
@@ -361,7 +361,7 @@
                             value="{{ $educator->userid }}" {{ in_array($educator->userid, $assignedEducatorIds) ?
                         'checked' : '' }}>
 
-                        <label class="form-check-label">{{ $educator->name }}</label>
+                       &nbsp;&nbsp;&nbsp; <label class="form-check-label">{{ $educator->name }}</label>
                     </div>
                     @endforeach
 
