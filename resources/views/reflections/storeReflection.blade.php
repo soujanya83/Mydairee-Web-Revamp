@@ -683,7 +683,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
             </div>
 
-            <div class="modal-body" style="max-height:500px; overflow-y:auto;">
+            <div class="modal-body" >
                 <div class="eylf-tree">
                     <ul class="list-group">
                         <li class="list-group-item">
