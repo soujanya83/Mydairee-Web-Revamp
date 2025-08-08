@@ -354,7 +354,7 @@
                 <div class="modal-body">
                     @foreach ($AllEducators as $educator)
                     <div class="form-check d-flex align-items-center mb-2">
-                        <img src="{{ asset('storage/' . $educator->imageUrl) }}" class="rounded-circle ms-2 me-2"
+                        <img src="{{ asset($educator->imageUrl) }}" class="rounded-circle ms-2 me-2"
                             width="40" height="40">
 
                         <input class="form-check-input" type="checkbox" name="educators[]"
