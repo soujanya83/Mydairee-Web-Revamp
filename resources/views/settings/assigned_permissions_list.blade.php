@@ -83,7 +83,7 @@
                                     <i class="fas fa-eye"></i> View
                                 </button>
 
-                                <div class="modal fade" id="viewModal{{ $user->id }}" tabindex="-1"
+                                <div class="modal" id="viewModal{{ $user->id }}" tabindex="-1"
                                     aria-labelledby="viewModalLabel{{ $user->id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <form action="{{ route('settings.update_user_permissions', $user->id) }}"

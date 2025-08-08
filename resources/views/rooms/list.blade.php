@@ -215,7 +215,7 @@
 </div>
 
 <!-- Room Creation Modal -->
-<div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
+<div class="modal" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -297,7 +297,7 @@
 </div>
 
 <!-- Edit Room Modal -->
-<div class="modal fade" id="editRoomModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal" id="editRoomModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <form method="POST" id="editRoomForm">
             @csrf

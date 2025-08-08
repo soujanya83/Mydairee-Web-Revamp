@@ -299,15 +299,105 @@
         padding-left: 6rem;
     }
     
-    .toggle-icon {
-        cursor: pointer;
-        width: 20px;
-        text-align: center;
+
+
+    /* Original toggle icon styles */
+.toggle-icon {
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.toggle-icon.expanded i {
+    transform: rotate(90deg);
+}
+
+/* RDP-specific fixes */
+@media screen and (max-color-index: 256), (-webkit-max-device-pixel-ratio: 1) {
+    /* Disable animations in low-color environments (typically RDP) */
+    .modal.fade {
+        transition: none !important;
+        opacity: 1 !important;
     }
     
-    .toggle-icon.expanded i {
-        transform: rotate(90deg);
+    .modal.fade .modal-dialog {
+        transform: none !important;
+        transition: none !important;
     }
+    
+    .collapse {
+        transition: none !important;
+    }
+    
+    .collapsing {
+        transition: none !important;
+        height: auto !important;
+    }
+    
+    .toggle-icon {
+        transition: none !important;
+    }
+}
+
+/* Force visibility for RDP environments */
+.rdp-mode .modal {
+    animation: none !important;
+    transition: none !important;
+}
+
+.rdp-mode .modal.fade {
+    opacity: 1 !important;
+}
+
+.rdp-mode .modal.fade .modal-dialog {
+    transform: none !important;
+}
+
+.rdp-mode .collapse {
+    transition: none !important;
+}
+
+.rdp-mode .collapsing {
+    height: auto !important;
+    transition: none !important;
+}
+
+/* Fallback for problematic collapse states */
+.collapse.show {
+    display: block !important;
+    height: auto !important;
+}
+
+.collapsing {
+    position: relative;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.35s ease;
+}
+
+/* Force immediate visibility when needed */
+.force-show {
+    display: block !important;
+    height: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Additional modal fixes for RDP */
+.modal-backdrop.fade {
+    opacity: 0.5 !important;
+    transition: none !important;
+}
+
+/* Fix for nested collapse items */
+.collapse .collapse {
+    transition: none !important;
+}
+
+.collapse .collapsing {
+    transition: none !important;
+    height: auto !important;
+}
 </style>
 
 <style>
@@ -559,7 +649,30 @@
 
         <!-- Submit -->
         <div class="col-12 mt-4">
-            <button type="submit" style="float:right" class="btn btn-primary submit-btn"><i class="fas fa-arrow-right"></i>Submit</button>
+
+         <!-- Status Selection Buttons -->
+         @php
+    $selectedStatus = isset($reflection->status) ? strtoupper($reflection->status) : 'DRAFT';
+@endphp
+
+<div class="btn-group mr-2" role="group" aria-label="Status buttons" data-selected="{{ $selectedStatus }}">
+    <button type="button"
+        class="btn status-btn {{ $selectedStatus === 'DRAFT' ? 'active btn-secondary' : 'btn-outline-secondary' }}"
+        data-status="DRAFT">
+        <i class="fas fa-file-alt mr-1"></i> Make Draft
+    </button>
+
+    <button type="button"
+        class="btn status-btn {{ $selectedStatus === 'PUBLISHED' ? 'active btn-success' : 'btn-outline-success' }}"
+        data-status="PUBLISHED">
+        <i class="fas fa-upload mr-1"></i> Publish Now
+    </button>
+</div>
+
+<input type="hidden" name="status" id="statusInput" value="{{ $selectedStatus }}">
+
+
+        <button type="submit" style="float:right;" class="btn btn-primary submit-btn"><i class="fas fa-arrow-right"></i>Submit</button>
         </div>
 
     </div>
@@ -578,7 +691,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
+<div class="modal" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header d-flex align-items-center justify-content-between">
@@ -601,7 +714,7 @@
 
 
 
-<div class="modal fade" id="roomsModal" tabindex="-1">
+<div class="modal" id="roomsModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header d-flex justify-content-between">
@@ -623,7 +736,7 @@
 
 
 <!-- Staff Modal -->
-<div class="modal fade" id="staffModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true">
+<div class="modal" id="staffModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header d-flex align-items-center justify-content-between">
@@ -644,8 +757,12 @@
   </div>
 </div>
 
-
-
+<style>
+    #eylfModal .modal-body {
+    max-height: none !important;
+    overflow-y: auto;
+}
+    </style>
 
 <!-- EYLF Modal -->
 @php
@@ -654,14 +771,15 @@
 @endphp
 
 <!-- EYLF Modal -->
-<div class="modal fade" id="eylfModal" tabindex="-1" role="dialog" aria-labelledby="eylfModalLabel" aria-hidden="true">
+<div class="modal" id="eylfModal" tabindex="-1" role="dialog" aria-labelledby="eylfModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Select EYLF</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
             </div>
-            <div class="modal-body" style="max-height:500px; overflow-y:auto;">
+
+            <div class="modal-body">
                 <div class="eylf-tree">
                     <ul class="list-group">
                         <li class="list-group-item">
@@ -727,6 +845,7 @@
                     </ul>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="saveEylfSelections" data-dismiss="modal">Save selections</button>
@@ -903,11 +1022,132 @@ $('#confirmStaff').on('click', function () {
 </script>
 
 <script>
-  // Toggle icons
-$(document).on('click', '.toggle-icon', function () {
-    const icon = $(this).find('i');
-    icon.toggleClass('fa-chevron-right fa-chevron-down');
+ $(document).ready(function () {
+    // Detect if running in RDP environment
+    const isRDP = navigator.userAgent.includes('Windows') && 
+                  (window.screen.colorDepth <= 16 || 
+                   window.devicePixelRatio < 1 ||
+                   navigator.connection && navigator.connection.type === 'other');
+
+    // Disable animations in RDP environment
+    if (isRDP) {
+        $.fn.modal.Constructor.Default.animation = false;
+        $('.modal').removeClass('fade');
+    }
+
+    // Toggle icons with improved RDP handling
+    $(document).on('show.bs.collapse', function (e) {
+        let $target = $(e.target);
+        let $icon = $target.prev().find('.fa');
+        
+        $icon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+        
+        // Enhanced height calculation for RDP
+        if (isRDP) {
+            // Disable CSS transitions temporarily
+            $target.css('transition', 'none');
+            
+            // Set height immediately for RDP
+            setTimeout(function () {
+                let scrollHeight = $target.get(0).scrollHeight;
+                $target.css({
+                    'height': scrollHeight + 'px',
+                    'transition': 'none'
+                });
+                
+                // Force reflow
+                $target.get(0).offsetHeight;
+                
+                // Re-enable transitions after a delay
+                setTimeout(function() {
+                    $target.css('transition', '');
+                }, 50);
+            }, 0);
+        } else {
+            // Normal behavior for non-RDP systems
+            setTimeout(function () {
+                $target.css('height', $target.get(0).scrollHeight + 'px');
+            }, 10);
+        }
+    });
+
+    $(document).on('hide.bs.collapse', function (e) {
+        let $target = $(e.target);
+        let $icon = $target.prev().find('.fa');
+        
+        $icon.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+        
+        if (isRDP) {
+            // Immediate collapse for RDP
+            $target.css({
+                'height': '0px',
+                'transition': 'none'
+            });
+            
+            setTimeout(function() {
+                $target.css('transition', '');
+            }, 50);
+        }
+    });
+
+    // Enhanced modal height recalculation
+    $(document).on('shown.bs.collapse hidden.bs.collapse', function (e) {
+        if (isRDP) {
+            // Force modal to recalculate its position and size
+            let $modal = $('#eylfModal');
+            if ($modal.hasClass('show')) {
+                $modal.modal('handleUpdate');
+                
+                // Additional positioning fix for RDP
+                setTimeout(function() {
+                    $modal.css({
+                        'display': 'block',
+                        'opacity': '1'
+                    });
+                }, 10);
+            }
+        } else {
+            $('#eylfModal').modal('handleUpdate');
+        }
+    });
+
+    // Additional RDP fixes
+    if (isRDP) {
+        // Override Bootstrap's collapse behavior
+        $(document).on('click', '[data-toggle="collapse"]', function(e) {
+            e.preventDefault();
+            let target = $(this).attr('data-target');
+            let $target = $(target);
+            
+            if ($target.hasClass('show')) {
+                $target.removeClass('show').css('height', '0px');
+            } else {
+                $target.addClass('show').css('height', $target.get(0).scrollHeight + 'px');
+            }
+        });
+    }
+
+    // Modal show event handling for RDP
+    $('#eylfModal').on('show.bs.modal', function () {
+        if (isRDP) {
+            $(this).css({
+                'animation': 'none',
+                'transition': 'none'
+            });
+        }
+    });
+
+    // Force visibility for RDP systems
+    $('#eylfModal').on('shown.bs.modal', function () {
+        if (isRDP) {
+            $(this).css({
+                'display': 'block !important',
+                'opacity': '1 !important'
+            });
+        }
+    });
 });
+
 
 // Save EYLF Selections
 $('#saveEylfSelections').on('click', function () {
@@ -1183,6 +1423,31 @@ $(document).ready(function () {
 
 
 </script>
+
+<script>
+$(document).ready(function () {
+    // Ensure hidden field matches selected status
+    const selectedStatus = $('.btn-group[role="group"]').data('selected') || 'DRAFT';
+    $('#statusInput').val(selectedStatus);
+
+    $('.status-btn').on('click', function () {
+        $('.status-btn')
+            .removeClass('active btn-secondary btn-success btn-outline-success btn-outline-secondary');
+
+        const selected = $(this).data('status');
+        $('#statusInput').val(selected);
+
+        if (selected === 'DRAFT') {
+            $(this).addClass('active btn-secondary');
+            $('.status-btn[data-status="PUBLISHED"]').addClass('btn-outline-success');
+        } else {
+            $(this).addClass('active btn-success');
+            $('.status-btn[data-status="DRAFT"]').addClass('btn-outline-secondary');
+        }
+    });
+});
+</script>
+
 
 
 <script>

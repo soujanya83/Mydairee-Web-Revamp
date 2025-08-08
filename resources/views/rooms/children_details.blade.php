@@ -340,7 +340,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="manageEducatorsModal" tabindex="-1" aria-labelledby="manageEducatorsModalLabel"
+<div class="modal" id="manageEducatorsModal" tabindex="-1" aria-labelledby="manageEducatorsModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content card">
@@ -377,7 +377,7 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="newChildModal" tabindex="-1" role="dialog" aria-labelledby="newChildModalLabel"
+<div class="modal" id="newChildModal" tabindex="-1" role="dialog" aria-labelledby="newChildModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
