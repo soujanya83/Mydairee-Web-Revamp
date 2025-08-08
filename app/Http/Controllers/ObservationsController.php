@@ -859,6 +859,7 @@ public function linkprogramplandata(Request $request)
             return $query->where('year', 'like', "%{$search}%");
         })
         ->where('status', 'Published')
+        ->where('centerid', $centerid)
         ->orderBy('created_at', 'desc')
         ->get();
 
