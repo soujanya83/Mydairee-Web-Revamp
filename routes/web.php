@@ -386,6 +386,13 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
         Route::post('/change-created-at', [ObservationsController::class, 'changeCreatedAt'])->name('changeCreatedAt');
         Route::delete('/{id}', [ObservationsController::class, 'destroy'])->name('destroy');
 
+
+        Route::get('/reflectionslink', [ObservationsController::class, 'linkreflectiondata']);
+        Route::post('/submit-selectedreflink', [ObservationsController::class, 'storelinkreflection']);
+
+        Route::get('/programplanslink', [ObservationsController::class, 'linkprogramplandata']);
+        Route::post('/submit-selectedpplink', [ObservationsController::class, 'storelinkprogramplan']);
+
     });
 
 
