@@ -212,18 +212,39 @@ class RoomController extends Controller
         return redirect()->back()->with('success', 'Children deleted successfully.');
     }
 
-    public function childrens_list()
+    public function childrens_list(Request $request)
     {
         $userId = Auth::user()->id;
         if ($userId == 145) {
             $userId = $userId - 1;
-        } else {
-            $userId;
         }
 
-        $chilData = Child::select('child.*', 'child.id as childId', 'child.name as childname', 'room.name as roomname', 'room.*', 'child.createdAt as childcreatedate')->where('child.createdBy', $userId)->join('room', 'room.id', '=', 'child.room')->get();
-        return view('rooms.childrens_list', compact('chilData'));
+        $rooms = Room::where('name' ,'!=', null)->get();
+
+        $chilData = Child::select(
+            'child.*',
+            'child.id as childId',
+            'child.name as childname',
+            'room.name as roomname',
+            'room.*',
+            'child.createdAt as childcreatedate'
+        )
+            ->where('child.createdBy', $userId)
+            ->join('room', 'room.id', '=', 'child.room');
+
+        if ($request->filled('roomId')) {
+            $chilData->where('child.room', $request->roomId);
+        }
+
+        $chilData = $chilData->get();
+
+        return view('rooms.childrens_list', [
+            'chilData' => $chilData,
+            'rooms' => $rooms,
+            'selectedRoom' => $request->roomId
+        ]);
     }
+
 
 
     public function bulkDelete(Request $request)
@@ -365,9 +386,9 @@ class RoomController extends Controller
         $roomEducators = (clone $educatorsQuery)
             ->where('room_staff.roomid', $roomid)
             ->get();
-            $assignedEducatorIds = $roomEducators->pluck('userid')->toArray();
+        $assignedEducatorIds = $roomEducators->pluck('userid')->toArray();
 
-        return view('rooms.children_details', compact('assignedEducatorIds','roomEducators', 'AllEducators', 'attendance', 'roomcapacity', 'rooms', 'allchilds', 'activechilds', 'enrolledchilds', 'malechilds', 'femalechilds', 'roomid', 'totalAttendance', 'patterns', 'breakdowns'));
+        return view('rooms.children_details', compact('assignedEducatorIds', 'roomEducators', 'AllEducators', 'attendance', 'roomcapacity', 'rooms', 'allchilds', 'activechilds', 'enrolledchilds', 'malechilds', 'femalechilds', 'roomid', 'totalAttendance', 'patterns', 'breakdowns'));
     }
 
 
