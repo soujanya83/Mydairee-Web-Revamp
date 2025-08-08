@@ -37,6 +37,7 @@ class LessonPlanList extends Controller
 {
     $validator = Validator::make($r->all(), [
         'planid' => 'required|exists:programplantemplatedetailsadd,id',
+        'status' => 'required'
     ]);
 
     if ($validator->fails()) {
@@ -51,7 +52,7 @@ class LessonPlanList extends Controller
     $plan = ProgramPlanTemplateDetailsAdd::find($r->planid);
 
     // Toggle status
-    $plan->status = ($plan->status == 'Draft') ? 'Published' : 'Draft';
+    $plan->status = $r->status ;
     $plan->save();
 
     return response()->json([

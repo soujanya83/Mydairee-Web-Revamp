@@ -173,7 +173,7 @@ padding-inline:0;
                     </div>
                     <div class="form-group col-md-6">
                         <h4>Signature</h4>
-                        <img src="{{ asset('assets/media/'.$AccidentInfo->person_sign) }}" height="120px" width="300px">
+                        <img src="{{ $AccidentInfo->person_sign }}" height="120px" width="300px">
                     </div>
                 </div>
 
@@ -240,7 +240,7 @@ padding-inline:0;
                     </div>
                     <div class="form-group col-md-6">
                         <h4>Witness Signature</h4>
-                        <img src="{{ asset('assets/media/'.$AccidentInfo->witness_sign) }}" class="bordered" height="120px" width="300px">
+                        <img src="{{ $AccidentInfo->witness_sign }}" class="bordered" height="120px" width="300px">
                     </div>
                 </div>
 
@@ -450,7 +450,7 @@ $parents = [
     </div>
     <div class="col-md-6">
         <h4>Signature:</h4>
-        <img src="{{ asset('assets/media/'.$AccidentInfo->responsible_person_sign) }}" height="120px" width="300px">
+        <img src="{{ $AccidentInfo->responsible_person_sign }}" height="120px" width="300px">
     </div>
 </div>
 <div class="row mb-3">
@@ -477,7 +477,7 @@ $parents = [
     </div>
     <div class="col-md-6">
         <h4>Signature:</h4>
-        <img src="{{ asset('assets/media/'.$AccidentInfo->nominated_supervisor_sign) }}" height="120px" width="300px">
+        <img src="{{ $AccidentInfo->nominated_supervisor_sign }}" height="120px" width="300px">
     </div>
 </div>
 <div class="row mb-3">

@@ -754,79 +754,136 @@ body {
 }
 </style>
 
+<style>
+/* Default (desktop) */
+.responsive-top-margin {
+    margin-top: 0px;
+    margin-right: 20px;
+}
+
+/* Scroll wrapper for small screens */
+.scroll-on-small {
+    overflow-x: hidden;
+}
+
+/* Tablet screens */
+@media (max-width: 1024px) {
+    .responsive-top-margin {
+        margin-top: 80px;
+    }
+}
+
+@media (max-width: 992px) {
+    .responsive-top-margin {
+        margin-top: 40px;
+    }
+}
+
+@media (max-width: 914px) {
+    .responsive-top-margin {
+        margin-top: 90px;
+    }
+}
+
+@media (max-width: 768px) {
+    .responsive-top-margin {
+        margin-top: 90px;
+    }
+}
+
+/* Mobile screens */
+@media (max-width: 576px) {
+    .responsive-top-margin {
+        margin-top: 80px;
+    }
+}
+
+/* Enable horizontal scroll below 600px */
+@media (max-width: 600px) {
+    .scroll-on-small {
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .scroll-on-small > * {
+        display: inline-block;
+        margin-right: 10px; /* Optional spacing */
+    }
+}
+
+
+</style>
+
 
 @section('content')
-<div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -35px;">
+
+
+        <div class="text-zero top-right-button-container d-flex justify-content-end responsive-top-margin">
+
+            <div class="dropdown">
+                <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
+                    style="top:3% !important;left:13px !important;">
+                    @foreach($centers as $center)
+                    <a href="javascript:void(0);"
+                        class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                        style="background-color:white;" data-id="{{ $center->id }}">
+                        {{ $center->centerName }}
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+
+
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            <div class="dropdown">
+                <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ $selectedroom->name ?? 'Select Room' }}
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
+                    style="top:3% !important;left:13px !important;">
+                    @foreach($room as $rooms)
+                    <a href="#"
+                    class="dropdown-item room-selector {{ optional($selectedroom)->id == $rooms->id ? 'active font-weight-bold text-primary' : '' }}"
+                    data-url="{{ url('DailyDiary/list') }}?room_id={{ $rooms->id }}&center_id={{ session('user_center_id') }}"
+                    style="background-color:white;">
+                    {{ $rooms->name }}
+                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+
+
+                        @if(isset($selectedroom) && isset($selectedDate))
+                        <form method="GET" action="{{ route('dailyDiary.list') }}" id="dateRoomForm">
+                            <input type="hidden" name="room_id" value="{{ $selectedroom->id }}">
+                            <input type="hidden" name="center_id" value="{{ session('user_center_id') }}">
+
+                            <div class="form-group">
+                                <input type="date"
+                                    class="form-control custom-datepicker btn-outline-primary btn-lg"
+                                    id="datePicker"
+                                    name="selected_date"
+                                    value="{{ $selectedDate ? $selectedDate->format('Y-m-d') : '' }}"
+                                    onclick="this.showPicker()"
+                                    onchange="document.getElementById('dateRoomForm').submit();">
+                            </div>
+                        </form>
+                    @endif
+
+
+                    </div>
 
 
 
-
-
-    <div class="dropdown">
-        <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
-            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
-        </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
-            style="top:3% !important;left:13px !important;">
-            @foreach($centers as $center)
-            <a href="javascript:void(0);"
-                class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
-                style="background-color:white;" data-id="{{ $center->id }}">
-                {{ $center->centerName }}
-            </a>
-            @endforeach
         </div>
-    </div>
 
-
-    &nbsp;&nbsp;&nbsp;&nbsp;
-
-    <div class="dropdown">
-        <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
-            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {{ $selectedroom->name ?? 'Select Room' }}
-        </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
-            style="top:3% !important;left:13px !important;">
-            @foreach($room as $rooms)
-            <a href="#"
-   class="dropdown-item room-selector {{ optional($selectedroom)->id == $rooms->id ? 'active font-weight-bold text-primary' : '' }}"
-   data-url="{{ url('DailyDiary/list') }}?room_id={{ $rooms->id }}&center_id={{ session('user_center_id') }}"
-   style="background-color:white;">
-   {{ $rooms->name }}
-</a>
-            @endforeach
-        </div>
-    </div>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-
-
-    @if(isset($selectedroom) && isset($selectedDate))
-    <form method="GET" action="{{ route('dailyDiary.list') }}" id="dateRoomForm">
-        <input type="hidden" name="room_id" value="{{ $selectedroom->id }}">
-        <input type="hidden" name="center_id" value="{{ session('user_center_id') }}">
-
-        <div class="form-group">
-            <input type="date"
-                   class="form-control custom-datepicker btn-outline-primary btn-lg"
-                   id="datePicker"
-                   name="selected_date"
-                   value="{{ $selectedDate ? $selectedDate->format('Y-m-d') : '' }}"
-                   onclick="this.showPicker()"
-                   onchange="document.getElementById('dateRoomForm').submit();">
-        </div>
-    </form>
-@endif
-
-
-</div>
-
-
-
-
-</div>
 
 
 
@@ -1269,6 +1326,10 @@ body {
                                                     <span class="entry-label">Comments:</span>
                                                     <span class="entry-value">{{ $entry->comments ?? 'Not-Update' }}</span>
                                                 </div>
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Signature:</span>
+                                                    <span class="entry-value">{{ $entry->signature ?? 'Not-Update' }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     @empty
@@ -1331,6 +1392,12 @@ body {
                                                 <div class="entry-item">
                                                     <span class="entry-label">Status:</span>
                                                     <span class="badge badge-warning">{{ $entry->status ?? 'Not-Update' }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="entry-row">
+                                                <div class="entry-item">
+                                                    <span class="entry-label">Signature:</span>
+                                                    <span class="entry-value">{{ $entry->signature ?? 'Not-Update' }}</span>
                                                 </div>
                                             </div>
                                             <div class="entry-row">
@@ -1444,7 +1511,7 @@ body {
 </style>
 
 <!-- Add Entry Modal -->
-<div class="modal fade" id="addEntryModal" tabindex="-1" role="dialog" aria-labelledby="addEntryModalLabel" aria-hidden="true">
+<div class="modal" id="addEntryModal" tabindex="-1" role="dialog" aria-labelledby="addEntryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullwidth" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -1780,6 +1847,14 @@ body {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label">
+                                                <i class="fas fa-comment mr-2"></i>Signature
+                                            </label>
+                                            <input type="text" class="form-control" id="sunscreen-signature" rows="3" >
+                                        </div>
+
                                         <div class="form-group">
                                             <label class="form-label">
                                                 <i class="fas fa-comment mr-2"></i>Comments
@@ -1820,6 +1895,12 @@ body {
                                                     </select>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">
+                                                <i class="fas fa-comment mr-2"></i>Signature
+                                            </label>
+                                            <input type="text" class="form-control" id="toileting-signature" rows="3" >
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">
@@ -1884,7 +1965,7 @@ body {
 
 
 <!-- Modal -->
-<div class="modal fade" id="breakfastModal" tabindex="-1" role="dialog" aria-labelledby="breakfastModalLabel" aria-hidden="true">
+<div class="modal" id="breakfastModal" tabindex="-1" role="dialog" aria-labelledby="breakfastModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <form id="breakfastForm">
       <div class="modal-content">
@@ -1926,7 +2007,7 @@ body {
 
 
 
-<div class="modal fade" id="morningTeaModal" tabindex="-1" role="dialog" aria-labelledby="morningTeaModalLabel" aria-hidden="true">
+<div class="modal" id="morningTeaModal" tabindex="-1" role="dialog" aria-labelledby="morningTeaModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="morningTeaForm">
             <div class="modal-content">
@@ -1961,7 +2042,7 @@ body {
 
 
 
-<div class="modal fade" id="lunchModal" tabindex="-1" role="dialog" aria-labelledby="lunchModalLabel" aria-hidden="true">
+<div class="modal" id="lunchModal" tabindex="-1" role="dialog" aria-labelledby="lunchModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="lunchForm">
             <div class="modal-content">
@@ -1999,7 +2080,7 @@ body {
 
 
 
-<div class="modal fade" id="afternoonTeaModal" tabindex="-1" role="dialog" aria-labelledby="afternoonTeaModalLabel" aria-hidden="true">
+<div class="modal" id="afternoonTeaModal" tabindex="-1" role="dialog" aria-labelledby="afternoonTeaModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="afternoonTeaForm">
             <div class="modal-content">
@@ -2033,7 +2114,7 @@ body {
 
 
 
-<div class="modal fade" id="snacksModal" tabindex="-1" role="dialog" aria-labelledby="snacksModalLabel" aria-hidden="true">
+<div class="modal" id="snacksModal" tabindex="-1" role="dialog" aria-labelledby="snacksModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="snacksForm">
             <div class="modal-content">
@@ -2072,7 +2153,7 @@ body {
 
 
 
-<div class="modal fade" id="sleepModal" tabindex="-1" role="dialog" aria-labelledby="sleepModalLabel" aria-hidden="true">
+<div class="modal" id="sleepModal" tabindex="-1" role="dialog" aria-labelledby="sleepModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="sleepForm">
             <div class="modal-content">
@@ -2111,7 +2192,7 @@ body {
 
 
 
-<div class="modal fade" id="sunscreenModal" tabindex="-1" role="dialog" aria-labelledby="sunscreenModalLabel" aria-hidden="true">
+<div class="modal" id="sunscreenModal" tabindex="-1" role="dialog" aria-labelledby="sunscreenModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="sunscreenForm">
             <div class="modal-content">
@@ -2131,6 +2212,10 @@ body {
                         <input type="time" name="startTime" class="form-control" id="sunscreen_modal_start_time">
                     </div>
                     <div class="form-group">
+                        <label>Signature</label>
+                        <input type="text" name="signature" class="form-control" id="sunscreen_modal_signature">
+                    </div>
+                    <div class="form-group">
                         <label>Comments</label>
                         <textarea name="comments" class="form-control" id="sunscreen_modal_comments"></textarea>
                     </div>
@@ -2145,7 +2230,7 @@ body {
 </div>
 
 
-<div class="modal fade" id="toiletingModal" tabindex="-1" role="dialog" aria-labelledby="toiletingModalLabel" aria-hidden="true">
+<div class="modal" id="toiletingModal" tabindex="-1" role="dialog" aria-labelledby="toiletingModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="toiletingForm">
             <div class="modal-content">
@@ -2176,6 +2261,10 @@ body {
                         </select>
                     </div>
                     <div class="form-group">
+                        <label>Signature</label>
+                        <input type="text" name="signature" class="form-control" id="toileting_modal_signature">
+                    </div>
+                    <div class="form-group">
                         <label>Comments</label>
                         <textarea name="comments" class="form-control" id="toileting_modal_comments"></textarea>
                     </div>
@@ -2191,7 +2280,7 @@ body {
 
 
 
-<div class="modal fade" id="bottleModal" tabindex="-1" role="dialog" aria-labelledby="bottleModalLabel" aria-hidden="true">
+<div class="modal" id="bottleModal" tabindex="-1" role="dialog" aria-labelledby="bottleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form id="bottleForm">
             <div class="modal-content">
@@ -2329,11 +2418,13 @@ $(document).ready(function() {
             break;
         case 'sunscreen':
             activityData.time = $('#sunscreen-time').val();
+            activityData.signature = $('#sunscreen-signature').val();
             activityData.comments = $('#sunscreen-comments').val();
             break;
         case 'toileting':
             activityData.time = $('#toileting-time').val();
             activityData.status = $('#nappy-status').val();
+            activityData.signature = $('#toileting-signature').val();
             activityData.comments = $('#toileting-comments').val();
             break;
         case 'bottle':
@@ -3232,6 +3323,7 @@ $(document).on('click', '.open-sunscreen-modal', function() {
                 if (res.data) {
                     $('#sunscreen_modal_start_time').val(res.data.startTime || '');
                     $('#sunscreen_modal_comments').val(res.data.comments || '');
+                    $('#sunscreen_modal_signature').val(res.data.signature || '');
                     $('#sunscreen_modal_entry_id').val(res.data.id);
                 }
                 $('#sunscreenModal').modal('show');
@@ -3256,6 +3348,7 @@ $('#sunscreenForm').on('submit', function(e) {
     const entryId = $('#sunscreen_modal_entry_id').val();
     const startTime = $('#sunscreen_modal_start_time').val();
     const comments = $('#sunscreen_modal_comments').val();
+    const signature = $('#sunscreen_modal_signature').val();
 
     let url, method, data;
     if (entryId) {
@@ -3267,6 +3360,7 @@ $('#sunscreenForm').on('submit', function(e) {
             selected_date: diaryDate,
             startTime,
             comments,
+            signature,
             _token: '{{ csrf_token() }}'
         };
     } else {
@@ -3278,6 +3372,7 @@ $('#sunscreenForm').on('submit', function(e) {
             selected_date: diaryDate,
             startTime,
             comments,
+            signature,
             _token: '{{ csrf_token() }}'
         };
     }
@@ -3371,6 +3466,7 @@ $(document).on('click', '.open-toileting-modal', function() {
                     $('#toileting_modal_start_time').val(res.data.startTime || '');
                     $('#toileting_modal_status').val(res.data.status || '');
                     $('#toileting_modal_comments').val(res.data.comments || '');
+                    $('#toileting_modal_signature').val(res.data.signature || '');
                     $('#toileting_modal_entry_id').val(res.data.id);
                 }
                 $('#toiletingModal').modal('show');
@@ -3396,6 +3492,7 @@ $('#toiletingForm').on('submit', function(e) {
     const startTime = $('#toileting_modal_start_time').val();
     const status = $('#toileting_modal_status').val();
     const comments = $('#toileting_modal_comments').val();
+    const signature = $('#toileting_modal_signature').val();
 
     let url, method, data;
     if (entryId) {
@@ -3407,6 +3504,7 @@ $('#toiletingForm').on('submit', function(e) {
             startTime,
             status,
             comments,
+            signature,
             _token: '{{ csrf_token() }}'
         };
     } else {
@@ -3418,6 +3516,7 @@ $('#toiletingForm').on('submit', function(e) {
             startTime,
             status,
             comments,
+            signature,
             _token: '{{ csrf_token() }}'
         };
     }
