@@ -162,19 +162,19 @@
                     </li>
 
                     {{-- Profile Dropdown --}}
-                    <li class="nav-item dropdown" style="margin-right: 30px;">
+                    <li class="nav-item dropdown" style="margin-right: 60px;">
                         <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false" style="color:black">
                             <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
-                                class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                class="rounded-circle mr-2 mt-2" style="width: 40px; height: 40px; object-fit: cover;">
                             <strong style="color:black;font-size:16px"> &nbsp; {{ Auth::user()->name }}</strong>
                         </a>
 
                         <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
                             <li class="dropdown-header text-center">
-                                <span style="font-size: 18px;float:left;"><i class="fa fa-user me-2 mb-2"></i> {{
+                                <span style="font-size: 18px;float:left;line-height: 2;"><i class="fa fa-user me-2 mb-2"></i> {{
                                     Auth::user()->name }}</span><br>
-                                <span style="font-size: 13px; float: left;" class="mb-2">
+                                <span style="font-size: 13px; float: left;" class="">
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     (
                                     @if (Auth::user()->userType == 'Superadmin')
