@@ -187,28 +187,34 @@
         </span>
     </a>
 
-    <div class="dropdown-menu dropdown-menu-right shadow-sm" aria-labelledby="userDropdown" style="min-width: 230px; top : 48px !important; left :-6px !important;margin-top:48px;">
-        <div class="px-3 py-2">
-            <div class="font-weight-bold text-truncate" style="font-size: 15px;">
-                <i class="fa fa-user mr-2"></i>{{ Auth::user()->name }}
-            </div>
-            <div class="text-muted text-truncate" style="font-size: 13px;">
-                <i class="fa fa-envelope mr-2"></i>{{ Auth::user()->email }}
-            </div>
-        </div>
-
-        <div class="dropdown-divider"></div>
-
-        <a class="dropdown-item" href="{{ route('settings.profile') }}">
-            <i class="fa fa-user mr-2 text-primary"></i> My Profile
-        </a>
-
-        <a class="dropdown-item text-danger" href="{{ route('logout') }}">
-            <i class="fa fa-power-off mr-2"></i> Logout
-        </a>
-    </div>
-</li>
-
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                            <li class="dropdown-header text-center">
+                                <span style="font-size: 18px;float:left;"><i class="fa fa-user me-2 mb-2"></i> {{
+                                    Auth::user()->name }}</span><br>
+                                <span style="font-size: 13px; float: left;" class="mb-2">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    (
+                                    @if (Auth::user()->userType == 'Superadmin')
+                                    SuperAdmin
+                                    @else
+                                    {{ Auth::user()->userType }}
+                                    @endif
+                                    )
+                                </span>
+                                <br>
+                                {{-- <span style="font-size: 16px;float:left;"> <i class="fa fa-envelope me-2"></i> {{
+                                    Auth::user()->email }} </span> --}}
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ route('settings.profile') }}"><i
+                                        class="fa fa-user me-2"></i> &nbsp; My Profile</a></li>
+                            <hr>
+                            <li><a class="dropdown-item text-danger" href="{{ route('logout') }}"><i
+                                        class="fa fa-power-off me-2"></i> &nbsp; Logout</a></li>
+                        </ul>
+                    </li>
 
                 </ul>
             </div>
