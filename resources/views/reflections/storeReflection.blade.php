@@ -299,15 +299,105 @@
         padding-left: 6rem;
     }
     
-    .toggle-icon {
-        cursor: pointer;
-        /* width: 20px; */
-        text-align: center;
+
+
+    /* Original toggle icon styles */
+.toggle-icon {
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.toggle-icon.expanded i {
+    transform: rotate(90deg);
+}
+
+/* RDP-specific fixes */
+@media screen and (max-color-index: 256), (-webkit-max-device-pixel-ratio: 1) {
+    /* Disable animations in low-color environments (typically RDP) */
+    .modal.fade {
+        transition: none !important;
+        opacity: 1 !important;
     }
     
-    .toggle-icon.expanded i {
-        transform: rotate(90deg);
+    .modal.fade .modal-dialog {
+        transform: none !important;
+        transition: none !important;
     }
+    
+    .collapse {
+        transition: none !important;
+    }
+    
+    .collapsing {
+        transition: none !important;
+        height: auto !important;
+    }
+    
+    .toggle-icon {
+        transition: none !important;
+    }
+}
+
+/* Force visibility for RDP environments */
+.rdp-mode .modal {
+    animation: none !important;
+    transition: none !important;
+}
+
+.rdp-mode .modal.fade {
+    opacity: 1 !important;
+}
+
+.rdp-mode .modal.fade .modal-dialog {
+    transform: none !important;
+}
+
+.rdp-mode .collapse {
+    transition: none !important;
+}
+
+.rdp-mode .collapsing {
+    height: auto !important;
+    transition: none !important;
+}
+
+/* Fallback for problematic collapse states */
+.collapse.show {
+    display: block !important;
+    height: auto !important;
+}
+
+.collapsing {
+    position: relative;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.35s ease;
+}
+
+/* Force immediate visibility when needed */
+.force-show {
+    display: block !important;
+    height: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Additional modal fixes for RDP */
+.modal-backdrop.fade {
+    opacity: 0.5 !important;
+    transition: none !important;
+}
+
+/* Fix for nested collapse items */
+.collapse .collapse {
+    transition: none !important;
+}
+
+.collapse .collapsing {
+    transition: none !important;
+    height: auto !important;
+}
 </style>
 
 <style>
@@ -932,35 +1022,130 @@ $('#confirmStaff').on('click', function () {
 </script>
 
 <script>
-  // Toggle icons
-  $(document).ready(function () {
+ $(document).ready(function () {
+    // Detect if running in RDP environment
+    const isRDP = navigator.userAgent.includes('Windows') && 
+                  (window.screen.colorDepth <= 16 || 
+                   window.devicePixelRatio < 1 ||
+                   navigator.connection && navigator.connection.type === 'other');
 
-// Rotate chevrons
-$(document).on('show.bs.collapse', function (e) {
-    $(e.target).prev().find('.fa')
-        .removeClass('fa-chevron-right')
-        .addClass('fa-chevron-down');
-});
+    // Disable animations in RDP environment
+    if (isRDP) {
+        $.fn.modal.Constructor.Default.animation = false;
+        $('.modal').removeClass('fade');
+    }
 
-$(document).on('hide.bs.collapse', function (e) {
-    $(e.target).prev().find('.fa')
-        .removeClass('fa-chevron-down')
-        .addClass('fa-chevron-right');
-});
+    // Toggle icons with improved RDP handling
+    $(document).on('show.bs.collapse', function (e) {
+        let $target = $(e.target);
+        let $icon = $target.prev().find('.fa');
+        
+        $icon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+        
+        // Enhanced height calculation for RDP
+        if (isRDP) {
+            // Disable CSS transitions temporarily
+            $target.css('transition', 'none');
+            
+            // Set height immediately for RDP
+            setTimeout(function () {
+                let scrollHeight = $target.get(0).scrollHeight;
+                $target.css({
+                    'height': scrollHeight + 'px',
+                    'transition': 'none'
+                });
+                
+                // Force reflow
+                $target.get(0).offsetHeight;
+                
+                // Re-enable transitions after a delay
+                setTimeout(function() {
+                    $target.css('transition', '');
+                }, 50);
+            }, 0);
+        } else {
+            // Normal behavior for non-RDP systems
+            setTimeout(function () {
+                $target.css('height', $target.get(0).scrollHeight + 'px');
+            }, 10);
+        }
+    });
 
-// Fix collapse height issue on RDP / scroll containers
-$(document).on('show.bs.collapse', function (e) {
-    let $el = $(e.target);
-    setTimeout(function () {
-        $el.css('height', $el.get(0).scrollHeight + 'px');
-    }, 10);
-});
+    $(document).on('hide.bs.collapse', function (e) {
+        let $target = $(e.target);
+        let $icon = $target.prev().find('.fa');
+        
+        $icon.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+        
+        if (isRDP) {
+            // Immediate collapse for RDP
+            $target.css({
+                'height': '0px',
+                'transition': 'none'
+            });
+            
+            setTimeout(function() {
+                $target.css('transition', '');
+            }, 50);
+        }
+    });
 
-// Recalculate modal height after collapse
-$(document).on('shown.bs.collapse hidden.bs.collapse', function () {
-    $('#eylfModal').modal('handleUpdate');
-});
+    // Enhanced modal height recalculation
+    $(document).on('shown.bs.collapse hidden.bs.collapse', function (e) {
+        if (isRDP) {
+            // Force modal to recalculate its position and size
+            let $modal = $('#eylfModal');
+            if ($modal.hasClass('show')) {
+                $modal.modal('handleUpdate');
+                
+                // Additional positioning fix for RDP
+                setTimeout(function() {
+                    $modal.css({
+                        'display': 'block',
+                        'opacity': '1'
+                    });
+                }, 10);
+            }
+        } else {
+            $('#eylfModal').modal('handleUpdate');
+        }
+    });
 
+    // Additional RDP fixes
+    if (isRDP) {
+        // Override Bootstrap's collapse behavior
+        $(document).on('click', '[data-toggle="collapse"]', function(e) {
+            e.preventDefault();
+            let target = $(this).attr('data-target');
+            let $target = $(target);
+            
+            if ($target.hasClass('show')) {
+                $target.removeClass('show').css('height', '0px');
+            } else {
+                $target.addClass('show').css('height', $target.get(0).scrollHeight + 'px');
+            }
+        });
+    }
+
+    // Modal show event handling for RDP
+    $('#eylfModal').on('show.bs.modal', function () {
+        if (isRDP) {
+            $(this).css({
+                'animation': 'none',
+                'transition': 'none'
+            });
+        }
+    });
+
+    // Force visibility for RDP systems
+    $('#eylfModal').on('shown.bs.modal', function () {
+        if (isRDP) {
+            $(this).css({
+                'display': 'block !important',
+                'opacity': '1 !important'
+            });
+        }
+    });
 });
 
 
