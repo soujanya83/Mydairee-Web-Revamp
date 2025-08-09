@@ -1,3 +1,5 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
 <style>
     .navbar-fixed-top .navbar-brand img {
         width: 130px;
@@ -175,40 +177,52 @@
                     {{-- Profile Dropdown --}}
 
 
-                    <li class="nav-item dropdown mt-2" style="margin-right: 63px;">
-                        <a href="#" class="nav-link dropdown-toggle d-flex align-items-center p-0" id="userDropdown"
-                            role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                            style="color:black;">
+                   <li class="nav-item dropdown mt-2" style="margin-right: 63px; position: relative;">
+    <a href="#" class="nav-link d-flex align-items-center p-0" id="userDropdown"
+        style="color:black; cursor: pointer;">
+        <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
+            class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+        <span class="font-weight-bold" style="font-size: 15px;">
+            &nbsp;&nbsp;{{ Str::limit(Auth::user()->name, 20) }}
+        </span>
+    </a>
 
-                            <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
-                                class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+    <div class="dropdown-menu dropdown-menu-end shadow-sm" id="userDropdownMenu"
+        style="min-width: 230px; display: none; position: absolute; top: 100%; right: 0;">
+        <div class="px-3 py-2">
+            <div class="fw-bold text-truncate" style="font-size: 15px;">
+                <i class="fa fa-user me-2"></i> &nbsp;{{ Auth::user()->name }}
+            </div>
+        </div>
 
-                            <span class="font-weight-bold" style="font-size: 15px;">
-                                &nbsp;&nbsp;{{ Str::limit(Auth::user()->name, 20) }}
-                            </span>
-                        </a>
+        <div class="dropdown-divider"></div>
 
-                        <div class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown"
-                            style="min-width: 230px;">
-                            <div class="px-3 py-2">
-                                <div class="fw-bold text-truncate" style="font-size: 15px;">
-                                    <i class="fa fa-user me-2"></i> &nbsp;{{ Auth::user()->name }}
-                                </div>
-                            </div>
+        <a class="dropdown-item" href="{{ route('settings.profile') }}">
+            <i class="fa fa-user me-2 text-primary"></i>&nbsp; My Profile
+        </a>
 
-                            <div class="dropdown-divider"></div>
+        <a class="dropdown-item text-danger" href="{{ route('logout') }}">
+            <i class="fa fa-power-off me-2"></i>&nbsp; Logout
+        </a>
+    </div>
+</li>
 
-                            <a class="dropdown-item" href="{{ route('settings.profile') }}">
-                                <i class="fa fa-user me-2 text-primary"></i>&nbsp; My Profile
-                            </a>
+<script>
+    const userDropdown = document.getElementById('userDropdown');
+    const dropdownMenu = document.getElementById('userDropdownMenu');
 
-                            <a class="dropdown-item text-danger" href="{{ route('logout') }}">
-                                <i class="fa fa-power-off me-2"></i>&nbsp; Logout
-                            </a>
-                        </div>
-                    </li>
+    userDropdown.addEventListener('click', function (e) {
+        e.preventDefault();
+        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    });
 
-
+    // Optional: close dropdown if clicking outside
+    document.addEventListener('click', function (e) {
+        if (!userDropdown.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.style.display = 'none';
+        }
+    });
+</script>
 
 
 
