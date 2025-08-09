@@ -1,6 +1,5 @@
 @extends('layout.master')
 @section('title', 'Recipes List')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 @section('parentPageTitle', '')
 <style>
@@ -78,7 +77,13 @@
         <input type="hidden" name="roomId" id="roomInput" value="{{ $selectedRoom }}">
     </div>
 </form>
-
+<script>
+    function selectRoom(id, name) {
+    document.getElementById('roomInput').value = id;
+    document.getElementById('roomDropdown').textContent = name;
+    document.getElementById('roomFilterForm').submit();
+}
+</script>
 <hr>
 <div class="row mb-5" >
 
@@ -100,11 +105,11 @@
                 <h5 class="card-title">{{ $child->childname }} {{ $child->lastname }}</h5>
 
                 <div class="mb-2">
-                    <span class="badge bg-info text-white">Date of Birth:
+                    <span class="badge bg-info text-white">DOB:
                         {{ optional($child->dob ? \Carbon\Carbon::parse($child->dob) : null)->format('d / M / Y') ??
                         'N/A' }}
                     </span>
-                    <span class="badge bg-light text-dark" style="margin-left:26px">
+                    <span class="badge bg-light text-dark" style="margin-left:10px">
                         @if(strtolower($child->gender) == 'male')
                         <i class="fas fa-mars"></i> Male
                         @else
@@ -138,12 +143,6 @@
     @endforeach
 </div>
 
-<script>
-    function selectRoom(id, name) {
-    document.getElementById('roomInput').value = id;
-    document.getElementById('roomDropdown').textContent = name;
-    document.getElementById('roomFilterForm').submit();
-}
-</script>
+
 @include('layout.footer')
 @stop
