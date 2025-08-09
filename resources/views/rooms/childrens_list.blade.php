@@ -82,30 +82,6 @@
     </div>
 </form>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const dropdownToggle = document.getElementById("roomDropdown");
-    const dropdownMenu = dropdownToggle.nextElementSibling;
-
-    dropdownToggle.addEventListener("click", function (event) {
-        event.preventDefault();
-        dropdownMenu.style.display =
-            dropdownMenu.style.display === "block" ? "none" : "block";
-    });
-
-    document.addEventListener("click", function (event) {
-        if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
-            dropdownMenu.style.display = "none";
-        }
-    });
-});
-
-function selectRoom(id, name) {
-    document.getElementById('roomInput').value = id;
-    document.getElementById('roomDropdown').textContent = name;
-    document.getElementById('roomFilterForm').submit();
-}
-</script>
 
 
 
@@ -169,5 +145,29 @@ function selectRoom(id, name) {
 </div>
 
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const dropdownToggle = document.getElementById("roomDropdown");
+    const dropdownMenu = dropdownToggle.nextElementSibling;
+
+    dropdownToggle.addEventListener("click", function (event) {
+        event.preventDefault();
+        dropdownMenu.style.display =
+            dropdownMenu.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.style.display = "none";
+        }
+    });
+});
+
+function selectRoom(id, name) {
+    document.getElementById('roomInput').value = id;
+    document.getElementById('roomDropdown').textContent = name;
+    document.getElementById('roomFilterForm').submit();
+}
+</script>
 @include('layout.footer')
 @stop
