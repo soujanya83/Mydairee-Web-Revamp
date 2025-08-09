@@ -167,7 +167,7 @@
 
 
     <!-- Modal Form -->
-    <div class="modal fade" id="addParentModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+    <div class="modal" id="addParentModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -270,7 +270,7 @@
     </div>
 
 
-    <div class="modal fade" id="editParentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal" id="editParentModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <form id="editParentForm" enctype="multipart/form-data">
                 @csrf

@@ -30,6 +30,7 @@ use App\Models\SnapshotMedia;
 use App\Models\SnapshotChild;
 use App\Models\Snapshot;
 use App\Models\ObservationMontessori;
+use App\Models\ProgramPlanTemplateDetailsAdd;
 use App\Models\Userprogressplan;
 use App\Models\Room;
 use App\Models\RoomStaff;
@@ -742,7 +743,7 @@ class ObservationsController extends Controller
 
         $observationId = $request->input('obsId');
 
-        ObservationLink::where('observationId', $observationId)->delete();
+        ObservationLink::where('observationId', $observationId) ->where('linktype', 'OBSERVATION')->delete();
 
         $linkIds = $request->input('observation_ids');
 
@@ -756,6 +757,155 @@ class ObservationsController extends Controller
 
         return response()->json(['message' => 'Links saved successfully.', 'id' => $observationId]);
     }
+
+
+
+
+
+
+    public function linkreflectiondata(Request $request)
+{
+    $authId = Auth::user()->id;
+    $centerid = Session('user_center_id');
+    $search = $request->query('search');
+    $obsId = $request->query('obsId'); // Current observation ID for checking existing links
+
+    $reflections = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+        ->when($search, function ($query, $search) {
+            return $query->where('title', 'like', "%{$search}%");
+        })
+        ->where('centerid', $centerid)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $linkedIds = ObservationLink::where('observationId', $obsId)
+        ->where('linktype', 'REFLECTION')
+        ->pluck('linkid')
+        ->toArray();
+
+    return response()->json([
+        'reflections' => $reflections,
+        'linked_ids' => $linkedIds
+    ]);
+}
+
+public function storelinkreflection(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'obsId' => 'required|exists:observation,id',
+        'reflection_ids' => 'required|array',
+        'reflection_ids.*' => 'exists:reflection,id', // Adjust table name if needed
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    $observationId = $request->input('obsId');
+
+    // Remove existing reflection links for this observation
+    ObservationLink::where('observationId', $observationId)
+        ->where('linktype', 'REFLECTION')
+        ->delete();
+
+    $linkIds = $request->input('reflection_ids');
+
+    foreach ($linkIds as $linkId) {
+        ObservationLink::create([
+            'observationId' => $observationId,
+            'linkid' => $linkId,
+            'linktype' => 'REFLECTION',
+        ]);
+    }
+
+    return response()->json(['message' => 'Reflection links saved successfully.', 'id' => $observationId]);
+}
+
+
+
+
+public function linkprogramplandata(Request $request)
+{
+    $authId = Auth::user()->id;
+    $centerid = Session('user_center_id');
+    $search = $request->query('search');
+    $obsId = $request->query('obsId'); // Current observation ID for checking existing links
+
+    // Month names for search
+    $monthNames = [
+        'january' => 1, 'february' => 2, 'march' => 3, 'april' => 4,
+        'may' => 5, 'june' => 6, 'july' => 7, 'august' => 8,
+        'september' => 9, 'october' => 10, 'november' => 11, 'december' => 12
+    ];
+
+    $programPlans = ProgramPlanTemplateDetailsAdd::with(['room', 'creator'])
+        ->when($search, function ($query, $search) use ($monthNames) {
+            $searchLower = strtolower($search);
+            $monthNumber = null;
+            
+            // Check if search matches any month name
+            foreach ($monthNames as $monthName => $monthNum) {
+                if (strpos($monthName, $searchLower) !== false) {
+                    $monthNumber = $monthNum;
+                    break;
+                }
+            }
+            
+            if ($monthNumber) {
+                return $query->where('months', $monthNumber);
+            }
+            
+            // If no month found, search in year as well
+            return $query->where('year', 'like', "%{$search}%");
+        })
+        ->where('status', 'Published')
+        ->where('centerid', $centerid)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $linkedIds = ObservationLink::where('observationId', $obsId)
+        ->where('linktype', 'PROGRAMPLAN')
+        ->pluck('linkid')
+        ->toArray();
+
+    return response()->json([
+        'program_plans' => $programPlans,
+        'linked_ids' => $linkedIds
+    ]);
+}
+
+public function storelinkprogramplan(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'obsId' => 'required|exists:observation,id',
+        'program_plan_ids' => 'required|array',
+        'program_plan_ids.*' => 'exists:programplantemplatedetailsadd,id', // Adjust table name if needed
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    $observationId = $request->input('obsId');
+
+    // Remove existing program plan links for this observation
+    ObservationLink::where('observationId', $observationId)
+        ->where('linktype', 'PROGRAMPLAN')
+        ->delete();
+
+    $linkIds = $request->input('program_plan_ids');
+
+    foreach ($linkIds as $linkId) {
+        ObservationLink::create([
+            'observationId' => $observationId,
+            'linkid' => $linkId,
+            'linktype' => 'PROGRAMPLAN',
+        ]);
+    }
+
+    return response()->json(['message' => 'Program Plan links saved successfully.', 'id' => $observationId]);
+}
+
 
 
 

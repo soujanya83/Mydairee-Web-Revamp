@@ -147,7 +147,7 @@
 
         <div class="row clearfix" style="margin-bottom: 43px;">
             @foreach($getrooms as $room)
-            <div class="col-lg-3 col-md-3 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
+            <div class="col-lg-4 col-md-4 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
                 <div class="card shadow-sm border-0 rounded p-3 hover-shadow position-relative"
                     style="    height: 165px;">
 
@@ -166,30 +166,46 @@
                         </a>
 
                         <!-- Trigger -->
-                        <button type="button" class="btn btn-sm " onclick='openEditModal(@json($room))' style="background-color: #f0ece4;">
+                        <button type="button" class="btn btn-sm " onclick='openEditModal(@json($room))'
+                            style="background-color: #f0ece4;">
                             <i class="fa fa-edit" class="d-flex justify-content-between align-items-start"></i>
                         </button>
                     </div>
 
                     <div class="mb-2">
                         <i class="fa fa-child text-warning me-2"></i>
-                       Childrens: {{ count($room->children) }}
+                        Childrens: {{ count($room->children) }}
                     </div>
 
                     <div class="mb-2">
                         <i class="fa fa-chalkboard-teacher text-primary me-2"></i>
                         Educators:
-                        @foreach($room->educators as $educator)
-                        <img src="{{ isset($educator->person_sign) && $educator->person_sign ? asset('storage/' . $educator->person_sign) : asset('assets/img/default-avatar.png') }}"
+
+                        @php
+                        $educators = $room->educators;
+                        $total = count($educators);
+                        @endphp
+
+                        @foreach($educators->take(5) as $educator)
+                        <img src="{{ isset($educator->imageUrl) && $educator->imageUrl ? asset($educator->imageUrl) : asset('storage/children/images/download.jpg') }}"
                             class="rounded-circle border"
                             style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px;"
                             title="{{ ucfirst($educator->person_name ?? '') }}">
                         @endforeach
+
+                        @if($total > 5)
+                        <span
+                            class="rounded-circle border bg-light d-inline-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px; font-size: 14px; font-weight: bold; margin-right: 4px;">
+                            +{{ $total - 5 }}
+                        </span>
+                        @endif
                     </div>
+
 
                     <div class="mb-1">
                         <i class="fa fa-user text-secondary me-2"></i>
-                        <span class="text-muted">Lead:</span>  &nbsp;{{ Auth::user()->username ?? 'Not Assigned' }}
+                        <span class="text-muted">Lead:</span> &nbsp;{{ Auth::user()->username ?? 'Not Assigned' }}
                     </div>
                 </div>
             </div>
@@ -199,7 +215,7 @@
 </div>
 
 <!-- Room Creation Modal -->
-<div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
+<div class="modal" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -281,16 +297,16 @@
 </div>
 
 <!-- Edit Room Modal -->
-<div class="modal fade" id="editRoomModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal" id="editRoomModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <form method="POST" id="editRoomForm">
             @csrf
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Room</h5>
-                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
 
                 <div class="modal-body row">
@@ -327,7 +343,7 @@
                     <div class="form-group col-md-6">
                         <label for="editRoomColor">Room Color</label>
                         <input type="color" name="room_color" id="editRoomColor" class="form-control form-control-color"
-                            required  style="height: 35px;">
+                            required style="height: 35px;">
                     </div>
 
                     <div class="form-group col-6">

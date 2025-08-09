@@ -163,7 +163,7 @@
 
 
             <!-- Modal for Full Image -->
-            <div class="modal fade" id="imageModal{{ $recipe->id }}" tabindex="-1"
+            <div class="modal" id="imageModal{{ $recipe->id }}" tabindex="-1"
                 aria-labelledby="imageModalLabel{{ $recipe->id }}" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
@@ -184,7 +184,7 @@
 </div>
 
 
-<div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
+<div class="modal" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content card">
             <div class="modal-header">

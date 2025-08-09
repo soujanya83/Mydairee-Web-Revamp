@@ -126,7 +126,7 @@
 
 
     <!-- Modal Form -->
-    <div class="modal fade" id="addCenterModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+    <div class="modal" id="addCenterModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -182,7 +182,7 @@
     </div>
 
 
-    <div class="modal fade" id="editcenterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal" id="editcenterModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="editcenterForm">

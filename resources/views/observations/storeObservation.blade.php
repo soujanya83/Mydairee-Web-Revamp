@@ -1408,7 +1408,8 @@
 <!-- Buttons -->
 <div class="tab-pane {{ $activeTab == 'link' ? 'show active' : '' }}" id="Contact">
     <button type="button" class="btn btn-primary mb-3" id="btnLinkObservation">+ Link Observation</button>
-    <button type="button" class="btn btn-secondary mb-3 ml-2">+ Link Reflection</button>
+    <button type="button" class="btn btn-secondary mb-3 ml-2" id="btnLinkReflection">+ Link Reflection</button>
+    <button type="button" class="btn btn-info mb-3 ml-2" id="btnLinkProgramPlan">+ Link Program Plan</button>
 
     @if(isset($observation) && $observation->links->where('linktype', 'OBSERVATION')->count())
     <p>Linked Observations</p>
@@ -1440,8 +1441,77 @@
 @endif
 
 
+
+
+
+@if(isset($observation) && $observation->links->where('linktype', 'REFLECTION')->count())
+    <p>Linked Reflections</p>
+    <div class="row mt-4">
+        @foreach($observation->links->where('linktype', 'REFLECTION') as $link)
+            @php
+                $linked = \App\Models\Reflection::with(['media', 'creator'])->find($link->linkid);
+            @endphp
+
+            @if($linked)
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 shadow-sm obs-card">
+                        @php
+                           $media = $linked->media->first();
+                           $imageUrl = $media && $media->mediaUrl ? asset($media->mediaUrl) : 'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
+                       @endphp
+
+                        <img src="{{ $imageUrl }}" class="card-img-top obs-img" alt="{{ $linked->title ?? 'Untitled' }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{!! $linked->title ?? 'Untitled' !!}</h5>
+                            <p class="card-text"><small class="text-muted">Created by: {{ $linked->creator->name ?? 'Unknown' }}</small></p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endforeach
+    </div>
+@endif
+
+
+
+@if(isset($observation) && $observation->links->where('linktype', 'PROGRAMPLAN')->count())
+    <p>Linked Program Plans</p>
+    <div class="row mt-4">
+        @foreach($observation->links->where('linktype', 'PROGRAMPLAN') as $link)
+            @php
+                $linked = \App\Models\ProgramPlanTemplateDetailsAdd::with(['room', 'creator'])->find($link->linkid);
+            @endphp
+
+            @if($linked)
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 shadow-sm obs-card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                @php
+                                    $monthNames = [
+                                        1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                                        5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                                        9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                                    ];
+                                    $monthName = $monthNames[$linked->months] ?? 'Unknown Month';
+                                @endphp
+                                {{ $monthName }} {{ $linked->year }}
+                            </h5>
+                            <p class="card-text"><strong>Room:</strong> {{ $linked->room->name ?? 'Unknown Room' }}</p>
+                            <p class="card-text"><small class="text-muted">Created by: {{ $linked->creator->name ?? 'Unknown' }}</small></p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endforeach
+    </div>
+@endif
+
+
+
+
     <!-- Modal -->
-    <div class="modal fade" id="observationModal" tabindex="-1" role="dialog" aria-labelledby="obsModalLabel" aria-hidden="true">
+    <div class="modal" id="observationModal" tabindex="-1" role="dialog" aria-labelledby="obsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1462,8 +1532,45 @@
 </div>
 
 
+<!-- Reflection Modal -->
+<div class="modal" id="reflectionModal" tabindex="-1" role="dialog" aria-labelledby="refModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Reflections</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto;max-height:550px;">
+                <input type="text" id="searchReflection" class="form-control mb-3" placeholder="Search by title...">
+                <div id="reflectionList" class="row mb-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="submitSelectedRef" class="btn btn-success">Submit Selected Reflections</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
+
+<!-- Program Plan Modal -->
+<div class="modal" id="programPlanModal" tabindex="-1" role="dialog" aria-labelledby="ppModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Program Plans</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto;max-height:550px;">
+                <input type="text" id="searchProgramPlan" class="form-control mb-3" placeholder="Search by month name...">
+                <div id="programPlanList" class="row mb-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="submitSelectedPP" class="btn btn-success">Submit Selected Program Plans</button>
+            </div>
+        </div>
+    </div>
+</div>
 
               <!-- end ASSESSMENT -->
 
@@ -1484,7 +1591,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
+<div class="modal" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header d-flex align-items-center justify-content-between">
@@ -1507,7 +1614,7 @@
 
 
 
-<div class="modal fade" id="roomsModal" tabindex="-1">
+<div class="modal" id="roomsModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header d-flex justify-content-between">
@@ -2476,6 +2583,262 @@ document.getElementById('submitSelectedObs').addEventListener('click', function 
 });
 
 
+
+
+let selectedReflectionIds = [];
+
+// Existing observation code remains the same...
+
+// Reflection functionality
+document.getElementById('btnLinkReflection').addEventListener('click', function () {
+    $('#reflectionModal').modal('show');
+    fetchReflections('');
+});
+
+document.getElementById('searchReflection').addEventListener('keyup', function () {
+    let query = this.value;
+    fetchReflections(query);
+});
+
+function fetchReflections(query) {
+    const obsId = $('#observation_id').val();
+
+    fetch(`/observation/reflectionslink?search=${encodeURIComponent(query)}&obsId=${obsId}`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('reflectionList');
+            container.innerHTML = '';
+
+            const reflections = data.reflections;
+            const linkedIds = data.linked_ids.map(id => id.toString());
+
+            // Merge initially fetched linked IDs into selectedReflectionIds
+            linkedIds.forEach(id => {
+                if (!selectedReflectionIds.includes(id)) selectedReflectionIds.push(id);
+            });
+
+            if (reflections.length === 0) {
+                container.innerHTML = '<p class="text-center col-12">No reflections found.</p>';
+                return;
+            }
+
+            reflections.forEach(ref => {
+                const imageUrl = ref.media?.[0]?.mediaUrl
+                    ? `/${ref.media[0].mediaUrl}`
+                    : 'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
+
+                const title = ref.title ?? 'Untitled';
+                const createdBy = ref.creator?.name ?? 'Unknown';
+                const isChecked = selectedReflectionIds.includes(ref.id.toString()) ? 'checked' : '';
+
+                const card = `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 shadow-sm obs-card">
+                            <img src="${imageUrl}" class="card-img-top obs-img" alt="${title}">
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input ref-checkbox" type="checkbox" value="${ref.id}" id="ref${ref.id}" ${isChecked}>
+                                    <label class="form-check-label" for="ref${ref.id}">${title}</label>
+                                </div>
+                                <p class="card-text"><small class="text-muted">Created by: ${createdBy}</small></p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+
+            // Rebind checkbox events
+            document.querySelectorAll('.ref-checkbox').forEach(cb => {
+                cb.addEventListener('change', function () {
+                    const id = this.value;
+                    if (this.checked) {
+                        if (!selectedReflectionIds.includes(id)) selectedReflectionIds.push(id);
+                    } else {
+                        selectedReflectionIds = selectedReflectionIds.filter(item => item !== id);
+                    }
+                });
+            });
+        });
+}
+
+document.getElementById('submitSelectedRef').addEventListener('click', function () {
+    const obsId = $('#observation_id').val();
+    let $button = $(this);
+    let originalText = $button.html();
+
+    if (!obsId) {
+        showToast('error', 'Please create the observation first');
+        $button.html(originalText).prop('disabled', false);
+        return;
+    }
+
+    if (selectedReflectionIds.length === 0) {
+        showToast('error', 'Please select at least one reflection.');
+        return;
+    }
+
+    $button.html('Saving...').prop('disabled', true);
+
+    fetch('/observation/submit-selectedreflink', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ reflection_ids: selectedReflectionIds, obsId: obsId })
+    })
+    .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw { status: response.status, data };
+
+        showToast('success', 'Reflections linked successfully!');
+        $button.html('Saved!');
+        setTimeout(() => {
+            window.location.href = `/observation/addnew/${data.id}/link`;
+        }, 100);
+    })
+    .catch(err => {
+        $button.html(originalText).prop('disabled', false);
+
+        if (err.status === 422 && err.data.errors) {
+            Object.values(err.data.errors).forEach(error => showToast('error', error[0]));
+        } else {
+            showToast('error', 'Server error occurred');
+        }
+    });
+});
+
+
+
+let selectedProgramPlanIds = [];
+
+// Month names mapping for search
+const monthNames = {
+    1: 'January', 2: 'February', 3: 'March', 4: 'April',
+    5: 'May', 6: 'June', 7: 'July', 8: 'August',
+    9: 'September', 10: 'October', 11: 'November', 12: 'December'
+};
+
+// Existing observation and reflection code remains the same...
+
+// Program Plan functionality
+document.getElementById('btnLinkProgramPlan').addEventListener('click', function () {
+    $('#programPlanModal').modal('show');
+    fetchProgramPlans('');
+});
+
+document.getElementById('searchProgramPlan').addEventListener('keyup', function () {
+    let query = this.value;
+    fetchProgramPlans(query);
+});
+
+function fetchProgramPlans(query) {
+    const obsId = $('#observation_id').val();
+
+    fetch(`/observation/programplanslink?search=${encodeURIComponent(query)}&obsId=${obsId}`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('programPlanList');
+            container.innerHTML = '';
+
+            const programPlans = data.program_plans;
+            const linkedIds = data.linked_ids.map(id => id.toString());
+
+            // Merge initially fetched linked IDs into selectedProgramPlanIds
+            linkedIds.forEach(id => {
+                if (!selectedProgramPlanIds.includes(id)) selectedProgramPlanIds.push(id);
+            });
+
+            if (programPlans.length === 0) {
+                container.innerHTML = '<p class="text-center col-12">No program plans found.</p>';
+                return;
+            }
+
+            programPlans.forEach(pp => {
+                const monthName = monthNames[pp.months] || 'Unknown Month';
+                const title = `${monthName} ${pp.years}`;
+                const roomName = pp.room?.name ?? 'Unknown Room';
+                const createdBy = pp.creator?.name ?? 'Unknown';
+                const isChecked = selectedProgramPlanIds.includes(pp.id.toString()) ? 'checked' : '';
+
+                const card = `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 shadow-sm obs-card">
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input pp-checkbox" type="checkbox" value="${pp.id}" id="pp${pp.id}" ${isChecked}>
+                                    <label class="form-check-label" for="pp${pp.id}"><strong>${title}</strong></label>
+                                </div>
+                                <p class="card-text"><strong>Room:</strong> ${roomName}</p>
+                                <p class="card-text"><small class="text-muted">Created by: ${createdBy}</small></p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+
+            // Rebind checkbox events
+            document.querySelectorAll('.pp-checkbox').forEach(cb => {
+                cb.addEventListener('change', function () {
+                    const id = this.value;
+                    if (this.checked) {
+                        if (!selectedProgramPlanIds.includes(id)) selectedProgramPlanIds.push(id);
+                    } else {
+                        selectedProgramPlanIds = selectedProgramPlanIds.filter(item => item !== id);
+                    }
+                });
+            });
+        });
+}
+
+document.getElementById('submitSelectedPP').addEventListener('click', function () {
+    const obsId = $('#observation_id').val();
+    let $button = $(this);
+    let originalText = $button.html();
+
+    if (!obsId) {
+        showToast('error', 'Please create the observation first');
+        $button.html(originalText).prop('disabled', false);
+        return;
+    }
+
+    if (selectedProgramPlanIds.length === 0) {
+        showToast('error', 'Please select at least one program plan.');
+        return;
+    }
+
+    $button.html('Saving...').prop('disabled', true);
+
+    fetch('/observation/submit-selectedpplink', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ program_plan_ids: selectedProgramPlanIds, obsId: obsId })
+    })
+    .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw { status: response.status, data };
+
+        showToast('success', 'Program Plans linked successfully!');
+        $button.html('Saved!');
+        setTimeout(() => {
+            window.location.href = `/observation/addnew/${data.id}/link`;
+        }, 100);
+    })
+    .catch(err => {
+        $button.html(originalText).prop('disabled', false);
+
+        if (err.status === 422 && err.data.errors) {
+            Object.values(err.data.errors).forEach(error => showToast('error', error[0]));
+        } else {
+            showToast('error', 'Server error occurred');
+        }
+    });
+});
 
 
 </script>

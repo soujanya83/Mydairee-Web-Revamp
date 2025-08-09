@@ -773,7 +773,7 @@ input[type="radio"]:checked + .radio-pill {
 
 <!-- Signature Modal -->
 
-<div class="modal fade" id="signModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="opacity: 1;">
+<div class="modal" id="signModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="opacity: 1;">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">

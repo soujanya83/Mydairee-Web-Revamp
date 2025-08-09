@@ -7,6 +7,7 @@
 {{--
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
     .top-right-button-container {
@@ -292,7 +293,7 @@
                                 <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a>
                                 <input type="checkbox" name="child_ids[]" value="{{ $child->id }}"
                                     class="child-checkbox mr-2"
-                                    style="margin-left: 148px;z-index: 1;width: 15px; height: 15px;">
+                                    style="margin-left: 140px;z-index: 1;width: 15px; height: 15px;">
                             </div>
                         </div>
                         @endforeach
@@ -339,7 +340,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="manageEducatorsModal" tabindex="-1" aria-labelledby="manageEducatorsModalLabel"
+<div class="modal" id="manageEducatorsModal" tabindex="-1" aria-labelledby="manageEducatorsModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content card">
@@ -353,14 +354,14 @@
                 <div class="modal-body">
                     @foreach ($AllEducators as $educator)
                     <div class="form-check d-flex align-items-center mb-2">
-                        <img src="{{ asset('storage/' . $educator->imageUrl) }}" class="rounded-circle ms-2 me-2"
+                        <img src="{{ asset($educator->imageUrl) }}" class="rounded-circle ms-2 me-2"
                             width="40" height="40">
 
                         <input class="form-check-input" type="checkbox" name="educators[]"
                             value="{{ $educator->userid }}" {{ in_array($educator->userid, $assignedEducatorIds) ?
                         'checked' : '' }}>
 
-                        <label class="form-check-label">{{ $educator->name }}</label>
+                       &nbsp;&nbsp;&nbsp; <label class="form-check-label">{{ $educator->name }}</label>
                     </div>
                     @endforeach
 
@@ -376,7 +377,7 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="newChildModal" tabindex="-1" role="dialog" aria-labelledby="newChildModalLabel"
+<div class="modal" id="newChildModal" tabindex="-1" role="dialog" aria-labelledby="newChildModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -644,6 +645,7 @@
     });
 </script>
 
+<script src="/js/bootstrap.bundle.min.js"></script>
 
 
 

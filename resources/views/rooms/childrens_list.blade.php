@@ -18,8 +18,11 @@
     .dropdown-menu {
         z-index: 9999;
     }
-</style>
 
+    #roomDropdown+.dropdown-menu {
+        margin-top: -7px !important;
+    }
+</style>
 
 @section('content')
 
@@ -45,12 +48,49 @@
     </button>
 </div>
 @endif
+<form method="GET" action="{{ route('childrens_list') }}"
+    class="d-flex justify-content-end align-items-center"
+    style="margin-top: -49px; margin-right: 30px;"
+    id="roomFilterForm">
+
+    <div class="dropdown" style="position: relative;">
+        <button class="btn btn-outline-info dropdown-toggle" type="button" id="roomDropdown">
+            {{ $selectedRoom ? $rooms->firstWhere('id', $selectedRoom)->name : '-- All Rooms --' }}
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end"
+            style="max-height: 300px; overflow-y: auto; position: absolute; right: 0; top: 100%; display: none; z-index: 999;">
+
+            <li>
+                <a class="dropdown-item" href="#"
+                   onclick="selectRoom('', '-- All Rooms --'); return false;">
+                    -- All Rooms --
+                </a>
+            </li>
+
+            @foreach($rooms as $room)
+                <li>
+                    <a class="dropdown-item" href="#"
+                       onclick="selectRoom('{{ $room->id }}', '{{ $room->name }}'); return false;">
+                        {{ $room->name }}
+                    </a>
+                </li>
+            @endforeach
+        </ul>
+
+        <input type="hidden" name="roomId" id="roomInput" value="{{ $selectedRoom }}">
+    </div>
+</form>
 
 
 
 
 <hr>
-<div class="row">
+<div class="row mb-5" >
+
+
+
+
     @foreach($chilData as $child)
     <div class="col-md-3 mb-2">
         <div class="card shadow rounded-lg">
@@ -58,18 +98,19 @@
 
             @endphp
 
-            <img src="{{ $child->imageUrl ? asset($child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}" class="card-img-top"
-                style="height: 200px; object-fit: cover;border-radius: 8px;padding: 5px;" alt="{{ $child->name }}">
+            <img src="{{ $child->imageUrl ? asset($child->imageUrl) : 'http://www.mydiaree.com.au/assets/img/MYDIAREE-new-logo.png' }}"
+                class="card-img-top" style="height: 200px; object-fit: cover;border-radius: 8px;padding: 5px;"
+                alt="{{ $child->name }}">
 
             <div class="card-body">
                 <h5 class="card-title">{{ $child->childname }} {{ $child->lastname }}</h5>
 
                 <div class="mb-2">
-                    <span class="badge bg-info text-white">Date of Birth:
+                    <span class="badge bg-info text-white">DOB:
                         {{ optional($child->dob ? \Carbon\Carbon::parse($child->dob) : null)->format('d / M / Y') ??
                         'N/A' }}
                     </span>
-                    <span class="badge bg-light text-dark">
+                    <span class="badge bg-light text-dark" style="margin-left:10px">
                         @if(strtolower($child->gender) == 'male')
                         <i class="fas fa-mars"></i> Male
                         @else
@@ -104,5 +145,29 @@
 </div>
 
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const dropdownToggle = document.getElementById("roomDropdown");
+    const dropdownMenu = dropdownToggle.nextElementSibling;
+
+    dropdownToggle.addEventListener("click", function (event) {
+        event.preventDefault();
+        dropdownMenu.style.display =
+            dropdownMenu.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.style.display = "none";
+        }
+    });
+});
+
+function selectRoom(id, name) {
+    document.getElementById('roomInput').value = id;
+    document.getElementById('roomDropdown').textContent = name;
+    document.getElementById('roomFilterForm').submit();
+}
+</script>
 @include('layout.footer')
 @stop
