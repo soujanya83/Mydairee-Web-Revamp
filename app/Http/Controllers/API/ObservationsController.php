@@ -630,6 +630,15 @@ public function storepage(Request $request)
     $observation = null;
     if ($id) {
         $observation = Observation::with(['media','child.child','montessoriLinks','eylfLinks','devMilestoneSubs','links'])->find($id);
+//   $observation = Observation::with([
+//     'media',
+//     'child.child',
+//     'montessoriLinks',
+//     'eylfLinks',
+//     'devMilestoneSubs',
+//     'links.linkedObservation:id,title,status'
+// ])->find($id);
+
     }
 
     $childrens = $observation

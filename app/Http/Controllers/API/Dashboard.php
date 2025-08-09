@@ -13,6 +13,8 @@ use App\Models\Usercenter;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AnnouncementChildModel;
+use App\Models\Childparent;
+use Carbon\Carbon;
 
 class Dashboard extends Controller
 {
@@ -41,7 +43,54 @@ public function university()
     ]);
 }
 
-   public function getEvents()
+//    public function getEvents()
+// {
+//     $auth = Auth::user();
+//     $userid = $auth->userid;
+//     $usertype = $auth->userType;
+
+//     // Base query
+//     $query = AnnouncementsModel::query();
+
+//     if ($usertype === 'Parent') {
+//         // 1. Get all children for this parent
+//         $childIds = Child::where('user_id', $userid)->pluck('id');
+
+//         // 2. Get announcement IDs linked to these children
+//         $announcementIds = AnnouncementChildModel::whereIn('childid', $childIds)
+//             ->pluck('aid');
+
+//         // 3. Filter announcements for these IDs
+//         $query->whereIn('id', $announcementIds);
+//     }
+
+//     // 4. Fetch announcements & format for JSON
+//     $events = $query->get()->map(function ($announcement) {
+//         return [
+//             'id'                => $announcement->id,
+//             'title'             => $announcement->title,
+//             'text'              => $announcement->text ?? '',
+//             'status'            => $announcement->status ?? '',
+//             'announcementMedia' => $announcement->announcementMedia ?? '',
+//             'eventDate'         => $announcement->eventDate 
+//                                     ? $announcement->eventDate->format('Y-m-d')
+//                                     : null,
+//             'createdAt'         => $announcement->createdAt 
+//                                     ? $announcement->createdAt->format('Y-m-d H:i:s')
+//                                     : null,
+//             'start'             => $announcement->eventDate 
+//                                     ? $announcement->eventDate->format('Y-m-d')
+//                                     : $announcement->createdAt->format('Y-m-d'),
+//         ];
+//     });
+
+//     return response()->json([
+//         'status'  => true,
+//         'message' => 'Events fetched successfully',
+//         'events'  => $events,
+//     ]);
+// }
+public function getEvents()
 {
     $auth = Auth::user();
     $userid = $auth->userid;
@@ -70,15 +119,15 @@ public function university()
             'text'              => $announcement->text ?? '',
             'status'            => $announcement->status ?? '',
             'announcementMedia' => $announcement->announcementMedia ?? '',
-            'eventDate'         => $announcement->eventDate 
-                                    ? $announcement->eventDate->format('Y-m-d')
+            'eventDate'         => $announcement->eventDate
+                                    ? Carbon::parse($announcement->eventDate)->format('Y-m-d')
                                     : null,
-            'createdAt'         => $announcement->createdAt 
-                                    ? $announcement->createdAt->format('Y-m-d H:i:s')
+            'createdAt'         => $announcement->createdAt
+                                    ? Carbon::parse($announcement->createdAt)->format('Y-m-d H:i:s')
                                     : null,
-            'start'             => $announcement->eventDate 
-                                    ? $announcement->eventDate->format('Y-m-d')
-                                    : $announcement->createdAt->format('Y-m-d'),
+            'start'             => $announcement->eventDate
+                                    ? Carbon::parse($announcement->eventDate)->format('Y-m-d')
+                                    : Carbon::parse($announcement->createdAt)->format('Y-m-d'),
         ];
     });
 
@@ -89,27 +138,26 @@ public function university()
     ]);
 }
 
-
- public function getUser()
+public function getUser()
 {
     $auth = Auth::user();
     $userid = $auth->userid;
-    $usertype = $auth->userType;
+    $usertype = strtolower($auth->userType); // normalize case
 
-    if ($usertype === 'parents') {
-        // Show only children of the logged-in parent
-        $children = Child::where('user_id', $userid)->get();
+    if ($usertype === 'parent') {
+        // Get IDs of children linked to the logged-in parent
+        $childIds = Childparent::where('parentid', $userid)->pluck('childid'); 
+        $children = Child::whereIn('id', $childIds)->get();
     } else {
-        // Show all children for other user types (admin, teacher, etc.)
+        // Show all children for other user types
         $children = Child::all();
     }
 
-    $data = [
-        'status' => true,
+    return response()->json([
+        'status'  => true,
         'message' => 'Children fetched successfully',
-        'data' => $children
-    ];
-
-    return response()->json($data);
+        'data'    => $children
+    ]);
 }
+
 }
