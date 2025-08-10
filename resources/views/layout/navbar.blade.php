@@ -1,3 +1,4 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 <style>
     .navbar-fixed-top .navbar-brand img {
@@ -44,20 +45,17 @@
     }
 
     .dropdown-menu {
-    border-radius: 8px;
-    font-size: 14px;
-}
+        border-radius: 8px;
+        font-size: 14px;
+    }
 
-.dropdown-item:hover {
-    background-color: #f8f9fa;
-}
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
 
-.dropdown-menu .text-muted {
-    line-height: 1.4;
-}
-
-
-
+    .dropdown-menu .text-muted {
+        line-height: 1.4;
+    }
 </style>
 <nav class="navbar navbar-fixed-top" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
     <div class="container-fluid">
@@ -66,8 +64,8 @@
         </div>
 
         <div class="navbar-brand" style="margin-top: -12px;">
-            <a href="/"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}"
-                    alt="Lucid Logo" class="img-responsive logo"></a>
+            <a href="/"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}" alt="Lucid Logo"
+                    class="img-responsive logo"></a>
         </div>
         <a class="btn btn-xs btn-link btn-toggle-fullwidth">
             <i class="fa fa-bars" style="font-size: 22px"></i>
@@ -75,7 +73,7 @@
 
 
         <div class="navbar-right">
-            <form id="navbar-search" class="navbar-form search-form">
+            <form id="navbar-search" class="navbar-form search-form mt-3">
                 <input value="" class="form-control" placeholder="Search here..." type="text" style="width: 360px;">
                 <button type="button" class="btn btn-default"><i class="icon-magnifier"></i></button>
             </form>
@@ -177,75 +175,54 @@
                     </li>
 
                     {{-- Profile Dropdown --}}
-                    <li class="nav-item dropdown" style="margin-right: 60px;">
-                        <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false" style="color:black">
-                            <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
-                                class="rounded-circle mr-2 mt-2" style="width: 40px; height: 40px; object-fit: cover;">
-                            <strong style="color:black;font-size:16px"> &nbsp; {{ Auth::user()->name }}</strong>
-                        </a>
 
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-                            <li class="dropdown-header text-center">
-                                <span style="font-size: 18px;float:left;line-height: 2;"><i class="fa fa-user me-2 mb-2"></i> {{
-                                    Auth::user()->name }}</span><br>
-                                <span style="font-size: 13px; float: left;" class="">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    (
-                                    @if (Auth::user()->userType == 'Superadmin')
-                                    SuperAdmin
-                                    @else
-                                    {{ Auth::user()->userType }}
-                                    @endif
-                                    )
-                                </span>
-                                <br>
-                                {{-- <span style="font-size: 16px;float:left;"> <i class="fa fa-envelope me-2"></i> {{
-                                    Auth::user()->email }} </span> --}}
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="{{ route('settings.profile') }}"><i
-                                        class="fa fa-user me-2"></i> &nbsp; My Profile</a></li>
-                            <hr>
-                            <li><a class="dropdown-item text-danger" href="{{ route('logout') }}"><i
-                                        class="fa fa-power-off me-2"></i> &nbsp; Logout</a></li>
-                        </ul>
-                    </li>
 
-                    {{-- <li class="nav-item dropdown" style="margin-right: 20px;">
-    <a href="#" class="nav-link dropdown-toggle d-flex align-items-end p-0" id="userDropdown" role="button"
-       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:black;">
+                   <li class="nav-item dropdown mt-2" style="margin-right: 63px; position: relative;">
+    <a href="#" class="nav-link d-flex align-items-center p-0" id="userDropdown"
+        style="color:black; cursor: pointer;">
         <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
-             class="rounded-circle mr-2" style="width: 36px; height: 36px; object-fit: cover;">
-        <span class="d-none d-sm-inline-block font-weight-bold" style="font-size: 15px; line-height: 1;">
-            {{ Str::limit(Auth::user()->name, 20) }}
+            class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+        <span class="font-weight-bold" style="font-size: 15px;">
+            &nbsp;&nbsp;{{ Str::limit(Auth::user()->name, 20) }}
         </span>
     </a>
 
-    <div class="dropdown-menu dropdown-menu-right shadow-sm" aria-labelledby="userDropdown" style="min-width: 230px; top : 48px !important; left :-6px !important;margin-top:48px;">
+    <div class="dropdown-menu dropdown-menu-end shadow-sm" id="userDropdownMenu"
+        style="min-width: 230px; display: none; position: absolute; top: 100%; right: 0;">
         <div class="px-3 py-2">
-            <div class="font-weight-bold text-truncate" style="font-size: 15px;">
-                <i class="fa fa-user mr-2"></i>{{ Auth::user()->name }}
-            </div>
-            <div class="text-muted text-truncate" style="font-size: 13px;">
-                <i class="fa fa-envelope mr-2"></i>{{ Auth::user()->email }}
+            <div class="fw-bold text-truncate" style="font-size: 15px;">
+               &nbsp;&nbsp;<i class="fa fa-user me-2"></i> &nbsp;{{ Auth::user()->name }}
             </div>
         </div>
 
         <div class="dropdown-divider"></div>
 
         <a class="dropdown-item" href="{{ route('settings.profile') }}">
-            <i class="fa fa-user mr-2 text-primary"></i> My Profile
+            <i class="fa fa-user me-2 text-primary"></i>&nbsp; My Profile
         </a>
 
         <a class="dropdown-item text-danger" href="{{ route('logout') }}">
-            <i class="fa fa-power-off mr-2"></i> Logout
+            <i class="fa fa-power-off me-2"></i>&nbsp; Logout
         </a>
     </div>
-</li> --}}
+</li>
 
+<script>
+    const userDropdown = document.getElementById('userDropdown');
+    const dropdownMenu = document.getElementById('userDropdownMenu');
+
+    userDropdown.addEventListener('click', function (e) {
+        e.preventDefault();
+        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Optional: close dropdown if clicking outside
+    document.addEventListener('click', function (e) {
+        if (!userDropdown.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.style.display = 'none';
+        }
+    });
+</script>
 
 
 
@@ -317,5 +294,3 @@
         }, 300);
     }
 </script>
-
-

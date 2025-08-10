@@ -20,6 +20,8 @@ use App\Http\Controllers\API\ReflectionController;
 use App\Http\Controllers\API\DailyDiaryController;
 use App\Http\Controllers\API\SettingsController;
 use App\Http\Controllers\API\LnPcontroller;
+use App\Http\Controllers\API\Dashboard;
+
 
 
 
@@ -38,6 +40,15 @@ Route::post('/store', [RagisterController::class, 'store']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
+
+            Route::get('announcements/events', [Dashboard::class, 'getEvents'])->name('announcements.events');
+//             Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
+// Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
+Route::get('dashboard/analytical', [Dashboard::class, 'analytical'])->name('dashboard.analytical');
+Route::get('/api/events', [Dashboard::class, 'getEvents']);
+  Route::get('/dashboard', [Dashboard::class, 'university'])->name('dashboard.university');
+     Route::get('users/birthday', [Dashboard::class, 'getUser'])->name('users..birthday');
+     Route::get('/api/events', [Dashboard::class, 'getEvents']);
 
         Route::prefix('snapshot')->name('snapshot.')->group(function () {
 

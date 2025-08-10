@@ -71,4 +71,6 @@ public function comments()
     return $this->hasMany(ObservationComment::class, 'observationId');
 }
 
+
+
 }

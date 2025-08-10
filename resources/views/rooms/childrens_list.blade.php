@@ -24,7 +24,6 @@
     }
 </style>
 
-
 @section('content')
 
 @if ($errors->any())
@@ -49,34 +48,42 @@
     </button>
 </div>
 @endif
-
-<form method="GET" action="{{ route('childrens_list') }}" class="d-flex justify-content-end align-items-center" style="margin-top: -49px;
-    margin-right: 30px;"
+<form method="GET" action="{{ route('childrens_list') }}"
+    class="d-flex justify-content-end align-items-center"
+    style="margin-top: -49px; margin-right: 30px;"
     id="roomFilterForm">
-    <div class="dropdown">
-        <button class="btn btn-outline-info dropdown-toggle" type="button" id="roomDropdown" data-bs-toggle="dropdown"
-            aria-expanded="false">
+
+    <div class="dropdown" style="position: relative;">
+        <button class="btn btn-outline-info dropdown-toggle" type="button" id="roomDropdown">
             {{ $selectedRoom ? $rooms->firstWhere('id', $selectedRoom)->name : '-- All Rooms --' }}
         </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="roomDropdown"
-            style="max-height: 300px; overflow-y: auto;">
+
+        <ul class="dropdown-menu dropdown-menu-end"
+            style="max-height: 300px; overflow-y: auto; position: absolute; right: 0; top: 100%; display: none; z-index: 999;">
+
             <li>
-                <a class="dropdown-item" href="#" onclick="selectRoom('', '-- All Rooms --'); return false;">
+                <a class="dropdown-item" href="#"
+                   onclick="selectRoom('', '-- All Rooms --'); return false;">
                     -- All Rooms --
                 </a>
             </li>
+
             @foreach($rooms as $room)
-            <li>
-                <a class="dropdown-item" href="#"
-                    onclick="selectRoom('{{ $room->id }}', '{{ $room->name }}'); return false;">
-                    {{ $room->name }}
-                </a>
-            </li>
+                <li>
+                    <a class="dropdown-item" href="#"
+                       onclick="selectRoom('{{ $room->id }}', '{{ $room->name }}'); return false;">
+                        {{ $room->name }}
+                    </a>
+                </li>
             @endforeach
         </ul>
+
         <input type="hidden" name="roomId" id="roomInput" value="{{ $selectedRoom }}">
     </div>
 </form>
+
+
+
 
 <hr>
 <div class="row mb-5" >
@@ -99,11 +106,11 @@
                 <h5 class="card-title">{{ $child->childname }} {{ $child->lastname }}</h5>
 
                 <div class="mb-2">
-                    <span class="badge bg-info text-white">Date of Birth:
+                    <span class="badge bg-info text-white">DOB:
                         {{ optional($child->dob ? \Carbon\Carbon::parse($child->dob) : null)->format('d / M / Y') ??
                         'N/A' }}
                     </span>
-                    <span class="badge bg-light text-dark" style="margin-left:26px">
+                    <span class="badge bg-light text-dark" style="margin-left:10px">
                         @if(strtolower($child->gender) == 'male')
                         <i class="fas fa-mars"></i> Male
                         @else
@@ -137,8 +144,26 @@
     @endforeach
 </div>
 
+
 <script>
-    function selectRoom(id, name) {
+document.addEventListener("DOMContentLoaded", function () {
+    const dropdownToggle = document.getElementById("roomDropdown");
+    const dropdownMenu = dropdownToggle.nextElementSibling;
+
+    dropdownToggle.addEventListener("click", function (event) {
+        event.preventDefault();
+        dropdownMenu.style.display =
+            dropdownMenu.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.style.display = "none";
+        }
+    });
+});
+
+function selectRoom(id, name) {
     document.getElementById('roomInput').value = id;
     document.getElementById('roomDropdown').textContent = name;
     document.getElementById('roomFilterForm').submit();
