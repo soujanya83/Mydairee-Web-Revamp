@@ -18,7 +18,70 @@ use Illuminate\Support\Str;
 class RoomController extends Controller
 {
 
+ public function assignEducators(Request $request, $roomid)
+    {
+        DB::table('room_staff')->where('roomid', $roomid)->delete();
+        if ($request->has('educators')) {
+            foreach ($request->educators as $staffid) {
+                DB::table('room_staff')->updateOrInsert(
+                    ['roomid' => $roomid, 'staffid' => $staffid], // Unique constraint
+                    [] // No fields to update (only insert if not exists)
+                );
+            }
+        }
 
+        return redirect()->back()->with('success', 'Educators updated successfully.');
+    }
+
+
+    public function rooms_update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'room_name' => 'required|string|max:255',
+            'room_capacity' => 'required|integer|min:1',
+            'ageFrom' => 'required|numeric|min:0',
+            'ageTo' => 'required|numeric|min:' . $request->input('ageFrom'),
+            'room_status' => 'required|in:Active,Inactive',
+            'room_color' => 'required|string',
+            'educators' => 'array',
+            'educators.*' => 'exists:users,userid',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $room = Room::findOrFail($id);
+            $room->update([
+                'name' => $request->input('room_name'),
+                'capacity' => $request->input('room_capacity'),
+                'ageFrom' => $request->input('ageFrom'),
+                'ageTo' => $request->input('ageTo'),
+                'status' => $request->input('room_status'),
+                'color' => $request->input('room_color'),
+            ]);
+
+            // Remove existing educators and add new
+            RoomStaff::where('roomid', $id)->delete();
+            if ($request->has('educators')) {
+                foreach ($request->input('educators') as $educatorId) {
+                    RoomStaff::create([
+                        'roomid' => $id,
+                        'staffid' => $educatorId,
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Room updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to update room: ' . $e->getMessage());
+        }
+    }
 
 
     public function update_child_progress(Request $request, $id)
@@ -103,7 +166,7 @@ class RoomController extends Controller
             $userId = $userId - 1;
         }
 
-        $rooms = Room::where('name', '!=', null)->get();
+        $rooms = Room::where('name', '!=', null)->where('userId',$userId)->get();
 
         $chilData = Child::select(
             'child.*',
@@ -292,6 +355,7 @@ class RoomController extends Controller
             'Thu' => $allchilds->sum('thu'),
             'Fri' => $allchilds->sum('fri'),
         ];
+        $centerid = Session('user_center_id');
 
         // Calculate the total sum of children attending across all days
         $totalAttendance = array_sum($attendance);
@@ -322,10 +386,25 @@ class RoomController extends Controller
         $enrolledchilds = Child::where('room', $roomid)->where('status', 'Enrolled')->count();
         $malechilds = Child::where('room', $roomid)->where('gender', 'Male')->count();
         $femalechilds = Child::where('room', $roomid)->where('gender', 'Female')->count();
-        $rooms = Room::where('capacity', '!=', 0)->where('status', 'Active')->get();
+        $rooms = Room::where('capacity', '!=', 0)->where(['status'=> 'Active','centerid'=>$centerid])->get();
         $roomcapacity = Room::where('id', $roomid)->first();
 
-        return view('rooms.children_details', compact('attendance', 'roomcapacity', 'rooms', 'allchilds', 'activechilds', 'enrolledchilds', 'malechilds', 'femalechilds', 'roomid', 'totalAttendance', 'patterns', 'breakdowns'));
+        $educatorsQuery = DB::table('room_staff')
+            ->leftJoin('users', 'users.userid', '=', 'room_staff.staffid')
+            ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl');
+
+        // Get all unique educators (across all rooms)
+        $AllEducators = $educatorsQuery
+            ->groupBy('users.userid', 'users.name', 'users.gender', 'users.imageUrl') // ensure uniqueness
+            ->get();
+
+        // Get educators for a specific room
+        $roomEducators = (clone $educatorsQuery)
+            ->where('room_staff.roomid', $roomid)
+            ->get();
+        $assignedEducatorIds = $roomEducators->pluck('userid')->toArray();
+
+        return view('rooms.children_details', compact('assignedEducatorIds', 'roomEducators', 'AllEducators', 'attendance', 'roomcapacity', 'rooms', 'allchilds', 'activechilds', 'enrolledchilds', 'malechilds', 'femalechilds', 'roomid', 'totalAttendance', 'patterns', 'breakdowns'));
     }
 
 
