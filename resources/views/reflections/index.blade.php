@@ -1145,7 +1145,7 @@ if ($('#filter_author_any').is(':checked')) {
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 0;
         ">
-                                    <img src="${imageUrl}" alt="${childItem.child?.name}" class="child-avatar">
+                                    <img src="${window.location.origin}/${imageUrl}" alt="${childItem.child?.name}" class="child-avatar">
                                     <div class="child-name">${childItem.child?.name}</div>
                                 </div>
                             `;
@@ -1167,7 +1167,7 @@ if ($('#filter_author_any').is(':checked')) {
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
-                                    <img src="${imageUrl}" alt="${staffItem.staff?.name}" class="educator-avatar">
+                                    <img src="${window.location.origin}/${imageUrl}" alt="${staffItem.staff?.name}" class="educator-avatar">
                                     <div class="educator-name">${staffItem.staff?.name}</div>
                                 </div>
                             `;
@@ -1188,7 +1188,7 @@ if ($('#filter_author_any').is(':checked')) {
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
-                                    <img src="${imageUrl}" alt="${parentItem.name}" class="educator-avatar">
+                                    <img src="${window.location.origin}/${imageUrl}" alt="${parentItem.name}" class="educator-avatar">
                                     <div class="educator-name">${parentItem.name}</div>
                                 </div>
                             `;
