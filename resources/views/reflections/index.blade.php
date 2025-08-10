@@ -367,7 +367,8 @@
 
     .modal-right .modal-dialog {
         position: fixed;
-        margin: auto;
+        margin: 0;
+        right: 0; /* Force to right */
         width: 320px;
         height: 100%;
         -webkit-transform: translate3d(0%, 0, 0);
@@ -1194,8 +1195,13 @@ if ($('#filter_author_any').is(':checked')) {
                         });
                     }
 
+                    const statusClass = val.status.toLowerCase() === 'published'
+                            ? 'status-published'
+                            : 'status-draft';
+
                     $('#observations-list').append(`
                         <div class="col-lg-6 col-md-12">
+                        <span class="status-badge ${statusClass}">${val.status}</span>
                             <div class="card reflection-card">
                                 <div class="image-carousel">
                                     ${imagesHtml}

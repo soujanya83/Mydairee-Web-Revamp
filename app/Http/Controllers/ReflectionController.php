@@ -535,6 +535,7 @@ class ReflectionController extends Controller
                     'title' => html_entity_decode($reflection->title ?? ''),
                     'media' => $reflection->media,
                     'children' => $reflection->children,
+                    'status' => $reflection->status,
                     'staff' => $reflection->staff,
                     'created_at_formatted' => \Carbon\Carbon::parse($reflection->created_at)->format('M d, Y'),
                     'seen' => $reflection->seen->map(function ($seen) {
