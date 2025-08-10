@@ -22,4 +22,9 @@ class ObservationLink extends Model
     {
         return $this->belongsTo(Observation::class, 'observationId');
     }
+
+    public function linkedObservation()
+{
+    return $this->belongsTo(Observation::class, 'linkid', 'id');
+}
 }
