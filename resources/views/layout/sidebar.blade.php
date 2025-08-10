@@ -194,8 +194,7 @@
                         Route::is('recipes.Ingredients');
                         @endphp
 
-                        @if(auth()->user()->userType == 'Parent')
-
+                      
                         <li class="{{ $isHealthyActive ? 'active open' : '' }}">
                             <a href="javascript:void(0);" data-toggle="tooltip" data-placement="right" class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -208,16 +207,18 @@
                                 <li class="{{ Route::is('healthy_menu') ? 'active' : '' }}">
                                     <a href="{{ route('healthy_menu') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp;Menu</a>
                                 </li>
+                                @if(auth()->user()->userType != 'Parent')
                                 <li class="{{ Route::is('healthy_recipe') ? 'active' : '' }}">
                                     <a href="{{ route('healthy_recipe') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp;Recipe</a>
                                 </li>
                                 <li class="{{ Route::is('recipes.Ingredients') ? 'active' : '' }}">
                                     <a href="{{ route('recipes.Ingredients') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp;Ingredients</a>
                                 </li>
+                                @endif
                             </ul>
                         </li>
 
-                        @endif
+                     
 
                     @if(auth()->user()->userType != 'Parent')
 
