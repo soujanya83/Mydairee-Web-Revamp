@@ -529,6 +529,63 @@
 
 
 
+
+
+<!-- Parent Login Notice Modal -->
+@if(session('show_parent_notice'))
+<div class="modal fade" id="parentNoticeModal" tabindex="-1" role="dialog" aria-labelledby="parentNoticeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="parentNoticeModalLabel">
+                    <i class="fas fa-info-circle mr-2"></i>Welcome Parent!
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-user-friends fa-3x text-primary mb-3"></i>
+                </div>
+                <h6 class="text-center mb-3">Important Login Notice</h6>
+                <p class="mb-2">Welcome to your parent dashboard! Here are some important points:</p>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-check text-success mr-2"></i>You can view your child's activities and progress</li>
+                    <li class="mb-2"><i class="fas fa-check text-success mr-2"></i>Access reports and communication from teachers</li>
+                    <li class="mb-2"><i class="fas fa-check text-success mr-2"></i>Update your profile and contact information</li>
+                    <li class="mb-2"><i class="fas fa-check text-success mr-2"></i>Contact support if you need any assistance</li>
+                </ul>
+                <div class="alert alert-info mt-3">
+                    <small><i class="fas fa-lightbulb mr-1"></i>This notice will only appear once upon your first login.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                    <i class="fas fa-thumbs-up mr-1"></i>Got it, Thanks!
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#parentNoticeModal').modal('show');
+});
+</script>
+
+{{-- Clear the session flag immediately after displaying --}}
+@php
+    session()->forget('show_parent_notice');
+@endphp
+@endif
+
+
+
+
+
+
 <!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script>
