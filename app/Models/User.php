@@ -35,6 +35,7 @@ class User extends Authenticatable
         'image_position',
         'created_by',
         'email_verified_at',
+        'has_seen_login_notice',
     ];
 
 
