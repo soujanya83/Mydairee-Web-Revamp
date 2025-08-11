@@ -240,6 +240,41 @@
     #lightboxImage {
         cursor: auto;
     }
+
+
+    .lightbox-prev,
+.lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: none;
+    font-size: 36px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: background 0.15s ease;
+    z-index: 1056;
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.lightbox-prev {
+    left: 20px;
+}
+
+.lightbox-next {
+    right: 20px;
+}
+
+
     </style>
 
 
@@ -303,10 +338,18 @@
                         src="{{ asset($mediaItem->mediaUrl) }}" class="child-image" alt="Photo"> </a> @endif @endforeach
             </div>
         </div> <!-- Lightbox Modal (include once per page, can be shared with other galleries) -->
-        <div id="imageLightbox" class="lightbox-overlay" aria-hidden="true"> <button type="button"
-                class="lightbox-close" aria-label="Close">&times;</button> <img id="lightboxImage" src=""
-                alt="Full size image"> </div>
-
+       <!-- Lightbox Modal -->
+<div id="imageLightbox" class="lightbox-overlay" aria-hidden="true">
+    <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
+    
+    <!-- Prev button -->
+    <button type="button" class="lightbox-prev" aria-label="Previous">&#10094;</button>
+    
+    <img id="lightboxImage" src="" alt="Full size image">
+    
+    <!-- Next button -->
+    <button type="button" class="lightbox-next" aria-label="Next">&#10095;</button>
+</div>
 
         <div class="info-block">
             <strong>EYLF Outcomes:</strong>
@@ -320,40 +363,69 @@
 
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var overlay = document.getElementById('imageLightbox');
-        var img = document.getElementById('lightboxImage');
-        var closeBtn = overlay.querySelector(
-            '.lightbox-close'
-            ); // Open on thumbnail click (works for both observation and reflection galleries) 
-        document.querySelectorAll('.photo-thumb').forEach(function(thumb) {
-            thumb.addEventListener('click', function() {
-                var fullUrl = this.getAttribute('data-full');
-                img.src = fullUrl;
-                overlay.classList.add('show');
-                overlay.setAttribute('aria-hidden', 'false');
-                document.body.style.overflow = 'hidden';
-            });
-        });
+  document.addEventListener('DOMContentLoaded', function() {
+    var overlay = document.getElementById('imageLightbox');
+    var img = document.getElementById('lightboxImage');
+    var closeBtn = overlay.querySelector('.lightbox-close');
+    var prevBtn = overlay.querySelector('.lightbox-prev');
+    var nextBtn = overlay.querySelector('.lightbox-next');
 
-        function closeLightbox() {
-            overlay.classList.remove('show');
-            overlay.setAttribute('aria-hidden', 'true');
-            img.src = '';
-            document.body.style.overflow = '';
-        }
-        closeBtn.addEventListener('click', closeLightbox);
-        overlay.addEventListener('click', function(e) {
-            if (e.target === overlay || e.target === closeBtn) {
-                closeLightbox();
-            }
-        });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && overlay.classList.contains('show')) {
-                closeLightbox();
-            }
+    var thumbs = document.querySelectorAll('.photo-thumb');
+    var currentIndex = 0;
+
+    function openLightbox(index) {
+        currentIndex = index;
+        img.src = thumbs[currentIndex].getAttribute('data-full');
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+        img.src = '';
+        document.body.style.overflow = '';
+    }
+
+    function showNext() {
+        currentIndex = (currentIndex + 1) % thumbs.length;
+        img.src = thumbs[currentIndex].getAttribute('data-full');
+    }
+
+    function showPrev() {
+        currentIndex = (currentIndex - 1 + thumbs.length) % thumbs.length;
+        img.src = thumbs[currentIndex].getAttribute('data-full');
+    }
+
+    // Open on thumbnail click
+    thumbs.forEach(function(thumb, index) {
+        thumb.addEventListener('click', function() {
+            openLightbox(index);
         });
     });
+
+    // Button events
+    closeBtn.addEventListener('click', closeLightbox);
+    nextBtn.addEventListener('click', showNext);
+    prevBtn.addEventListener('click', showPrev);
+
+    // Click outside image closes
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay || e.target === closeBtn) {
+            closeLightbox();
+        }
+    });
+
+    // ESC and arrow keys
+    document.addEventListener('keydown', function(e) {
+        if (!overlay.classList.contains('show')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') showNext();
+        if (e.key === 'ArrowLeft') showPrev();
+    });
+});
+
     </script>
 
 
