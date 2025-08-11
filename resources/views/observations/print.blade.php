@@ -356,7 +356,7 @@
         <div class="info-block">
             <strong>Observation:</strong>
             <span class="info-text">
-                {{ strip_tags($observation->title ?? '') }}
+                {!! html_entity_decode($observation->title ?? '') !!}
             </span>
         </div>
 
@@ -388,7 +388,7 @@
         <div class="info-block">
             <strong>Analysis/Evaluation:</strong>
             <span class="info-text">
-                {{ strip_tags($observation->notes ?? '') }}
+                {!! html_entity_decode($observation->notes ?? '') !!}
             </span>
         </div>
 
@@ -396,7 +396,7 @@
         <div class="info-block">
             <strong>Reflection:</strong>
             <span class="info-text">
-                {{ strip_tags($observation->reflection ?? '') }}
+                {!! html_entity_decode($observation->reflection ?? '') !!}
             </span>
         </div>
 
@@ -404,7 +404,7 @@
         <div class="info-block">
             <strong>Child's Voice:</strong>
             <span class="info-text">
-                {{ strip_tags($observation->child_voice ?? 'Not recorded') }}
+                {!! html_entity_decode($observation->child_voice ?? 'Not recorded') !!}
             </span>
         </div>
 
@@ -483,7 +483,7 @@
         <div class="info-block">
             <strong>Future Plan/Extension:</strong>
             <span class="info-text">
-                {{ strip_tags($observation->future_plan ?? '') }}
+                {!! html_entity_decode($observation->future_plan ?? '') !!}
             </span>
         </div>
 
