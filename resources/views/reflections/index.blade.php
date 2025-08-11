@@ -656,10 +656,19 @@
                         </a>
                         @endif
 
+                        @if(Auth::user()->userType != 'Parent')
                         <a href="{{ route('reflection.print', ['id' => $reflectionItem->id]) }}" target="_blank"
                             class="btn btn-print btn-action">
                             <i class="fas fa-print"></i> Print
                         </a>
+                        @else
+                        <a href="{{ route('reflection.print', ['id' => $reflectionItem->id]) }}" target="_blank"
+                            class="btn btn-print btn-action">
+                            <i class="fas fa-print"></i> View
+                        </a>
+                        @endif
+
+
                         @if(!empty($permissions['deletereflection']) && $permissions['deletereflection'])
 
                         <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">

@@ -97,9 +97,15 @@
                                     <a href="{{ route('dailyDiary.list') }}" data-toggle="tooltip" data-placement="right" > &nbsp;Daily Diary</a>
                                 </li>
                                 @endif
+                            
+                                @if(auth()->user()->userType != 'Parent')
+
                                 <li class="{{ Route::is('headChecks') ? 'active' : '' }}">
                                     <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right" >   &nbsp;Head Checks</a>
                                 </li>
+
+                                @endif
+
                                 <li class="{{ Route::is('sleepcheck.list') ? 'active' : '' }}">
                                     <a href="{{ route('sleepcheck.list') }}" data-toggle="tooltip" data-placement="right" >  &nbsp;Sleep Check List</a>
                                 </li>
@@ -184,7 +190,7 @@
                         <li class="{{ Request::is('learningandprogress*') ? 'active' : null }}">
                             <a href="{{ route('learningandprogress.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-chart-simple"
                                     style="font-size: 25px;"></i><span
-                                    style="font-size: 18px; margin-left:12px">Lession & Plan</span></a>
+                                    style="font-size: 18px; margin-left:12px">Lession Plan</span></a>
 
                         </li>
 
