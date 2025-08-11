@@ -367,7 +367,8 @@
 
     .modal-right .modal-dialog {
         position: fixed;
-        margin: auto;
+        margin: 0;
+        right: 0; /* Force to right */
         width: 320px;
         height: 100%;
         -webkit-transform: translate3d(0%, 0, 0);
@@ -655,10 +656,19 @@
                         </a>
                         @endif
 
+                        @if(Auth::user()->userType != 'Parent')
                         <a href="{{ route('reflection.print', ['id' => $reflectionItem->id]) }}" target="_blank"
                             class="btn btn-print btn-action">
                             <i class="fas fa-print"></i> Print
                         </a>
+                        @else
+                        <a href="{{ route('reflection.print', ['id' => $reflectionItem->id]) }}" target="_blank"
+                            class="btn btn-print btn-action">
+                            <i class="fas fa-print"></i> View
+                        </a>
+                        @endif
+
+
                         @if(!empty($permissions['deletereflection']) && $permissions['deletereflection'])
 
                         <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
@@ -1144,7 +1154,7 @@ if ($('#filter_author_any').is(':checked')) {
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 0;
         ">
-                                    <img src="${imageUrl}" alt="${childItem.child?.name}" class="child-avatar">
+                                    <img src="${window.location.origin}/${imageUrl}" alt="${childItem.child?.name}" class="child-avatar">
                                     <div class="child-name">${childItem.child?.name}</div>
                                 </div>
                             `;
@@ -1166,7 +1176,7 @@ if ($('#filter_author_any').is(':checked')) {
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
-                                    <img src="${imageUrl}" alt="${staffItem.staff?.name}" class="educator-avatar">
+                                    <img src="${window.location.origin}/${imageUrl}" alt="${staffItem.staff?.name}" class="educator-avatar">
                                     <div class="educator-name">${staffItem.staff?.name}</div>
                                 </div>
                             `;
@@ -1187,15 +1197,20 @@ if ($('#filter_author_any').is(':checked')) {
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
-                                    <img src="${imageUrl}" alt="${parentItem.name}" class="educator-avatar">
+                                    <img src="${window.location.origin}/${imageUrl}" alt="${parentItem.name}" class="educator-avatar">
                                     <div class="educator-name">${parentItem.name}</div>
                                 </div>
                             `;
                         });
                     }
 
+                    const statusClass = val.status.toLowerCase() === 'published'
+                            ? 'status-published'
+                            : 'status-draft';
+
                     $('#observations-list').append(`
                         <div class="col-lg-6 col-md-12">
+                        <span class="status-badge ${statusClass}">${val.status}</span>
                             <div class="card reflection-card">
                                 <div class="image-carousel">
                                     ${imagesHtml}

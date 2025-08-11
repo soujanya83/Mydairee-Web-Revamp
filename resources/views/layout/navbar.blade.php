@@ -1,4 +1,3 @@
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 <style>
     .navbar-fixed-top .navbar-brand img {
@@ -191,7 +190,7 @@
         style="min-width: 230px; display: none; position: absolute; top: 100%; right: 0;">
         <div class="px-3 py-2">
             <div class="fw-bold text-truncate" style="font-size: 15px;">
-                <i class="fa fa-user me-2"></i> &nbsp;{{ Auth::user()->name }}
+               &nbsp;&nbsp;<i class="fa fa-user me-2"></i> &nbsp;{{ Auth::user()->name }}
             </div>
         </div>
 

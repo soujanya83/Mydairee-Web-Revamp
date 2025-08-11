@@ -290,10 +290,10 @@
                                         <p class="mb-0">{{ \Carbon\Carbon::parse($child->dob)->age }} years</p>
                                     </div>
                                 </div>
-                                <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a>
+                                {{-- <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a> --}}
                                 <input type="checkbox" name="child_ids[]" value="{{ $child->id }}"
                                     class="child-checkbox mr-2"
-                                    style="margin-left: 140px;z-index: 1;width: 15px; height: 15px;">
+                                    style="margin-left: 250px;z-index: 1;width: 15px; height: 15px;">
                             </div>
                         </div>
                         @endforeach

@@ -97,9 +97,15 @@
                                     <a href="{{ route('dailyDiary.list') }}" data-toggle="tooltip" data-placement="right" > &nbsp;Daily Diary</a>
                                 </li>
                                 @endif
+                            
+                                @if(auth()->user()->userType != 'Parent')
+
                                 <li class="{{ Route::is('headChecks') ? 'active' : '' }}">
                                     <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right" >   &nbsp;Head Checks</a>
                                 </li>
+
+                                @endif
+
                                 <li class="{{ Route::is('sleepcheck.list') ? 'active' : '' }}">
                                     <a href="{{ route('sleepcheck.list') }}" data-toggle="tooltip" data-placement="right" >  &nbsp;Sleep Check List</a>
                                 </li>
@@ -184,7 +190,7 @@
                         <li class="{{ Request::is('learningandprogress*') ? 'active' : null }}">
                             <a href="{{ route('learningandprogress.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-chart-simple"
                                     style="font-size: 25px;"></i><span
-                                    style="font-size: 18px; margin-left:12px">Lession & Plan</span></a>
+                                    style="font-size: 18px; margin-left:12px">Lession Plan</span></a>
 
                         </li>
 
@@ -194,8 +200,7 @@
                         Route::is('recipes.Ingredients');
                         @endphp
 
-                        @if(auth()->user()->userType == 'Parent')
-
+                      
                         <li class="{{ $isHealthyActive ? 'active open' : '' }}">
                             <a href="javascript:void(0);" data-toggle="tooltip" data-placement="right" class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -208,16 +213,18 @@
                                 <li class="{{ Route::is('healthy_menu') ? 'active' : '' }}">
                                     <a href="{{ route('healthy_menu') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp;Menu</a>
                                 </li>
+                                @if(auth()->user()->userType != 'Parent')
                                 <li class="{{ Route::is('healthy_recipe') ? 'active' : '' }}">
                                     <a href="{{ route('healthy_recipe') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp;Recipe</a>
                                 </li>
                                 <li class="{{ Route::is('recipes.Ingredients') ? 'active' : '' }}">
                                     <a href="{{ route('recipes.Ingredients') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp;Ingredients</a>
                                 </li>
+                                @endif
                             </ul>
                         </li>
 
-                        @endif
+                     
 
                     @if(auth()->user()->userType != 'Parent')
 

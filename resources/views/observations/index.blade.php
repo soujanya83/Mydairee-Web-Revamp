@@ -136,7 +136,8 @@
 
     .modal-right .modal-dialog {
         position: fixed;
-        margin: auto;
+        right: 0;
+        margin: 0;
         width: 320px;
         height: 100%;
         -webkit-transform: translate3d(0%, 0, 0);

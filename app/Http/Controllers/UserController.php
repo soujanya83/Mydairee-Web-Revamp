@@ -121,6 +121,27 @@ class UserController extends Controller
                     }
                 }
 
+
+                 // Handle Parent user type
+            // if ($user->userType === 'Parent') {
+            //     $center = Usercenter::where('userid', $user->id)->first();
+            //     session(['user_center_id' => $center->centerid ?? null]);
+                
+            //     // Check if parent has seen the login notice
+            //     if (!$user->has_seen_login_notice) {
+            //         // Mark as seen and save
+            //         $user->has_seen_login_notice = true;
+            //         $user->save();
+                    
+            //         // Set session flag to show modal
+            //         session(['show_parent_notice' => true]);
+            //     }
+                
+            //     return redirect()->route('dashboard.university');
+            // }
+
+
+
                 // All other users
                 $center = Usercenter::where('userid', $user->id)->first();
                 session(['user_center_id' => $center->centerid ?? null]);
