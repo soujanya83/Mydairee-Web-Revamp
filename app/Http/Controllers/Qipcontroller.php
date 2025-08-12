@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\support\Facades\Auth;
-use App\Models\Usercenter; 
-use App\Models\Center; 
+use App\Models\Usercenter;
+use App\Models\Center;
 use App\Models\Room;
 use App\Models\Qip;
 use App\Models\Qiparea;
@@ -32,64 +32,51 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use App\Services\AuthTokenService; // Custom service to verify token
 use App\Models\DailyDiaryModel;
-use Illuminate\Support\Carbon;   
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 
 class Qipcontroller extends Controller
 {
-    public function index(Request $request){
+    public function index(Request $request)
+    {
 
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
-
-        if(Auth::user()->userType == "Superadmin"){
+        if (Auth::user()->userType == "Superadmin") {
             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $center)->get();
-             }else{
+        } else {
             $centers = Center::where('id', $centerid)->get();
-             }
-
-
-             if(Auth::user()->userType == "Superadmin"){
-
-                $SelfAssessment = Qip::where('centerId', $centerid)
+        }
+        if (Auth::user()->userType == "Superadmin") {
+            $SelfAssessment = Qip::where('centerId', $centerid)
                 ->orderBy('id', 'desc')->get();
-   
-                }else{
-   
-                   $SelfAssessment = Qip::where('created_by', $authId)
-                   ->orderBy('id', 'desc')->get();
-   
-                }
-
-                // dd($SelfAssessment);
-
-
-        return view('Qip.index', compact('centers','SelfAssessment'));
-    
-
-    
+        } else {
+            $SelfAssessment = Qip::where('created_by', $authId)
+                ->orderBy('id', 'desc')->get();
+        }
+        return view('Qip.index', compact('centers', 'SelfAssessment'));
     }
 
 
 
-    public function getrooms5(){
+    public function getrooms5()
+    {
         try {
             $user = Auth::user();
             $rooms = collect();
-            
-        if($user->userType === 'Superadmin') {
-            $rooms = $this->getroomsforSuperadmin();
-            }else{
-            $rooms = $this->getroomsforStaff();
+
+            if ($user->userType === 'Superadmin') {
+                $rooms = $this->getroomsforSuperadmin();
+            } else {
+                $rooms = $this->getroomsforStaff();
             }
-    
+
             return $rooms;
-        
         } catch (\Exception $e) {
             Log::error('Filter error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'An error occurred while applying filters',
@@ -97,30 +84,32 @@ class Qipcontroller extends Controller
             ], 500);
         }
     }
-    
 
 
 
-    private function getroomsforSuperadmin(){
-        $authId = Auth::user()->id; 
+
+    private function getroomsforSuperadmin()
+    {
+        $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
-    
+
         $rooms = Room::where('centerid', $centerid)->get();
         return $rooms;
     }
-    
-    private function getroomsforStaff(){
-        $authId = Auth::user()->id; 
+
+    private function getroomsforStaff()
+    {
+        $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
-    
+
         $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
-        
+
         // Get room IDs where user is the owner (userId matches)
         $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
-        
+
         // Merge both collections and remove duplicates
         $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
-    
+
         $rooms = Room::where('id', $allRoomIds)->get();
         return $rooms;
     }
@@ -131,7 +120,7 @@ class Qipcontroller extends Controller
         $authId = Auth::user()->id;
         $centerId = session('user_center_id');
         $id = $request->query('id');
-    
+
         if ($id) {
             $qip = Qip::findOrFail($id); // Load existing data
         } else {
@@ -140,18 +129,18 @@ class Qipcontroller extends Controller
             $qip->name = 'Create By ' . Carbon::now()->format('F Y'); // e.g., July 2025
             $qip->created_by = $authId;
             $qip->save();
-    
+
             return redirect()->route('qip.addnew', ['id' => $qip->id]); // Redirect to show form with new ID
         }
 
         $Qip_area = Qiparea::all();
-    
-    
-        return view('Qip.addnew', compact('qip','Qip_area')); 
+
+
+        return view('Qip.addnew', compact('qip', 'Qip_area'));
     }
 
 
-        public function updateName(Request $request)
+    public function updateName(Request $request)
     {
         $qip = Qip::findOrFail($request->id);
         $qip->name = $request->name;
@@ -163,16 +152,16 @@ class Qipcontroller extends Controller
 
     public function viewArea($id, $area)
     {
-        $qip = Qip::findOrFail($id); 
+        $qip = Qip::findOrFail($id);
         $Qip_area = Qiparea::where('id', $area)->get();
         $all_areas = Qiparea::all();
-        $qipStandard = QipStandard::with(['elements'])->where('areaId',$area)->get();
+        $qipStandard = QipStandard::with(['elements'])->where('areaId', $area)->get();
         $QipDescussionBoard = QipDescussionBoard::with(['user'])
-        ->where('qipid', $id)
-        ->where('areaid', $area)
-        ->orderBy('id', 'desc')
-        ->get();    
-        return view('Qip.standard_element', compact('qip', 'Qip_area', 'all_areas','qipStandard','QipDescussionBoard'));
+            ->where('qipid', $id)
+            ->where('areaid', $area)
+            ->orderBy('id', 'desc')
+            ->get();
+        return view('Qip.standard_element', compact('qip', 'Qip_area', 'all_areas', 'qipStandard', 'QipDescussionBoard'));
     }
 
 
@@ -198,8 +187,4 @@ class Qipcontroller extends Controller
             'comment' => $comment
         ]);
     }
-
-
-
-    
 }
