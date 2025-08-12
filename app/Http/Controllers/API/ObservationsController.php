@@ -159,6 +159,7 @@ class ObservationsController extends Controller
 
         $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
             ->whereIn('id', $observationIds)
+            ->where('status','Published')
             ->orderBy('id', 'desc')
             ->get();
     }
@@ -1344,7 +1345,13 @@ if ($observation->room) {
   public function snapshotindex(Request $request)
 {
     $authId = Auth::user()->id;
+    $user = Auth::user();
     $centerid = $request->centerid;
+  
+
+    if($user->usertype == "Parent"){
+         $centerid = Usercenter::where('userid',$authId)->first();
+    }
 
     // Fetch centers
     if (Auth::user()->userType == "Superadmin") {
@@ -1360,14 +1367,14 @@ if ($observation->room) {
         $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
             ->where('centerid', $centerid)
             ->orderBy('id', 'desc')
-            ->paginate(10);
+            ->paginate();
 
     } elseif (Auth::user()->userType == "Staff") {
 
         $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
             ->where('createdBy', $authId)
             ->orderBy('id', 'desc')
-            ->paginate(10);
+            ->get();
 
     } else {
         $childids = Childparent::where('parentid', $authId)->pluck('childid');
@@ -1379,7 +1386,7 @@ if ($observation->room) {
         $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
             ->whereIn('id', $snapshotid)
             ->orderBy('id', 'desc')
-            ->paginate(10);
+            ->get();
     }
 
     // Collect all unique room IDs from snapshots
