@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Recipes List')
+@section('title', 'Childrens List')
 
 @section('parentPageTitle', '')
 <style>
@@ -18,7 +18,9 @@
     .dropdown-menu {
         z-index: 9999;
     }
-
+html, body {
+    overflow-x: hidden; /* Disable horizontal scroll */
+}
     #roomDropdown+.dropdown-menu {
         margin-top: -7px !important;
     }
@@ -48,45 +50,58 @@
     </button>
 </div>
 @endif
-<form method="GET" action="{{ route('childrens_list') }}"
-    class="d-flex justify-content-end align-items-center"
-    style="margin-top: -49px; margin-right: 30px;"
-    id="roomFilterForm">
 
-    <div class="dropdown" style="position: relative;">
-        <button class="btn btn-outline-info dropdown-toggle" type="button" id="roomDropdown">
-            {{ $selectedRoom ? $rooms->firstWhere('id', $selectedRoom)->name : '-- All Rooms --' }}
-        </button>
 
-        <ul class="dropdown-menu dropdown-menu-end"
-            style="max-height: 300px; overflow-y: auto; position: absolute; right: 0; top: 100%; display: none; z-index: 999;">
+    <form method="GET" action="{{ route('childrens_list') }}"
+        class="d-flex justify-content-end align-items-center"
+        style="margin-top: -49px; margin-right: 100px;"
+        id="roomFilterForm">
 
-            <li>
-                <a class="dropdown-item" href="#"
-                   onclick="selectRoom('', '-- All Rooms --'); return false;">
-                    -- All Rooms --
-                </a>
-            </li>
+        <div class="dropdown" style="position: relative;">
+            <button class="btn btn-outline-info dropdown-toggle" type="button" id="roomDropdown">
+                {{ $selectedRoom ? $rooms->firstWhere('id', $selectedRoom)->name : '-- All Rooms --' }}
+            </button>
 
-            @foreach($rooms as $room)
+           <ul class="dropdown-menu"
+    style="
+        max-height: 300px;
+        overflow-y: auto;
+        position: absolute;
+        left: 0; /* Open to the left */
+        right: auto; /* Prevent right overflow */
+        top: 100%;
+        display: none;
+        z-index: 999;
+        white-space: nowrap; /* Avoid wrapping */
+    ">
+
                 <li>
                     <a class="dropdown-item" href="#"
-                       onclick="selectRoom('{{ $room->id }}', '{{ $room->name }}'); return false;">
-                        {{ $room->name }}
+                    onclick="selectRoom('', '-- All Rooms --'); return false;">
+                        -- All Rooms --
                     </a>
                 </li>
-            @endforeach
-        </ul>
 
-        <input type="hidden" name="roomId" id="roomInput" value="{{ $selectedRoom }}">
-    </div>
-</form>
+                @foreach($rooms as $room)
+                    <li >
+                        <a class="dropdown-item" href="#"
+                        onclick="selectRoom('{{ $room->id }}', '{{ $room->name }}'); return false;">
+                            {{ $room->name }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+
+            <input type="hidden" name="roomId" id="roomInput" value="{{ $selectedRoom }}">
+        </div>
+    </form>
 
 
 
 
 <hr>
 <div class="row mb-5" >
+
 
 
 
