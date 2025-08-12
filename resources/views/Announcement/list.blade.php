@@ -4,6 +4,33 @@
 
 @section('page-styles')
 <style>
+    #FilterbyTitle{
+        display: none;
+    }
+     #FilterbyCreatedBy{
+        display: none;
+    }
+     #StatusFilter{
+        display: none;
+    }
+     .StatusFilter_label{
+        display: none;
+    }
+     .Filterbydate_from_label{
+        display: none;
+    }
+     #Filterbydate_from{
+        display: none;
+    }
+     .Filterbydate_to_label{
+        display: none;
+    }
+       #Filterbydate_to{
+        display: none;
+    }
+
+    </style>
+<style>
     .pagination {
         font-size: 0.9rem;
         /* Slightly larger for better readability */
@@ -266,10 +293,18 @@
 
 
 <main class="py-4">
-  <div class="col-12 d-flex justify-content-end align-items-end flex-wrap gap-2 top-right-button-container mb-4">
+  <div class="col-12 d-flex  align-items-end flex-wrap gap-2 top-right-button-container mb-4">
 
     <!-- Filter Icon -->
     <i class="fas fa-filter text-info" style="font-size: 1.2rem; position:relative; top:-8px;"></i>
+
+    <select name="filter" id="" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input">
+        <option value="">filter</option>
+        <option value="title">Title</option>
+         <option value="createdby">Created by</option>
+          <option value="status">status</option>
+           <option value="date">Date</option>
+    </select>
 
     <!-- Title Filter -->
     <input 
@@ -290,8 +325,8 @@
         onkeyup="filterProgramPlan()">
 
     <!-- From Date -->
-    <div class="d-flex flex-column">
-        <label for="Filterbydate_from" class="text-info small mb-1">From Date</label>
+    <div class="d-flex flex-column Filterbydate_from" >
+        <label for="Filterbydate_from" class="text-info small mb-1 Filterbydate_from_label">From Date</label>
         <input type="date" 
                class="form-control border-info form-control-sm uniform-input"
                id="Filterbydate_from"
@@ -301,8 +336,8 @@
     </div>
 
     <!-- To Date -->
-    <div class="d-flex flex-column">
-        <label for="Filterbydate_to" class="text-info small mb-1">To Date</label>
+    <div class="d-flex flex-column Filterbydate_to">
+        <label for="Filterbydate_to" class="text-info small mb-1 Filterbydate_to_label">To Date</label>
         <input type="date" 
                class="form-control border-info form-control-sm uniform-input"
                id="Filterbydate_to"
@@ -312,8 +347,8 @@
     </div>
 
     <!-- Status Filter -->
-    <div class="d-flex flex-column">
-        <label for="statusFilter" class="text-info small mb-1">Status</label>
+    <div class="d-flex flex-column statusFilter">
+        <label for="statusFilter" class="text-info small mb-1 statusFilter_label">Status</label>
         <select class="form-control form-control-sm border-info uniform-input" name="status" id="statusFilter" onchange="filterProgramPlan()">
             <option value="">All Status</option>
             <option value="Sent" {{ request('status') == 'Sent' ? 'selected' : '' }}>Sent</option>
@@ -873,6 +908,39 @@ $(document).on('click', '.delete-btn', function (e) {
         }
     });
 });
+
+
+function showfilter(val) {
+    // Hide all filters first
+    $('#FilterbyTitle, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #Filterbydate_to_label, #Filterbydate_to, #Filterbydate_from_label, #Filterbydate_from').hide();
+
+    // Clear values of all fields
+    $('#FilterbyTitle input, #FilterbyCreatedBy input, #statusFilter, #Filterbydate_to, #Filterbydate_from')
+        .val('')
+        .prop('checked', false)
+        .trigger('change');
+
+    if (val === 'createdby') {
+        $('#FilterbyCreatedBy').show();
+    }
+    else if (val === 'status') {
+        $('#StatusFilter_label').show();
+        $('#statusFilter').show();
+    }
+    else if (val === 'title') {
+        $('#FilterbyTitle').show();
+    }
+    else if (val === 'date') {
+        $('#Filterbydate_to_label').show();
+        $('#Filterbydate_to').show();
+        $('#Filterbydate_from_label').show();
+        $('#Filterbydate_from').show();
+    }
+    else {
+        window.location.reload();
+    }
+}
+
 
 </script>
 @endpush

@@ -283,7 +283,7 @@ class AnnouncementController extends Controller
             ->where('centerid', $centerid)
             ->get();
 
-        // dd($announcement);
+        // dd($Childrens);
 
         return view('Announcement.create', compact(
             'announcement',
