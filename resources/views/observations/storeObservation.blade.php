@@ -82,15 +82,16 @@
 
 /* Active Triangle States */
 .triangle-indicator.level-1 .side-1 {
-    background: linear-gradient(45deg, #28a745, #20c997);
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    background: linear-gradient(45deg, #ffc107, #fd7e14);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
     transform: scaleY(1.1);
 }
 
 .triangle-indicator.level-2 .side-1,
 .triangle-indicator.level-2 .side-2 {
-    background: linear-gradient(45deg, #ffc107, #fd7e14);
-    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+  
+    background: linear-gradient(45deg, #176ba6, #00a8ff);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
     transform: scaleY(1.1);
 }
 
@@ -101,9 +102,10 @@
 .triangle-indicator.level-3 .side-1,
 .triangle-indicator.level-3 .side-2,
 .triangle-indicator.level-3 .side-3 {
-    background: linear-gradient(45deg, #dc3545, #e83e8c);
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    background: linear-gradient(45deg, #28a745, #20c997);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
     transform: scaleY(1.1);
+
 }
 
 .triangle-indicator.level-3 .side-2 {

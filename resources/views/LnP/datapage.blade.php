@@ -219,7 +219,9 @@
                 <span class="badge badge-success ml-2">{{ $assessments->count() }} items</span>
             </h6>
             <div class="assessment-items">
+               <div class="row">
                 @foreach($assessments as $assessment)
+                <div class="col-md-6">
                     <div class="assessment-item-wrapper mb-3">
                         <div class="assessment-container-clickable d-flex align-items-center">
                             <!-- Clickable Triangle Visual Indicator -->
@@ -261,8 +263,10 @@
                                 </span>
                             </div>
                         </div>
+                 </div>
                     </div>
                 @endforeach
+                </div>
             </div>
         </div>
     @endforeach
@@ -383,15 +387,18 @@
 
 /* Triangle status states - same as before but with clickable prefix */
 .triangle-indicator-clickable.status-introduced .side-1 {
-    background: linear-gradient(45deg, #28a745, #20c997);
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+ 
+    background: linear-gradient(45deg, #ffc107, #fd7e14);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
     transform: scaleY(1.1);
 }
 
 .triangle-indicator-clickable.status-practicing .side-1,
 .triangle-indicator-clickable.status-practicing .side-2 {
-    background: linear-gradient(45deg, #ffc107, #fd7e14);
-    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    
+    /* background: linear-gradient(45deg, #dc3545, #e83e8c); */
+    background: linear-gradient(45deg, #176ba6, #00a8ff);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
     transform: scaleY(1.1);
 }
 
@@ -402,8 +409,8 @@
 .triangle-indicator-clickable.status-completed .side-1,
 .triangle-indicator-clickable.status-completed .side-2,
 .triangle-indicator-clickable.status-completed .side-3 {
-    background: linear-gradient(45deg, #dc3545, #e83e8c);
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    background: linear-gradient(45deg, #28a745, #20c997);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
     transform: scaleY(1.1);
 }
 
