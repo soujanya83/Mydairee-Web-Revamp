@@ -107,32 +107,97 @@ class ObservationsController extends Controller
 
 
 
-   public function index(Request $request)
-{
+//    public function index(Request $request)
+// {
 
-        $validator = Validator::make($request->all(), [
-        'center_id' => 'required|integer|min:1'
+//         $validator = Validator::make($request->all(), [
+//         'center_id' => 'required|integer|min:1'
+//     ], [
+//         'center_id.required' => 'Center ID is required',
+//         'center_id.integer'  => 'Center ID must be an integer.',
+//         'center_id.min'      => 'Center ID must be greater than 0.',
+//     ]);
+
+//     if ($validator->fails()) {
+//         return response()->json([
+//             'status' => false,
+//             'message' => 'Validation failed.',
+//             'errors' => $validator->errors(),
+//         ], 422);
+//     }
+
+//     $validated = $validator->validated();
+
+//     $centerid = $validated['center_id'];
+//        $authId   = Auth::user()->id;
+    
+
+
+//     if (Auth::user()->userType == "Superadmin") {
+//         $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+//         $centers   = Center::whereIn('id', $centerIds)->get();
+//     } else {
+//         $centers = Center::where('id', $centerid)->get();
+//     }
+
+//     if (Auth::user()->userType == "Superadmin") {
+//         $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+//             ->where('centerid', $centerid)
+//             ->orderBy('id', 'desc')
+//             ->get();
+//     } elseif (Auth::user()->userType == "Staff") {
+//         $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+//             ->where('userId', $authId)
+//             ->orderBy('id', 'desc')
+//             ->get();
+//     } else {
+//         $childIds = Childparent::where('parentid', $authId)->pluck('childid');
+//         $observationIds = ObservationChild::whereIn('childId', $childIds)
+//             ->pluck('observationId')
+//             ->unique()
+//             ->toArray();
+
+//         $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+//             ->whereIn('id', $observationIds)
+//             ->where('status','Published')
+//             ->orderBy('id', 'desc')
+//             ->get();
+//     }
+
+//     return response()->json([
+//         'success'      => true,
+//         'observations' => $observations,
+//         'centers'      => $centers,
+//     ]);
+// }
+
+public function index(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'center_id' => 'required|integer|min:1',
+        'per_page'  => 'nullable|integer|min:1' // optional pagination size
     ], [
         'center_id.required' => 'Center ID is required',
         'center_id.integer'  => 'Center ID must be an integer.',
         'center_id.min'      => 'Center ID must be greater than 0.',
+        'per_page.integer'   => 'Per page must be an integer.',
+        'per_page.min'       => 'Per page must be greater than 0.',
     ]);
 
     if ($validator->fails()) {
         return response()->json([
-            'status' => false,
+            'status'  => false,
             'message' => 'Validation failed.',
-            'errors' => $validator->errors(),
+            'errors'  => $validator->errors(),
         ], 422);
     }
 
     $validated = $validator->validated();
+    $centerid  = $validated['center_id'];
+    $perPage   = $validated['per_page'] ?? 10; // default to 10 items per page
+    $authId    = Auth::user()->id;
 
-    $centerid = $validated['center_id'];
-       $authId   = Auth::user()->id;
-    
-
-
+    // Fetch centers based on role
     if (Auth::user()->userType == "Superadmin") {
         $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
         $centers   = Center::whereIn('id', $centerIds)->get();
@@ -140,16 +205,17 @@ class ObservationsController extends Controller
         $centers = Center::where('id', $centerid)->get();
     }
 
+    // Fetch observations based on role
     if (Auth::user()->userType == "Superadmin") {
         $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
             ->where('centerid', $centerid)
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate($perPage);
     } elseif (Auth::user()->userType == "Staff") {
         $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
             ->where('userId', $authId)
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate($perPage);
     } else {
         $childIds = Childparent::where('parentid', $authId)->pluck('childid');
         $observationIds = ObservationChild::whereIn('childId', $childIds)
@@ -159,9 +225,9 @@ class ObservationsController extends Controller
 
         $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
             ->whereIn('id', $observationIds)
-            ->where('status','Published')
+            ->where('status', 'Published')
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate($perPage);
     }
 
     return response()->json([
@@ -170,7 +236,6 @@ class ObservationsController extends Controller
         'centers'      => $centers,
     ]);
 }
-
 
 
     public function applyFilters(Request $request)
