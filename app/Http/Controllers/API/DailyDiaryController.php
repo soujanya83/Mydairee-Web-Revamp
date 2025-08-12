@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use App\Services\AuthTokenService; // Custom service to verify token
 use App\Models\DailyDiaryModel;
+use App\Models\Permission;
 use Illuminate\Support\Carbon;   
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -82,6 +83,8 @@ class DailyDiaryController extends Controller
 
         $dayIndex = $selectedDate->dayOfWeekIso - 1; // 0 = Monday
 
+        // dd($dayIndex);
+
         // Filter children by attendance on selected date
         $children = collect();
         if ($selectedroom) {
@@ -93,12 +96,12 @@ class DailyDiaryController extends Controller
                 ->map(function ($child) use ($selectedDate) {
                     return [
                         'child' => $child,
-                        'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+                        'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+                        'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+                        'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
                         'snacks' => DailyDiarySnacks::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
                         'afternoon_tea' => DailyDiaryAfternoonTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+                        'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
                         'lunch' => DailyDiaryLunch::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
                         'morning_tea' => DailyDiaryMorningTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
                         'breakfast' => DailyDiaryBreakfast::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
@@ -108,6 +111,8 @@ class DailyDiaryController extends Controller
         }
 
         // dd($children);
+
+        $permissions = Permission::where('userid',Auth::user()->userid)->where('centerid',$centerid)->first();
         
 
         // return view('Daily_diary.daily_diary_list', compact('centers', 'room', 'selectedroom', 'children','selectedDate'));
@@ -119,6 +124,7 @@ class DailyDiaryController extends Controller
             'rooms' => $room,
             'selectedRoom' => $selectedroom,
             'selectedDate' => $selectedDate->format('Y-m-d'),
+            'permission' => $permissions,
             'children' => $children,
         ]
     ]);

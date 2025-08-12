@@ -821,14 +821,15 @@
                                 <!-- <li><strong>S No:</strong> {{ ($programPlans->currentPage() - 1) * $programPlans->perPage() + $loop->iteration }}</li> -->
                                 <li><strong>Room:</strong> {{ $plan->room->name ?? '' }}</li>
                                 <li><strong>Created By:</strong> {{ $plan->creator->name ?? '' }}</li>
-                                <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li>
-                                <li><strong>Updated:</strong> {{ \Carbon\Carbon::parse($plan->updated_at)->format('d M Y / H:i') }}</li>
+                                <!-- <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li> -->
+                                <li><strong>Published on :</strong> {{ \Carbon\Carbon::parse($plan->updated_at)->format('d M Y') }}</li>
+
                             </ul>
 
                             <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
                                 <a href="{{ route('print.programplan', $plan->id) }}"
                                    class="btn btn-outline-primary btn-sm" title="Print">
-                                    <i class="fas fa-print"></i>
+                                    <i class="fas fa-eye"></i>
                                 </a>
 
                                 @if(Auth::user()->userType != 'Parent')
@@ -1059,8 +1060,8 @@
                                         <ul class="list-unstyled mb-3">
                                             <li><strong>Room:</strong> ${roomName}</li>
                                             <li><strong>Created By:</strong> ${creator}</li>
-                                            <li><strong>Created:</strong> ${createdAt}</li>
-                                            <li><strong>Updated:</strong> ${updatedAt}</li>
+                                           <!--- <li><strong>Created:</strong> ${createdAt}</li> -----> 
+                                            <li><strong>Published on :</strong> ${updatedAt}</li>
                                         </ul>
                                         
                                         <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
