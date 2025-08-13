@@ -256,6 +256,7 @@
              <!-- filter ends here  -->
 
 <main class="default-transition" style="padding-block:1em;padding-inline:2em;">
+    @if(Auth::user()->userType != 'Parent')
            <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container mb-4">
     <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
 
@@ -265,6 +266,8 @@
         class="form-control border-info" 
         placeholder="Filter by Child name" onkeyup="filterbyChildname(this.value)">
 </div>
+@endif
+
     <div class="default-transition">
         <div class="container-fluid">
             <div class="row">

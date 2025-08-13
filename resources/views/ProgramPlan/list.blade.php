@@ -777,11 +777,13 @@
     <!-- Main Content -->
  <div class="container-fluid px-0">
     <div class="program-plan-container">
+          <!-- @if(Auth::user()->userType != 'Parent') -->
         <div class="card-header-custom mb-3">
             <h5 class="card-header-title">
                 <i class="fas fa-table"></i> Program Plans
             </h5>
         </div>
+        <!-- @endif -->
 <div class="program-plan">
 
 
