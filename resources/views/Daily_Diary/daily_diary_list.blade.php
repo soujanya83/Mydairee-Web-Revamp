@@ -1160,17 +1160,17 @@ body {
                                             <div class="entry-row">
                                                 <div class="entry-item">
                                                     <span class="entry-label">Sleep Time:</span>
-                                                    <span class="entry-value">{{ $entry->startTime ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->startTime ?? 'No Update' }}</span>
                                                 </div>
                                                 <div class="entry-item">
                                                     <span class="entry-label">Wake Time:</span>
-                                                    <span class="entry-value">{{ $entry->endTime ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->endTime ?? 'No Update' }}</span>
                                                 </div>
                                             </div>
                                             <div class="entry-row">
                                                 <div class="entry-item">
                                                     <span class="entry-label">Comments:</span>
-                                                    <span class="entry-value">{{ $entry->comments ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->comments ?? 'No Update' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1212,11 +1212,11 @@ body {
                                         <div class="entry-row">
                                             <div class="entry-item">
                                                 <span class="entry-label">Time:</span>
-                                                <span class="entry-value">{{ $afternoon_tea->startTime ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $afternoon_tea->startTime ?? 'No Update' }}</span>
                                             </div>
                                             <div class="entry-item">
                                                 <span class="entry-label">Comments:</span>
-                                                <span class="entry-value">{{ $afternoon_tea->comments ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $afternoon_tea->comments ?? 'No Update' }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1254,17 +1254,17 @@ body {
                                         <div class="entry-row">
                                             <div class="entry-item">
                                                 <span class="entry-label">Time:</span>
-                                                <span class="entry-value">{{ $snacks->startTime ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $snacks->startTime ?? 'No Update' }}</span>
                                             </div>
                                             <div class="entry-item">
                                                 <span class="entry-label">Item:</span>
-                                                <span class="entry-value">{{ $snacks->item ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $snacks->item ?? 'No Update' }}</span>
                                             </div>
                                         </div>
                                         <div class="entry-row">
                                             <div class="entry-item">
                                                 <span class="entry-label">Comments:</span>
-                                                <span class="entry-value">{{ $snacks->comments ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $snacks->comments ?? 'No Update' }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1320,15 +1320,15 @@ body {
                                             <div class="entry-row">
                                                 <div class="entry-item">
                                                     <span class="entry-label">Time:</span>
-                                                    <span class="entry-value">{{ $entry->startTime ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->startTime ?? 'No Update' }}</span>
                                                 </div>
                                                 <div class="entry-item">
                                                     <span class="entry-label">Comments:</span>
-                                                    <span class="entry-value">{{ $entry->comments ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->comments ?? 'No Update' }}</span>
                                                 </div>
                                                 <div class="entry-item">
                                                     <span class="entry-label">Signature:</span>
-                                                    <span class="entry-value">{{ $entry->signature ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->signature ?? 'No Update' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1387,23 +1387,23 @@ body {
                                             <div class="entry-row">
                                                 <div class="entry-item">
                                                     <span class="entry-label">Time:</span>
-                                                    <span class="entry-value">{{ $entry->startTime ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->startTime ?? 'No Update' }}</span>
                                                 </div>
                                                 <div class="entry-item">
                                                     <span class="entry-label">Status:</span>
-                                                    <span class="badge badge-warning">{{ $entry->status ?? 'Not-Update' }}</span>
+                                                    <span class="badge badge-warning">{{ $entry->status ?? 'No Update' }}</span>
                                                 </div>
                                             </div>
                                             <div class="entry-row">
                                                 <div class="entry-item">
                                                     <span class="entry-label">Signature:</span>
-                                                    <span class="entry-value">{{ $entry->signature ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->signature ?? 'No Update' }}</span>
                                                 </div>
                                             </div>
                                             <div class="entry-row">
                                                 <div class="entry-item">
                                                     <span class="entry-label">Comments:</span>
-                                                    <span class="entry-value">{{ $entry->comments ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->comments ?? 'No Update' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1465,11 +1465,11 @@ body {
                                             <div class="entry-row">
                                                 <div class="entry-item">
                                                     <span class="entry-label">Time:</span>
-                                                    <span class="entry-value">{{ $entry->startTime ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->startTime ?? 'No Update' }}</span>
                                                 </div>
                                                 <div class="entry-item">
                                                     <span class="entry-label">Comments:</span>
-                                                    <span class="entry-value">{{ $entry->comments ?? 'Not-Update' }}</span>
+                                                    <span class="entry-value">{{ $entry->comments ?? 'No Update' }}</span>
                                                 </div>
                                             </div>
                                         </div>

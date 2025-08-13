@@ -13,16 +13,16 @@
      #StatusFilter{
         display: none;
     }
-     .StatusFilter_label{
+     #StatusFilter_label{
         display: none;
     }
-     .Filterbydate_from_label{
+     #Filterbydate_from_label{
         display: none;
     }
      #Filterbydate_from{
         display: none;
     }
-     .Filterbydate_to_label{
+     #Filterbydate_to_label{
         display: none;
     }
        #Filterbydate_to{
@@ -299,10 +299,10 @@
     <i class="fas fa-filter text-info" style="font-size: 1.2rem; position:relative; top:-8px;"></i>
 
     <select name="filter" id="" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input">
-        <option value="">filter</option>
+        <option value="">Choose</option>
         <option value="title">Title</option>
          <option value="createdby">Created by</option>
-          <option value="status">status</option>
+          <option value="status">Status</option>
            <option value="date">Date</option>
     </select>
 
@@ -326,7 +326,7 @@
 
     <!-- From Date -->
     <div class="d-flex flex-column Filterbydate_from" >
-        <label for="Filterbydate_from" class="text-info small mb-1 Filterbydate_from_label">From Date</label>
+        <label for="Filterbydate_from" id="Filterbydate_from_label" class="text-info small mb-1 Filterbydate_from_label">From Date</label>
         <input type="date" 
                class="form-control border-info form-control-sm uniform-input"
                id="Filterbydate_from"
@@ -337,7 +337,7 @@
 
     <!-- To Date -->
     <div class="d-flex flex-column Filterbydate_to">
-        <label for="Filterbydate_to" class="text-info small mb-1 Filterbydate_to_label">To Date</label>
+        <label for="Filterbydate_to" id="Filterbydate_to_label" class="text-info small mb-1 Filterbydate_to_label">To Date</label>
         <input type="date" 
                class="form-control border-info form-control-sm uniform-input"
                id="Filterbydate_to"
@@ -348,9 +348,9 @@
 
     <!-- Status Filter -->
     <div class="d-flex flex-column statusFilter">
-        <label for="statusFilter" class="text-info small mb-1 statusFilter_label">Status</label>
+        <label for="statusFilter" id="statusFilter_label" class="text-info small mb-1 statusFilter_label">Status</label>
         <select class="form-control form-control-sm border-info uniform-input" name="status" id="statusFilter" onchange="filterProgramPlan()">
-            <option value="">All Status</option>
+            <option value="">All </option>
             <option value="Sent" {{ request('status') == 'Sent' ? 'selected' : '' }}>Sent</option>
             <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
             <option value="Failed" {{ request('status') == 'Failed' ? 'selected' : '' }}>Failed</option>
@@ -805,29 +805,35 @@ if (diffDays > 0) {
                                     <div class="fw-semibold">${formattedDate}</div>
                                     </div>
 
-                                    <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
-                                        <a href="view/${announcement.id}" 
-                                           class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
-                                           style="min-width:38px;height:38px;" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        ${res.permission.addAnnouncement ? `
-                                        <a href="create/${announcement.id}" 
-                                           class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
-                                           style="min-width:38px;height:38px;" title="Edit">
-                                            <i class="fas fa-pen-to-square"></i>
-                                        </a>` : ''}
-                                        ${res.permission.deleteAnnouncement ? `
-                                        <form action="delete" method="POST" class="d-inline delete-form">
-                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                            <input type="hidden" name="_method" value="DELETE">
-                                            <input type="hidden" name="announcementid" value="${announcement.id}">
-                                            <button type="button" class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center delete-btn" 
-                                                    style="min-width:38px;height:38px;" title="Delete">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>` : ''}
-                                    </div>
+                               <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
+    <!-- View button always visible -->
+    <a href="view/${announcement.id}" 
+       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
+       style="min-width:38px;height:38px;" title="View">
+        <i class="fas fa-eye"></i>
+    </a>
+
+    <!-- Edit button only if key exists and is true -->
+    ${res.permission && res.permission.addAnnouncement ? `
+    <a href="create/${announcement.id}" 
+       class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
+       style="min-width:38px;height:38px;" title="Edit">
+        <i class="fas fa-pen-to-square"></i>
+    </a>` : ''}
+
+    <!-- Delete button only if key exists and is true -->
+    ${res.permission && res.permission.deleteAnnouncement ? `
+    <form action="delete" method="POST" class="d-inline delete-form">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="_method" value="DELETE">
+        <input type="hidden" name="announcementid" value="${announcement.id}">
+        <button type="button" class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center delete-btn" 
+                style="min-width:38px;height:38px;" title="Delete">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+    </form>` : ''}
+</div>
+
                                 </div>
                             </div>
                         </div>`;
@@ -924,7 +930,7 @@ function showfilter(val) {
         $('#FilterbyCreatedBy').show();
     }
     else if (val === 'status') {
-        $('#StatusFilter_label').show();
+        $('#statusFilter_label').show();
         $('#statusFilter').show();
     }
     else if (val === 'title') {
