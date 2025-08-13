@@ -192,7 +192,7 @@
                         <li class="{{ Request::is('learningandprogress*') ? 'active' : null }}">
                             <a href="{{ route('learningandprogress.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-chart-simple"
                                     style="font-size: 25px;"></i><span
-                                    style="font-size: 18px; margin-left:12px">Lession Plan</span></a>
+                                    style="font-size: 18px; margin-left:12px">Lesson Plan</span></a>
 
                         </li>
 
