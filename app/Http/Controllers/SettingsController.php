@@ -194,7 +194,7 @@ class SettingsController extends Controller
     {
         $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
 
-        $assignedUserList = User::select('users.id', 'users.name')
+        $assignedUserList = User::select('users.id', 'users.name')->where('permissions.centerid',session('user_center_id'))
             ->join('permissions', 'permissions.userid', '=', 'users.id')
             ->distinct()
             ->get()
@@ -334,7 +334,7 @@ class SettingsController extends Controller
 
     public function manage_permissions()
     {
-        $users = User::where('userType', 'Staff')->get();
+        $users = User::where(['users.userType' => 'Staff', 'usercenters.centerid' => session('user_center_id')])->join('usercenters', 'usercenters.userid', '=', 'users.userid')->get();
 
         $permissionColumns = collect(Schema::getColumnListing('permissions'))
             ->filter(function ($column) {

@@ -503,7 +503,7 @@
                                 <div class="col-md-8"> <select name="user_ids[]" id="user_ids" class="form-control"
                                         multiple required style="flex: 1;">
                                         @foreach($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        <option value="{{ $user->userid }}">{{ $user->name }}</option>
                                         @endforeach
                                     </select></div>
 
