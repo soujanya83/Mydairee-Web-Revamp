@@ -792,6 +792,7 @@
   <h5 class="card-title mb-2">
                                 {{ $getMonthName($plan->months) }} {{ $plan->years ?? '' }}
                             </h5>
+                           @if(Auth::user()->userType != "Parent")
 <p class="text-xs mb-2">
     @if($plan->status == 'Draft')
     <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
@@ -811,7 +812,7 @@
     </span>
     @endif
 </p>
-
+@endif
 
 
                             </div>
@@ -1034,8 +1035,9 @@
                                     
      <div class="d-flex justify-content-between">
   <h5 class="">
-                                ${monthName} ${year}
-                            </h5>
+    ${monthName} ${year}
+    </h5>
+    ${canEdit ? `
 <p class="text-xs mb-2">
  <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-pointer"
       style="transition: 0.2s; background: linear-gradient(135deg, ${status === 'Draft' ? 'var(--primary-color)' : 'var(--danger-color)'}, var(--secondary-color));"
@@ -1044,10 +1046,8 @@
       onmouseout="this.style.opacity='1';">
     ${status}
 </span>
+</p>` : ''}
 
-
-    
-</p>
 
 
 

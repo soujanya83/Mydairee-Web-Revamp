@@ -742,13 +742,44 @@ class="btn btn-info btn-lg">
   <hr class="mt-3">
 
       <!-- filter  -->
-             <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
+             <div class="col-12 d-flex  align-items-end flex-wrap gap-2 top-right-button-container mb-4">
      <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
+
+       <select name="filter" id="" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input">
+        <option value="">Choose</option>
+        <option value="title">Title</option>
+         <option value="createdby">Created by</option>
+          <option value="status">Status</option>
+           <option value="date">Date</option>
+    </select>
+
     <input 
         type="text" 
         name="filterbyCentername" 
-        class="form-control border-info" 
+        class="form-control border-info form-control-sm uniform-input" 
         placeholder="Filter by Child name" onkeyup="filterbyChildname(this.value)">
+
+            <!-- From Date -->
+    <div class="d-flex flex-column Filterbydate_from" >
+        <label for="Filterbydate_from" id="Filterbydate_from_label" class="text-info small mb-1 Filterbydate_from_label">From Date</label>
+        <input type="date" 
+               class="form-control border-info form-control-sm uniform-input"
+               id="Filterbydate_from"
+               name="date_from"
+               value="{{ request('date_from') }}"
+               onchange="filterProgramPlan()">
+    </div>
+
+    <!-- To Date -->
+    <div class="d-flex flex-column Filterbydate_to">
+        <label for="Filterbydate_to" id="Filterbydate_to_label" class="text-info small mb-1 Filterbydate_to_label">To Date</label>
+        <input type="date" 
+               class="form-control border-info form-control-sm uniform-input"
+               id="Filterbydate_to"
+               name="date_to"
+               value="{{ request('date_to') }}"
+               onchange="filterProgramPlan()">
+    </div>
 </div>
              <!-- filter ends here  -->
 
@@ -798,7 +829,7 @@ class="btn btn-info btn-lg">
     @endif
 
     <!-- Delete -->
-    <!-- @if($permission && $permission->deleteAnnouncement == 1) -->
+  
      <form action="{{ route('Accident.delete') }}" method="POST" class="d-inline delete-form">
     @csrf
     <input type="hidden" name="accidentid" value="{{ $accident->id }}">
@@ -809,7 +840,7 @@ class="btn btn-info btn-lg">
         <i class="fa-solid fa-trash"></i>
     </button>
 </form>
-    <!-- @endif -->
+ 
 </div>
 
                         </div>
@@ -1049,37 +1080,40 @@ function filterbyChildname(childname) {
                 <p class="mb-1"><strong>Created By:</strong> ${accident.username}</p>
                 <p class="mb-1"><strong>Date:</strong> ${accident.incident_date}</p>
 
-                <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
-                    <!-- View -->
-                    <a href="${detailUrl}"
-                       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
-                       style="min-width: 30px; height: 30px;"
-                       title="View">
-                        <i class="fas fa-eye"></i>
-                    </a>
+               <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
+    <!-- View -->
+    <a href="${detailUrl}"
+       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+       style="min-width: 30px; height: 30px;"
+       title="View">
+        <i class="fas fa-eye"></i>
+    </a>
 
-                    <!-- Edit (only if permission is allowed) -->
-                    ${response.permission && response.permission.updateAccidents == 1 ? `
-                        <a href="${editUrl}"
-                           class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
-                           style="min-width: 30px; height: 30px;"
-                           title="Edit">
-                            <i class="fas fa-pen-to-square"></i>
-                        </a>
-                    ` : ''}
+    <!-- Edit (only if permission exists and is allowed) -->
+    ${response.permission && response.permission.updateAccidents === 1 ? `
+        <a href="${editUrl}"
+           class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+           style="min-width: 30px; height: 30px;"
+           title="Edit">
+            <i class="fas fa-pen-to-square"></i>
+        </a>
+    ` : ''}
 
-                    <!-- Delete -->
-                    <form action="${deleteurl}" method="POST" class="d-inline delete-form">
-                        <input type="hidden" name="_token" value="${csrfToken}">
-                        <input type="hidden" name="accidentid" value="${accident.id}">
-                        <button type="submit"
-                                class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
-                                style="min-width: 30px; height: 30px;"
-                                title="Delete">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </form>
-                </div>
+    <!-- Delete (only if permission exists and is allowed) -->
+    ${response.permission && response.permission.deleteAccidents === 1 ? `
+        <form action="${deleteurl}" method="POST" class="d-inline delete-form">
+            <input type="hidden" name="_token" value="${csrfToken}">
+            <input type="hidden" name="accidentid" value="${accident.id}">
+            <button type="submit"
+                    class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+                    style="min-width: 30px; height: 30px;"
+                    title="Delete">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </form>
+    ` : ''}
+</div>
+
             </div>
         </div>
     </div>
@@ -1104,6 +1138,39 @@ function filterbyChildname(childname) {
         }
     });
 }
+
+
+function showfilter(val) {
+    // Hide all filters first
+    $('#FilterbyTitle, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #Filterbydate_to_label, #Filterbydate_to, #Filterbydate_from_label, #Filterbydate_from').hide();
+
+    // Clear values of all fields
+    $('#FilterbyTitle input, #FilterbyCreatedBy input, #statusFilter, #Filterbydate_to, #Filterbydate_from')
+        .val('')
+        .prop('checked', false)
+        .trigger('change');
+
+    if (val === 'createdby') {
+        $('#FilterbyCreatedBy').show();
+    }
+    else if (val === 'status') {
+        $('#StatusFilter_label').show();
+        $('#statusFilter').show();
+    }
+    else if (val === 'title') {
+        $('#FilterbyTitle').show();
+    }
+    else if (val === 'date') {
+        $('#Filterbydate_to_label').show();
+        $('#Filterbydate_to').show();
+        $('#Filterbydate_from_label').show();
+        $('#Filterbydate_from').show();
+    }
+    else {
+        window.location.reload();
+    }
+}
+
 
 
 </script>
