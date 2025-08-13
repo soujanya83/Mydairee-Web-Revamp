@@ -166,10 +166,13 @@
                         </a>
 
                         <!-- Trigger -->
+                         @if(!empty($permissions['editRoom']) && $permissions['editRoom'])
+
                         <button type="button" class="btn btn-sm " onclick='openEditModal(@json($room))'
                             style="background-color: #f0ece4;">
                             <i class="fa fa-edit" class="d-flex justify-content-between align-items-start"></i>
                         </button>
+                        @endif
                     </div>
 
                     <div class="mb-2">

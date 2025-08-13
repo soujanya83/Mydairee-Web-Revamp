@@ -564,7 +564,7 @@
           min-width: 110px;
           flex: 0 0 auto;
           text-align: center;
-    
+
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
@@ -622,7 +622,7 @@
           min-width: 110px;
           flex: 0 0 auto;
           text-align: center;
-    
+
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
@@ -648,7 +648,7 @@
 
                     {{-- Action Buttons --}}
                     <div class="card-actions">
-                        @if(!empty($permissions['updatereflection']) && $permissions['updatereflection'])
+                        @if(!empty($permissions['updateReflection']) && $permissions['updateReflection'])
 
                         <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}"
                             class="btn btn-edit btn-action">
@@ -669,7 +669,7 @@
                         @endif
 
 
-                        @if(!empty($permissions['deletereflection']) && $permissions['deletereflection'])
+                        @if(!empty($permissions['deleteReflection']) && $permissions['deleteReflection'])
 
                         <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
                             <i class="fas fa-trash-alt"></i> Delete
@@ -1172,7 +1172,7 @@ if ($('#filter_author_any').is(':checked')) {
           min-width: 110px;
           flex: 0 0 auto;
           text-align: center;
-    
+
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
@@ -1193,7 +1193,7 @@ if ($('#filter_author_any').is(':checked')) {
           min-width: 110px;
           flex: 0 0 auto;
           text-align: center;
-    
+
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">

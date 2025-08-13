@@ -209,7 +209,7 @@ class SettingsController extends Controller
             ->map(fn($col) => [
                 'name' => $col,
                 'label' => Str::headline($col),
-            ])
+            ]) ->sortBy('label')
             ->toArray();
 
         return view('settings.assigned_permissions_list', compact('assignedUserList', 'permissionColumns'));
@@ -218,7 +218,7 @@ class SettingsController extends Controller
     public function manage_permissions()
     {
         $users = User::where('userType', 'Staff')->get();
-        $permissions = Schema::getColumnListing('users'); // Get column names from users table
+
         $permissionColumns = collect(Schema::getColumnListing('permissions'))
             ->filter(function ($column) {
                 return !in_array($column, ['id', 'userid', 'centerid']); // exclude default columns
@@ -228,15 +228,17 @@ class SettingsController extends Controller
                     'name' => $column,
                     'label' => Str::headline($column), // e.g., addObservation → Add Observation
                 ];
-            });
+            })
+            ->sortBy('label') // Sort alphabetically by label
+            ->values(); // Reindex keys
 
         return view('settings.alluser_assign_permission', compact('users', 'permissionColumns'));
     }
 
 
+
     public function assign_user_permissions(Request $request)
     {
-
         $userIds = $request->input('user_ids', []);
         $checkedPermissions = $request->input('permissions', []); // ['addRoom' => '1', 'editRoom' => '1', ...]
 
@@ -247,13 +249,13 @@ class SettingsController extends Controller
             if (!$permissionRecord) {
                 $permissionRecord = new Permission();
                 $permissionRecord->userid = $userId;
-                // If you have centerid, also set: $permissionRecord->centerid = ...
+                $permissionRecord->centerid = session('user_center_id'); // ✅ Store from session
             }
 
             // Get all permission column names from table (excluding id, userid, centerid)
             $allColumns = Schema::getColumnListing('permissions');
-            $permissionColumns = collect($allColumns)->filter(fn($col) => !in_array($col, ['id', 'userid', 'centerid']));
 
+            $permissionColumns = collect($allColumns)->filter(fn($col) => !in_array($col, ['id', 'userid', 'centerid']));
             // Set 1 for checked, 0 for unchecked
             foreach ($permissionColumns as $col) {
                 $permissionRecord->{$col} = isset($checkedPermissions[$col]) ? 1 : 0;
@@ -261,8 +263,10 @@ class SettingsController extends Controller
 
             $permissionRecord->save();
         }
+
         return redirect()->back()->with('success', 'Permissions updated successfully!');
     }
+
 
 
 
@@ -1247,10 +1251,7 @@ class SettingsController extends Controller
     {
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
-
-
         $user = User::where('userid', $authId)->first();
-
         return view('settings.profile', compact('user'));
     }
 
