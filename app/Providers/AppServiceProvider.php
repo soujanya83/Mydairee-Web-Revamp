@@ -160,7 +160,7 @@ class AppServiceProvider extends ServiceProvider
                         'deleteMenu',
                         'updateMenu',
                         'updateDailyDiary',
-                        'updateHeadChecks',
+                        'updateHeadChecksDaily',
                         'updateAccidents',
                         'updateModules',
                         'addUsers',

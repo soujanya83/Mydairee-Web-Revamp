@@ -57,7 +57,7 @@ class Permission extends Model
         'updateMenu',
         'viewDailyDiary',
         'updateDailyDiary',
-        'updateHeadChecks',
+        'updateHeadChecksDaily',
         'updateAccidents',
         'updateModules',
         'addUsers',
