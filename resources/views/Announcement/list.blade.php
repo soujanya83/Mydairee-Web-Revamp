@@ -293,6 +293,7 @@
 
 
 <main class="py-4">
+     @if(Auth::user()->userType != "Parent")
   <div class="col-12 d-flex  align-items-end flex-wrap gap-2 top-right-button-container mb-4">
 
     <!-- Filter Icon -->
@@ -357,6 +358,7 @@
         </select>
     </div>
 </div>
+@endif
 
 
     <div class="container-fluid px-3 px-md-4">

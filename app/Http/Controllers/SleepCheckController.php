@@ -128,7 +128,7 @@ public function getSleepChecksList(Request $request)
         $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
         $centers = Center::whereIn('id', $centerIds)->get();
     } else {
-        $centers = Center::where('id', $centerId)->get();
+        $centers = Center::where('id', $centerid)->get();
     }
 
     if (empty($request->roomid)) {
