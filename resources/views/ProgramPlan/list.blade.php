@@ -706,6 +706,7 @@
 
  <hr class="mt-3"> 
   <!-- filter  -->
+   @if(Auth::user()->userType != 'Parent')
              <div class="col-6 d-flex justify-content-end align-items-center top-right-button-container">
      <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
     <input 
@@ -754,6 +755,7 @@
 
 
 </div>
+@endif
              <!-- filter ends here  -->
 <!-- resources/views/program_plan_list.blade.php -->
 
