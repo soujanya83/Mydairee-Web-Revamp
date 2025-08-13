@@ -251,8 +251,8 @@
                             <div class="item-status-new">
                                 @php
                                     $statusClass = [
-                                        'Introduced' => 'badge-info',
-                                        'Practicing' => 'badge-warning',
+                                        'Introduced' => 'badge-warning',
+                                        'Practicing' => 'badge-info',
                                         'Completed' => 'badge-success'
                                     ];
                                     $displayStatus = $assessment->status === 'Working' ? 'Practicing' : $assessment->status;
@@ -560,8 +560,8 @@ function updateStatusBadge(assessmentId, status) {
         // Update badge class
         const statusClasses = {
            
-            'Introduced': 'badge-info',
-            'Practicing': 'badge-warning',
+            'Introduced': 'badge-warning',
+            'Practicing': 'badge-info',
             'Completed': 'badge-success'
         };
         

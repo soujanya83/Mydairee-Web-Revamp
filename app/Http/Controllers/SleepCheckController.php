@@ -15,6 +15,7 @@ use App\Models\DailyDiaryHeadCheckModel;
 use Illuminate\Support\Facades\Response;
 use App\Models\Usercenter;
 use App\Models\Child;
+use App\Models\Childparent;
 use App\Models\DailyDiarySleepCheckList;
 use Illuminate\Support\Facades\Validator;
 
@@ -165,11 +166,21 @@ public function getSleepChecksList(Request $request)
             }
   $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
 
-            $children = Child::where('room', $roomid)->get();
+  if(Auth::user()->userType == 'Parent'){
+    $parent = Childparent::where('parentid',Auth::user()->userid)->pluck('childid');
+  $children = Child::where('room', $roomid)->get();
 
             $sleepChecks = DailyDiarySleepCheckList::where(['createdBy'=>$userid, 'roomid'=>$roomid])
              ->whereDate('created_at', $date)
              ->get();
+  }else{
+  $children = Child::where('room', $roomid)->get();
+
+            $sleepChecks = DailyDiarySleepCheckList::where(['createdBy'=>$userid, 'roomid'=>$roomid])
+             ->whereDate('created_at', $date)
+             ->get();
+  }
+          
 
             //  dd($sleepChecks);
 
