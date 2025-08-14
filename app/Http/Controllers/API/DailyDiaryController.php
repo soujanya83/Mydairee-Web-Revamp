@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use App\Services\AuthTokenService; // Custom service to verify token
 use App\Models\DailyDiaryModel;
+use App\Models\Permission;
 use Illuminate\Support\Carbon;   
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -82,6 +83,8 @@ class DailyDiaryController extends Controller
 
         $dayIndex = $selectedDate->dayOfWeekIso - 1; // 0 = Monday
 
+        // dd($dayIndex);
+
         // Filter children by attendance on selected date
         $children = collect();
         if ($selectedroom) {
@@ -93,12 +96,12 @@ class DailyDiaryController extends Controller
                 ->map(function ($child) use ($selectedDate) {
                     return [
                         'child' => $child,
-                        'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+                        'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+                        'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+                        'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
                         'snacks' => DailyDiarySnacks::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
                         'afternoon_tea' => DailyDiaryAfternoonTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+                        'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
                         'lunch' => DailyDiaryLunch::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
                         'morning_tea' => DailyDiaryMorningTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
                         'breakfast' => DailyDiaryBreakfast::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
@@ -108,6 +111,8 @@ class DailyDiaryController extends Controller
         }
 
         // dd($children);
+
+        $permissions = Permission::where('userid',Auth::user()->userid)->where('centerid',$centerid)->first();
         
 
         // return view('Daily_diary.daily_diary_list', compact('centers', 'room', 'selectedroom', 'children','selectedDate'));
@@ -119,13 +124,11 @@ class DailyDiaryController extends Controller
             'rooms' => $room,
             'selectedRoom' => $selectedroom,
             'selectedDate' => $selectedDate->format('Y-m-d'),
+            'permission' => $permissions,
             'children' => $children,
         ]
     ]);
     }
-    
-
-
 
         public function getrooms5($center_id){
             try {
@@ -150,8 +153,6 @@ class DailyDiaryController extends Controller
                 ], 500);
             }
         }
-        
-
 
 
         private function getroomsforSuperadmin($center_id){
@@ -176,15 +177,7 @@ class DailyDiaryController extends Controller
             $rooms = Room::where('id', $allRoomIds)->get();
             return $rooms;
         }
-        
-        
-        
-      
-        
 
-
-
-    
 
    public function getDailyDiary($data)
     {
@@ -195,14 +188,13 @@ class DailyDiaryController extends Controller
 
         $userCenters = UserCenter::where('userid', $userid)->get();
 
-
-        if (Auth::user()->userType === 'Superadmin') {
-    $data['superadmin'] = 1;
-} elseif (Auth::user()->userType === 'Parent') {
-    $data['superadmin'] = 2;
-} else {
-    $data['superadmin'] = 0;
-}
+                if (Auth::user()->userType === 'Superadmin') {
+            $data['superadmin'] = 1;
+        } elseif (Auth::user()->userType === 'Parent') {
+            $data['superadmin'] = 2;
+        } else {
+            $data['superadmin'] = 0;
+        }
         // Room and room details
         if (empty($request->roomid)) {
             $getRooms =  $data['superadmin'] == 1
@@ -973,10 +965,9 @@ public function storeMorningTea(Request $request)
 
 public function storeSleep(Request $request)
 {
-
-    // dd('h');
-    // ✅ Validate request using Validator
+    // ✅ Validate request
     $validator = Validator::make($request->all(), [
+        'id'          => 'nullable|exists:daily_diary_sleep,id', // Allow ID for editing
         'date'        => 'required|date',
         'child_ids'   => 'required|array|min:1',
         'child_ids.*' => 'exists:child,id',
@@ -997,40 +988,49 @@ public function storeSleep(Request $request)
 
     try {
         DB::beginTransaction();
-
         $authId = Auth::id();
-        $count = 0;
+        $count  = 0;
 
+        // If ID is given, update the specific record
+        if (!empty($validated['id'])) {
+            $existingEntry = DailyDiarySleep::find($validated['id']);
+
+            if ($existingEntry) {
+                $existingEntry->update([
+                    'startTime' => $validated['sleep_time'] ?? $existingEntry->startTime,
+                    'endTime'   => $validated['wake_time'] ?? $existingEntry->endTime,
+                    'comments'  => $validated['comments'] ?? $existingEntry->comments,
+                ]);
+            }
+
+            DB::commit();
+            return response()->json([
+                'status'  => true,
+                'message' => 'Sleep entry updated successfully'
+            ]);
+        }
+
+        // Otherwise, insert/update for each child
         foreach ($validated['child_ids'] as $childId) {
             $existingEntry = DailyDiarySleep::where('childid', $childId)
                 ->whereDate('diarydate', $validated['date'])
                 ->first();
 
-            $updateData = [
-                'comments'   => $validated['comments'] ?? null,
-                
+            $data = [
+                'startTime' => $validated['sleep_time'] ?? $existingEntry->startTime ?? null,
+                'endTime'   => $validated['wake_time'] ?? $existingEntry->endTime ?? null,
+                'comments'  => $validated['comments'] ?? $existingEntry->comments ?? null,
+                'createdBy' => $authId,
             ];
 
-            if (!empty($validated['sleep_time'])) {
-                $updateData['startTime'] = $validated['sleep_time'];
-            }
-
-            if (!empty($validated['wake_time'])) {
-                $updateData['endTime'] = $validated['wake_time'];
-            }
-
             if ($existingEntry) {
-                $existingEntry->update($updateData);
+                $existingEntry->update($data);
             } else {
-               $entry = DailyDiarySleep::create([
+                DailyDiarySleep::create(array_merge($data, [
                     'childid'   => $childId,
                     'diarydate' => $validated['date'],
-                    'startTime' => $validated['sleep_time'] ?? null,
-                    'endTime'   => $validated['wake_time'] ?? null,
-                    'comments'  => $validated['comments'] ?? null,
-                    'createdBy' => $authId,
                     'createdAt' => now()
-                ]);
+                ]));
                 $count++;
             }
         }
@@ -1039,9 +1039,9 @@ public function storeSleep(Request $request)
 
         return response()->json([
             'status'  => true,
-            'message' => $count > 1 
-                ? "Sleep entries updated/created successfully for {$count} children" 
-                : "Sleep entry updated/created successfully"
+            'message' => $count > 1
+                ? "Sleep entries created successfully for {$count} children"
+                : "Sleep entry created/updated successfully"
         ]);
 
     } catch (\Exception $e) {
@@ -1053,6 +1053,7 @@ public function storeSleep(Request $request)
         ], 500);
     }
 }
+
 
 
 public function storeAfternoonTea(Request $request)
@@ -1183,65 +1184,90 @@ public function storeSnacks(Request $request)
 
 public function storeSunscreen(Request $request)
 {
+    // Validate input
     $validator = Validator::make($request->all(), [
-        'date' => 'required|date',
-        'child_ids' => 'required|array',
-        'child_ids.*' => 'exists:child,id',
-        'time' => 'required|date_format:H:i',
-        'comments' => 'nullable|string'
+        'date'       => 'required|date',
+        'child_ids'  => 'required|array',
+        'child_ids.*'=> 'exists:child,id',
+        'time'       => 'required|date_format:H:i',
+        'comments'   => 'nullable|string',
+        'id'         => 'nullable|integer|exists:daily_diary_sunscreen,id',
+        'signature'  => 'nullable|string'
     ], [
         'child_ids.*.exists' => 'One or more selected children are invalid.',
-        'time.date_format' => 'Time must be in HH:MM format.',
+        'time.date_format'   => 'Time must be in HH:MM format.',
     ]);
 
     if ($validator->fails()) {
         return response()->json([
-            'status' => 'error',
+            'status'  => 'error',
             'message' => 'Validation failed.',
-            'errors' => $validator->errors()
+            'errors'  => $validator->errors()
         ], 422);
     }
 
     try {
         DB::beginTransaction();
-        $authId = Auth::user()->id;
-        $count = 0;
 
-        foreach ($request->child_ids as $childId) {
-            $existingEntry = DailyDiarySunscreen::where('childid', $childId)
-                ->whereDate('diarydate', $request->date)
-                ->first();
+        $authId   = Auth::id();
+        $date     = $request->date;
+        $time     = $request->time;
+        $comments = trim($request->comments ?? '');
+        $signature= $request->signature;
+        
+        $createdCount = 0;
+        $updatedCount = 0;
 
+        // If updating by ID (direct single record update)
+        if ($request->id) {
+            $existingEntry = DailyDiarySunscreen::find($request->id);
             if ($existingEntry) {
                 $existingEntry->update([
-                    'startTime' => $request->time,
-                    'comments' => $request->comments
+                    'startTime' => $time,
+                    'comments'  => $comments,
+                    'signature' => $signature
                 ]);
+                $updatedCount++;
+            }
+        }
+
+        // Loop through children and insert/update accordingly
+        foreach ($request->child_ids as $childId) {
+            $entry = DailyDiarySunscreen::where('childid', $childId)
+                ->whereDate('diarydate', $date)
+                ->first();
+
+            if ($entry) {
+                $entry->update([
+                    'startTime' => $time,
+                    'comments'  => $comments
+                ]);
+                $updatedCount++;
             } else {
                 DailyDiarySunscreen::create([
-                    'childid' => $childId,
-                    'diarydate' => $request->date,
-                    'startTime' => $request->time,
-                    'comments' => $request->comments,
+                    'childid'   => $childId,
+                    'diarydate' => $date,
+                    'startTime' => $time,
+                    'comments'  => $comments,
                     'createdBy' => $authId,
-                    'createdAt' => now()
+                    'createdAt' => now(),
+                    'signature' => $signature
                 ]);
+                $createdCount++;
             }
-            $count++;
         }
 
         DB::commit();
+
         return response()->json([
-            'status' => 'success',
-            'message' => $count > 1 
-                ? "Sunscreen entries saved for {$count} children" 
-                : "Sunscreen entry saved"
+            'status'  => 'success',
+            'message' => "Sunscreen entries saved. Created: {$createdCount}, Updated: {$updatedCount}."
         ]);
 
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         DB::rollBack();
         return response()->json([
-            'status' => 'error',
+            'status'  => 'error',
             'message' => 'Error saving sunscreen: ' . $e->getMessage()
         ], 500);
     }
@@ -1259,7 +1285,8 @@ public function storeToileting(Request $request)
         'time' => 'required|date_format:H:i',
         'status' => 'required|in:clean,wet,soiled,successful',
         'comments' => 'nullable|string',
-        'signature' => 'nullable|string'
+        'signature' => 'nullable|string',
+        'id' => 'nullable|integer|exists:daily_diary_toileting,id' // added safe check
     ], [
         'child_ids.*.exists' => 'One or more selected children are invalid.',
         'status.in' => 'Status must be one of: clean, wet, soiled, or successful.',
@@ -1267,7 +1294,7 @@ public function storeToileting(Request $request)
 
     if ($validator->fails()) {
         return response()->json([
-            'status' => 'error',
+            'status' => false,
             'message' => 'Validation failed.',
             'errors' => $validator->errors()
         ], 422);
@@ -1278,28 +1305,53 @@ public function storeToileting(Request $request)
         $authId = Auth::user()->id;
         $count = 0;
 
+        // If updating a specific record
+        if ($request->filled('id')) {
+            $existingEntry = DailyDiaryToileting::find($request->id);
+
+            if (!$existingEntry) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Record not found.'
+                ], 404);
+            }
+
+            $existingEntry->update([
+                'startTime' => $request->time,
+                'status'    => $request->status,
+                'comments'  => $request->comments,
+                'signature' => $request->signature
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'status'  => true,
+                'message' => 'Toileting entry updated successfully.'
+            ]);
+        }
+
+        // Create or update multiple children
         foreach ($request->child_ids as $childId) {
             $existingEntry = DailyDiaryToileting::where('childid', $childId)
-                                ->whereDate('diarydate', $request->date)
-                                ->first();
+                ->whereDate('diarydate', $request->date)
+                ->first();
 
             if ($existingEntry) {
                 $existingEntry->update([
                     'startTime' => $request->time,
-                    'status' => $request->status,
-                    'comments' => $request->comments,
-                     
+                    'status'    => $request->status,
+                    'comments'  => $request->comments,
+                    'signature' => $request->signature
                 ]);
             } else {
                 DailyDiaryToileting::create([
-                    'childid' => $childId,
-                    'diarydate' => $request->date,
-                    'startTime' => $request->time,
-                    'status' => $request->status,
-                    'comments' => $request->comments,
-                    'createdBy' => $authId,
-                    'createdAt' => now(),
-                    'signature' => $request->signature
+                    'childid'    => $childId,
+                    'diarydate'  => $request->date,
+                    'startTime'  => $request->time,
+                    'status'     => $request->status,
+                    'comments'   => $request->comments,
+                    'createdBy'  => $authId,
+                    'signature'  => $request->signature
                 ]);
             }
             $count++;
@@ -1307,10 +1359,10 @@ public function storeToileting(Request $request)
 
         DB::commit();
         return response()->json([
-            'status' => true,
-            'message' => $count > 1 
-                ? "Toileting entries saved for {$count} children" 
-                : "Toileting entry saved"
+            'status'  => true,
+            'message' => $count > 1
+                ? "Toileting entries saved for {$count} children."
+                : "Toileting entry saved."
         ]);
 
     } catch (\Exception $e) {
@@ -1324,15 +1376,17 @@ public function storeToileting(Request $request)
 
 
 
+
 public function storeBottle(Request $request)
 {
-    // ✅ Manual validator for more control
+    // ✅ Validate input
     $validator = Validator::make($request->all(), [
         'date'        => 'required|date',
         'child_ids'   => 'required|array|min:1',
         'child_ids.*' => 'exists:child,id',
         'time'        => 'required|date_format:H:i',
-        'comments'    => 'nullable|string'
+        'comments'    => 'nullable|string',
+        'id'          => 'nullable|exists:daily_diary_bottle,id' // if editing
     ]);
 
     if ($validator->fails()) {
@@ -1350,6 +1404,25 @@ public function storeBottle(Request $request)
         $authId = Auth::id();
         $count = 0;
 
+        // ✅ If editing an existing single entry
+        if (!empty($validated['id'])) {
+            $existingEntry = DailyDiaryBottle::find($validated['id']);
+            if ($existingEntry) {
+                $existingEntry->update([
+                    'startTime'  => $validated['time'],
+                    'comments'   => $validated['comments'] ?? null,
+                    'updated_at' => now()
+                ]);
+                DB::commit();
+
+                return response()->json([
+                    'status'  => true,
+                    'message' => 'Bottle entry updated successfully'
+                ]);
+            }
+        }
+
+        // ✅ Create/update multiple children entries
         foreach ($validated['child_ids'] as $childId) {
             $existingEntry = DailyDiaryBottle::where('childid', $childId)
                 ->whereDate('diarydate', $validated['date'])

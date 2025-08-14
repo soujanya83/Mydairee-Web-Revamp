@@ -706,6 +706,7 @@
 
  <hr class="mt-3"> 
   <!-- filter  -->
+   @if(Auth::user()->userType != 'Parent')
              <div class="col-6 d-flex justify-content-end align-items-center top-right-button-container">
      <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
     <input 
@@ -754,6 +755,7 @@
 
 
 </div>
+@endif
              <!-- filter ends here  -->
 <!-- resources/views/program_plan_list.blade.php -->
 
@@ -775,11 +777,13 @@
     <!-- Main Content -->
  <div class="container-fluid px-0">
     <div class="program-plan-container">
+          <!-- @if(Auth::user()->userType != 'Parent') -->
         <div class="card-header-custom mb-3">
             <h5 class="card-header-title">
                 <i class="fas fa-table"></i> Program Plans
             </h5>
         </div>
+        <!-- @endif -->
 <div class="program-plan">
 
 
@@ -792,6 +796,7 @@
   <h5 class="card-title mb-2">
                                 {{ $getMonthName($plan->months) }} {{ $plan->years ?? '' }}
                             </h5>
+                           @if(Auth::user()->userType != "Parent")
 <p class="text-xs mb-2">
     @if($plan->status == 'Draft')
     <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
@@ -811,7 +816,7 @@
     </span>
     @endif
 </p>
-
+@endif
 
 
                             </div>
@@ -821,14 +826,15 @@
                                 <!-- <li><strong>S No:</strong> {{ ($programPlans->currentPage() - 1) * $programPlans->perPage() + $loop->iteration }}</li> -->
                                 <li><strong>Room:</strong> {{ $plan->room->name ?? '' }}</li>
                                 <li><strong>Created By:</strong> {{ $plan->creator->name ?? '' }}</li>
-                                <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li>
-                                <li><strong>Updated:</strong> {{ \Carbon\Carbon::parse($plan->updated_at)->format('d M Y / H:i') }}</li>
+                                <!-- <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li> -->
+                                <li><strong>Published on :</strong> {{ \Carbon\Carbon::parse($plan->updated_at)->format('d M Y') }}</li>
+
                             </ul>
 
                             <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
                                 <a href="{{ route('print.programplan', $plan->id) }}"
                                    class="btn btn-outline-primary btn-sm" title="Print">
-                                    <i class="fas fa-print"></i>
+                                    <i class="fas fa-eye"></i>
                                 </a>
 
                                 @if(Auth::user()->userType != 'Parent')
@@ -1033,8 +1039,9 @@
                                     
      <div class="d-flex justify-content-between">
   <h5 class="">
-                                ${monthName} ${year}
-                            </h5>
+    ${monthName} ${year}
+    </h5>
+    ${canEdit ? `
 <p class="text-xs mb-2">
  <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-pointer"
       style="transition: 0.2s; background: linear-gradient(135deg, ${status === 'Draft' ? 'var(--primary-color)' : 'var(--danger-color)'}, var(--secondary-color));"
@@ -1043,10 +1050,8 @@
       onmouseout="this.style.opacity='1';">
     ${status}
 </span>
+</p>` : ''}
 
-
-    
-</p>
 
 
 
@@ -1059,8 +1064,8 @@
                                         <ul class="list-unstyled mb-3">
                                             <li><strong>Room:</strong> ${roomName}</li>
                                             <li><strong>Created By:</strong> ${creator}</li>
-                                            <li><strong>Created:</strong> ${createdAt}</li>
-                                            <li><strong>Updated:</strong> ${updatedAt}</li>
+                                           <!--- <li><strong>Created:</strong> ${createdAt}</li> -----> 
+                                            <li><strong>Published on :</strong> ${updatedAt}</li>
                                         </ul>
                                         
                                         <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">

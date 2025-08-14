@@ -64,18 +64,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            {{-- <div class="row" style="padding: 10px;">
-                                @foreach($permissionColumns as $col)
-                                <div class="form-check form-check-inline"
-                                    style="min-width: 200px; margin-bottom: 10px;">
-                                    <input type="checkbox" name="permissions[{{ $col['name'] }}]" value="1"
-                                        class="form-check-input" id="perm_{{ $col['name'] }}">
-                                    <label for="perm_{{ $col['name'] }}" class="form-check-label">
-                                        {{ $col['label'] }}
-                                    </label>
-                                </div>
-                                @endforeach
-                            </div> --}}
+
 
                             <!-- Select All Checkbox -->
                             <div class="d-flex justify-content-between align-items-center mb-3 px-3">
@@ -106,19 +95,11 @@
                                 </div>
                                 @endforeach
                             </div>
-
-
-
-
                         </form>
-
                     </div>
-
                 </div>
             </div>
         </div>
-
-
     </div>
 </div>
 <script>

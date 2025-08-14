@@ -170,6 +170,8 @@ public function rooms_create(Request $request)
     $authId = Auth::user()->id;
     $centerid = $request->user_center_id;
 
+    // dd($centerid);
+
     // Get centers based on user type
     if (Auth::user()->userType === "Superadmin") {
         $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
@@ -180,8 +182,7 @@ public function rooms_create(Request $request)
 
     // Get rooms
     $roomQuery = Room::select('room.id as roomid', 'room.*')
-        ->join('centers', 'centers.id', '=', 'room.centerid')
-        ->where('room.userId', $userId);
+        ->join('centers', 'centers.id', '=', 'room.centerid');
 
     if ($centerid) {
         $roomQuery->where('room.centerid', $centerid);

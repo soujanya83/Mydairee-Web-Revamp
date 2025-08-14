@@ -269,7 +269,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::post('dailyDiary/addSleepRecord', [DailyDiaryController::class, 'addSleepRecord'])->name('dailyDiary.addSleepRecord');
     // Route::post('dailyDiary/addToiletingRecord', [DailyDiaryController::class, 'addToiletingRecord'])->name('dailyDiary.addToiletingRecord');
     // Route::post('dailyDiary/addSunscreenRecord', [DailyDiaryController::class, 'addSunscreenRecord'])->name('dailyDiary.addSunscreenRecord');
-    Route::post('dailyDiary/addBottle', [DailyDiaryController::class, 'addBottle'])->name('dailyDiary.addBottle');
+    // Route::post('dailyDiary/addBottle', [DailyDiaryController::class, 'addBottle'])->name('dailyDiary.addBottle');
     // Route::post('dailyDiary/deleteBottleTime', [DailyDiaryController::class, 'deleteBottleTime'])->name('dailyDiary.deleteBottleTime');
 
     // Route::post('dailyDiary/updateBottleTimes', [DailyDiaryController::class, 'updateBottleTimes'])->name('dailyDiary.updateBottleTimes');

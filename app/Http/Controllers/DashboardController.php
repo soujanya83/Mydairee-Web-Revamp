@@ -11,6 +11,7 @@ use App\Models\Usercenter;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AnnouncementChildModel;
+use App\Models\Childparent;
 use Carbon\Carbon;
 
 class DashboardController extends BaseController
@@ -39,10 +40,12 @@ class DashboardController extends BaseController
         $auth = Auth::user();
         $userid = $auth->userid;
         $usertype = $auth->userType;
+        // dd($usertype);
 
         if ($usertype === 'Parent') {
             // 1. Get all children for this parent
-            $childIds = Child::where('user_id', $userid)->pluck('id');
+
+            $childIds = Childparent::where('parentid', $userid)->pluck('childid');
 
             // 2. Get announcement IDs linked to these children
             $announcementIds = AnnouncementChildModel::whereIn('childid', $childIds)
@@ -88,10 +91,12 @@ class DashboardController extends BaseController
         $auth = Auth::user();
         $userid = $auth->userid;
         $usertype = $auth->userType;
+        //  dd($usertype);
 
-        if ($usertype === 'parents') {
+        if ($usertype === 'Parent') {
             // Show only children of the logged-in parent
-            $children = Child::where('user_id', $userid)->get();
+            $childparent = Childparent::where('parentid', $userid)->pluck('childid');
+            $children = Child::wherein('id', $childparent)->get();
         } else {
             // Show all children for other user types (admin, teacher, etc.)
             $children = Child::all();

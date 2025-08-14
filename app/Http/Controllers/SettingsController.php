@@ -194,7 +194,7 @@ class SettingsController extends Controller
     {
         $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
 
-        $assignedUserList = User::select('users.id', 'users.name')
+        $assignedUserList = User::select('users.id', 'users.name')->where('permissions.centerid',session('user_center_id'))
             ->join('permissions', 'permissions.userid', '=', 'users.id')
             ->distinct()
             ->get()
@@ -209,16 +209,133 @@ class SettingsController extends Controller
             ->map(fn($col) => [
                 'name' => $col,
                 'label' => Str::headline($col),
-            ])
+            ])->sortBy('label')
             ->toArray();
 
         return view('settings.assigned_permissions_list', compact('assignedUserList', 'permissionColumns'));
     }
 
+    // public function manage_permissions()
+    // {
+    //     $users = User::where('userType', 'Staff')->get();
+    //     $permissionColumns = collect(Schema::getColumnListing('permissions'))
+    //         ->filter(function ($column) {
+    //             return !in_array($column, ['id', 'userid', 'centerid']); // exclude default columns
+    //         })
+    //         ->map(function ($column) {
+    //             return [
+    //                 'name' => $column,
+    //                 'label' => Str::headline($column), // e.g., addObservation → Add Observation
+    //             ];
+    //         })
+    //         ->sortBy('label') // Sort alphabetically by label
+    //         ->values(); // Reindex keys
+
+    //     return view('settings.new_alluser_assign_permission', compact('users', 'permissionColumns'));
+    // }
+
+    // public function manage_permissions()
+    // {
+    //     $users = User::where('userType', 'Staff')->get();
+
+    //     $permissionColumns = collect(Schema::getColumnListing('permissions'))
+    //         ->filter(function ($column) {
+    //             return !in_array($column, ['id', 'userid', 'centerid']); // exclude default columns
+    //         })
+    //         ->map(function ($column) {
+    //             return [
+    //                 'name' => $column,
+    //                 'label' => Str::headline($column), // e.g., addObservation → Add Observation
+    //             ];
+    //         })
+    //         ->sortBy('label')
+    //         ->values(); // Reindex keys
+
+    //     // Group filters
+    //     $ObservationPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'observation');
+    //     })->values();
+    //     $RoomPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'room');
+    //     })->values();
+
+    //     $DailyPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'daily');
+    //     })->values();
+
+    //     $ReflectionPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Reflection');
+    //     })->values();
+
+    //     $QipPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'qip');
+    //     })->values();
+
+    //     $ProgramPlanPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'ProgramPlan');
+    //     })->values();
+
+
+    //     $AnnouncementPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Announcement');
+    //     })->values();
+
+    //     $SurveyPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Survey');
+    //     })->values();
+
+
+    //     $RecipePermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Recipe');
+    //     })->values();
+
+
+    //     $MenuPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Menu');
+    //     })->values();
+
+    //     $UsersPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Users');
+    //     })->values();
+
+    //     $CentersPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Centers');
+    //     })->values();
+
+    //     $ChildPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Child');
+    //     })->values();
+
+    //     $ParentPlanPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Parent');
+    //     })->values();
+
+    //     $ProgressPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Progress');
+    //     })->values();
+
+    //     $LessonPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Lesson');
+    //     })->values();
+
+    //     $assessmentPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'assessment');
+    //     })->values();
+
+    //     $AccidentsPermissions = $permissionColumns->filter(function ($item) {
+    //         return Str::contains(strtolower($item['name']), 'Accidents');
+    //     })->values();
+
+    //     return view(
+    //         'settings.new_alluser_assign_permission',
+    //         compact('users', 'permissionColumns', 'ObservationPermissions', 'RoomPermissions', 'AccidentsPermissions', 'assessmentPermissions', 'LessonPermissions', 'ProgressPermissions', 'ParentPlanPermissions', 'ChildPermissions', 'CentersPermissions', 'UsersPermissions', 'MenuPermissions', 'RecipePermissions', 'SurveyPermissions', 'AnnouncementPermissions', 'ProgramPlanPermissions', 'QipPermissions', 'ReflectionPermissions', 'DailyPermissions')
+    //     );
+    // }
+
     public function manage_permissions()
     {
-        $users = User::where('userType', 'Staff')->get();
-        $permissions = Schema::getColumnListing('users'); // Get column names from users table
+        $users = User::where(['users.userType' => 'Staff', 'usercenters.centerid' => session('user_center_id')])->join('usercenters', 'usercenters.userid', '=', 'users.userid')->get();
+
         $permissionColumns = collect(Schema::getColumnListing('permissions'))
             ->filter(function ($column) {
                 return !in_array($column, ['id', 'userid', 'centerid']); // exclude default columns
@@ -226,17 +343,95 @@ class SettingsController extends Controller
             ->map(function ($column) {
                 return [
                     'name' => $column,
-                    'label' => Str::headline($column), // e.g., addObservation → Add Observation
+                    'label' => Str::headline($column),
                 ];
-            });
+            })
+            ->sortBy('label')
+            ->values();
 
-        return view('settings.alluser_assign_permission', compact('users', 'permissionColumns'));
+        // Group filters
+        $ObservationPermissions = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'observation'))->values();
+        $RoomPermissions        = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'room'))->values();
+        $DailyPermissions       = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'daily'))->values();
+        $ReflectionPermissions  = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'reflection'))->values();
+        $QipPermissions         = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'qip'))->values();
+        $ProgramPlanPermissions = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'programplan'))->values();
+        $AnnouncementPermissions = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'announcement'))->values();
+        $SurveyPermissions      = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'survey'))->values();
+        $RecipePermissions      = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'recipe'))->values();
+        $MenuPermissions        = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'menu'))->values();
+        $UsersPermissions       = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'users'))->values();
+        $CentersPermissions     = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'centers'))->values();
+        $ChildPermissions       = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'child'))->values();
+        $ParentPlanPermissions  = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'parent'))->values();
+        $ProgressPermissions    = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'progress'))->values();
+        $LessonPermissions      = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'lesson'))->values();
+        $AssessmentPermissions  = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'assessment'))->values();
+        $AccidentsPermissions   = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'accidents'))->values();
+
+        // Combine all matched permissions
+        $allMatched = $ObservationPermissions
+            ->merge($RoomPermissions)
+            ->merge($DailyPermissions)
+            ->merge($ReflectionPermissions)
+            ->merge($QipPermissions)
+            ->merge($ProgramPlanPermissions)
+            ->merge($AnnouncementPermissions)
+            ->merge($SurveyPermissions)
+            ->merge($RecipePermissions)
+            ->merge($MenuPermissions)
+            ->merge($UsersPermissions)
+            ->merge($CentersPermissions)
+            ->merge($ChildPermissions)
+            ->merge($ParentPlanPermissions)
+            ->merge($ProgressPermissions)
+            ->merge($LessonPermissions)
+            ->merge($AssessmentPermissions)
+            ->merge($AccidentsPermissions)
+            ->pluck('name')
+            ->toArray();
+
+        // Get other permissions (not matched above)
+        $otherPermissions = $permissionColumns->reject(function ($item) use ($allMatched) {
+            return in_array($item['name'], $allMatched);
+        })->values();
+
+        return view(
+            'settings.new_alluser_assign_permission',
+            compact(
+                'users',
+                'permissionColumns',
+                'ObservationPermissions',
+                'RoomPermissions',
+                'AccidentsPermissions',
+                'AssessmentPermissions',
+                'LessonPermissions',
+                'ProgressPermissions',
+                'ParentPlanPermissions',
+                'ChildPermissions',
+                'CentersPermissions',
+                'UsersPermissions',
+                'MenuPermissions',
+                'RecipePermissions',
+                'SurveyPermissions',
+                'AnnouncementPermissions',
+                'ProgramPlanPermissions',
+                'QipPermissions',
+                'ReflectionPermissions',
+                'DailyPermissions',
+                'otherPermissions'
+            )
+        );
     }
+
+
+
+
+
 
 
     public function assign_user_permissions(Request $request)
     {
-
         $userIds = $request->input('user_ids', []);
         $checkedPermissions = $request->input('permissions', []); // ['addRoom' => '1', 'editRoom' => '1', ...]
 
@@ -247,13 +442,13 @@ class SettingsController extends Controller
             if (!$permissionRecord) {
                 $permissionRecord = new Permission();
                 $permissionRecord->userid = $userId;
-                // If you have centerid, also set: $permissionRecord->centerid = ...
+                $permissionRecord->centerid = session('user_center_id'); // ✅ Store from session
             }
 
             // Get all permission column names from table (excluding id, userid, centerid)
             $allColumns = Schema::getColumnListing('permissions');
-            $permissionColumns = collect($allColumns)->filter(fn($col) => !in_array($col, ['id', 'userid', 'centerid']));
 
+            $permissionColumns = collect($allColumns)->filter(fn($col) => !in_array($col, ['id', 'userid', 'centerid']));
             // Set 1 for checked, 0 for unchecked
             foreach ($permissionColumns as $col) {
                 $permissionRecord->{$col} = isset($checkedPermissions[$col]) ? 1 : 0;
@@ -261,8 +456,10 @@ class SettingsController extends Controller
 
             $permissionRecord->save();
         }
+
         return redirect()->back()->with('success', 'Permissions updated successfully!');
     }
+
 
 
 
@@ -1247,10 +1444,7 @@ class SettingsController extends Controller
     {
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
-
-
         $user = User::where('userid', $authId)->first();
-
         return view('settings.profile', compact('user'));
     }
 

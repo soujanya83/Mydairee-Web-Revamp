@@ -32,64 +32,109 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReflectionController extends Controller
 {
-      public function index( Request $request){
+    //   public function index( Request $request){
 
-        $authId = Auth::user()->id; 
-        $centerid = $request->center_id;
+    //     $authId = Auth::user()->id; 
+    //     $centerid = $request->center_id;
 
-        if(Auth::user()->userType == "Superadmin"){
-            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-            $centers = Center::whereIn('id', $center)->get();
-             }else{
-            $centers = Center::where('id', $centerid)->get();
-             }
+    //     if(Auth::user()->userType == "Superadmin"){
+    //         $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+    //         $centers = Center::whereIn('id', $center)->get();
+    //          }else{
+    //         $centers = Center::where('id', $centerid)->get();
+    //          }
 
 
-             if(Auth::user()->userType == "Superadmin"){
+    //          if(Auth::user()->userType == "Superadmin"){
 
-                $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
-                ->where('centerid', $centerid)
-                ->orderBy('id', 'desc') // optional: to show latest first
-                ->get(); // 10 items per page   
+    //             $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
+    //             ->where('centerid', $centerid)
+    //             ->orderBy('id', 'desc') // optional: to show latest first
+    //             ->get(); // 10 items per page   
    
-                }elseif(Auth::user()->userType == "Staff"){
+    //             }elseif(Auth::user()->userType == "Staff"){
    
-                //    $reflection = Reflection::with(['user', 'child','media'])
-                //    ->where('userId', $authId)
-                //    ->orderBy('id', 'desc') // optional: to show latest first
-                //    ->paginate(10); // 10 items per page 
+    //             //    $reflection = Reflection::with(['user', 'child','media'])
+    //             //    ->where('userId', $authId)
+    //             //    ->orderBy('id', 'desc') // optional: to show latest first
+    //             //    ->paginate(10); // 10 items per page 
 
-                $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
-                ->where('centerid', $centerid)
-                ->orderBy('id', 'desc') // optional: to show latest first
-                ->get(); // 10 items per page   
+    //             $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
+    //             ->where('centerid', $centerid)
+    //             ->orderBy('id', 'desc') // optional: to show latest first
+    //             ->get(); // 10 items per page   
    
-                }else{
+    //             }else{
    
-                   $childids = Childparent::where('parentid', $authId)->pluck('childid');
-                   $reflectionIds = ReflectionChild::whereIn('childId', $childids)
-                   ->pluck('reflectionid')
-                   ->unique()
-                   ->toArray();
-                   // dd($childids);
-               $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
-               ->whereIn('id', $reflectionIds)
-                ->orderBy('id', 'desc') // optional: to show latest first
-                ->get(); // 10 items per page   
+    //                $childids = Childparent::where('parentid', $authId)->pluck('childid');
+    //                $reflectionIds = ReflectionChild::whereIn('childId', $childids)
+    //                ->pluck('reflectionid')
+    //                ->unique()
+    //                ->toArray();
+    //                // dd($childids);
+    //            $reflection = Reflection::with(['creator', 'center','children.child','media','staff.staff','Seen.user'])
+    //            ->whereIn('id', $reflectionIds)
+    //             ->orderBy('id', 'desc') // optional: to show latest first
+    //             ->get(); // 10 items per page   
    
-                }
+    //             }
 
-                $data = [ 
-                    'centers' => $centers,
-                    'reflection' => $reflection
-                ];
+    //             $data = [ 
+    //                 'centers' => $centers,
+    //                 'reflection' => $reflection
+    //             ];
 
-            // dd($reflection);
-            return response()->json(['status' => true,'message' => 'data retrived successfully', 'data' => $data]);
+    //         // dd($reflection);
+    //         return response()->json(['status' => true,'message' => 'data retrived successfully', 'data' => $data]);
 
 
+    // }
+
+public function index(Request $request)
+{
+    $authId = Auth::user()->id; 
+    $centerid = $request->center_id;
+    $perPage = $request->get('per_page', 10); // Default 10 items per page
+
+    if (Auth::user()->userType == "Superadmin") {
+        $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+        $centers = Center::whereIn('id', $center)->get();
+    } else {
+        $centers = Center::where('id', $centerid)->get();
     }
 
+    if (Auth::user()->userType == "Superadmin") {
+        $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+            ->where('centerid', $centerid)
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
+    } elseif (Auth::user()->userType == "Staff") {
+        $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+            ->where('centerid', $centerid)
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
+    } else {
+        $childids = Childparent::where('parentid', $authId)->pluck('childid');
+        $reflectionIds = ReflectionChild::whereIn('childId', $childids)
+            ->pluck('reflectionid')
+            ->unique()
+            ->toArray();
+
+        $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+            ->whereIn('id', $reflectionIds)
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
+    }
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Data retrieved successfully',
+        'data' => [
+            'centers' => $centers,
+            'reflection' => $reflection
+        ]
+    ]);
+}
 
 
     public function storepage(Request $request)

@@ -97,7 +97,7 @@
                                     <a href="{{ route('dailyDiary.list') }}" data-toggle="tooltip" data-placement="right" > &nbsp;Daily Diary</a>
                                 </li>
                                 @endif
-                            
+
                                 @if(auth()->user()->userType != 'Parent')
 
                                 <li class="{{ Route::is('headChecks') ? 'active' : '' }}">
@@ -176,9 +176,11 @@
                                     style="font-size: 18px; margin-left:1px">Rooms</span></a>
 
                         </li>
+                        @endif
 
 
-
+@if(  in_array(auth()->user()->userType, ['Superadmin']) ||
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewQip']) && $permissions['viewQip']))
                         <li class="{{ Request::is('qip*') ? 'active' : null }}">
                             <a href="{{ route('qip.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-clipboard"
                                     style="font-size: 25px;"></i><span
@@ -190,7 +192,7 @@
                         <li class="{{ Request::is('learningandprogress*') ? 'active' : null }}">
                             <a href="{{ route('learningandprogress.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-chart-simple"
                                     style="font-size: 25px;"></i><span
-                                    style="font-size: 18px; margin-left:12px">Lession Plan</span></a>
+                                    style="font-size: 18px; margin-left:12px">Lesson Plan</span></a>
 
                         </li>
 
@@ -200,7 +202,7 @@
                         Route::is('recipes.Ingredients');
                         @endphp
 
-                      
+
                         <li class="{{ $isHealthyActive ? 'active open' : '' }}">
                             <a href="javascript:void(0);" data-toggle="tooltip" data-placement="right" class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -224,7 +226,7 @@
                             </ul>
                         </li>
 
-                     
+
 
                     @if(auth()->user()->userType != 'Parent')
 
