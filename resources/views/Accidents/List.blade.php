@@ -4,6 +4,25 @@
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
+    #filterchildname{
+        display: none;
+    }
+
+     #Filterbydate_from_label{
+        display: none;
+    }
+     #Filterbydate_from{
+        display: none;
+    }
+     #Filterbydate_to_label{
+        display: none;
+    }
+       #Filterbydate_to{
+        display: none;
+    }
+
+    </style>
+<style>
        .uniform-input {
         width: 180px;    /* same width for all */
         height: 36px;    /* same height */
@@ -742,47 +761,23 @@ class="btn btn-info btn-lg">
   <hr class="mt-3">
 
       <!-- filter  -->
-       @if(Auth::user()->userType != "Parent")
-             <div class="col-12 d-flex  align-items-end flex-wrap gap-2 top-right-button-container mb-4">
-     <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
+    <div class="col-6 d-flex align-items-center gap-2 top-right-button-container mb-4">
+    <i class="fas fa-filter" style="color:#17a2b8;"></i>
 
-       <select name="filter" id="" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input">
+    <select name="filter" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input ">
         <option value="">Choose</option>
-        <option value="title">Title</option>
-         <option value="createdby">Created by</option>
-          <option value="status">Status</option>
-           <option value="date">Date</option>
+        <option value="childname">Child Name</option>
     </select>
 
     <input 
         type="text" 
         name="filterbyCentername" 
-        class="form-control border-info form-control-sm uniform-input" 
-        placeholder="Filter by Child name" onkeyup="filterbyChildname(this.value)">
-
-            <!-- From Date -->
-    <div class="d-flex flex-column Filterbydate_from" >
-        <label for="Filterbydate_from" id="Filterbydate_from_label" class="text-info small mb-1 Filterbydate_from_label">From Date</label>
-        <input type="date" 
-               class="form-control border-info form-control-sm uniform-input"
-               id="Filterbydate_from"
-               name="date_from"
-               value="{{ request('date_from') }}"
-               onchange="filterProgramPlan()">
-    </div>
-
-    <!-- To Date -->
-    <div class="d-flex flex-column Filterbydate_to">
-        <label for="Filterbydate_to" id="Filterbydate_to_label" class="text-info small mb-1 Filterbydate_to_label">To Date</label>
-        <input type="date" 
-               class="form-control border-info form-control-sm uniform-input"
-               id="Filterbydate_to"
-               name="date_to"
-               value="{{ request('date_to') }}"
-               onchange="filterProgramPlan()">
-    </div>
+        id="filterchildname"
+        class="form-control border-info form-control-sm uniform-input flex-fill" 
+        placeholder="Filter by Child name" 
+        onkeyup="filterbyChildname(this.value)">
 </div>
-@endif
+
              <!-- filter ends here  -->
 
  <div class="container-fluid px-0" style="padding-block:2em;padding-inline:2em;">
@@ -1144,23 +1139,16 @@ function filterbyChildname(childname) {
 
 function showfilter(val) {
     // Hide all filters first
-    $('#FilterbyTitle, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #Filterbydate_to_label, #Filterbydate_to, #Filterbydate_from_label, #Filterbydate_from').hide();
+    $('#Filterbydate_to_label, #Filterbydate_to, #Filterbydate_from_label, #Filterbydate_from,#filterchildname').hide();
 
     // Clear values of all fields
-    $('#FilterbyTitle input, #FilterbyCreatedBy input, #statusFilter, #Filterbydate_to, #Filterbydate_from')
+    $(' #Filterbydate_to, #Filterbydate_from,#filterchildname input')
         .val('')
         .prop('checked', false)
         .trigger('change');
 
-    if (val === 'createdby') {
-        $('#FilterbyCreatedBy').show();
-    }
-    else if (val === 'status') {
-        $('#StatusFilter_label').show();
-        $('#statusFilter').show();
-    }
-    else if (val === 'title') {
-        $('#FilterbyTitle').show();
+    if (val === 'childname') {
+        $('#filterchildname').show();
     }
     else if (val === 'date') {
         $('#Filterbydate_to_label').show();
