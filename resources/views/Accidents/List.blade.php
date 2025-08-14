@@ -816,6 +816,7 @@ class="btn btn-info btn-lg">
     </a>
 
     <!-- Edit -->
+   
     @if($permission && $permission->updateAccidents == 1)
         <a href="{{ route('Accidents.edit') }}?id={{ $accident->id }}&centerid={{ $centerid }}&roomid={{ $roomid }}"
            class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
@@ -825,8 +826,9 @@ class="btn btn-info btn-lg">
         </a>
     @endif
 
+
     <!-- Delete -->
-  
+    @if(Auth::user()->userType != 'Parent')
      <form action="{{ route('Accident.delete') }}" method="POST" class="d-inline delete-form">
     @csrf
     <input type="hidden" name="accidentid" value="{{ $accident->id }}">
@@ -837,6 +839,7 @@ class="btn btn-info btn-lg">
         <i class="fa-solid fa-trash"></i>
     </button>
 </form>
+@endif
  
 </div>
 
