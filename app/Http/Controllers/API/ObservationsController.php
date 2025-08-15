@@ -1406,75 +1406,103 @@ if ($observation->room) {
 }
 
 
-
-  public function snapshotindex(Request $request)
+public function snapshotindex(Request $request)
 {
     $authId = Auth::user()->id;
     $user = Auth::user();
     $centerid = $request->centerid;
-  
 
-    if($user->usertype == "Parent"){
-         $centerid = Usercenter::where('userid',$authId)->first();
+    // Fallback for Parent
+    if ($user->usertype == "Parent") {
+        $centerid = Usercenter::where('userid', $authId)->value('centerid');
     }
 
-    // Fetch centers
-    if (Auth::user()->userType == "Superadmin") {
-        $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $center)->get();
-    } else {
-        $centers = Center::where('id', $centerid)->get();
+    // Fallback if still empty
+    if (empty($centerid)) {
+        $centerid = Usercenter::where('userid', $authId)->value('centerid');
     }
 
-    // Fetch snapshots based on user type
-    if (Auth::user()->userType == "Superadmin") {
+    $snapshots = collect();
+    $centers = collect();
 
-        $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-            ->where('centerid', $centerid)
-            ->orderBy('id', 'desc')
-            ->paginate();
+    // Role-specific fetching
+    if ($user->userType == "Superadmin") {
+        $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
 
-    } elseif (Auth::user()->userType == "Staff") {
-
+        if (!empty($centerIds)) {
+            $centers = Center::whereIn('id', $centerIds)->get();
+            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->whereIn('centerid', $centerIds)
+                ->orderBy('id', 'desc')
+                ->get();
+        }
+    } elseif ($user->userType == "Staff") {
+        if (!empty($centerid)) {
+            $centers = Center::where('id', $centerid)->get();
+        }
         $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
             ->where('createdBy', $authId)
             ->orderBy('id', 'desc')
             ->get();
-
-    } else {
+    } else { // Parent
+        if (!empty($centerid)) {
+            $centers = Center::where('id', $centerid)->get();
+        }
         $childids = Childparent::where('parentid', $authId)->pluck('childid');
-        $snapshotid = SnapshotChild::whereIn('childid', $childids)
-            ->pluck('snapshotid')
-            ->unique()
-            ->toArray();
 
-        $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-            ->whereIn('id', $snapshotid)
-            ->orderBy('id', 'desc')
-            ->get();
+        if ($childids->isNotEmpty()) {
+            $snapshotid = SnapshotChild::whereIn('childid', $childids)
+                ->pluck('snapshotid')
+                ->unique()
+                ->toArray();
+
+            if (!empty($snapshotid)) {
+                $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                    ->whereIn('id', $snapshotid)
+                    ->orderBy('id', 'desc')
+                    ->get();
+            }
+        }
     }
 
-    // Collect all unique room IDs from snapshots
+    // Response if no centers
+    if ($centers->isEmpty()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'No centers found for this user',
+            'snapshots' => [],
+            'centers' => []
+        ]);
+    }
+
+    // Response if no snapshots
+    if ($snapshots->isEmpty()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'No snapshots found for the selected center',
+            'snapshots' => [],
+            'centers' => $centers
+        ]);
+    }
+
+    // Rooms collection
     $allRoomIds = $snapshots->pluck('roomids')
-        ->flatMap(function ($roomids) {
-            return explode(',', $roomids);
-        })
+        ->flatMap(fn($roomids) => explode(',', $roomids))
         ->unique()
         ->filter();
 
-    $rooms = collect();
-    if ($allRoomIds->isNotEmpty()) {
-        $rooms = Room::whereIn('id', $allRoomIds)->get()->keyBy('id');
-    }
+    $rooms = $allRoomIds->isNotEmpty()
+        ? Room::whereIn('id', $allRoomIds)->get()->keyBy('id')
+        : collect();
 
-    // Attach room data to each snapshot
-    $snapshots->getCollection()->transform(function ($snapshot) use ($rooms) {
+    // Attach room data
+    $snapshots->transform(function ($snapshot) use ($rooms) {
         $roomIds = array_filter(explode(',', $snapshot->roomids));
         $snapshot->rooms = $rooms->only($roomIds)->values();
         return $snapshot;
     });
 
-    // Return JSON response
+    // Success response
     return response()->json([
         'status' => true,
         'message' => 'Snapshots fetched successfully',
@@ -1482,6 +1510,8 @@ if ($observation->room) {
         'centers' => $centers
     ]);
 }
+
+
 
 
 
