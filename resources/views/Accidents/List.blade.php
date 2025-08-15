@@ -761,6 +761,7 @@ class="btn btn-info btn-lg">
   <hr class="mt-3">
 
       <!-- filter  -->
+         @if(Auth::user()->userType != 'Parent')
     <div class="col-6 d-flex align-items-center gap-2 top-right-button-container mb-4">
     <i class="fas fa-filter" style="color:#17a2b8;"></i>
 
@@ -777,7 +778,7 @@ class="btn btn-info btn-lg">
         placeholder="Filter by Child name" 
         onkeyup="filterbyChildname(this.value)">
 </div>
-
+@endif
              <!-- filter ends here  -->
 
  <div class="container-fluid px-0" style="padding-block:2em;padding-inline:2em;">

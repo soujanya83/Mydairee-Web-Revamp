@@ -248,7 +248,7 @@
             <div class="btn btn-outline-info btn-lg dropdown-toggle">NO ROOMS AVAILABLE</div>
         @else
             <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="roomDropdown" data-toggle="dropdown" data-selected-room="{{ request('roomid', $roomid) }}">
-                 {{ $selectedroom->name ?? 'Select Room' }}
+                 {{ $rooms->first()->name ?? 'Select Room' }}
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="roomDropdown">
                 @foreach($rooms as $room)
