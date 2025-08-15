@@ -9,7 +9,7 @@ use Illuminate\support\Facades\Auth;
 use App\Models\Usercenter; 
 use App\Models\Center; 
 use App\Models\Room;
-use App\Models\ChildParent;
+use App\Models\Childparent;
 use App\Models\Child;
 use App\Models\RoomStaff;
 use App\Models\DailyDiarySettings;
