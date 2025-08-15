@@ -1512,10 +1512,6 @@ public function snapshotindex(Request $request)
 }
 
 
-
-
-
-
 public function snapshotindexstorepage(Request $request)
 {
     $id = $request->id;
