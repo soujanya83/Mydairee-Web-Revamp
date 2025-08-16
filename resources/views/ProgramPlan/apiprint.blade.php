@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>NextGen Montessori Program Plan</title>
 
     <!-- CSS Dependencies -->
@@ -22,11 +21,11 @@
             padding: 20px;
         }
 
-        .page {
+        /* .page {
             
             margin-bottom: 30px;
             page-break-after: always;
-        }
+        } */
 
         /* .header {
             text-align: center;
@@ -56,13 +55,12 @@
     border-radius: 10px;
 
     /* Use url() for image */
-    background-size: contain; 
-    background-repeat: no-repeat; 
+        background-size: contain; 
+        background-repeat: no-repeat; 
                  }
 
         .header img {
-    padding: 20px;
-
+            padding: 20px;
             max-width: 300px;
         }
 
@@ -76,7 +74,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            /* margin-bottom: 20px; */
+            margin-bottom: 20px;
         }
 
         th, td {
@@ -93,8 +91,8 @@
             height: 30px;
         }
 
-        .main-content-row td {
-            height: 380px;
+        .main-content-row  {
+            min-height: 380px;
         }
 
         .focus-area {
@@ -172,58 +170,14 @@
             cursor: pointer;
         }
 
-        .topdivs {
-            min-height:250px;
-        }
+        /* .topdivs {
+            min-height:550px;
+        } */
 
         .bottomdivs{
             margin-top:10px;
         }
 
-        @media print {
-    .print-button {
-        display: none;
-    }
-    .back-button {
-        display: none;
-    }
-
-    body {  
-        margin: 0;
-        padding: 0;
-    }
-
-    .page {
-        margin-left:180px;
-         /* Center the page horizontally */
-        padding: 10px;
-        width: 100%; /* Adjust width if needed */
-        box-sizing: border-box;
-        page-break-after: always; /* Force page break after each .page */
-    }
-
-    .page:last-child {
-        page-break-after: auto; /* Prevent extra blank page at the end */
-    }
-
-    @page {
-        size: A3 landscape;
-        margin: 0;
-    }
-
-    .header {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        color-adjust: exact !important;
-    }
-
-    /* Force background images and colors to print */
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        color-adjust: exact !important;
-    }
-}
 
 
 
@@ -232,15 +186,12 @@
 </head>
 <body>
 
-    <button onclick="window.print()" class="print-button">Print Pages&nbsp;<i class="fa-solid fa-print fa-beat-fade"></i></button>
-    <button onclick="window.location.href='{{ route('programPlanList') }}'" class="back-button">
-        <i class="fa-solid fa-arrow-left fa-beat"></i>&nbsp;Go Back
-    </button>
+ 
 
     <!-- Page 1 -->
     <div class="page">
         <div class="header">
-            <img src="{{ asset('assets/img/profile_1739442700.jpeg') }}" alt="NextGen Montessori Logo">
+            <img src="{{ public_path('assets/img/profile_1739442700.jpeg') }}" alt="NextGen Montessori Logo">
         </div>
 
         <div class="program-title">
@@ -390,7 +341,7 @@
     </div>
 
     <!-- JS for select2 interaction -->
-    <script>
+    <!-- <script>
         $(document).ready(function() {
             $('.select2-multiple, #educators').select2({
                 placeholder: "Select",
@@ -410,7 +361,7 @@
                 }).get().join(', '));
             });
         });
-    </script>
+    </script> -->
 
 </body>
 </html>
