@@ -1154,7 +1154,7 @@
     {{-- Tab panes for each subject --}}
     <div class="tab-content mt-3" id="learning-tabs">
     @foreach($subjects as $subject)
-        <div class="tab-pane fade" id="subject-{{ $subject->idSubject }}" role="tabpanel">
+        <div class="tab-pane" id="subject-{{ $subject->idSubject }}" role="tabpanel">
             <div id="learning-accordion-{{ $subject->idSubject }}">
                 @foreach($subject->activities as $act)
                     <div class="card mb-2">
@@ -1260,7 +1260,7 @@
 
   <div class="tab-content" id="eylf-tabs">
     @foreach($outcomes as $o)
-      <div class="tab-pane fade" id="eylf-outcome-{{ $o->id }}">
+      <div class="tab-pane" id="eylf-outcome-{{ $o->id }}">
         <div id="eylf-accordion-{{ $o->id }}">
           @foreach($o->activities as $act)
             <div class="card mb-2">
@@ -1325,7 +1325,7 @@
 
   <div class="tab-content" id="devmilestone-tabs">
     @foreach($milestones as $ms)
-      <div class="tab-pane fade" id="dev-age-{{ $ms->id }}">
+      <div class="tab-pane" id="dev-age-{{ $ms->id }}">
         <div id="devmilestone-accordion-{{ $ms->id }}">
           @foreach($ms->mains as $main)
             <!-- Accordion Card -->
