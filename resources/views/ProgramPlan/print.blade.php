@@ -250,7 +250,7 @@
                 <td><strong>Room Name</strong></td>
                 <td colspan="3">{{ $room_name }}</td>
                 <td rowspan="2" class="focus-area"><strong>Focus Area</strong></td>
-                <td rowspan="2">{{ $plan['focus_area'] ?? 'N/A' }}</td>
+                <td rowspan="2">{{ $plan['focus_area'] ?? '' }}</td>
             </tr>
             <tr class="educators-row">
                 <td><strong>Educators</strong></td>
@@ -289,7 +289,7 @@
                             }
                             if ($inList) $html .= '</ul>';
                         } else {
-                            $html = 'N/A';
+                            $html = '';
                         }
                         return $html;
                     }
@@ -298,20 +298,20 @@
                 @foreach (['practical_life', 'sensorial', 'math', 'language', 'culture'] as $area)
                     <td>
                         <div class="topdivs">{!! formatActivities($plan[$area] ?? '') !!}</div>
-                        <div class="bottomdivs">{{ $plan[$area . '_experiences'] ?? 'N/A' }}</div>
+                        <div class="bottomdivs">{{ $plan[$area . '_experiences'] ?? '' }}</div>
                     </td>
                 @endforeach
 
                 <td>
-                    <div class="topdivs">{{ $plan['art_craft'] ?? 'N/A' }}</div>
-                    <div class="bottomdivs">{{ $plan['art_craft_experiences'] ?? 'N/A' }}</div>
+                    <div class="topdivs">{{ $plan['art_craft'] ?? '' }}</div>
+                    <div class="bottomdivs">{{ $plan['art_craft_experiences'] ?? '' }}</div>
                 </td>
             </tr>
         </table>
 
         <div class="eylf-section">
             <div class="section-label" style="margin:10px;">EYLF:</div>
-            <div style="margin:10px;">{!! nl2br(e($plan['eylf'] ?? 'N/A')) !!}</div>
+            <div style="margin:10px;">{!! nl2br(e($plan['eylf'] ?? '')) !!}</div>
         </div>
 
         <div class="footer">
@@ -335,15 +335,15 @@
                         @endforeach
                     </ul>
                 @else
-                    N/A
+                    <p> </p>
                 @endif
             </div>
         </div>
 
         <table>
             <tr>
-                <td><div class="section-label">Inquiry Topic:</div><div style="margin:10px;">{{ $plan['inquiry_topic'] ?? 'N/A' }}</div></td>
-                <td><div class="section-label">Sustainability Topic:</div><div style="margin:10px;">{{ $plan['sustainability_topic'] ?? 'N/A' }}</div></td>
+                <td><div class="section-label">Inquiry Topic:</div><div style="margin:10px;">{{ $plan['inquiry_topic'] ?? '' }}</div></td>
+                <td><div class="section-label">Sustainability Topic:</div><div style="margin:10px;">{{ $plan['sustainability_topic'] ?? '' }}</div></td>
                 <td>
                     <div class="section-label">Special Events:</div>
                     <div style="margin:10px;">
@@ -354,7 +354,7 @@
                                 @endforeach
                             </ul>
                         @else
-                            N/A
+                                <p> </p>
                         @endif
                     </div>
                 </td>
@@ -365,20 +365,20 @@
             <tr>
                 <td colspan="3">
                     <div class="section-label">Children's Voices:</div>
-                    <div style="margin:10px;">{{ $plan['children_voices'] ?? 'N/A' }}</div>
+                    <div style="margin:10px;">{{ $plan['children_voices'] ?? '' }}</div>
                 </td>
                 <td>
                     <div class="section-label">Families Input:</div>
-                    <div style="margin:10px;">{{ $plan['families_input'] ?? 'N/A' }}</div>
+                    <div style="margin:10px;">{{ $plan['families_input'] ?? '' }}</div>
                 </td>
             </tr>
         </table>
 
         <table>
             <tr>
-                <td><div class="section-label">Group Experience:</div><div style="margin:10px;">{{ $plan['group_experience'] ?? 'N/A' }}</div></td>
-                <td><div class="section-label">Spontaneous Experience:</div><div style="margin:10px;">{{ $plan['spontaneous_experience'] ?? 'N/A' }}</div></td>
-                <td><div class="section-label">Mindfulness Experiences:</div><div style="margin:10px;">{{ $plan['mindfulness_experiences'] ?? 'N/A' }}</div></td>
+                <td><div class="section-label">Group Experience:</div><div style="margin:10px;">{{ $plan['group_experience'] ?? '' }}</div></td>
+                <td><div class="section-label">Spontaneous Experience:</div><div style="margin:10px;">{{ $plan['spontaneous_experience'] ?? '' }}</div></td>
+                <td><div class="section-label">Mindfulness Experiences:</div><div style="margin:10px;">{{ $plan['mindfulness_experiences'] ?? '' }}</div></td>
             </tr>
         </table>
 

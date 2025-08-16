@@ -4,6 +4,33 @@
 
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    #filterbychildname{
+        display: none;
+    }
+     #FilterbyCreatedBy{
+        display: none;
+    }
+     #StatusFilter{
+        display: none;
+    }
+     #StatusFilter_label{
+        display: none;
+    }
+     #Filterbydate_from_label{
+        display: none;
+    }
+     #Filterbydate_from{
+        display: none;
+    }
+     #Filterbydate_to_label{
+        display: none;
+    }
+       #Filterbydate_to{
+        display: none;
+    }
+
+    </style>
  <style>
         .d-flex-custom{
             display: flex;
@@ -221,7 +248,7 @@
             <div class="btn btn-outline-info btn-lg dropdown-toggle">NO ROOMS AVAILABLE</div>
         @else
             <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="roomDropdown" data-toggle="dropdown" data-selected-room="{{ request('roomid', $roomid) }}">
-                {{ strtoupper($rooms->firstWhere('id', request('roomid', $roomid))->name ?? 'Select Room') }}
+                 {{ $rooms->first()->name ?? 'Select Room' }}
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="roomDropdown">
                 @foreach($rooms as $room)
@@ -256,15 +283,25 @@
              <!-- filter ends here  -->
 
 <main class="default-transition" style="padding-block:1em;padding-inline:2em;">
-           <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container mb-4">
+    @if(Auth::user()->userType != 'Parent')
+           <div class="col-5 d-flex justify-content-start align-items-center top-right-button-container mb-4">
     <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
+
+       <select name="filter" id="" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input col-3">
+        <option value="">Choose</option>
+        <option value="childname">Child Name</option>
+      
+    </select>
 
     <input 
         type="text" 
-        name="filterbyCentername" 
-        class="form-control border-info" 
+        name="filterbychildname" 
+        id="filterbychildname"
+        class="form-control border-info ml-2" 
         placeholder="Filter by Child name" onkeyup="filterbyChildname(this.value)">
 </div>
+@endif
+
     <div class="default-transition">
         <div class="container-fluid">
             <div class="row">
@@ -296,7 +333,7 @@
       <div class="child-header">
         @if (!empty($child->imageUrl))
           <div class="child-avatar" style="display: inline-block; margin-right: 10px;">
-            <img src="{{ asset('assets/media/' . $child->imageUrl) }}" alt="{{ $child->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+            <img src="{{ asset($child->imageUrl) }}" alt="{{ $child->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
           </div>
         @else
           <div class="child-avatar" style="display: inline-block; margin-right: 10px;">
@@ -317,7 +354,9 @@
             <th>Breathing</th>
             <th>Body Temperature</th>
             <th>Notes</th>
+                @if(Auth::user()->userType != 'Parent')
             <th>Action</th>
+            @endif
           </tr>
         </thead>
         <tbody>
@@ -346,10 +385,12 @@
                 </select>
               </td>
               <td><textarea rows="2">{{ $sleep->notes }}</textarea></td>
+               @if(Auth::user()->userType != 'Parent')
               <td>
                 <button class="update-row-btn btn-outline-info" onclick="updateRow(this,' {{ $child->id }} ',' {{ $sleep->id }}')">Update</button>
                 <button class="delete-row-btn btn-outline-info" onclick="deleteRow(this, '{{ $sleep->id }}')">Delete</button>
               </td>
+              @endif
             </tr>
           @endforeach
 
@@ -372,14 +413,18 @@
               </select>
             </td>
             <td><textarea rows="2" name="children[{{ $child->id }}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
+           @if(Auth::user()->userType != 'Parent')
             <td>
               <button class="save-row-btn btn-outline-info" onclick="saveRow(this, '{{ $child->id }}')">Save</button>
               <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>
             </td>
+            @endif
           </tr>
         </tbody>
       </table>
+       @if(Auth::user()->userType != 'Parent')
       <button class="add-row-btn" onclick="addRow('child{{ $child->id }}', '{{ $child->id }}')">+ Add 10-Min Entry</button>
+      @endif
     </div>
   @endforeach
 </div>
@@ -667,10 +712,11 @@ function filterbyChildname(childname) {
             response.data.forEach(item => {
                 let child = item.child;
                 let checks = item.sleep_checks;
+                 const assetBaseUrl = "{{ asset('') }}";
 
                 // Avatar handling
                 let avatar = child.image 
-                    ? `<img src="${child.image}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`
+                    ? `<img src="${assetBaseUrl}${child.image}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`
                     : `<div style="width:40px;height:40px;border-radius:50%;background:#ccc;display:flex;align-items:center;justify-content:center;">
                            <span style="font-size:18px;color:#666;">${child.name.charAt(0).toUpperCase()}</span>
                        </div>`;
@@ -766,6 +812,37 @@ function filterbyChildname(childname) {
             console.error('AJAX error:', xhr.responseText);
         }
     });
+}
+
+function showfilter(val) {
+    // Hide all filters first
+    $('#FilterbyTitle, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #Filterbydate_to_label, #Filterbydate_to, #Filterbydate_from_label, #Filterbydate_from').hide();
+
+    // Clear values of all fields
+    $('#FilterbyTitle input, #FilterbyCreatedBy input, #statusFilter, #Filterbydate_to, #Filterbydate_from.childname')
+        .val('')
+        .prop('checked', false)
+        .trigger('change');
+
+    if (val === 'childname') {
+        $('#filterbychildname').show();
+    }
+    else if (val === 'status') {
+        $('#statusFilter_label').show();
+        $('#statusFilter').show();
+    }
+    else if (val === 'title') {
+        $('#FilterbyTitle').show();
+    }
+    else if (val === 'date') {
+        $('#Filterbydate_to_label').show();
+        $('#Filterbydate_to').show();
+        $('#Filterbydate_from_label').show();
+        $('#Filterbydate_from').show();
+    }
+    else {
+        window.location.reload();
+    }
 }
 
 </script>

@@ -293,6 +293,7 @@
 
 
 <main class="py-4">
+     @if(Auth::user()->userType != "Parent")
   <div class="col-12 d-flex  align-items-end flex-wrap gap-2 top-right-button-container mb-4">
 
     <!-- Filter Icon -->
@@ -301,7 +302,7 @@
     <select name="filter" id="" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input">
         <option value="">Choose</option>
         <option value="title">Title</option>
-         <option value="createdby">Created by</option>
+         <!-- <option value="createdby">Created by</option> -->
           <option value="status">Status</option>
            <option value="date">Date</option>
     </select>
@@ -316,13 +317,13 @@
         onkeyup="filterProgramPlan()">
 
     <!-- Created By Filter -->
-    <input 
+    <!-- <input 
         type="text" 
         name="filterbyCreatedBy" 
         class="form-control border-info form-control-sm uniform-input"
         id="FilterbyCreatedBy"
         placeholder="Filter by Created by"
-        onkeyup="filterProgramPlan()">
+        onkeyup="filterProgramPlan()"> -->
 
     <!-- From Date -->
     <div class="d-flex flex-column Filterbydate_from" >
@@ -357,6 +358,7 @@
         </select>
     </div>
 </div>
+@endif
 
 
     <div class="container-fluid px-3 px-md-4">

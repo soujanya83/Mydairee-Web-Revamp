@@ -4,6 +4,15 @@
 
 @section('page-styles')
 <style>
+    #FilterbyCreatedBy{
+        display: none;
+    }
+     #FilterbyStatus{
+        display: none;
+    }
+       #FilterbyRoomName{
+        display: none;
+    }
     .swal2-confirm.published-btn {
     background: linear-gradient(135deg, var(--danger-color), var(--secondary-color)) !important;
     color: #fff !important;
@@ -707,12 +716,18 @@
  <hr class="mt-3"> 
   <!-- filter  -->
    @if(Auth::user()->userType != 'Parent')
-             <div class="col-6 d-flex justify-content-end align-items-center top-right-button-container">
+             <div class="col-6 d-flex justify-content-start align-items-center top-right-button-container">
      <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
+     <select name="filter" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input col-3 ">
+        <option value="">Choose</option>
+        <option value="roomname">Room Name</option>
+         <option value="createdby">Created By</option>
+          <option value="status">Status</option>
+    </select>
     <input 
         type="text" 
         name="filterbyCentername" 
-        class="form-control border-info" 
+        class="form-control border-info ml-2" 
         id="FilterbyRoomName"
         placeholder="Filter by Room name" onkeyup="filterProgramPlan()">
 
@@ -730,27 +745,6 @@
         id="FilterbyStatus"
         placeholder="Filter by Status" onkeyup="filterProgramPlan()">
 
-<!-- <input list="monthsList" 
-       id="FilterbyMonth" 
-       class="form-control border-info mx-2" 
-       placeholder="Month" 
-       oninput="updateMonthDisplay(); filterProgramPlan()" 
-       onfocus="this.showPicker && this.showPicker()">
-
-<datalist id="monthsList">
-    <option value="0">January</option>
-    <option value="1">February</option>
-    <option value="2">March</option>
-    <option value="3">April</option>
-    <option value="4">May</option>
-    <option value="5">June</option>
-    <option value="6">July</option>
-    <option value="7">August</option>
-    <option value="8">September</option>
-    <option value="9">October</option>
-    <option value="10">November</option>
-    <option value="11">December</option>
-</datalist> -->
 
 
 
@@ -777,11 +771,13 @@
     <!-- Main Content -->
  <div class="container-fluid px-0">
     <div class="program-plan-container">
+          <!-- @if(Auth::user()->userType != 'Parent') -->
         <div class="card-header-custom mb-3">
             <h5 class="card-header-title">
                 <i class="fas fa-table"></i> Program Plans
             </h5>
         </div>
+        <!-- @endif -->
 <div class="program-plan">
 
 
@@ -1296,6 +1292,23 @@ function updatestatus(currentStatus, planid) {
 }
 
 
+function showfilter(val) {
+    // Clear and hide all filter fields
+    $('#FilterbyRoomName, #FilterbyCreatedBy, #FilterbyStatus')
+        .val('') // clear values
+        .hide(); // hide fields
+
+    // Show the selected filter field
+    if (val === 'roomname') {
+        $('#FilterbyRoomName').show();
+    } 
+    else if (val === 'createdby') {
+        $('#FilterbyCreatedBy').show();
+    } 
+    else if (val === 'status') {
+        $('#FilterbyStatus').show();
+    }
+}
 
 </script>
 
