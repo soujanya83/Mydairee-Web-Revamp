@@ -636,10 +636,10 @@ function updateFileInput() {
             height: '150px' // Note: You need CSS for height in CKEditor 5
         })
         .then(editor => {
-            console.log('CKEditor 5 initialized', editor);
+            // console.log('CKEditor 5 initialized', editor);
         })
         .catch(error => {
-            console.error('There was a problem initializing the editor:', error);
+            // console.error('There was a problem initializing the editor:', error);
         });
 
 

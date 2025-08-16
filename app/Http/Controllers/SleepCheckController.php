@@ -90,6 +90,7 @@ class SleepCheckController extends Controller
                     'breathing'        => $check->breathing,
                     'body_temperature' => $check->body_temperature,
                     'notes'            => $check->notes,
+                    'signature' => $check->signature
                 ];
             })->toArray()
         ];
@@ -240,6 +241,7 @@ public function getSleepChecksList(Request $request)
         'breathing'        => 'nullable|string',
         'body_temperature' => 'nullable|string',
         'notes'            => 'nullable|string',
+        'signature' => 'nullable|string'
     ]);
 
 
@@ -261,6 +263,7 @@ public function getSleepChecksList(Request $request)
         'notes'            => $request->notes,
         'createdBy'        => $createdBy,
         'created_at'       => now(),
+        'signature' => $request->signature
     ]);
 
     if ($check) {
@@ -289,6 +292,7 @@ public function sleepcheckUpdate(Request $request)
         'breathing'        => 'nullable|string',
         'body_temperature' => 'nullable|string',
         'notes'            => 'nullable|string',
+        'signature' => 'nullable|string'
     ]);
 
     // Convert diarydate to Y-m-d
@@ -304,6 +308,7 @@ public function sleepcheckUpdate(Request $request)
     $entry->breathing = $request->breathing;
     $entry->body_temperature = $request->body_temperature;
     $entry->notes = $request->notes;
+     $entry->signature = $request->signature;
 
     $updated = $entry->isDirty() ? $entry->save() : false;
 

@@ -284,13 +284,16 @@
             class="btn btn-outline-info btn-lg">ADD NEW</a>
         @endif
         @endif
+
+          @if(Auth::user()->userType === 'Superadmin')
+        <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}"
+            class="btn btn-outline-info btn-lg">ADD NEW</a>
+        @endif
     </div>
 
 </div>
 
  <hr class="mt-3"> 
-
-
 
 <main class="py-4">
      @if(Auth::user()->userType != "Parent")
