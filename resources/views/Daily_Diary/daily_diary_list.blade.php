@@ -981,7 +981,7 @@ body {
                                     @if($breakfast)
                                     <span class="badge badge-success badge-status ml-2">Completed</span>
                                     @else
-                                    <span class="badge badge-info badge-status ml-2">Not Update</span>
+                                    <span class="badge badge-info badge-status ml-2">No Update</span>
                                     @endif
                                     <i class="fas fa-chevron-down collapse-icon"></i>
                                 </h5>
@@ -1004,18 +1004,18 @@ body {
                                                
                                                 <span class="entry-label">Time:</span>
                                               
-                                                <span class="entry-value">{{ $breakfast->startTime ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $breakfast->startTime ?? 'No Update' }}</span>
                                           
                                             </div>
                                             <div class="entry-item">
                                                 <span class="entry-label">Item:</span>
-                                                <span class="entry-value">{{ $breakfast->item ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $breakfast->item ?? 'No Update' }}</span>
                                             </div>
                                         </div>
                                         <div class="entry-row">
                                             <div class="entry-item">
                                                 <span class="entry-label">Comments:</span>
-                                                <span class="entry-value">{{ $breakfast->comments ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $breakfast->comments ?? 'No Update' }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1032,7 +1032,7 @@ body {
                                     @if($morning_tea)
                                     <span class="badge badge-success badge-status ml-2">Completed</span>
                                     @else
-                                    <span class="badge badge-info badge-status ml-2">Not Update</span>
+                                    <span class="badge badge-info badge-status ml-2">No Update</span>
                                     @endif
                                     <i class="fas fa-chevron-down collapse-icon"></i>
                                 </h5>
@@ -1053,11 +1053,11 @@ body {
                                         <div class="entry-row">
                                             <div class="entry-item">
                                                 <span class="entry-label">Time:</span>
-                                                <span class="entry-value">{{ $morning_tea->startTime ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $morning_tea->startTime ?? 'No Update' }}</span>
                                             </div>
                                             <div class="entry-item">
                                                 <span class="entry-label">Comments:</span>
-                                                <span class="entry-value">{{ $morning_tea->comments ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $morning_tea->comments ?? 'No Update' }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1095,17 +1095,17 @@ body {
                                         <div class="entry-row">
                                             <div class="entry-item">
                                                 <span class="entry-label">Time:</span>
-                                                <span class="entry-value">{{ $lunch->startTime ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $lunch->startTime ?? 'No Update' }}</span>
                                             </div>
                                             <div class="entry-item">
                                                 <span class="entry-label">Item:</span>
-                                                <span class="entry-value">{{ $lunch->item ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $lunch->item ?? 'No Update' }}</span>
                                             </div>
                                         </div>
                                         <div class="entry-row">
                                             <div class="entry-item">
                                                 <span class="entry-label">Comments:</span>
-                                                <span class="entry-value">{{ $lunch->comments ?? 'Not-Update' }}</span>
+                                                <span class="entry-value">{{ $lunch->comments ?? 'No Update' }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1349,7 +1349,7 @@ body {
                                     @if($toileting->count())
                                         <span class="badge badge-info badge-status ml-2">{{ $toileting->count() }} Changes</span>
                                     @else
-                                        <span class="badge badge-warning badge-status ml-2">Not Update</span>
+                                        <span class="badge badge-warning badge-status ml-2">No Update</span>
                                     @endif
 
                                     <i class="fas fa-chevron-down collapse-icon"></i>

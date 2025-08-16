@@ -58,13 +58,29 @@ public function AccidentsList(Request $request)
         $roomid = $centerRoom->id ?? null;
         $roomname = $centerRoom->name ?? '';
         $roomcolor = $centerRoom->color ?? '';
+          $selectedRoom = Room::where('id', $roomid)->first();
+            $centerRooms = Room::where('centerid', $centerid)->get();
     } else {
         $room = Room::find($roomid);
         $roomname = $room->name ?? '';
         $roomcolor = $room->color ?? '';
+          $selectedRoom = Room::where('id', $roomid)->first();
+            $centerRooms = Room::where('centerid', $centerid)->get();
     }
 
-    $centerRooms = Room::where('centerid', $centerid)->get();
+    if(Auth::user()->userType == "Parent"){
+
+        $roomid = $request->roomid;
+        $room = Room::find($roomid);
+        $roomname = $room->name ?? '';
+        $roomcolor = $room->color ?? '';
+        $childids = Childparent::where('parentid',$userid)->pluck('childid');
+        $roomids = Child::whereIn('id',$childids)->pluck('room');
+        $centerRooms = Room::whereIn('id',  $roomids)->get();
+ $selectedRoom = Room::where('id', $roomid)->first();
+    }
+
+  
 
     $date = !empty($request->date)
         ? date('Y-m-d', strtotime($request->date))
