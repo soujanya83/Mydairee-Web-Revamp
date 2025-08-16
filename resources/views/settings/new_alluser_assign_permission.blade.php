@@ -603,7 +603,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fa-solid fa-clipboard"></i>
-                                            <h3>QIP</h3>
+                                            <h3>QIP Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="qip">
                                             <i class="fas fa-check-circle"></i> All
@@ -665,7 +665,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fa fa-bullhorn"></i>
-                                            <h3>Announcement</h3>
+                                            <h3>Announcement Manage</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="announcement">
                                             <i class="fas fa-check-circle"></i> All
@@ -697,7 +697,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-door-open"></i>
-                                            <h3>Survey</h3>
+                                            <h3>Survey Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="survey">
                                             <i class="fas fa-check-circle"></i> All
@@ -794,7 +794,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-calendar-alt"></i>
-                                            <h3>Program Plan</h3>
+                                            <h3>Program Plan Manage</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="program">
                                             <i class="fas fa-check-circle"></i> All
@@ -825,7 +825,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-calendar-day"></i>
-                                            <h3>Daily Journal</h3>
+                                            <h3>Daily Journal Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="daily">
                                             <i class="fas fa-check-circle"></i> All
@@ -888,7 +888,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-location"></i>
-                                            <h3>Manage Centers</h3>
+                                            <h3>Centers Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="centers">
                                             <i class="fas fa-check-circle"></i> All
@@ -920,7 +920,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-child"></i>
-                                            <h3>Manage Childrens</h3>
+                                            <h3>Childrens Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="childrens">
                                             <i class="fas fa-check-circle"></i> All
@@ -952,7 +952,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-user-friends"></i>
-                                            <h3>Manages Parent</h3>
+                                            <h3>Parent Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="parent">
                                             <i class="fas fa-check-circle"></i> All
@@ -984,7 +984,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-chart-line"></i>
-                                            <h3>Manage Progress</h3>
+                                            <h3>Progress Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="progress">
                                             <i class="fas fa-check-circle"></i> All
@@ -1016,7 +1016,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-book-open"></i>
-                                            <h3>Manage Lesson </h3>
+                                            <h3>Lesson Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="lesson">
                                             <i class="fas fa-check-circle"></i> All
@@ -1048,7 +1048,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-file-alt"></i>
-                                            <h3>Manage Assessment</h3>
+                                            <h3>Assessment Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="assessment">
                                             <i class="fas fa-check-circle"></i> All
@@ -1080,7 +1080,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-ambulance"></i>
-                                            <h3>Manage Accidents</h3>
+                                            <h3>Accidents Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="accidents">
                                             <i class="fas fa-check-circle"></i> All
@@ -1110,7 +1110,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class="fas fa-key"></i>
-                                            <h3>Permissions</h3>
+                                            <h3>Permissions Management</h3>
                                         </div>
                                         <button class="select-all-btn" type="button" data-category="permissions">
                                             <i class="fas fa-check-circle"></i> All

@@ -554,7 +554,7 @@
                         'avatar10.jpg'];
                         $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
                         'avatar7.jpg'];
-                        $avatars = $staffRelation->staff->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+                        $avatars = ($staffRelation->staff->gender ?? 'FEMALE') === 'FEMALE' ? $femaleAvatars : $maleAvatars;
                         $defaultAvatar = $avatars[array_rand($avatars)];
                         @endphp
 

@@ -341,9 +341,11 @@ class SettingsController extends Controller
                 return !in_array($column, ['id', 'userid', 'centerid']); // exclude default columns
             })
             ->map(function ($column) {
+                 $label = Str::headline($column);
+                $label = str_replace('Qip', 'QIP', $label);
                 return [
                     'name' => $column,
-                    'label' => Str::headline($column),
+                    'label' => $label
                 ];
             })
             ->sortBy('label')
