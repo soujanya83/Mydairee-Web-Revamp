@@ -47,12 +47,23 @@ class SleepCheckController extends Controller
 
     // }
 
-    // Room filter
+    if(Auth::user()->userType != "Parent"){
+ // Room filter
     $roomid = $request->roomid ?? Room::where('centerid', $centerid)->value('id');
     $room   = Room::find($roomid);
     $roomname  = $room->name ?? '';
     $roomcolor = $room->color ?? '';
     $centerRooms = Room::where('centerid', $centerid)->get();
+
+    }else{
+           $roomid = $request->roomid ?? Room::where('centerid', $centerid)->value('id');
+    $room   = Room::find($roomid);
+    $roomname  = $room->name ?? '';
+    $roomcolor = $room->color ?? '';
+    $centerRooms = Room::where('centerid', $centerid)->get();
+    }
+
+   
 
     // Date filter
     $date = $request->date 
@@ -90,7 +101,7 @@ class SleepCheckController extends Controller
                     'breathing'        => $check->breathing,
                     'body_temperature' => $check->body_temperature,
                     'notes'            => $check->notes,
-                    'signature' => $check->signature
+                    'signature' => $check->signature ?? ""
                 ];
             })->toArray()
         ];
@@ -163,12 +174,12 @@ public function getSleepChecksList(Request $request)
             $roomIds = Child::whereIn('id',$childids)->pluck('room');
             $centerRooms = Room::whereIn('id', $roomIds)->get();
             $selectedRoom = Room::where('id', $roomid)->first();
-    }
- 
-        $roomid = $roomid ?? $room->id ?? null;
+               $roomid = $roomid ?? $room->id ?? null;
             $roomname = $room->name ?? null;
             $roomcolor = $room->color ?? null;
-
+    }
+ 
+     
            
 
             $date = !empty($request->date)
@@ -233,6 +244,7 @@ public function getSleepChecksList(Request $request)
         public function sleepcheckSave(Request $request)
 {
     // Validate incoming request
+    // dd('here');
     $validator = $request->validate( [
         'childid'          => 'required|integer|exists:child,id',
         'diarydate'        => 'required|date_format:d-m-Y',
@@ -243,7 +255,7 @@ public function getSleepChecksList(Request $request)
         'notes'            => 'nullable|string',
         'signature' => 'nullable|string'
     ]);
-
+// dd($request->signature);
 
     // Convert date to Y-m-d
     $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate);
