@@ -426,6 +426,8 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
         Route::delete('/snapshot-media/{id}', [ObservationsController::class, 'snapshotdestroyimage']);
         Route::post('/status/update', [ObservationsController::class, 'snapshotupdateStatus'])->name('status.update');
         Route::delete('snapshotsdelete/{id}', [ObservationsController::class, 'snapshotsdelete'])->name('snapshots.snapshotsdelete');
+   Route::get('/view/{id}', [ObservationsController::class, 'viewSnapShot'])->name('view');
+
     });
 
 

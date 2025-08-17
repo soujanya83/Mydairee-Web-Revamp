@@ -4,6 +4,49 @@
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
 <style>
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.toast-success {
+    background-color: #28a745;
+    /* Green for success */
+}
+
+.toast-error {
+    background-color: #dc3545;
+    /* Red for error */
+}
+
+.toast-close-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
+    margin-left: 10px;
+}
+
+.toast-message {
+    flex: 1;
+
+}
+
     .media-upload-box {
         border: 2px dashed #007bff;
         background-color: #f8f9fa;
@@ -15,6 +58,9 @@
     .media-upload-box:hover {
         background-color: #e9f0ff;
     }
+    .list-table td, .list-table tr {
+  border: none !important;
+}
 
     .media-thumb {
         height: 150px;
@@ -149,7 +195,7 @@ $edit = 1;
                                         <h4>Media Upload Section</h4>
                                         <div class="media-upload-box p-4 border rounded bg-light text-center">
                                             <label for="mediaInput" class="btn btn-outline-info">
-                                                Select up to 200kb Images(png,jpeg,jpg) or pdf 
+                                                Select Image (png,jpeg,jpg) or pdf 
                                             </label>
                                            <input type="file" id="mediaInput" name="media[]" class="d-none" multiple accept="image/*,application/pdf">
 
@@ -265,7 +311,7 @@ $edit = 1;
                                 </td>
                                 <td>
                                     <label for="child_{{ $child->childid }}">
-                                        <img src="{{ url('assets/media/' . $child->imageUrl) }}"
+                                        <img src="{{ public_path($child->imageUrl) }}"
                                             class="img-thumbnail border-0 rounded-circle list-thumbnail align-self-center xsmall">
                                         {{ $child->name . ' - ' . $child->age }}
                                     </label>
@@ -293,7 +339,7 @@ $edit = 1;
                                 </td>
                                 <td>
                                     <label for="child_{{ $child->childid }}">
-                                        <img src="{{ url('assets/media/' . $child->imageUrl) }}"
+                                        <img src="{{ public_path($child->imageUrl) }}"
                                             class="img-thumbnail border-0 rounded-circle list-thumbnail align-self-center xsmall">
                                         {{ $child->name . ' - ' . $child->age }}
                                     </label>
@@ -323,7 +369,7 @@ $edit = 1;
                                 </td>
                                 <td>
                                     <label for="child_{{ $child->childid }}">
-                                        <img src="{{ url('assets/media/' . $child->imageUrl) }}"
+                                        <img src="{{ public_path($child->imageUrl) }}"
                                             class="img-thumbnail border-0 rounded-circle list-thumbnail align-self-center xsmall">
                                         {{ $child->name . ' - ' . $child->age }}
                                     </label>

@@ -441,8 +441,11 @@
                         @endforeach
                     </div>
                 </div>
-
+  
                 <div class="action-buttons">
+                    <button class="btn-action btn-delete" onclick="viewSnapshot({{ $snapshot->id }})">
+                        <i class="fas fa-eye-alt mr-2"></i>view
+                    </button>
                     <button class="btn-action btn-edit" onclick="editSnapshot({{ $snapshot->id }})">
                         <i class="fas fa-edit mr-2"></i>Edit
                     </button>
@@ -693,6 +696,10 @@
 
     function editSnapshot(id) {
         window.location.href = '{{ route("snapshot.addnew.optional", "") }}/' + id;
+    }
+
+        function viewSnapshot(id) {
+        window.location.href = '{{ url("snapshot/view", "") }}/' + id;
     }
 
     function deleteSnapshot(id) {
