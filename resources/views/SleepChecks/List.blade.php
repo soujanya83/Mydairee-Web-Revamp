@@ -100,126 +100,338 @@
         }
     </style>
 
-<style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    /* body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color:white;
-      padding: 20px;
-      color: #333;
-    } */
-    .container {
-      max-width: 1200px;
-      margin: auto;
-    }
-    .child-section {
-      background-color: #ffffff;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .child-header {
-      font-size: 1.5rem;
-    
-      margin-bottom: 20px;
-      color:rgb(95, 96, 98);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 10px;
-    }
-    th, td {
-      padding: 12px;
-      text-align: center;
-      border-bottom: 1px solid #e1e4e8;
-    }
-    th {
-      background-color:rgb(254, 255, 255);
-      font-weight: 600;
-    }
-    input[type="time"],
-    select,
-    textarea {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    textarea {
-      resize: vertical;
-    }
-    .add-row-btn,
-    .save-row-btn{
-      background-color: #17a2b8;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 5px;
-      transition: background-color 0.3s ease;
-    
-    
-    }
- 
-    .remove-row-btn {
-        background-color: red;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 5px;
-      transition: background-color 0.3s ease;
-    }
-    .update-row-btn{
-      background-color: #17a2b8;;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 5px;
-      transition: background-color 0.3s ease;
-    
-    
-    }
- 
-    .delete-row-btn {
-        background-color: red;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 5px;
-      transition: background-color 0.3s ease;
-    }
+  <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+/* 
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+            min-height: 100vh;
+            padding: 20px;
+            /* color: #2d3748; */
+            line-height: 1.6;
+        } */
 
-    .add-row-btn:hover,
-    .save-row-btn:hover{
-      background-color: #17a2b8;;
-    }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
 
-    .remove-row-btn:hover {
-    background-color: darkred;
-    }
+        .child-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            /* box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: transform 0.3s ease, box-shadow 0.3s ease; */
+        }
+
+        .child-section:hover {
+            transform: translateY(-5px);
+            /* box-shadow: 
+                0 35px 70px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.3); */
+        }
+
+        .child-header {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .child-header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.2s ease;
+        }
+
+        th {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background-color: #f7fafc;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        input[type="time"], 
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="time"]:focus, 
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 
+                0 0 0 3px rgba(102, 126, 234, 0.1),
+                0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-1px);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Modern Button Styles */
+        .add-row-btn,
+        .save-row-btn,
+        .update-row-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 8px 4px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .add-row-btn::before,
+        .save-row-btn::before,
+        .update-row-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .add-row-btn:hover,
+        .save-row-btn:hover,
+        .update-row-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .add-row-btn:hover::before,
+        .save-row-btn:hover::before,
+        .update-row-btn:hover::before {
+            left: 100%;
+        }
+
+        .remove-row-btn,
+        .delete-row-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 8px 4px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .remove-row-btn::before,
+        .delete-row-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            /* background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent); */
+            transition: left 0.5s;
+        }
+
+        .remove-row-btn:hover,
+        .delete-row-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .remove-row-btn:hover::before,
+        .delete-row-btn:hover::before {
+            left: 100%;
+        }
+
+        .remove-row-btn:active,
+        .delete-row-btn:active {
+            transform: translateY(0);
+        }
+
+        .add-row-btn:active,
+        .save-row-btn:active,
+        .update-row-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Enhanced Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .child-section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Improved Form Controls */
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .child-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .child-header {
+                font-size: 1.4rem;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+                font-size: 14px;
+            }
+            
+            .add-row-btn,
+            .save-row-btn,
+            .update-row-btn,
+            .remove-row-btn,
+            .delete-row-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+                margin: 4px 2px;
+            }
+        }
+
+        /* Loading Animation for Buttons */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Subtle Pulse Animation for Interactive Elements */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .child-section:nth-child(even) {
+            animation-delay: 0.2s;
+        }
+
+        .child-section:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+
+        /* Dark Mode Support */
     
-    .update-row-btn:hover{
-      background-color: #17a2b8;;
-    }
-
-    .delete-row-btn:hover {
-    background-color: darkred;
-    }
-  </style>
+    </style>
 @endsection
 @section('content')
 <div class="d-flex justify-content-end align-items-center" style="margin-right: 20px; margin-top: -60px; gap: 10px; flex-wrap: wrap;">
@@ -248,7 +460,7 @@
             <div class="btn btn-outline-info btn-lg dropdown-toggle">NO ROOMS AVAILABLE</div>
         @else
             <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="roomDropdown" data-toggle="dropdown" data-selected-room="{{ request('roomid', $roomid) }}">
-                 {{ $rooms->first()->name ?? 'Select Room' }}
+                 {{ $selectedroom->name ?? 'Select Room' }}
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="roomDropdown">
                 @foreach($rooms as $room)
@@ -354,8 +566,10 @@
             <th>Breathing</th>
             <th>Body Temperature</th>
             <th>Notes</th>
+             <th>Signature</th>
                 @if(Auth::user()->userType != 'Parent')
             <th>Action</th>
+
             @endif
           </tr>
         </thead>
@@ -385,6 +599,7 @@
                 </select>
               </td>
               <td><textarea rows="2">{{ $sleep->notes }}</textarea></td>
+               <td><input type="text" value="{{ $sleep->signature }}" > </td>
                @if(Auth::user()->userType != 'Parent')
               <td>
                 <button class="update-row-btn btn-outline-info" onclick="updateRow(this,' {{ $child->id }} ',' {{ $sleep->id }}')">Update</button>
@@ -413,7 +628,8 @@
               </select>
             </td>
             <td><textarea rows="2" name="children[{{ $child->id }}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
-           @if(Auth::user()->userType != 'Parent')
+          <td><input type="text"name="children[{{ $child->id }}][signature][]" value="" placeholder="signature"> </td>
+            @if(Auth::user()->userType != 'Parent')
             <td>
               <button class="save-row-btn btn-outline-info" onclick="saveRow(this, '{{ $child->id }}')">Save</button>
               <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>
@@ -467,6 +683,7 @@
                 </select>
             </td>
             <td><textarea rows="2" name="children[${childDbId}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
+             <td><input type="text" name="children[${childDbId}][signature][]" placeholder="signature"></td>
             <td>
                 <button class="save-row-btn btn-outline-info" onclick="saveRow(this, ${childDbId})">Save</button>
                 <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>
@@ -484,6 +701,7 @@
         const timeInput = row.querySelector('input[type="time"]');
         const breathingSelect = row.querySelector('select[name*="breathing"]');
         const temperatureSelect = row.querySelector('select[name*="temperature"]');
+      
         const notesTextarea = row.querySelector('textarea');
 
         const roomIdValue = document.getElementById("roomid").value;
@@ -493,6 +711,7 @@
         const breathing = breathingSelect.value;
         const temperature = temperatureSelect.value;
         const notes = notesTextarea.value;
+          const signature = row.querySelector('input[type="text"]').value;
 
         if (!time || !breathing || !temperature) {
             alert("Please fill all required fields.");
@@ -506,6 +725,7 @@
         formData.append('time', time);
         formData.append('breathing', breathing);
         formData.append('body_temperature', temperature);
+          formData.append('signature', signature);
         if (notes) {
             formData.append('notes', notes);
         }
@@ -556,6 +776,7 @@
         const notes = row.querySelector('textarea').value;
         const roomIdValue = document.getElementById("roomid").value;
         const dateValue = document.getElementById("date").value;
+          const signature = row.querySelector('input[type="text"]').value;
 
         if (!time || !breathing || !temperature) {
             alert("Please fill all fields.");
@@ -571,7 +792,7 @@
         formData.append('breathing', breathing);
         formData.append('body_temperature', temperature);
         formData.append('notes', notes);
-
+        formData.append('signature', signature);
         button.disabled = true;
         button.textContent = "Updating...";
 
@@ -762,6 +983,7 @@ function filterbyChildname(childname) {
                                 </select>
                             </td>
                             <td><textarea rows="2">${sleep.notes ?? ''}</textarea></td>
+                             <td><input type="text" name="" value="${sleep.signature}" placeholder="signature"></td>
                             <td>
                                 <button class="update-row-btn btn-outline-info" onclick="updateRow(this, '${child.id}', '${sleep.id}')">Update</button>
                                 <button class="delete-row-btn btn-outline-info" onclick="deleteRow(this, '${sleep.id}')">Delete</button>
@@ -791,6 +1013,7 @@ function filterbyChildname(childname) {
                             </select>
                         </td>
                         <td><textarea rows="2" name="children[${child.id}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
+                          <td><input type="text" name="children[${child.id}][signature][]" value="" placeholder="signature"></td>
                         <td>
                             <button class="save-row-btn btn-outline-info" onclick="saveRow(this, '${child.id}')">Save</button>
                             <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>

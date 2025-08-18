@@ -15,6 +15,7 @@ class DailyDiaryBottle extends Model
     'diarydate',
     'startTime',
     'createdBy',
+    'comments'
 ];
 
 }

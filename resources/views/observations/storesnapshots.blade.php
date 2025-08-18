@@ -484,6 +484,20 @@
     </div>
 </div>
 
+<!-- Select educators -->
+<div class="col-md-12 select-section">
+    <label>Educators</label><br>
+    <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#staffModal">Select Educators</button>
+    <input type="hidden" name="selected_staff" id="selected_staff" value="{{ isset($educators) ? implode(',', collect($educators)->pluck('userid')->toArray()) : '' }}">
+    <div id="selectedStaffPreview" class="mt-3">
+        @if(isset($educators))
+            @foreach($educators as $educator)
+                <span class="badge badge-success mr-1">{{ $educator->name }}</span>
+            @endforeach
+        @endif
+    </div>
+</div>
+
 
 <!-- <div class="col-md-6 select-section">
     <label for="eylf">EYLF</label>
@@ -850,6 +864,7 @@ let selectedStaff = new Set($('#selected_staff').val().split(',').filter(id => i
 
 // Load staff on modal open
 $('#staffModal').on('show.bs.modal', function () {
+    console.log("Modal event triggered");
     $.ajax({
         url: '{{ route("observation.get-staff") }}',
         method: 'GET',

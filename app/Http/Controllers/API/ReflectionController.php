@@ -225,6 +225,7 @@ public function index(Request $request)
 
 public function print(Request $request)
 {
+    // dd('here');
     // ✅ Validate the incoming request
     $validator = Validator::make($request->all(), [
         'id' => 'required|integer|exists:reflection,id',
@@ -267,7 +268,7 @@ public function print(Request $request)
     $pdf = Pdf::loadView('reflections.apiPrintreflection', [
         'reflection' => $reflection,
         'roomNames'  => $roomNames,
-    ])->setPaper('a4', 'landscape'); // or 'landscape' if needed
+    ])->setPaper('a4', 'portrait'); // or 'landscape' if needed
 
     // ✅ (Optional) Save to disk:
     // $filePath = public_path("pdfs/reflection_{$id}.pdf");

@@ -27,6 +27,7 @@ use App\Models\ObservationEYLF;
 use App\Models\ObservationLink; 
 use App\Models\ObservationMedia; 
 use App\Models\ObservationMontessori; 
+use App\Models\ProgramPlanTemplateDetailsAdd; 
 use App\Models\Room; 
 use App\Models\RoomStaff;
 use App\Models\SeenObservation;
@@ -44,6 +45,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\SnapshotMedia;
 use App\Models\SnapshotChild;
 use App\Models\Snapshot;
+use App\Models\Reflection;
 
 class ObservationsController extends Controller
 {
@@ -530,7 +532,7 @@ private function getChildrenForStaff()
 
 private function getChildrenForParent($centerid){
     $authId = Auth::user()->id; 
-    $centerid = Session('user_center_id');
+    // $centerid = Sessicenter_id');
 
     $childids = Childparent::where('parentid', $authId)->pluck('childid');
 
@@ -956,6 +958,8 @@ public function linkobservationdata(Request $request)
         'center_id' => 'required|integer|exists:centers,id',  // Ensure center_id exists in your centers table
     ]);
 
+    // dd('here');
+
     if ($validator->fails()) {
         return response()->json([
             'status'  => false,
@@ -977,14 +981,14 @@ public function linkobservationdata(Request $request)
         ->where('centerid', $centerid)
         ->orderBy('created_at', 'desc')
         ->get();
+        // dd( $observations);
 
     // Get linked observation IDs if obsId is passed
     $linkedIds = [];
     if (!empty($obsId)) {
         $linkedIds = ObservationLink::where('observationId', $obsId)
             ->where('linktype', 'OBSERVATION')
-            ->pluck('linkid')
-            ->toArray();
+            ->get();
     }
 
     return response()->json([
@@ -1028,6 +1032,251 @@ public function storelinkobservation(Request $request)
     return response()->json(['status' => true , 'message' => 'Links saved successfully.', 'data' =>$data ]);
 }
 
+  public function linkreflectiondata(Request $request)
+{
+    //  dd('here');
+    $authId = Auth::user()->id;
+    $centerid = $request->center_id;
+    $search = $request->query('search');
+    $obsId = $request->query('obsId'); // Current observation ID for checking existing links
+
+    $reflections = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+        ->when($search, function ($query, $search) {
+            return $query->where('title', 'like', "%{$search}%");
+        })
+        ->where('centerid', $centerid)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $linkedIds = ObservationLink::where('observationId', $obsId)
+        ->where('linktype', 'REFLECTION')
+   
+        ->get();
+
+    return response()->json([
+        'reflections' => $reflections,
+        'linked_ids' => $linkedIds
+    ]);
+}
+
+public function storelinkreflection(Request $request)
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'obsId' => 'required|exists:observation,id',
+            'reflection_ids' => 'required|array|min:1',
+            'reflection_ids.*' => 'exists:reflection,id', // Adjust table name if needed
+        ], [
+            'obsId.required' => 'Observation ID is required.',
+            'obsId.exists'   => 'Observation not found.',
+            'reflection_ids.required' => 'At least one reflection is required.',
+            'reflection_ids.array' => 'Reflection IDs must be an array.',
+            'reflection_ids.min' => 'Please select at least one reflection.',
+            'reflection_ids.*.exists' => 'One or more reflections are invalid.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $observationId = $request->input('obsId');
+        $linkIds = $request->input('reflection_ids', []);
+
+        // Extra fallback: Check if observation actually exists (even after validation)
+        $observation = Observation::find($observationId);
+        if (!$observation) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Observation not found.'
+            ], 404);
+        }
+
+        // Remove existing links
+        ObservationLink::where('observationId', $observationId)
+            ->where('linktype', 'REFLECTION')
+            ->delete();
+
+        // Extra fallback: If no new reflection IDs given
+        if (empty($linkIds)) {
+            return response()->json([
+                'status' => true,
+                'message' => 'All reflection links removed. No new reflections provided.',
+                'id' => $observationId
+            ], 200);
+        }
+
+        // Save new links
+        foreach ($linkIds as $linkId) {
+            ObservationLink::create([
+                'observationId' => $observationId,
+                'linkid' => $linkId,
+                'linktype' => 'REFLECTION',
+            ]);
+        }
+
+        return response()->json([
+            'status'=> true,
+            'message' => 'Reflection links saved successfully.',
+            'id' => $observationId
+        ], 200);
+
+    } catch (\Illuminate\Database\QueryException $e) {
+        // Fallback: DB error
+        return response()->json([
+            'status' => false,
+            'message' => 'Database error while saving reflections.',
+            'error' => $e->getMessage()
+        ], 500);
+    } catch (\Exception $e) {
+        // Fallback: Unexpected error
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+
+
+public function linkprogramplandata(Request $request)
+{
+    // dd('here');
+    $authId = Auth::user()->id;
+    $centerid = $request->center_id;
+    $search = $request->query('search');
+    $obsId = $request->query('obsId'); // Current observation ID for checking existing links
+
+    // Month names for search
+    $monthNames = [
+        'january' => 1, 'february' => 2, 'march' => 3, 'april' => 4,
+        'may' => 5, 'june' => 6, 'july' => 7, 'august' => 8,
+        'september' => 9, 'october' => 10, 'november' => 11, 'december' => 12
+    ];
+
+    $programPlans = ProgramPlanTemplateDetailsAdd::with(['room', 'creator'])
+        ->when($search, function ($query, $search) use ($monthNames) {
+            $searchLower = strtolower($search);
+            $monthNumber = null;
+            
+            // Check if search matches any month name
+            foreach ($monthNames as $monthName => $monthNum) {
+                if (strpos($monthName, $searchLower) !== false) {
+                    $monthNumber = $monthNum;
+                    break;
+                }
+            }
+            
+            if ($monthNumber) {
+                return $query->where('months', $monthNumber);
+            }
+            
+            // If no month found, search in year as well
+            return $query->where('year', 'like', "%{$search}%");
+        })
+        ->where('status', 'Published')
+        ->where('centerid', $centerid)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $linkedIds = ObservationLink::where('observationId', $obsId)
+        ->where('linktype', 'PROGRAMPLAN')
+        
+        ->get();
+
+    return response()->json([
+        'program_plans' => $programPlans,
+        'linked_ids' => $linkedIds
+    ]);
+}
+
+public function storelinkprogramplan(Request $request)
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'obsId' => 'required|exists:observation,id',
+            'programplanids' => 'required|array|min:1',
+            'programplanids.*' => 'exists:programplantemplatedetailsadd,id',
+        ], [
+            'obsId.required' => 'Observation ID is required.',
+            'obsId.exists'   => 'Observation not found.',
+            'programplanids.required' => 'At least one program plan is required.',
+            'programplanids.array' => 'Program plan IDs must be an array.',
+            'programplanids.min' => 'Please select at least one program plan.',
+            'programplanids.*.exists' => 'One or more program plan IDs are invalid.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $observationId = $request->input('obsId');
+        $linkIds = $request->input('programplanids', []);
+
+        // Extra fallback: Ensure observation exists (redundant check after validation)
+        $observation = Observation::find($observationId);
+        if (!$observation) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Observation not found.'
+            ], 404);
+        }
+
+        // Remove existing program plan links
+        ObservationLink::where('observationId', $observationId)
+            ->where('linktype', 'PROGRAMPLAN')
+            ->delete();
+
+        // Fallback: If no new program plans provided
+        if (empty($linkIds)) {
+            return response()->json([
+                'status' => true,
+                'message' => 'All program plan links removed. No new program plans provided.',
+                'id' => $observationId
+            ], 200);
+        }
+
+        // Use DB transaction: if one insert fails, rollback all
+        DB::beginTransaction();
+        foreach ($linkIds as $linkId) {
+            ObservationLink::create([
+                'observationId' => $observationId,
+                'linkid' => $linkId,
+                'linktype' => 'PROGRAMPLAN',
+            ]);
+        }
+        DB::commit();
+
+        return response()->json([
+            'status'=> true,
+            'message' => 'Program Plan links saved successfully.',
+            'id' => $observationId
+        ], 200);
+
+    } catch (\Illuminate\Database\QueryException $e) {
+        DB::rollBack(); // rollback transaction on DB error
+        return response()->json([
+            'status' => false,
+            'message' => 'Database error while saving program plans.',
+            'error' => $e->getMessage()
+        ], 500);
+    } catch (\Exception $e) {
+        DB::rollBack(); // rollback transaction on general error
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
 
 // public function store(Request $request)

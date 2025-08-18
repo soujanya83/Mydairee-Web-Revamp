@@ -4,6 +4,51 @@
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
 <style>
+
+    .is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.toast-success {
+    background-color: #28a745;
+    /* Green for success */
+}
+
+.toast-error {
+    background-color: #dc3545;
+    /* Red for error */
+}
+
+.toast-close-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
+    margin-left: 10px;
+}
+
+.toast-message {
+    flex: 1;
+
+}
+
+
         main{
 padding-block:4em;
 padding-inline:2em;
@@ -766,6 +811,7 @@ input[type="radio"]:checked + .radio-pill {
                             </div>
                         </div>
                     </form>
+                     <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
                 </div>
             </div> 
         </div>
@@ -796,17 +842,27 @@ input[type="radio"]:checked + .radio-pill {
   </div>
 </div>
                                     </div>
+
+                                                   @if ($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @foreach ($errors->all() as $error)
+                showToast('error', @json($error));
+            @endforeach
+        });
+    </script>
+@endif
 @endsection
 @push("scripts")
 <!-- jQuery -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
 
 <!-- jQuery UI -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script> -->
 
 <!-- Bootstrap 4 (JS + Popper) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.min.js"></script> -->
 
 <!-- Moment.js (required by FullCalendar) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
@@ -844,291 +900,177 @@ input[type="radio"]:checked + .radio-pill {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.signature/1.2.1/jquery.signature.min.js"></script>
 
+<script style="opacity: 1;">
 
-<!-- <script>
-	$(document).ready(function(){
-		$('.js-example-basic-single').select2();
-		var sig = $('#sig').signature();
-		$('#btnSignature').on('click', function() {
-			let _identity = $("#identityVal").val();
-			if (_identity == "person_sign") {
-				$('#person_sign').show();
-				$('#person_sign_dt').hide();
-				var _signature = $('#sig').signature('toDataURL');
-				$('#person_sign_img').attr('src', _signature);
-				$('#person_sign_txt').val(_signature);
-			} else if (_identity == "witness_sign") {
-				$('#witness_sign').show();
-				$('#witness_sign_dt').hide();
-				var _signature = $('#sig').signature('toDataURL');
-				$('#witness_sign_img').attr('src', _signature);
-				$('#witness_sign_txt').val(_signature);
-			} else if (_identity == "incharge_sign") {
-				$('#incharge_sign').show();
-				$('#res_pinc_dt').hide();
-				var _signature = $('#sig').signature('toDataURL');
-				$('#res_pinc_img').attr('src', _signature);
-				$('#res_pinc_txt').val(_signature);
-			} else if (_identity == "supervisor_sign") {
-				$('#supervisor_sign').show();
-				$('#nom_svs_dt').hide();
-				var _signature = $('#sig').signature('toDataURL');
-				$('#nsv_sign_img').attr('src', _signature);
-				$('#nsv_sign_txt').val(_signature);
-			}
-			$('#sig').signature('clear');
-		});
+$(document).ready(function(){
 
-		$(document).on('show.bs.modal', '#signModal',function (event) {
-		  var button = $(event.relatedTarget);
-		  var identity = button.data('identity');
-		  $("#identityVal").val(identity);
-		});
+    // --- Initial signature check ---
+    let src = $('#witness_sign_img').attr('src');
+    let personsrc = $('#person_sign_img').attr('src');
+    let res_pinc_img = $('#res_pinc_img').attr('src');
+    let nsv_sign_img = $('#nsv_sign_img').attr('src');
 
-        $('.select2-container').addClass('select2-container--bootstrap select2-container--below select2-container--focus');
-        $('.select2-container').removeClass('select2-container--default');
-        
-	});
+    if (src && src.trim() !== '') {
+        $('#witness_sign').show();
+        $('#witness_sign_dt').hide();
+    } else if (personsrc && personsrc.trim() !== '') {
+        $('#person_sign').show();
+        $('#person_sign_dt').hide();
+    } else if (res_pinc_img && res_pinc_img.trim() !== '') {
+        $('#incharge_sign').show();
+        $('#res_pinc_dt').hide();
+    } else if (nsv_sign_img && nsv_sign_img.trim() !== '') {
+        $('#supervisor_sign').show();
+        $('#nom_svs_dt').hide();
+    }
 
-    var canvas = new fabric.Canvas('c', {
-    isDrawingMode: true,
-    // Set lower resolution for the canvas
-    width: 500,
-    height: 500
-});
+    // --- Save signature ---
+    $('#btnSignature').on('click', function() {
+        let _identity = $("#identityVal").val();
 
-// Configure drawing brush to use less data
-canvas.freeDrawingBrush.width = 2; // Thinner lines
-canvas.freeDrawingBrush.color = '#000000'; // Simple color
+        // Get data from Fabric.js canvas
+        var _signature = canvas1.toDataURL({ format: 'png' });
 
-fabric.Image.fromURL('{{ asset("assets/images/baby.jpg") }}', function(myImg) {
-    var img1 = myImg.set({ 
-        left: 0, 
-        top: 0,
-        scaleX: 500 / myImg.width,
-        scaleY: 500 / myImg.height,
-        selectable: false,
-        hasControls: false
+        if (_identity === "person_sign") {
+            $('#person_sign').show();
+            $('#person_sign_dt').hide();
+            $('#person_sign_img').attr('src', _signature);
+            $('#person_sign_txt').val(_signature);
+        } else if (_identity === "witness_sign") {
+            $('#witness_sign').show();
+            $('#witness_sign_dt').hide();
+            $('#witness_sign_img').attr('src', _signature);
+            $('#witness_sign_txt').val(_signature);
+        } else if (_identity === "incharge_sign") {
+            $('#incharge_sign').show();
+            $('#res_pinc_dt').hide();
+            $('#res_pinc_img').attr('src', _signature);
+            $('#res_pinc_txt').val(_signature);
+        } else if (_identity === "supervisor_sign") {
+            $('#supervisor_sign').show();
+            $('#nom_svs_dt').hide();
+            $('#nsv_sign_img').attr('src', _signature);
+            $('#nsv_sign_txt').val(_signature);
+        }
+
+        // Clear the canvas after using
+        canvas1.clear();
+        canvas1.setBackgroundColor('#ffffff', canvas1.renderAll.bind(canvas1));
     });
 
-    canvas.add(img1);
-}, { crossOrigin: 'Anonymous' });
+    // --- Apply select2 styles ---
+    $('.select2-container').addClass('select2-container--bootstrap select2-container--below select2-container--focus');
+    $('.select2-container').removeClass('select2-container--default');
 
-function saveImage() {
-    // Use JPEG format with compression instead of PNG
-    // The second parameter is the quality (0 to 1)
-    var jpegURL = canvas.toDataURL({
-        format: 'jpeg',
-        quality: 0.5,    // Lower value = smaller file, but lower quality
-        multiplier: 0.8  // Reduces the resolution of the output
-    });
-    
-    $("#injury-image").val(jpegURL);
-}
+    // --- Child details fetch ---
+    $("#childid").on("change", function(){
+        let _val = $(this).val();
+        if (_val != "") {
+            $.ajax({
+                url: "{{route('Accident/getChildDetails') }}",
+                type: 'post',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                data: { 'childid': _val },
+            })
+            .done(function(json) {
+                var res = json;
+                if (res.Status == "SUCCESS") {
+                    $("#childfullname").val(res.Child.name + res.Child.lastname);
+                    $("#birthdate").val(res.Child.dob);
 
-	$("#form-submit").click(function(event) {
-		saveImage();
-		$('#acc-form').submit();
-	});
-
-	$('input[name="other"]').on('click',function(){
-
-		if ($(this).is(':checked')) {
-			$("#injury-remarks").show();
-		}else{
-			$("#injury-remarks").hide();
-		}
-	});
-
-	$("#childid").on("change",function(){
-		let _val = $(this).val();
-		if (_val != "") {
-			$.ajax({
-					url: "{{route('Accident/getChildDetails') }}",
-				type: 'post',
-                         headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-				data: {'childid': _val},
-			})
-			.done(function(json) {
-				var res = json;
-				if (res.Status == "SUCCESS") {
-                    alert();
-					$("#childfullname").val(res.Child.name + res.Child.lastname);
-					$("#birthdate").val(res.Child.dob);
-
-                               let birthDate = new Date(res.Child.dob);
+                    let birthDate = new Date(res.Child.dob);
                     let today = new Date();
                     let age = today.getFullYear() - birthDate.getFullYear();
 
-                    // Adjust age if birthday hasn't occurred yet this year
                     let m = today.getMonth() - birthDate.getMonth();
                     if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                         age--;
                     }
-					$("#age").val(age);
-					if(res.Child.gender == "Male"){
-						$("#Male").prop('checked', true);
-						$("#Female").prop('checked', false);
-						$("#Others").prop('checked', false);
-					}else if(res.Child.gender == "Female"){
-						$("#Male").prop('checked', false);
-						$("#Female").prop('checked', true);
-						$("#Others").prop('checked', false);
-					}else{
-						$("#Male").prop('checked', false);
-						$("#Female").prop('checked', false);
-						$("#Others").prop('checked', true);
-					}
-				}
-			});
-		}
-	});
-</script> -->
+                    $("#age").val(age);
 
-<script style="opacity: 1;">
-
-  $(document).ready(function(){
-    let src = $('#witness_sign_img').attr('src');
-    let personsrc = $('#person_sign_img').attr('src');
-     let res_pinc_img = $('#res_pinc_img').attr('src');
-     let nsv_sign_img = $('#nsv_sign_img').attr('src');
-    if (src && src.trim() !== '') {
-        $('#witness_sign').show();
-        		$('#witness_sign_dt').hide();
-    }else if(personsrc && personsrc.trim !== ''){
-	            $('#person_sign').show();
-				$('#person_sign_dt').hide();
-    }else if(res_pinc_img && res_pinc_img.trim !== ''){
-        	$('#incharge_sign').show();
-				$('#res_pinc_dt').hide();
-    }else if(nsv_sign_img && nsv_sign_img.trim !== ''){
-        	$('#supervisor_sign').show();
-				$('#nom_svs_dt').hide();
-    }
-});
-
-			
-
-
-
-
-	// $(document).ready(function(){ 
-	// 	$('.js-example-basic-single').select2();
-	// 	var sig = $('#sig').signature();
-    //     //   var _signature = canvas1.toDataURL({ format: 'png' });
-	// 	$('#btnSignature').on('click', function() {
-    //         alert();
-	// 		let _identity = $("#identityVal").val();
-	// 		if (_identity == "person_sign") {
-    //             // alert();
-	// 			$('#person_sign').show();
-	// 			$('#person_sign_dt').hide();
-	// 			var _signature = $('#sig').signature('toDataURL');
-	// 			$('#person_sign_img').attr('src', _signature);
-	// 			$('#person_sign_txt').val(_signature);
-	// 		} else if (_identity == "witness_sign") {
-    //              alert();
-	// 			$('#witness_sign').show();
-	// 			$('#witness_sign_dt').hide();
-	// 			var _signature = $('#sig').signature('toDataURL');
-	// 			$('#witness_sign_img').attr('src', _signature);
-	// 			$('#witness_sign_txt').val(_signature);
-	// 		} else if (_identity == "incharge_sign") {
-	// 			$('#incharge_sign').show();
-	// 			$('#res_pinc_dt').hide();
-	// 			var _signature = $('#sig').signature('toDataURL');
-	// 			$('#res_pinc_img').attr('src', _signature);
-	// 			$('#res_pinc_txt').val(_signature);
-	// 		} else if (_identity == "supervisor_sign") {
-	// 			$('#supervisor_sign').show();
-	// 			$('#nom_svs_dt').hide();
-	// 			var _signature = $('#sig').signature('toDataURL');
-	// 			$('#nsv_sign_img').attr('src', _signature);
-	// 			$('#nsv_sign_txt').val(_signature);
-	// 		}
-	// 		$('#sig').signature('clear');
-	// 	});
-
-	// 	$(document).on('show.bs.modal', '#signModal',function (event) {
-	// 	  var button = $(event.relatedTarget);
-	// 	  var identity = button.data('identity');
-	// 	  $("#identityVal").val(identity);
-	// 	});
-
-    //     $('.select2-container').addClass('select2-container--bootstrap select2-container--below select2-container--focus');
-    //     $('.select2-container').removeClass('select2-container--default');
-        
-	// });
-
-    $('#btnSignature').on('click', function() {
-    let _identity = $("#identityVal").val();
-
-    // Get data from Fabric.js canvas
-    var _signature = canvas1.toDataURL({ format: 'png' });
-
-    if (_identity === "person_sign") {
-        // alert();
-        $('#person_sign').show();
-        $('#person_sign_dt').hide();
-        $('#person_sign_img').attr('src', _signature);
-        $('#person_sign_txt').val(_signature);
-    } else if (_identity === "witness_sign") {
-        $('#witness_sign').show();
-        $('#witness_sign_dt').hide();
-        $('#witness_sign_img').attr('src', _signature);
-        $('#witness_sign_txt').val(_signature);
-    } else if (_identity === "incharge_sign") {
-        $('#incharge_sign').show();
-        $('#res_pinc_dt').hide();
-        $('#res_pinc_img').attr('src', _signature);
-        $('#res_pinc_txt').val(_signature);
-    } else if (_identity === "supervisor_sign") {
-        $('#supervisor_sign').show();
-        $('#nom_svs_dt').hide();
-        $('#nsv_sign_img').attr('src', _signature);
-        $('#nsv_sign_txt').val(_signature);
+                    if(res.Child.gender == "Male"){
+                        $("#Male").prop('checked', true);
+                        $("#Female").prop('checked', false);
+                        $("#Others").prop('checked', false);
+                    } else if(res.Child.gender == "Female"){
+                        $("#Male").prop('checked', false);
+                        $("#Female").prop('checked', true);
+                        $("#Others").prop('checked', false);
+                    } else {
+                        $("#Male").prop('checked', false);
+                        $("#Female").prop('checked', false);
+                        $("#Others").prop('checked', true);
+                    }
+                }
+            });
+        }
+    });
+    if ($("#childid").val() !== "") {
+        $("#childid").trigger("change");
     }
 
-    // Clear the canvas after using
-    canvas1.clear();
+    // --- Other checkbox toggle ---
+    $('input[name="other"]').on('click', function(){
+        if ($(this).is(':checked')) {
+            $("#injury-remarks").show();
+        } else {
+            $("#injury-remarks").hide();
+        }
+    });
 
-    // Optional: Reset canvas background
-    canvas1.setBackgroundColor('#ffffff', canvas1.renderAll.bind(canvas1));
+    // --- Save accident image before submit ---
+    $("#form-submit").click(function(event) {
+        saveImage();
+        $('#acc-form').submit();
+    });
 
-    	$(document).on('show.bs.modal', '#signModal',function (event) {
-		  var button = $(event.relatedTarget);
-		  var identity = button.data('identity');
-		  $("#identityVal").val(identity);
-		});
-
-        $('.select2-container').addClass('select2-container--bootstrap select2-container--below select2-container--focus');
-        $('.select2-container').removeClass('select2-container--default');
-});
+}); // END $(document).ready
 
 
-    var canvas = new fabric.Canvas('c', {
+// ================== FABRIC.JS ===================
+
+// Drawing canvas for injury image
+var canvas = new fabric.Canvas('c', {
     isDrawingMode: true,
-    // Set lower resolution for the canvas
     width: 500,
     height: 500
 });
 
-   var canvas1 = new fabric.Canvas('d', {
+   enableCircleMode(canvas, 10, "green");
+
+    function enableCircleMode(fCanvas, radius = 15, color = "red") {
+        fCanvas.on('mouse:down', function (options) {
+            if (options.pointer) {
+                var circle = new fabric.Circle({
+                    left: options.pointer.x - radius,
+                    top: options.pointer.y - radius,
+                    radius: radius,
+                    fill: 'transparent',
+                    stroke: color,
+                    strokeWidth: 2,
+                    selectable: false
+                });
+                fCanvas.add(circle);
+            }
+        });
+    }
+
+// Drawing canvas for signatures
+var canvas1 = new fabric.Canvas('d', {
     isDrawingMode: true,
-    // Set lower resolution for the canvas
     width: 400,
-    height: 200
+    height: 200,
+     backgroundColor: '#ffffff'
 });
 
-// Configure drawing brush to use less data
-canvas.freeDrawingBrush.width = 2; // Thinner lines
-canvas.freeDrawingBrush.color = '#000000'; // Simple color
+// Brush settings
+canvas.freeDrawingBrush.width = 2;
+canvas.freeDrawingBrush.color = '#000000';
 
-canvas1.freeDrawingBrush.width = 2; // Thinner lines
-canvas1.freeDrawingBrush.color = '#000000'; // Simple color
+canvas1.freeDrawingBrush.width = 2;
+canvas1.freeDrawingBrush.color = '#000000';
 
+// Load injury background image
 fabric.Image.fromURL("{{ $AccidentInfo->injury_image }}", function(myImg) {
     var img1 = myImg.set({ 
         left: 0, 
@@ -1138,86 +1080,51 @@ fabric.Image.fromURL("{{ $AccidentInfo->injury_image }}", function(myImg) {
         selectable: false,
         hasControls: false
     });
-
     canvas.add(img1);
 }, { crossOrigin: 'Anonymous' });
 
+// Save injury canvas as image
 function saveImage() {
-    // Use JPEG format with compression instead of PNG
-    // The second parameter is the quality (0 to 1)
     var jpegURL = canvas.toDataURL({
         format: 'jpeg',
-        quality: 0.5,    // Lower value = smaller file, but lower quality
-        multiplier: 0.8  // Reduces the resolution of the output
+        quality: 0.5,
+        multiplier: 0.8
     });
-    
     $("#injury-image").val(jpegURL);
 }
 
-	$("#form-submit").click(function(event) {
-		saveImage();
-		$('#acc-form').submit();
-	});
+// ================== MODAL FIX ===================
 
-	$('input[name="other"]').on('click',function(){
+// Ensure signature canvas renders when modal opens
+$(document).on('show.bs.modal', '#signModal', function (event) {
+    var button = $(event.relatedTarget);
+    var identity = button.data('identity');
+    $("#identityVal").val(identity);
 
-		if ($(this).is(':checked')) {
-			$("#injury-remarks").show();
-		}else{
-			$("#injury-remarks").hide();
-		}
-	});
-    
+    setTimeout(function () {
+        canvas1.calcOffset();
+        canvas1.renderAll();
+    }, 200); // Wait until modal transition finishes
+});
 
 
-    $("#childid").on("change",function(){
-		let _val = $(this).val();
-		if (_val != "") {
-			$.ajax({
-					url: "{{route('Accident/getChildDetails') }}",
-				type: 'post',
-                         headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-				data: {'childid': _val},
-			})
-			.done(function(json) {
-				var res = json;
-				if (res.Status == "SUCCESS") {
-                    // alert();
-					$("#childfullname").val(res.Child.name + res.Child.lastname);
-					$("#birthdate").val(res.Child.dob);
+ function showToast(type, message) {
+        const toastType = type === 'success' ? 'toast-success' : 'toast-error';
+        const toast = `
+            <div class="toast ${toastType}" style="min-width: 250px; margin-bottom: 10px; color: white;" aria-live="assertive">
+                <button type="button" class="toast-close-button" onclick="this.parentElement.remove()">×</button>
+                <div class="toast-message">${message}</div>
+            </div>
+        `;
+        $('#toast-container').append(toast);
+   setTimeout(() => {
+        $toast.fadeOut(500, function () {
+            $(this).remove();
+        });
+    }, 3000);
 
-                               let birthDate = new Date(res.Child.dob);
-                    let today = new Date();
-                    let age = today.getFullYear() - birthDate.getFullYear();
-
-                    // Adjust age if birthday hasn't occurred yet this year
-                    let m = today.getMonth() - birthDate.getMonth();
-                    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                        age--;
-                    }
-					$("#age").val(age);
-					if(res.Child.gender == "Male"){
-						$("#Male").prop('checked', true);
-						$("#Female").prop('checked', false);
-						$("#Others").prop('checked', false);
-					}else if(res.Child.gender == "Female"){
-						$("#Male").prop('checked', false);
-						$("#Female").prop('checked', true);
-						$("#Others").prop('checked', false);
-					}else{
-						$("#Male").prop('checked', false);
-						$("#Female").prop('checked', false);
-						$("#Others").prop('checked', true);
-					}
-				}
-			});
-		}
-	});
-     if ($("#childid").val() !== "") {
-        $("#childid").trigger("change");
     }
 </script>
+
 @endpush
 @include('layout.footer')
