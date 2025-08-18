@@ -68,7 +68,6 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
         Route::post('/update-assessment-status', [LnPcontroller::class, 'updateAssessmentStatus'])->name('update.assessment.status');
     });
 
-
   Route::get('/centers',[LessonPlanList::class,'centers'])->name('centers');
     // program plan
         Route::get('/programPlanList',[LessonPlanList::class,'programPlanList'])->name('programPlanList');
@@ -165,6 +164,12 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::get('/view/{id}', [ObservationsController::class, 'view'])->name('view');
         Route::get('/observationslink', [ObservationsController::class, 'linkobservationdata']);
         Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
+        
+       Route::get('/reflectionslink', [ObservationsController::class, 'linkreflectiondata']);
+        Route::post('/submit-selectedreflink', [ObservationsController::class, 'storelinkreflection']);
+
+        Route::get('/programplanslink', [ObservationsController::class, 'linkprogramplandata']);
+        Route::post('/submit-selectedpplink', [ObservationsController::class, 'storelinkprogramplan']);
     });
 
 

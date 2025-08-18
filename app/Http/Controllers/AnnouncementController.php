@@ -296,195 +296,190 @@ class AnnouncementController extends Controller
     }
 
 
-    public function AnnouncementStore(Request $request)
-    {
-
+   public function AnnouncementStore(Request $request)
+{
     $request->validate([
-    'title'      => 'required|string|max:255',
-    'text'       => 'required|string',
-    'eventDate'  => 'nullable|date_format:d-m-Y',
-    'childId'    => 'required|array',
-    'childId.*'  => 'required|numeric|exists:child,id',
-    'media'      => 'nullable|array',
-    'media.*'    => 'file|mimes:jpeg,jpg,png,pdf|max:200', // 200KB per file
-], [
-    'childId.required'    => 'Children are required.',
-    'text.required'       => 'Description is required.',
-    'media.*.max'         => 'Each file must be under 200KB.',
-    'media.*.mimes'       => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
-]);
+        'title'      => 'required|string|max:255',
+        'text'       => 'required|string',
+        'eventDate'  => 'nullable|date_format:d-m-Y',
+        'childId'    => 'required|array',
+        'childId.*'  => 'required|numeric|exists:child,id',
+        'media'      => 'nullable|array',
+        'media.*'    => 'file|mimes:jpeg,jpg,png,pdf', // max 200KB
+    ], [
+        'childId.required'    => 'Children are required.',
+        'text.required'       => 'Description is required.',
+        'media.*.max'         => 'Each file must be under 200KB.',
+        'media.*.mimes'       => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
+    ]);
 
-// ✅ Check if both image and PDF types are mixed
-if ($request->hasFile('media')) {
-    $hasImage = false;
-    $hasPdf = false;
+    // ✅ Check if both image and PDF types are mixed
+    if ($request->hasFile('media')) {
+        $hasImage = false;
+        $hasPdf = false;
 
-    foreach ($request->file('media') as $file) {
-        $mime = $file->getMimeType();
-        if (str_starts_with($mime, 'image/')) {
-            $hasImage = true;
-        } elseif ($mime === 'application/pdf') {
-            $hasPdf = true;
+        foreach ($request->file('media') as $file) {
+            $mime = $file->getMimeType();
+            if (str_starts_with($mime, 'image/')) {
+                $hasImage = true;
+            } elseif ($mime === 'application/pdf') {
+                $hasPdf = true;
+            }
+        }
+
+        if ($hasImage && $hasPdf) {
+            return redirect()->back()->withInput()->withErrors([
+                'media' => 'You can upload either images or PDFs, not both together.',
+            ]);
         }
     }
 
-    // ❌ Block if both types are present
-    if ($hasImage && $hasPdf) {
-        return redirect()->back()->withInput()->withErrors([
-            'media' => 'You can upload either images or PDFs, not both together.',
+    try {
+        $userid = Auth::user()->userid;
+        $centerid = session('user_center_id');
+        $announcementId = null;
+
+        // Format date
+        $eventDate = empty($request->eventDate)
+            ? now()->addDay()->format('Y-m-d')
+            : Carbon::createFromFormat('d-m-Y', $request->eventDate)->format('Y-m-d');
+
+        $role = Auth::user()->userType;
+        $run = 0;
+        $status = 'Pending';
+
+        // Permissions
+        if ($role === "Superadmin") {
+            $run = 1;
+            $status = "Sent";
+        } elseif ($role === "Staff") {
+            $permission = \App\Models\PermissionsModel::where('userid', $userid)
+                ->where('centerid', $centerid)
+                ->first();
+
+            if ($permission && ($permission->addAnnouncement || $permission->updateAnnouncement)) {
+                $run = 1;
+                $status = $permission->approveAnnouncement ? "Sent" : "Pending";
+            }
+        }
+
+        if ($run !== 1) {
+            return redirect()->back()->with([
+                'status' => 'error',
+                'message' => 'Permission Denied!',
+            ]);
+        }
+
+        $mediaFiles = [];
+
+        // ✅ Handle new uploads (store URLs)
+        if ($request->hasFile('media')) {
+            foreach ($request->file('media') as $file) {
+                $filename = uniqid() . '_' . $file->getClientOriginalName();
+                $destinationPath = public_path('uploads/announcements');
+
+                // Ensure directory exists
+                \Illuminate\Support\Facades\File::ensureDirectoryExists($destinationPath);
+
+                // Move file
+                $file->move($destinationPath, $filename);
+
+                // Store full URL
+                $mediaFiles[] = url('uploads/announcements/' . $filename);
+            }
+        }
+
+        // ✅ UPDATE CASE
+        if ($request->annId) {
+            $announcement = \App\Models\AnnouncementsModel::find($request->annId);
+
+            if (!$announcement) {
+                return redirect()->back()->with([
+                    'status' => 'error',
+                    'message' => 'Announcement not found!',
+                ]);
+            }
+
+            // Remove old media only if new media uploaded
+            if (!empty($mediaFiles) && $announcement->announcementMedia) {
+                $oldMedia = json_decode($announcement->announcementMedia, true);
+                foreach ($oldMedia as $oldFileUrl) {
+                    $oldFilePath = public_path(str_replace(url('/').'/', '', $oldFileUrl));
+                    if (file_exists($oldFilePath)) {
+                        @unlink($oldFilePath);
+                    }
+                }
+            }
+
+            $announcement->update([
+                'title'             => $request->title,
+                'eventDate'         => $eventDate,
+                'text'              => $request->text,
+                'status'            => $status,
+                'announcementMedia' => !empty($mediaFiles) ? json_encode($mediaFiles) : $announcement->announcementMedia,
+            ]);
+
+            $announcementId = $announcement->id;
+
+            // Refresh children links
+            \App\Models\AnnouncementChildModel::where('aid', $announcementId)->delete();
+        } 
+        // ✅ CREATE CASE
+        else {
+            $announcement = \App\Models\AnnouncementsModel::create([
+                'title'             => $request->title,
+                'text'              => $request->text,
+                'eventDate'         => $eventDate,
+                'status'            => $status,
+                'createdBy'         => $userid,
+                'centerid'          => $centerid,
+                'createdAt'         => now(),
+                'announcementMedia' => json_encode($mediaFiles),
+            ]);
+
+            if (!$announcement) {
+                return redirect()->back()->with([
+                    'status' => 'error',
+                    'message' => 'Failed to create announcement!',
+                ]);
+            }
+
+            $announcementId = $announcement->id;
+        }
+
+        // ✅ Link children
+        foreach ($request->childId as $childId) {
+            if (!empty($childId)) {
+                \App\Models\AnnouncementChildModel::create([
+                    'aid'     => $announcementId,
+                    'childid' => $childId,
+                ]);
+            }
+        }
+
+        // ✅ Notify users
+        $userIds = Usercenter::where('centerid', $centerid)
+            ->pluck('userid')
+            ->unique();
+
+        foreach ($userIds as $userId) {
+            $user = User::find($userId);
+            if ($user) {
+                $user->notify(new AnnouncementAdded($announcement));
+            }
+        }
+
+        return redirect()->back()->with([
+            'status' => 'success',
+            'msg' => $request->annId ? 'Announcement updated successfully' : 'Announcement created successfully',
+        ]);
+    } catch (\Exception $e) {
+        return redirect()->back()->with([
+            'status' => 'error',
+            'message' => 'Something went wrong! ' . $e->getMessage(),
         ]);
     }
 }
-
-
-        try {
-            $userid = Auth::user()->userid;
-            $centerid = session('user_center_id');
-            $announcementId = null;
-
-            // Format date
-            $eventDate = empty($request->eventDate)
-                ? now()->addDay()->format('Y-m-d')
-                : Carbon::createFromFormat('d-m-Y', $request->eventDate)->format('Y-m-d');
-
-            $role = Auth::user()->userType;
-            $run = 0;
-            $status = 'Pending';
-
-            // Permissions
-            if ($role === "Superadmin") {
-                $run = 1;
-                $status = "Sent";
-            } elseif ($role === "Staff") {
-                $permission = \App\Models\PermissionsModel::where('userid', $userid)
-                    ->where('centerid', $centerid)
-                    ->first();
-
-                if ($permission && ($permission->addAnnouncement || $permission->updateAnnouncement)) {
-                    $run = 1;
-                    $status = $permission->approveAnnouncement ? "Sent" : "Pending";
-                }
-            }
-
-            if ($run !== 1) {
-                return redirect()->back()->with([
-                    'status' => 'error',
-                    'message' => 'Permission Denied!',
-                ]);
-            }
-
-            $mediaFiles = [];
-
-            // Store new files (in public/assets/media)
-          
-
-            // UPDATE
-            if ($request->annId) {
-                $announcement = \App\Models\AnnouncementsModel::find($request->annId);
-
-                if (!$announcement) {
-                    return redirect()->back()->with([
-                        'status' => 'error',
-                        'message' => 'Announcement not found!',
-                    ]);
-                }
-
-                // Remove old media if new media uploaded
-                if (!empty($mediaFiles) && $announcement->announcementMedia) {
-                    $oldMedia = json_decode($announcement->announcementMedia, true);
-                    foreach ($oldMedia as $oldFile) {
-                        $filePath = public_path('assets/media/' . $oldFile);
-                        if (file_exists($filePath)) {
-                            @unlink($filePath);
-                        }
-                    }
-                }
-
-                  if ($request->hasFile('media')) {
-                foreach ($request->file('media') as $file) {
-                    $filename = uniqid() . '_' . $file->getClientOriginalName();
-                    $destinationPath = public_path('assets/media');
-                    $file->move($destinationPath, $filename);
-                    $mediaFiles[] = $filename;
-                }
-            }
-
-                $announcement->update([
-                    'title'             => $request->title,
-                    'eventDate'         => $eventDate,
-                    'text'              => $request->text,
-                    'status'            => $status,
-                    'announcementMedia' => !empty($mediaFiles) ? json_encode($mediaFiles) : $announcement->announcementMedia,
-                ]);
-
-                $announcementId = $announcement->id;
-
-                \App\Models\AnnouncementChildModel::where('aid', $announcementId)->delete();
-            }
-            // CREATE
-            else {
-
-                if ($request->hasFile('media')) {
-                foreach ($request->file('media') as $file) {
-                    $filename = uniqid() . '_' . $file->getClientOriginalName();
-                    $destinationPath = public_path('assets/media');
-                    $file->move($destinationPath, $filename);
-                    $mediaFiles[] = $filename;
-                }
-            }
-
-                $announcement = \App\Models\AnnouncementsModel::create([
-                    'title'             => $request->title,
-                    'text'              => $request->text,
-                    'eventDate'         => $eventDate,
-                    'status'            => $status,
-                    'createdBy'         => $userid,
-                    'centerid'          => $centerid,
-                    'createdAt'         => now(),
-                    'announcementMedia' => json_encode($mediaFiles),
-                ]);
-
-                if (!$announcement) {
-                    return redirect()->back()->with([
-                        'status' => 'error',
-                        'message' => 'Failed to create announcement!',
-                    ]);
-                }
-
-                $announcementId = $announcement->id;
-            }
-
-            // Link children
-            foreach ($request->childId as $childId) {
-                if (!empty($childId)) {
-                    \App\Models\AnnouncementChildModel::create([
-                        'aid'     => $announcementId,
-                        'childid' => $childId,
-                    ]);
-                }
-            }
-            $userIds = Usercenter::where('centerid', $centerid)
-                ->pluck('userid')
-                ->unique();
-            foreach ($userIds as $userId) {
-                $user = User::find($userId);
-                if ($user) {
-                    $user->notify(new AnnouncementAdded($announcement));
-                }
-            }
-
-            return redirect()->back()->with([
-                'status' => 'success',
-                'msg' => $request->annId ? 'Announcement updated successfully' : 'Announcement created successfully',
-            ]);
-        } catch (\Exception $e) {
-            return redirect()->back()->with([
-                'status' => 'error',
-                'message' => 'Something went wrong! ' . $e->getMessage(),
-            ]);
-        }
-    }
-
 
 
     public function AnnouncementView(Request $request)
