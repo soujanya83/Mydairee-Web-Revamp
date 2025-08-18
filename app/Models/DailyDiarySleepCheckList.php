@@ -17,5 +17,6 @@ class DailyDiarySleepCheckList extends Model
 'body_temperature',
 'createdBy',
 'notes',
+'signature'
     ];
 }

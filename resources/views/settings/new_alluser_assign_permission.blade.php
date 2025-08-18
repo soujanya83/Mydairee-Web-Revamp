@@ -178,12 +178,16 @@
     }
 
     .select-all-btn:hover {
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(2, 0, 0, 0.3);
     }
 
     .select-all-btn.active {
         background: var(--success);
+        color: #ffffff;
     }
+
+
+
 
     .card-body {
         padding: 20px;
@@ -432,6 +436,31 @@
             width: 100%;
         }
     }
+
+
+
+    .btn-outline {
+        background: #49c5b6;
+        border: 1px solid #000;
+        /* match Select All border */
+        color: #ffffff;
+        /* bootstrap primary blue */
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+        /* remove underline for links */
+    }
+
+    .btn-outline:hover {
+        background: black;
+        /* light blue hover */
+    }
 </style>
 
 
@@ -470,31 +499,6 @@
                 <div class="container">
 
 
-                    {{-- <div class="stats">
-                        <div class="stat-card">
-                            <div class="stat-icon blue">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="stat-value">18</div>
-                            <div class="stat-label">Active Roles</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon green">
-                                <i class="fas fa-key"></i>
-                            </div>
-                            <div class="stat-value">142</div>
-                            <div class="stat-label">Total Permissions</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon purple">
-                                <i class="fas fa-lock"></i>
-                            </div>
-                            <div class="stat-value">96%</div>
-                            <div class="stat-label">Permission Coverage</div>
-                        </div>
-                    </div> --}}
-
-
 
                     {{-- <div class="controls"> --}}
                         <form action="{{ route('settings.assign_permissions') }}" method="POST">
@@ -507,14 +511,19 @@
                                         @endforeach
                                     </select></div>
 
-                                <button type="button" class="select-all-btn btn-outline mb-0" data-category=""
+                                {{-- <button type="button" class="select-all-btn btn-outline mb-0" data-category=""
                                     style="    background: #fff;">
-                                    <i class="fas fa-check-circle"></i> Select All Permissions
+                                    <i class="far fa-check-circle"></i> Select All Permissions
+                                </button> --}}
+                                <button type="button" class="select-all-btn btn-outline mb-0" data-category="">
+                                    <i class="far fa-check-circle"></i> Select All Permissions
                                 </button>
 
-                                <a class="select-all-btn btn-outline mb-0" style="background: #fff;margin-left: 20px;"
-                                    href="{{ route('settings.assigned_permissions') }}">
-                                    <i class="fa fa-users"></i>&nbsp; Assigned Users List
+
+
+                                <a class="btn-outline mb-0" href="{{ route('settings.assigned_permissions') }}"
+                                    style="color:#ffffff;margin-left:12px">
+                                    <i class="fa fa-users"></i> Assigned Users List
                                 </a>
                             </div>
 
@@ -1105,6 +1114,37 @@
                                         @endforeach
                                     </div>
                                 </div>
+
+                                <div class="permission-card">
+                                    <div class="card-header">
+                                        <div class="header-content">
+                                            <i class="icon-camera"></i>
+                                            <h3>Snapshots Management</h3>
+                                        </div>
+                                        <button class="select-all-btn" type="button" data-category="snapshots">
+                                            <i class="fas fa-check-circle"></i> All
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        @foreach($SnapshotsPermissions as $perm)
+                                        <div class="permission-item">
+                                            <label>
+                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                                {{ $perm['label'] }}
+                                            </label>
+                                            <label class="switch">
+                                                <input type="checkbox" class="permission-check"
+                                                    name="permissions[{{ $perm['name'] }}]" data-category="snapshots"
+                                                    {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' : '' }}>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+
                                 <!-- Permissions Module -->
                                 <div class="permission-card">
                                     <div class="card-header">
@@ -1194,6 +1234,9 @@
         }
     });
 
+
+
+
     // Update "All" button state when individual checkboxes change
     permissionChecks.forEach(checkbox => {
         checkbox.addEventListener('change', function () {
@@ -1215,6 +1258,7 @@
 
     // Initialize button states
     updateMasterButtonState();
+
 });
 </script>
 

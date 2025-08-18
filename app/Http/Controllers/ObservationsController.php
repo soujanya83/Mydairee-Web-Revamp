@@ -448,6 +448,7 @@ class ObservationsController extends Controller
 
     public function getStaff(Request $request)
     {
+        // dd('here');
         try {
             $user = Auth::user();
             $children = collect();
@@ -1024,10 +1025,10 @@ public function storelinkprogramplan(Request $request)
             'selected_rooms'    => 'required',
             'obestitle'         => 'required|string',
             'title'             => 'required|string',
-            'notes'             => 'required|string',
-            'reflection'        => 'required|string',
-            'child_voice'       => 'required|string',
-            'future_plan'       => 'required|string',
+            'notes'             => 'nullable|string',
+            'reflection'        => 'nullable|string',
+            'child_voice'       => 'nullable|string',
+            'future_plan'       => 'nullable|string',
             'selected_children' => 'required|string',
         ];
 
@@ -1035,7 +1036,7 @@ public function storelinkprogramplan(Request $request)
 
 
         if (!$isEdit) {
-            $rules['media'] = 'required|array|min:1';
+            $rules['media'] = 'nullable|array|min:1';
         } else {
             $rules['media'] = 'nullable|array';
         }
@@ -1331,6 +1332,11 @@ public function storelinkprogramplan(Request $request)
             $roomIds = explode(',', $reflection->roomids); // Convert comma-separated string to array
             $rooms = Room::whereIn('id', $roomIds)->get();
         }
+$educators = collect();
+        if($reflection && $reflection->educators){
+  $educatorsIds = explode(',', $reflection->educators); // Convert comma-separated string to array
+            $educators = User::whereIn('userid', $educatorsIds)->get();
+        }
 
         //     $staffs = $reflection
         // ? $reflection->staff->pluck('staff')->filter()
@@ -1338,8 +1344,15 @@ public function storelinkprogramplan(Request $request)
 
         $outcomes = EYLFOutcome::with('activities.subActivities')->get();
 
+        // $Usercenters = Usercenter::where('centerid',$centerid)->pluck('userid');
+        // $educators = User::where('userType','Staff')->whereIn('userid',$Usercenters)->where('status','ACTIVE')->get();
+        // dd( $educators);
 
-        return view('observations.storesnapshots', compact('reflection', 'childrens', 'rooms', 'outcomes'));
+
+
+
+
+        return view('observations.storesnapshots', compact('reflection', 'childrens', 'rooms', 'outcomes','educators'));
     }
 
 
@@ -1361,6 +1374,7 @@ public function storelinkprogramplan(Request $request)
             'title'             => 'required|string',
             'about'             => 'required|string',
             'selected_children' => 'required|string',
+            'selected_staff' => 'required|string'
         ];
 
         if (!$isEdit) {
@@ -1403,6 +1417,8 @@ public function storelinkprogramplan(Request $request)
             $reflection->about        = $request->input('about');
             $reflection->centerid     = $centerid;
             $reflection->createdBy    = $authId;
+             $reflection->educators    = $request->input('selected_staff');
+
             $reflection->save();
 
             $reflectionId = $reflection->id;
@@ -1481,6 +1497,46 @@ public function storelinkprogramplan(Request $request)
         }
     }
 
+public function viewSnapShot($id)
+{
+    // Fetch snapshot or fail gracefully
+    $snapshots = Snapshot::findOrFail($id);
+
+    // Get children linked to this snapshot
+    $snapchildren = SnapshotChild::where('snapshotid', $id)->pluck('childid');
+    $childrens = Child::whereIn('id', $snapchildren)->get();
+    // dd( $childrens);
+
+    // Get educators (stored as CSV in snapshot->educators)
+    $snapeducators = $snapshots->educators;
+    $educators = collect(); // default empty
+
+    if (!empty($snapeducators)) {
+        $educatorsarray = explode(',', $snapeducators);
+        $educators = User::whereIn('userid', $educatorsarray)->get();
+    }
+
+     $snaprooms = $snapshots->roomids;
+    //  dd($snaprooms );
+    $rooms = collect(); // default empty
+
+    if (!empty($snaprooms)) {
+        $roomsarray = explode(',', $snaprooms);
+        $rooms = Room::whereIn('id', $roomsarray)->get();
+    }
+
+
+    // Get media files linked to snapshot
+    $snapmedia = SnapshotMedia::where('snapshotid', $id)->get();
+
+    return view('observations.viewsnapshot', compact(
+        'childrens',
+        'snapshots',
+        'educators',
+        'snapmedia',
+        'rooms'
+    ));
+}
 
 
 

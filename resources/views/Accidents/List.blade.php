@@ -818,7 +818,7 @@ class="btn btn-info btn-lg">
 
     <!-- Edit -->
    
-    @if($permission && $permission->updateAccidents == 1)
+    @if($permission && $permission->updateAccidents == 1 || Auth::user()->userType == "Superadmin")
         <a href="{{ route('Accidents.edit') }}?id={{ $accident->id }}&centerid={{ $centerid }}&roomid={{ $roomid }}"
            class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
            style="min-width: 30px; height: 30px;"
@@ -829,7 +829,7 @@ class="btn btn-info btn-lg">
 
 
     <!-- Delete -->
-    @if(Auth::user()->userType != 'Parent')
+    @if(Auth::user()->userType != 'Parent' || Auth::user()->userType == "Superadmin")
      <form action="{{ route('Accident.delete') }}" method="POST" class="d-inline delete-form">
     @csrf
     <input type="hidden" name="accidentid" value="{{ $accident->id }}">

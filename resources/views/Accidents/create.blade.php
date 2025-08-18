@@ -952,8 +952,8 @@ input[type="radio"]:checked + .radio-pill {
                             <div class="col-sm-12 text-right">
                                 <div class="formSubmit">
                                     <button type="button" id="form-submit" class="btn btn-default btn-success">Save &amp; Next</button>
-                                    <button type="button" class="btn btn-default btn-danger">Cancel</button>
-                                   <a href="{{ route('Accidents.list', ['centerid' => request()->get('centerid'), 'roomid' => request()->get('roomid')]) }}">
+                                    <!-- <button type="button" class="btn btn-default btn-danger">Cancel</button> -->
+                                   <a class="btn-warning p-2 rounded" href="{{ route('Accidents.list', ['centerid' => request()->get('centerid'), 'roomid' => request()->get('roomid')]) }}">
    Cancel
 </a>
 
@@ -1011,11 +1011,11 @@ input[type="radio"]:checked + .radio-pill {
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
 
 <!-- jQuery UI -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script> -->
 
 <!-- Bootstrap 4 (JS + Popper) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.min.js"></script> -->
 
 <!-- Moment.js (required by FullCalendar) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
@@ -1053,163 +1053,173 @@ input[type="radio"]:checked + .radio-pill {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.signature/1.2.1/jquery.signature.min.js"></script>
 
-<script style="opacity: 1;">
+<script>
+    // ------------------ Signature Canvas ------------------
+    var canvas1 = new fabric.Canvas('d', {
+        isDrawingMode: true,
+        width: 400,
+        height: 200
+    });
+    canvas1.setBackgroundColor('#ffffff', canvas1.renderAll.bind(canvas1));
+    canvas1.freeDrawingBrush.width = 2;
+    canvas1.freeDrawingBrush.color = '#000000';
 
+    // When modal is fully visible → set identity + reset offsets
+    $(document).on('shown.bs.modal', '#signModal', function (event) {
+        var button = $(event.relatedTarget);
+        var identity = button.data('identity');
+        $("#identityVal").val(identity);
+
+        // Fix Fabric offset inside modal
+        canvas1.calcOffset();
+        canvas1.renderAll();
+    });
+
+    // Save signature button
     $('#btnSignature').on('click', function() {
-    let _identity = $("#identityVal").val();
+        let _identity = $("#identityVal").val();
+        var _signature = canvas1.toDataURL({ format: 'png' });
 
-    // Get data from Fabric.js canvas
-    var _signature = canvas1.toDataURL({ format: 'png' });
+        if (_identity === "person_sign") {
+            $('#person_sign').show();
+            $('#person_sign_dt').hide();
+            $('#person_sign_img').attr('src', _signature);
+            $('#person_sign_txt').val(_signature);
+        } else if (_identity === "witness_sign") {
+            $('#witness_sign').show();
+            $('#witness_sign_dt').hide();
+            $('#witness_sign_img').attr('src', _signature);
+            $('#witness_sign_txt').val(_signature);
+        } else if (_identity === "incharge_sign") {
+            $('#incharge_sign').show();
+            $('#res_pinc_dt').hide();
+            $('#res_pinc_img').attr('src', _signature);
+            $('#res_pinc_txt').val(_signature);
+        } else if (_identity === "supervisor_sign") {
+            $('#supervisor_sign').show();
+            $('#nom_svs_dt').hide();
+            $('#nsv_sign_img').attr('src', _signature);
+            $('#nsv_sign_txt').val(_signature);
+        }
 
-    if (_identity === "person_sign") {
-       
-        $('#person_sign').show();
-        $('#person_sign_dt').hide();
-        $('#person_sign_img').attr('src', _signature);
-        $('#person_sign_txt').val(_signature);
-    } else if (_identity === "witness_sign") {
-        $('#witness_sign').show();
-        $('#witness_sign_dt').hide();
-        $('#witness_sign_img').attr('src', _signature);
-        $('#witness_sign_txt').val(_signature);
-    } else if (_identity === "incharge_sign") {
-        $('#incharge_sign').show();
-        $('#res_pinc_dt').hide();
-        $('#res_pinc_img').attr('src', _signature);
-        $('#res_pinc_txt').val(_signature);
-    } else if (_identity === "supervisor_sign") {
-        $('#supervisor_sign').show();
-        $('#nom_svs_dt').hide();
-        $('#nsv_sign_img').attr('src', _signature);
-        $('#nsv_sign_txt').val(_signature);
+        // Clear the canvas after saving
+        canvas1.clear();
+        canvas1.setBackgroundColor('#ffffff', canvas1.renderAll.bind(canvas1));
+    });
+
+
+    // ------------------ Main Drawing Canvas ------------------
+    var canvas = new fabric.Canvas('c', {
+        isDrawingMode: true,
+        width: 500,
+        height: 500
+    });
+
+    canvas.freeDrawingBrush.width = 2;
+    canvas.freeDrawingBrush.color = '#000000';
+
+    // Add background image
+    fabric.Image.fromURL("{{ asset('assets/media/baby.jpg')}}", function(myImg) {
+        var img1 = myImg.set({
+            left: 0,
+            top: 0,
+            scaleX: 500 / myImg.width,
+            scaleY: 500 / myImg.height,
+            selectable: false,
+            hasControls: false
+        });
+        canvas.add(img1);
+    }, { crossOrigin: 'Anonymous' });
+
+    // Enable circle placement on click
+    enableCircleMode(canvas, 10, "green");
+
+    function enableCircleMode(fCanvas, radius = 15, color = "red") {
+        fCanvas.on('mouse:down', function (options) {
+            if (options.pointer) {
+                var circle = new fabric.Circle({
+                    left: options.pointer.x - radius,
+                    top: options.pointer.y - radius,
+                    radius: radius,
+                    fill: 'transparent',
+                    stroke: color,
+                    strokeWidth: 2,
+                    selectable: false
+                });
+                fCanvas.add(circle);
+            }
+        });
     }
 
-    // Clear the canvas after using
-    canvas1.clear();
+    // Save main canvas image
+    function saveImage() {
+          canvas.renderAll();
+        var jpegURL = canvas.toDataURL({
+            format: 'jpeg',
+            quality: 0.5,
+            multiplier: 0.8
+        });
+        $("#injury-image").val(jpegURL);
+    }
 
-    // Optional: Reset canvas background
-    canvas1.setBackgroundColor('#ffffff', canvas1.renderAll.bind(canvas1));
-
-    	$(document).on('show.bs.modal', '#signModal',function (event) {
-		  var button = $(event.relatedTarget);
-		  var identity = button.data('identity');
-		  $("#identityVal").val(identity);
-		});
-
-        $('.select2-container').addClass('select2-container--bootstrap select2-container--below select2-container--focus');
-        $('.select2-container').removeClass('select2-container--default');
-});
-
-
-    var canvas = new fabric.Canvas('c', {
-    isDrawingMode: true,
-    // Set lower resolution for the canvas
-    width: 500,
-    height: 500
-});
-
-   var canvas1 = new fabric.Canvas('d', {
-    isDrawingMode: true,
-    // Set lower resolution for the canvas
-    width: 400,
-    height: 200
-});
-
-// Configure drawing brush to use less data
-canvas.freeDrawingBrush.width = 2; // Thinner lines
-canvas.freeDrawingBrush.color = '#000000'; // Simple color
-
-canvas1.freeDrawingBrush.width = 2; // Thinner lines
-canvas1.freeDrawingBrush.color = '#000000'; // Simple color
-
-fabric.Image.fromURL("{{ asset('assets/media/baby.jpg')}}", function(myImg) {
-    var img1 = myImg.set({ 
-        left: 0, 
-        top: 0,
-        scaleX: 500 / myImg.width,
-        scaleY: 500 / myImg.height,
-        selectable: false,
-        hasControls: false
+    $("#form-submit").click(function(event) {
+        saveImage();
+        $('#acc-form').submit();
     });
 
-    canvas.add(img1);
-}, { crossOrigin: 'Anonymous' });
-
-function saveImage() {
-    // Use JPEG format with compression instead of PNG
-    // The second parameter is the quality (0 to 1)
-    var jpegURL = canvas.toDataURL({
-        format: 'jpeg',
-        quality: 0.5,    // Lower value = smaller file, but lower quality
-        multiplier: 0.8  // Reduces the resolution of the output
+    // ------------------ Injury Remarks Toggle ------------------
+    $('input[name="other"]').on('click', function() {
+        if ($(this).is(':checked')) {
+            $("#injury-remarks").show();
+        } else {
+            $("#injury-remarks").hide();
+        }
     });
-    
-    $("#injury-image").val(jpegURL);
-}
 
-	$("#form-submit").click(function(event) {
-		saveImage();
-		$('#acc-form').submit();
-	});
+    // ------------------ Child Details AJAX ------------------
+    $("#childid").on("change", function() {
+        let _val = $(this).val();
+        if (_val != "") {
+            $.ajax({
+                url: "{{route('Accident/getChildDetails') }}",
+                type: 'post',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                data: { 'childid': _val },
+            })
+            .done(function(json) {
+                var res = json;
+                if (res.Status == "SUCCESS") {
+                    $("#childfullname").val(res.Child.name + res.Child.lastname);
+                    $("#birthdate").val(res.Child.dob);
 
-	$('input[name="other"]').on('click',function(){
-
-		if ($(this).is(':checked')) {
-			$("#injury-remarks").show();
-		}else{
-			$("#injury-remarks").hide();
-		}
-	});
-
-
-    $("#childid").on("change",function(){
-		let _val = $(this).val();
-		if (_val != "") {
-			$.ajax({
-					url: "{{route('Accident/getChildDetails') }}",
-				type: 'post',
-                         headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-				data: {'childid': _val},
-			})
-			.done(function(json) {
-				var res = json;
-				if (res.Status == "SUCCESS") {
-                    // alert();
-					$("#childfullname").val(res.Child.name + res.Child.lastname);
-					$("#birthdate").val(res.Child.dob);
-
-                               let birthDate = new Date(res.Child.dob);
+                    let birthDate = new Date(res.Child.dob);
                     let today = new Date();
                     let age = today.getFullYear() - birthDate.getFullYear();
-
-                    // Adjust age if birthday hasn't occurred yet this year
                     let m = today.getMonth() - birthDate.getMonth();
                     if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                         age--;
                     }
-					$("#age").val(age);
-					if(res.Child.gender == "Male"){
-						$("#Male").prop('checked', true);
-						$("#Female").prop('checked', false);
-						$("#Others").prop('checked', false);
-					}else if(res.Child.gender == "Female"){
-						$("#Male").prop('checked', false);
-						$("#Female").prop('checked', true);
-						$("#Others").prop('checked', false);
-					}else{
-						$("#Male").prop('checked', false);
-						$("#Female").prop('checked', false);
-						$("#Others").prop('checked', true);
-					}
-				}
-			});
-		}
-	});
-</script>
+                    $("#age").val(age);
 
-<script>
+                    if(res.Child.gender == "Male"){
+                        $("#Male").prop('checked', true);
+                        $("#Female").prop('checked', false);
+                        $("#Others").prop('checked', false);
+                    } else if(res.Child.gender == "Female"){
+                        $("#Male").prop('checked', false);
+                        $("#Female").prop('checked', true);
+                        $("#Others").prop('checked', false);
+                    } else {
+                        $("#Male").prop('checked', false);
+                        $("#Female").prop('checked', false);
+                        $("#Others").prop('checked', true);
+                    }
+                }
+            });
+        }
+    });
+
+    // ------------------ Toast Notifications ------------------
     function showToast(type, message) {
         const toastType = type === 'success' ? 'toast-success' : 'toast-error';
         const toast = `
@@ -1226,5 +1236,6 @@ function saveImage() {
         }, 3000);
     }
 </script>
+
 @endpush
 @include('layout.footer')

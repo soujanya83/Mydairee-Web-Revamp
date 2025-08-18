@@ -284,13 +284,16 @@
             class="btn btn-outline-info btn-lg">ADD NEW</a>
         @endif
         @endif
+
+          @if(Auth::user()->userType === 'Superadmin')
+        <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}"
+            class="btn btn-outline-info btn-lg">ADD NEW</a>
+        @endif
     </div>
 
 </div>
 
  <hr class="mt-3"> 
-
-
 
 <main class="py-4">
      @if(Auth::user()->userType != "Parent")
@@ -431,7 +434,7 @@
                             <!-- Media Section -->
                             @if (!empty($media) && is_array($media))
                                 <div class="position-relative">
-                                    @php $firstMedia = $media[0]; $extension = strtolower(pathinfo($firstMedia, PATHINFO_EXTENSION)); $fileUrl = asset('assets/media/' . $firstMedia); @endphp
+                                    @php $firstMedia = $media[0]; $extension = strtolower(pathinfo($firstMedia, PATHINFO_EXTENSION)); $fileUrl = asset($firstMedia); @endphp
                                     
                                     @if (in_array($extension, ['jpg', 'jpeg', 'png']))
                                         <img src="{{ $fileUrl }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="Announcement Image">
@@ -514,7 +517,7 @@
     </a>
 
     <!-- Edit -->
-    @if($permissions && $permissions->updateAnnouncement == 1)
+    @if($permissions && $permissions->updateAnnouncement == 1 || Auth::user()->userType == "Superadmin")
         <a href="{{ route('announcements.create', $announcement->id) }}"
            class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
            style="min-width: 38px; height: 38px;"
@@ -524,7 +527,7 @@
     @endif
 
     <!-- Delete -->
-    @if($permissions && $permissions->deleteAnnouncement == 1)
+    @if($permissions && $permissions->deleteAnnouncement == 1 || Auth::user()->userType == "Superadmin")
         <form action="{{ route('announcements.delete') }}" method="POST" class="d-inline">
             @csrf
             @method('DELETE')

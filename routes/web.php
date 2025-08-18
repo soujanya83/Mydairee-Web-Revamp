@@ -28,6 +28,7 @@ use App\Http\Controllers\ReflectionController;
 use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\Auth\NotificationController;
+use App\Http\Controllers\PermissionController;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Artisan;
 // Route::get('/', function () {
@@ -79,8 +80,8 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 // Route group with middleware this middleware use after login
 Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function () {
     Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
-     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
-     Route::get('/api/events', [DashboardController::class, 'getEvents']);
+    Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
+    Route::get('/api/events', [DashboardController::class, 'getEvents']);
     // service details
     Route::get('ServiceDetails', [ServiceDetailsController::class, 'create'])->name('create.serviceDetails');
     Route::post('ServiceDetails', [ServiceDetailsController::class, 'store'])->name('store.serviceDetails');
@@ -98,18 +99,18 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('LessonPlanList/save_program_planinDB', [LessonPlanList::class, 'saveProgramPlan'])->name('LessonPlanList.save_program_planinDB');
     // ajax ends
     Route::post('programPlan', [LessonPlanList::class, 'store'])->name('store.programPlan');
-    Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus'])->name('update-program-plan-status');
+    Route::post('/update-program-plan-status', [LessonPlanList::class, 'updatestatus'])->name('update-program-plan-status');
 
     Route::post('Observation/addActivity', [ObservationController::class, 'addActivity'])->name('Observation.addActivity');
     Route::post('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name(' Observation.addSubActivity');
 
     Route::get('announcements/list', [AnnouncementController::class, 'list'])->name('announcements.list');
-        Route::get('announcements/Filterlist', [AnnouncementController::class, 'Filterlist'])->name('announcements.Filterlist');
+    Route::get('announcements/Filterlist', [AnnouncementController::class, 'Filterlist'])->name('announcements.Filterlist');
     Route::get('announcements/create/{id?}', [AnnouncementController::class, 'AnnouncementCreate'])->name('announcements.create');
     Route::post('announcements/store', [AnnouncementController::class, 'AnnouncementStore'])->name('announcements.store');
     Route::delete('announcements/delete', [AnnouncementController::class, 'AnnouncementDelete'])->name('announcements.delete');
     Route::get('announcements/view/{annid}', [AnnouncementController::class, 'AnnouncementView'])->name('announcements.view');
-        Route::get('announcements/events', [DashboardController::class, 'getEvents'])->name('announcements.events');
+    Route::get('announcements/events', [DashboardController::class, 'getEvents'])->name('announcements.events');
 
     // headchecks
     Route::get('headChecks', [HeadChecks::class, 'index'])->name('headChecks');
@@ -117,7 +118,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('headchecks/getCenterRooms', [HeadChecks::class, 'getCenterRooms'])->name('headchecks.getCenterRooms');
     Route::post('headcheckdelete', [HeadChecks::class, 'headcheckDelete'])->name('headcheck.delete');
     Route::post('headcheck/print', [HeadChecks::class, 'headcheckprint'])->name('headcheck.print');
-    
+
 
 
     Route::get('/notifications/mark-all-read', function () {
@@ -141,14 +142,14 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
 
     Route::get('sleepcheck/list', [SleepCheckController::class, 'getSleepChecksList'])->name('sleepcheck.list');
-        Route::get('sleepcheck/filter-sleep-list-by-child', [SleepCheckController::class, 'fetchSleepChecks'])->name('sleepcheck.filter-sleep-list-by-child');
+    Route::get('sleepcheck/filter-sleep-list-by-child', [SleepCheckController::class, 'fetchSleepChecks'])->name('sleepcheck.filter-sleep-list-by-child');
     Route::post('sleepcheck/save', [SleepCheckController::class, 'sleepcheckSave'])->name('sleepcheck.save');
     Route::post('sleepcheck/update', [SleepCheckController::class, 'sleepcheckUpdate'])->name('sleepcheck.update');
     Route::post('sleepcheck/delete', [SleepCheckController::class, 'sleepcheckDelete'])->name('sleepcheck.delete');
 
     // Accidents
     Route::get('Accidents/list', [AccidentsController::class, 'AccidentsList'])->name('Accidents.list');
-        Route::get('Accidents/filter-by-child', [AccidentsController::class, 'filterByChild'])->name('filter-by-child');
+    Route::get('Accidents/filter-by-child', [AccidentsController::class, 'filterByChild'])->name('filter-by-child');
     Route::post('Accidents/getCenterRooms', [AccidentsController::class, 'getCenterRooms'])->name('Accidents.getCenterRooms');
     Route::put('Accidents/update/{id}', [AccidentsController::class, 'AccidentsUpdate'])->name('accidents.update');
     Route::get('Accidents/details', [AccidentsController::class, 'getAccidentDetails'])->name('Accidents.details');
@@ -166,7 +167,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     Route::post('/observations/{observation}/comments', [ObservationsController::class, 'commentstore'])->name('observations.comments.store');
     Route::delete('/observations/comments/{comment}', [ObservationsController::class, 'destroycomment'])
-     ->name('observations.comments.destroy');
+        ->name('observations.comments.destroy');
 
     // Daily Journel here
     Route::get('DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.list');
@@ -265,12 +266,12 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
     Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
     Route::delete('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
-    Route::match(['get','post'],'/childrens-list', [RoomController::class, 'childrens_list'])->name('childrens_list');
+    Route::match(['get', 'post'], '/childrens-list', [RoomController::class, 'childrens_list'])->name('childrens_list');
     Route::get('/childrens-edit/{id}', [RoomController::class, 'childrens_edit'])->name('children.edit');
     Route::delete('/childrens-delete/{id}', [RoomController::class, 'children_destroy'])->name('children.destroy');
 
-   Route::post('/rooms/update/{id}', [RoomController::class, 'rooms_update'])->name('room_update');
-Route::post('/rooms/{roomid}/assign-educators', [RoomController::class, 'assignEducators'])->name('rooms.assign.educators');
+    Route::post('/rooms/update/{id}', [RoomController::class, 'rooms_update'])->name('room_update');
+    Route::post('/rooms/{roomid}/assign-educators', [RoomController::class, 'assignEducators'])->name('rooms.assign.educators');
 
 
     // recipe
@@ -291,7 +292,7 @@ Route::post('/rooms/{roomid}/assign-educators', [RoomController::class, 'assignE
     Route::post('/save-recipes', [HealthyController::class, 'store_menu'])->name('menu.store');
     Route::delete('/menu/{id}', [HealthyController::class, 'menu_destroy'])->name('menu.destroy');
 
-// settings
+    // settings
     Route::post('/change-center', [SettingsController::class, 'changeCenter'])->name('change.center');
 
 
@@ -319,8 +320,8 @@ Route::post('/rooms/{roomid}/assign-educators', [RoomController::class, 'assignE
         Route::post('/center/{id}', [SettingsController::class, 'center_update'])->name('center.update');
         Route::delete('/center/{id}', [SettingsController::class, 'destroycenter'])->name('center.destroy');
         // filter
-Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])->name('filter-centers');
-// filter by center ends
+        Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])->name('filter-centers');
+        // filter by center ends
 
 
         Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
@@ -331,6 +332,9 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
         Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
         Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
         Route::put('/settings/update-permissions/{user}', [SettingsController::class, 'updateUserPermissions'])->name('update_user_permissions');
+
+        Route::get('/show/assigned_permissions/{userId}', [PermissionController::class, 'show'])
+            ->name('show.assigned_permissions');
 
 
 
@@ -392,7 +396,6 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
 
         Route::get('/programplanslink', [ObservationsController::class, 'linkprogramplandata']);
         Route::post('/submit-selectedpplink', [ObservationsController::class, 'storelinkprogramplan']);
-
     });
 
 
@@ -426,6 +429,8 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
         Route::delete('/snapshot-media/{id}', [ObservationsController::class, 'snapshotdestroyimage']);
         Route::post('/status/update', [ObservationsController::class, 'snapshotupdateStatus'])->name('status.update');
         Route::delete('snapshotsdelete/{id}', [ObservationsController::class, 'snapshotsdelete'])->name('snapshots.snapshotsdelete');
+   Route::get('/view/{id}', [ObservationsController::class, 'viewSnapShot'])->name('view');
+
     });
 
 

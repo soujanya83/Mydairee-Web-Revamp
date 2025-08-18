@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Illuminate\Pagination\Paginator;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LessonPlanList extends Controller
 {
@@ -226,9 +227,6 @@ $id = $validated['id'];
         ? strtoupper(\Carbon\Carbon::createFromDate(null, $plan->months)->format('F'))
         : '';
 
-  
-
-
     // Get room name
     $room_name = optional($plan->room)->name ?? 'Unknown Room';
 
@@ -244,13 +242,19 @@ $id = $validated['id'];
         ? \App\Models\Child::whereIn('id', $child_ids)->pluck('name')->implode(', ')
         : 'No Children';
 
-   return response()->json([
-    'plan' => $plan,
-    'room_name' => $room_name,
-    'educator_names' => $educator_names,
-    'children_names' => $children_names,
-    'month_name' => $month_name
-]);
+
+
+   $pdf = Pdf::loadView('ProgramPlan.apiprint', [
+        'plan' => $plan,
+        'room_name' => $room_name,
+        'educator_names' => $educator_names,
+        'children_names' => $children_names,
+        'month_name' => $month_name
+    ])->setPaper('a4', 'landscape'); // or 'landscape' if needed
+
+    // ✅ Return as a file download (inline or attachment)
+    return $pdf->download("programplan_{$id}.pdf");
+
 
 }
 

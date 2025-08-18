@@ -122,8 +122,10 @@
 
             .container {
                 border: 1px solid #000;
-                box-shadow: none;
-                page-break-inside: avoid;
+                 box-shadow: none;
+    page-break-inside: avoid; /* ✅ Prevent element from breaking across pages */
+    page-break-before: auto;
+    page-break-after: auto;
             }
 
             .child-image {
@@ -163,7 +165,7 @@
     <div class="container">
         <div class="header">
             <img src="{{ public_path('assets/profile_1739442700.jpeg') }}" alt="NEXTGEN Montessori" class="logo">
-            <div class="title">Daily Reflection</div>
+            <div class="title">Daily Reflection </div>
         </div>
 
         <div class="info-block">
@@ -204,12 +206,12 @@
         <div class="info-block">
             <strong>Child's Photos:</strong>
             <div class="photo-gallery">
-                <img src="{{ public_path('assets/profile_1739442700.jpeg') }}" alt="NEXTGEN Montessori"
-                    class="circular-image">
+                <!-- <img src="{{ public_path('assets/profile_1739442700.jpeg') }}" alt="NEXTGEN Montessori"
+                    class="circular-image"> -->
 
                 @foreach($reflection->media ?? [] as $mediaItem)
                 @if(Str::startsWith($mediaItem->mediaType, 'image'))
-                <img src="{{ asset($mediaItem->mediaUrl) }}" class="child-image" alt="Photo">
+                <img src="{{ public_path($mediaItem->mediaUrl) }}" class="child-image" alt="Photo">
                 @endif
                 @endforeach
             </div>
@@ -223,6 +225,72 @@
             </span>
         </div>
     </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var overlay = document.getElementById('imageLightbox');
+    var img = document.getElementById('lightboxImage');
+    var closeBtn = overlay.querySelector('.lightbox-close');
+    var prevBtn = overlay.querySelector('.lightbox-prev');
+    var nextBtn = overlay.querySelector('.lightbox-next');
+
+    var thumbs = document.querySelectorAll('.photo-thumb');
+    var currentIndex = 0;
+
+    function openLightbox(index) {
+        currentIndex = index;
+        img.src = thumbs[currentIndex].getAttribute('data-full');
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+        img.src = '';
+        document.body.style.overflow = '';
+    }
+
+    function showNext() {
+        currentIndex = (currentIndex + 1) % thumbs.length;
+        img.src = thumbs[currentIndex].getAttribute('data-full');
+    }
+
+    function showPrev() {
+        currentIndex = (currentIndex - 1 + thumbs.length) % thumbs.length;
+        img.src = thumbs[currentIndex].getAttribute('data-full');
+    }
+
+    // Open on thumbnail click
+    thumbs.forEach(function(thumb, index) {
+        thumb.addEventListener('click', function() {
+            openLightbox(index);
+        });
+    });
+
+    // Button events
+    closeBtn.addEventListener('click', closeLightbox);
+    nextBtn.addEventListener('click', showNext);
+    prevBtn.addEventListener('click', showPrev);
+
+    // Click outside image closes
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay || e.target === closeBtn) {
+            closeLightbox();
+        }
+    });
+
+    // ESC and arrow keys
+    document.addEventListener('keydown', function(e) {
+        if (!overlay.classList.contains('show')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') showNext();
+        if (e.key === 'ArrowLeft') showPrev();
+    });
+});
+
+    </script>
+
 
 
 </body>

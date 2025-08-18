@@ -1421,7 +1421,7 @@ public function storeToileting(Request $request)
         'status' => 'required|in:clean,wet,soiled,successful',
         'comments' => 'nullable|string',
         'signature' => 'nullable|string',
-        'id' => 'nullable|integer|exists:daily_diary_toileting,id' // added safe check
+        'id' => 'nullable|integer|exists:dailydiarytoileting,id' // added safe check
     ], [
         'child_ids.*.exists' => 'One or more selected children are invalid.',
         'status.in' => 'Status must be one of: clean, wet, soiled, or successful.',
@@ -1467,18 +1467,18 @@ public function storeToileting(Request $request)
 
         // Create or update multiple children
         foreach ($request->child_ids as $childId) {
-            $existingEntry = DailyDiaryToileting::where('childid', $childId)
-                ->whereDate('diarydate', $request->date)
-                ->first();
+            // $existingEntry = DailyDiaryToileting::where('childid', $childId)
+            //     ->whereDate('diarydate', $request->date)
+            //     ->first();
 
-            if ($existingEntry) {
-                $existingEntry->update([
-                    'startTime' => $request->time,
-                    'status'    => $request->status,
-                    'comments'  => $request->comments,
-                    'signature' => $request->signature
-                ]);
-            } else {
+            // if ($existingEntry) {
+            //     $existingEntry->update([
+            //         'startTime' => $request->time,
+            //         'status'    => $request->status,
+            //         'comments'  => $request->comments,
+            //         'signature' => $request->signature
+            //     ]);
+            // } else {
                 DailyDiaryToileting::create([
                     'childid'    => $childId,
                     'diarydate'  => $request->date,
@@ -1488,7 +1488,7 @@ public function storeToileting(Request $request)
                     'createdBy'  => $authId,
                     'signature'  => $request->signature
                 ]);
-            }
+            // }
             $count++;
         }
 
@@ -1521,9 +1521,9 @@ public function storeBottle(Request $request)
         'child_ids.*' => 'exists:child,id',
         'time'        => 'required|date_format:H:i',
         'comments'    => 'nullable|string',
-        'id'          => 'nullable|exists:daily_diary_bottle,id' // if editing
+        'id'          => 'nullable|exists:dailydiarybottle,id' // if editing
     ]);
-
+   
     if ($validator->fails()) {
         return response()->json([
             'status'  => false,
@@ -1557,19 +1557,20 @@ public function storeBottle(Request $request)
             }
         }
 
+
         // ✅ Create/update multiple children entries
         foreach ($validated['child_ids'] as $childId) {
-            $existingEntry = DailyDiaryBottle::where('childid', $childId)
-                ->whereDate('diarydate', $validated['date'])
-                ->first();
+            // $existingEntry = DailyDiaryBottle::where('childid', $childId)
+            //     ->whereDate('diarydate', $validated['date'])
+            //     ->first();
 
-            if ($existingEntry) {
-                $existingEntry->update([
-                    'startTime'  => $validated['time'],
-                    'comments'   => $validated['comments'] ?? null,
-                    'updated_at' => now()
-                ]);
-            } else {
+            // if ($existingEntry) {
+            //     $existingEntry->update([
+            //         'startTime'  => $validated['time'],
+            //         'comments'   => $validated['comments'] ?? null,
+            //         'updated_at' => now()
+            //     ]);
+            // } else {
                 DailyDiaryBottle::create([
                     'childid'   => $childId,
                     'diarydate' => $validated['date'],
@@ -1577,7 +1578,7 @@ public function storeBottle(Request $request)
                     'comments'  => $validated['comments'] ?? null,
                     'createdBy' => $authId
                 ]);
-            }
+            // }
 
             $count++;
         }

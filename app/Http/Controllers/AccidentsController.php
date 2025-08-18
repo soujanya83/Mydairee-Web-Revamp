@@ -553,6 +553,8 @@ public function updateAccident($request)
         ], 404);
     }
 
+    // dd($request->child_dob);
+
    $accident =  $accident->update([
           'centerid' => $request->centerid ?? '',
         'roomid' => $request->roomid ?? '',
