@@ -143,6 +143,9 @@ class AppServiceProvider extends ServiceProvider
                         'downloadQip',
                         'printQip',
                         'viewQip',
+                        'deleteSnapshots',
+                        'editSnapshots',
+                        'viewSnapshots',
 
                         'approveObservation',
                         'approveReflection',

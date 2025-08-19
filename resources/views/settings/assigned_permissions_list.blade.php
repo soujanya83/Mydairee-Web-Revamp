@@ -7,31 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 @section('content')
-<style>
-    .xl-pink {
-        background-color: #fce4ec !important;
-    }
 
-    .xl-blue {
-        background-color: #e3f2fd !important;
-    }
-
-    .xl-turquoise {
-        background-color: #e0f7fa !important;
-    }
-
-    .xl-parpl {
-        background-color: #ede7f6 !important;
-    }
-
-    .xl-khaki {
-        background-color: #f9fbe7 !important;
-    }
-
-    .xl-default {
-        background-color: #ffffff !important;
-    }
-</style>
 
 
 @if ($errors->any())
@@ -78,12 +54,13 @@
                             <th scope="row">{{ $index + 1 }}</th>
                             <td>{{ \Illuminate\Support\Str::title($user->name) }}</td>
                             <td>
-                                <button class="btn btn-sm btn-info" data-bs-toggle="modal"
-                                    data-bs-target="#viewModal{{ $user->id }}">
+                                <a href="{{ route('settings.show.assigned_permissions', ['userId' => $user->id]) }}"
+                                    class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i> View
-                                </button>
+                                </a>
 
-                                <div class="modal" id="viewModal{{ $user->id }}" tabindex="-1"
+
+                                {{-- <div class="modal" id="viewModal{{ $user->id }}" tabindex="-1"
                                     aria-labelledby="viewModalLabel{{ $user->id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <form action="{{ route('settings.update_user_permissions', $user->id) }}"
@@ -95,8 +72,7 @@
                                                     <h5 class="modal-title" id="viewModalLabel{{ $user->id }}">
                                                         <u>Permissions for {{ $user->name }}</u>
                                                     </h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Close"></button>
+                                                    <button type="button" class="btn-close" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body row">
                                                     @php
@@ -148,7 +124,7 @@
                                             </div>
                                         </form>
                                     </div>
-                                </div>
+                                </div> --}}
                             </td>
                         </tr>
                         @endforeach
@@ -158,13 +134,7 @@
         </div>
     </div>
 </div>
-<script>
-    function toggleAllPermissions(userId) {
-        const isChecked = document.getElementById(`selectAll_${userId}`).checked;
-        const checkboxes = document.querySelectorAll(`.permission-checkbox-${userId}`);
-        checkboxes.forEach(cb => cb.checked = isChecked);
-    }
-</script>
+
 
 <script>
     document.getElementById("userSearchInput").addEventListener("keyup", function () {

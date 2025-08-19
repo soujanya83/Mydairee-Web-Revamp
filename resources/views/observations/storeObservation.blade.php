@@ -901,6 +901,12 @@
 </style>
 
 
+<!-- <style>
+  .collapsing {
+    transition: height 0s !important;
+}
+    </style> -->
+
 @section('content')
 
 @if(isset($observation) && $observation->id)
@@ -3192,6 +3198,14 @@ function showToast(type, message) {
 });
 
 
+</script>
+
+<script>
+    // Force Bootstrap collapse to skip animation (fix for RDP issue)
+    if ($.fn.collapse.Constructor) {
+        $.fn.collapse.Constructor.TRANSITION_DURATION = 0;
+        $.fn.collapse.Constructor._TRANSITION_DURATION = 0;
+    }
 </script>
 
 @include('layout.footer')
