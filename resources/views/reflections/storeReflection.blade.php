@@ -757,6 +757,37 @@
   </div>
 </div>
 
+<!-- title modal -->
+<div class="modal" id="TitleModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+       
+      
+      </div>
+      <form action="{{ route('reflection.storeTitle') }}" method="post">
+        @csrf
+      <div class="modal-body" style="max-height:550px;overflow-y:auto;">
+<div class="col-md-12 mt-4 form-section">
+    <label for="editor4">Title</label>
+    <textarea id="editor4" name="title" class="form-control ckeditor" rows="5"></textarea>
+    <div class="refine-container">
+ <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn" data-editor="editor4"><i class="fas fa-magic mr-1"></i>Refine with Ai</button>
+</div>
+</div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" id="" class="btn btn-success" >Submit</button>
+          <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+    <i class="fas fa-times mr-1"></i> Cancel
+  </button>
+      
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <style>
     #eylfModal .modal-body {
     max-height: none !important;
@@ -854,6 +885,11 @@
     </div>
 </div>
 
+<!-- title modal -->
+
+
+
+<!-- title modal ends -->
 
 
 
@@ -862,9 +898,91 @@
         style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
 
 
-        
+
+
+
+<script>
+        $(document).ready(function () {
+        let reflection = @json($reflection);
+
+        if (!reflection) {
+            $('#TitleModal').modal('show');
+        }
+    });
+    
+document.addEventListener("DOMContentLoaded", function () {
+    ClassicEditor.create(document.querySelector("#editor4"))
+        .then(editor => {
+            console.log("Editor4 initialized ✅");
+        })
+        .catch(error => {
+            console.error("Editor4 error ❌", error);
+        });
+});
+</script>
+
+<script>
+let editors = {}; // store multiple editor instances
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Initialize both editors
+    ClassicEditor.create(document.querySelector("#editor6"))
+        .then(editor => {
+            editors["editor6"] = editor;
+            console.log("Editor6 ready ✅");
+            editor.model.document.on("change:data", () => {
+                AutoSave();
+            });
+        })
+        .catch(error => console.error(error));
+
+    ClassicEditor.create(document.querySelector("#editor3"))
+        .then(editor => {
+            editors["editor3"] = editor;
+            console.log("Editor3 ready ✅");
+            editor.model.document.on("change:data", () => {
+                AutoSave();
+            });
+        })
+        .catch(error => console.error(error));
+});
+
+// AutoSave function
+function AutoSave() {
+    let title = editors["editor6"] ? editors["editor6"].getData() : "";
+    let about = editors["editor3"] ? editors["editor3"].getData() : "";
+    let reflection_id = $('#reflection_id').val();
+
+    console.log("AutoSaving...");
+     console.log("AutoSaving...",reflection_id);
+
+    // Example AJAX call to save data
+    fetch("/reflection/autosave-reflection", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+        },
+        body: JSON.stringify({
+            title: title,
+            about: about,
+            reflection_id:reflection_id
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("AutoSave success ✅", data);
+    })
+    .catch(error => {
+        console.error("AutoSave failed ❌", error);
+    });
+}
+</script>
+
+
 
         <script>
+
 $(document).ready(function () {
     let selectedChildren = new Set($('#selected_children').val().split(',').filter(id => id));
 

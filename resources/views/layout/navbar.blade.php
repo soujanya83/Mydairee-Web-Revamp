@@ -56,6 +56,46 @@
         line-height: 1.4;
     }
 </style>
+<style>
+.notification-bell {
+    position: relative;
+    display: inline-block;
+    color: #0dcaf0; /* neutral bell color */
+    font-size: 35px; /* bigger bell */
+    transition: transform 0.2s ease;
+}
+
+.notification-bell:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+.notification-bell i {
+    transition: color 0.3s ease;
+}
+
+.notification-bell:hover i {
+    color: #0dcaf0; /* change bell color on hover */
+}
+
+.notification-count {
+    position: absolute;
+    top: 0.5rem;  /* slightly above bell */
+    right: 0.6rem; /* slightly to the right */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;   /* small circle like in the image */
+    height: 15px;
+    font-size: 10px;
+    color: white;
+    background-color: #0dcaf0; /* classic red badge */
+    border-radius: 50%;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    z-index: 2;
+}
+</style>
 <nav class="navbar navbar-fixed-top" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
     <div class="container-fluid">
         <div class="navbar-btn">
@@ -101,27 +141,10 @@
 
                         </a> --}}
 
-                        <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown"
-                            title="Notifications" style="position: relative; display: inline-block;">
-                            <i class="fa fa-bell" style="font-size: 22px; color: rgb(73 201 185);"></i>
-
-                            <span style="
-                            position: absolute;
-                            top: 0px;
-                            display: inline-block;
-                            min-width: 23px;
-                            height: 24px;
-                            padding: 4px;
-                            font-size: 15px;
-                            line-height: 18px;
-                            color: white;
-                            text-align: center;
-                            background-color: rgb(73 201 185);
-                            border-radius: 50%;
-                        ">
-                                {{ $notifications->count() }}
-                            </span>
-                        </a>
+                    <a href="javascript:void(0);" class="dropdown-toggle icon-menu notification-bell" data-toggle="dropdown" title="Notifications">
+    <i class="fa fa-bell"></i>
+    <span class="notification-count">{{ $notifications->count() }}</span>
+</a>
 
 
                         <ul class="dropdown-menu notifications" style="background-color: aliceblue">

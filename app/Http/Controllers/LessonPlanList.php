@@ -331,17 +331,63 @@ public function programPlanList(Request $request)
 
 public function programPlanPrintPage($id)
 {
-    // Check if user is authenticated
     if (!Auth::check()) {
         return redirect('login');
     }
-    // dd($id);
 
     // Fetch the program plan by ID
     $plan = ProgramPlanTemplateDetailsAdd::find($id);
 
     if (!$plan) {
-        abort(404); // Show 404 if not found
+        abort(404);
+    }
+
+    // Helper function to clean CKEditor content to plain text
+    $cleanContent = function($content) {
+        if (!$content) return '';
+
+        // Decode HTML entities
+        $content = html_entity_decode($content);
+
+        // Replace <br> and <br /> with newlines
+        $content = preg_replace('/<br\s*\/?>/i', "\n", $content);
+
+        // Remove all other HTML tags
+        $content = strip_tags($content);
+
+        // Remove &nbsp; and other unknown whitespace characters
+        $content = str_replace(["\xc2\xa0", "&nbsp;"], ' ', $content);
+
+        // Replace multiple spaces or newlines with single ones
+        $content = preg_replace('/[ \t]{2,}/', ' ', $content);          // multiple spaces
+        $content = preg_replace("/\r?\n\s*\n+/", "\n\n", $content);     // multiple newlines
+
+        // Trim leading/trailing spaces and newlines
+        $content = trim($content);
+
+        return $content;
+    };
+
+    // List of CKEditor fields to clean
+    $ckeditorFields = [
+        'outdoor_experiences',
+        'inquiry_topic',
+        'sustainability_topic',
+        'special_events',
+        'children_voices',
+        'families_input',
+        'group_experience',
+        'spontaneous_experience',
+        'mindfulness_experiences',
+        'art_craft',
+        'focus_area'
+    ];
+
+    // Clean all CKEditor fields
+    foreach ($ckeditorFields as $field) {
+        if (isset($plan->$field)) {
+            $plan->$field = $cleanContent($plan->$field);
+        }
     }
 
     // Convert month number to full uppercase name
@@ -370,6 +416,9 @@ public function programPlanPrintPage($id)
         'month_name' => $month_name
     ]);
 }
+
+
+
 
 
  public function createForm(Request $request)
@@ -446,6 +495,80 @@ public function programPlanPrintPage($id)
             return redirect()->route('login');
         }
     }
+public function programplanMonthYear(Request $request)
+{
+    // dd('here');
+    // Validate input
+    $request->validate([
+        'months' => 'required',
+        'years'  => 'required',
+    ]);
+
+    // Get center ID from session
+    $centerid = session('user_center_id');
+
+    // Create program plan
+    $programPlan = ProgramPlanTemplateDetailsAdd::create([
+        'months'      => $request->months,
+        'years'       => $request->years,
+        'created_by'  => Auth::user()->userid,
+        'centerid'    => $centerid,
+    ]);
+
+    // Prepare fallback values if needed
+    $planId = $programPlan->id ?? null;
+    $centerId = $centerid ?? 0;
+
+    // Redirect to route with query parameters
+    return redirect()->route('create.programplan', [
+        'centerId' => $centerId,
+        'planId'   => $planId,
+    ]);
+}
+
+
+public function programplanAutosave(Request $request)
+{
+    // Validate input
+    $validated = $request->validate([
+        'plan_id' => 'required|integer|exists:programplantemplatedetailsadd,id',
+        'focus_area' => 'nullable|string',
+        'art_craft' => 'nullable|string',
+        'outdoor_experiences' => 'nullable|string',
+        'inquiry_topic' => 'nullable|string',
+        'sustainability_topic' => 'nullable|string',
+        'special_events' => 'nullable|string',
+        'children_voices' => 'nullable|string',
+        'families_input' => 'nullable|string',
+        'group_experience' => 'nullable|string',
+        'spontaneous_experience' => 'nullable|string',
+        'mindfulness_experiences' => 'nullable|string',
+    ]);
+
+    $planId = $validated['plan_id'];
+
+    // Prepare data for update (exclude plan_id)
+    $programData = $validated;
+    unset($programData['plan_id']);
+
+    // Update the record
+    $updated = ProgramPlanTemplateDetailsAdd::where('id', $planId)
+        ->update($programData);
+
+    // Return response
+    if ($updated) {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Program plan autosaved successfully.'
+        ]);
+    } else {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No changes were made or plan not found.'
+        ]);
+    }
+}
+
 
     // ajax here 
 public function getRoomUsers(Request $request)
