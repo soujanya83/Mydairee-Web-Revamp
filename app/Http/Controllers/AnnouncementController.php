@@ -305,11 +305,11 @@ class AnnouncementController extends Controller
         'childId'    => 'required|array',
         'childId.*'  => 'required|numeric|exists:child,id',
         'media'      => 'nullable|array',
-        'media.*'    => 'file|mimes:jpeg,jpg,png,pdf', // max 200KB
+        'media.*'    => 'file|mimes:jpeg,jpg,png,pdf|max:400', // max 200KB
     ], [
         'childId.required'    => 'Children are required.',
         'text.required'       => 'Description is required.',
-        'media.*.max'         => 'Each file must be under 200KB.',
+        'media.*.max'         => 'File must be under 400KB.',
         'media.*.mimes'       => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
     ]);
 

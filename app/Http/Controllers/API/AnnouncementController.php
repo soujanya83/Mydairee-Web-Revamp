@@ -281,7 +281,7 @@ public function AnnouncementStore(Request $request)
     'childId'    => 'required|array',
     'childId.*'  => 'required|numeric|exists:child,id',
     'media'      => 'nullable|array',
-    'media.*'    => 'file|mimes:jpeg,jpg,png|max:200',
+    'media.*'    => 'file|mimes:jpeg,jpg,png|max:400',
 ], [
     'childId.required' => 'Children are required.',
     'text.required'    => 'Description is required.',

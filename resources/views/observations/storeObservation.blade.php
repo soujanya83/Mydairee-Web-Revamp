@@ -1635,12 +1635,170 @@
 </div>
 
 
+<!-- title modal -->
+<div class="modal" id="TitleModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+       
+      
+      </div>
+      <form action="{{ route('observation.storeTitle') }}" method="post">
+        @csrf
+      <div class="modal-body" style="max-height:550px;overflow-y:auto;">
+<div class="col-md-12 mt-4 form-section">
+    <label for="editor">Title</label>
+    <textarea id="editor" name="obestitle" class="form-control ckeditor" rows="5"></textarea>
+    <div class="refine-container">
+ <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn" data-editor="editor"><i class="fas fa-magic mr-1"></i>Refine with Ai</button>
+</div>
+</div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" id="" class="btn btn-success" >Submit</button>
+          <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+    <i class="fas fa-times mr-1"></i> Cancel
+  </button>
+      
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 
 <div id="toast-container" class="toast-bottom-right"
         style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
 
 
+
+
+
+        <script>
+        $(document).ready(function () {
+        let reflection = @json($observation);
+
+        if (!reflection) {
+            $('#TitleModal').modal('show');
+        }
+    });
+    
+</script>
+
+<script>
+let editors = {}; // store all CKEditor instances
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Get all textareas with .ckeditor class and initialize them
+    document.querySelectorAll(".ckeditor").forEach((textarea) => {
+        let id = textarea.getAttribute("id");
+
+        ClassicEditor.create(textarea)
+            .then(editor => {
+                editors[id] = editor;
+                console.log(id + " ready ✅");
+
+                // Attach change listener for autosave
+                editor.model.document.on("change:data", () => {
+                    AutoSave();
+                });
+            })
+            .catch(error => console.error(id + " error ❌", error));
+    });
+});
+
+// AutoSave function
+function AutoSave() {
+    // Collect data from all editors
+    let dataToSave = {
+        obestitle: editors["editor6"] ? editors["editor6"].getData() : "",
+        title: editors["editor1"] ? editors["editor1"].getData() : "",
+        notes: editors["editor2"] ? editors["editor2"].getData() : "",
+        reflection: editors["editor3"] ? editors["editor3"].getData() : "",
+        child_voice: editors["editor4"] ? editors["editor4"].getData() : "",
+        future_plan: editors["editor5"] ? editors["editor5"].getData() : "",
+        observation_id: document.querySelector('#observation_id') ? document.querySelector('#observation_id').value : null
+    };
+
+    console.log("AutoSaving...", dataToSave);
+
+    fetch("{{ route('observation.autosave-observation') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+        },
+        body: JSON.stringify(dataToSave)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("AutoSave response ✅", data);
+
+        if (data.status === 'success') {
+            // Optional success toast
+            // Swal.fire({
+            //     icon: 'success',
+            //     title: 'Saved!',
+            //     text: data.message,
+            //     timer: 1500,
+            //     showConfirmButton: false
+            // });
+
+            // Update hidden observation_id if returned
+            if (data.observation_id) {
+                let hiddenIdField = document.querySelector('#observation_id');
+                if (hiddenIdField) {
+                    hiddenIdField.value = data.observation_id;
+                }
+            }
+        } 
+        else if (data.status === 'error') {
+            // Show general error
+            // Swal.fire({
+            //     icon: 'error',
+            //     title: 'Error',
+            //     text: data.message || 'Something went wrong.',
+            // });
+
+            // If there are validation errors, log or display them
+            if (data.errors) {
+        const friendlyNames = {
+    obestitle: "Title",
+    title: "Observation",
+    notes: "Notes",
+    reflection: "Reflection",
+    child_voice: "Child Voice",
+    future_plan: "Future Plan",
+};
+
+console.log("Validation errors:", data.errors);
+
+Object.keys(data.errors).forEach(key => {
+    let fieldName = friendlyNames[key] || key;
+    // Show simple "Field is required" message
+    showToast('toast-error', `${fieldName} is required`);
+});
+               
+                 
+            }
+        } 
+        else {
+            // Fallback for unexpected response
+            Swal.fire({
+                icon: 'warning',
+                title: 'Unexpected response',
+                text: 'Autosave returned an unknown status.',
+            });
+        }
+    })
+    .catch(error => {
+        // Fallback for network/server errors
+        console.error("AutoSave failed ❌", error);
+    
+    });
+}
+
+</script>
 
 <script>
 $(document).ready(function () {

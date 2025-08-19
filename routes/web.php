@@ -50,11 +50,11 @@ Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggesti
 Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
 Route::get('dashboard/analytical', [DashboardController::class, 'analytical'])->name('dashboard.analytical');
 Route::get('/api/events', [DashboardController::class, 'getEvents']);
-Route::get('file-manager/dashboard', [FileManagerController::class, 'dashboard'])->name('file-manager.dashboard');
-Route::get('app/calendar', [AppController::class, 'calendar'])->name('app.calendar');
-Route::get('app/chat', [AppController::class, 'chat'])->name('app.chat');
-Route::get('app/inbox', [AppController::class, 'inbox'])->name('app.inbox');
-Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.profile1');
+// Route::get('file-manager/dashboard', [FileManagerController::class, 'dashboard'])->name('file-manager.dashboard');
+// Route::get('app/calendar', [AppController::class, 'calendar'])->name('app.calendar');
+// Route::get('app/chat', [AppController::class, 'chat'])->name('app.chat');
+// Route::get('app/inbox', [AppController::class, 'inbox'])->name('app.inbox');
+// Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.profile1');
 
 Route::post('create-superadmin', [UserController::class, 'store'])->name('create_superadmin');
 Route::post('login-submit', [UserController::class, 'login'])->name('user_login');
@@ -87,6 +87,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
 
     Route::get('programPlanList', [LessonPlanList::class, 'programPlanList'])->name('programPlanList');
+
+  
     Route::get('LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans');
     Route::get('programPlan/create', [LessonPlanList::class, 'createForm'])->name('create.programplan');
     Route::post('LessonPlanList/deletedataofprogramplan', [LessonPlanList::class, 'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
@@ -98,6 +100,10 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::post('LessonPlanList/save_program_planinDB', [LessonPlanList::class, 'saveProgramPlan'])->name('LessonPlanList.save_program_planinDB');
     // ajax ends
     Route::post('programPlan', [LessonPlanList::class, 'store'])->name('store.programPlan');
+
+     Route::post('programPlan/autosave', [LessonPlanList::class, 'programplanAutosave'])->name('programplan.autosave');
+
+     Route::post('programplan/MonthYear', [LessonPlanList::class, 'programplanMonthYear'])->name('programplan.MonthYear');
     Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus'])->name('update-program-plan-status');
 
     Route::post('Observation/addActivity', [ObservationController::class, 'addActivity'])->name('Observation.addActivity');
@@ -366,12 +372,15 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
 
 
         Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
-        Route::get('/addnew/{id?}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
+        Route::get('/addnew/{id}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
 
 
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get.children');
         Route::get('/get-rooms', [ObservationsController::class, 'getrooms'])->name('get.rooms');
         Route::post('/store', [ObservationsController::class, 'store'])->name('store');
+        Route::post('/autosave-observation', [ObservationsController::class, 'autosaveobservation'])->name('autosave-observation');
+
+          Route::post('/storeTitle', [ObservationsController::class, 'storeTitle'])->name('storeTitle');
         Route::post('/refine-text', [ObservationsController::class, 'refine'])->name('refine.text');
 
         Route::delete('/observation-media/{id}', [ObservationsController::class, 'destroyimage']);
@@ -399,14 +408,14 @@ Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])-
     Route::prefix('reflection')->name('reflection.')->group(function () {
 
         Route::get('/index', [ReflectionController::class, 'index'])->name('index');
-
+  Route::get('/addnew/{id}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
         Route::get('/addnew', [ReflectionController::class, 'storepage'])->name('addnew');
-        Route::get('/addnew/{id?}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
+      
         Route::get('/print/{id?}', [ReflectionController::class, 'print'])->name('print');
 
-
+         Route::post('/storetitle', [ReflectionController::class, 'storeTitle'])->name('storeTitle');
         Route::post('/store', [ReflectionController::class, 'store'])->name('store');
-
+     Route::post('/autosave-reflection', [ReflectionController::class, 'autosavereflection'])->name('autosave-reflection');
         Route::delete('/reflection-media/{id}', [ReflectionController::class, 'destroyimage']);
 
         Route::post('/status/update', [ReflectionController::class, 'updateStatus'])->name('status.update');

@@ -30,6 +30,7 @@ use App\Models\SnapshotMedia;
 use App\Models\SnapshotChild;
 use App\Models\Snapshot;
 use App\Models\ObservationMontessori;
+use App\Models\Permission;
 use App\Models\ProgramPlanTemplateDetailsAdd;
 use App\Models\Userprogressplan;
 use App\Models\Room;
@@ -541,6 +542,7 @@ class ObservationsController extends Controller
 
     public function storepage($id = null, $activeTab = 'observation', $activesubTab = 'MONTESSORI')
     {
+        // dd($id);
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
 
@@ -1010,6 +1012,94 @@ public function storelinkprogramplan(Request $request)
     //     }
     // }
 
+public function storeTitle(Request $request) {
+    $request->validate([
+        'obestitle' => 'required'
+    ]);
+
+    // dd($request->all());
+
+    $centerid = Session('user_center_id');
+    
+    try {
+        $Observation = new Observation();
+        $Observation->obestitle = $request->obestitle;
+        $Observation->centerid = $centerid;
+        $Observation->userId = Auth::user()->userid;
+        $Observation->save();
+        
+        // dd($Observation->id); // Comment this out!
+        
+        return redirect()->route('observation.addnew.optional', [
+            'id' => $Observation->id,
+            'tab' => 'observation',
+            'tab2' => 'MONTESSORI'
+        ])->with('success', 'Observation created successfully.');
+        
+    } catch (\Exception $e) {
+        return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+    }
+}
+
+
+
+public function autosaveobservation(Request $request)
+{
+    // Custom validation with fallback
+    $validator = Validator::make($request->all(), [
+        'obestitle'      => 'required',
+        'title'          => 'nullable',
+        'notes'          => 'nullable',
+        'reflection'     => 'nullable',
+        'child_voice'    => 'nullable',
+        'future_plan'    => 'nullable',
+        'observation_id' => 'required|integer',
+    ]);
+
+    if ($validator->fails()) {
+        // Return JSON with validation errors instead of default 422
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors()
+        ], 400);
+    }
+
+    try {
+        // Find existing observation
+        $observation = Observation::find($request->observation_id);
+
+        if (!$observation) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Observation not found.'
+            ], 404);
+        }
+
+        // Update fields
+        $observation->obestitle   = $request->obestitle;
+        $observation->title       = $request->title;
+        $observation->notes       = $request->notes;
+        $observation->reflection  = $request->reflection;
+        $observation->child_voice = $request->child_voice;
+        $observation->future_plan = $request->future_plan;
+
+        $observation->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Observation autosaved successfully.',
+            'observation_id' => $observation->id
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Something went wrong: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
 
     public function store(Request $request)
     {
@@ -1305,9 +1395,11 @@ public function storelinkprogramplan(Request $request)
             $snapshot->rooms = $rooms->whereIn('id', $roomIds)->values();
         });
 
+       $permissions = Permission::where('userid', Auth::user()->userid)->first();
+
         //  dd($snapshots);
 
-        return view('observations.snapshotindex', compact('snapshots', 'centers'));
+        return view('observations.snapshotindex', compact('snapshots', 'centers','permissions'));
     }
 
 
