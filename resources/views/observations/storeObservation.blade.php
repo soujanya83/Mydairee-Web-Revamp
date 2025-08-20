@@ -3201,11 +3201,37 @@ function showToast(type, message) {
 </script>
 
 <script>
-    // Force Bootstrap collapse to skip animation (fix for RDP issue)
-    if ($.fn.collapse.Constructor) {
-        $.fn.collapse.Constructor.TRANSITION_DURATION = 0;
-        $.fn.collapse.Constructor._TRANSITION_DURATION = 0;
-    }
+   // Force collapse to toggle immediately without waiting for CSS transitions
+(function ($) {
+    var Collapse = $.fn.collapse.Constructor;
+
+    Collapse.prototype._transitionComplete = function (element, isOpen) {
+        element.removeClass('collapsing').addClass('collapse');
+        if (isOpen) {
+            element.addClass('show');
+            element.trigger('shown.bs.collapse');
+        } else {
+            element.trigger('hidden.bs.collapse');
+        }
+    };
+
+    Collapse.prototype.show = function () {
+        var element = this.$element;
+        if (element.hasClass('show') || element.hasClass('collapsing')) return;
+
+        element.removeClass('collapse').addClass('collapsing');
+        this._transitionComplete(element, true);
+    };
+
+    Collapse.prototype.hide = function () {
+        var element = this.$element;
+        if (!element.hasClass('show')) return;
+
+        element.removeClass('show').addClass('collapsing');
+        this._transitionComplete(element, false);
+    };
+})(jQuery);
+
 </script>
 
 @include('layout.footer')
