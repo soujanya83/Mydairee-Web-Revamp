@@ -114,6 +114,7 @@ Route::get('Accidents/create',[AccidentsController::class,'create'])->name('Acci
 Route::get('Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
 Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
 Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
+    Route::post('Accident/delete', [AccidentsController::class, 'AccidentDelete'])->name('Accident.delete');
 
 // rooms
     Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
@@ -195,7 +196,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
 
 
         Route::prefix('settings')->name('settings.')->group(function () {
-
+       Route::post('/updateStatusSuperadmin', [SettingsController::class, 'updateStatusSuperadmin'])->name('updateStatusSuperadmin');
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
         Route::post('/superadmin', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
         Route::post('/superadmin/store', [SettingsController::class, 'store'])->name('superadmin.store');
