@@ -922,6 +922,14 @@
 /* .modal.fade {
   transition: none !important;
 } */
+
+
+.no-transitions .collapse,
+.no-transitions .modal,
+.no-transitions .fade {
+  transition: none !important;
+  animation: none !important;
+}
     </style>
 
 @section('content')
@@ -3215,6 +3223,27 @@ function showToast(type, message) {
 });
 
 
+</script>
+<script>
+    // Detect RDP or low-performance environment
+function isLowPerformanceEnvironment() {
+  // Check for RDP indicators
+  const isRDP = navigator.userAgent.includes('RDP') || 
+                window.screen.colorDepth < 24 ||
+                navigator.hardwareConcurrency < 2;
+  
+  return isRDP;
+}
+
+// Apply settings based on environment
+if (isLowPerformanceEnvironment()) {
+  // Disable Bootstrap animations
+  $.fn.collapse.Constructor.Default.transition = false;
+  $.fn.modal.Constructor.Default.transition = false;
+  
+  // Add CSS class to disable transitions
+  document.body.classList.add('no-transitions');
+}
 </script>
 
 
