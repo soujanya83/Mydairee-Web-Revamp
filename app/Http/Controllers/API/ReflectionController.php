@@ -225,27 +225,26 @@ public function index(Request $request)
 
 public function print(Request $request)
 {
-    // dd('here');
-    // ✅ Validate the incoming request
-    $validator = Validator::make($request->all(), [
-        'id' => 'required|integer|exists:reflection,id',
-    ]);
-
-    if ($validator->fails()) {
+    $id = $request->id;
+    if (! $id) {
         return response()->json([
-            'status' => false,
-            'message' => 'Validation failed.',
-            'errors' => $validator->errors(),
+            'status'  => false,
+            'message' => 'Reflection ID is required',
         ], 422);
     }
 
-    $id = $validator->validated()['id'];
+    $reflection = Reflection::with(['creator', 'center', 'children.childDetails', 'media', 'staff.staffDetails'])->find($id);
 
-    // ✅ Load reflection data
-    $reflection = Reflection::with(['creator', 'center', 'children', 'media', 'staff'])->find($id);
+    if (! $reflection) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Reflection not found',
+        ], 404);
+    }
 
-    // ✅ Mark as seen (for parents)
     $user = Auth::user();
+    $alreadySeen = false;
+
     if ($user && $user->userType === 'Parent') {
         $alreadySeen = SeenReflection::where('user_id', $user->id)
             ->where('reflection_id', $id)
@@ -254,31 +253,23 @@ public function print(Request $request)
         if (! $alreadySeen) {
             SeenReflection::create([
                 'user_id'       => $user->id,
-                'reflection_id' => $id,
+                'reflection_id' => $id
             ]);
+            $alreadySeen = true; // mark as seen after creating
         }
     }
 
-    // ✅ Get room names from comma-separated IDs
     $roomNames = Room::whereIn('id', explode(',', $reflection->roomids ?? ''))
         ->pluck('name')
         ->implode(', ');
 
-    // ✅ Generate the PDF from a Blade view
-    $pdf = Pdf::loadView('reflections.apiPrintreflection', [
+    return response()->json([
+        'status'     => true,
+        'message'    => 'Reflection data retrieved successfully',
         'reflection' => $reflection,
         'roomNames'  => $roomNames,
-    ])->setPaper('a4', 'portrait'); // or 'landscape' if needed
-
-    // ✅ (Optional) Save to disk:
-    // $filePath = public_path("pdfs/reflection_{$id}.pdf");
-    // file_put_contents($filePath, $pdf->output());
-
-    // ✅ Return as a file download (inline or attachment)
-    return $pdf->download("reflection_{$id}.pdf");
-
-    // OR return inline view in browser:
-    // return $pdf->stream("reflection_{$id}.pdf");
+        'seen'       => $alreadySeen
+    ]);
 }
 
 

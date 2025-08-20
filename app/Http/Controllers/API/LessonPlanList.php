@@ -244,16 +244,25 @@ $id = $validated['id'];
 
 
 
-   $pdf = Pdf::loadView('ProgramPlan.apiprint', [
-        'plan' => $plan,
+//    $pdf = Pdf::loadView('ProgramPlan.apiprint', [
+//         'plan' => $plan,
+//         'room_name' => $room_name,
+//         'educator_names' => $educator_names,
+//         'children_names' => $children_names,
+//         'month_name' => $month_name
+//     ])->setPaper('a4', 'landscape'); // or 'landscape' if needed
+
+//     // ✅ Return as a file download (inline or attachment)
+//     return $pdf->download("programplan_{$id}.pdf");
+    return response()->json([
+        'status' => 'true',
+        'message' => 'Program plan retrived successfull',
+         'plan' => $plan,
         'room_name' => $room_name,
         'educator_names' => $educator_names,
         'children_names' => $children_names,
         'month_name' => $month_name
-    ])->setPaper('a4', 'landscape'); // or 'landscape' if needed
-
-    // ✅ Return as a file download (inline or attachment)
-    return $pdf->download("programplan_{$id}.pdf");
+    ]);
 
 
 }

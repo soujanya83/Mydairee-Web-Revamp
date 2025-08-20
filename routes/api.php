@@ -291,7 +291,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/activities/lunch', [DailyDiaryController::class, 'storeLunch']);
     Route::post('/activities/sleep', [DailyDiaryController::class, 'storeSleep']);
     Route::post('/activities/afternoon-tea', [DailyDiaryController::class, 'storeAfternoonTea']);
-    Route::post('/activities/snacks', [DailyDiaryController::class, 'storeSnacks']);
+    Route::post('/activities/late-snacks', [DailyDiaryController::class, 'storeSnacks']);
     Route::post('/activities/sunscreen', [DailyDiaryController::class, 'storeSunscreen']);
     Route::post('/activities/toileting', [DailyDiaryController::class, 'storeToileting']);
     Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);

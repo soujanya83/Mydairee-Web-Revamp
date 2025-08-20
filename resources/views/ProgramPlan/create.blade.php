@@ -1,7 +1,7 @@
 @extends('layout.master')
 @section('title', 'Create Program Plan')
 @section('parentPageTitle', 'Dashboard')
-
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
     <h5></h5>
@@ -38,7 +38,7 @@
             <form id="programPlanForm" method="post">
 
             <?php if(isset($plan_data) && $plan_data): ?>
-        <input type="hidden" name="plan_id" value="<?= $plan_data->id ?>">
+        <input type="hidden" name="plan_id" id="plan_id" value="<?= $plan_data->id ?>">
     <?php endif; ?>
          
             <input type="hidden" name="centerid" id="centerid" value="<?= isset($centerId)?$centerId:null; ?>";>
@@ -114,11 +114,11 @@
                 <div class="card mb-4">
                   
                     <div class="card-body">
+<div class="form-group mb-3">
+    <label>Focus Areas</label>
+    <textarea class="form-control ckeditor" id="focus_area" name="focus_area" rows="3" placeholder="Focus Area"><?= isset($plan_data) ? $plan_data->focus_area : '' ?></textarea>
+</div>
 
-                    <div class="form-group mb-3">
-                            <label>Focus Areas</label>
-                            <input type="text" class="form-control" name="focus_area" placeholder="Focus Area" value="<?= isset($plan_data) ? $plan_data->focus_area : '' ?>">
-                        </div>
                         <!-- Practical Life -->
                         <div class="form-group mb-3">
                       
@@ -202,13 +202,18 @@
                         </div>
 
                         <!-- Art & Craft -->
-                        <div class="form-group mb-3">
+      <div class="form-group mb-3">
+    <label>Art & Craft</label>
+    <textarea class="form-control ckeditor" id="art_craft" name="art_craft" rows="3" placeholder="Art & Craft"><?= isset($plan_data) ? $plan_data->art_craft : '' ?></textarea>
 
-                            <label>Art & Craft</label>
-                            <input type="text" class="form-control" name="art_craft" value="<?= isset($plan_data) ? $plan_data->art_craft : '' ?>" placeholder="Art & Craft">
+    <!-- CKEditor textarea for experiences (commented out for now) -->
+    <!--
+    <label class="mt-2">Planned Experiences</label>
+    <textarea class="form-control ckeditor" name="art_craft_experiences" rows="3" placeholder="Planned experiences"><?= isset($plan_data) ? $plan_data->art_craft_experiences : '' ?></textarea>
+    -->
+</div>
 
-                            <input type="hidden" class="form-control mt-2" name="art_craft_experiences" value="<?= isset($plan_data) ? $plan_data->art_craft_experiences : '' ?>" placeholder="Planned experiences">
-                        </div>
+
                     </div>
                 </div>
 
@@ -232,50 +237,50 @@
 </div>
 
 
-                        <div class="form-group mb-3">
-                            <label for="outdoor_experiences">Outdoor Experiences <span style="color:blueviolet;font-weight:bold;"> (Add Experiences seprated by Comma ",") </span></label>
-                            <textarea class="form-control" id="outdoor_experiences" name="outdoor_experiences" rows="3" placeholder="1st Experiences, 2nd Experiences, 3rd Experiences etc..."><?= isset($plan_data) ? $plan_data->outdoor_experiences : '' ?></textarea>
-                        </div>
+                     <div class="form-group mb-3">
+    <label for="outdoor_experiences">Outdoor Experiences <span style="color:blueviolet;font-weight:bold;"> (Add Experiences separated by Comma ",") </span></label>
+    <textarea class="form-control ckeditor" id="outdoor_experiences" name="outdoor_experiences" rows="3" placeholder="1st Experiences, 2nd Experiences, 3rd Experiences etc..."><?= isset($plan_data) ? $plan_data->outdoor_experiences : '' ?></textarea>
+</div>
 
-                        <div class="form-group mb-3">
-                            <label for="inquiry_topic">Inquiry Topic</label>
-                            <textarea class="form-control" id="inquiry_topic" name="inquiry_topic"  rows="3"><?= isset($plan_data) ? $plan_data->inquiry_topic : '' ?></textarea>
-                        </div>
+<div class="form-group mb-3">
+    <label for="inquiry_topic">Inquiry Topic</label>
+    <textarea class="form-control ckeditor" id="inquiry_topic" name="inquiry_topic"  rows="3"><?= isset($plan_data) ? $plan_data->inquiry_topic : '' ?></textarea>
+</div>
 
-                        <div class="form-group mb-3">
-                            <label for="sustainability_topic">Sustainability Topic</label>
-                            <textarea class="form-control" id="sustainability_topic" name="sustainability_topic" rows="3"><?= isset($plan_data) ? $plan_data->sustainability_topic : '' ?></textarea>
-                        </div>
+<div class="form-group mb-3">
+    <label for="sustainability_topic">Sustainability Topic</label>
+    <textarea class="form-control ckeditor" id="sustainability_topic" name="sustainability_topic" rows="3"><?= isset($plan_data) ? $plan_data->sustainability_topic : '' ?></textarea>
+</div>
 
-                        <div class="form-group mb-3">
-                            <label for="special_events">Special Events <span style="color:blueviolet;font-weight:bold;"> (Add multiple events seprated by Comma ",") </span> </label>
-                            <textarea class="form-control" id="special_events" name="special_events" rows="3" placeholder="14th March- Holi, 18th March- Global Recycling Day, 21st March- Harmony Day etc..."><?= isset($plan_data) ? $plan_data->special_events : '' ?></textarea>
-                        </div>
+<div class="form-group mb-3">
+    <label for="special_events">Special Events <span style="color:blueviolet;font-weight:bold;"> (Add multiple events separated by Comma ",") </span> </label>
+    <textarea class="form-control ckeditor" id="special_events" name="special_events" rows="3" placeholder="14th March- Holi, 18th March- Global Recycling Day, 21st March- Harmony Day etc..."><?= isset($plan_data) ? $plan_data->special_events : '' ?></textarea>
+</div>
 
-                        <div class="form-group mb-3">
-                            <label for="children_voices">Children's Voices</label>
-                            <textarea class="form-control" id="children_voices" name="children_voices"  rows="3"><?= isset($plan_data) ? $plan_data->children_voices : '' ?></textarea>
-                        </div>
+<div class="form-group mb-3">
+    <label for="children_voices">Children's Voices</label>
+    <textarea class="form-control ckeditor" id="children_voices" name="children_voices"  rows="3"><?= isset($plan_data) ? $plan_data->children_voices : '' ?></textarea>
+</div>
 
-                        <div class="form-group mb-3">
-                            <label for="families_input">Families Input</label>
-                            <textarea class="form-control" id="families_input" name="families_input"  rows="3"><?= isset($plan_data) ? $plan_data->families_input : '' ?></textarea>
-                        </div>
+<div class="form-group mb-3">
+    <label for="families_input">Families Input</label>
+    <textarea class="form-control ckeditor" id="families_input" name="families_input"  rows="3"><?= isset($plan_data) ? $plan_data->families_input : '' ?></textarea>
+</div>
 
-                        <div class="form-group mb-3">
-                            <label for="group_experience">Group Experience</label>
-                            <textarea class="form-control" id="group_experience" name="group_experience" rows="3"><?= isset($plan_data) ? $plan_data->group_experience : '' ?></textarea>
-                        </div>
+<div class="form-group mb-3">
+    <label for="group_experience">Group Experience</label>
+    <textarea class="form-control ckeditor" id="group_experience" name="group_experience" rows="3"><?= isset($plan_data) ? $plan_data->group_experience : '' ?></textarea>
+</div>
 
-                        <div class="form-group mb-3">
-                            <label for="spontaneous_experience">Spontaneous Experience</label>
-                            <textarea class="form-control" id="spontaneous_experience" name="spontaneous_experience" rows="3"><?= isset($plan_data) ? $plan_data->spontaneous_experience : '' ?></textarea>
-                        </div>
+<div class="form-group mb-3">
+    <label for="spontaneous_experience">Spontaneous Experience</label>
+    <textarea class="form-control ckeditor" id="spontaneous_experience" name="spontaneous_experience" rows="3"><?= isset($plan_data) ? $plan_data->spontaneous_experience : '' ?></textarea>
+</div>
 
-                        <div class="form-group mb-3">
-                            <label for="mindfulness_experiences">Mindfulness Experiences</label>
-                            <textarea class="form-control" id="mindfulness_experiences" name="mindfulness_experiences"  rows="3"><?= isset($plan_data) ? $plan_data->mindfulness_experiences : '' ?></textarea>
-                        </div>
+<div class="form-group mb-3">
+    <label for="mindfulness_experiences">Mindfulness Experiences</label>
+    <textarea class="form-control ckeditor" id="mindfulness_experiences" name="mindfulness_experiences"  rows="3"><?= isset($plan_data) ? $plan_data->mindfulness_experiences : '' ?></textarea>
+</div>
                     </div>
                 </div>
 
@@ -888,6 +893,65 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal" id="dateModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <h5 class="modal-title">Program Plan</h5>
+      </div>
+      <form action="{{ route('programplan.MonthYear') }}" method="post">
+        @csrf
+        <div class="modal-body">
+          <div class="form-group mb-4">
+            <label for="months">Select Month</label>
+            <select class="form-control" id="months" name="months" required>
+              <option value="">Select Month</option>
+              <?php
+              $months = [
+                  '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April',
+                  '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August',
+                  '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
+              ];
+              foreach ($months as $key => $month):
+              ?>
+                  <option value="<?= $key ?>" <?= (isset($plan_data) && $plan_data->months == $key) ? 'selected' : '' ?>><?= $month ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+
+          <div class="form-group mb-4">
+            <label for="years">Select Year</label>
+            <select class="form-control" id="years" name="years" required>
+              <option value="">Select Year</option>
+              <?php
+              $currentYear = date('Y');
+              $startYear = $currentYear - 10;
+              $endYear = $currentYear + 10;
+
+              for ($year = $startYear; $year <= $endYear; $year++):
+              ?>
+                <option value="<?= $year ?>" <?= (isset($plan_data) && $plan_data->years == $year) ? 'selected' : '' ?>><?= $year ?></option>
+              <?php endfor; ?>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Submit</button>
+          <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+            <i class="fas fa-times mr-1"></i> Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+
 
 
 
@@ -895,6 +959,115 @@
 
 
 @push('scripts')
+<script>
+let editors = {}; // Store all CKEditor instances
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Initialize all CKEditor instances
+    document.querySelectorAll(".ckeditor").forEach((textarea) => {
+        let id = textarea.getAttribute("id");
+
+        ClassicEditor.create(textarea)
+            .then(editor => {
+                editors[id] = editor;
+                console.log(id + " ready ✅");
+
+                // Attach change listener for autosave
+                editor.model.document.on("change:data", () => {
+                    AutoSave();
+                });
+            })
+            .catch(error => console.error(id + " error ❌", error));
+    });
+});
+
+// AutoSave function
+function AutoSave() {
+    // Collect data from all CKEditor instances dynamically
+    let dataToSave = {};
+    for (let id in editors) {
+        dataToSave[id] = editors[id].getData();
+    }
+
+    // Include observation_id if exists
+    dataToSave.plan_id = document.querySelector('#plan_id') ? document.querySelector('#plan_id').value : null;
+
+    console.log("AutoSaving...", dataToSave);
+
+    fetch("{{ route('programplan.autosave') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+        },
+        body: JSON.stringify(dataToSave)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("AutoSave response ✅", data);
+
+        if (data.status === 'success') {
+            // Update hidden observation_id if returned
+            if (data.observation_id) {
+                let hiddenIdField = document.querySelector('#observation_id');
+                if (hiddenIdField) hiddenIdField.value = data.observation_id;
+            }
+        } 
+        else if (data.status === 'error') {
+            if (data.errors) {
+                console.log("Validation errors:", data.errors);
+                Object.keys(data.errors).forEach(key => {
+                    showToast('toast-error', `${key.replace('_', ' ')} is required`);
+                });
+            }
+        } 
+        else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Unexpected response',
+                text: 'Autosave returned an unknown status.',
+            });
+        }
+    })
+    .catch(error => console.error("AutoSave failed ❌", error));
+}
+</script>
+
+<script>
+    
+
+        $(document).ready(function () {
+        let reflection = @json($plan_data);
+
+        if (!reflection) {
+            $('#dateModal').modal('show');
+        }
+    }); 
+document.addEventListener("DOMContentLoaded", function() {
+    const yearSelect = document.getElementById("years");
+    const monthSelect = document.getElementById("months");
+    const dateDataInput = document.getElementById("dateData");
+    const modal = document.getElementById("dateModal");
+
+    function updateDateData() {
+        const year = yearSelect && yearSelect.value ? yearSelect.value : "";
+        const monthText = monthSelect && monthSelect.selectedIndex > 0 ? monthSelect.options[monthSelect.selectedIndex].text : "";
+        dateDataInput.value = (monthText && year) ? monthText + " - " + year : "";
+    }
+
+    // Update whenever user changes month or year
+    if (yearSelect) yearSelect.addEventListener("change", updateDateData);
+    if (monthSelect) monthSelect.addEventListener("change", updateDateData);
+
+    // Update when modal opens
+    if (modal) {
+        modal.addEventListener('show.bs.modal', updateDateData);
+    }
+
+    // Initial update in case plan_data exists
+    updateDateData();
+}); 
+</script>
     <!-- all the script here of this page only -->
 <script>
        document.getElementById('cancel-btn').addEventListener('click', function () {

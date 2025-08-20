@@ -17,6 +17,12 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Child;
 use Carbon\Carbon;
 use App\Notifications\AnnouncementAdded;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+
+
 
 class AnnouncementController extends Controller
 {
@@ -296,7 +302,7 @@ class AnnouncementController extends Controller
     }
 
 
-   public function AnnouncementStore(Request $request)
+public function AnnouncementStore(Request $request)
 {
     $request->validate([
         'title'      => 'required|string|max:255',
@@ -305,18 +311,18 @@ class AnnouncementController extends Controller
         'childId'    => 'required|array',
         'childId.*'  => 'required|numeric|exists:child,id',
         'media'      => 'nullable|array',
-        'media.*'    => 'file|mimes:jpeg,jpg,png,pdf', // max 200KB
+        'media.*'    => 'file|mimes:jpeg,jpg,png,pdf|max:2048',
     ], [
-        'childId.required'    => 'Children are required.',
-        'text.required'       => 'Description is required.',
-        'media.*.max'         => 'Each file must be under 200KB.',
-        'media.*.mimes'       => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
+        'childId.required' => 'Children are required.',
+        'text.required'    => 'Description is required.',
+        'media.*.max'      => 'File must be under 2MB.',
+        'media.*.mimes'    => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
     ]);
 
     // ✅ Check if both image and PDF types are mixed
     if ($request->hasFile('media')) {
         $hasImage = false;
-        $hasPdf = false;
+        $hasPdf   = false;
 
         foreach ($request->file('media') as $file) {
             $mime = $file->getMimeType();
@@ -335,20 +341,18 @@ class AnnouncementController extends Controller
     }
 
     try {
-        $userid = Auth::user()->userid;
-        $centerid = session('user_center_id');
+        $userid    = Auth::user()->userid;
+        $centerid  = session('user_center_id');
         $announcementId = null;
 
-        // Format date
         $eventDate = empty($request->eventDate)
             ? now()->addDay()->format('Y-m-d')
             : Carbon::createFromFormat('d-m-Y', $request->eventDate)->format('Y-m-d');
 
-        $role = Auth::user()->userType;
-        $run = 0;
+        $role   = Auth::user()->userType;
+        $run    = 0;
         $status = 'Pending';
 
-        // Permissions
         if ($role === "Superadmin") {
             $run = 1;
             $status = "Sent";
@@ -371,21 +375,40 @@ class AnnouncementController extends Controller
         }
 
         $mediaFiles = [];
+        $manager = new ImageManager(new Driver()); // ✅ Intervention v3 way
 
-        // ✅ Handle new uploads (store URLs)
         if ($request->hasFile('media')) {
             foreach ($request->file('media') as $file) {
-                $filename = uniqid() . '_' . $file->getClientOriginalName();
                 $destinationPath = public_path('uploads/announcements');
+                File::ensureDirectoryExists($destinationPath);
 
-                // Ensure directory exists
-                \Illuminate\Support\Facades\File::ensureDirectoryExists($destinationPath);
+                if (str_starts_with($file->getMimeType(), 'image/')) {
+          $image = $manager->read($file)
+    ->scaleDown(900, 900)        // keep full image, no crop
+    ->pad(900, 900, 'white');    // only add padding where needed
 
-                // Move file
-                $file->move($destinationPath, $filename);
 
-                // Store full URL
-                $mediaFiles[] = url('uploads/announcements/' . $filename);
+                    $quality   = 90;
+                    $maxSize   = 500 * 1024; // 500 KB
+                    $tempPath  = storage_path('app/temp_' . Str::random(10) . '.jpg');
+
+                    do {
+                        $image->save($tempPath, quality: $quality);
+                        $size = filesize($tempPath);
+                        $quality -= 5;
+                    } while ($size > $maxSize && $quality > 10);
+
+                    $filename = uniqid() . '.jpg';
+                    $finalPath = $destinationPath . '/' . $filename;
+                    rename($tempPath, $finalPath);
+
+                    $mediaFiles[] = url('uploads/announcements/' . $filename);
+                } else {
+                    // ✅ PDF, just move
+                    $filename = uniqid() . '_' . $file->getClientOriginalName();
+                    $file->move($destinationPath, $filename);
+                    $mediaFiles[] = url('uploads/announcements/' . $filename);
+                }
             }
         }
 
@@ -400,11 +423,10 @@ class AnnouncementController extends Controller
                 ]);
             }
 
-            // Remove old media only if new media uploaded
             if (!empty($mediaFiles) && $announcement->announcementMedia) {
                 $oldMedia = json_decode($announcement->announcementMedia, true);
                 foreach ($oldMedia as $oldFileUrl) {
-                    $oldFilePath = public_path(str_replace(url('/').'/', '', $oldFileUrl));
+                    $oldFilePath = public_path(str_replace(url('/') . '/', '', $oldFileUrl));
                     if (file_exists($oldFilePath)) {
                         @unlink($oldFilePath);
                     }
@@ -421,7 +443,6 @@ class AnnouncementController extends Controller
 
             $announcementId = $announcement->id;
 
-            // Refresh children links
             \App\Models\AnnouncementChildModel::where('aid', $announcementId)->delete();
         } 
         // ✅ CREATE CASE
@@ -447,7 +468,6 @@ class AnnouncementController extends Controller
             $announcementId = $announcement->id;
         }
 
-        // ✅ Link children
         foreach ($request->childId as $childId) {
             if (!empty($childId)) {
                 \App\Models\AnnouncementChildModel::create([
@@ -457,7 +477,6 @@ class AnnouncementController extends Controller
             }
         }
 
-        // ✅ Notify users
         $userIds = Usercenter::where('centerid', $centerid)
             ->pluck('userid')
             ->unique();
@@ -471,7 +490,7 @@ class AnnouncementController extends Controller
 
         return redirect()->back()->with([
             'status' => 'success',
-            'msg' => $request->annId ? 'Announcement updated successfully' : 'Announcement created successfully',
+            'msg'    => $request->annId ? 'Announcement updated successfully' : 'Announcement created successfully',
         ]);
     } catch (\Exception $e) {
         return redirect()->back()->with([
@@ -480,6 +499,7 @@ class AnnouncementController extends Controller
         ]);
     }
 }
+
 
 
     public function AnnouncementView(Request $request)

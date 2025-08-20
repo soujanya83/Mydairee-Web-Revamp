@@ -796,40 +796,55 @@
         button.disabled = true;
         button.textContent = "Updating...";
 
-        fetch("{{ route('sleepcheck.update') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: formData
-        })
-        .then(res => res.json())
-        .then(result => {
-    Swal.fire({
-    title: 'Success!',
+     fetch("{{ route('sleepcheck.update') }}", {
+    method: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: formData
+})
+.then(res => res.json())
+.then(result => {
+
+    if(result.status === false) {
+   Swal.fire({
+    title: 'Error!',
     text: result.message,
-    icon: 'success',
-    confirmButtonColor: '#28a745',
+    icon: 'error',
+    confirmButtonColor: '#dc3545',
     confirmButtonText: 'OK'
 }).then(() => {
-    // Wait for 2 seconds after clicking OK, then reload
-    setTimeout(function () {
-        location.reload();
-    }, 1000); // 2 seconds
+    // Re-enable the button after user clicks OK
+    button.disabled = false;
+    button.textContent = "Update";
 });
-
-
-            // // alert(result.message);
-            // button.disabled = false;
-            // button.textContent = "Update";
-            // location.reload();
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Update failed.");
-            button.disabled = false;
-            button.textContent = "Update";
+      
+    } else {
+        Swal.fire({
+            title: 'Success!',
+            text: result.message,
+            icon: 'success',
+            confirmButtonColor: '#28a745',
+            confirmButtonText: 'OK'
+        }).then(() => {
+            // Reload page after 1 second
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
         });
+    }
+
+})
+.catch(err => {
+    console.error(err);
+    Swal.fire({
+        title: 'Error!',
+        text: 'Update failed due to server error.',
+        icon: 'error',
+        confirmButtonColor: '#dc3545',
+        confirmButtonText: 'OK'
+    });
+});
     }
 
     function deleteRow(button, entryId) {

@@ -92,11 +92,13 @@ class ReflectionController extends Controller
 
     public function storepage($id = null)
     {
+        // dd($id);
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
 
         $reflection = null;
         if ($id) {
+            // dd($id);
             $reflection = Reflection::with(['creator', 'center', 'children', 'media', 'staff'])->find($id);
         }
 
@@ -148,10 +150,85 @@ class ReflectionController extends Controller
         return view('reflections.printReflection', compact('reflection', 'roomNames'));
     }
 
+public function storeTitle(Request $request)
+{
+    // dd('here');
+    $request->validate([
+        'title' => 'required'
+    ]);
+
+      $centerid = Session('user_center_id');
+
+    try {
+    $reflection = new Reflection();
+$reflection->title = $request->title;
+$reflection->centerid = $centerid;
+$reflection->createdBy = Auth::user()->userid;
+$reflection->save();
+// dd($reflection->id);
+// dd(route('addnew.optional', ['id' => $reflection->id]));
+        // redirect to route with new reflection id
+  return redirect('reflection/addnew/' . $reflection->id)
+                 ->with('success', 'Reflection created successfully.'); 
+
+
+    // return redirect()->route('addnew', $reflection->id);
+
+
+    } catch (\Exception $e) {
+        return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+    }
+}
+
+public function autosavereflection(Request $request)
+{
+    try {
+        // Validate input
+        $validated = $request->validate([
+            'title' => 'required|string',
+            'about' => 'nullable|string',
+            'reflection_id' => 'required|integer'
+        ]);
+
+        // If reflection_id exists -> update, else create
+        if (!empty($validated['reflection_id'])) {
+            $reflection = Reflection::find($validated['reflection_id']);
+
+            if (!$reflection) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Reflection not found.'
+                ], 404);
+            }
+
+            $reflection->title = $validated['title'];
+            $reflection->about = $validated['about'];
+            $reflection->save();
+        } else {
+            $reflection = Reflection::create([
+                'title' => $validated['title'],
+                'about' => $validated['about'],
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Reflection autosaved successfully ✅',
+            'data' => $reflection
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 
     public function store(Request $request)
     {
+        // dd('here');
         //    dd($request->all());
 
         $uploadMaxSize = min(
