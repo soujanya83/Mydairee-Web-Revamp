@@ -902,33 +902,32 @@
 
 
 <style>
- /* Disable animations for better RDP compatibility */
-@media (prefers-reduced-motion: reduce) {
-  .collapse {
+ /* Completely disable all collapse transitions */
+.collapse,
+.collapse.show,
+.collapsing {
     transition: none !important;
-  }
-  .modal.fade {
-    transition: none !important;
-  }
-  .fade {
-    transition: none !important;
-  }
+    animation: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
 }
 
-/* Or force disable for all environments */
-.collapse {
-  transition: none !important;
+/* Force immediate height behavior */
+.collapse:not(.show) {
+    height: 0 !important;
+    overflow: hidden !important;
 }
-/* .modal.fade {
-  transition: none !important;
-} */
 
+.collapse.show {
+    height: auto !important;
+    overflow: visible !important;
+}
 
-.no-transitions .collapse,
-.no-transitions .modal,
-.no-transitions .fade {
-  transition: none !important;
-  animation: none !important;
+/* Remove collapsing class behavior completely */
+.collapsing {
+    height: auto !important;
+    overflow: visible !important;
 }
     </style>
 
@@ -3225,25 +3224,35 @@ function showToast(type, message) {
 
 </script>
 <script>
-    // Detect RDP or low-performance environment
-function isLowPerformanceEnvironment() {
-  // Check for RDP indicators
-  const isRDP = navigator.userAgent.includes('RDP') || 
-                window.screen.colorDepth < 24 ||
-                navigator.hardwareConcurrency < 2;
-  
-  return isRDP;
-}
+   // Disable Bootstrap's collapse and use custom implementation
+$(document).off('click.bs.collapse.data-api');
 
-// Apply settings based on environment
-if (isLowPerformanceEnvironment()) {
-  // Disable Bootstrap animations
-  $.fn.collapse.Constructor.Default.transition = false;
-  $.fn.modal.Constructor.Default.transition = false;
-  
-  // Add CSS class to disable transitions
-  document.body.classList.add('no-transitions');
-}
+$(document).on('click', '[data-toggle="collapse"]', function(e) {
+    e.preventDefault();
+    
+    const target = $(this).attr('data-target');
+    const $target = $(target);
+    const $button = $(this);
+    const parent = $button.attr('data-parent');
+    
+    // Clean up all collapsing states
+    $('.collapsing').removeClass('collapsing').removeAttr('style');
+    
+    if (parent) {
+        // Close all other items in accordion
+        $(parent).find('.collapse.show').removeClass('show').removeAttr('style');
+        $(parent).find('[data-toggle="collapse"]').addClass('collapsed').attr('aria-expanded', 'false');
+    }
+    
+    // Toggle current item
+    if ($target.hasClass('show')) {
+        $target.removeClass('show').removeAttr('style');
+        $button.addClass('collapsed').attr('aria-expanded', 'false');
+    } else {
+        $target.addClass('show').removeAttr('style');
+        $button.removeClass('collapsed').attr('aria-expanded', 'true');
+    }
+});
 </script>
 
 
