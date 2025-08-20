@@ -28,4 +28,11 @@ class ReflectionStaff extends Model
     {
         return $this->belongsTo(User::class, 'staffid');
     }
+
+   public function staffDetails()
+{
+    return $this->belongsTo(User::class, 'staffid', 'userid')
+                ->select('userid', 'name','imageUrl'); // only select name
+}
+
 }

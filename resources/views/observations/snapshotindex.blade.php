@@ -389,7 +389,7 @@
 }
 
 .snapshot-img {
-    max-height: 400px;
+    max-height: 500px;
     width: auto;
     transition: opacity 0.3s;
     border-radius: 8px;
@@ -540,7 +540,7 @@
   
                <div class="action-buttons d-flex justify-content-center gap-2">
 
- @if(!empty($permissions['viewSnapshots']) && $permissions['viewSnapshots'])
+ @if(!empty($permissions['viewSnapshots']) && $permissions['viewSnapshots'] || Auth::user()->userType == "Superadmin")
 
 <button class="btn-action btn-view" 
         onclick='openSnapshotModal(@json($images), {!! json_encode(strip_tags($snapshot->title)) !!})' 
@@ -549,7 +549,7 @@
 </button>
 @endif
 
-@if(!empty($permissions['editSnapshots']) && $permissions['editSnapshots'])
+@if(!empty($permissions['editSnapshots']) && $permissions['editSnapshots'] || Auth::user()->userType == "Superadmin")
 
 
     <button class="btn-action btn-edit" onclick="editSnapshot({{ $snapshot->id }})" title="Edit">
@@ -558,7 +558,7 @@
     @endif
 
 
-  @if(!empty($permissions['deleteSnapshots']) && $permissions['deleteSnapshots'])
+  @if(!empty($permissions['deleteSnapshots']) && $permissions['deleteSnapshots'] || Auth::user()->userType == "Superadmin")
 
     <button class="btn-action btn-delete" onclick="deleteSnapshot({{ $snapshot->id }})" title="Delete">
         <i class="fas fa-trash-alt"></i>
@@ -722,7 +722,7 @@
     </div>
 
 <div class="modal" id="snapshotModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
 
       <!-- Modal Header -->

@@ -4,6 +4,22 @@
 
 @section('page-styles')
 <style>
+    .thumbnail-hover {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .thumbnail-hover:hover {
+        transform: scale(5); /* enlarge */
+        z-index: 999;
+        position: relative;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+</style>
+<style>
     .d-flex-custom {
         display: flex;
         align-items: center;
@@ -43,28 +59,28 @@
 @endphp
 
 <td>
-    @if (!empty($media) && is_array($media))
-        <div class="d-flex flex-wrap gap-2">
-            @foreach ($media as $file)
-                @php
-                    $extension = pathinfo($file, PATHINFO_EXTENSION);
-                    $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                    $isPDF = strtolower($extension) === 'pdf';
-                @endphp
+   @if (!empty($media) && is_array($media))
+    <div class="d-flex flex-wrap gap-2">
+        @foreach ($media as $file)
+            @php
+                $extension = pathinfo($file, PATHINFO_EXTENSION);
+                $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                $isPDF = strtolower($extension) === 'pdf';
+            @endphp
 
-                @if ($isImage)
-                    <img class="img-thumbnail" src="{{ public_path('assets/media/' . $file) }}" style="width: 80px;" alt="Image">
-                @elseif ($isPDF)
-                    <a href="{{ asset('assets/media/' . $file) }}" target="_blank" class="d-block text-center">
-                        <img src="{{ asset('svg/pdf-icon.svg') }}" alt="PDF" style="width: 40px;">
-                       
-                    </a>
-                @endif
-            @endforeach
-        </div>
-    @else
-        <span class="text-muted">No media</span>
-    @endif
+            @if ($isImage)
+                <img class="img-thumbnail thumbnail-hover" src="{{ asset($file) }}" style="width: 80px;height:80px" alt="Image">
+            @elseif ($isPDF)
+                <a href="{{ asset($file) }}" target="_blank" class="d-block text-center">
+                    <img src="{{ asset('svg/pdf-icon.svg') }}" alt="PDF" style="width: 40px;">
+                </a>
+            @endif
+        @endforeach
+    </div>
+@else
+    <span class="text-muted">No media</span>
+@endif
+
 </td>
 
                             <h5 class="mb-0">{{ $Info->title }}</h5>
@@ -87,7 +103,7 @@
 
                         <!-- Description -->
                         <div class="announcement-text">
-                            {!! html_entity_decode($Info->text) !!}
+                            {!! html_entity_decode($Info->text) !!} 
                         </div>
                     </div>
                 </div>

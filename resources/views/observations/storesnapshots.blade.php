@@ -1216,7 +1216,7 @@ $(document).ready(function () {
                 $('button[type=submit]').prop('disabled', true).text('Submitting...');
             },
             success: function(response) {
-    if (response.status === 'success') {
+    if (response.status === true) {
         showToast('success', 'Snapshot Added Successfully!');
         setTimeout(() => {
             window.location.href = '/snapshot/index/'; // or 'link', or 'observation'

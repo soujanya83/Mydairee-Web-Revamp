@@ -761,9 +761,9 @@
 <div class="modal" id="TitleModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
-      <div class="modal-header d-flex align-items-center justify-content-between">
+     <div class="modal-header d-flex align-items-center justify-content-center">
        
-      
+      <h4 class="">New Reflection</h4>
       </div>
       <form action="{{ route('reflection.storeTitle') }}" method="post">
         @csrf

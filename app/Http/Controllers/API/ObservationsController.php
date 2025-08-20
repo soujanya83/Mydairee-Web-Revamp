@@ -5,30 +5,36 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use App\Models\User; 
-use App\Models\Center; 
-use App\Models\Usercenter; 
-use App\Models\Child; 
-use App\Models\Childparent; 
-use App\Models\DevMilestone; 
-use App\Models\DevMilestoneMain; 
-use App\Models\DevMilestoneSub; 
-use App\Models\EYLFActivity; 
-use App\Models\EYLFOutcome; 
-use App\Models\EYLFSubActivity; 
-use App\Models\MontessoriActivity; 
-use App\Models\MontessoriSubActivity; 
-use App\Models\MontessoriSubject; 
-use App\Models\Observation; 
-use App\Models\ObservationChild; 
-use App\Models\ObservationComment; 
-use App\Models\ObservationDevMilestoneSub; 
-use App\Models\ObservationEYLF; 
-use App\Models\ObservationLink; 
-use App\Models\ObservationMedia; 
-use App\Models\ObservationMontessori; 
-use App\Models\ProgramPlanTemplateDetailsAdd; 
-use App\Models\Room; 
+use App\Models\User;
+use App\Models\Center;
+use App\Models\Usercenter;
+use App\Models\Child;
+use App\Models\Childparent;
+use App\Models\DevMilestone;
+use App\Models\DevMilestoneMain;
+use App\Models\DevMilestoneSub;
+use App\Models\EYLFActivity;
+use App\Models\EYLFOutcome;
+use App\Models\EYLFSubActivity;
+use App\Models\MontessoriActivity;
+use App\Models\MontessoriSubActivity;
+use App\Models\MontessoriSubject;
+use App\Models\Observation;
+use App\Models\ObservationChild;
+use App\Models\ObservationComment;
+use App\Models\ObservationDevMilestoneSub;
+use App\Models\ObservationEYLF;
+use App\Models\ObservationLink;
+use App\Models\ObservationMedia;
+use App\Models\Reflection;
+use App\Models\SnapshotMedia;
+use App\Models\SnapshotChild;
+use App\Models\Snapshot;
+use App\Models\ObservationMontessori;
+use App\Models\Permission;
+use App\Models\ProgramPlanTemplateDetailsAdd;
+use App\Models\Userprogressplan;
+use App\Models\Room;
 use App\Models\RoomStaff;
 use App\Models\SeenObservation;
 use Illuminate\Support\Facades\Auth;
@@ -41,11 +47,9 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Barryvdh\DomPDF\Facade\Pdf; 
-use App\Models\SnapshotMedia;
-use App\Models\SnapshotChild;
-use App\Models\Snapshot;
-use App\Models\Reflection;
+use App\Notifications\ObservationAdded;
+
+use Intervention\Image\Drivers\Gd\Driver; 
 
 class ObservationsController extends Controller
 {
@@ -443,55 +447,67 @@ $centerid = $validated['center_id'];
     /**
      * Get children list for filter modal
      */
-    public function getChildren(Request $request)
-    {
+public function getChildren(Request $request)
+{
+    try {
+        $user = Auth::user();
 
-        try {
+        $validator = Validator::make($request->all(), [
+            'center_id' => 'nullable|integer',
+            'roomid'    => 'nullable|array'
+        ]);
 
-            $user = Auth::user();
-            $centerid = $request->center_id;
-          $validator = Validator::make($request->all(), [
-    'center_id' => 'required|integer',
-]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
 
-if ($validator->fails()) {
-    return response()->json([
-        'status' => false,
-        'message' => 'Validation failed.',
-        'errors' => $validator->errors(),
-    ], 422);
+        // Access validated data safely
+        $validated = $validator->validated();
+        $centerid = $validated['center_id'] ?? null;
+        $roomid   = $validated['roomid'] ?? null;
+
+        $children = collect();
+        $message  = '';
+
+        // Fetch children by center
+        if ($centerid) {
+            if ($user->userType === 'Superadmin') {
+                $children = $this->getChildrenForSuperadmin($centerid);
+            } elseif ($user->userType === 'Staff') {
+                $children = $this->getChildrenForStaff($centerid);
+            } else {
+                $children = $this->getChildrenForParent($centerid);
+            }
+            $message = "Children retrieved from center successfully";
+        }
+
+        // Fetch children by room (overrides center filter if both are present)
+        if ($roomid) {
+            $children = child::whereIn('room', $roomid)->get();
+            $message = "Children retrieved from room successfully";
+        }
+
+        return response()->json([
+            'children' => $children,
+            'status'   => true,
+            'message'  => $message
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Filter error: ' . $e->getMessage());
+
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'An error occurred while applying filters',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
 }
 
-// Access validated data
-$validated = $validator->validated();
-$centerid = $validated['center_id'];
-
-            $children = collect();
-            
-        if($user->userType === 'Superadmin') {
-            $children = $this->getChildrenForSuperadmin($centerid);
-            }elseif($user->userType === 'Staff'){
-            $children = $this->getChildrenForStaff($centerid);
-            }else{
-            $children = $this->getChildrenForParent($centerid);
-            }
-
-            return response()->json([
-                'children' => $children,
-                'status' => 'success',
-                'success' => true
-            ]);
-        
-        } catch (\Exception $e) {
-            Log::error('Filter error: ' . $e->getMessage());
-            
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An error occurred while applying filters',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
 
     private function getChildrenForSuperadmin($centerid)
@@ -567,7 +583,8 @@ public function getStaff(Request $request)
         $children = collect();
 
              $validator = Validator::make($request->all(), [
-    'center_id' => 'required|integer',
+    'center_id' => 'nullable|integer',
+    'roomid' => 'nullable|array'
 ]);
 
 if ($validator->fails()) {
@@ -580,11 +597,23 @@ if ($validator->fails()) {
 
 // Access validated data
 $validated = $validator->validated();
-$centerid = $validated['center_id'];
-        
-    if($user->userType === 'Superadmin') {
+$centerid = $validated['center_id'] ?? null;
+$roomid = $validated['roomid'] ?? null;
+
+if($centerid){
+     
+    if($user->userType === 'Superadmin' || $user->userType === 'Staff') {
         $staff = $this->getStaffForSuperadmin($centerid);
         }
+}
+
+if($roomid ){
+      $roomstaff = RoomStaff::whereIn('roomid',$roomid)->pluck('staffid');
+      $staff = User::whereIn('userid',$roomstaff)->get();
+}
+   
+
+
         // elseif($user->userType === 'Staff'){
         // $children = $this->getChildrenForStaff();
         // }else{
@@ -1763,191 +1792,274 @@ public function snapshotindex(Request $request)
 
 public function snapshotindexstorepage(Request $request)
 {
-    $id = $request->id;
-    $authId = Auth::user()->id;
-    $centerid = $request->centerid;
+    // Manual validation with Validator
+    $validator = Validator::make($request->all(), [
+        'center_id' => 'required|integer|exists:centers,id',
+        'id'        => 'nullable|integer'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Validation failed',
+            'errors'  => $validator->errors()
+        ], 422);
+    }
+
+    $authId   = Auth::user()->id;
+    $centerid = $request->center_id;
+    $id       = $request->id;
 
     $reflection = null;
+    $childrens  = collect();
+    $rooms      = collect();
+    $educators  = collect();
+
     if ($id) {
         $reflection = Snapshot::with(['creator', 'center', 'children', 'media'])->find($id);
+
+        if ($reflection) {
+            // Children
+            $childrens = $reflection->children->pluck('child')->filter();
+
+            // Rooms
+            if (!empty($reflection->roomids)) {
+                $roomIds = explode(',', $reflection->roomids);
+                $rooms   = Room::whereIn('id', $roomIds)->get();
+            }
+
+            // Educators
+            if (!empty($reflection->educators)) {
+                $educatorsIds = explode(',', $reflection->educators);
+                $educators    = User::whereIn('userid', $educatorsIds)->get();
+            }
+        }
     }
 
-    $childrens = $reflection
-        ? $reflection->children->pluck('child')->filter()->values()
-        : collect();
-
-    $rooms = collect();
-    if ($reflection && $reflection->roomids) {
-        $roomIds = explode(',', $reflection->roomids); 
-        $rooms = Room::whereIn('id', $roomIds)->get();
-    }
-
+    // EYLF Outcomes (with activities + subActivities)
     $outcomes = EYLFOutcome::with('activities.subActivities')->get();
 
     return response()->json([
-        'status' => true,
-        'reflection' => $reflection,
-        'childrens'  => $childrens,
-        'rooms'      => $rooms,
-        'outcomes'   => $outcomes
+        'status'     => true,
+        'authId'     => $authId,
+        'centerId'   => $centerid,
+        'reflection' => $reflection ?? null,
+        'children'   => $childrens ?? [],
+        'rooms'      => $rooms ?? [],
+        'educators'  => $educators ?? [],
+        'outcomes'   => $outcomes ?? []
     ]);
 }
 
 
 
+public function snapshotstore(Request $request)
+{
+    // ✅ Check PHP upload limits
+    $uploadMaxSize = min(
+        $this->convertToBytes(ini_get('upload_max_filesize')),
+        $this->convertToBytes(ini_get('post_max_size'))
+    );
 
-    public function snapshotstore(Request $request)
-    {
-        //    dd($request->all());
+    $isEdit = $request->filled('id');
 
-        $uploadMaxSize = min(
-            $this->convertToBytes(ini_get('upload_max_filesize')),
-            $this->convertToBytes(ini_get('post_max_size'))
-        );
+    // ✅ Validation Rules
+    $rules = [
+        'selected_rooms'    => 'required|string',
+        'title'             => 'required|string|max:255',
+        'about'             => 'required|string',
+        'selected_children' => 'required|string',
+        'selected_staff'    => 'required|string',
+    ];
 
-        $isEdit = $request->filled('id');
+    if (!$isEdit) {
+        $rules['media'] = 'required|array|min:1';
+    } else {
+        $rules['media'] = 'nullable|array';
+    }
 
-        $rules = [
-            'selected_rooms'    => 'required',
-            'title'             => 'required|string',
-            'about'             => 'required|string',
-            'selected_children' => 'required|string',
-        ];
+    $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
 
-        if (!$isEdit) {
-            $rules['media'] = 'required|array|min:1';
-        } else {
-            $rules['media'] = 'nullable|array';
-        }
+    $messages = [
+        'media.required' => 'At least one media file is required.',
+        'media.*.max'    => 'Each file must be smaller than ' . round($uploadMaxSize / 1024 / 1024, 2) . 'MB.',
+        'title.required' => 'Title is required.',
+        'about.required' => 'About/Description is required.',
+    ];
 
-        $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
+    $validator = Validator::make($request->all(), $rules, $messages);
 
-        $messages = [
-            'media.required' => 'At least one media file is required.',
-            'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
-        ];
+    if ($validator->fails()) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Validation failed.',
+            'errors'  => $validator->errors(),
+        ], 422);
+    }
 
-        $validator = Validator::make($request->all(), $rules, $messages);
+    $validated = $validator->validated();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+    DB::beginTransaction();
 
+    $authId   = Auth::user()->userid; // working field
+    $centerid = $request->center_id ?? null;
 
+    // ✅ Create or Update Snapshot
+    $snapshot = Snapshot::find($request->id);
 
+    if ($isEdit && !$snapshot) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Snapshot not found.',
+        ], 404);
+    }
 
-        DB::beginTransaction();
+    // ✅ Assign Snapshot Data
 
-        try {
-            $authId = Auth::user()->id;
-            $centerid = $request->centerid;
+    // $snapshot->save();
+if (!$isEdit && !$snapshot) {
+    // Create new snapshot
+    $snapshot = Snapshot::create([
+        'title'     => $validated['title'],
+        'about'     => $validated['about'],
+        'centerid'  => $centerid,
+        'createdBy' => $authId,
+        'educators' => $validated['selected_staff'],
+    ]);
 
-            $reflection = $isEdit
-                ? Snapshot::findOrFail($request->id)
-                : new Snapshot();
+    // Update roomids after creation
+    $snapshot->roomids = $validated['selected_rooms'];
+    $snapshot->save();
 
-            $reflection->roomids      = $request->input('selected_rooms');
-            $reflection->title        = $request->input('title');
-            $reflection->about        = $request->input('about');
-            $reflection->centerid     = $centerid;
-            $reflection->createdBy    = $authId;
-            $reflection->save();
+} else {
+    // Fetch existing snapshot for update
+    $snapshot = Snapshot::findOrFail($request->id);
 
-            $reflectionId = $reflection->id;
+    // Assign updated values
+    $snapshot->title     = $validated['title'];
+    $snapshot->about     = $validated['about'];
+    $snapshot->centerid  = $centerid;
+    $snapshot->createdBy = $authId;
+    $snapshot->educators = $validated['selected_staff'];
+    $snapshot->roomids   = $validated['selected_rooms'];
 
-            // Replace all existing reflectionchilds records
-            SnapshotChild::where('snapshotid', $reflectionId)->delete();
-
-            $selectedChildren = explode(',', $request->input('selected_children'));
-            foreach ($selectedChildren as $childId) {
-                if (trim($childId) !== '') {
-                    SnapshotChild::create([
-                        'snapshotid' => $reflectionId,
-                        'childid' => trim($childId),
-                    ]);
-                }
-            }
-
-            // Replace all existing reflectionstaffs records
-            //    ReflectionStaff::where('reflectionid', $reflectionId)->delete();
-
-            //    $selectedStaffs = explode(',', $request->input('selected_staff'));
-            //    foreach ($selectedStaffs as $staffids) {
-            //        if (trim($staffids) !== '') {
-            //            ReflectionStaff::create([
-            //                'reflectionid' => $reflectionId,
-            //                'staffid' => trim($staffids),
-            //            ]);
-            //        }
-            //    }
+    $snapshot->save();
+}
 
 
 
 
-            // Process uploaded media only if present
-            if ($request->hasFile('media')) {
-                $manager = new ImageManager(new GdDriver());
+    $snapshotId = $snapshot->id;
 
-                foreach ($request->file('media') as $file) {
-                    if ($file->isValid()) {
-                        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                        $destinationPath = public_path('uploads/Snapshots');
-
-                        if (!file_exists($destinationPath)) {
-                            mkdir($destinationPath, 0777, true);
-                        }
-
-                        if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
-                            $image = $manager->read($file->getPathname());
-                            $image->scale(1920);
-                            $image->save($destinationPath . '/' . $filename, 75);
-                        } else {
-                            $file->move($destinationPath, $filename);
-                        }
-
-                        SnapshotMedia::create([
-                            'snapshotid' => $reflectionId,
-                            'mediaUrl' => 'uploads/Snapshots/' . $filename,
-                            'mediaType' => $file->getClientMimeType(),
-                        ]);
-                    }
-                }
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'status' => true,
-                'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
-                'id' => $reflectionId
+    // ✅ Handle selected children
+    SnapshotChild::where('snapshotid', $snapshotId)->delete();
+    $selectedChildren = explode(',', $validated['selected_children']);
+    foreach ($selectedChildren as $childId) {
+        if (trim($childId) !== '') {
+            SnapshotChild::create([
+                'snapshotid' => $snapshotId,
+                'childid'    => trim($childId),
             ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Snapshot Store/Update Failed: ' . $e->getMessage());
-
-            return response()->json(['status' => false, 'message' => 'Something went wrong.'], 500);
         }
     }
 
+    // ✅ Handle media uploads
+    if ($request->hasFile('media')) {
+        $manager = new ImageManager(new Driver());
+        $destinationPath = public_path('uploads/Snapshots');
 
-
-
-    public function snapshotdestroyimage($id)
-    {
-        $media = SnapshotMedia::findOrFail($id);
-
-        // Optionally delete the file from storage
-        if (file_exists(public_path($media->mediaUrl))) {
-            @unlink(public_path($media->mediaUrl));
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0777, true);
         }
 
-        $media->delete();
+        foreach ($request->file('media') as $file) {
+            if ($file->isValid()) {
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
-        return response()->json(['status' => 'success']);
+                // Compress large images
+                if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
+                    $image = $manager->read($file->getPathname());
+                    $image->scale(1920);
+                    $image->save($destinationPath . '/' . $filename, 75);
+                } else {
+                    $file->move($destinationPath, $filename);
+                }
+
+                SnapshotMedia::create([
+                    'snapshotid' => $snapshotId,
+                    'mediaUrl'   => 'uploads/Snapshots/' . $filename,
+                    'mediaType'  => $file->getClientMimeType(),
+                ]);
+            }
+        }
     }
+
+    DB::commit();
+
+    return response()->json([
+        'status'  => true,
+        'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
+        'id'      => $snapshotId,
+    ], 200);
+}
+
+
+
+
+
+   public function snapshotdestroyimage($id)
+{
+    try {
+        // ✅ Check if media exists
+        $media = SnapshotMedia::find($id);
+
+        if (!$media) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Media not found.',
+            ], 404);
+        }
+
+        $filePath = public_path($media->mediaUrl);
+
+        // ✅ Delete file if exists
+        if (file_exists($filePath)) {
+            try {
+                @unlink($filePath);
+            } catch (\Exception $e) {
+                // Log error but continue with DB deletion
+                Log::warning("Failed to delete file: {$filePath}. Error: " . $e->getMessage());
+            }
+        } else {
+            // Optional fallback: notify that file is already missing
+            Log::info("File already missing: {$filePath}");
+        }
+
+        // ✅ Delete DB record
+        if (!$media->delete()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Failed to delete media record.',
+            ], 500);
+        }
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Media deleted successfully.',
+            'id'      => $id,
+        ], 200);
+
+    } catch (\Exception $e) {
+        Log::error('Snapshot destroy image failed: ' . $e->getMessage());
+
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong.',
+            'error'   => config('app.debug') ? $e->getMessage() : null, // hide details in production
+        ], 500);
+    }
+}
+
 
     
 public function snapshotupdateStatus(Request $request)
@@ -1980,13 +2092,59 @@ public function snapshotupdateStatus(Request $request)
 }
 
 
-    public function snapshotsdelete($id)
-    {
-        $snapshot = Snapshot::findOrFail($id);
+  public function snapshotsdelete($id)
+{
+    try {
+        // ✅ Find snapshot
+        $snapshot = Snapshot::find($id);
+
+        if (!$snapshot) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Snapshot not found.',
+            ], 404);
+        }
+
+        // ✅ Get all media linked to this snapshot
+        $mediaFiles = SnapshotMedia::where('snapshotid', $id)->get();
+
+        foreach ($mediaFiles as $media) {
+            $filePath = public_path($media->mediaUrl);
+
+            // ✅ Delete physical file
+            if (file_exists($filePath)) {
+                try {
+                    @unlink($filePath);
+                } catch (\Exception $e) {
+                    Log::warning("Failed to delete file: {$filePath}. Error: " . $e->getMessage());
+                }
+            } else {
+                Log::info("File already missing: {$filePath}");
+            }
+
+            // ✅ Delete DB record for media
+            $media->delete();
+        }
+
+        // ✅ Delete snapshot record itself
         $snapshot->delete();
 
-        return response()->json(['status' => 'success']);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Snapshot and all related media deleted successfully.',
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error("Snapshot delete failed: " . $e->getMessage());
+
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Something went wrong while deleting snapshot.',
+            'error'   => config('app.debug') ? $e->getMessage() : null,
+        ], 500);
     }
+}
+
 
     
 }

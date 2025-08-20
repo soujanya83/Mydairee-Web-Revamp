@@ -169,16 +169,19 @@ class ApiHealthyController extends Controller
 
         try {
             $user = Auth::user();
-
+ $nowSydney = now()->setTimezone('Australia/Sydney');
 
             $recipe = RecipeModel::create([
                 'itemName'  => $request->itemName,
                 'type'      => $request->mealType,
                 'recipe'    => $request->recipe,
                 'createdBy' => $user->id,
-                'centerid'  => $request->centerId
+                'centerid'  => $request->centerId,
+              
 
             ]);
+
+            
 
             // Link ingredient
             DB::table('recipe_ingredients')->insert([
