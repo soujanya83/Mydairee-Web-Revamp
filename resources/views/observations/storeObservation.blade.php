@@ -901,36 +901,37 @@
 </style>
 
 
+
+
+@section('content')
+
 <style>
- /* Force immediate display control */
-.collapse {
+/* Only apply to accordions with rdp-accordion class */
+.rdp-accordion .collapse {
     display: none !important;
 }
 
-.collapse.show {
+.rdp-accordion .collapse.show {
     display: block !important;
 }
 
-/* Override any Bootstrap interference */
-.collapse:not(.show) {
+.rdp-accordion .collapse:not(.show) {
     display: none !important;
     height: auto !important;
 }
 
-.collapse.show {
+.rdp-accordion .collapse.show {
     display: block !important;
     height: auto !important;
 }
 
-/* Completely disable transitions */
-.collapse, .collapsing {
+.rdp-accordion .collapse, 
+.rdp-accordion .collapsing {
     transition: none !important;
     -webkit-transition: none !important;
     animation: none !important;
 }
     </style>
-
-@section('content')
 
 @if(isset($observation) && $observation->id)
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
@@ -1184,7 +1185,7 @@
     <div class="tab-content mt-3" id="learning-tabs">
     @foreach($subjects as $subject)
         <div class="tab-pane" id="subject-{{ $subject->idSubject }}" role="tabpanel">
-            <div id="learning-accordion-{{ $subject->idSubject }}">
+            <div class="accordion rdp-accordion" id="learning-accordion-{{ $subject->idSubject }}">
                 @foreach($subject->activities as $act)
                     <div class="card mb-2">
                         <div class="card-header" id="learning-heading-{{ $act->idActivity }}">
@@ -1290,7 +1291,7 @@
   <div class="tab-content" id="eylf-tabs">
     @foreach($outcomes as $o)
       <div class="tab-pane" id="eylf-outcome-{{ $o->id }}">
-        <div id="eylf-accordion-{{ $o->id }}">
+        <div class="accordion rdp-accordion" id="eylf-accordion-{{ $o->id }}">
           @foreach($o->activities as $act)
             <div class="card mb-2">
               <div class="card-header" id="eylf-heading-{{ $act->id }}">
@@ -1355,7 +1356,7 @@
   <div class="tab-content" id="devmilestone-tabs">
     @foreach($milestones as $ms)
       <div class="tab-pane" id="dev-age-{{ $ms->id }}">
-        <div id="devmilestone-accordion-{{ $ms->id }}">
+        <div class="accordion rdp-accordion" id="devmilestone-accordion-{{ $ms->id }}">
           @foreach($ms->mains as $main)
             <!-- Accordion Card -->
             <div class="card mb-2">
