@@ -244,8 +244,13 @@ public function getSleepChecksList(Request $request)
 
 
     // Convert date to Y-m-d
-    $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate);
+     $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate, new \DateTimeZone('Australia/Sydney'));
     $mysqlDate = $date ? $date->format('Y-m-d') : null;
+
+    // Get current datetime in Australia/Sydney
+    $nowSydney = now()->setTimezone('Australia/Sydney');
+
+  
 
     // Get logged in user ID (you can also use Auth::id() if using Laravel auth)
     $createdBy = Auth::user()->userid;
@@ -261,7 +266,8 @@ public function getSleepChecksList(Request $request)
         'body_temperature' => $request->body_temperature,
         'notes'            => $request->notes,
         'createdBy'        => $createdBy,
-        'created_at'       => now(),
+        'created_at'       =>  $nowSydney,
+        'signature' => $request->signature
     ]);
 
     if ($check) {
@@ -315,7 +321,7 @@ public function sleepcheckUpdate(Request $request)
 
 
     // Convert diarydate to Y-m-d
-    $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate);
+     $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate, new \DateTimeZone('Australia/Sydney'));
     $mysqlDate = $date ? $date->format('Y-m-d') : null;
 
     // Find and update
@@ -327,6 +333,7 @@ public function sleepcheckUpdate(Request $request)
     $entry->breathing = $request->breathing;
     $entry->body_temperature = $request->body_temperature;
     $entry->notes = $request->notes;
+      $entry->signature = $request->signature;
 
     $updated = $entry->isDirty() ? $entry->save() : false;
 

@@ -61,7 +61,7 @@
     position: relative;
     display: inline-block;
     color: #0dcaf0; /* neutral bell color */
-    font-size: 35px; /* bigger bell */
+    font-size: 35px; /* fixed bell size */
     transition: transform 0.2s ease;
 }
 
@@ -80,21 +80,38 @@
 
 .notification-count {
     position: absolute;
-    top: 0.5rem;  /* slightly above bell */
-    right: 0.6rem; /* slightly to the right */
+    top: 0.5rem;  
+    right: 0.6rem; 
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 15px;   /* small circle like in the image */
+    width: 15px;   /* fixed circle size */
     height: 15px;
     font-size: 10px;
     color: white;
-    background-color: #0dcaf0; /* classic red badge */
+    background-color: #0dcaf0; 
     border-radius: 50%;
     font-weight: bold;
     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     z-index: 2;
 }
+
+/* 📱 Small screens: adjust badge alignment */
+@media (max-width: 576px) {
+    .notification-count {
+        top: 0.4rem;
+        right: 0.4rem;
+    }
+}
+
+/* 💻 Large screens: slightly adjust for balance */
+@media (min-width: 1200px) {
+    .notification-count {
+        top: 0.55rem;
+        right: 0.7rem;
+    }
+}
+
 </style>
 <nav class="navbar navbar-fixed-top" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
     <div class="container-fluid">

@@ -1645,9 +1645,9 @@
 <div class="modal" id="TitleModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
-      <div class="modal-header d-flex align-items-center justify-content-between">
+      <div class="modal-header d-flex align-items-center justify-content-center">
        
-      
+      <h4 class="">New Observation</h4>
       </div>
       <form action="{{ route('observation.storeTitle') }}" method="post">
         @csrf
@@ -1782,7 +1782,7 @@ console.log("Validation errors:", data.errors);
 Object.keys(data.errors).forEach(key => {
     let fieldName = friendlyNames[key] || key;
     // Show simple "Field is required" message
-    showToast('toast-error', `${fieldName} is required`);
+    // showToast('toast-error', `${fieldName} is required`);
 });
                
                  

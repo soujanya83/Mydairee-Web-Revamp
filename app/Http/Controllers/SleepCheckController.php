@@ -241,11 +241,9 @@ public function getSleepChecksList(Request $request)
 
       
 
-        public function sleepcheckSave(Request $request)
+public function sleepcheckSave(Request $request)
 {
-    // Validate incoming request
-    // dd('here');
-    $validator = $request->validate( [
+    $validator = $request->validate([
         'childid'          => 'required|integer|exists:child,id',
         'diarydate'        => 'required|date_format:d-m-Y',
         'roomid'           => 'required|integer|exists:room,id',
@@ -253,15 +251,17 @@ public function getSleepChecksList(Request $request)
         'breathing'        => 'nullable|string',
         'body_temperature' => 'nullable|string',
         'notes'            => 'nullable|string',
-        'signature' => 'nullable|string'
+        'signature'        => 'nullable|string'
     ]);
-// dd($request->signature);
 
-    // Convert date to Y-m-d
-    $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate);
+    // Convert date to Y-m-d and set timezone to Australia/Sydney
+    $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate, new \DateTimeZone('Australia/Sydney'));
     $mysqlDate = $date ? $date->format('Y-m-d') : null;
 
-    // Get logged in user ID (you can also use Auth::id() if using Laravel auth)
+    // Get current datetime in Australia/Sydney
+    $nowSydney = now()->setTimezone('Australia/Sydney');
+
+    // Get logged in user ID
     $createdBy = Auth::user()->userid;
 
     // Save record
@@ -274,8 +274,8 @@ public function getSleepChecksList(Request $request)
         'body_temperature' => $request->body_temperature,
         'notes'            => $request->notes,
         'createdBy'        => $createdBy,
-        'created_at'       => now(),
-        'signature' => $request->signature
+        'created_at'       => $nowSydney,
+        'signature'        => $request->signature
     ]);
 
     if ($check) {
@@ -292,6 +292,7 @@ public function getSleepChecksList(Request $request)
 }
 
 
+
 public function sleepcheckUpdate(Request $request)
 {
     // Validate input
@@ -304,38 +305,41 @@ public function sleepcheckUpdate(Request $request)
         'breathing'        => 'nullable|string',
         'body_temperature' => 'nullable|string',
         'notes'            => 'nullable|string',
-        'signature' => 'nullable|string'
+        'signature'        => 'nullable|string'
     ]);
 
-    // Convert diarydate to Y-m-d
-    $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate);
+    // Convert diarydate to Y-m-d in Australia/Sydney timezone
+    $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate, new \DateTimeZone('Australia/Sydney'));
     $mysqlDate = $date ? $date->format('Y-m-d') : null;
 
-    // Find and update
+    // Find and update the record
     $entry = DailyDiarySleepChecklist::find($request->id);
-    $entry->childid = $request->childid;
-    $entry->diarydate = $mysqlDate;
-    $entry->roomid = $request->roomid;
-    $entry->time = $request->time;
-    $entry->breathing = $request->breathing;
-    $entry->body_temperature = $request->body_temperature;
-    $entry->notes = $request->notes;
-     $entry->signature = $request->signature;
 
+    $entry->childid          = $request->childid;
+    $entry->diarydate         = $mysqlDate;
+    $entry->roomid            = $request->roomid;
+    $entry->time              = $request->time;
+    $entry->breathing         = $request->breathing;
+    $entry->body_temperature  = $request->body_temperature;
+    $entry->notes             = $request->notes;
+    $entry->signature         = $request->signature;
+
+    // Only save if there are changes
     $updated = $entry->isDirty() ? $entry->save() : false;
 
     if ($updated) {
         return response()->json([
-            'success' => true,
+            'status' => true,
             'message' => 'Updated successfully'
         ]);
     } else {
         return response()->json([
-            'success' => false,
+            'status' => false,
             'message' => 'No changes made or update failed'
         ]);
     }
 }
+
             
         public function sleepcheckDelete(Request $request)
         {

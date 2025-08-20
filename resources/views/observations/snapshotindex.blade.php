@@ -389,7 +389,7 @@
 }
 
 .snapshot-img {
-    max-height: 400px;
+    max-height: 500px;
     width: auto;
     transition: opacity 0.3s;
     border-radius: 8px;
@@ -722,7 +722,7 @@
     </div>
 
 <div class="modal" id="snapshotModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
 
       <!-- Modal Header -->
