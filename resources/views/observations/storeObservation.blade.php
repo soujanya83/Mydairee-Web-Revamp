@@ -902,32 +902,31 @@
 
 
 <style>
- /* Completely disable all collapse transitions */
-.collapse,
-.collapse.show,
-.collapsing {
-    transition: none !important;
-    animation: none !important;
-    -webkit-transition: none !important;
-    -moz-transition: none !important;
-    -o-transition: none !important;
-}
-
-/* Force immediate height behavior */
-.collapse:not(.show) {
-    height: 0 !important;
-    overflow: hidden !important;
+ /* Force immediate display control */
+.collapse {
+    display: none !important;
 }
 
 .collapse.show {
-    height: auto !important;
-    overflow: visible !important;
+    display: block !important;
 }
 
-/* Remove collapsing class behavior completely */
-.collapsing {
+/* Override any Bootstrap interference */
+.collapse:not(.show) {
+    display: none !important;
     height: auto !important;
-    overflow: visible !important;
+}
+
+.collapse.show {
+    display: block !important;
+    height: auto !important;
+}
+
+/* Completely disable transitions */
+.collapse, .collapsing {
+    transition: none !important;
+    -webkit-transition: none !important;
+    animation: none !important;
 }
     </style>
 
@@ -3224,34 +3223,65 @@ function showToast(type, message) {
 
 </script>
 <script>
-   // Disable Bootstrap's collapse and use custom implementation
-$(document).off('click.bs.collapse.data-api');
-
-$(document).on('click', '[data-toggle="collapse"]', function(e) {
-    e.preventDefault();
+$(document).ready(function() {
+    // First, initialize all collapse states properly
+    $('.collapse').each(function() {
+        const $collapse = $(this);
+        const $button = $('[data-target="#' + $collapse.attr('id') + '"]');
+        
+        // Force initial closed state
+        if (!$collapse.hasClass('show')) {
+            $collapse.hide().removeClass('show');
+            $button.addClass('collapsed').attr('aria-expanded', 'false');
+        } else {
+            $collapse.show().addClass('show');
+            $button.removeClass('collapsed').attr('aria-expanded', 'true');
+        }
+    });
     
-    const target = $(this).attr('data-target');
-    const $target = $(target);
-    const $button = $(this);
-    const parent = $button.attr('data-parent');
+    // Remove bootstrap collapse behavior
+    $(document).off('click.bs.collapse.data-api');
     
-    // Clean up all collapsing states
-    $('.collapsing').removeClass('collapsing').removeAttr('style');
-    
-    if (parent) {
-        // Close all other items in accordion
-        $(parent).find('.collapse.show').removeClass('show').removeAttr('style');
-        $(parent).find('[data-toggle="collapse"]').addClass('collapsed').attr('aria-expanded', 'false');
-    }
-    
-    // Toggle current item
-    if ($target.hasClass('show')) {
-        $target.removeClass('show').removeAttr('style');
-        $button.addClass('collapsed').attr('aria-expanded', 'false');
-    } else {
-        $target.addClass('show').removeAttr('style');
-        $button.removeClass('collapsed').attr('aria-expanded', 'true');
-    }
+    $(document).on('click', '[data-toggle="collapse"]', function(e) {
+        e.preventDefault();
+        
+        const $button = $(this);
+        const target = $button.attr('data-target');
+        const $target = $(target);
+        const parent = $button.attr('data-parent');
+        
+        // Clean up any stuck states
+        $('.collapsing').removeClass('collapsing').removeAttr('style');
+        
+        console.log('=== CLICK DEBUG ===');
+        console.log('Target is visible:', $target.is(':visible'));
+        console.log('Target display:', $target.css('display'));
+        console.log('Button aria-expanded:', $button.attr('aria-expanded'));
+        
+        // Use aria-expanded as the source of truth instead of visibility
+        const isCurrentlyOpen = $button.attr('aria-expanded') === 'true';
+        
+        if (isCurrentlyOpen) {
+            // CLOSE IT
+            $target.hide().removeClass('show');
+            $button.addClass('collapsed').attr('aria-expanded', 'false');
+            console.log('CLOSING element');
+        } else {
+            // OPEN IT (and close others in accordion)
+            if (parent) {
+                $(parent).find('.collapse').hide().removeClass('show');
+                $(parent).find('[data-toggle="collapse"]').addClass('collapsed').attr('aria-expanded', 'false');
+            }
+            
+            $target.show().addClass('show');
+            $button.removeClass('collapsed').attr('aria-expanded', 'true');
+            console.log('OPENING element');
+        }
+        
+        console.log('Final aria-expanded:', $button.attr('aria-expanded'));
+        console.log('Final visible:', $target.is(':visible'));
+        console.log('==================');
+    });
 });
 </script>
 
