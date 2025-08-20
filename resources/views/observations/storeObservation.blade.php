@@ -901,11 +901,28 @@
 </style>
 
 
-<!-- <style>
-  .collapsing {
-    transition: height 0s !important;
+<style>
+ /* Disable animations for better RDP compatibility */
+@media (prefers-reduced-motion: reduce) {
+  .collapse {
+    transition: none !important;
+  }
+  .modal.fade {
+    transition: none !important;
+  }
+  .fade {
+    transition: none !important;
+  }
 }
-    </style> -->
+
+/* Or force disable for all environments */
+.collapse {
+  transition: none !important;
+}
+/* .modal.fade {
+  transition: none !important;
+} */
+    </style>
 
 @section('content')
 
@@ -3200,39 +3217,7 @@ function showToast(type, message) {
 
 </script>
 
-<script>
-   // Force collapse to toggle immediately without waiting for CSS transitions
-(function ($) {
-    var Collapse = $.fn.collapse.Constructor;
 
-    Collapse.prototype._transitionComplete = function (element, isOpen) {
-        element.removeClass('collapsing').addClass('collapse');
-        if (isOpen) {
-            element.addClass('show');
-            element.trigger('shown.bs.collapse');
-        } else {
-            element.trigger('hidden.bs.collapse');
-        }
-    };
-
-    Collapse.prototype.show = function () {
-        var element = this.$element;
-        if (element.hasClass('show') || element.hasClass('collapsing')) return;
-
-        element.removeClass('collapse').addClass('collapsing');
-        this._transitionComplete(element, true);
-    };
-
-    Collapse.prototype.hide = function () {
-        var element = this.$element;
-        if (!element.hasClass('show')) return;
-
-        element.removeClass('show').addClass('collapsing');
-        this._transitionComplete(element, false);
-    };
-})(jQuery);
-
-</script>
 
 @include('layout.footer')
 @stop
