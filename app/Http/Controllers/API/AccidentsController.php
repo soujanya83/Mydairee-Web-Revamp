@@ -27,8 +27,77 @@ use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Validator;
 
+
 class AccidentsController extends Controller
 {
+
+ 
+
+public function AccidentDelete(Request $r)
+{
+    // ✅ Validate request with Validator
+    $validator = Validator::make($r->all(), [
+        'accidentid' => 'required|integer|exists:accidents,id'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed',
+            'errors'  => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        // Find accident record
+        $accident = AccidentsModel::find($r->accidentid);
+
+        if (!$accident) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Accident record not found'
+            ], 404);
+        }
+
+        // Map DB columns to file name prefixes
+        $imageMappings = [
+            'person_sign'              => "personSign",
+            'witness_sign'             => "witnessSign",
+            'injury_image'             => "injuryImage",
+            'responsible_person_sign'  => "personInchargeSign",
+            'nominated_supervisor_sign'=> "supervisorSign",
+        ];
+
+        // ✅ Delete related image files if exist
+        foreach ($imageMappings as $field => $prefix) {
+            if (!empty($accident->$field)) {
+                $oldPath = public_path("uploads/accidents/" . basename($accident->$field));
+                if (File::exists($oldPath)) {
+                    File::delete($oldPath);
+                }
+            }
+        }
+
+        // ✅ Delete related illness records
+        AccidentIllnessModel::where('accident_id', $r->accidentid)->delete();
+
+        // ✅ Delete accident record
+        $accident->delete();
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Accident record deleted successfully'
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong while deleting accident record',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
+}
+
 
 public function AccidentsList(Request $request)
 {

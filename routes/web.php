@@ -315,6 +315,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     Route::prefix('settings')->name('settings.')->group(function () {
 
+             Route::post('/updateStatusSuperadmin', [SettingsController::class, 'updateStatusSuperadmin'])->name('updateStatusSuperadmin');
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
         Route::get('/filter-admins', [SettingsController::class, 'filterByAdminName'])->name('filter-admins');
         Route::delete('/superadmin/{id}', [SettingsController::class, 'destroy'])->name('superadmin.destroy');

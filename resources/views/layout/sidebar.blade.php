@@ -238,7 +238,7 @@
                         </li>
                     @endif
 
-                        @if(auth()->user()->userType == 'Superadmin')
+                        @if(auth()->user()->userType == 'Superadmin' || auth()->user()->admin == 1)
                         <li class="{{ Request::segment(1) === 'settings' ? 'active open' : null }}">
                             <a href="#settings" data-toggle="tooltip" data-placement="right" class="d-flex justify-content-between align-items-center">
                                 <div>
