@@ -36,6 +36,7 @@ class User extends Authenticatable
         'created_by',
         'email_verified_at',
         'has_seen_login_notice',
+        'admin'
     ];
 
 

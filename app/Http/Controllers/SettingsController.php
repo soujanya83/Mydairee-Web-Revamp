@@ -342,6 +342,7 @@ public function updateStatusSuperadmin(Request $request)
     public function assign_user_permissions(Request $request)
     {
         try {
+            // dd($request->admin);
             $userIds = $request->input('user_ids', []);
             $checkedPermissions = $request->input('permissions', []);
 
@@ -353,12 +354,16 @@ public function updateStatusSuperadmin(Request $request)
 
             foreach ($userIds as $userId) {
                 // Check if the record exists
+                $user = User::find($userId);
+                $user->admin = $request->admin;
+                $user->save();
                 $permissionRecord = Permission::where('userid', $userId)->first();
 
                 if (!$permissionRecord) {
                     $permissionRecord = new Permission();
                     $permissionRecord->userid = $userId;
                     $permissionRecord->centerid = $centerId;
+                    
                 }
 
                 // Get all permission column names from table (excluding id, userid, centerid)

@@ -901,13 +901,37 @@
 </style>
 
 
-<!-- <style>
-  .collapsing {
-    transition: height 0s !important;
-}
-    </style> -->
+
 
 @section('content')
+
+<style>
+/* Only apply to accordions with rdp-accordion class */
+.rdp-accordion .collapse {
+    display: none !important;
+}
+
+.rdp-accordion .collapse.show {
+    display: block !important;
+}
+
+.rdp-accordion .collapse:not(.show) {
+    display: none !important;
+    height: auto !important;
+}
+
+.rdp-accordion .collapse.show {
+    display: block !important;
+    height: auto !important;
+}
+
+.rdp-accordion .collapse, 
+.rdp-accordion .collapsing {
+    transition: none !important;
+    -webkit-transition: none !important;
+    animation: none !important;
+}
+    </style>
 
 @if(isset($observation) && $observation->id)
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
@@ -1161,7 +1185,7 @@
     <div class="tab-content mt-3" id="learning-tabs">
     @foreach($subjects as $subject)
         <div class="tab-pane" id="subject-{{ $subject->idSubject }}" role="tabpanel">
-            <div id="learning-accordion-{{ $subject->idSubject }}">
+            <div class="accordion rdp-accordion" id="learning-accordion-{{ $subject->idSubject }}">
                 @foreach($subject->activities as $act)
                     <div class="card mb-2">
                         <div class="card-header" id="learning-heading-{{ $act->idActivity }}">
@@ -1267,7 +1291,7 @@
   <div class="tab-content" id="eylf-tabs">
     @foreach($outcomes as $o)
       <div class="tab-pane" id="eylf-outcome-{{ $o->id }}">
-        <div id="eylf-accordion-{{ $o->id }}">
+        <div class="accordion rdp-accordion" id="eylf-accordion-{{ $o->id }}">
           @foreach($o->activities as $act)
             <div class="card mb-2">
               <div class="card-header" id="eylf-heading-{{ $act->id }}">
@@ -1332,7 +1356,7 @@
   <div class="tab-content" id="devmilestone-tabs">
     @foreach($milestones as $ms)
       <div class="tab-pane" id="dev-age-{{ $ms->id }}">
-        <div id="devmilestone-accordion-{{ $ms->id }}">
+        <div class="accordion rdp-accordion" id="devmilestone-accordion-{{ $ms->id }}">
           @foreach($ms->mains as $main)
             <!-- Accordion Card -->
             <div class="card mb-2">
@@ -3199,14 +3223,70 @@ function showToast(type, message) {
 
 
 </script>
-
 <script>
-    // Force Bootstrap collapse to skip animation (fix for RDP issue)
-    if ($.fn.collapse.Constructor) {
-        $.fn.collapse.Constructor.TRANSITION_DURATION = 0;
-        $.fn.collapse.Constructor._TRANSITION_DURATION = 0;
-    }
+$(document).ready(function() {
+    // First, initialize all collapse states properly
+    $('.collapse').each(function() {
+        const $collapse = $(this);
+        const $button = $('[data-target="#' + $collapse.attr('id') + '"]');
+        
+        // Force initial closed state
+        if (!$collapse.hasClass('show')) {
+            $collapse.hide().removeClass('show');
+            $button.addClass('collapsed').attr('aria-expanded', 'false');
+        } else {
+            $collapse.show().addClass('show');
+            $button.removeClass('collapsed').attr('aria-expanded', 'true');
+        }
+    });
+    
+    // Remove bootstrap collapse behavior
+    $(document).off('click.bs.collapse.data-api');
+    
+    $(document).on('click', '[data-toggle="collapse"]', function(e) {
+        e.preventDefault();
+        
+        const $button = $(this);
+        const target = $button.attr('data-target');
+        const $target = $(target);
+        const parent = $button.attr('data-parent');
+        
+        // Clean up any stuck states
+        $('.collapsing').removeClass('collapsing').removeAttr('style');
+        
+        console.log('=== CLICK DEBUG ===');
+        console.log('Target is visible:', $target.is(':visible'));
+        console.log('Target display:', $target.css('display'));
+        console.log('Button aria-expanded:', $button.attr('aria-expanded'));
+        
+        // Use aria-expanded as the source of truth instead of visibility
+        const isCurrentlyOpen = $button.attr('aria-expanded') === 'true';
+        
+        if (isCurrentlyOpen) {
+            // CLOSE IT
+            $target.hide().removeClass('show');
+            $button.addClass('collapsed').attr('aria-expanded', 'false');
+            console.log('CLOSING element');
+        } else {
+            // OPEN IT (and close others in accordion)
+            if (parent) {
+                $(parent).find('.collapse').hide().removeClass('show');
+                $(parent).find('[data-toggle="collapse"]').addClass('collapsed').attr('aria-expanded', 'false');
+            }
+            
+            $target.show().addClass('show');
+            $button.removeClass('collapsed').attr('aria-expanded', 'true');
+            console.log('OPENING element');
+        }
+        
+        console.log('Final aria-expanded:', $button.attr('aria-expanded'));
+        console.log('Final visible:', $target.is(':visible'));
+        console.log('==================');
+    });
+});
 </script>
+
+
 
 @include('layout.footer')
 @stop
