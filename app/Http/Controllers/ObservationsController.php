@@ -121,13 +121,21 @@ class ObservationsController extends Controller
                 ->where('centerid', $centerid)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
+                
 
         } elseif (Auth::user()->userType == "Staff") {
 
-            $observations = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
-                ->where('userId', $authId)
-                ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page
+            // $observations = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
+            //     ->where('userId', $authId)
+            //     ->orderBy('id', 'desc') // optional: to show latest first
+            //     ->paginate(10); // 10 items per page
+
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
+    ->where('userid', $authId) // your created
+    ->orWhereRaw("FIND_IN_SET(?, tagged_staff)", [$authId]) // your tagged
+    ->orderBy('id', 'desc')
+    ->paginate(10);
+
 
         } else {
 
@@ -1114,12 +1122,13 @@ public function autosaveobservation(Request $request)
         $rules = [
             'selected_rooms'    => 'required',
             'obestitle'         => 'required|string',
-            'title'             => 'required|string',
+            'title'             => 'nullable|string',
             'notes'             => 'nullable|string',
             'reflection'        => 'nullable|string',
             'child_voice'       => 'nullable|string',
             'future_plan'       => 'nullable|string',
             'selected_children' => 'required|string',
+            'selected_staff' => 'nullable|string'
         ];
 
 
@@ -1147,6 +1156,11 @@ public function autosaveobservation(Request $request)
             ], 422);
         }
 
+        $taggedStaff = "";
+        if(!empty($request->selected_staff)){
+            $taggedStaff = $request->selected_staff;
+        }
+
         DB::beginTransaction();
 
         try {
@@ -1164,6 +1178,7 @@ public function autosaveobservation(Request $request)
             $observation->reflection   = $request->input('reflection');
             $observation->child_voice  = $request->input('child_voice');
             $observation->future_plan  = $request->input('future_plan');
+            $observation->tagged_staff = $taggedStaff;
             if (!$isEdit) {
                 $observation->userId   = $authId; // Only set when creating
             }

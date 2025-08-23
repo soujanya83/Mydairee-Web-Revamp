@@ -221,7 +221,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
 
         Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
         Route::get('/manage_permissions', [SettingsController::class, 'manage_permissions'])->name('manage_permissions');
-        Route::get('user/permissions', [SettingsController::class, 'user_permissions'])->name('allusers_permissions');
+        Route::get('user/permissions', [SettingsController::class, 'show'])->name('allusers_permissions');
         Route::post('/parent/store', [SettingsController::class, 'parent_store'])->name('parent.store');
         Route::post('/assign-permissions', [SettingsController::class, 'assign_user_permissions'])->name('assign_permissions');
         Route::get('permissions-assigned', [SettingsController::class, 'assigned_permissions'])->name('assigned_permissions');

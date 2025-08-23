@@ -242,7 +242,7 @@ $edit = 1;
                                         data-placement="top" title="You need permission to save!">Save</button>
                                     @endif
                                     @else
-                                    @if ($add)
+                                    @if ($permissions->addAnnouncement)
                                     <button type="submit" class="btn btn-outline-info my-2">Save</button>
                                     @else
                                     <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip"

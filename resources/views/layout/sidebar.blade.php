@@ -156,7 +156,7 @@
 
 
                         @if(  in_array(auth()->user()->userType, ['Superadmin']) ||
-    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement']))
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement']) || auth()->user()->admin == 1)
 
                         <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
                             <a href="{{ route('announcements.list') }}" data-toggle="tooltip" data-placement="right"> <i class="fa fa-bullhorn"

@@ -40,6 +40,7 @@ class DashboardController extends BaseController
         $auth = Auth::user();
         $userid = $auth->userid;
         $usertype = $auth->userType;
+           $centerid = session('user_center_id');
         // dd($usertype);
 
         if ($usertype === 'Parent') {
@@ -53,8 +54,16 @@ class DashboardController extends BaseController
 
             // 3. Fetch only announcements for these IDs
             $announcements = AnnouncementsModel::whereIn('id', $announcementIds)->get();
-        } else {
+        } else if(Auth::user()->userType == "Staff" || Auth::user()->userType == "Superadmin") {
             // Not a parent → fetch all announcements
+            $announcements = AnnouncementsModel::where('centerid',$centerid)->get();
+
+            if(Auth::user()->userType == "Staff"){
+ $announcements = AnnouncementsModel::where('centerid',$centerid)->where('createdBy',Auth::user()->userid)->get();
+            }
+
+            // dd( $announcements);
+        }else{
             $announcements = AnnouncementsModel::all();
         }
 
@@ -62,7 +71,7 @@ class DashboardController extends BaseController
             return [
                 'id'                => $announcement->id,
                 'title'             => $announcement->title,
-                'text'              => $announcement->text ?? '',
+                'text'              => $this->cleanText($announcement->text) ?? '',
                 'status'            => $announcement->status ?? '',
                 'announcementMedia' => $announcement->announcementMedia ?? '',
                 'eventDate'         => $announcement->eventDate
@@ -84,6 +93,28 @@ class DashboardController extends BaseController
         ]);
     }
 
+    
+private function cleanText($text)
+{
+    if (empty($text)) {
+        return '';
+    }
+
+    // 1. Remove all HTML tags
+    $cleanText = strip_tags($text);
+
+    // 2. Decode HTML entities (&amp; → &, &nbsp; → space)
+    $cleanText = html_entity_decode($cleanText, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+    // 3. Remove control / unknown characters
+    $cleanText = preg_replace('/[^\P{C}\n]+/u', '', $cleanText);
+
+    // 4. Normalize multiple spaces/newlines
+    $cleanText = preg_replace('/\s+/', ' ', $cleanText);
+
+    // 5. Final trim
+    return trim($cleanText);
+}
 
 
     public function getUser()
