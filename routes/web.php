@@ -89,7 +89,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     Route::get('programPlanList', [LessonPlanList::class, 'programPlanList'])->name('programPlanList');
 
-  
+
     Route::get('LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans');
     Route::get('programPlan/create', [LessonPlanList::class, 'createForm'])->name('create.programplan');
     Route::post('LessonPlanList/deletedataofprogramplan', [LessonPlanList::class, 'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
@@ -102,10 +102,10 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     // ajax ends
     Route::post('programPlan', [LessonPlanList::class, 'store'])->name('store.programPlan');
 
-     Route::post('programPlan/autosave', [LessonPlanList::class, 'programplanAutosave'])->name('programplan.autosave');
+    Route::post('programPlan/autosave', [LessonPlanList::class, 'programplanAutosave'])->name('programplan.autosave');
 
-     Route::post('programplan/MonthYear', [LessonPlanList::class, 'programplanMonthYear'])->name('programplan.MonthYear');
-    Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus'])->name('update-program-plan-status');
+    Route::post('programplan/MonthYear', [LessonPlanList::class, 'programplanMonthYear'])->name('programplan.MonthYear');
+    Route::post('/update-program-plan-status', [LessonPlanList::class, 'updatestatus'])->name('update-program-plan-status');
     // Route::post('/update-program-plan-status', [LessonPlanList::class, 'updatestatus'])->name('update-program-plan-status');
 
     Route::post('Observation/addActivity', [ObservationController::class, 'addActivity'])->name('Observation.addActivity');
@@ -279,6 +279,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     Route::post('/rooms/update/{id}', [RoomController::class, 'rooms_update'])->name('room_update');
     Route::post('/rooms/{roomid}/assign-educators', [RoomController::class, 'assignEducators'])->name('rooms.assign.educators');
+    Route::patch('/children/{id}/toggle-status', [RoomController::class, 'toggleStatus'])
+        ->name('children.toggleStatus');
 
 
     // recipe
@@ -315,7 +317,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     Route::prefix('settings')->name('settings.')->group(function () {
 
-             Route::post('/updateStatusSuperadmin', [SettingsController::class, 'updateStatusSuperadmin'])->name('updateStatusSuperadmin');
+        Route::post('/updateStatusSuperadmin', [SettingsController::class, 'updateStatusSuperadmin'])->name('updateStatusSuperadmin');
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
         Route::get('/filter-admins', [SettingsController::class, 'filterByAdminName'])->name('filter-admins');
         Route::delete('/superadmin/{id}', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
@@ -386,7 +388,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::post('/store', [ObservationsController::class, 'store'])->name('store');
         Route::post('/autosave-observation', [ObservationsController::class, 'autosaveobservation'])->name('autosave-observation');
 
-          Route::post('/storeTitle', [ObservationsController::class, 'storeTitle'])->name('storeTitle');
+        Route::post('/storeTitle', [ObservationsController::class, 'storeTitle'])->name('storeTitle');
         Route::post('/refine-text', [ObservationsController::class, 'refine'])->name('refine.text');
 
         Route::delete('/observation-media/{id}', [ObservationsController::class, 'destroyimage']);
@@ -413,14 +415,14 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::prefix('reflection')->name('reflection.')->group(function () {
 
         Route::get('/index', [ReflectionController::class, 'index'])->name('index');
-  Route::get('/addnew/{id}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
+        Route::get('/addnew/{id}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
         Route::get('/addnew', [ReflectionController::class, 'storepage'])->name('addnew');
-      
+
         Route::get('/print/{id?}', [ReflectionController::class, 'print'])->name('print');
 
-         Route::post('/storetitle', [ReflectionController::class, 'storeTitle'])->name('storeTitle');
+        Route::post('/storetitle', [ReflectionController::class, 'storeTitle'])->name('storeTitle');
         Route::post('/store', [ReflectionController::class, 'store'])->name('store');
-     Route::post('/autosave-reflection', [ReflectionController::class, 'autosavereflection'])->name('autosave-reflection');
+        Route::post('/autosave-reflection', [ReflectionController::class, 'autosavereflection'])->name('autosave-reflection');
         Route::delete('/reflection-media/{id}', [ReflectionController::class, 'destroyimage']);
 
         Route::post('/status/update', [ReflectionController::class, 'updateStatus'])->name('status.update');
@@ -440,8 +442,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::delete('/snapshot-media/{id}', [ObservationsController::class, 'snapshotdestroyimage']);
         Route::post('/status/update', [ObservationsController::class, 'snapshotupdateStatus'])->name('status.update');
         Route::delete('snapshotsdelete/{id}', [ObservationsController::class, 'snapshotsdelete'])->name('snapshots.snapshotsdelete');
-   Route::get('/view/{id}', [ObservationsController::class, 'viewSnapShot'])->name('view');
-
+        Route::get('/view/{id}', [ObservationsController::class, 'viewSnapShot'])->name('view');
     });
 
 

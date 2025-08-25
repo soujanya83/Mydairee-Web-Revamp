@@ -166,7 +166,7 @@
                         </a>
 
                         <!-- Trigger -->
-                         @if(!empty($permissions['editRoom']) && $permissions['editRoom'])
+                        @if(!empty($permissions['editRoom']) && $permissions['editRoom'])
 
                         <button type="button" class="btn btn-sm " onclick='openEditModal(@json($room))'
                             style="background-color: #f0ece4;">
@@ -220,9 +220,9 @@
 <!-- Room Creation Modal -->
 <div class="modal" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
+        <div class="modal-content card">
             <div class="modal-header">
-                <h5 class="modal-title" id="roomModalLabel">New Room</h5>
+                <h5 class="modal-title" id="roomModalLabel">Create Room</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -267,26 +267,26 @@
                                 <option value="Inactive">Inactive</option>
                             </select>
                         </div>
-                        <div class="form-group col-md-6" style="height: 35px;">
+                        <div class="form-group col-md-6" style="height: 35px;display:none">
                             <label for="txtRoomColor">Color</label>
                             <input type="color" name="room_color" id="txtRoomColor" value="#009DFF" class="form-control"
                                 style="height: 35px;" required>
                         </div>
-                    </div>
 
-                    <div class="form-group col-md-6">
-                        <label for="txtRoomEducators">Educators</label>
-                        <div class="educator-checkbox-list">
-                            @foreach($roomStaffs as $data)
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="educator_{{ $data->staffid }}" name="educators[]"
-                                    value="{{ $data->staffid }}">
-                                <label for="educator_{{ $data->staffid }}">{{ $data->name }}</label>
+
+                        <div class="form-group col-md-6">
+                            <label for="txtRoomEducators">Educators</label>
+                            <div class="educator-checkbox-list">
+                                @foreach($roomStaffs as $data)
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="educator_{{ $data->staffid }}" name="educators[]"
+                                        value="{{ $data->staffid }}">
+                                    <label for="educator_{{ $data->staffid }}">{{ $data->name }}</label>
+                                </div>
+                                @endforeach
                             </div>
-                            @endforeach
                         </div>
                     </div>
-
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-info" id="save-room-btn">Submit</button>
 
@@ -304,7 +304,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <form method="POST" id="editRoomForm">
             @csrf
-            <div class="modal-content">
+            <div class="modal-content card">
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Room</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -343,7 +343,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-6" style="display:none">
                         <label for="editRoomColor">Room Color</label>
                         <input type="color" name="room_color" id="editRoomColor" class="form-control form-control-color"
                             required style="height: 35px;">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Center;
 use App\Models\Child;
+use App\Models\ChildStatusHistory;
 use App\Models\Room;
 use App\Models\RoomStaff;
 use App\Models\Usercenter;
@@ -18,7 +19,27 @@ use Illuminate\Support\Str;
 class RoomController extends Controller
 {
 
- public function assignEducators(Request $request, $roomid)
+    public function toggleStatus($id)
+    {
+        $child = Child::findOrFail($id);
+        $oldStatus = $child->status;
+        $child->status = $child->status === 'Active' ? 'In Active' : 'Active';
+        $child->save();
+        ChildStatusHistory::create([
+            'user_id'      => Auth::id(),
+            'child_id'     => $child->id,
+            'old_status'   => $oldStatus,
+            'new_status'   => $child->status,
+            'date_time'    => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Status updated successfully!');
+    }
+
+
+
+
+    public function assignEducators(Request $request, $roomid)
     {
         DB::table('room_staff')->where('roomid', $roomid)->delete();
         if ($request->has('educators')) {
@@ -87,15 +108,20 @@ class RoomController extends Controller
     public function update_child_progress(Request $request, $id)
     {
 
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             'dob' => 'required|date',
             'startDate' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
-            'status' => 'required|in:Active,Active,Enrolled',
+            'status' => 'required|in:Active,In Active,Enrolled',
             'file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
         $child = Child::findOrFail($id);
         $child->room = $request->roomid ?? null;
         $child->name = $request->firstname;
@@ -151,14 +177,6 @@ class RoomController extends Controller
         return redirect()->back()->with('success', 'Children deleted successfully.');
     }
 
-    // public function childrens_list()
-    // {
-    //     $userId = Auth::user()->id;
-    //     $chilData = Child::select('child.*', 'child.id as childId', 'child.name as childname', 'room.name as roomname', 'room.*', 'child.createdAt as childcreatedate')->where('child.createdBy', $userId)->join('room', 'room.id', '=', 'child.room')->get();
-
-    //     return view('rooms.childrens_list', compact('chilData'));
-    // }
-
     public function childrens_list(Request $request)
     {
         $userId = Auth::user()->id;
@@ -166,10 +184,13 @@ class RoomController extends Controller
             $userId = $userId - 1;
         }
 
-        $rooms = Room::where('name', '!=', null)->where('userId',$userId)->get();
+        $rooms = Room::where('name', '!=', null)
+            ->where('userId', $userId)
+            ->get();
 
         $chilData = Child::select(
             'child.*',
+            'child.status as childstatus',
             'child.id as childId',
             'child.name as childname',
             'room.name as roomname',
@@ -179,8 +200,17 @@ class RoomController extends Controller
             ->where('child.createdBy', $userId)
             ->join('room', 'room.id', '=', 'child.room');
 
+        // Filter by roomId if provided
         if ($request->filled('roomId')) {
             $chilData->where('child.room', $request->roomId);
+        }
+
+        // Filter by full name (childname + lastname) if provided
+        if ($request->filled('childName')) {
+            $chilData->whereRaw(
+                "CONCAT(child.name, ' ', COALESCE(child.lastname, '')) LIKE ?",
+                ['%' . $request->childName . '%']
+            );
         }
 
         $chilData = $chilData->get();
@@ -191,6 +221,41 @@ class RoomController extends Controller
             'selectedRoom' => $request->roomId
         ]);
     }
+
+    // public function childrens_list(Request $request)
+    // {
+    //     $userId = Auth::user()->id;
+    //     if ($userId == 145) {
+    //         $userId = $userId - 1;
+    //     }
+
+    //     $rooms = Room::where('name', '!=', null)
+    //     ->where('userId',$userId)
+    //     ->get();
+
+    //     $chilData = Child::select(
+    //         'child.*',
+    //         'child.id as childId',
+    //         'child.name as childname',
+    //         'room.name as roomname',
+    //         'room.*',
+    //         'child.createdAt as childcreatedate'
+    //     )
+    //         ->where('child.createdBy', $userId)
+    //         ->join('room', 'room.id', '=', 'child.room');
+
+    //     if ($request->filled('roomId')) {
+    //         $chilData->where('child.room', $request->roomId);
+    //     }
+
+    //     $chilData = $chilData->get();
+
+    //     return view('rooms.childrens_list', [
+    //         'chilData' => $chilData,
+    //         'rooms' => $rooms,
+    //         'selectedRoom' => $request->roomId
+    //     ]);
+    // }
 
     public function bulkDelete(Request $request)
     {
@@ -326,7 +391,7 @@ class RoomController extends Controller
         // dd($getrooms);
 
         foreach ($getrooms as $room) {
-            $room->children = Child::where('room', $room->roomid)->get();
+            $room->children = Child::where('room', $room->roomid)->where('status','Active')->get();
             $room->educators = DB::table('room_staff')
                 ->leftJoin('users', 'users.userid', '=', 'room_staff.staffid')
                 ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl')
@@ -347,7 +412,7 @@ class RoomController extends Controller
 
     public function showChildren($roomid)
     {
-        $allchilds = Child::where('room', $roomid)->get();
+        $allchilds = Child::where('room', $roomid)->where('status', 'Active')->get();
         $attendance = [
             'Mon' => $allchilds->sum('mon'),
             'Tue' => $allchilds->sum('tue'),
@@ -383,10 +448,10 @@ class RoomController extends Controller
             'Fri' => $patterns->pluck('days.Fri')->implode('+'),
         ];
         $activechilds = Child::where('room', $roomid)->where('status', 'Active')->count();
-        $enrolledchilds = Child::where('room', $roomid)->where('status', 'Enrolled')->count();
-        $malechilds = Child::where('room', $roomid)->where('gender', 'Male')->count();
-        $femalechilds = Child::where('room', $roomid)->where('gender', 'Female')->count();
-        $rooms = Room::where('capacity', '!=', 0)->where(['status'=> 'Active','centerid'=>$centerid])->get();
+        $enrolledchilds = Child::where('room', $roomid)->where('status', 'Active')->count();
+        $malechilds = Child::where('room', $roomid)->where('gender', 'Male')->where('status', 'Active')->count();
+        $femalechilds = Child::where('room', $roomid)->where('gender', 'Female')->where('status', 'Active')->count();
+        $rooms = Room::where('capacity', '!=', 0)->where(['status' => 'Active', 'centerid' => $centerid])->get();
         $roomcapacity = Room::where('id', $roomid)->first();
 
         $educatorsQuery = DB::table('room_staff')
@@ -416,7 +481,7 @@ class RoomController extends Controller
             'dob' => 'required|date',
             'startDate' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
-            'status' => 'required|in:Active,Active,Enrolled',
+            'status' => 'required|in:Active,In Active,Enrolled',
             'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // optional image
             'id' => 'required|integer|exists:room,id',
         ]);
@@ -487,7 +552,7 @@ class RoomController extends Controller
             'dob' => 'required|date',
             'startDate' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
-            'status' => 'required|in:Active,Active,Enrolled',
+            'status' => 'required|in:Active,In Active,Enrolled',
             'file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
         $child = Child::findOrFail($id);
