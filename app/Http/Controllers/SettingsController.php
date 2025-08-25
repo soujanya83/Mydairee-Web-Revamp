@@ -1194,7 +1194,7 @@ class SettingsController extends Controller
 
                         <p style="margin: 20px 0;">
                             <strong>Need help?</strong> Our dedicated support team is ready to assist you at
-                            <a href="mailto:mydairee47@gmail.com" class="support-email">mydairee47@gmail.com</a>
+                            <a href="mailto:mydiaree2026@gmail.com" class="support-email">mydiaree2026@gmail.com</a>
                         </p>
 
                         <p style="margin: 25px 0 5px 0;">
@@ -1222,7 +1222,7 @@ class SettingsController extends Controller
             // Send email using Laravel Mail
             Mail::send([], [], function ($mail) use ($email, $messageContent) {
                 $mail->to($email)
-                    ->from('mydairee47@gmail.com', 'MyDiaree Support')
+                    ->from('mydiaree2026@gmail.com', 'MyDiaree Support')
                     ->subject('🎉 Welcome to MyDiaree - Your Child\'s Learning Journey Begins!')
                     ->html($messageContent);
             });
