@@ -187,6 +187,29 @@
     }
 
 
+        .select-all-btn2 {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .select-all-btn2:hover {
+        background: rgba(2, 0, 0, 0.3);
+    }
+
+    .select-all-btn2.active {
+        background: var(--success);
+        color: #ffffff;
+    }
+
 
 
     .card-body {
@@ -503,6 +526,7 @@
                     {{-- <div class="controls"> --}}
                         <form action="{{ route('settings.assign_permissions') }}" method="POST">
                             @csrf
+                            <input type="hidden" name="admin" value="" id="is_admin">
                             <div class="d-flex align-items-center gap-10 mb-5">
                                 <div class="col-md-8"> <select name="user_ids[]" id="user_ids" class="form-control"
                                         multiple required style="flex: 1;">
@@ -525,6 +549,10 @@
                                     style="color:#ffffff;margin-left:12px">
                                     <i class="fa fa-users"></i> Assigned Users List
                                 </a>
+
+                               <button type="button" id="admin" class="select-all-btn2 btn-outline mb-0" data-category="">
+                                    <i class="far fa-check-circle"></i> Admin
+                                </button>
                             </div>
 
 
@@ -1203,6 +1231,8 @@
 
     const selectAllBtns = document.querySelectorAll('.select-all-btn');
     const permissionChecks = document.querySelectorAll('.permission-check');
+   
+
 
     // Master "Select All Permissions" button functionality
     const masterBtn = document.querySelector('.select-all-btn[data-category=""]');
@@ -1262,7 +1292,86 @@
 });
 </script>
 
+<script>
+    $(document).ready(function () {
+    $('#user_ids').select2({
+        placeholder: "Select users",
+        width: '100%'
+    });
 
+    const selectAllBtns = document.querySelectorAll('.select-all-btn2');
+    const permissionChecks = document.querySelectorAll('.permission-check');
+    
+
+    
+    // Master "Select All Permissions" button functionality
+    const masterBtn = document.querySelector('.select-all-btn2[data-category=""]');
+    masterBtn.addEventListener('click', function () {
+        if( $('#is_admin').val() == 1){
+  $('#is_admin').val('0');
+        }else{
+              $('#is_admin').val('1');
+        }
+         
+        const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
+        const newState = !allChecked;
+        permissionChecks.forEach(checkbox => {
+            checkbox.checked = newState;
+        });
+        selectAllBtns.forEach(btn => {
+            btn.classList.toggle('active', newState);
+        });
+    });
+
+   
+
+    // Card-specific "All" button functionality
+    selectAllBtns.forEach(btn => {
+        if (btn.getAttribute('data-category')) { // Skip master button
+            btn.addEventListener('click', function () {
+            
+                const category = this.getAttribute('data-category');
+                const checkboxes = document.querySelectorAll(`.permission-check[data-category="${category}"]`);
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                const newState = !allChecked;
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = newState;
+                });
+                this.classList.toggle('active', newState);
+                updateMasterButtonState();
+            });
+        }
+    });
+
+
+
+
+    // Update "All" button state when individual checkboxes change
+    permissionChecks.forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+          
+            const category = this.getAttribute('data-category');
+            const checkboxes = document.querySelectorAll(`.permission-check[data-category="${category}"]`);
+            const selectAllBtn = document.querySelector(`.select-all-btn2[data-category="${category}"]`);
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            selectAllBtn.classList.toggle('active', allChecked);
+            updateMasterButtonState();
+        });
+    });
+
+    // Update master button state based on all checkboxes
+    function updateMasterButtonState() {
+        const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
+        const noneChecked = Array.from(permissionChecks).every(cb => !cb.checked);
+        masterBtn.classList.toggle('active', allChecked);
+          
+    }
+
+    // Initialize button states
+    updateMasterButtonState();
+
+});
+</script>
 @include('layout.footer')
 
 @endsection

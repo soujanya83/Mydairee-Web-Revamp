@@ -4,6 +4,27 @@
 
 
 <style>
+/* Make buttons look consistent & modern */
+.status-btn {
+    width: 100% !important;
+    padding: 10px 0 !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.status-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Popup styling */
+.swal2-popup-custom {
+    border-radius: 15px !important;
+    padding: 20px !important;
+}
+
+
 .is-invalid {
     border-color: #dc3545 !important;
 }
@@ -128,6 +149,20 @@
                         <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $staffs->id }})">
                             <i class="fa-solid fa-trash"></i> Delete
                         </button>
+               <button class="btn btn-sm border shadow-sm bg-white px-3 ml-2" onclick="UpdateStatusSuperadmin({{ $staffs->id }})">
+        @if($staffs->status === 'ACTIVE')
+            <i class="fa-solid fa-circle-check text-success me-1"></i>
+            <span class="text-success fw-bold">Active</span>
+        @elseif($staffs->status === 'IN-ACTIVE')
+            <i class="fa-solid fa-circle-xmark text-danger me-1"></i>
+            <span class="text-danger fw-bold">Inactive</span>
+        @else
+            <i class="fa-solid fa-clock text-warning me-1"></i>
+            <span class="text-warning fw-bold">Pending</span>
+        @endif
+    </button>
+
+
                     </div>
                 </div>
             </div>
@@ -286,9 +321,125 @@
     </div>
 
 
+    <!-- spinner  -->
+     <div id="loader" style="display:none; 
+     position: fixed; 
+     top: 50%; left: 50%; 
+     transform: translate(-50%, -50%); 
+     z-index: 9999;">
+    <div class="spinner-border text-info" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
 
 
     <script>
+function UpdateStatusSuperadmin(id) {
+    Swal.fire({
+        title: '<h3 style="color:#17a2b8;">🔄 Update Status</h3>',
+        html: `
+            <p class="mb-3"></p>
+            <div class="d-flex flex-row gap-2">
+                <button id="btn-active" class="swal2-confirm swal2-styled status-btn" style="background-color:white;color:#198754
+">
+                    <i class="fa-solid fa-circle-check text-success me-1"></i> Active
+                </button>
+                <button id="btn-inactive" class="swal2-confirm swal2-styled status-btn" style="background-color:white;color:#dc3545
+">
+                    <i class="fa-solid fa-ban text-danger me-1"></i> Inactive
+                </button>
+                <button id="btn-pending" class="swal2-confirm swal2-styled status-btn" style="background-color:white; color:#ffc107
+;">
+                     <i class="fa-solid fa-clock text-warning me-1"></i> Pending
+                </button>
+                <button id="btn-cancel" class="swal2-cancel swal2-styled status-btn" style="background-color:white;color:#6c757d
+;" >
+                      <i class="fa-solid fa-circle-xmark text-secondary me-1"></i> Cancel
+                </button>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCancelButton: false,
+        didOpen: () => {
+            // Click events for buttons
+            document.getElementById('btn-active').addEventListener('click', function () {
+                sendStatusUpdate(id, 'ACTIVE');
+            });
+            document.getElementById('btn-inactive').addEventListener('click', function () {
+                sendStatusUpdate(id, 'IN-ACTIVE');
+            });
+            document.getElementById('btn-pending').addEventListener('click', function () {
+                sendStatusUpdate(id, 'PENDING');
+            });
+            document.getElementById('btn-cancel').addEventListener('click', function () {
+                Swal.close();
+            });
+        },
+        customClass: {
+            popup: 'swal2-popup-custom'
+        }
+    });
+}
+
+
+function sendStatusUpdate(id, status) {
+    $.ajax({
+        url: "{{ route('settings.updateStatusSuperadmin') }}",
+        type: "POST",
+        data: {
+            id: id,
+            status: status,
+            _token: "{{ csrf_token() }}"
+        },
+        beforeSend: function () {
+            Swal.fire({
+                title: 'Updating...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+        },
+        success: function (res) {
+            if (res.status) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Status updated to ' + status,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: res.message || 'Failed to update status.'
+                });
+            }
+        },
+        error: function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong. Please try again.'
+            });
+        }
+    });
+}
+
+
+function showLoaderFor2Sec() {
+    $("#loader").show(); // show loader
+
+    setTimeout(function () {
+        $("#loader").hide(); // hide loader after 2 sec
+    }, 2000);
+}
+
+
+
     function showToast(type, message) {
         const isSuccess = type === 'success';
         const toastType = isSuccess ? 'toast-success' : 'toast-error';

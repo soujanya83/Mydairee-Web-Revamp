@@ -323,10 +323,14 @@ public function rooms_list(Request $request)
 
         // Handle image upload
         $imagePath = null;
-        if ($request->hasFile('file')) {
+         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $imagePath = $file->store('children_images', 'public');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/child'), $filename);
+            $imagePath = 'uploads/child/' . $filename;
         }
+
+        // dd( $imagePath);
 
         // Create new child
         $child = new Child();
@@ -422,9 +426,22 @@ public function rooms_list(Request $request)
         $child->centerid = $request->centerid ?? null;
         $child->createdBy = Auth::user()->id;
 
-        if ($request->hasFile('file')) {
-            $child->imageUrl = $request->file('file')->store('children_images', 'public');
-        }
+      if ($request->hasFile('file')) {
+    // 🔹 Delete old file if it exists
+    if (!empty($child->imageUrl) && file_exists(public_path($child->imageUrl))) {
+        unlink(public_path($child->imageUrl));
+    }
+
+    // 🔹 Upload new file
+    $file = $request->file('file');
+    $filename = time() . '.' . $file->getClientOriginalExtension();
+    $file->move(public_path('uploads/child'), $filename);
+
+    // 🔹 Save new path
+    $imagePath = 'uploads/child/' . $filename;
+    $child->imageUrl = $imagePath;
+}
+
 
         $daysMap = ['mon', 'tue', 'wed', 'thu', 'fri'];
         $daysString = '';
