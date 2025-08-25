@@ -80,8 +80,29 @@
         margin-bottom: 25px;
         display: flex;
         align-items: center;
+        justify-content:between ;
         gap: 20px;
+        
     }
+
+       .user-info1 {
+        /* background: white; */
+        padding: 20px;
+        /* border-radius: var(--border-radius); */
+        /* box-shadow: var(--box-shadow); */
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content:between ;
+        gap: 20px;
+        
+    }
+
+      .user-info1 h2{
+  margin: 0;
+        color: var(--dark);
+        font-size: 1.4rem;
+      }
 
     .user-avatar {
         width: 60px;
@@ -106,6 +127,21 @@
         margin: 5px 0 0 0;
         color: var(--gray);
     }
+
+       .user-details1 h2 {
+        margin: 0;
+        color: var(--dark);
+        font-size: 1.4rem;
+    }
+
+    .user-details1 p {
+        margin: 5px 0 0 0;
+        color: var(--gray);
+    }
+
+    .user-details1 {
+    float: right !important;
+}
 
     .back-btn {
         background: #49c5b6;
@@ -372,15 +408,27 @@
                     </a>
 
                     <!-- User Information -->
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            {{ substr($username->name ?? 'U', 0, 1) }}
-                        </div>
-                        <div class="user-details">
-                            <h2>{{ $username->name ?? 'Unknown User' }}</h2>
-                            <p>Assigned Permissions Overview</p>
-                        </div>
-                    </div>
+               <div class="user-info d-flex justify-content-between align-items-center">
+    
+    <!-- Left side: Avatar + Name -->
+    <div class="user-info1 d-flex align-items-center">
+        <div class="user-avatar me-2">
+            {{ substr($username->name ?? 'U', 0, 1) }}
+        </div>
+        <div class="user-details">
+            <h2 class="mb-0">{{ $username->name ?? 'Unknown User' }} /   @if($username->admin == 1)
+                Admin
+            @else
+                {{ $username->userType }}
+            @endif</h2>
+            <p class="mb-0">Assigned Permissions Overview</p>
+        </div>
+    </div>
+
+    <!-- Right side: Role -->
+  
+</div>
+
 
                     @php
                     $totalPermissions = $permissionColumns->count();

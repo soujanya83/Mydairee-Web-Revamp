@@ -119,6 +119,11 @@ class AnnouncementController extends Controller
                 $query->where('createdBy', $userId);
             }
 
+            if( $userType === 'Staff' && Auth::user()->admin == 1){
+                    $query = AnnouncementsModel::with('creator') // optional relationship
+                            ->where('centerid', $centerId);
+            }
+
             $records = $query->orderByDesc('id')->paginate(12); // ✅ Pagination applied
         } else {
             // For Parents or other roles - get related children announcements
@@ -139,7 +144,7 @@ class AnnouncementController extends Controller
 
         // Permissions
         $permissions = PermissionsModel::where('userid', $userId)
-            ->where('centerid', $centerId)
+
             ->first();
 
         return view('Announcement.list', compact(
@@ -286,8 +291,7 @@ class AnnouncementController extends Controller
         $permissions = Auth::user()->userType === 'Superadmin'
             ? null
             : PermissionsModel::where('userid', Auth::user()->userid)
-            ->where('centerid', $centerid)
-            ->get();
+            ->first();
 
         // dd($Childrens);
 
@@ -358,7 +362,6 @@ public function AnnouncementStore(Request $request)
             $status = "Sent";
         } elseif ($role === "Staff") {
             $permission = \App\Models\PermissionsModel::where('userid', $userid)
-                ->where('centerid', $centerid)
                 ->first();
 
             if ($permission && ($permission->addAnnouncement || $permission->updateAnnouncement)) {

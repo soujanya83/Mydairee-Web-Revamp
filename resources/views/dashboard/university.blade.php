@@ -539,16 +539,48 @@ document.addEventListener('DOMContentLoaded', function () {
         initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'title',
-            right: 'prev,next Today'
+            right: 'prev,next today'
         },
         height: 500,
         themeSystem: 'standard',
+
+        dayCellDidMount: function (info) {
+            let today = new Date();
+            let cellDate = new Date(info.date);
+
+            // ✅ Only today and future dates
+            if (cellDate >= new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
+                let btn = document.createElement('button');
+                btn.innerHTML = '+';
+                btn.className = 'add-announcement-btn';
+                    btn.setAttribute('data-toggle', 'tooltip');
+                    btn.setAttribute('title', 'Add Announcement');
+                btn.style.cssText = `
+                    position:absolute;
+                    top:-8px;
+                    left:2px;
+                    font-size:16px;
+                    border:none;
+                    border-radius:50%;
+                    color:green;
+                    cursor:pointer;
+                `;
+                btn.onclick = function (e) {
+                    // e.stopPropagation();
+      window.location.href = "/announcements/create?centerid={{ session('user_center_id') }}";
+
+                };
+
+                info.el.style.position = 'relative'; // ensure positioning
+                info.el.appendChild(btn);
+            }
+        }
     });
 
     calendar.render();
 });
-
 </script>
+
 <!-- <script>
 document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById('calendar');

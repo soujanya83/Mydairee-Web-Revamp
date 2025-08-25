@@ -2,6 +2,7 @@
 @section('title', 'Create Program Plan')
 @section('parentPageTitle', 'Dashboard')
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
     <h5></h5>

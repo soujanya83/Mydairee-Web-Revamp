@@ -1036,6 +1036,20 @@
     </div>
 </div>
 
+<!-- Select educators -->
+<div class="col-md-12 select-section">
+    <label>Tag Educators</label><br>
+    <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#staffModal">Select Educators</button>
+    <input type="hidden" name="selected_staff" id="selected_staff" value="{{ isset($educators) ? implode(',', collect($educators)->pluck('userid')->toArray()) : '' }}">
+    <div id="selectedStaffPreview" class="mt-3">
+        @if(isset($educators))
+            @foreach($educators as $educator)
+                <span class="badge badge-success mr-1">{{ $educator->name }}</span>
+            @endforeach
+        @endif
+    </div>
+</div>
+
 
 
 <input type="hidden" name="id" value="{{ isset($observation) ? $observation->id : '' }}">
@@ -1697,9 +1711,31 @@
 </div>
 
 
+<!-- Staff Modal -->
+<div class="modal" id="staffModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <h5 class="modal-title" id="staffModalLabel">Select Staff</h5>
+        <input type="text" id="staffSearch" class="form-control ml-3" placeholder="Search staff..." style="max-width: 250px;">
+        <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="staffList" class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="confirmStaff" class="btn btn-success">Confirm Selection</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <div id="toast-container" class="toast-bottom-right"
         style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
-
 
 
 
@@ -1927,6 +1963,64 @@ $('#confirmRooms').on('click', function () {
     $('#selectedRoomsPreview').html(nameHtml);
     $('#roomsModal').modal('hide');
 });
+
+
+// tag staffs
+let selectedStaff = new Set($('#selected_staff').val().split(',').filter(id => id));
+
+// Load staff on modal open
+$('#staffModal').on('show.bs.modal', function () {
+    console.log("Modal event triggered");
+    $.ajax({
+        url: '{{ route("observation.get-staff") }}',
+        method: 'GET',
+        success: function (response) {
+            if (response.success) {
+                let html = '';
+                response.staff.forEach(staff => {
+                    const checked = selectedStaff.has(staff.id.toString()) ? 'checked' : '';
+                    html += `
+                        <div class="col-md-4 mb-2 staff-item">
+                            <div class="form-check">
+                                <input class="form-check-input staff-checkbox" type="checkbox" value="${staff.id}" id="staff-${staff.id}" ${checked}>
+                                <label class="form-check-label" for="staff-${staff.id}">
+                                    ${staff.name}
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                });
+                $('#staffList').html(html);
+            }
+        }
+    });
+});
+
+// Filter staff
+$('#staffSearch').on('keyup', function () {
+    const search = $(this).val().toLowerCase();
+    $('.staff-item').each(function () {
+        const name = $(this).find('.form-check-label').text().toLowerCase();
+        $(this).toggle(name.includes(search));
+    });
+});
+
+// Confirm selection
+$('#confirmStaff').on('click', function () {
+    selectedStaff = new Set();
+    let nameHtml = '';
+    $('.staff-checkbox:checked').each(function () {
+        selectedStaff.add($(this).val());
+        nameHtml += `<span class="badge badge-info mr-1">${$(this).next('label').text()}</span>`;
+    });
+
+    $('#selected_staff').val([...selectedStaff].join(','));
+    $('#selectedStaffPreview').html(nameHtml);
+    $('#staffModal').modal('hide');
+});
+
+
+
 
 
 

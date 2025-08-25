@@ -481,7 +481,7 @@
     }
 
     .btn-outline:hover {
-        background: black;
+        background: #3D8CE1;
         /* light blue hover */
     }
 </style>
@@ -528,17 +528,14 @@
                             @csrf
                             <input type="hidden" name="admin" value="" id="is_admin">
                             <div class="d-flex align-items-center gap-10 mb-5">
-                                <div class="col-md-8"> <select name="user_ids[]" id="user_ids" class="form-control"
+                                <div class="col-md-7"> <select name="user_ids[]" id="user_ids" class="form-control"
                                         multiple required style="flex: 1;">
                                         @foreach($users as $user)
                                         <option value="{{ $user->userid }}">{{ $user->name }}</option>
                                         @endforeach
                                     </select></div>
 
-                                {{-- <button type="button" class="select-all-btn btn-outline mb-0" data-category=""
-                                    style="    background: #fff;">
-                                    <i class="far fa-check-circle"></i> Select All Permissions
-                                </button> --}}
+                            
                                 <button type="button" class="select-all-btn btn-outline mb-0" data-category="">
                                     <i class="far fa-check-circle"></i> Select All Permissions
                                 </button>
@@ -549,13 +546,12 @@
                                     style="color:#ffffff;margin-left:12px">
                                     <i class="fa fa-users"></i> Assigned Users List
                                 </a>
-
-                               <button type="button" id="admin" class="select-all-btn2 btn-outline mb-0" data-category="">
-                                    <i class="far fa-check-circle"></i> Admin
-                                </button>
+                                @if(Auth::user()->admin == 1 || Auth::user()->userid == 1)
+                                        <button type="button" id="admin" class="select-all-btn2 btn-outline mb-0" data-category=""  style="color:#ffffff;margin-left:12px">
+                                            <i class="far fa-check-circle"></i> Admin
+                                        </button>
+                                @endif
                             </div>
-
-
 
 
                             @php

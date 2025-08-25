@@ -23,11 +23,33 @@ use Illuminate\Validation\Rule;
     class SettingsController extends Controller
 {
 
+       public function show(Request $request)
+    {
+        
+        $userId = $request->userid;
+      
+        $username = User::where('userid', $userId)->first();
+
+        $Permissions = Permission::where('userid', $userId)->first();
+
+  $userPermissions = [
+    'user' => $username ,
+    'permissions' => $Permissions
+  ];
+
+
+return response()->json([
+'status' => true,
+'message' => 'User Permission retrived',
+'data' => $userPermissions
+]);
+    }
+
  public function updateUserPermissions(Request $request)
 {
-//    dd($request->input());
+
 $userId = $request->userid;
-// dd($userId);
+
 $centerid = $request->centerid;
 
     $permissions = $request->input('permissions', []);
