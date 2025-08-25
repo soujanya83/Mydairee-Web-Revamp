@@ -17,6 +17,7 @@ class Snapshot extends Model
         'roomids',
         'status',
         'createdBy',
+        'educators'
     ];
 
     // 🔗 Optional: Relationship to User (creator)

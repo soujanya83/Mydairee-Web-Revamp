@@ -517,7 +517,8 @@
         <!-- Add more form elements -->
         <div class="col-md-6 mt-4 form-section">
     <label for="editor6">Snapshot Title</label>
-    <textarea id="editor6" name="title" class="form-control ckeditor">{!! isset($reflection) ? $reflection->title : '' !!}</textarea>
+    <textarea id="editor6" name="title" class="form-control ckeditor"  maxlength="50">{!! isset($reflection) ? $reflection->title : '' !!}</textarea>
+      <small id="editor6-count" class="form-text text-muted">0 / 50 characters</small>
     <div class="refine-container">
 <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn" data-editor="editor6"><i class="fas fa-magic mr-1"></i>Refine with Ai</button>
 </div>
@@ -526,6 +527,8 @@
 <div class="col-md-6 mt-4 form-section">
     <label for="editor3">Snapshot Details</label>
     <textarea id="editor3" name="about" class="form-control ckeditor">{!! isset($reflection) ? $reflection->about : '' !!}</textarea>
+       <small id="editor3-count" class="form-text text-muted">0 / 50 characters</small>
+    
     <div class="refine-container">
  <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn" data-editor="editor3"><i class="fas fa-magic mr-1"></i>Refine with Ai</button>
 </div>
@@ -757,8 +760,49 @@
 <div id="toast-container" class="toast-bottom-right"
         style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
 
+<script>
+const maxChars = 50;
+const editors = {};
 
-        
+function setupCounter(editorInstance, countId) {
+    const countEl = document.getElementById(countId);
+
+    editorInstance.model.document.on('change:data', () => {
+        let text = editorInstance.getData().replace(/<[^>]*>/g, ''); // remove HTML tags
+
+        if (text.length > maxChars) {
+            // Trim content if exceeded
+            editorInstance.setData(text.substr(0, maxChars));
+            text = text.substr(0, maxChars);
+        }
+
+        if (countEl) countEl.innerText = `${text.length} / ${maxChars} characters`;
+    });
+
+    // Initialize counter
+    let initialText = editorInstance.getData().replace(/<[^>]*>/g, '');
+    if (countEl) countEl.innerText = `${initialText.length} / ${maxChars} characters`;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    ['editor6', 'editor3'].forEach(id => {
+        const textarea = document.getElementById(id);
+        if (!textarea) return;
+
+        ClassicEditor.create(textarea)
+            .then(editor => {
+                editors[id] = editor;
+                setupCounter(editor, id + '-count');
+            })
+            .catch(error => console.error(`CKEditor error on ${id}:`, error));
+    });
+});
+</script>
+
+
+
+
+
 
         <script>
 $(document).ready(function () {
@@ -1172,7 +1216,7 @@ $(document).ready(function () {
                 $('button[type=submit]').prop('disabled', true).text('Submitting...');
             },
             success: function(response) {
-    if (response.status === 'success') {
+    if (response.status === true) {
         showToast('success', 'Snapshot Added Successfully!');
         setTimeout(() => {
             window.location.href = '/snapshot/index/'; // or 'link', or 'observation'

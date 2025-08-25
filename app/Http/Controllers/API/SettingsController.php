@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 
     class SettingsController extends Controller
@@ -82,31 +83,89 @@ foreach ($permissionCols as $col) {
     // }
 
 
+
+// public function assigned_permissions()
+// {
+//     $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
+
+//     // Get all permission columns except id, userid, timestamps
+//     $permissionColumns = collect(Schema::getColumnListing('permissions'))
+//         ->reject(fn($col) => in_array($col, ['id', 'userid', 'created_at', 'updated_at']))
+//         ->values()
+//         ->toArray();
+
+//     $assignedUserList = User::with(['permissions' => function ($query) use ($permissionColumns) {
+//             $query->select(array_merge(['id', 'userid'], $permissionColumns));
+//         }])
+//         ->get()
+//         ->map(function ($user, $index) use ($colors, $permissionColumns) {
+//             $user->colorClass = $colors[$index % count($colors)];
+
+//             // Map permissions dynamically
+//             $user->assigned_permissions = optional($user->permissions)->map(function ($perm) use ($permissionColumns) {
+//                 return collect($perm)->only($permissionColumns);
+//             });
+
+//             return $user;
+//         });
+
+//     // Prepare permission column info for front-end
+//     $permissionColumnsInfo = collect($permissionColumns)
+//         ->map(fn($col) => [
+//             'name' => $col,
+//             'label' => Str::headline($col),
+//         ]);
+
+//     return response()->json([
+//         'success' => true,
+//         'assigned_users' => $assignedUserList,
+//         'permissions' => $permissionColumnsInfo,
+//     ]);
+// }
+
 public function assigned_permissions()
 {
     $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
 
-    $assignedUserList = User::select('users.id', 'users.name')
-        ->join('permissions', 'permissions.userid', '=', 'users.id')
-        ->distinct()
+    // Get all permission columns except id, userid, timestamps
+    $permissionColumns = collect(Schema::getColumnListing('permissions'))
+        ->reject(fn($col) => in_array($col, ['id', 'userid', 'created_at', 'updated_at']))
+        ->values()
+        ->toArray();
+
+    $assignedUserList = User::with(['permissions' => function ($query) use ($permissionColumns) {
+            $query->select(array_merge(['id', 'userid'], $permissionColumns));
+        }])
         ->get()
-        ->map(function ($user, $index) use ($colors) {
+        ->map(function ($user, $index) use ($colors, $permissionColumns) {
             $user->colorClass = $colors[$index % count($colors)];
+
+            // Map permissions dynamically
+            $user->assigned_permissions = optional($user->permissions)->map(function ($perm) use ($permissionColumns) {
+                return collect($perm)->only($permissionColumns);
+            });
+
             return $user;
         });
 
-    $permissionColumns = collect(Schema::getColumnListing('permissions'))
-        ->reject(fn($col) => in_array($col, ['id', 'userid', 'created_at', 'updated_at']))
+        $permissionColumns1 = collect((new Permission())->getConnection()
+    ->getSchemaBuilder()
+    ->getColumnListing((new Permission())->getTable()))
+    ->reject(fn($col) => in_array($col, ['id', 'userid', 'created_at', 'updated_at']))
+  
+    ->toArray();
+
+    // Prepare permission column info for front-end
+    $permissionColumnsInfo = collect($permissionColumns1)
         ->map(fn($col) => [
             'name' => $col,
             'label' => Str::headline($col),
-        ])
-        ->values();
+        ]);
 
     return response()->json([
         'success' => true,
         'assigned_users' => $assignedUserList,
-        'permissions' => $permissionColumns,
+        'permissions' => $permissionColumnsInfo,
     ]);
 }
 
@@ -1302,18 +1361,25 @@ public function getParentData($id)
 
 public function parent_update(Request $request)
 {
-    $validator = Validator::make($request->all(), [
-        'id' => 'required|exists:users,id',
-        'email' => 'required|email|unique:users,email,' . $request->id,
-        'password' => 'nullable|string|min:6',
-        'contactNo' => 'required|string',
-        'name' => 'required|string',
-        'gender' => 'required|string',
-        'imageUrl' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
-        'children' => 'required|array|min:1',
-        'children.*.childid' => 'required',
-        'children.*.relation' => 'required|string',
-    ]);
+    // dd('here');
+  $validator = Validator::make($request->all(), [
+    'id' => 'required|integer|exists:users,id',
+    'email' => [
+        'required',
+        'email',
+        Rule::unique('users', 'email')->ignore($request->id, 'id'),
+    ],
+    'password' => 'nullable|string|min:6',
+    'contactNo' => 'required|string',
+    'name' => 'required|string',
+    'gender' => 'required|string',
+    'imageUrl' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
+    'children' => 'required|array|min:1',
+    'children.*.childid' => 'required',
+    'children.*.relation' => 'required|string',
+]);
+
+
 
     if ($validator->fails()) {
         return response()->json([
@@ -1498,7 +1564,7 @@ public function profileupdate(Request $request, $id)
 
 public function changePassword(Request $request, $id)
 {
-    $user = User::findOrFail($id);
+    $user = User::where('userid',$id)->first();
 
     $validator = Validator::make($request->all(), [
         'current_password' => 'required|string',
@@ -1529,5 +1595,64 @@ public function changePassword(Request $request, $id)
         'status' => 'success',
         'message' => 'Password changed successfully.',
     ]);
+}
+
+
+
+public function updateStatusSuperadmin(Request $request)
+{
+    try {
+        // ✅ Validation
+        $validator = Validator::make($request->all(), [
+            'id'     => 'required|integer',
+            'status' => 'required|string|in:ACTIVE,IN-ACTIVE,PENDING'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        // ✅ Check if user exists
+        $user = User::where('userid', $validated['id'])->first();
+        if (!$user) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        // ✅ Update status
+        $user->status = $validated['status'];
+        if (!$user->save()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Failed to update user status. Please try again.'
+            ], 500);
+        }
+
+        // ✅ Success
+        return response()->json([
+            'status'  => true,
+            'message' => 'Status updated successfully to ' . $user->status,
+            'data'    => [
+                'id'     => $user->userid,
+                'status' => $user->status
+            ]
+        ], 200);
+
+    } catch (\Exception $e) {
+        // ✅ Catch unexpected errors
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong.',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
 }
 }

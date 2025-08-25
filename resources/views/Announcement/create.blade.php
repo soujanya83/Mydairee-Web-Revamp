@@ -199,7 +199,7 @@ $edit = 1;
                                             </label>
                                            <input type="file" id="mediaInput" name="media[]" class="d-none" multiple accept="image/*,application/pdf">
 
-                                            <small class="form-text text-muted mt-2">Only image and pdf allowed</small>
+                                            <small class="form-text text-muted mt-2">Only image and pdf allowed and upto 2MB file </small>
                                         </div>
 
                                         <div id="mediaPreview" class="row mt-4"></div>

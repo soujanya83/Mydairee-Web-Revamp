@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Facades\Validator;
 class SettingsController extends Controller
 {
 
@@ -141,6 +141,62 @@ class SettingsController extends Controller
         ]);
     }
 
+public function updateStatusSuperadmin(Request $request)
+{
+    try {
+        // ✅ Validation
+        $validator = Validator::make($request->all(), [
+            'id'     => 'required|integer',
+            'status' => 'required|string|in:ACTIVE,IN-ACTIVE,PENDING'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        // ✅ Check if user exists
+        $user = User::where('userid', $validated['id'])->first();
+        if (!$user) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        // ✅ Update status
+        $user->status = $validated['status'];
+        if (!$user->save()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Failed to update user status. Please try again.'
+            ], 500);
+        }
+
+        // ✅ Success
+        return response()->json([
+            'status'  => true,
+            'message' => 'Status updated successfully to ' . $user->status,
+            'data'    => [
+                'id'     => $user->userid,
+                'status' => $user->status
+            ]
+        ], 200);
+
+    } catch (\Exception $e) {
+        // ✅ Catch unexpected errors
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong.',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
+}
 
 
     public function updateUserPermissions(Request $request, $userId)
@@ -286,6 +342,7 @@ class SettingsController extends Controller
     public function assign_user_permissions(Request $request)
     {
         try {
+            // dd($request->admin);
             $userIds = $request->input('user_ids', []);
             $checkedPermissions = $request->input('permissions', []);
 
@@ -297,12 +354,16 @@ class SettingsController extends Controller
 
             foreach ($userIds as $userId) {
                 // Check if the record exists
+                $user = User::find($userId);
+                $user->admin = $request->admin;
+                $user->save();
                 $permissionRecord = Permission::where('userid', $userId)->first();
 
                 if (!$permissionRecord) {
                     $permissionRecord = new Permission();
                     $permissionRecord->userid = $userId;
                     $permissionRecord->centerid = $centerId;
+                    
                 }
 
                 // Get all permission column names from table (excluding id, userid, centerid)
@@ -1194,7 +1255,7 @@ class SettingsController extends Controller
 
                         <p style="margin: 20px 0;">
                             <strong>Need help?</strong> Our dedicated support team is ready to assist you at
-                            <a href="mailto:mydairee47@gmail.com" class="support-email">mydairee47@gmail.com</a>
+                            <a href="mailto:mydiaree2026@gmail.com" class="support-email">mydiaree2026@gmail.com</a>
                         </p>
 
                         <p style="margin: 25px 0 5px 0;">
@@ -1222,7 +1283,7 @@ class SettingsController extends Controller
             // Send email using Laravel Mail
             Mail::send([], [], function ($mail) use ($email, $messageContent) {
                 $mail->to($email)
-                    ->from('mydairee47@gmail.com', 'MyDiaree Support')
+                    ->from('mydiaree2026@gmail.com', 'MyDiaree Support')
                     ->subject('🎉 Welcome to MyDiaree - Your Child\'s Learning Journey Begins!')
                     ->html($messageContent);
             });
@@ -1446,4 +1507,5 @@ class SettingsController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+    
 }

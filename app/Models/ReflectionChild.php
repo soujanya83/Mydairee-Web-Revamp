@@ -28,4 +28,10 @@ class ReflectionChild extends Model
     {
         return $this->belongsTo(Child::class, 'childid');
     }
+
+    public function childDetails()
+{
+    return $this->belongsTo(Child::class, 'childid')
+                ->select('id', 'name', 'lastname','imageUrl'); // only select name and lastname
+}
 }

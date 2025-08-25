@@ -45,7 +45,6 @@
     <div class="col-lg-12">
         <div class="card">
 
-
             <a class="btn btn-outline-info mt-3" style="float:right;margin-bottom:20px;margin-right:12px"
                 href="{{ route('settings.assigned_permissions') }}">
                 <i class="fa fa-users"></i>&nbsp; Assigned Users

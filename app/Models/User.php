@@ -36,6 +36,7 @@ class User extends Authenticatable
         'created_by',
         'email_verified_at',
         'has_seen_login_notice',
+        'admin'
     ];
 
 
@@ -75,4 +76,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(User::class, 'childparent', 'childid', 'parentid', 'childid', 'userid');
     }
+
+ public function permissions()
+{
+    return $this->hasMany(Permission::class, 'userid', 'userid');
+}
 }

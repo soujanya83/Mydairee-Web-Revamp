@@ -3,8 +3,40 @@
 @section('parentPageTitle', '')
 
 
-
 <style>
+.action-buttons {
+    display: flex;
+    justify-content: center; /* Center all buttons horizontally */
+    gap: 10px; /* Space between buttons */
+}
+
+.btn-action {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%; /* Circular buttons */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center icon inside button */
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    font-size: 16px;
+    color: #fff;
+}
+
+/* Individual button colors */
+.btn-view { background-color: #17a2b8; }   /* Info / blue */
+.btn-edit { background-color: #28a745; }   /* Success / green */
+.btn-delete { background-color: #dc3545; } /* Danger / red */
+
+/* Hover effects */
+.btn-action:hover {
+    transform: scale(1.1);
+    opacity: 0.9;
+}
+</style>
+<style>
+    
         body {
             /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
             background-image: url('{{ asset('assets/img/doodle1.png') }}');
@@ -327,6 +359,70 @@
     .main-image {
         transition: opacity 0.5s ease-in-out;
     }
+
+    
+</style>
+<style>
+/* .snapshot-slider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.snapshot-slider img {
+    max-width: 80%;
+    border-radius: 5px;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
+}
+.prev-btn, .next-btn {
+    font-size: 20px;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+} */
+
+.snapshot-slider {
+    position: relative;
+    display: inline-block;
+}
+
+.snapshot-img {
+    max-height: 500px;
+    width: auto;
+    transition: opacity 0.3s;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.snapshot-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(187, 178, 178, 0.5);
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 10px 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.snapshot-btn:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+.prev-btn {
+    left: -25px; /* slightly outside the image */
+}
+
+.next-btn {
+    right: -25px; /* slightly outside the image */
+}
+
 </style>
 
 @section('content')
@@ -442,17 +538,33 @@
                     </div>
                 </div>
   
-                <div class="action-buttons">
-                    <button class="btn-action btn-delete" onclick="viewSnapshot({{ $snapshot->id }})">
-                        <i class="fas fa-eye-alt mr-2"></i>view
-                    </button>
-                    <button class="btn-action btn-edit" onclick="editSnapshot({{ $snapshot->id }})">
-                        <i class="fas fa-edit mr-2"></i>Edit
-                    </button>
-                    <button class="btn-action btn-delete" onclick="deleteSnapshot({{ $snapshot->id }})">
-                        <i class="fas fa-trash-alt mr-2"></i>Delete
-                    </button>
-                </div>
+               <div class="action-buttons d-flex justify-content-center gap-2">
+
+ @if(!empty($permissions['viewSnapshots']) && $permissions['viewSnapshots'] || Auth::user()->userType == "Superadmin")
+
+<button class="btn-action btn-view" 
+        onclick='openSnapshotModal(@json($images), {!! json_encode(strip_tags($snapshot->title)) !!})' 
+        title="View">
+    <i class="fas fa-eye"></i>
+</button>
+@endif
+
+@if(!empty($permissions['editSnapshots']) && $permissions['editSnapshots'] || Auth::user()->userType == "Superadmin")
+
+
+    <button class="btn-action btn-edit" onclick="editSnapshot({{ $snapshot->id }})" title="Edit">
+        <i class="fas fa-edit"></i>
+    </button>
+    @endif
+
+
+  @if(!empty($permissions['deleteSnapshots']) && $permissions['deleteSnapshots'] || Auth::user()->userType == "Superadmin")
+
+    <button class="btn-action btn-delete" onclick="deleteSnapshot({{ $snapshot->id }})" title="Delete">
+        <i class="fas fa-trash-alt"></i>
+    </button>
+    @endif
+</div>
             </div>
         </div>
     </div>
@@ -609,6 +721,44 @@
         </div>
     </div>
 
+<div class="modal" id="snapshotModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="snapshotModalTitle">Snapshot Title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body text-center position-relative">
+    <div class="snapshot-slider d-inline-block position-relative">
+        <button class="snapshot-btn prev-btn" onclick="prevSnapshot()">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <img id="snapshotImage" src="" alt="Snapshot" class="snapshot-img">
+
+        <button class="snapshot-btn next-btn" onclick="nextSnapshot()">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <div id="snapshotCounter" class="mt-2 text-center"></div>
+    </div>
+</div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          <i class="fas fa-times mr-1"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
     <script>
@@ -694,13 +844,53 @@
     //     }, 150);
     // }
 
+let snapshotImages = [];
+let currentSnapshotIndex = 0;
+
+function openSnapshotModal(images, title) {
+    snapshotImages = images || [];
+    currentSnapshotIndex = 0;
+
+    // Set modal title
+    document.getElementById('snapshotModalTitle').innerText = title || 'Snapshot';
+
+    // Show modal (Bootstrap required)
+    $('#snapshotModal').modal('show');
+
+    // Display first image
+    updateSnapshotImage(currentSnapshotIndex);
+}
+
+function updateSnapshotImage(index) {
+    if (!snapshotImages.length) return;
+    const img = document.getElementById('snapshotImage');
+    const counter = document.getElementById('snapshotCounter');
+
+    img.style.opacity = 0;
+    setTimeout(() => {
+        img.src = snapshotImages[index];
+        img.onload = () => img.style.opacity = 1;
+        counter.innerHTML = `${index + 1} / ${snapshotImages.length}`;
+    }, 100);
+}
+
+function nextSnapshot() {
+    currentSnapshotIndex = (currentSnapshotIndex + 1) % snapshotImages.length;
+    updateSnapshotImage(currentSnapshotIndex);
+}
+
+function prevSnapshot() {
+    currentSnapshotIndex = (currentSnapshotIndex - 1 + snapshotImages.length) % snapshotImages.length;
+    updateSnapshotImage(currentSnapshotIndex);
+}
+
+
+
     function editSnapshot(id) {
         window.location.href = '{{ route("snapshot.addnew.optional", "") }}/' + id;
     }
 
-        function viewSnapshot(id) {
-        window.location.href = '{{ url("snapshot/view", "") }}/' + id;
-    }
+     
 
     function deleteSnapshot(id) {
         Swal.fire({
