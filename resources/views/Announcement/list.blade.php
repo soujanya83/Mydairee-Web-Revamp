@@ -294,7 +294,7 @@
 
     
         @if(Auth::user()->userType != 'Parent')
-        @if(!empty($permissions['addAnnouncement']) && $permissions['addAnnouncement'])
+        @if(!empty($permissions['addAnnouncement']) && $permissions['addAnnouncement'] )
 
         <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}"
             class="btn btn-outline-info btn-lg">ADD NEW</a>

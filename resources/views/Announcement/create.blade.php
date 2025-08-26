@@ -247,14 +247,17 @@ $edit = 1;
                             <div class="row">
                                 <div class="col-12 text-right">
                                     @if ($announcement)
-                                    @if ($edit)
+
+                                    @if (!empty($permissions->addAnnouncement) || auth()->user()->userType == "Superadmin" || auth()->user()->admin == 1)
                                     <button type="submit" class="btn btn-outline-info my-2">Save</button>
                                     @else
                                     <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip"
                                         data-placement="top" title="You need permission to save!">Save</button>
                                     @endif
+
+
                                     @else
-                                    @if ($permissions->addAnnouncement)
+                                    @if (!empty($permissions->addAnnouncement) || auth()->user()->userType == "Superadmin" || auth()->user()->admin == 1)
                                     <button type="submit" class="btn btn-outline-info my-2">Save</button>
                                     @else
                                     <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip"
