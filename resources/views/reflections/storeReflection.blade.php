@@ -580,18 +580,7 @@
 </div>
 
 <!-- Select educators -->
-<div class="col-md-6 select-section">
-    <label>Tag Educators</label><br>
-    <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#taggedstaffModal">Select Educators</button>
-    <input type="hidden" name="taggedselected_staff" id="taggedselected_staff" value="{{ isset($tagged_staff) ? implode(',', collect($tagged_staff)->pluck('userid')->toArray()) : '' }}">
-    <div id="taggedselectedStaffPreview" class="mt-3">
-        @if(isset($tagged_staff))
-            @foreach($tagged_staff as $educator)
-                <span class="badge badge-success mr-1">{{ $educator->name }}</span>
-            @endforeach
-        @endif
-    </div>
-</div>
+
 
 
 <div class="col-md-12 select-section">
