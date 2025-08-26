@@ -1,6 +1,6 @@
 @extends('layout.master')
-@section('title', 'Rooms')
-@section('parentPageTitle', 'Children')
+@section('title', 'Edit')
+@section('parentPageTitle', 'Children List')
 
 
 
@@ -8,11 +8,6 @@
 @section('content')
 
 <div >
-    <h5>Edit Child</h5>
-
-    <hr>
-
-
     <div class="row clearfix" style="margin-bottom: 43px;">
         <div class="col-lg-12 col-md-12 mb-1">
             <div class="card shadow-sm border-0 rounded p-3 hover-shadow">
@@ -57,8 +52,8 @@
                                     <option value="">Select</option>
                                     <option value="Active" {{ old('status', $data->status) == 'Active' ? 'selected'
                                         : '' }}>Active</option>
-                                    <option value="Enrolled" {{ old('status', $data->status) == 'Enrolled' ?
-                                        'selected' : '' }}>Enrolled</option>
+                                    {{-- <option value="Enrolled" {{ old('status', $data->status) == 'Enrolled' ?
+                                        'selected' : '' }} >Enrolled</option> --}}
                                     <option value="In Active" {{ old('status', $data->status) == 'In Active' ?
                                         'selected' : '' }}>In Active</option>
                                 </select>
