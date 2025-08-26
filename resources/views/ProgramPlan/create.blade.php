@@ -3,6 +3,9 @@
 @section('parentPageTitle', 'Dashboard')
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
+
+
+
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
     <h5></h5>
@@ -84,13 +87,17 @@
 
                 <!-- Room Selection -->
                <!-- Room Selection -->
-                
+               <?php
+$selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
+?> 
     <div class="form-group mb-4">
         <label for="room">Select Room</label>
         <select class="form-control select2-multiple" id="room" name="room[]" multiple="multiple" required>
             <option value="">Select Room</option>
              @foreach($rooms as $room)
-                <option value="<?= $room->id ?>" <?= (isset($plan_data) && $plan_data->room_id == $room->id) ? 'selected' : '' ?>><?= $room->name ?></option>
+               <option value="<?= $room->id ?>" <?= in_array($room->id, $selectedRooms) ? 'selected' : '' ?>>
+    <?= $room->name ?>
+</option>
              @endforeach
         </select>
     </div>
@@ -1116,8 +1123,10 @@ console.log(jQuery.fn.select2); // Check if Select2 is available
     //         }
     //     });
     // }
+   
 
     function loadEducators(roomId, centerId) {
+        //  alert(roomId+ ' ' +centerId);
     const csrfToken = $('meta[name="csrf-token"]').attr('content');
     $.ajax({
         url: '{{ route("LessonPlanList.get_room_users") }}',
@@ -1126,10 +1135,11 @@ console.log(jQuery.fn.select2); // Check if Select2 is available
             'X-CSRF-TOKEN': csrfToken
         },
         data: {
-            room_id: roomId,
+            room_id:[roomId],
             center_id: centerId
         },
         success: function (response) {
+          
             let users = response;
             $('#users').empty();
 
@@ -1149,6 +1159,8 @@ console.log(jQuery.fn.select2); // Check if Select2 is available
     
     // Function to load children with pre-selection
     function loadChildren(roomId, centerId) {
+        // alert();
+        // console.log(roomId);
           const csrfToken = $('meta[name="csrf-token"]').attr('content');
         $.ajax({
             url: '{{route ("LessonPlanList.get_room_children") }}',
@@ -1156,7 +1168,7 @@ console.log(jQuery.fn.select2); // Check if Select2 is available
                 headers: {
             'X-CSRF-TOKEN': csrfToken // Include CSRF token in headers
         },
-            data: { room_id: roomId, center_id: centerId },
+            data: { room_id: [roomId], center_id: centerId },
             success: function (response) {
                 console.log(typeof response); // "string" or "object"
 
@@ -1239,7 +1251,7 @@ console.log(jQuery.fn.select2); // Check if Select2 is available
         },
          success: function(response) {
     if (response.success) {
-        console.log("Redirecting to:", response.redirect_url); // ✅ this works
+        // console.log("Redirecting to:", response.redirect_url); // ✅ this works
         window.location.href = response.redirect_url; // ✅ actual redirection
     } else {
         alert('Error saving program plan. Please try again.');

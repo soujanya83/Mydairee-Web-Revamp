@@ -4,6 +4,21 @@
 
 @section('page-styles')
 <style>
+    /* Published button: green success */
+.published-btn {
+    background-color: #28a745 !important; /* green */
+    color: white !important;
+    border: none;
+}
+
+/* Draft button: red danger */
+.draft-btn {
+    background-color: #ff9305ff !important; /* red */
+    color: white !important;
+    border: none;
+}
+ 
+
     #FilterbyTitle{
         display: none;
     }
@@ -425,10 +440,14 @@
                                         <!-- {{ ($records->currentPage() - 1) * $records->perPage() + $loop->iteration }} -->
                                           notification
                                     </span>
-                                    <span class="text-white badge fs-6 {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
-                                        <i class="fas {{ $announcement->status == 'Sent' ? 'fa-check' : ($announcement->status == 'Pending' ? 'fa-clock' : 'fa-times') }} me-1"></i>
-                                        {{ ucfirst($announcement->status) }}
-                                    </span>
+                                 <span class="text-white badge fs-6 
+    {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}" 
+    onclick="updateStatus('{{ $announcement->status }}', {{ $announcement->id }})">
+    
+    <i class="fas {{ $announcement->status == 'Sent' ? 'fa-check' : ($announcement->status == 'Pending' ? 'fa-clock' : 'fa-times') }} me-1"></i>
+    {{ ucfirst($announcement->status == 'Sent' ? 'Published' : 'Draft') }}
+</span>
+
                                 </div>
                             </div>
 
@@ -584,6 +603,80 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+function updateStatus(currentStatus, id) {
+    // alert();
+    Swal.fire({
+        title: "Change Annoucement Status",
+        text: "Select the new status for the Annoucement:",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Published",
+        cancelButtonText: "Draft",
+        reverseButtons: true,
+            customClass: {
+        confirmButton: 'published-btn',
+        cancelButton: 'draft-btn'
+    }
+    }).then((result) => {
+        let newStatus = null;
+
+        if (result.isConfirmed) {
+            newStatus = 'Published';
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            newStatus = 'Draft';
+        }
+
+        if (newStatus) {
+            // Send AJAX with selected status
+            $.ajax({
+                url: '/update-annoucement-status',
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    status: newStatus,
+                    id: id
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function () {
+                    Swal.fire({
+                        title: "Updating...",
+                        text: "Please wait",
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+
+                   
+                        }
+                        
+                    });
+                },
+                success: function (response) {
+                    Swal.close();
+
+                    if (response.status === true) {
+                        Swal.fire({
+                            title: "Updated!",
+                            text: "Annoucment status updated to " + newStatus + ".",
+                            icon: "success",
+                            timer: 1200,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire("Error!", response.message || "Failed to update status.", "error");
+                    }
+                },
+                error: function (xhr, error, status) {
+                    Swal.close();
+                    Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+                }
+            });
+        }
+    });
+}
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
             const clearFiltersBtn = document.getElementById('clearFilters');

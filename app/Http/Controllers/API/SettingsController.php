@@ -155,9 +155,14 @@ public function assigned_permissions()
         ->values()
         ->toArray();
 
+    $authId = Usercenter::where('userid',Auth::user()->userid)->pluck('centerid');
+
+    $usercenter = Usercenter::whereIn('centerid',$authId)->pluck('userid');
+
     $assignedUserList = User::with(['permissions' => function ($query) use ($permissionColumns) {
             $query->select(array_merge(['id', 'userid'], $permissionColumns));
         }])
+         ->whereIn('userid', $usercenter)
         ->get()
         ->map(function ($user, $index) use ($colors, $permissionColumns) {
             $user->colorClass = $colors[$index % count($colors)];
@@ -193,7 +198,13 @@ public function assigned_permissions()
 
  public function manage_permissions()
 {
-    $users = User::where('userType', 'Staff')->get();
+    
+    $authId = Usercenter::where('userid',Auth::user()->userid)->pluck('centerid');
+    // dd($authId);
+    $usercenter = Usercenter::whereIn('centerid',$authId)->pluck('userid');
+ 
+
+$users = User::where('userType', 'Staff')->whereIn('userid',$usercenter)->get();
 
     $permissionColumns = collect(Schema::getColumnListing('permissions'))
         ->filter(function ($column) {

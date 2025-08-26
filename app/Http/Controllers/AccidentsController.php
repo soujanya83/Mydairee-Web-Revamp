@@ -175,7 +175,7 @@ public function filterByChild(Request $request)
         $acc->username = $userData->name ?? 'Unknown';
     }
 
-    $childs = Child::where('room', $roomid)->get();
+    $childs = Child::where('room', $roomid)->where('status','Active')->get();
 
       $permission = Permission::where('userid',Auth::user()->userid)->where('centerid', $centerid)->first();
 
@@ -754,7 +754,7 @@ public function create(Request $request)
 public function getChildDetails(Request $request)
 {
    $id = $request->childid;
-    $child = Child::where('id', $id)->first();
+    $child = Child::where('id', $id)->where('status','Active')->first();
 
     if ($child) {
         return response()->json([

@@ -818,7 +818,14 @@
 
                             <ul class="list-unstyled mb-3">
                                 <!-- <li><strong>S No:</strong> {{ ($programPlans->currentPage() - 1) * $programPlans->perPage() + $loop->iteration }}</li> -->
-                                <li><strong>Room:</strong> {{ $plan->room->name ?? '' }}</li>
+                               @php
+    $roomIds = explode(',', $plan->room_id); // convert CSV to array
+    $rooms = \App\Models\Room::whereIn('id', $roomIds)->pluck('name')->toArray();
+@endphp
+
+<li><strong>Room(s):</strong> {{ implode(', ', $rooms) }}</li>
+
+     
                                 <li><strong>Created By:</strong> {{ $plan->creator->name ?? '' }}</li>
                                 <!-- <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li> -->
                                 <li><strong>Published on :</strong> {{ \Carbon\Carbon::parse($plan->updated_at)->format('d M Y') }}</li>
@@ -832,14 +839,14 @@
                                 </a>
 
                                 @if(Auth::user()->userType != 'Parent')
-                                    @if(!empty($permissions['editProgramPlan']) && $permissions['editProgramPlan'])
+                                    @if(!empty($permissions['editProgramPlan']) && $permissions['editProgramPlan'] || Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
                                         <a href="{{ route('create.programplan', ['centerId' => $centerId, 'planId' => $plan->id]) }}"
                                            class="btn btn-outline-info btn-sm" title="Edit">
                                             <i class="fas fa-pen-to-square"></i>
                                         </a>
                                     @endif
 
-                                    @if(!empty($permissions['deleteProgramPlan']) && $permissions['deleteProgramPlan'])
+                                    @if(!empty($permissions['deleteProgramPlan']) && $permissions['deleteProgramPlan'] || Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
                                         <button type="button"
                                                 class="btn btn-outline-danger btn-sm delete-program"
                                                 data-id="{{ $plan->id }}" title="Delete">

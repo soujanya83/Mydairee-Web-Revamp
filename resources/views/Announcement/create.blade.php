@@ -4,6 +4,18 @@
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
 <style>
+/* Limit modal height and allow scroll */
+#selectChildrenModal .modal-body {
+    max-height: 80vh;        /* limit vertical height */
+    overflow-y: auto;        /* enable vertical scroll */
+    overflow-x: hidden;      /* prevent horizontal scroll */
+    padding-right: 10px;     /* optional */
+    width: 100%;             /* full width */
+    box-sizing: border-box;  /* include padding in width */
+}
+
+
+
 .is-invalid {
     border-color: #dc3545 !important;
 }

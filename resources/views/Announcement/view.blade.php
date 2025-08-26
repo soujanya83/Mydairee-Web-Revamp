@@ -69,7 +69,7 @@
             @endphp
 
             @if ($isImage)
-                <img class="img-thumbnail thumbnail-hover" src="{{ asset($file) }}" style="width: 80px;height:80px" alt="Image">
+                <img class="img-thumbnail thumbnail-hover" id="annoucementImg"src="{{ asset($file) }}" style="width: 80px;height:80px" alt="Image">
             @elseif ($isPDF)
                 <a href="{{ asset($file) }}" target="_blank" class="d-block text-center">
                     <img src="{{ asset('svg/pdf-icon.svg') }}" alt="PDF" style="width: 40px;">
@@ -112,5 +112,41 @@
     </div>
 </main>
 
+<!-- Fullscreen Modal -->
+<!-- Half-page Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 50%;">
+    <div class="modal-content">
+      
+      <!-- Modal Header with Close Button -->
+      <div class="modal-header border-0">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-0 text-center">
+        <img id="modalImage" src="" class="img-fluid" style="width:10s0%; height:80vh;" alt="Full Image">
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
 @endsection
+@push('scripts')
+<script>
+ $('#annoucementImg').click(function () {
+    let imgSrc = $(this).attr('src');
+    $('#modalImage').attr('src', imgSrc); 
+    $('#imageModal').modal('show');
+});
+
+
+</script>
+@endpush
 @include('layout.footer')

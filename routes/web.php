@@ -31,14 +31,10 @@ use App\Http\Controllers\Auth\NotificationController;
 use App\Http\Controllers\PermissionController;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Artisan;
-// Route::get('/', function () {
-//     return view('dashboard.university');
-// });
 
-// Route::get('dashboard', function () {
-//     return redirect('dashboard/analytical');
-// });
 
+// share observation to family , feature for parents
+Route::get('/child/observation-link/{id}', [ObservationsController::class, 'print'])->name('sharelink');
 
 Route::get('/logout', function () {
     Auth::logout();
@@ -118,6 +114,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::delete('announcements/delete', [AnnouncementController::class, 'AnnouncementDelete'])->name('announcements.delete');
     Route::get('announcements/view/{annid}', [AnnouncementController::class, 'AnnouncementView'])->name('announcements.view');
     Route::get('announcements/events', [DashboardController::class, 'getEvents'])->name('announcements.events');
+    Route::post('update-annoucement-status', [AnnouncementController::class, 'updateStatus'])->name('update-annoucement-status');
+   
 
     // headchecks
     Route::get('headChecks', [HeadChecks::class, 'index'])->name('headChecks');
@@ -375,7 +373,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
         Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
         Route::get('/view', [ObservationsController::class, 'index'])->name('view');
         Route::get('/print/{id}', [ObservationsController::class, 'print'])->name('print');
-
+        Route::post('/share', [ObservationsController::class, 'shareObservation'])->name('share');
 
         Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
         Route::get('/addnew/{id}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
