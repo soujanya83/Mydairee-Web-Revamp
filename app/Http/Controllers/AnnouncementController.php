@@ -326,7 +326,7 @@ if($status == 'Draft'){
             : PermissionsModel::where('userid', Auth::user()->userid)
             ->first();
 
-        // dd($Childrens);
+        // dd($permissions);
 
         return view('Announcement.create', compact(
             'announcement',

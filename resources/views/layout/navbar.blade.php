@@ -140,18 +140,7 @@
                     $notifications = auth()->user()->unreadNotifications;
                     @endphp
                     <li class="dropdown" style="margin-right: 35px;margin-top: 0px;">
-                        {{-- <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown"
-                            title="Notifications">
-                            <i class="fa fa-bell" style="font-size: 22px;color:rgb(73 201 185)"></i>
-                            <span style="
-                                    display: inline-block; min-width: 20px;height: 20px; padding: 0 6px;font-size: 12px; color: white;
-                                    text-align: center;background-color: rgb(73 201 185);border-radius: 50%;`line-height: 20px;
-                                    margin-left: 0px;
-                                ">
-                                {{ $notifications->count() }}
-                            </span>
-
-                        </a> --}}
+                      
 
                     <a href="javascript:void(0);" class="dropdown-toggle icon-menu notification-bell" data-toggle="dropdown" title="Notifications">
     <i class="fa fa-bell"></i>
