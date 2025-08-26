@@ -618,8 +618,13 @@ public function shareObservation(Request $request)
 
         $rooms = collect();
 
+        $educators = collect();
+        if($observation->tagged_staff){
         $taggededucators = explode(',',$observation->tagged_staff);
         $educators = User::whereIn('userid',$taggededucators)->get();
+        }
+
+
         // dd($educators);
 
         if ($observation && $observation->room) {
