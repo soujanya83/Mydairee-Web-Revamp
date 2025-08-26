@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Childrens List')
+@section('title', 'Childs List')
 
 @section('parentPageTitle', '')
 <style>
@@ -116,7 +116,7 @@
                 @csrf
                 @method('PATCH')
                 <button type="submit"
-                    class="btn btn-sm {{ $child->childstatus == 'Active' ? 'btn-outline-success' : 'btn-outline-danger' }}">
+                    class="btn btn-sm {{ $child->childstatus == 'Active' ? 'btn-success' : 'btn-danger' }}">
                     {{ $child->childstatus == 'Active' ? 'Active' : 'Inactive' }}
                 </button>
 
@@ -140,7 +140,7 @@
                     </span>
 
                     <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#statusModal{{ $child->childId }}" style="height: 23px;">
+                        data-bs-target="#statusModal{{ $child->childId }}" style="height: 23px;" title="View Status History">
                         <i class="fas fa-eye"></i>
                     </button>
 
@@ -155,7 +155,7 @@
                 <div class="d-flex justify-content-end" style="margin-top:-43px">
 
                     <a href="{{ route('children.edit', $child->childId) }}" class="btn btn-outline-primary btn-sm"
-                        style="height: 24px;">
+                        style="height: 24px;" title="Child Edit">
                         <i class="fas fa-edit"></i>
                     </a>&nbsp;&nbsp;
 
@@ -165,7 +165,7 @@
                         onsubmit="return confirm('Are you sure?')" class="me-2">
                         @csrf
                         @method('DELETE')
-                        <button class="btn btn-outline-danger btn-sm"><i class="fas fa-trash-alt"></i></button>
+                        <button class="btn btn-outline-danger btn-sm" title="Child Delete"><i class="fas fa-trash-alt"></i></button>
                     </form>
 
                 </div>

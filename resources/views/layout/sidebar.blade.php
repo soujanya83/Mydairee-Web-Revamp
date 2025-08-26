@@ -178,6 +178,12 @@
                         </li>
                         @endif
 
+                         <li class="{{ Request::is('child*') ? 'active' : null }}">
+                            <a href="{{ route('childrens_list') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-children fa-2x mb-2"
+                                    style="font-size: 25px;"></i><span
+                                    style="font-size: 18px; margin-left:1px">Childs</span></a>
+
+                        </li>
 
 @if(  in_array(auth()->user()->userType, ['Superadmin']) ||
     (auth()->user()->userType == 'Staff' && !empty($permissions['viewQip']) && $permissions['viewQip']))
