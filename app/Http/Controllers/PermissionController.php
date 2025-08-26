@@ -18,7 +18,7 @@ class PermissionController extends Controller
     // Updated show method to display assigned permissions with all data needed for the template
     public function show($userId)
     {
-        $username = User::select('name')->where('userid', $userId)->first();
+        $username = User::where('userid', $userId)->first();
 
         $userPermissions = Permission::where('userid', $userId)->first();
 

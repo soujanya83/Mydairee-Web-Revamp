@@ -242,6 +242,7 @@ class SettingsController extends Controller
 
     public function manage_permissions()
     {
+        // dd('here');
         $users = User::where(['users.userType' => 'Staff', 'usercenters.centerid' => session('user_center_id')])->join('usercenters', 'usercenters.userid', '=', 'users.userid')->get();
 
         $permissionColumns = collect(Schema::getColumnListing('permissions'))
@@ -355,8 +356,12 @@ class SettingsController extends Controller
             foreach ($userIds as $userId) {
                 // Check if the record exists
                 $user = User::find($userId);
-                $user->admin = $request->admin;
+
+            if (isset($validated['admin'])) {
+                $user->admin = $validated['admin'];
                 $user->save();
+            }
+              
                 $permissionRecord = Permission::where('userid', $userId)->first();
 
                 if (!$permissionRecord) {
@@ -380,7 +385,7 @@ class SettingsController extends Controller
 
             return redirect()->back()->with('success', 'Permissions updated successfully!');
         } catch (\Exception $e) {
-            dd($e);
+            // dd($e);
             // ✅ Catch unexpected errors
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }

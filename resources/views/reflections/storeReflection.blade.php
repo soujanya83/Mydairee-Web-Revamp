@@ -184,7 +184,8 @@
 /* Preview badges */
 #selectedChildrenPreview .badge,
 #selectedRoomsPreview .badge,
-#selectedStaffPreview .badge {
+#selectedStaffPreview .badge ,
+#taggedselectedStaffPreview .badge{
     font-size: 13px;
     padding: 6px 10px;
     border-radius: 8px;
@@ -199,6 +200,10 @@
     background: linear-gradient(to right, #4caf50, #81c784);
 }
 #selectedStaffPreview .badge {
+    background: linear-gradient(to right,rgb(66, 177, 189), #e08e8e);
+}
+
+#taggedselectedStaffPreview .badge {
     background: linear-gradient(to right, #e80000, #e08e8e);
 }
 
@@ -574,8 +579,11 @@
     </div>
 </div>
 
+<!-- Select educators -->
 
-<div class="col-md-6 select-section">
+
+
+<div class="col-md-12 select-section">
     <label for="eylf">EYLF</label>
     <div class="input-group">
         <textarea class="form-control" id="eylf" name="eylf" rows="3" readonly>{{ old('eylf', $reflection->eylf ?? '') }}</textarea>
@@ -788,6 +796,8 @@
   </div>
 </div>
 
+
+
 <style>
     #eylfModal .modal-body {
     max-height: none !important;
@@ -885,11 +895,27 @@
     </div>
 </div>
 
-<!-- title modal -->
-
-
-
-<!-- title modal ends -->
+<!-- Staff Modal -->
+<div class="modal" id="taggedstaffModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <h5 class="modal-title" id="staffModalLabel">Select Staff</h5>
+        <input type="text" id="taggedstaffSearch" class="form-control ml-3" placeholder="Search staff..." style="max-width: 250px;">
+        <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="tagggedstaffList" class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="taggedconfirmStaff" class="btn btn-success">Confirm Selection</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 
@@ -1133,6 +1159,67 @@ $('#confirmStaff').on('click', function () {
     $('#selectedStaffPreview').html(nameHtml);
     // $('#staffModal').modal('hide');
 });
+
+
+
+
+let taggedselectedStaff = new Set($('#taggedselected_staff').val().split(',').filter(id => id));
+
+// Load staff on modal open
+$('#taggedstaffModal').on('show.bs.modal', function () {
+    console.log("Modal event triggered");
+    $.ajax({
+        url: '{{ route("observation.get-staff") }}',
+        method: 'GET',
+        success: function (response) {
+            if (response.success) {
+                let html = '';
+                response.staff.forEach(staff => {
+                    const checked = taggedselectedStaff.has(staff.id.toString()) ? 'checked' : '';
+                    html += `
+                        <div class="col-md-4 mb-2 tagged-staff-item">
+                            <div class="form-check">
+                                <input class="form-check-input taggedstaff-checkbox" type="checkbox" value="${staff.id}" id="staff-${staff.id}" ${checked}>
+                                <label class="form-check-label" for="staff-${staff.id}">
+                                    ${staff.name}
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                });
+                $('#tagggedstaffList').html(html);
+            }
+        }
+    });
+});
+
+// Filter staff
+$('#taggedstaffSearch').on('keyup', function () {
+    const search = $(this).val().toLowerCase();
+    $('.tagged-staff-item').each(function () {
+        const name = $(this).find('.form-check-label').text().toLowerCase();
+        $(this).toggle(name.includes(search));
+    });
+});
+
+// Confirm selection
+$('#taggedconfirmStaff').on('click', function () {
+    console.log('here');
+    taggedselectedStaff = new Set();
+    let nameHtml = '';
+    $('.taggedstaff-checkbox:checked').each(function () {
+        taggedselectedStaff.add($(this).val());
+        nameHtml += `<span class="badge badge-info mr-1">${$(this).next('label').text()}</span>`;
+    });
+
+    $('#taggedselected_staff').val([...taggedselectedStaff].join(','));
+    $('#taggedselectedStaffPreview').html(nameHtml);
+    $('#taggedstaffModal').modal('hide');
+});
+
+
+
+
 
 
 

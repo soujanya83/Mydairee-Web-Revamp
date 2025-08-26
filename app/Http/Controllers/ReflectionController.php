@@ -56,6 +56,7 @@ class ReflectionController extends Controller
 
                $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
                ->where('createdBy', $authId)
+                ->orWhereRaw("FIND_IN_SET(?, tagged_staff)", [$authId])
                ->orderBy('id', 'desc') // optional: to show latest first
                ->paginate(10); // 10 items per page
 
@@ -113,6 +114,17 @@ class ReflectionController extends Controller
             $rooms = Room::whereIn('id', $roomIds)->get();
         }
 
+         $tagged_staff = "";
+        if($reflection && $reflection->tagged_staff){
+            $tagged_staffids = explode(',', $reflection->tagged_staff);
+            $tagged_staff = User::whereIn('userid',$tagged_staffids)->get();
+
+            // $tagged_staff = $reflection->tagged_staff;
+            
+        }
+
+        // dd(  $tagged_staff );
+
         $staffs = $reflection
             ? $reflection->staff->pluck('staff')->filter()
             : collect();
@@ -120,7 +132,7 @@ class ReflectionController extends Controller
         $outcomes = EYLFOutcome::with('activities.subActivities')->get();
 
 
-        return view('reflections.storeReflection', compact('reflection', 'childrens', 'rooms', 'staffs', 'outcomes'));
+        return view('reflections.storeReflection', compact('reflection', 'childrens', 'rooms', 'staffs', 'outcomes','tagged_staff'));
     }
 
 
@@ -245,6 +257,7 @@ public function autosavereflection(Request $request)
             'eylf'              => 'required|string',
             'selected_children' => 'required|string',
             'selected_staff' => 'required|string',
+            'taggedselected_staff' => 'nullable|string'
         ];
 
         if (!$isEdit) {
@@ -274,9 +287,18 @@ public function autosavereflection(Request $request)
 
         DB::beginTransaction();
 
+
+
         try {
             $authId = Auth::user()->id;
             $centerid = Session('user_center_id');
+
+            $tagged_staff = "";
+            // dd($request->taggedselected_staff);
+            if(!empty($request->taggedselected_staff)){
+                 $tagged_staff = $request->taggedselected_staff;
+
+            }
 
             $reflection = $isEdit
                 ? Reflection::findOrFail($request->id)
@@ -288,6 +310,7 @@ public function autosavereflection(Request $request)
             $reflection->about        = $request->input('about');
             $reflection->eylf         = $request->input('eylf');
             $reflection->centerid     = $centerid;
+            $reflection->tagged_staff =  $tagged_staff;
             if (!$isEdit) {
             $reflection->createdBy    = $authId;
             }

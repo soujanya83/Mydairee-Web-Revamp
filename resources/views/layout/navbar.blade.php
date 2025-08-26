@@ -58,59 +58,54 @@
 </style>
 <style>
 .notification-bell {
-    position: relative;
-    display: inline-block;
-    color: #0dcaf0; /* neutral bell color */
-    font-size: 35px; /* fixed bell size */
-    transition: transform 0.2s ease;
-}
-
-.notification-bell:hover {
-    transform: scale(1.1);
-    cursor: pointer;
+  background-color: #0dcaf0;
+  border-radius: 6px;          /* square look with slight rounding */
+  color: white;
+  width: 30px;
+  height: 30px;
+  display: flex;               /* flex centers the child */
+  align-items: center;         /* vertical center */
+  justify-content: center;     /* horizontal center */
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 0;
+  margin-bottom: 15px;;
 }
 
 .notification-bell i {
-    transition: color 0.3s ease;
-}
-
-.notification-bell:hover i {
-    color: #0dcaf0; /* change bell color on hover */
-}
-
-.notification-count {
-    position: absolute;
-    top: 0.5rem;  
-    right: 0.6rem; 
-    display: flex;
+    font-size: 12px;             /* fits nicely inside 30×30 */
+    color: white !important;
+    display: flex;               /* ensure centering */
     align-items: center;
     justify-content: center;
-    width: 15px;   /* fixed circle size */
-    height: 15px;
-    font-size: 10px;
-    color: white;
-    background-color: #0dcaf0; 
-    border-radius: 50%;
-    font-weight: bold;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    z-index: 2;
+    position: relative;          /* make top/bottom work */
+    top: -8px;                   /* shift up (adjust as needed) */
+    border: 1px solid transparent; /* optional, just for demo */
 }
 
-/* 📱 Small screens: adjust badge alignment */
-@media (max-width: 576px) {
-    .notification-count {
-        top: 0.4rem;
-        right: 0.4rem;
-    }
+/* Badge */
+.notification-bell .notification-count {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: #0dcaf0;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 3px 3px;
+  line-height: 1;
+  min-width: 14px;
+  text-align: center;
 }
 
-/* 💻 Large screens: slightly adjust for balance */
-@media (min-width: 1200px) {
-    .notification-count {
-        top: 0.55rem;
-        right: 0.7rem;
-    }
+/* Hover */
+.notification-bell:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
+
 
 </style>
 <nav class="navbar navbar-fixed-top" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
@@ -144,19 +139,8 @@
                     @php
                     $notifications = auth()->user()->unreadNotifications;
                     @endphp
-                    <li class="dropdown" style="margin-right: 35px;margin-top: 10px;">
-                        {{-- <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown"
-                            title="Notifications">
-                            <i class="fa fa-bell" style="font-size: 22px;color:rgb(73 201 185)"></i>
-                            <span style="
-                                    display: inline-block; min-width: 20px;height: 20px; padding: 0 6px;font-size: 12px; color: white;
-                                    text-align: center;background-color: rgb(73 201 185);border-radius: 50%;`line-height: 20px;
-                                    margin-left: 0px;
-                                ">
-                                {{ $notifications->count() }}
-                            </span>
-
-                        </a> --}}
+                    <li class="dropdown" style="margin-right: 35px;margin-top: 0px;">
+                      
 
                     <a href="javascript:void(0);" class="dropdown-toggle icon-menu notification-bell" data-toggle="dropdown" title="Notifications">
     <i class="fa fa-bell"></i>
