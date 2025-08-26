@@ -86,6 +86,7 @@ class DailyDiaryController extends Controller
 $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
 
 $children = Child::whereIn('id', $childIds)
+->where('status','Active')
     ->get()
     ->filter(function ($child) use ($dayIndex) {
         return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
@@ -109,6 +110,7 @@ $children = Child::whereIn('id', $childIds)
         } elseif (in_array(auth()->user()->userType, ['Superadmin', 'Staff']) && $selectedroom) {
         if ($selectedroom) {
             $children = Child::where('room', $selectedroom->id)
+            ->where('status','Active')
                 ->get()
                 ->filter(function ($child) use ($dayIndex) {
                     return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
@@ -205,7 +207,7 @@ $children = Child::whereIn('id', $childIds)
         $childIds = Childparent::where('parentid', $authId)->pluck('childid');
     
         // Step 2: Get room IDs from Child records
-        $roomIds = Child::whereIn('id', $childIds)->pluck('room');
+        $roomIds = Child::whereIn('id', $childIds)->where('status','Active')->pluck('room');
     
         // Step 3: Get Room data for those room IDs
         $rooms = Room::whereIn('id', $roomIds)->get();
@@ -458,6 +460,7 @@ $children = Child::whereIn('id', $childIds)
         // Step 2: Get room IDs from children
         $roomIds = Child::whereIn('id', $childIds)
             ->whereNotNull('room')
+            ->where('status','Active')
             ->pluck('room');
 
         if ($roomIds->isEmpty()) {
@@ -483,7 +486,7 @@ $children = Child::whereIn('id', $childIds)
 
     public function getChildsFromRoomOfParent($roomid, $parentid)
     {
-        return Child::where('room', $roomid)
+        return Child::where('room', $roomid)->where('status','Active')
             ->whereHas('parents', function ($query) use ($parentid) {
                 $query->where('parentid', $parentid);
             })
@@ -492,7 +495,7 @@ $children = Child::whereIn('id', $childIds)
 
     public function getChildsFromRoom($roomid)
     {
-        return Child::where('room', $roomid)->get();
+        return Child::where('room', $roomid)->where('status','Active')->get();
     }
 
     public function getCenterDDSettings($centerid = '')

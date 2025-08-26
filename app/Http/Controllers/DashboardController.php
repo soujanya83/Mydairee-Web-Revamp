@@ -127,10 +127,14 @@ private function cleanText($text)
         if ($usertype === 'Parent') {
             // Show only children of the logged-in parent
             $childparent = Childparent::where('parentid', $userid)->pluck('childid');
-            $children = Child::wherein('id', $childparent)->get();
-        } else {
+            $children = Child::wherein('id', $childparent)->where('status','Active')->get();
+        } else if($usertype === 'Staff'){
             // Show all children for other user types (admin, teacher, etc.)
-            $children = Child::all();
+                    $children = Child::where('centerid',Session('user_center_id'))->get();
+        }else{
+                    //  $usercenter = Usercenters::where('userid',Auth::user()->userid)->first();
+                    // Superadamin
+            $children = Child::where('centerid',Session('user_center_id'))->get();
         }
 
         $data = [

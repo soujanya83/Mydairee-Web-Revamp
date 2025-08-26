@@ -27,6 +27,34 @@ use Illuminate\Support\Str;
 class AnnouncementController extends Controller
 {
 
+public function updateStatus(Request $request)
+{
+  
+    $id = $request->id;
+    $status = $request->status;
+if($status == 'Draft'){
+    $updateStatus = 'Pending';
+}else{
+     $updateStatus = 'Sent';
+}
+    $announcement = AnnouncementsModel::find($id);
+
+    if (!$announcement) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Announcement not found.'
+        ], 404);
+    }
+
+    $announcement->status = $updateStatus;
+    $announcement->save();
+
+    return response()->json([
+        'status' => true,
+        'message' => "Status changed to {$status} successfully."
+    ]);
+}
+
     public function Filterlist(Request $request)
 {
     $centerId = Session::get('user_center_id');
@@ -47,6 +75,7 @@ class AnnouncementController extends Controller
 
         $query = AnnouncementsModel::select('announcement.*')
             ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
+            ->where('status','Sent')
             ->where('announcement.centerid', $centerId)
             ->whereIn('announcementchild.childid', $childIds);
     }
@@ -132,8 +161,9 @@ class AnnouncementController extends Controller
             $records = AnnouncementsModel::select('announcement.*')
                 ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
                 ->whereIn('announcementchild.childid', $childIds)
+                ->where('status','Sent')
                 ->orderByDesc('announcement.id')
-                ->paginate(12); // ✅ Pagination here too
+                ->paginate(12); 
         }
 
         // Attach creator name manually if needed
@@ -178,6 +208,7 @@ class AnnouncementController extends Controller
             ->join('room as r', 'c.room', '=', 'r.id')
             ->select('c.*', 'r.*', 'c.name as name', 'c.id as childid')
             ->where('r.centerid', $centerid)
+            ->where('c.status','Active')
             ->get();
 
         $now = Carbon::now();
@@ -214,6 +245,7 @@ class AnnouncementController extends Controller
                 ->join('child_group_member', 'child.id', '=', 'child_group_member.child_id')
                 ->where('child_group_member.group_id', $group->id)
                 ->select('child.*')
+                ->where('child.status','Active')
                 ->get();
 
             foreach ($groupChilds as $child) {
@@ -255,6 +287,7 @@ class AnnouncementController extends Controller
             $roomChilds = DB::table('child as c')
                 ->join('room as r', 'c.room', '=', 'r.id')
                 ->where('r.id', $room->id)
+                ->where('c.status','Active')
                 ->select('c.*', 'r.*', 'c.id as childid', 'c.name as name')
                 ->get();
 
@@ -359,14 +392,14 @@ public function AnnouncementStore(Request $request)
 
         if ($role === "Superadmin") {
             $run = 1;
-            $status = "Sent";
+            $status = "Pending";
         } elseif ($role === "Staff") {
             $permission = \App\Models\PermissionsModel::where('userid', $userid)
                 ->first();
 
             if ($permission && ($permission->addAnnouncement || $permission->updateAnnouncement)) {
                 $run = 1;
-                $status = $permission->approveAnnouncement ? "Sent" : "Pending";
+                $status = "Pending";
             }
         }
 

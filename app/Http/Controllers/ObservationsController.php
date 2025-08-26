@@ -47,12 +47,47 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Notifications\ObservationAdded;
+use Illuminate\Support\Facades\Mail;
+
 
 
 class ObservationsController extends Controller
 {
 
+public function shareObservation(Request $request)
+{
+    $request->validate([
+        'recipient_email' => 'required|email',
+        'message'         => 'nullable|string',
+        'obsId'           => 'required'
+    ]);
 
+    $email   = $request->recipient_email;
+    $message = $request->message ?? 'Please check the report link below.';
+    $obsId   = $request->obsId;
+
+    try {
+        // ✅ Generate the shareable URL
+        $url = route('sharelink' , $obsId);
+
+        // ✅ Send email
+        Mail::send([], [], function ($mail) use ($email, $url, $message, $obsId) {
+            $mail->from('mydairee47@gmail.com', 'Observation Report')
+                 ->to($email)
+                 ->subject('Observation Report - ' . $obsId)
+                 ->html("
+                    <p>{$message}</p>
+                    <p>You can view the observation by clicking the link below:</p>
+                    <p><a href='{$url}' target='_blank'>{$url}</a></p>
+                ");
+        });
+
+        return back()->with('success', 'Observation shared successfully!');
+
+    } catch (\Exception $e) {
+        return back()->with('error', 'Error occurred while sending the email: ' . $e->getMessage());
+    }
+}
 
     public function refine(Request $request)
     {
@@ -105,7 +140,7 @@ class ObservationsController extends Controller
     public function index()
     {
 
-        $authId = Auth::user()->id;
+        $authId = Auth::user()->userid;
         $centerid = Session('user_center_id');
 
         if (Auth::user()->userType == "Superadmin") {
@@ -130,11 +165,20 @@ class ObservationsController extends Controller
             //     ->orderBy('id', 'desc') // optional: to show latest first
             //     ->paginate(10); // 10 items per page
 
-            $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
-    ->where('userid', $authId) // your created
-    ->orWhereRaw("FIND_IN_SET(?, tagged_staff)", [$authId]) // your tagged
+    //         $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
+    // ->where('userid', $authId) // your created
+    // ->orWhereRaw("FIND_IN_SET(?, tagged_staff)", [$authId]) // your tagged
+    // ->orderBy('id', 'desc')
+    // ->paginate(10);
+
+    $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
+    ->where(function ($q) use ($authId) {
+        $q->where('userid', $authId)
+          ->orWhereRaw("FIND_IN_SET(?, COALESCE(tagged_staff, ''))", [$authId]);
+    })
     ->orderBy('id', 'desc')
     ->paginate(10);
+
 
 
         } else {
@@ -400,7 +444,7 @@ class ObservationsController extends Controller
         $roomIds = Room::where('centerid', $centerid)->pluck('id');
 
         // Get all children in those rooms
-        $children = Child::whereIn('room', $roomIds)->get();
+        $children = Child::whereIn('room', $roomIds)->where('status','Active')->get();
 
         return $children;
     }
@@ -421,7 +465,7 @@ class ObservationsController extends Controller
         $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
 
         // Get all children in those rooms
-        $children = Child::whereIn('room', $allRoomIds)->get();
+        $children = Child::whereIn('room', $allRoomIds)->where('status','Active')->get();
 
         return $children;
     }
@@ -433,7 +477,7 @@ class ObservationsController extends Controller
 
         $childids = Childparent::where('parentid', $authId)->pluck('childid');
 
-        $children = Child::whereIn('id', $childids)->get();
+        $children = Child::whereIn('id', $childids)->where('status','Active')->get();
 
         return $children;
     }
@@ -449,6 +493,7 @@ class ObservationsController extends Controller
         // Exclude current user and Superadmins
         $staff = User::whereIn('id', $usersid)
             ->where('userType', 'Staff')
+            ->where('status','ACTIVE')
             ->get();
 
         return $staff;
@@ -573,6 +618,10 @@ class ObservationsController extends Controller
 
         $rooms = collect();
 
+        $taggededucators = explode(',',$observation->tagged_staff);
+        $educators = User::whereIn('userid',$taggededucators)->get();
+        // dd($educators);
+
         if ($observation && $observation->room) {
             $roomIds = explode(',', $observation->room); // Convert comma-separated string to array
             $rooms = Room::whereIn('id', $roomIds)->get();
@@ -582,7 +631,7 @@ class ObservationsController extends Controller
         $outcomes = EYLFOutcome::with('activities.subActivities')->get();
         $milestones = DevMilestone::with('mains.subs')->get();
 
-        return view('observations.storeObservation', compact('centers', 'observation', 'childrens', 'activeTab', 'rooms', 'activesubTab', 'subjects', 'outcomes', 'milestones'));
+        return view('observations.storeObservation', compact('centers', 'observation', 'childrens', 'activeTab', 'rooms', 'activesubTab', 'subjects', 'outcomes', 'milestones','educators'));
     }
 
 

@@ -373,6 +373,7 @@
                                     $commentCount = $observation->comments->count();
                                 @endphp
                                 <!-- Comment/Chat icon trigger -->
+                                 <div class=" d-flex flex-row ">
                                 <div style="margin-top:8px;">
                                 <button type="button"
                                         class="btn btn-light position-relative"
@@ -386,6 +387,18 @@
                                     @endif
                                 </button>
                             </div>
+   @if(Auth::user()->userType == 'Parent')
+                                 <div class="ml-2" style="margin-top:8px;">
+                                <button type="button"
+                                        class="btn btn-light position-relative"
+                                        data-toggle=""
+                                        data-target="" onclick="shareObservation({{$observation->id}})">
+                                    <i class="fa fa-share"></i>
+                                 
+                                </button>
+                            </div>
+@endif
+                          </div>
                                 <!-- <small class="text-muted">Comments</small> -->
 
 
@@ -441,7 +454,64 @@
                                     </div>
                                     </div>
 
+
+                                    <!-- share modal  -->
+                                  
+                         <div class="modal fade" id="sharemodal" tabindex="-1" role="dialog" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content shadow-lg border-0 rounded-lg">
+            
+            <!-- Header -->
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title font-weight-bold" id="shareModalLabel">
+                    <i class="fas fa-envelope mr-2"></i> Share via Email
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div class="modal-body px-4 py-3">
+                <form id="shareForm" method="post" action="{{ route('observation.share')}} ">
+                    @csrf
+                    <input type="hidden" name="obsId" value="" id="share">
+                    <div class="form-group">
+                        <label for="recipient-email" class="font-weight-bold">Recipient Email</label>
+                        <input type="email" class="form-control form-control-lg" 
+                               id="recipient-email" name="recipient_email" 
+                               placeholder="Enter recipient's email address" required>
+                        <small class="form-text text-muted">You can enter a single email address.</small>
+                    </div>
+                    
+                    <div class="form-group mt-3">
+                        <label for="share-message" class="font-weight-bold">Message <span class="text-muted">(optional)</span></label>
+                        <textarea class="form-control" id="share-message" name="message" rows="4" 
+                                  placeholder="Write a short message..."></textarea>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Footer -->
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary px-4" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Cancel
+                </button>
+                <button type="submit" form="shareForm" class="btn btn-info px-4">
+                    <i class="fas fa-paper-plane mr-1"></i> Send
+                </button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
 <script>
+
+    function shareObservation(id){
+        $('#share').val(id);
+        $('#sharemodal').modal('show');
+    }
             function sendComment{{ $observation->id }}(e) {
                 e.preventDefault();
                 console.log('sendComment called');
@@ -809,7 +879,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script> -->
 
+@if(session('success'))
 <script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: @json(session('success')),
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+    });
+</script>
+@endif
+<script>
+
+
     $(document).ready(function() {
     // Set CSRF token for AJAX requests
     $.ajaxSetup({

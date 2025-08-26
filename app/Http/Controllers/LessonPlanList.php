@@ -26,6 +26,9 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Illuminate\Pagination\Paginator;
+use App\Models\Permission;
+use Illuminate\Support\Arr;
+
 
 
 
@@ -62,93 +65,7 @@ class LessonPlanList extends Controller
     ]);
 }
 
-// public function filterProgramPlan(Request $request)
-// {
-//     if (!Auth::check()) {
-//         return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
-//     }
 
-//     $user = Auth::user();
-//     $authId = $user->id;
-//     $defaultCenterId = session('user_center_id');
-
-//     // Determine which center to use
-//     $centerId = $request->center_id ?? $defaultCenterId;
-
-//     // Base query with relationships
-//     $query = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
-//         ->where('centerid', $centerId);
-
-//     // Filter by user type
-//     if ($user->userType === 'Superadmin') {
-//         // Optionally validate superadmin's centers
-//         $accessibleCenters = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-//         if (!in_array($centerId, $accessibleCenters)) {
-//             return response()->json(['success' => false, 'message' => 'Unauthorized center access'], 403);
-//         }
-
-//     } elseif ($user->userType === 'Staff') {
-//         $query->where(function ($q) use ($authId) {
-//             $q->where('created_by', $authId)
-//               ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
-//         });
-
-//     } elseif ($user->userType === 'Parent') {
-//         $childIds = ChildParent::where('parentid', $authId)->pluck('childid');
-//         if ($childIds->isNotEmpty()) {
-//             $query->where(function ($q) use ($childIds) {
-//                 foreach ($childIds as $childId) {
-//                     $q->orWhereRaw('FIND_IN_SET(?, children)', [$childId]);
-//                 }
-//             });
-//         } else {
-//             return response()->json(['success' => true, 'data' => []]);
-//         }
-//     }
-
-//     // 🔹 Optional filters
-//     if ($request->filled('room')) {
-//         $query->whereHas('room', function ($q) use ($request) {
-//             $q->where('name', 'like', '%' . $request->room . '%');
-//         });
-//     }
-
-//     if ($request->filled('created_by')) {
-//         $query->whereHas('creator', function ($q) use ($request) {
-//             $q->where('name', 'like', '%' . $request->created_by . '%');
-//         });
-//     }
-
-//     if($request->month){
-//   $query->whereHas('creator', function ($q) use ($request) {
-//             $q->where('name', 'like', '%' . $request->created_by . '%');
-//         });
-//     }
-
-//     // Fetch data
-//     $programPlans = $query->orderByDesc('created_at')->get();
-
-//     // Transform response
-//     $data = $programPlans->map(function ($plan) {
-//         return [
-//             'id' => $plan->id,
-//             'month' => $plan->months,
-//             'month_name' => \Carbon\Carbon::create()->month($plan->months)->format('F'),
-//             'years' => $plan->years,
-//             'room_name' => $plan->room->name ?? '',
-//             'creator_name' => $plan->creator->name ?? '',
-//             'created_at_formatted' => $plan->created_at->format('d M Y / H:i'),
-//             'updated_at_formatted' => $plan->updated_at->format('d M Y / H:i'),
-//             'can_edit' => auth()->user()->userType !== 'Parent',  // example permission
-//             'can_delete' => auth()->user()->userType === 'Superadmin', // example permission
-//         ];
-//     });
-
-//     return response()->json([
-//         'status' => true,
-//         'data' => $data
-//     ]);
-// }
 public function filterProgramPlan(Request $request)
 {
     if (!Auth::check()) {
@@ -211,22 +128,7 @@ public function filterProgramPlan(Request $request)
       
     }
 
-    // dd($request->month);
-
-    // $months = ['january' => 1 , 'febuary' => 1 , 'march' => 2 , 'april' => 4];
-
-    // foreach($months as $key=>$month){
-    //     if($request->month == $key){
-    //         $month = $value;
-
-    //     }
-
-
-    // }
-    // // 🔹 Month filter (0-11 or 1-12 based on DB)
-    // if ($request->filled('month')) {
-    //     $query->where('months', $month);
-    // }
+   
 
     // Fetch data
     $programPlans = $query->orderByDesc('created_at')->get();
@@ -238,17 +140,55 @@ public function filterProgramPlan(Request $request)
             ? \Carbon\Carbon::create()->month($monthNumber)->format('F')
             : 'December'; // if 0 is December in your DB
 
+
+$roomIds = explode(',', $plan->room_id);  // convert CSV to array
+
+$rooms = Room::whereIn('id', $roomIds)->pluck('name')->toArray();
+
+$room_name = implode(',', $rooms);
+
+            // dd( $data );
+
+            $permission = Permission::where('userid',Auth::user()->userid)->first();
+            // dd($permission);
+
+         if (auth()->check()) {
+    $user = auth()->user();
+
+    // Default: all permissions = 0
+    $deleteProgramPlan = 0;
+    $viewProgramPlan   = 0;
+    $editProgramPlan   = 0;
+
+    if ($user->userType === 'Superadmin') {
+        // ✅ Superadmin: full access
+        $deleteProgramPlan = 1;
+        $viewProgramPlan   = 1;
+        $editProgramPlan   = 1;
+    } elseif ($permission) {
+        // ✅ Normal role: check from DB
+        $deleteProgramPlan = $permission->deleteProgramPlan ? 1 : 0;
+        $viewProgramPlan   = $permission->viewProgramPlan ? 1 : 0;
+        $editProgramPlan   = $permission->editProgramPlan ? 1 : 0;
+    } elseif($user->admin === '1'){
+           $deleteProgramPlan = 1;
+        $viewProgramPlan   = 1;
+        $editProgramPlan   = 1;
+    }
+}
+            
+
         return [
             'id' => $plan->id,
             'month' => $plan->months,
             'month_name' => $monthName,
             'years' => $plan->years,
-            'room_name' => $plan->room->name ?? '',
+            'room_name' => $room_name ?? '',
             'creator_name' => $plan->creator->name ?? '',
             'created_at_formatted' => $plan->created_at->format('d M Y / H:i'),
             'updated_at_formatted' => $plan->updated_at->format('d M Y / H:i'),
-            'can_edit' => auth()->user()->userType !== 'Parent',
-            'can_delete' => auth()->user()->userType === 'Superadmin',
+            'can_edit' =>  $editProgramPlan,
+            'can_delete' => $deleteProgramPlan,
             'status' => $plan->status ?? ''
         ];
     });
@@ -394,7 +334,21 @@ public function programPlanPrintPage($id)
     $month_name = strtoupper(\Carbon\Carbon::createFromDate(null, $plan->months)->format('F'));
 
     // Get room name
-    $room_name = optional($plan->room)->name ?? 'Unknown Room';
+    // $room_name = optional($plan->room)->name ?? 'Unknown Room';
+ $room_name = '';
+
+if ($plan->room_id) {
+    // Convert comma-separated IDs into an array
+    $roomIds = explode(',', $plan->room_id);
+//  dd($roomIds);
+    // Fetch all matching room names
+    $names = Room::whereIn('id', $roomIds)->pluck('name')->toArray();
+
+   
+
+    // Join them into a single string
+    $room_name = implode(', ', $names);
+}
 
     // Get educator names
     $educator_ids = explode(',', $plan->educators);
@@ -480,7 +434,7 @@ public function programPlanPrintPage($id)
             $userId = $authId;
 
             // Return view with data
-            // dd($montessori_subjects);
+            // dd( $selected_children);
 //             foreach( $montessori_subjects as $subject){
 //   if($subject->name == "Sensorial"){
 //                 dd($subject->activities );
@@ -571,17 +525,76 @@ public function programplanAutosave(Request $request)
 
 
     // ajax here 
+// public function getRoomUsers(Request $request)
+// {
+//     $request->validate([
+//         'room_id' => 'required|array',
+//         'room_id.*' => 'exists:room_staff,roomid', // validate each room ID
+//         'center_id' => 'required|integer', 
+//     ]);
+
+//     $roomIds = $request->input('room_id');
+
+//     // dd( $roomIds);
+//     $roomIds = isset($request->room_id)
+//     ? explode(',', $request->room_id)
+//     : [];
+
+// // Ensure it's flat (remove nested arrays)
+// $roomIds = Arr::flatten($roomIds);
+
+// // Now safe to use
+// $rooms = Room::whereIn('id', $roomIds)->get();
+
+//     // Get unique staff IDs from selected rooms
+//     $staffIds = RoomStaff::whereIn('roomid', $roomIds)
+//         ->pluck('staffid')
+//         ->unique()
+//         ->values();
+
+//     if ($staffIds->isEmpty()) {
+//         return response()->json([]);
+//     }
+
+//     // Get user details for all staff
+//     $users = User::whereIn('userid', $staffIds)
+//         ->select('userid as id', 'name')
+//         ->get();
+        
+
+//     return response()->json($users);
+// }
+
 public function getRoomUsers(Request $request)
 {
     $request->validate([
-        'room_id' => 'required|array',
-        'room_id.*' => 'exists:room_staff,roomid', // validate each room ID
+        'room_id'   => 'required', // accept string OR array
         'center_id' => 'required|integer', 
     ]);
 
     $roomIds = $request->input('room_id');
+    // dd(  $roomIds );
+
+    // ✅ Normalize: handle both string and array
+    if (is_string($roomIds)) {
+        // comma separated string → convert to array
+        $roomIds = explode(',', $roomIds);
+    } elseif (is_array($roomIds)) {
+        // already array → keep as is
+        $roomIds = \Illuminate\Support\Arr::flatten($roomIds);
+    } else {
+        $roomIds = [];
+    }
+
+    // remove empty values, duplicates
+    $roomIds = array_filter(array_unique($roomIds));
+
+    // ✅ Now safe to use
+
+    $rooms = Room::whereIn('id', $roomIds)->get();
 
     // Get unique staff IDs from selected rooms
+    // dd( $roomIds );
     $staffIds = RoomStaff::whereIn('roomid', $roomIds)
         ->pluck('staffid')
         ->unique()
@@ -594,34 +607,75 @@ public function getRoomUsers(Request $request)
     // Get user details for all staff
     $users = User::whereIn('userid', $staffIds)
         ->select('userid as id', 'name')
+        ->where('status','ACTIVE')
         ->get();
 
     return response()->json($users);
 }
 
 
+
+// public function getRoomChildren(Request $request)
+// {
+//     $request->validate([
+//         'room_id' => 'required|array',
+//         'room_id.*' => 'exists:room,id', // ideally validate against rooms table
+//         'center_id' => 'required|integer',
+//     ]);
+
+//     $roomIds = $request->input('room_id');
+//     // dd($roomIds);
+
+//     $children = Child::whereIn('room', $roomIds)
+//         ->select('id', 'name', 'lastname')
+//         ->get()
+//         ->map(function ($child) {
+//             return [
+//                 'id' => $child->id,
+//                 'name' => trim($child->name . ' ' . $child->lastname),
+//             ];
+//         })
+//         ->unique('id')  // ensure no duplicates if a child is linked multiple times
+//         ->values();     // reset array keys
+
+//     return response()->json($children);
+// }
+
+
 public function getRoomChildren(Request $request)
 {
     $request->validate([
-        'room_id' => 'required|array',
-        'room_id.*' => 'exists:room,id', // ideally validate against rooms table
+        'room_id'   => 'required', // accept string OR array
         'center_id' => 'required|integer',
     ]);
 
     $roomIds = $request->input('room_id');
-    // dd($roomIds);
 
+    // ✅ Normalize: handle both string and array
+    if (is_string($roomIds)) {
+        $roomIds = explode(',', $roomIds);
+    } elseif (is_array($roomIds)) {
+        $roomIds = \Illuminate\Support\Arr::flatten($roomIds);
+    } else {
+        $roomIds = [];
+    }
+
+    // remove empty values, duplicates
+    $roomIds = array_filter(array_unique($roomIds));
+
+    // ✅ Now safe to use
     $children = Child::whereIn('room', $roomIds)
         ->select('id', 'name', 'lastname')
+        ->where('status','Active')
         ->get()
         ->map(function ($child) {
             return [
-                'id' => $child->id,
+                'id'   => $child->id,
                 'name' => trim($child->name . ' ' . $child->lastname),
             ];
         })
-        ->unique('id')  // ensure no duplicates if a child is linked multiple times
-        ->values();     // reset array keys
+        ->unique('id')   // avoid duplicate children
+        ->values();      // reset array keys
 
     return response()->json($children);
 }
@@ -638,11 +692,13 @@ public function saveProgramPlan(Request $request)
         'children' => 'required|array',
     ]);
     // dd($request->all());
-
+ 
     // Convert arrays to comma-separated strings
     $educators = implode(',', $request->input('users'));
     $children = implode(',', $request->input('children'));
         $room = implode(',', $request->input('room'));
+//  dd(  $room);
+      
 
     // Prepare data
     $programData = [

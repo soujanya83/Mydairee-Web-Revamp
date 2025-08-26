@@ -947,18 +947,26 @@
         style="display:none; min-width:170px;"
         value="{{ \Carbon\Carbon::parse($observation->created_at)->format('d M Y') }}">
 </div>
+   <button type="button" id="ObservationChildren" class="btn btn-secondary shadow-lg btn-animated mr-2">
+        <i class="fas fa-child mr-1"></i> child
+    </button>
 
-
+<a href="{{ route('observation.print', $observation->id) }}" target="_blank" class="btn btn-info shadow-lg btn-animated mr-2 text-white">
+    <i class="fas fa-eye mr-1"></i> Preview
+</a>
     <button type="button" id="publishObservation" class="btn btn-success shadow-lg btn-animated mr-2">
         <i class="fas fa-upload mr-1"></i> Publish Now
     </button>
     <button type="button" id="draftObservation" class="btn btn-warning shadow-lg btn-animated">
         <i class="fas fa-file-alt mr-1"></i> Make Draft
     </button>
+   
 </div>
 @endif
 
 <script>
+
+
     $(function(){
         // Handle subject select within this specific form section
         $('#subjectSelect').on('change', function(){
@@ -1734,6 +1742,63 @@
 </div>
 
 
+<!-- show childrens for preview -->
+<div class="modal" id="PreviewchildrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <h5 class="modal-title" id="childrenModalLabel">Selected</h5>
+        <!-- <input type="text" id="childSearch" class="form-control ml-3" placeholder="Search children..." style="max-width: 250px;"> -->
+        <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="max-height:550px;overflow-y:auto;">
+        <div id="childrenList" class="row"></div>
+           @if(isset($childrens))
+         <h5 class="modal-title" id="childrenModalLabel"> Children</h5>
+         <div id="selectedChildrenPreview" class="mt-3">
+     
+            @foreach($childrens as $child)
+                <span class="badge badge-info mr-1">{{ $child->name }}</span>
+            @endforeach
+        @endif
+    </div>
+
+
+      @if(isset($rooms))
+         <h5 class="modal-title" id="childrenModalLabel"> Rooms</h5>
+         <div id="selectedChildrenPreview" class="mt-3">
+     
+            @foreach($rooms as $room)
+                <span class="badge badge-success mr-1">{{ $room['name'] }}</span>
+            @endforeach
+        @endif
+    </div>
+
+      @if(isset($educators))
+         <h5 class="modal-title" id="childrenModalLabel">Tagged Educators</h5>
+         <div id="selectedChildrenPreview" class="mt-3">
+     
+          @foreach($educators as $educator)
+                <span class="badge badge-success mr-1">{{ $educator->name }}</span>
+            @endforeach
+        @endif
+    </div>
+
+ 
+
+      </div>
+      <!-- <div class="modal-footer">
+        <button type="button" id="confirmChildren" class="btn btn-success" >Confirm Selection</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div> -->
+    </div>
+  </div>
+</div>
+
+
+
 <div id="toast-container" class="toast-bottom-right"
         style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
 
@@ -1741,6 +1806,13 @@
 
 
         <script>
+$(document).ready(function () {
+    $('#ObservationChildren').on('click', function () {
+        $('#PreviewchildrenModal').modal('show');
+    });
+});
+
+
         $(document).ready(function () {
         let reflection = @json($observation);
 
