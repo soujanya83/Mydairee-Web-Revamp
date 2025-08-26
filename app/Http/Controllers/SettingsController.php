@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+
 class SettingsController extends Controller
 {
 
@@ -141,62 +142,61 @@ class SettingsController extends Controller
         ]);
     }
 
-public function updateStatusSuperadmin(Request $request)
-{
-    try {
-        // ✅ Validation
-        $validator = Validator::make($request->all(), [
-            'id'     => 'required|integer',
-            'status' => 'required|string|in:ACTIVE,IN-ACTIVE,PENDING'
-        ]);
+    public function updateStatusSuperadmin(Request $request)
+    {
+        try {
+            // ✅ Validation
+            $validator = Validator::make($request->all(), [
+                'id'     => 'required|integer',
+                'status' => 'required|string|in:ACTIVE,IN-ACTIVE,PENDING'
+            ]);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Validation failed.',
+                    'errors'  => $validator->errors()
+                ], 422);
+            }
+
+            $validated = $validator->validated();
+
+            // ✅ Check if user exists
+            $user = User::where('userid', $validated['id'])->first();
+            if (!$user) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'User not found.'
+                ], 404);
+            }
+
+            // ✅ Update status
+            $user->status = $validated['status'];
+            if (!$user->save()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Failed to update user status. Please try again.'
+                ], 500);
+            }
+
+            // ✅ Success
+            return response()->json([
+                'status'  => true,
+                'message' => 'Status updated successfully to ' . $user->status,
+                'data'    => [
+                    'id'     => $user->userid,
+                    'status' => $user->status
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            // ✅ Catch unexpected errors
             return response()->json([
                 'status'  => false,
-                'message' => 'Validation failed.',
-                'errors'  => $validator->errors()
-            ], 422);
-        }
-
-        $validated = $validator->validated();
-
-        // ✅ Check if user exists
-        $user = User::where('userid', $validated['id'])->first();
-        if (!$user) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'User not found.'
-            ], 404);
-        }
-
-        // ✅ Update status
-        $user->status = $validated['status'];
-        if (!$user->save()) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Failed to update user status. Please try again.'
+                'message' => 'Something went wrong.',
+                'error'   => $e->getMessage()
             ], 500);
         }
-
-        // ✅ Success
-        return response()->json([
-            'status'  => true,
-            'message' => 'Status updated successfully to ' . $user->status,
-            'data'    => [
-                'id'     => $user->userid,
-                'status' => $user->status
-            ]
-        ], 200);
-
-    } catch (\Exception $e) {
-        // ✅ Catch unexpected errors
-        return response()->json([
-            'status'  => false,
-            'message' => 'Something went wrong.',
-            'error'   => $e->getMessage()
-        ], 500);
     }
-}
 
 
     public function updateUserPermissions(Request $request, $userId)
@@ -368,7 +368,6 @@ public function updateStatusSuperadmin(Request $request)
                     $permissionRecord = new Permission();
                     $permissionRecord->userid = $userId;
                     $permissionRecord->centerid = $centerId;
-                    
                 }
 
                 // Get all permission column names from table (excluding id, userid, centerid)
@@ -1486,31 +1485,71 @@ public function updateStatusSuperadmin(Request $request)
         return response()->json(['status' => 'success', 'success' => true]);
     }
 
-
     public function changePassword(Request $request, $id)
     {
-
         $user = User::findOrFail($id);
 
         $request->validate([
             'current_password' => 'required',
-            'new_password' => 'required|min:6|confirmed',
+            'new_password'     => 'required|min:6|confirmed',
         ], [
             'new_password.confirmed' => 'New password and confirmation do not match.',
         ]);
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        $currentPassword = $request->current_password;
+        $storedPassword  = $user->password;
+
+        $isValid = false;
+
+        // Check if stored password is bcrypt
+        if (\Illuminate\Support\Str::startsWith($storedPassword, '$2y$')) {
+            $isValid = \Illuminate\Support\Facades\Hash::check($currentPassword, $storedPassword);
+        } else {
+            // Fallback for legacy SHA1 hash
+            $isValid = sha1($currentPassword) === $storedPassword;
+        }
+
+        if (!$isValid) {
             return response()->json([
-                'status' => 'error',
-                'error' => 'Current password is incorrect.',
+                'status'  => 'error',
+                'error'   => 'Current password is incorrect.',
                 'message' => 'Current password is incorrect.'
             ], 422);
         }
 
-        $user->password = Hash::make($request->new_password);
+        // Always save new password in bcrypt
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->new_password);
         $user->save();
 
         return response()->json(['status' => 'success']);
     }
-    
+
+
+
+
+    // public function changePassword(Request $request, $id)
+    // {
+
+    //     $user = User::findOrFail($id);
+
+    //     $request->validate([
+    //         'current_password' => 'required',
+    //         'new_password' => 'required|min:6|confirmed',
+    //     ], [
+    //         'new_password.confirmed' => 'New password and confirmation do not match.',
+    //     ]);
+
+    //     if (!Hash::check($request->current_password, $user->password)) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'error' => 'Current password is incorrect.',
+    //             'message' => 'Current password is incorrect.'
+    //         ], 422);
+    //     }
+
+    //     $user->password = Hash::make($request->new_password);
+    //     $user->save();
+
+    //     return response()->json(['status' => 'success']);
+    // }
 }

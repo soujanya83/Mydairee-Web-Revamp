@@ -260,7 +260,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     })->name('logout');
     // service details
 
-    Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
+    Route::get('/room/{roomid}/childs', [RoomController::class, 'showChildren'])->name('room.children');
     Route::get('/edit-child/{id}', [RoomController::class, 'edit_child'])->name('edit_child');
     Route::put('/child/update/{id}', [RoomController::class, 'update_child'])->name('update_child');
     Route::put('/update/child{id}', [RoomController::class, 'update_child_progress'])->name('update_child_progress');
@@ -271,7 +271,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
     Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
     Route::delete('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
-    Route::match(['get', 'post'], '/childrens-list', [RoomController::class, 'childrens_list'])->name('childrens_list');
+    Route::match(['get', 'post'], '/childs', [RoomController::class, 'childrens_list'])->name('childrens_list');
     Route::get('/childrens-edit/{id}', [RoomController::class, 'childrens_edit'])->name('children.edit');
     Route::delete('/childrens-delete/{id}', [RoomController::class, 'children_destroy'])->name('children.destroy');
 

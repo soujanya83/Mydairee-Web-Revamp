@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Childrens')
+@section('title', 'Childs')
 @section('parentPageTitle', 'Rooms')
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -96,8 +96,8 @@
 
     <div class="text-zero top-right-button-container mt-3" style="margin-right:40px">
         <div class="btn-group">
-            <button data-toggle="modal" data-target="#newChildModal" class="btn btn-outline-info dropdown-toggle"> + NEW
-                CHILDREN </button>
+            <button data-toggle="modal" data-target="#newChildModal" class="btn btn-outline-info"> + Add
+                New Child</button>
         </div>
     </div>
 
@@ -131,23 +131,19 @@
                 <div class="body">
                     <div class="icon text-info"><i class="fa fa-university"></i> </div>
                     <div class="content">
-                        <div class="text">Room Capacity</div>
-                        <h5 class="number">{{ $roomcapacity->capacity }}</h5>
+                        <div class="text">Room Name</div>
+                        <h5 class="number">{{ $roomcapacity->name }}</h5>
                     </div>
-
-
-
-
                 </div>
             </div>
         </div>
         <div class="col-lg-3 col-md-6">
             <div class="card top_counter">
                 <div class="body">
-                    <div class="icon text-danger"><i class="fa fa-users"></i> </div>
+                    <div class="icon text-info"><i class="fa fa-university"></i> </div>
                     <div class="content">
-                        <div class="text">Daily Occupancy</div>
-                        <h5 class="number"></h5>
+                        <div class="text">Room Capacity</div>
+                        <h5 class="number">{{ $roomcapacity->capacity }}</h5>
                     </div>
                 </div>
             </div>
@@ -163,7 +159,7 @@
 
                     <div class="icon text-success"><i class="fa fa-users"></i> </div>
                     <div class="content">
-                        <div class="text">Active Child/ren</div>
+                        <div class="text">Active Childs</div>
                         <h5 class="number">{{ $activechilds }}</h5>
                     </div>
                 </div>
@@ -188,54 +184,7 @@
         </div>
     </div>
 
-    {{-- <div class="container mt-4">
-        <!-- Form for moving children -->
-        <form action="{{ route('move_children') }}" method="POST">
-            @csrf
-            <div class="d-flex justify-content-end mb-3 align-items-center">
-                <select name="room_id" class="form-control mr-2" style="width: 200px;" id="roomSelect" disabled>
-                    <option value="" selected>Select a room</option>
-                    @foreach($rooms as $room)
-                    <option value="{{ $room->id }}">{{ $room->name }}</option>
-                    @endforeach
-                </select>
-                <button type="submit" class="btn btn-outline-primary btn-xs" id="moveButton" disabled>MOVE</button>
-                &nbsp; &nbsp;
-                <button type="submit" formaction="{{ route('delete_selected_children') }}"
-                    class="btn btn-outline-danger btn-xs" id="deleteButton"
-                    onclick="return confirm('Are you sure you want to delete the selected children?')" disabled>
-                    DELETE
-                </button>
-            </div>
 
-            <div class="row">
-                @foreach($allchilds as $child)
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm border-0 rounded p-3">
-                        <div class="d-flex align-items-center mb-2">
-                            <!-- Checkbox for selecting child -->
-
-                            <img src="{{ $child->imageUrl ? asset($child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}"
-                                alt="Profile" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
-                            <div class="ms-3" style="margin-left:12px">
-                                <h5 class="mb-1">
-                                    <a href="{{ route('edit_child', ['id' => $child->id]) }}">{{ ucfirst($child->name)
-                                        }}</a>
-                                </h5>
-                                <p class="mb-0">Date of Birth: {{ date('d-M-Y', strtotime($child->dob)) }}</p>
-                                <p class="mb-0">Joining Date: {{ date('d-M-Y', strtotime($child->startDate)) }}</p>
-                                <p class="mb-0">{{ \Carbon\Carbon::parse($child->dob)->age }} years</p>
-                            </div>
-                        </div>
-                        <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a>
-                        <input type="checkbox" name="child_ids[]" value="{{ $child->id }}" class="child-checkbox mr-2"
-                            style="margin-left: 148px;z-index: 1;width: 15px; height: 15px;">
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </form>
-    </div> --}}
 
     <div class="container mt-4">
         <!-- Bootstrap Nav Tabs -->
@@ -252,6 +201,9 @@
         <div class="tab-content" id="roomTabContent">
             <!-- CHILDREN TAB -->
             <div class="tab-pane fade show active" id="children" role="tabpanel" aria-labelledby="children-tab">
+
+
+
                 <form action="{{ route('move_children') }}" method="POST">
                     @csrf
                     <div class="d-flex justify-content-end mb-3 align-items-center">
@@ -354,14 +306,14 @@
                 <div class="modal-body">
                     @foreach ($AllEducators as $educator)
                     <div class="form-check d-flex align-items-center mb-2">
-                        <img src="{{ asset($educator->imageUrl) }}" class="rounded-circle ms-2 me-2"
-                            width="40" height="40">
+                        <img src="{{ asset($educator->imageUrl) }}" class="rounded-circle ms-2 me-2" width="40"
+                            height="40">
 
                         <input class="form-check-input" type="checkbox" name="educators[]"
                             value="{{ $educator->userid }}" {{ in_array($educator->userid, $assignedEducatorIds) ?
                         'checked' : '' }}>
 
-                       &nbsp;&nbsp;&nbsp; <label class="form-check-label">{{ $educator->name }}</label>
+                        &nbsp;&nbsp;&nbsp; <label class="form-check-label">{{ $educator->name }}</label>
                     </div>
                     @endforeach
 
@@ -382,7 +334,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="newChildModalLabel">New Child</h5>
+                <h5 class="modal-title" id="newChildModalLabel">+Add New Child</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true"><b>X</b></span>
                 </button>
@@ -424,19 +376,20 @@
                         </div>
                     </div>
                     <div class="form-row">
-
+                        <div class="form-group col-md-6">
+                            <label for="uploadImg">Choose Image</label>
+                            <input id="uploadImg" name="file" class="form-control" type="file" required>
+                        </div>
                         <div class="form-group col-md-6">
                             <label for="status">Status <span style="color:red">*</span></label>
-                            <select id="status" name="status" class="form-control">
-                                <option>Select</option>
-                                <option value="Active" selected> Active</option>
-                                <option value="Enrolled">Enrolled</option>
+                            <select id="status" name="status" class="form-control" required>
+                                <option value="" disabled selected>Select</option>
+                                <option value="Active" selected>Active</option>
+                                <option value="In Active">In Active</option>
                             </select>
+
                         </div>
-                        <div class="form-group col-md-6">
-                            <label for="uploadImg">Choose Image <span style="color:red">*</span></label>
-                            <input id="uploadImg" name="file" class="form-control" type="file">
-                        </div>
+
                     </div>
 
 
@@ -477,6 +430,11 @@
                             </div>
                         </div>
                     </div>
+
+
+
+
+
                 </div>
                 <div class="modal-footer">
                     {{-- <button type="button" class="btn btn-danger" data-dismiss="modal"
