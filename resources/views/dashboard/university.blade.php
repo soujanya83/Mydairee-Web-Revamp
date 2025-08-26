@@ -27,6 +27,12 @@
         color: white
     }
 
+#birthdayModal:hover,
+#announcementModal:hover {
+    cursor: pointer !important;
+}
+
+
 
 </style>
 
