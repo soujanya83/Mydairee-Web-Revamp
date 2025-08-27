@@ -213,7 +213,7 @@ public function getSleepChecksList(Request $request)
 
             //  dd( $sleepChecks);
   }else{
-  $children = Child::where('room', $roomid)->get();
+  $children = Child::where('room', $roomid)->where('status','Active')->get();
 
             $sleepChecks = DailyDiarySleepCheckList::where(['createdBy'=>$userid, 'roomid'=>$roomid])
              ->whereDate('created_at', $date)

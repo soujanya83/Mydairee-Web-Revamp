@@ -371,15 +371,21 @@ input[type="radio"]:checked + .radio-pill {
         <h3 class="service-title fw-bold">Incident Details</h3>
     </div>
 
-    <div class="col-md-6 mb-3">
-        <label for="incidentdate" class="form-label">Incident Date</label>
- <input type="date" 
-       class="form-control shadow-sm custom-input @error('incident_date') is-invalid @enderror" 
-       id="incidentdate" 
-       name="incident_date" 
-       value="{{ old('incident_date') }}">
+@php
+    $today = \Carbon\Carbon::now()->format('Y-m-d');
+    $incidentDate = old('incident_date', isset($incident) ? \Carbon\Carbon::parse($incident->incident_date)->format('Y-m-d') : $today);
+@endphp
 
-    </div>
+<div class="col-md-6 mb-3">
+    <label for="incidentdate" class="form-label">Incident Date</label>
+    <input type="date" 
+           class="form-control shadow-sm custom-input @error('incident_date') is-invalid @enderror" 
+           id="incidentdate" 
+           name="incident_date" 
+           value="{{ $incidentDate }}"
+           @if($incidentDate === $today) disabled @endif>
+</div>
+
 
     <div class="col-md-6 mb-3">
         <label for="incidenttime" class="form-label">Time</label>
@@ -404,14 +410,25 @@ input[type="radio"]:checked + .radio-pill {
     <div class="col-md-6 mb-3">
         <label class="form-label">
             Signature
-            <span class="editbtn text-primary ms-2" data-toggle="modal" data-target="#signModal" data-identity="witness_sign" style="cursor: pointer;">
-                <i class="fas fa-pencil-alt"></i>
-            </span>
+          
         </label>
-        <input type="text" class="form-control mb-2 shadow-sm custom-input" id="witness_sign_dt" disabled>
+        <input type="text" class="form-control mb-2 shadow-sm custom-input" data-toggle="modal" data-target="#signModal" data-identity="witness_sign" style="cursor: pointer;" readonly>
         <div id="witness_sign" class="border rounded bg-light p-2 shadow-sm">
             <input type="hidden" name="witness_sign" id="witness_sign_txt">
-            <img src="" height="120" width="300" id="witness_sign_img" class="img-thumbnail" alt="Witness Signature">
+           <div id="witness_sign_container" style="position: relative; display: inline-block;">
+    <img src="" height="120" width="300" id="witness_sign_img" 
+         class="img-thumbnail" alt="Witness Signature" style="display:none;">
+
+    <!-- close button -->
+    <span id="removewitness_sign_txt"
+          style="position: absolute; top: 5px; right: 8px; 
+                 cursor: pointer; color: #fff; background: red; 
+                 border-radius: 50%; padding: 0 8px; font-weight: bold; 
+                 font-size: 16px; line-height: 20px; display:none;">
+        ×
+    </span>
+</div>
+
         </div>
     </div>
 </div>
@@ -826,12 +843,22 @@ input[type="radio"]:checked + .radio-pill {
                             <div class="form-group col-md-6">
                                 <label>
                                     Signature
-                                    <span class=" editbtn" data-toggle="modal" data-target="#signModal" data-identity="incharge_sign"> <i class="fas fa-pencil-alt"></i></span>
+                                    <!-- <span class=" editbtn" data-toggle="modal" data-target="#signModal" data-identity="incharge_sign"> <i class="fas fa-pencil-alt"></i></span> -->
                                 </label>
-                                <input type="text" class="form-control custom-input" id="res_pinc_dt" disabled>
+                                <input type="text" class="form-control custom-input" id="res_pinc_dt" data-toggle="modal" data-target="#signModal" data-identity="incharge_sign" readonly>
                                 <div id="incharge_sign">
                                     <input type="hidden" name="responsible_person_sign" id="res_pinc_txt" value="">
-                                    <img src="" height="120px" width="300px" id="res_pinc_img">
+                                   <div id="res_pinc_container" style="position: relative; display: inline-block;">
+    <img src="" height="120" width="300" id="res_pinc_img" 
+         style="border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); display:none;">
+    
+    <!-- Stylish close button -->
+    <span id="removeres_pinc_txt" 
+          style="position: absolute; top: 5px; right: 10px; cursor: pointer; color: #fff; background: red; border-radius: 50%; padding: 2px 8px; font-weight: bold; font-size: 16px; display:none;">
+        ×
+    </span>
+</div>
+
                                 </div>
                             </div>
                         </div>
@@ -854,12 +881,24 @@ input[type="radio"]:checked + .radio-pill {
                                 <div class="form-group col-md-6">
                                     <label>
                                         Signature
-                                        <span class=" editbtn" data-toggle="modal" data-target="#signModal" data-identity="supervisor_sign"><i class="fas fa-pencil-alt"></i></span>
+                                        <!-- <span class=" editbtn" data-toggle="modal" data-target="#signModal" data-identity="supervisor_sign"><i class="fas fa-pencil-alt"></i></span> -->
                                     </label>
-                                    <input type="text" class="form-control custom-input" id="nom_svs_dt" disabled>
+                                    <input type="text" class="form-control custom-input" id="nom_svs_dt" data-toggle="modal" data-target="#signModal" data-identity="supervisor_sign" readonly>
                                     <div id="supervisor_sign">
                                         <input type="hidden" name="nominated_supervisor_sign" id="nsv_sign_txt" value="">
-                                        <img src="" height="120px" width="300px" id="nsv_sign_img">
+                                      <div id="nsv_sign_container" style="position: relative; display: inline-block;">
+    <img src="" height="120" width="300" id="nsv_sign_img" 
+         style="border:1px solid #ccc; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display:none;">
+    
+    <!-- close button -->
+    <span id="removensv_sign_txt"
+          style="position: absolute; top: 5px; right: 8px; cursor: pointer; 
+                 color: #fff; background: red; border-radius: 50%; 
+                 padding: 0 8px; font-weight: bold; font-size: 16px; line-height: 20px; display:none;">
+        ×
+    </span>
+</div>
+
                                     </div>
                                 </div>
                             </div>
@@ -985,8 +1024,8 @@ input[type="radio"]:checked + .radio-pill {
       </div>
       <div class="modal-footer text-right">
       	<br>
-        <button type="button" class="btn btn-default btn-sm btn-danger" data-dismiss="modal">Exit</button>
-        <button type="button" class="btn btn-default btn-sm btn-success " id="btnSignature" data-identity="" data-dismiss="modal">Use</button>
+        <button type="button" class="btn btn-default btn-sm btn-danger"  id="btnSignaturecancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-default btn-sm btn-success " id="btnSignature" data-identity="" data-dismiss="modal">Save</button>
       </div>
     </div>
   </div>
@@ -1054,6 +1093,60 @@ input[type="radio"]:checked + .radio-pill {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.signature/1.2.1/jquery.signature.min.js"></script>
 
 <script>
+
+  $('#removensv_sign_txt').click(function () {
+    $('#nsv_sign_img').attr('src', '').hide(); // clear + hide image
+    $('#nsv_sign_txt').val('');                // unset hidden input
+    $(this).hide();                            // also hide the × button itself
+});
+
+  $('#removeres_pinc_txt').click(function () {
+    $('#res_pinc_img').attr('src', '').hide(); // clear + hide image
+    $('#res_pinc_txt').val('');                // unset hidden input
+    $(this).hide();                            // also hide the × button itself
+});
+
+    
+       $('#removewitness_sign_txt').click(function(){
+        $('#witness_sign_img').attr('src','').hide();
+         $('#witness_sign_txt').val('');
+          $(this).hide(); 
+    })
+
+       $('#removeperson_sign_txt').click(function(){
+        $('#person_sign_img').attr('src','').hide();
+         $('#person_sign_txt').val('');
+          $(this).hide(); 
+    })
+
+$('#btnSignaturecancel').on('click', function() {
+    clearSignatureCanvas();
+});
+
+// Also clear if modal closed by "X" or outside click
+$('#signModal').on('hidden.bs.modal', function () {
+    clearSignatureCanvas();
+});
+
+// Reusable function
+function clearSignatureCanvas() {
+    canvas1.clear();
+    canvas1.setBackgroundColor('#ffffff', canvas1.renderAll.bind(canvas1));
+}
+
+$('#signModal').on('hidden.bs.modal', function () {
+    clearSignatureCanvas(true); // clear + reset identity
+});
+
+// Reusable function
+function clearSignatureCanvas(resetIdentity = false) {
+    canvas1.clear();
+    canvas1.setBackgroundColor('#ffffff', canvas1.renderAll.bind(canvas1));
+
+    if (resetIdentity) {
+        $("#identityVal").val(""); // set empty
+    }
+}
     // ------------------ Signature Canvas ------------------
     var canvas1 = new fabric.Canvas('d', {
         isDrawingMode: true,
@@ -1082,23 +1175,27 @@ input[type="radio"]:checked + .radio-pill {
 
         if (_identity === "person_sign") {
             $('#person_sign').show();
-            $('#person_sign_dt').hide();
-            $('#person_sign_img').attr('src', _signature);
+            // $('#person_sign_dt').hide();
+            $('#person_sign_img').attr('src', _signature).show();
             $('#person_sign_txt').val(_signature);
+              $('#removeperson_sign_txt').show();
         } else if (_identity === "witness_sign") {
             $('#witness_sign').show();
-            $('#witness_sign_dt').hide();
-            $('#witness_sign_img').attr('src', _signature);
+            // $('#witness_sign_dt').hide();
+            $('#witness_sign_img').attr('src', _signature).show();
+            $('#removewitness_sign_txt').show();
             $('#witness_sign_txt').val(_signature);
         } else if (_identity === "incharge_sign") {
             $('#incharge_sign').show();
-            $('#res_pinc_dt').hide();
-            $('#res_pinc_img').attr('src', _signature);
+            // $('#res_pinc_dt').hide();
+            $('#res_pinc_img').attr('src', _signature).show();
             $('#res_pinc_txt').val(_signature);
+             $('#removeres_pinc_txt').show();
         } else if (_identity === "supervisor_sign") {
             $('#supervisor_sign').show();
-            $('#nom_svs_dt').hide();
-            $('#nsv_sign_img').attr('src', _signature);
+            // $('#nom_svs_dt').hide();
+            $('#nsv_sign_img').attr('src', _signature).show();
+             $('#removensv_sign_txt').show();
             $('#nsv_sign_txt').val(_signature);
         }
 
@@ -1115,8 +1212,8 @@ input[type="radio"]:checked + .radio-pill {
         height: 500
     });
 
-    canvas.freeDrawingBrush.width = 2;
-    canvas.freeDrawingBrush.color = '#000000';
+    canvas.freeDrawingBrush.width = 4;
+    canvas.freeDrawingBrush.color = '#fd0707ff';
 
     // Add background image
     fabric.Image.fromURL("{{ asset('assets/media/baby.jpg')}}", function(myImg) {
@@ -1132,9 +1229,9 @@ input[type="radio"]:checked + .radio-pill {
     }, { crossOrigin: 'Anonymous' });
 
     // Enable circle placement on click
-    enableCircleMode(canvas, 10, "green");
+    enableCircleMode(canvas, 4, "green");
 
-    function enableCircleMode(fCanvas, radius = 15, color = "red") {
+    function enableCircleMode(fCanvas, radius = 50, color = "red") {
         fCanvas.on('mouse:down', function (options) {
             if (options.pointer) {
                 var circle = new fabric.Circle({
@@ -1148,6 +1245,8 @@ input[type="radio"]:checked + .radio-pill {
                 });
                 fCanvas.add(circle);
             }
+
+            
         });
     }
 

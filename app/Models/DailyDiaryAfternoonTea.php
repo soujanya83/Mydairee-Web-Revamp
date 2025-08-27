@@ -8,16 +8,15 @@ class DailyDiaryAfternoonTea extends Model
 {
     protected $table = "dailydiaryafternoontea";
     // public $timestamps = false;
- protected $fillable = [
-    'childid',
-    'diarydate',
-    'startTime',
-    'item',
-    'calories',
-    'qty',
-    'comments',
-    'createdBy',
-    'createdAt',
-];
-
+    protected $fillable = [
+        'childid',
+        'diarydate',
+        'startTime',
+        'item',
+        'calories',
+        'qty',
+        'comments',
+        'createdBy',
+        'createdAt',
+    ];
 }

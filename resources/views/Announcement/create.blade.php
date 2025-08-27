@@ -4,6 +4,18 @@
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
 <style>
+/* Limit modal height and allow scroll */
+#selectChildrenModal .modal-body {
+    max-height: 80vh;        /* limit vertical height */
+    overflow-y: auto;        /* enable vertical scroll */
+    overflow-x: hidden;      /* prevent horizontal scroll */
+    padding-right: 10px;     /* optional */
+    width: 100%;             /* full width */
+    box-sizing: border-box;  /* include padding in width */
+}
+
+
+
 .is-invalid {
     border-color: #dc3545 !important;
 }
@@ -235,14 +247,17 @@ $edit = 1;
                             <div class="row">
                                 <div class="col-12 text-right">
                                     @if ($announcement)
-                                    @if ($edit)
+
+                                    @if (!empty($permissions->addAnnouncement) || auth()->user()->userType == "Superadmin" || auth()->user()->admin == 1)
                                     <button type="submit" class="btn btn-outline-info my-2">Save</button>
                                     @else
                                     <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip"
                                         data-placement="top" title="You need permission to save!">Save</button>
                                     @endif
+
+
                                     @else
-                                    @if ($add)
+                                    @if (!empty($permissions->addAnnouncement) || auth()->user()->userType == "Superadmin" || auth()->user()->admin == 1)
                                     <button type="submit" class="btn btn-outline-info my-2">Save</button>
                                     @else
                                     <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip"

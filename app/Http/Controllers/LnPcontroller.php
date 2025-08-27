@@ -64,6 +64,7 @@ class LnPcontroller extends Controller
             $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
 
             $children = Child::whereIn('id', $childIds)
+           
             ->get();
 
         }else{
