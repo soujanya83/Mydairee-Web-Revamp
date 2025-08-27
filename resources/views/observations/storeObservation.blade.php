@@ -390,6 +390,7 @@
 }
 
 /* Preview badges */
+#selectedStaffPreview .badge,
 #selectedChildrenPreview .badge,
 #selectedRoomsPreview .badge {
     font-size: 13px;
@@ -404,6 +405,10 @@
 /* Room badge override for green */
 #selectedRoomsPreview .badge {
     background: linear-gradient(to right, #4caf50, #81c784);
+}
+
+#selectedStaffPreview .badge {
+    background: linear-gradient(to right, #fb249b, #3b0641);
 }
 
 
@@ -1081,7 +1086,7 @@
     <div id="selectedStaffPreview" class="mt-3">
         @if(isset($educators))
             @foreach($educators as $educator)
-                <span class="badge badge-success mr-1">{{ $educator->name }}</span>
+                <span class="badge badge-danger mr-1">{{ $educator->name }}</span>
             @endforeach
         @endif
     </div>
@@ -1810,7 +1815,7 @@
          <div id="selectedChildrenPreview" class="mt-3">
      
           @foreach($educators as $educator)
-                <span class="badge badge-success mr-1">{{ $educator->name }}</span>
+                <span class="badge badge-danger mr-1">{{ $educator->name }}</span>
             @endforeach
         @endif
     </div>

@@ -25,6 +25,7 @@ use App\Models\ObservationDevMilestoneSub;
 use App\Models\ObservationEYLF;
 use App\Models\ObservationLink;
 use App\Models\ObservationMedia;
+use App\Models\ObservationStaff;
 use App\Models\Reflection;
 use App\Models\SnapshotMedia;
 use App\Models\SnapshotChild;
@@ -160,24 +161,41 @@ public function shareObservation(Request $request)
 
         } elseif (Auth::user()->userType == "Staff") {
 
-            // $observations = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
-            //     ->where('userId', $authId)
-            //     ->orderBy('id', 'desc') // optional: to show latest first
-            //     ->paginate(10); // 10 items per page
-
+            $observations = Observation::with([
+                'user',
+                'child',
+                'media',
+                'Seen.user',
+                'comments'
+            ])
+            ->where(function ($query) use ($authId) {
+                // Observations created by the staff
+                $query->where('userId', $authId);
+        
+                // Or Observations where staff is tagged
+                $taggedObservationIds = ObservationStaff::where('userid', $authId)
+                    ->pluck('observationId')
+                    ->toArray();
+        
+                if (!empty($taggedObservationIds)) {
+                    $query->orWhereIn('id', $taggedObservationIds);
+                }
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(10);
     //         $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
     // ->where('userid', $authId) // your created
     // ->orWhereRaw("FIND_IN_SET(?, tagged_staff)", [$authId]) // your tagged
     // ->orderBy('id', 'desc')
     // ->paginate(10);
 
-    $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
-    ->where(function ($q) use ($authId) {
-        $q->where('userid', $authId)
-          ->orWhereRaw("FIND_IN_SET(?, COALESCE(tagged_staff, ''))", [$authId]);
-    })
-    ->orderBy('id', 'desc')
-    ->paginate(10);
+    // $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
+    // ->where(function ($q) use ($authId) {
+    //     $q->where('userid', $authId)
+    //       ->orWhereRaw("FIND_IN_SET(?, COALESCE(tagged_staff, ''))", [$authId]);
+    // })
+    // ->orderBy('id', 'desc')
+    // ->paginate(10);
 
 
 
@@ -1254,6 +1272,19 @@ public function autosaveobservation(Request $request)
                     ]);
                 }
             }
+
+            ObservationStaff::where('observationId', $observationId)->delete();
+
+            $selectedStaff = explode(',', $request->input('selected_staff'));
+            foreach ($selectedStaff as $userid) {
+                if (trim($userid) !== '') {
+                    ObservationStaff::create([
+                        'observationId' => $observationId,
+                        'userid' => trim($userid),
+                    ]);
+                }
+            }
+
 
             // Process uploaded media only if present
             if ($request->hasFile('media')) {
