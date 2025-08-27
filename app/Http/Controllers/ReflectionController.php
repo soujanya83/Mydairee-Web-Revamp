@@ -54,18 +54,26 @@ class ReflectionController extends Controller
 
         } elseif (Auth::user()->userType == "Staff") {
 
-               $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-               ->where('createdBy', $authId)
-                ->orWhereRaw("FIND_IN_SET(?, tagged_staff)", [$authId])
-               ->orderBy('id', 'desc') // optional: to show latest first
-               ->paginate(10); // 10 items per page
+                    // Get all reflection IDs where this staff is tagged
+                    $taggedReflectionIds = ReflectionStaff::where('staffid', $authId)
+                    ->pluck('reflectionid')
+                    ->toArray();
 
-               
-
-                    // $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-                    //     ->where('centerid', $centerid)
-                    //     ->orderBy('id', 'desc') // optional: to show latest first
-                    //     ->paginate(10); // 10 items per page
+                    // Merge: reflections created by staff + reflections staff is tagged in
+                    $reflection = Reflection::with([
+                        'creator',
+                        'center',
+                        'children.child',
+                        'media',
+                        'staff.staff',
+                        'Seen.user'
+                    ])
+                    ->where(function ($query) use ($authId, $taggedReflectionIds) {
+                        $query->where('createdBy', $authId)
+                                ->orWhereIn('id', $taggedReflectionIds);
+                    })
+                    ->orderBy('id', 'desc')
+                    ->paginate(10);
 
         } else {
 
