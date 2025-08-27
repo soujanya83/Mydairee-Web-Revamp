@@ -498,6 +498,31 @@
 
 @section('content')
 
+<div class="child-view"
+     style="position:absolute;
+            top:16px;
+            right: 300px;
+            background:#fff;
+            padding:4px 4px;
+            border-left:1px solid #ddd;
+            box-shadow:-2px 0 6px rgba(0,0,0,0.1);
+            border-radius:5px;
+            z-index:1050;
+            width:300px;
+            max-height:80vh;
+            overflow-y:hidden;
+            overflow-x:auto;
+            white-space:nowrap;">   <!-- ✅ keep in one line -->
+
+   @if(isset($childrens))
+      <p style="display:inline-block; margin-right:8px;">Child Name:</p>
+      @foreach($childrens as $child)
+          <span class="badge badge-primary mr-1">{{ $child->name }}</span>
+      @endforeach
+   @endif
+</div>
+
+
 
 @if(isset($reflection) && $reflection->id)
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">

@@ -942,6 +942,32 @@
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
 
 
+    <div class="child-view" 
+     style="position:absolute;
+            top:16px;   /* adjust distance from top */
+            right:570px;
+          
+            background:rgba(255, 255, 255, 1); /* translucent white */
+            padding:5px;
+           
+            border-left:1px solid #ddd;
+            box-shadow:-2px 0 6px rgba(0,0,0,0.1);
+            z-index:1050;
+            border-radius:5px;
+         
+            overflow-y:auto;
+            overflow-x:hidden;">
+
+   @if(isset($childrens))
+ 
+      <div class="d-flex flex-row text-center" style="justify-content:center;">
+             <p style="margin-bottom:5px;margin-right:2px;">Child Name:</p>
+          @foreach($childrens as $child)
+              <span class="mb-1 badge badge-success">{{ $child->name }}</span>
+          @endforeach
+      </div>
+   @endif
+</div>
 {{-- Date Display and Picker --}}
 <div id="createdAtContainer" class="mr-3" style="cursor:pointer;">
     <span id="createdAtDisplay" class="badge badge-info" style="font-size:16px; padding:8px;">
@@ -955,6 +981,9 @@
    <!-- <button type="button" id="ObservationChildren" class="btn btn-secondary shadow-lg btn-animated mr-2">
         <i class="fas fa-child mr-1"></i> child
     </button> -->
+
+
+
 
 <a href="{{ route('observation.print', $observation->id) }}" target="_blank" class="btn btn-info shadow-lg btn-animated mr-2 text-white">
     <i class="fas fa-eye mr-1"></i> Preview
@@ -1802,29 +1831,6 @@
   </div>
 </div>
 
-<div class="child-view" 
-     style="position:fixed;
-            top:130px;   /* adjust distance from top */
-            right:0;
-            width:150px;
-            background:rgba(255, 255, 255, 0.1); /* translucent white */
-            padding:15px;
-            border-left:1px solid #ddd;
-            box-shadow:-2px 0 6px rgba(0,0,0,0.1);
-            z-index:1050;
-            max-height:300px;
-            overflow-y:auto;
-            overflow-x:hidden;">
-
-   @if(isset($childrens))
-      <h6 style="margin-bottom:5px;">Children</h6>
-      <div class="d-flex flex-column">
-          @foreach($childrens as $child)
-              <span class="mb-1">{{ $child->name }}</span>
-          @endforeach
-      </div>
-   @endif
-</div>
 
 
 
