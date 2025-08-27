@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Childs')
+@section('title', 'Children')
 @section('parentPageTitle', 'Rooms')
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -159,7 +159,7 @@
 
                     <div class="icon text-success"><i class="fa fa-users"></i> </div>
                     <div class="content">
-                        <div class="text">Active Childs</div>
+                        <div class="text">Active Children</div>
                         <h5 class="number">{{ $activechilds }}</h5>
                     </div>
                 </div>
