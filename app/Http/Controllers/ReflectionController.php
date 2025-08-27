@@ -59,10 +59,12 @@ class ReflectionController extends Controller
                ->orderBy('id', 'desc') // optional: to show latest first
                ->paginate(10); // 10 items per page
 
-            // $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-            //     ->where('centerid', $centerid)
-            //     ->orderBy('id', 'desc') // optional: to show latest first
-            //     ->paginate(10); // 10 items per page
+               
+
+                    // $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+                    //     ->where('centerid', $centerid)
+                    //     ->orderBy('id', 'desc') // optional: to show latest first
+                    //     ->paginate(10); // 10 items per page
 
         } else {
 
