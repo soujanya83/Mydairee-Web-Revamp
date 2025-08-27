@@ -947,9 +947,9 @@
         style="display:none; min-width:170px;"
         value="{{ \Carbon\Carbon::parse($observation->created_at)->format('d M Y') }}">
 </div>
-   <button type="button" id="ObservationChildren" class="btn btn-secondary shadow-lg btn-animated mr-2">
+   <!-- <button type="button" id="ObservationChildren" class="btn btn-secondary shadow-lg btn-animated mr-2">
         <i class="fas fa-child mr-1"></i> child
-    </button>
+    </button> -->
 
 <a href="{{ route('observation.print', $observation->id) }}" target="_blank" class="btn btn-info shadow-lg btn-animated mr-2 text-white">
     <i class="fas fa-eye mr-1"></i> Preview
@@ -1795,6 +1795,30 @@
       </div> -->
     </div>
   </div>
+</div>
+
+<div class="child-view" 
+     style="position:fixed;
+            top:130px;   /* adjust distance from top */
+            right:0;
+            width:150px;
+            background:rgba(255, 255, 255, 0.1); /* translucent white */
+            padding:15px;
+            border-left:1px solid #ddd;
+            box-shadow:-2px 0 6px rgba(0,0,0,0.1);
+            z-index:1050;
+            max-height:300px;
+            overflow-y:auto;
+            overflow-x:hidden;">
+
+   @if(isset($childrens))
+      <h6 style="margin-bottom:5px;">Children</h6>
+      <div class="d-flex flex-column">
+          @foreach($childrens as $child)
+              <span class="mb-1">{{ $child->name }}</span>
+          @endforeach
+      </div>
+   @endif
 </div>
 
 
