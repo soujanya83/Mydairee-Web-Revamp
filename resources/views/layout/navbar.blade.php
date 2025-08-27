@@ -89,7 +89,7 @@
   position: absolute;
   top: -5px;
   right: -8px;
-  background: #0dcaf0;
+  background: #f0456dff;
   color: white;
   font-size: 10px;
   font-weight: bold;
