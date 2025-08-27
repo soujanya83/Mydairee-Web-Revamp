@@ -177,9 +177,16 @@ class RoomController extends Controller
         if ($userId == 145) {
             $userId = $userId - 1;
         }
+//  $centerid = Session('user_center_id');
 
+ if(empty($centerid)){
+    
+  $centerid = Usercenter::where('userid', Auth::user()->userid)->value('centerid');
+
+ }
         $rooms = Room::where('name', '!=', null)
             ->where('userId', $userId)->where('status', 'Active')
+            ->where('centerid',$centerid)
             ->get();
 
         $chilData = Child::select(
