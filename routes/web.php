@@ -29,6 +29,7 @@ use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\Auth\NotificationController;
 use App\Http\Controllers\PermissionController;
+use App\Models\Observation;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Artisan;
 
@@ -106,6 +107,13 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
     Route::post('Observation/addActivity', [ObservationController::class, 'addActivity'])->name('Observation.addActivity');
     Route::post('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name(' Observation.addSubActivity');
+    Route::get('observation/activity/list',[ObservationController::class,'activityList'])->name('observation.activity-list');
+ Route::post('observation/delete-activity',[ObservationController::class,'deleteActivity'])->name('observation.delete-activity');
+    Route::post('observation/delete-subactivity',[ObservationController::class,'deleteSubActivity'])->name('observation.delete-subactivity');
+ Route::post('observation/update-activity',[ObservationController::class,'updateActivity'])->name('observation.update-activity');
+    Route::post('observation/update-subactivity',[ObservationController::class,'updateSubActivity'])->name('observation.update-subactivity');
+
+
 
     Route::get('announcements/list', [AnnouncementController::class, 'list'])->name('announcements.list');
     Route::get('announcements/Filterlist', [AnnouncementController::class, 'Filterlist'])->name('announcements.Filterlist');
