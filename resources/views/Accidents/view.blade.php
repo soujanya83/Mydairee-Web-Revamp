@@ -4,901 +4,882 @@
 
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.signature/1.2.1/jquery.signature.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.signature/1.2.1/jquery.signature.css">
 
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <!-- Example: Simple Line Icons CSS -->
- <!-- Font Awesome 5.15.4 - Compatible with Bootstrap 4 -->
+<!-- Font Awesome 5.15.4 - Compatible with Bootstrap 4 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css">
- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
- <style>
-    main{
-padding-block:4em;
-padding-inline:2em;
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
     }
-    @media screen and (max-width: 600px) {
-    main{
 
-padding-inline:0;
+    .form-container {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-}
 
-        .modal-footer {
-        display: inline-block;
-        width: 100%;
-        padding: 0px 30px 15px;
-        height: inherit;
-        margin: 0px;
+    .form-section {
+        border: 1px solid #dee2e6;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    h1,
+    h2 {
+        color: #007bff;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+    }
+
+    .::after {
+        content: '*';
+        color: red;
+        margin-left: 5px;
+    }
+
+    .body-diagram {
+        max-width: 200px;
+        margin: 10px auto;
+    }
+
+    .no-print {
+        display: block;
+    }
+
+    @media print {
+        .no-print {
+            display: none !important;
         }
 
-        .modal-body{
-            padding: 0px 30px;
+        .form-container {
+            margin: 0;
+            box-shadow: none;
         }
 
-        #person_sign{
-            display: none;
-        } 
-
-        #witness_sign{
-            display: none;
-        }
-
-        /* #incharge_sign{
-            display: none;
-        } */
-
-        /* #supervisor_sign{
-            display: none;
-        } */
-
-        .check-control{
-            width: 35px;
-        }
-        .select2-container{
-            width:100% !important;
-        }
-
-
-        .print-button {
-            position: absolute;
-            /* top: 9px; */
-            right: 60px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
+        .form-section {
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 10; /* Add this */
-            /* margin-right: 10px; */
         }
 
-        .email-button {
-    position: absolute;
-    /* top: 9px; */
-    right: 210px; 
-    padding: 10px 20px;
-    background-color: #007BFF; /* Blue to distinguish from print */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    z-index: 10; /* Ensure it’s clickable */
-}
+        .formatted-row {
+            padding: 8px 0;
+            border-bottom: 1px dashed #ccc;
+        }
 
-.email-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-}
+        .label {
+            font-weight: bold;
+            margin-right: 5px;
+        }
 
-
-          /* Print Styles */
-                @media print {
-            body {
-                margin: 20mm;
-            }
-           .no-print2 {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        width: 0 !important;
-        overflow: hidden !important;
+        .value {
+            font-weight: normal;
+        }
     }
-        
-            .print-container {
-                font-size: 16px;
-                line-height: 1.6;
-            }
-            .print-container h2 {
-                text-align: center;
-                border-bottom: 2px solid #333;
-                padding-bottom: 5px;
-            }
-            .print-container .row {
-                display: flex;
-                justify-content: space-between;
-                border-bottom: 1px dashed #ccc;
-                padding: 8px 0;
-            }
-            .print-container .label {
-                font-weight: bold;
-            }
+
+    #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
         }
 
-  .form-wrapper {
-    margin-bottom: 20px;
-}
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 
-/* Label styling */
-.custom-label {
-    display: block;
-    font-weight: 600;
-    color: #343a40;
-    margin-bottom: 6px;
-    font-size: 15px;
-}
+    .alert {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px;
+        border-radius: 5px;
+        z-index: 9999;
+    }
 
-/* Input styling */
-.custom-input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #ced4da;
-    border-radius: 8px;
-    background-color: #fff;
-    font-size: 14px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+    }
 
-.custom-input:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
-}
-
- .radioFlex {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-}
-
-.radio-pill {
-    position: relative;
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    background-color: #f1f1f1;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    user-select: none;
-}
-
-.radio-pill input[type="radio"] {
-    display: none; /* Hide the default radio circle */
-}
-
-.radio-pill:hover {
-    background-color: #e0e0e0;
-}
-
-.radio-pill input[type="radio"]:checked + label,
-.radio-pill input[type="radio"]:checked ~ span,
-.radio-pill input[type="radio"]:checked ~ * {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-input[type="radio"]:checked + .radio-pill {
-    background-color: #007bff;
-    color: white;
-    border-color: #0056b3;
-}
-
-
-.service-title {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
-    color: #0056b3;
-    border-bottom: 2px solid #dee2e6;
-    padding-bottom: 5px;
-}
-
-.editbtn {
-    font-size: 0.9rem;
-    cursor: pointer;
-} 
-
-/* Base style for the switch */
-.checkbox-pill {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 26px;
-    margin-right: 10px;
-    vertical-align: middle;
-}
-
-.checkbox-pill input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.checkbox-pill .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 50px;
-}
-
-.checkbox-pill .slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-.checkbox-pill input:checked + .slider {
-    background-color: #28a745; /* ON - green */
-}
-
-.checkbox-pill input:checked + .slider:before {
-    transform: translateX(24px);
-}
-
-.injuiry-ul{
-    list-style: none;
-}
-
-    </style>
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
 @endsection
 @section('content')
-<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px; margin-top: -60px;">
- 
-   
-     <button onclick="printMainContent()" class="print-button no-print " style="margin-inline:0.5rem;">Print Pages&nbsp;<i class="fa-solid fa-print fa-beat-fade"></i></button>
-   
+<div class="text-zero top-right-button-container d-flex justify-content-end"
+    style="margin-right: 20px; margin-top: -60px;">
 
 
-    
-      @if(Auth::user()->userType != 'Parent')
-    <button onclick="sendReportToParent()" class="email-button no-print ml-2">
-        Send to Parent <i class="fa-solid fa-envelope fa-beat-fade" ></i>
+    <button onclick="printMainContent()" class="btn btn-success print-button no-print "
+        style="margin-inline:0.5rem;">Print
+        Pages&nbsp;<i class="fa-solid fa-print fa-beat-fade"></i></button>
+
+
+
+
+    @if(Auth::user()->userType != 'Parent')
+    <button onclick="sendReportToParent()" class="btn btn-info email-button no-print ml-2">
+        Send to Parent <i class="fa-solid fa-envelope fa-beat-fade"></i>
     </button>
-@endif
+    @endif
 
-    
 
-   
+
+
 </div>
-  <hr class="mt-5">
- 
-    <main >
-        
-        <div class="container-fluid">
-           <div class="row no-print2">
-    <div class="col-12">
-        <!-- <h1> Accidents Details</h1>
-        <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
-            <ol class="breadcrumb pt-0">
-                <li class="breadcrumb-item">
-                    <a href="">Dashboard</a>
-                </li>
-                <li class="breadcrumb-item">
-                  <a href="{{ route('Accidents.list', ['centerid' => $AccidentInfo->centerid, 'roomid' => $AccidentInfo->roomid]) }}">Accident</a>
+<hr class="mt-5">
+
+<main>
 
 
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">View Accidents</li>
-            </ol>
-        </nav> -->
-       
-    </div>
-</div>
-       <div id="printArea">
-            <div class="row">
-                <div class="col-12 mb-5 card pt-4">
-                    <h3 class="service-title text-primary">INCIDENT, INJURY, TRAUMA, & ILLNESS RECORD</h3>
-                    <form action="#!" class="flexDirColoumn" method="post" id="acc-form" enctype="multipart/form-data" autocomplete="off">
-                    @csrf    
-                    <input type="hidden" name="centerid" value="{{ $AccidentInfo->centerid }}">
-                        <input type="hidden" name="roomid" value="{{ $AccidentInfo->roomid}}"> 
 
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="service-title">Details of person completing this record</h3>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="name">Name</label>
-                                <input type="text" class="form-control custom-input" id="name" name="person_name" placeholder="<?= $AccidentInfo->person_name; ?>" value="<?= $AccidentInfo->person_name; ?>">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="role">Position Role</label>
-                                <input type="text" class="form-control custom-input" id="role" name="person_role" placeholder="<?= $AccidentInfo->person_role; ?>" value="<?= $AccidentInfo->person_role; ?>">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-3">
-                                <label for="Record">Date Record was made</label>
-                                <input type="date" class="form-control custom-input custom-input" id="Record" name="date" placeholder="<?= $AccidentInfo->date; ?>" value="<?= $AccidentInfo->date; ?>">
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label for="Time">Time</label>
-                                <input type="text" class="form-control custom-input custom-input" id="Time" name="time" placeholder="<?= $AccidentInfo->time; ?>" value="<?= $AccidentInfo->time; ?>">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>
-                                    Signature&nbsp;
-                                    <span class="editbtn text-primary" data-toggle="modal" data-target="#signModal" data-identity="person_sign"><i class="simple-icon-pencil"></i></span>
-                                </label>
-                                <input type="hidden" class="form-control custom-input custom-input" id="person_sign_dt" disabled>
-                                <div id="#person_sign">
-                                    <input type="hidden" name="person_sign" id="person_sign_txt"  value="{{ $AccidentInfo->person_sign }}">
-                                    <input type="hidden" name="student_id" id="student_id"  value="<?= $AccidentInfo->childid; ?>">
-
-                                    <img src="{{ $AccidentInfo->person_sign }}" height="120px" width="300px" id="person_sign_img">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="service-title">Child Details</h3>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="childid" class="col-sm-12 pl-0">Child</label>
-                                <select name="childid" id="childid" class="form-control js-example-basic-single custom-input">
-                                    <option value="<?php $AccidentInfo->child_name ?>"> <span class="no-print3"><?php echo $AccidentInfo->child_name ?></span> </option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="birthdate">Date of Birth</label>
-                                <input type="text" class="form-control custom-input" id="birthdate" name="child_dob" value="<?php echo $AccidentInfo->child_dob ?>" placeholder="<?php echo $AccidentInfo->child_dob ?>">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="age">Age</label>
-                                <input type="text" class="form-control custom-input" id="age" name="child_age" value="<?= $AccidentInfo->child_age; ?>" placeholder="<?= $AccidentInfo->child_age; ?>">     
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="gender">Gender </label>
-                                <div class="radioFlex">
-                                   
-                                    <input type="radio" id="<?= $AccidentInfo->child_gender; ?>" name="gender" value="<?= $AccidentInfo->child_gender; ?>" <?php if($AccidentInfo->child_gender) { echo "checked"; } ?> hidden>
-                               <label class="radio-pill" for="Others"><?= $AccidentInfo->child_gender; ?></label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="service-title">Incident Details</h3>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="incidentdate">Incident Date</label>
-                                <input type="text" class="form-control custom-input" id="incidentdate" name="incident_date" value="<?= $AccidentInfo->incident_date; ?>" placeholder="<?= $AccidentInfo->incident_date; ?>">     
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="incidenttime">Time</label>
-                                <input type="text" class="form-control custom-input" id="incidenttime" name="incident_time" value="<?= $AccidentInfo->incident_time; ?>" placeholder="<?= $AccidentInfo->incident_time; ?>">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="location">Location</label>
-                                <input type="text" class="form-control custom-input" id="location" name="incident_location" value="<?= $AccidentInfo->incident_location; ?>" placeholder="<?= $AccidentInfo->incident_location; ?>">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="witnessname">Name of Witness</label>
-                                <input type="text" class="form-control custom-input" id="witnessname" name="witness_name" value="<?= $AccidentInfo->witness_name; ?>" placeholder="<?= $AccidentInfo->witness_name; ?>">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="witness-date">Date</label>
-                                <input type="text" class="form-control custom-input" id="witness-date" name="witness_date" value="<?= $AccidentInfo->witness_date; ?>" placeholder="<?= $AccidentInfo->witness_date; ?>">     
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>
-                                    Signature
-                                    <span class="simple-icon-pencil text-primary editbtn" data-toggle="modal" data-target="#signModal" data-identity="witness_sign"></span>
-                                </label>
-                                <!-- <input type="text" class="form-control" id="witness_sign_dt" disabled> -->
-                                <div id="#witness_sign " class="bordered">
-                                    <input type="hidden" name="witness_sign" id="witness_sign_txt" value="_{{ $AccidentInfo->witness_sign }}">
-                                    <img src="{{ $AccidentInfo->witness_sign }}" class="bordered" height="120px" width="300px" id="witness_sign_img">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="genActivity">General activity at the time of incident/ injury/ trauma/ illness:</label>
-                                <textarea class="form-control custom-input" id="genActivity" name="gen_actyvt"><?= $AccidentInfo->gen_actyvt; ?></textarea>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="causeInjury">Cause of injury/ trauma:</label>
-                                <textarea class="form-control custom-input" id="causeInjury" name="cause"><?= $AccidentInfo->cause; ?></textarea>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <label for="symptoms">Circumstances surrounding any illness, including apparent symptoms: </label>
-                                <textarea class="form-control custom-input" id="symptoms" name="illness_symptoms"><?= $AccidentInfo->illness_symptoms; ?></textarea>
-                            </div>
-                          
-                        </div>
-                        <div class="form-row">
-  <div class="form-group col-md-12">
-                                <label for="missingChild">Circumstances if child appeared to be missing or otherwise unaccounted for (incl duration, who found child etc.):</label>
-                                <textarea class="form-control custom-input" id="missingChild" name="missing_unaccounted"><?= $AccidentInfo->missing_unaccounted; ?></textarea>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <label for="Circumstances">Circumstances if child appeared to have been taken or removed from service or was locked in/out of service (incl who took the child, duration): </label>
-                                <textarea class="form-control custom-input" id="Circumstances" name="taken_removed"><?= $AccidentInfo->taken_removed; ?></textarea>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="service-title">Nature of Injury/ Trauma/ Illness:</h3>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <div class="svgFlex col-12 row">
-                                 <span class="col-md-6 col-sm-12">
-    <img 
-        src="{{ $AccidentInfo->injury_image }}" 
-        alt="Injury Image"
-        class="img-fluid border rounded" 
-        style="max-width: 100%; height: auto; display: block;"
-    >
-</span>
-
-                                    <span class="col-md-6 col-sm-12">
-                                        <input type="hidden" name="injury_image" id="injury-image" value="">
-                                          <ul class="row injuiry-ul">
-    @php
-        $injuries = [
-            'abrasion' => 'Abrasion / Scrape',
-            'electric_shock' => 'Electric Shock',
-            'allergic_reaction' => 'Allergic Reaction',
-            'high_temperature' => 'High Temperature',
-            'amputation' => 'Amputation',
-            'infectious_disease' => 'Infectious Disease',
-            'anaphylaxis' => 'Anaphylaxis',
-            'ingestion' => 'Ingestion / Inhalation / Insertion',
-            'asthma' => 'Asthma / Respiratory',
-            'internal_injury' => 'Internal Injury / Infection',
-            'bite_wound' => 'Bite Wound',
-            'poisoning' => 'Poisoning',
-            'broken_bone' => 'Broken Bone / Fracture / Dislocation',
-            'rash' => 'Rash',
-            'burn' => 'Burn / Sunburn',
-            'respiratory' => 'Respiratory',
-            'choking' => 'Choking',
-            'seizure' => 'Seizure / Unconscious / Convulsion',
-            'concussion' => 'Concussion',
-            'sprain' => 'Sprain / Swelling',
-            'crush' => 'Crush / Jam',
-            'stabbing' => 'Stabbing / Piercing',
-            'cut' => 'Cut / Open Wound',
-            'tooth' => 'Tooth',
-            'drowning' => 'Drowning (Nonfatal)',
-            'venomous_bite' => 'Venomous Bite / Sting',
-            'eye_injury' => 'Eye Injury',
-            'other' => 'Other (Please specify)',
-        ];
-    @endphp
-
-    @foreach ($injuries as $field => $label)
-        <li class="col-md-6 col-sm-12 mb-2 d-flex align-items-center">
-            <label class="checkbox-pill me-2">
-                <input type="checkbox" name="{{ $field }}" value="1"
-                       {{ isset($AccidentInfo->$field) && $AccidentInfo->$field == 1 ? 'checked' : '' }}>
-                <span class="slider"></span>
-            </label>
-            <span class="pill-label">{{ $label }}</span>
-        </li>
-    @endforeach
-
-    <li class="col-md-12 mt-2" id="injury-remarks"
-        style="{{ isset($AccidentInfo->other) && $AccidentInfo->other == 1 ? 'display:block;' : 'display:none;' }}">
-        <input type="text" name="remarks" class="form-control custom-input"
-               placeholder="Write here..." value="{{ $AccidentInfo->remarks ?? '' }}">
-    </li>
-</ul>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="service-title">Action Taken</h3>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <label for="takenAction">Details of action taken (including first aid, administration of medication etc.):</label>
-                                <textarea class="form-control custom-input" id="takenAction" name="action_taken"><?= $AccidentInfo->action_taken; ?></textarea>    
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <div class="form-group row">
-                                    <div class="col-12">
-                                        <label>Did emergency services attend:</label>
-                                        <div class="custom-switch custom-switch-secondary-inverse mb-2">
-                                            <!-- <input class="custom-switch-input mandatory-field" id="togBtn" type="text" name="emrg_serv_attend" value="1" placeholder="<?= $AccidentInfo->emrg_serv_attend;?>"> -->
-                                            <label class="custom-switch-btn" for="togBtn"><?= $AccidentInfo->emrg_serv_attend;?></label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <div class="form-group row">
-                                    <div class="col-12">
-                                        <label>Was medical attention sought from a registered practitioner / hospital:</label>
-                                        <div class="custom-switch custom-switch-secondary-inverse mb-2">
-                                            <!-- <input class="custom-switch-input mandatory-field" id="togBtn-second" type="checkbox" name="med_attention" value="1"> -->
-                                            <label class="custom-switch-btn" for="togBtn-second"><?= $AccidentInfo->med_attention;?></label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group col-md-12">
-                                <label for="provideDetails">If yes to either of the above, provide details:</label>
-                                <textarea class="form-control custom-input" id="provideDetails" name="med_attention_details"><?= $AccidentInfo->med_attention_details;?></textarea>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <label for="provideDetails">List the steps that have been taken to prevent or minimise this type of incident in the future:</label>
-                                <ol>
-                                    <li><input type="text" class="form-control custom-input" id="one" name="prevention_step_1" value="<?= $AccidentInfo->prevention_step_1;?>" placeholder="<?= $AccidentInfo->prevention_step_1;?>"></li>
-                                    <li><input type="text" class="form-control custom-input" id="two" name="prevention_step_2" value="<?= $AccidentInfo->prevention_step_2;?>" placeholder="<?= $AccidentInfo->prevention_step_2;?>"></li>
-                                    <li><input type="text" class="form-control custom-input" id="three" name="prevention_step_3" value="<?= $AccidentInfo->prevention_step_3;?>" placeholder="<?= $AccidentInfo->prevention_step_3;?>"></li>
-                                </ol>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="service-title">Parent/Guardian Notifications (including attempted notifications)</h3>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="parentname">Parent/ Guardian name:</label>
-                                <input type="text" class="form-control custom-input" id="parentname" name="parent1_name" value="<?= $AccidentInfo->parent1_name;?>" placeholder="<?= $AccidentInfo->parent1_name;?>">    
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="method">Method of Contact:</label>
-                                <input type="text" class="form-control custom-input" id="method" name="contact1_method" value="<?= $AccidentInfo->contact1_method;?>" placeholder="<?= $AccidentInfo->contact1_method;?>">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="contactDate">Date</label>
-                                <input type="text" class="form-control custom-input" id="contactDate" name="contact1_date" value="<?= $AccidentInfo->contact1_date;?>" placeholder="<?= $AccidentInfo->contact1_date;?>">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="contactTime">Time</label>
-                                <input type="text" class="form-control custom-input" id="contactTime" name="contact1_time" value="<?= $AccidentInfo->contact1_time;?>" placeholder="<?= $AccidentInfo->contact1_time;?>">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="contactmade">Contact Made: </label>
-                                <input type="text" class="form-control custom-input" id="contactmade" name="contact1_made" value="<?= $AccidentInfo->contact1_made;?>" placeholder="<?= $AccidentInfo->contact1_made;?>">   
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="messageleft">Message Left:</label>
-                                <input type="text" class="form-control custom-input" id="messageleft" name="contact1_msg" value="<?= $AccidentInfo->contact1_msg;?>" placeholder="<?= $AccidentInfo->contact1_msg;?>">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="parentname2">Parent/ Guardian name:</label>
-                                <input type="text" class="form-control custom-input" id="parentname2" name="parent2_name" value="<?= $AccidentInfo->parent2_name;?>" placeholder="<?= $AccidentInfo->parent2_name;?>">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="method2">Method of Contact:</label>
-                                <input type="text" class="form-control custom-input" id="method2" name="contact2_method" value="<?= $AccidentInfo->contact2_method;?>" placeholder="<?= $AccidentInfo->contact2_method;?>">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="contactDate2">Date</label>
-                                <input type="text" class="form-control custom-input" id="contactDate2" name="contact2_date" value="<?= $AccidentInfo->contact2_date;?>" placeholder="<?= $AccidentInfo->contact2_date;?>"> 
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="contactTime2">Time</label>
-                                <input type="text" class="form-control custom-input" id="contactTime2" name="contact2_time" value="<?= $AccidentInfo->contact2_time;?>" placeholder="<?= $AccidentInfo->contact2_time;?>">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="contactmade2">Contact Made: </label>
-                                <input type="text" class="form-control custom-input" id="contactmade2" name="contact2_made" value="<?= $AccidentInfo->contact2_made;?>" placeholder="<?= $AccidentInfo->contact2_made;?>">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="messageleft2">Message Left:</label>
-                                <input type="text" class="form-control custom-input" id="messageleft2" name="contact2_msg" value="<?= $AccidentInfo->contact2_msg;?>" placeholder="<?= $AccidentInfo->contact2_msg;?>">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="service-title">Internal Notifications</h3>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="res_pinc">Responsible Person in Charge Name:</label>
-                                <input type="text" class="form-control custom-input" id="res_pinc" name="responsible_person_name" value="<?= $AccidentInfo->responsible_person_name;?>" placeholder="<?= $AccidentInfo->responsible_person_name;?>"> 
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>
-                                    Signature
-                                    <span class="simple-icon-pencil text-primary editbtn" data-toggle="modal" data-target="#signModal" data-identity="incharge_sign"></span>
-                                </label>
-                                <!-- <input type="text" class="form-control" id="res_pinc_dt" disabled> -->
-                                <div id="incharge_sign">
-                                    <!-- <input type="hidden" name="responsible_person_sign" id="res_pinc_txt" value=""> -->
-                                    <img src="{{ $AccidentInfo->responsible_person_sign }}" height="120px" width="300px" id="res_pinc_img">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="rp_internal_notif_date">Date</label>
-                                <input type="text" class="form-control custom-input" id="rp_internal_notif_date" name="rp_internal_notif_date" value="<?= $AccidentInfo->rp_internal_notif_date; ?>" placeholder="<?= $AccidentInfo->rp_internal_notif_date;?>">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="rp_internal_notif_time">Time</label>
-                                <input type="text" class="form-control custom-input" id="rp_internal_notif_time" name="rp_internal_notif_time" value="<?= $AccidentInfo->rp_internal_notif_time; ?>" placeholder="<?= $AccidentInfo->rp_internal_notif_time;?>">
-                            </div>
-                        </div>
-                    @if(!empty($AccidentInfo->id))
-                     <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="service-title">Nominated Supervisor</h3>
-                            </div>
-                        </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="nom_sv">Nominated Supervisor Name:</label>
-                                    <input type="text" class="form-control custom-input" id="nom_sv" name="nominated_supervisor_name" value="<?= $AccidentInfo->nominated_supervisor_name;?>" placeholder="<?= $AccidentInfo->nominated_supervisor_name;?>">
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label>
-                                        Signature
-                                        <span class="simple-icon-pencil text-primary editbtn" data-toggle="modal" data-target="#signModal" data-identity="supervisor_sign"></span>
-                                    </label>
-                                    <!-- <input type="text" class="form-control" id="nom_svs_dt" disabled placeholder="<?#= $AccidentInfo->nominated_supervisor_sign;?>"> -->
-                                    <div id="supervisor_sign">
-                                        <!-- <input type="hidden" name="nominated_supervisor_sign" id="nsv_sign_txt" value="" placeholder="<?#= $AccidentInfo->nominated_supervisor_sign;?>"> -->
-                                        <img src="{{ $AccidentInfo->nominated_supervisor_sign }}" height="120px" width="300px" id="nsv_sign_img">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="nsv_date">Date</label>
-                                    <input type="text" class="form-control custom-input" id="nsv_date" name="nsv_date" value="<?= $AccidentInfo->nominated_supervisor_date;?>" placeholder="<?= $AccidentInfo->nominated_supervisor_date;?>">
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label for="nsv_time">Time</label>
-                                    <input type="text" class="form-control custom-input" id="nsv_time" name="nsv_time" value="<?= $AccidentInfo->nominated_supervisor_time;?>" placeholder="<?= $AccidentInfo->nominated_supervisor_time;?>">
-                                </div>
-                            </div>
-                        @endif
-
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="service-title">External Notifications</h3>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="otheragency">Other agency:</label>
-                                <input type="text" class="form-control custom-input" id="otheragency" name="otheragency" value="<?= $AccidentInfo->ext_notif_other_agency;?>" placeholder="<?= $AccidentInfo->ext_notif_other_agency;?>">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="agencyDate">Date</label>
-                                        <input type="text" class="form-control custom-input" id="agencyDate" name="enor_date" value="<?= $AccidentInfo->enor_date;?>" placeholder="<?= $AccidentInfo->enor_date;?>">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="agencyTime">Time</label>
-                                        <input type="text" class="form-control custom-input" id="agencyTime" name="enor_time" value="<?= $AccidentInfo->enor_time;?>" placeholder="<?= $AccidentInfo->enor_time;?>">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="Regulatoryauthority">Regulatory authority:</label>
-                                <input type="text" class="form-control custom-input" id="Regulatoryauthority" name="Regulatoryauthority" value="<?= $AccidentInfo->ext_notif_regulatory_auth;?>" placeholder="<?= $AccidentInfo->ext_notif_regulatory_auth;?>">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="enra_date">Date</label>
-                                    <input type="date" class="form-control custom-input" id="enra_date" name="enra_date"
-                                    value="{{ isset($AccidentInfo->enra_date) ? \Carbon\Carbon::parse($AccidentInfo->enra_date)->format('Y-m-d') : '' }}"
-                                    placeholder="{{ isset($AccidentInfo->enra_date) ? \Carbon\Carbon::parse($AccidentInfo->enra_date)->format('Y-m-d') : '' }}">
-
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="enra_time">Time</label>
-                                        <input type="text" class="form-control" id="enra_time" name="enra_time" value="<?= $AccidentInfo->enra_time;?>" placeholder="<?= $AccidentInfo->enra_time;?>">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if(!empty($AccidentInfo->id))
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <h3 class="service-title">Parental acknowledgement</h3>
-                                    <div class="form-group col-md-12">
-                                    <label for="ack_parent_name">Parental acknowledgement</label>
-                                         <input type="text" name="ack_parent_name" class="form-control custom-input col-12" value="<?= $AccidentInfo->ack_parent_name;?>" placeholder="<?= $AccidentInfo->ack_parent_name;?>"> (name of parent / guardian) have been notified of my child's incident / injury / trauma / illness.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="RegulatoryauthorityDate">Date</label>
-<input type="date" class="form-control custom-input" id="RegulatoryauthorityDate" name="ack_date"
-       value="{{ isset($AccidentInfo->ack_date) ? \Carbon\Carbon::parse($AccidentInfo->ack_date)->format('Y-m-d') : '' }}">
+    <div class="container form-container" id="printArea">
 
 
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label for="RegulatoryauthorityTime">Time</label>
-                                    <input type="text" class="form-control custom-input" id="RegulatoryauthorityTime" name="ack_time" value="<?= $AccidentInfo->ack_time;?>" placeholder="<?= $AccidentInfo->ack_time;?>">
-                                </div>
-                            </div>
-                        @endif
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="service-title">Additional notes</h3>
-                            </div>
-                        </div>
-                        <div class="form-row mb-5">
-                            <div class="form-group col-md-12">
-                                <textarea class="form-control custom-input" id="takenAction" name="add_notes" rows="8"><?= $AccidentInfo->add_notes;?></textarea>
-                            </div>
-                        </div>
+        <div class="row mt-1" style="color:#0056b3">
+            <div class="col-sm-12 mt-1" style="color:#0056b3">
+                <h3 style="color:#0056b3;margin-left: 19%;"><b>Incident, Injury, Trauma and
+                        Illness Record</b></h3>
+            </div>
+        </div>
 
-                         <!-- <div class="row m-2" id="formSubmit">
-                            <div class="col-sm-12 text-right">
-                                <div class="formSubmit">
-                                    <button type="button" id="form-submit" class="btn btn-default btn-success">update &amp; Next</button>
-                                    <button type="button" class="btn btn-default btn-danger">Cancel</button>
-                                </div>
-                            </div>
-                        </div>  -->
+        <form action="#!" method="post" id="acc-form" enctype="multipart/form-data" autocomplete="off" class="mt-5">
+            @csrf
+            <input type="hidden" name="centerid" value="{{ $AccidentInfo->centerid ?? '' }}">
+            <input type="hidden" name="roomid" value="{{ $AccidentInfo->roomid ?? '' }}">
+            <input type="hidden" name="student_id" id="student_id" value="{{ $AccidentInfo->childid ?? '' }}">
 
-                    </form>
+            <!-- Details of person completing this record -->
+            <h2>Details of person completing this record</h2>
+            <div class="form-section">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label ">Name</label>
+                        <input type="text" class="form-control" name="person_name"
+                            value="{{ $AccidentInfo->person_name ?? '' }}"
+                            placeholder="{{ $AccidentInfo->person_name ?? 'Enter name' }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label ">Position/role</label>
+                        <input type="text" class="form-control" name="person_role"
+                            value="{{ $AccidentInfo->person_role ?? '' }}"
+                            placeholder="{{ $AccidentInfo->person_role ?? 'Enter position/role' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label ">Service name</label>
+                        <input type="text" class="form-control" name="service_name"
+                            value="{{ $AccidentInfo->service_name ?? '' }}"
+                            placeholder="{{ $AccidentInfo->service_name ?? 'Enter service name' }}">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="date_record_made" class="custom-label">Date Record was made</label>
+                        <input type="" class="form-control custom-input @error('made_record_date') is-invalid @enderror"
+                            id="date_record_made" name="made_record_date"
+                            value="{{ old('made_record_date', \Carbon\Carbon::parse($AccidentInfo->made_record_date)->format('d-m-Y')) }}">
+                    </div>
+
+
+
+
+                    <div class="col-md-6">
+                        <label for="made_record_time" class="custom-label">Time record was made</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="time" id="made_record_time"
+                                value="{{ !empty($AccidentInfo->made_record_time) ? \Carbon\Carbon::parse($AccidentInfo->made_record_time)->format('h:i A') : '' }}">
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div class="col-md-6">
+                        <label class="form-label ">Signature</label>
+                        <div id="person_sign">
+                            <input type="hidden" name="person_sign" id="person_sign_txt"
+                                value="{{ $AccidentInfo->made_person_sign ?? '' }}">
+                            <img src="{{ $AccidentInfo->made_person_sign ?? '' }}" height="100px" width="400px"
+                                id="person_sign_img" class="border rounded">
+
+                        </div>
+                    </div>
                 </div>
             </div>
-                        </div> 
-        </div>
-    </main>
+
+            <!-- Child details -->
+            <h2>Child details</h2>
+            <div class="form-section">
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label ">Child's full name</label>
+                        <input type="text" class="form-control" id="age" name="child_age"
+                            value="{{ $AccidentInfo->child_name }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label ">Date of birth</label>
+                        <input type="date" class="form-control" id="birthdate" name="child_dob"
+                            value="{{ isset($AccidentInfo->child_dob) ? \Carbon\Carbon::parse($AccidentInfo->child_dob)->format('Y-m-d') : '' }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label ">Age</label>
+                        <input type="number" class="form-control" id="age" name="child_age"
+                            value="{{ $AccidentInfo->child_age ?? '' }}">
+                    </div>
+
+
+                    <div class="col-md-6 mt-4">
+                        <label class="form-label  d-block">Gender: {{ $AccidentInfo->child_gender }}</label>
+
+
+
+
+                    </div>
+
+
+
+
+                </div>
+            </div>
+
+            <!-- Incident/injury/trauma/illness details -->
+            <h2>Incident/injury/trauma/illness details</h2>
+            <div class="form-section">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label ">Date</label>
+                        <input type="" class="form-control" name="incident_date"
+                            value="{{Carbon\Carbon::parse($AccidentInfo->incident_date)->format('d-m-Y') }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label ">Time</label>
+                        <div class="input-group">
+                            <input type="time" class="form-control" name="incident_time"
+                                value="{{ $AccidentInfo->incident_time ?? '' }}">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label ">Location of service</label>
+                        <input type="text" class="form-control" name="service_location"
+                            value="{{ $AccidentInfo->incident_location ?? '' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label ">Location of incident/injury/trauma/illness</label>
+                        <input type="text" class="form-control" name="incident_location"
+                            value="{{ $AccidentInfo->location_of_incident ?? '' }}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Name of person who witnessed the
+                            incident/injury/trauma/illness</label>
+                        <input type="text" class="form-control" name="witness_name"
+                            value="{{ $AccidentInfo->witness_name ?? '' }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" name="witness_date"
+                            value="{{ isset($AccidentInfo->witness_date) ? \Carbon\Carbon::parse($AccidentInfo->witness_date)->format('Y-m-d') : '' }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Witness signature</label>
+                        <div id="witness_sign" class="bordered">
+                            <input type="hidden" name="witness_sign" id="witness_sign_txt"
+                                value="{{ $AccidentInfo->witness_sign ?? '' }}">
+                            <img src="{{ $AccidentInfo->witness_sign ?? '' }}" height="100px" width="400px"
+                                id="witness_sign_img" class="border rounded">
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="mb-3">
+                    <label class="form-label ">Details of incident/injury/trauma/illness</label>
+                    <textarea class="form-control" name="gen_actyvt"
+                        rows="4">{{ $AccidentInfo->details_injury ?? '' }}</textarea>
+                </div>
+            </div>
+
+            <!-- Circumstances -->
+            <h2>Circumstances</h2>
+            <div class="form-section">
+                <div class="mb-3">
+                    <label class="form-label">Circumstances leading to the incident/injury/trauma/illness, including any
+                        apparent symptoms</label>
+                    <textarea class="form-control" name="illness_symptoms"
+                        rows="4">{{ $AccidentInfo->circumstances_leading ?? '' }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Circumstances if child appeared to be missing or otherwise unaccounted for
+                        (incl. duration, who found child, etc.)</label>
+                    <textarea class="form-control" name="missing_unaccounted"
+                        rows="4">{{ $AccidentInfo->circumstances_child_missingd ?? '' }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Circumstances if child appeared to have been taken or removed from service
+                        or was locked in/out of service (incl. who took the child, duration)</label>
+                    <textarea class="form-control" name="taken_removed"
+                        rows="4">{{ $AccidentInfo->circumstances_child_removed ?? '' }}</textarea>
+                </div>
+            </div>
+
+            <!-- Nature of injury/trauma/illness -->
+            <h2>Nature of injury/trauma/illness</h2>
+            <div class="form-section">
+                <div class="row">
+
+
+                    <label class="form-label ml-3">Indicate the part of the body affected on this diagram</label>
+                    <span class="col-md-12">
+                        <img src="{{ $AccidentInfo->injury_image }}" alt="Injury Image" class="img-fluid border rounded"
+                            style="max-width: 100%; height: auto; display: block;margin-left: 190px;">
+                    </span>
+
+
+
+                    <div class="col-md-6 mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="abrasion" id="abrasion" value="1" {{
+                                isset($AccidentInfo->abrasion) && $AccidentInfo->abrasion == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="abrasion">Abrasion / scrape</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="allergic_reaction"
+                                id="allergicReaction" value="1" {{ isset($AccidentInfo->allergic_reaction) &&
+                            $AccidentInfo->allergic_reaction == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="allergicReaction">Allergic reaction (incl.
+                                gastrointestinal) (not anaphylaxis)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="amputation" id="amputation" value="1"
+                                {{ isset($AccidentInfo->amputation) && $AccidentInfo->amputation == 1 ? 'checked' : ''
+                            }}>
+                            <label class="form-check-label" for="amputation">Amputation</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="anaphylaxis" id="anaphylaxis"
+                                value="1" {{ isset($AccidentInfo->anaphylaxis) && $AccidentInfo->anaphylaxis == 1 ?
+                            'checked' : '' }}>
+                            <label class="form-check-label" for="anaphylaxis">Anaphylaxis</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="asthma" id="asthma" value="1" {{
+                                isset($AccidentInfo->asthma) && $AccidentInfo->asthma == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="asthma">Asthma / respiratory</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="bite_wound" id="biteWound" value="1"
+                                {{ isset($AccidentInfo->bite_wound) && $AccidentInfo->bite_wound == 1 ? 'checked' : ''
+                            }}>
+                            <label class="form-check-label" for="biteWound">Bite wound</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="bruise" id="bruise" value="1" {{
+                                isset($AccidentInfo->bruise) && $AccidentInfo->bruise == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="bruise">Bruise</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="broken_bone" id="brokenBone" value="1"
+                                {{ isset($AccidentInfo->broken_bone) && $AccidentInfo->broken_bone == 1 ? 'checked' : ''
+                            }}>
+                            <label class="form-check-label" for="brokenBone">Broken bone / fracture /
+                                dislocation</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="burn" id="burn" value="1" {{
+                                isset($AccidentInfo->burn) && $AccidentInfo->burn == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="burn">Burn / sunburn</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="choking" id="choking" value="1" {{
+                                isset($AccidentInfo->choking) && $AccidentInfo->choking == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="choking">Choking</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="concussion" id="concussion" value="1"
+                                {{ isset($AccidentInfo->concussion) && $AccidentInfo->concussion == 1 ? 'checked' : ''
+                            }}>
+                            <label class="form-check-label" for="concussion">Concussion</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="crush" id="crush" value="1" {{
+                                isset($AccidentInfo->crush) && $AccidentInfo->crush == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="crush">Crush / jam</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="cut" id="cut" value="1" {{
+                                isset($AccidentInfo->cut) && $AccidentInfo->cut == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="cut">Cut / open wound</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="drowning" id="drowning" value="1" {{
+                                isset($AccidentInfo->drowning) && $AccidentInfo->drowning == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="drowning">Drowning (non-fatal)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="electric_shock" id="electricShock"
+                                value="1" {{ isset($AccidentInfo->electric_shock) && $AccidentInfo->electric_shock == 1
+                            ? 'checked' : '' }}>
+                            <label class="form-check-label" for="electricShock">Electric shock</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="eye_injury" id="eyeInjury" value="1"
+                                {{ isset($AccidentInfo->eye_injury) && $AccidentInfo->eye_injury == 1 ? 'checked' : ''
+                            }}>
+                            <label class="form-check-label" for="eyeInjury">Eye injury</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="infectious_disease"
+                                id="infectiousDisease" value="1" {{ isset($AccidentInfo->infectious_disease) &&
+                            $AccidentInfo->infectious_disease == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="infectiousDisease">Infectious disease</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="high_temperature" id="highTemperature"
+                                value="1" {{ isset($AccidentInfo->high_temperature) && $AccidentInfo->high_temperature
+                            == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="highTemperature">High temperature</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="ingestion" id="ingestion" value="1" {{
+                                isset($AccidentInfo->ingestion) && $AccidentInfo->ingestion == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="ingestion">Ingestion / inhalation / insertion</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="internal_injury" id="internalInjury"
+                                value="1" {{ isset($AccidentInfo->internal_injury) && $AccidentInfo->internal_injury ==
+                            1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="internalInjury">Internal injury / infection</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="poisoning" id="poisoning" value="1" {{
+                                isset($AccidentInfo->poisoning) && $AccidentInfo->poisoning == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="poisoning">Poisoning</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="rash" id="rash" value="1" {{
+                                isset($AccidentInfo->rash) && $AccidentInfo->rash == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="rash">Rash</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="respiratory" id="respiratory"
+                                value="1" {{ isset($AccidentInfo->respiratory) && $AccidentInfo->respiratory == 1 ?
+                            'checked' : '' }}>
+                            <label class="form-check-label" for="respiratory">Respiratory</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="seizure" id="seizure" value="1" {{
+                                isset($AccidentInfo->seizure) && $AccidentInfo->seizure == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="seizure">Seizure / unconscious / convulsion</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="other" id="other" value="1" {{
+                                isset($AccidentInfo->other) && $AccidentInfo->other == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="other">Other (please specify)</label>
+                            <input type="text" class="form-control mt-1" name="remarks" id="otherSpecify"
+                                value="{{ $AccidentInfo->remarks ?? '' }}"
+                                style="{{ isset($AccidentInfo->other) && $AccidentInfo->other == 1 ? 'display:block;' : 'display:none;' }}">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Action Taken -->
+            <h2>Action Taken</h2>
+            <div class="form-section">
+                <div class="mb-3">
+                    <label class="form-label ">Details of action taken (including first aid,
+                        administration of medication, etc.)</label>
+                    <textarea class="form-control" name="action_taken"
+                        rows="4">{{ $AccidentInfo->action_taken ?? '' }}</textarea>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Did emergency services attend?</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="emrg_serv_attend" id="emergencyYes"
+                                    value="yes" {{ ($AccidentInfo->emrg_serv_attend ?? '') == 'yes' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="emergencyYes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="emrg_serv_attend" id="emergencyNo"
+                                    value="no" {{ ($AccidentInfo->emrg_serv_attend ?? '') == 'no' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="emergencyNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Time emergency services contacted</label>
+                        <div class="input-group">
+                            <input type="time" class="form-control" name="emrg_contact_time"
+                                value="{{ $AccidentInfo->emrg_serv_time ?? '' }}">
+
+
+
+
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Time emergency services arrived</label>
+                        <div class="input-group">
+                            <input type="time" class="form-control" name="emrg_arrived_time"
+                                value="{{ $AccidentInfo->emrg_serv_arrived ?? '' }}">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Was medical attention sought from a registered practitioner /
+                        hospital?</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="med_attention" id="medicalYes"
+                                value="yes" {{ ($AccidentInfo->med_attention ?? '') == 'yes' ? 'checked' : '' }}>
+                            <label class="form-check-label" for="medicalYes">Yes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="med_attention" id="medicalNo" value="no"
+                                {{ ($AccidentInfo->med_attention ?? '') == 'no' ? 'checked' : '' }}>
+                            <label class="form-check-label" for="medicalNo">No</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">If yes to either of the above, provide details</label>
+                    <textarea class="form-control" name="med_attention_details"
+                        rows="4">{{ $AccidentInfo->med_attention_details ?? '' }}</textarea>
+                </div>
+
+
+                <!-- Prevention -->
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="provideDetails_minimise">Have any steps been taken to prevent or minimise
+                            this
+                            type of incident in the future? If yes, provide details.</label>
+                        <textarea class="form-control custom-input" id="provideDetails_minimise"
+                            name="provideDetails_minimise">{{ old('provideDetails_minimise', $AccidentInfo->provideDetails_minimise) }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <!-- Notifications -->
+            <h2>Notifications (including attempted notifications)</h2>
+            <div class="form-section">
+                <div class="row">
+
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Parent/guardian/carer</label>
+                        <input type="text" class="form-control custom-input" id="parentname" name="parent1_name"
+                            value="{{ old('parent1_name', $AccidentInfo->parent1_name) }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="carers_date" class="form-label">Date (Parent/guardian/carer)</label>
+                        <input type="date" class="form-control shadow-sm custom-input" id="carers_date"
+                            name="carers_date"
+                            value="{{ old('carers_date', $AccidentInfo->carers_date ? \Carbon\Carbon::parse($AccidentInfo->carers_date)->format('Y-m-d') : '') }}">
+                    </div>
+
+
+
+
+
+
+                    <div class="col-md-6 mb-3">
+                        <label for="carers_time" class="form-label">Time (Parent/guardian/carer)</label>
+                        <input type="time" class="form-control shadow-sm custom-input" id="carers_time"
+                            name="carers_time"
+                            value="{{ old('carers_time', $AccidentInfo->carers_time ? \Carbon\Carbon::parse($AccidentInfo->carers_time)->format('H:i') : '') }}">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="director_educator_coordinator"
+                            class="form-label">Director/educator/coordinator</label>
+                        <input type="text" class="form-control shadow-sm custom-input"
+                            id="director_educator_coordinator" name="director_educator_coordinator"
+                            value="{{ old('director_educator_coordinator', $AccidentInfo->director_educator_coordinator) }}">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="educator_date" class="form-label">Date
+                            (Director/educator/coordinator)</label>
+                        <input type="date" class="form-control shadow-sm custom-input" id="educator_date"
+                            name="educator_date"
+                            value="{{ old('educator_date', $AccidentInfo->educator_date ? \Carbon\Carbon::parse($AccidentInfo->educator_date)->format('Y-m-d') : '') }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="educator_time" class="form-label">Time
+                            (Director/educator/coordinator)</label>
+                        <input type="time" class="form-control shadow-sm custom-input" id="educator_time"
+                            name="educator_time"
+                            value="{{ old('educator_time', $AccidentInfo->educator_time ? \Carbon\Carbon::parse($AccidentInfo->educator_time)->format('H:i') : '') }}">
+                    </div>
+
+                </div>
+
+
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="other_agency" class="form-label">Other agency (if applicable)</label>
+                        <input type="text" class="form-control shadow-sm custom-input" id="other_agency"
+                            name="other_agency" value="{{ old('other_agency', $AccidentInfo->other_agency) }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="other_agency_date" class="form-label">Date (Other agency)</label>
+                        <input type="date" class="form-control shadow-sm custom-input" id="other_agency_date"
+                            name="other_agency_date"
+                            value="{{ old('other_agency_date', $AccidentInfo->other_agency_date ? \Carbon\Carbon::parse($AccidentInfo->other_agency_date)->format('Y-m-d') : '') }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="other_agency_time" class="form-label">Time (Other agency)</label>
+                        <input type="time" class="form-control shadow-sm custom-input" id="other_agency_time"
+                            name="other_agency_time"
+                            value="{{ old('other_agency_time', $AccidentInfo->other_agency_time ? \Carbon\Carbon::parse($AccidentInfo->other_agency_time)->format('H:i') : '') }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="regulatory_authority" class="form-label">Regulatory authority (if
+                            applicable)</label>
+                        <input type="text" class="form-control shadow-sm custom-input" id="regulatory_authority"
+                            name="regulatory_authority"
+                            value="{{ old('regulatory_authority', $AccidentInfo->regulatory_authority) }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="regulatory_authority_date" class="form-label">Date (Regulatory
+                            authority)</label>
+                        <input type="date" class="form-control shadow-sm custom-input" id="regulatory_authority_date"
+                            name="regulatory_authority_date"
+                            value="{{ old('regulatory_authority_date', $AccidentInfo->regulatory_authority_date ? \Carbon\Carbon::parse($AccidentInfo->regulatory_authority_date)->format('Y-m-d') : '') }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="regulatory_authority_time" class="form-label">Time (Regulatory
+                            authority)</label>
+                        <input type="time" class="form-control shadow-sm custom-input" id="regulatory_authority_time"
+                            name="regulatory_authority_time"
+                            value="{{ old('regulatory_authority_time', $AccidentInfo->regulatory_authority_time ? \Carbon\Carbon::parse($AccidentInfo->regulatory_authority_time)->format('H:i') : '') }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parental acknowledgement -->
+            <h2>Parental acknowledgement</h2>
+            <div class="form-section">
+                <div class="mb-3">
+                    <label class="form-label">I,</label>
+                    <input type="text" class="form-control" name="ack_parent_name"
+                        value="{{ $AccidentInfo->ack_parent_name ?? '' }}" placeholder="Name of parent/guardian/carer">
+                    <div class="mt-2">
+                        <label class="form-label">have been notified of my child's</label>
+                        <div class="d-flex flex-wrap gap-3 mt-1">
+                            <div class="form-check">
+                                &nbsp;
+                                <input class="form-check-input" type="checkbox" name="ack_incident" id="ackIncident"
+                                    value="1" {{ isset($AccidentInfo->ack_incident) && $AccidentInfo->ack_incident == 1
+                                ? 'checked' : '' }}>
+                                <label class="form-check-label" for="ackIncident"> &nbsp;incident</label>
+                            </div>
+                            <div class="form-check">
+                                &nbsp;
+                                <input class="form-check-input" type="checkbox" name="ack_injury" id="ackInjury"
+                                    value="1" {{ isset($AccidentInfo->ack_injury) && $AccidentInfo->ack_injury == 1 ?
+                                'checked' : '' }}>
+                                <label class="form-check-label" for="ackInjury">&nbsp;injury</label>
+                            </div>
+                            <div class="form-check">
+                                &nbsp;
+                                <input class="form-check-input" type="checkbox" name="ack_trauma" id="ackTrauma"
+                                    value="1" {{ isset($AccidentInfo->ack_trauma) && $AccidentInfo->ack_trauma == 1 ?
+                                'checked' : '' }}>
+                                <label class="form-check-label" for="ackTrauma">&nbsp;trauma</label>
+                            </div>
+                            <div class="form-check">
+                                &nbsp;
+                                <input class="form-check-input" type="checkbox" name="ack_illness" id="ackIllness"
+                                    value="1" {{ isset($AccidentInfo->ack_illness) && $AccidentInfo->ack_illness == 1 ?
+                                'checked' : '' }}>
+                                <label class="form-check-label" for="ackIllness">&nbsp;illness</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" name="ack_date"
+                            value="{{ isset($AccidentInfo->ack_date) ? \Carbon\Carbon::parse($AccidentInfo->ack_date)->format('Y-m-d') : '' }}">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="RegulatoryauthorityTime">Time</label>
+                        <input type="time" class="form-control custom-input" id="RegulatoryauthorityTime"
+                            name="ack_time"
+                            value="{{ old('ack_time', $AccidentInfo->ack_time ? \Carbon\Carbon::parse($AccidentInfo->ack_time)->format('H:i') : '') }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Final Signature</label>
+                        <div id="parent_sign">
+                            <input type="hidden" name="parent_sign" id="parent_sign_txt"
+                                value="{{ $AccidentInfo->final_sign ?? '' }}">
+                            <img src="{{ $AccidentInfo->final_sign ?? '' }}" height="100px" width="400px"
+                                id="parent_sign_img" class="border rounded">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional notes -->
+            <h2>Additional notes</h2>
+            <div class="form-section">
+                <textarea class="form-control" name="add_notes" rows="4">{{ $AccidentInfo->add_notes ?? '' }}</textarea>
+            </div>
+
+            <div class="mt-4 no-print" id="formSubmit">
+                {{-- <button type="button" id="form-submit" class="btn btn-primary">Save</button> --}}
+                <button type="button" onclick="printMainContent()" class="btn btn-secondary">Print</button>
+                <button type="button" onclick="sendReportToParent()" class="btn btn-success">Send to Parent</button>
+                {{-- <button type="reset" class="btn btn-outline-secondary">Clear Form</button> --}}
+            </div>
+        </form>
+    </div>
+
+
+
+</main>
 @endsection
 
-@push('scripts')
-    <!-- Include Select2 or other JS libraries if needed -->
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.signature/1.2.1/jquery.signature.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.js-example-basic-single').select2();
-        });
-    </script>
-
-    <script>
-        $(document).ready(function(){
+<script>
+    $(document).ready(function() {
             $('.js-example-basic-single').select2();
             var sig = $('#sig').signature();
+
             $('#btnSignature').on('click', function() {
                 let _identity = $("#identityVal").val();
+                let _signature = $('#sig').signature('toDataURL');
                 if (_identity == "person_sign") {
-                    $('#person_sign').show();
-                    $('#person_sign_dt').hide();
-                    var _signature = $('#sig').signature('toDataURL');
-                    $('#person_sign_img').attr('src', _signature);
+                    $('#person_sign_img').attr('src', _signature).show();
                     $('#person_sign_txt').val(_signature);
                 } else if (_identity == "witness_sign") {
-                    $('#witness_sign').show();
-                    $('#witness_sign_dt').hide();
-                    var _signature = $('#sig').signature('toDataURL');
-                    $('#witness_sign_img').attr('src', _signature);
+                    $('#witness_sign_img').attr('src', _signature).show();
                     $('#witness_sign_txt').val(_signature);
-                } else if (_identity == "incharge_sign") {
-                    $('#incharge_sign').show();
-                    $('#res_pinc_dt').hide();
-                    var _signature = $('#sig').signature('toDataURL');
-                    $('#res_pinc_img').attr('src', _signature);
-                    $('#res_pinc_txt').val(_signature);
-                } else if (_identity == "supervisor_sign") {
-                    $('#supervisor_sign').show();
-                    $('#nom_svs_dt').hide();
-                    var _signature = $('#sig').signature('toDataURL');
-                    $('#nsv_sign_img').attr('src', _signature);
-                    $('#nsv_sign_txt').val(_signature);
+                } else if (_identity == "parent_sign") {
+                    $('#parent_sign_img').attr('src', _signature).show();
+                    $('#parent_sign_txt').val(_signature);
                 }
                 $('#sig').signature('clear');
+                $('#signModal').modal('hide');
             });
 
-            $(document).on('show.bs.modal', '#signModal',function (event) {
-            var button = $(event.relatedTarget);
-            var identity = button.data('identity');
-            $("#identityVal").val(identity);
+            $(document).on('show.bs.modal', '#signModal', function (event) {
+                var button = $(event.relatedTarget);
+                var identity = button.data('identity');
+                $("#identityVal").val(identity);
             });
 
-            // $('.select2-container').addClass('select2-container--bootstrap select2-container--below select2-container--focus w-100');
-            $('.select2-selection__rendered').addClass('select2-container--bootstrap select2-container--below select2-container--focus w-100');
-            
-            $('.select2-container').removeClass('select2-container--default');
+            $('input[name="other"]').on('click', function() {
+                $("#otherSpecify").toggle(this.checked);
+            });
 
+            $("#childid").on("change", function() {
+                let _val = $(this).val();
+                if (_val != "") {
+                    $.ajax({
+                        url: "{{ route('Accidents.getCenterRooms') }}",
+                        type: 'post',
+                        data: {'childid': _val},
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    })
+                    .done(function(json) {
+                        var res = $.parseJSON(json);
+                        if (res.Status == "SUCCESS") {
+                            $("#birthdate").val(res.Child.dob);
+                            $("#age").val(res.Child.age);
+                            if (res.Child.gender == "Male") {
+                                $("#male").prop('checked', true);
+                                $("#female").prop('checked', false);
+                                $("#other").prop('checked', false);
+                            } else if (res.Child.gender == "Female") {
+                                $("#male").prop('checked', false);
+                                $("#female").prop('checked', true);
+                                $("#other").prop('checked', false);
+                            } else {
+                                $("#male").prop('checked', false);
+                                $("#female").prop('checked', false);
+                                $("#other").prop('checked', true);
+                            }
+                        }
+                    });
+                }
+            });
         });
 
-        var canvas = new fabric.Canvas('c',{isDrawingMode:true});
-
-   fabric.Image.fromURL("{{ asset('assets/images/baby.jpg') }}", function(myImg) 
- {
-            
-            var img1 = myImg.set({ 
-                left: 0, 
+        var canvas = new fabric.Canvas('c', { isDrawingMode: true });
+        fabric.Image.fromURL("{{ asset('assets/images/baby.jpg') }}", function(myImg) {
+            var img1 = myImg.set({
+                left: 0,
                 top: 0,
                 scaleX: 500 / myImg.width,
                 scaleY: 500 / myImg.height,
                 selectable: false,
                 hasControls: false
             });
+            canvas.add(img1);
+        }, { crossOrigin: 'Anonymous' });
 
-            // setCorners(img1);
-            canvas.add(img1);   
-        },{ crossOrigin: 'Anonymous' });
-
-        function saveImage(){
+        function saveImage() {
             var pngURL = canvas.toDataURL();
             $("#injury-image").val(pngURL);
         }
@@ -908,287 +889,206 @@ input[type="radio"]:checked + .radio-pill {
             $('#acc-form').submit();
         });
 
-        $('input[name="other"]').on('click',function(){
+        function printMainContent() {
+            var content = document.getElementById("printArea").cloneNode(true);
+            $('#formSubmit').remove();
 
-            if ($(this).is(':checked')) {
-                $("#injury-remarks").show();
-            }else{
-                $("#injury-remarks").hide();
-            }
-        });
+            content.querySelectorAll("input, textarea, select").forEach(field => {
+                var parent = field.parentNode;
+                var label = parent.querySelector("label");
 
-        $("#childid").on("change",function(){
-            let _val = $(this).val();
-            if (_val != "") {
-                $.ajax({
-                    url: "{{ route('Accidents.getCenterRooms') }}",
-                    type: 'post',
-                    data: {'childid': _val},
-                })
-                .done(function(json) {
-                    var res = $.parseJSON(json);
-                    if (res.Status == "SUCCESS") {
-                        $("#childfullname").val(res.Child.name + res.Child.lastname);
-                        $("#birthdate").val(res.Child.dob);
-                        $("#age").val(res.Child.age);
-                        if(res.Child.gender == "Male"){
-                            $("#Male").prop('checked', true);
-                            $("#Female").prop('checked', false);
-                            $("#Others").prop('checked', false);
-                        }else if(res.Child.gender == "Female"){
-                            $("#Male").prop('checked', false);
-                            $("#Female").prop('checked', true);
-                            $("#Others").prop('checked', false);
-                        }else{
-                            $("#Male").prop('checked', false);
-                            $("#Female").prop('checked', false);
-                            $("#Others").prop('checked', true);
-                        }
+                if (field.type === "hidden") {
+                    field.remove();
+                    return;
+                }
+
+                if (label) {
+                    var labelText = label.textContent.trim();
+                    label.remove();
+                } else {
+                    var labelText = '';
+                }
+
+                var valueText = "";
+                if (field.tagName === "SELECT") {
+                    valueText = field.options[field.selectedIndex]?.text || "";
+                } else if (field.type === "checkbox") {
+                    valueText = field.checked ? "✔ Yes" : "✖ No";
+                } else if (field.type === "radio") {
+                    valueText = field.checked ? field.value : "";
+                } else {
+                    valueText = field.value;
+                }
+
+                var formattedRow = document.createElement("div");
+                formattedRow.classList.add("formatted-row");
+                formattedRow.innerHTML = `<strong class="label">${labelText}</strong> - <span class="value">${valueText}</span>`;
+
+                parent.replaceChild(formattedRow, field);
+            });
+
+            content.querySelectorAll("canvas").forEach(canvas => {
+                var img = document.createElement("img");
+                img.src = canvas.toDataURL();
+                img.style.maxWidth = "100%";
+                img.style.height = "auto";
+                canvas.parentNode.replaceChild(img, canvas);
+            });
+
+            var printWindow = window.open("", "", "width=1000,height=800");
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Print</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20mm; }
+                        .print-container { font-size: 16px; line-height: 1.6; }
+                        .print-container h2 { text-align: center; border-bottom: 2px solid #333; padding-bottom: 5px; }
+                        .formatted-row { padding: 8px 0; border-bottom: 1px dashed #ccc; }
+                        .label { font-weight: bold; margin-right: 5px; }
+                        .value { font-weight: normal; }
+                        .no-print { display: none !important; }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-container">${content.innerHTML}</div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function sendReportToParent() {
+            showLoading("Preparing PDF and sending email...");
+            var content = document.getElementById("printArea").cloneNode(true);
+
+            content.querySelectorAll("input, textarea, select").forEach(field => {
+                var parent = field.parentNode;
+                var label = parent.querySelector("label");
+
+                if (field.type === "hidden") {
+                    field.remove();
+                    return;
+                }
+
+                if (label) {
+                    var labelText = label.textContent.trim();
+                    label.remove();
+                } else {
+                    var labelText = '';
+                }
+
+                var valueText = "";
+                if (field.tagName === "SELECT") {
+                    valueText = field.options[field.selectedIndex]?.text || "";
+                } else if (field.type === "checkbox") {
+                    valueText = field.checked ? "✔ Yes" : "✖ No";
+                } else if (field.type === "radio") {
+                    valueText = field.checked ? field.value : "";
+                } else {
+                    valueText = field.value;
+                }
+
+                var formattedRow = document.createElement("div");
+                formattedRow.classList.add("formatted-row");
+                formattedRow.innerHTML = `<strong class="label">${labelText}</strong> - <span class="value">${valueText}</span>`;
+
+                parent.replaceChild(formattedRow, field);
+            });
+
+            content.querySelectorAll("canvas").forEach(canvas => {
+                var img = document.createElement("img");
+                img.src = canvas.toDataURL();
+                img.style.maxWidth = "100%";
+                img.style.height = "auto";
+                canvas.parentNode.replaceChild(img, canvas);
+            });
+
+            var htmlContent = `
+                <html>
+                <head>
+                    <title>Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20mm; }
+                        .print-container { font-size: 16px; line-height: 1.6; }
+                        .print-container h2 { text-align: center; border-bottom: 2px solid #333; padding-bottom: 5px; }
+                        .formatted-row { padding: 8px 0; border-bottom: 1px dashed #ccc; }
+                        .label { font-weight: bold; margin-right: 5px; }
+                        .value { font-weight: normal; }
+                        .no-print { display: none !important; }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-container">${content.innerHTML}</div>
+                </body>
+                </html>
+            `;
+
+            let student_id = document.getElementById('student_id').value;
+
+            $.ajax({
+                url: "{{ route('Accidents.sendEmail') }}",
+                type: "POST",
+                dataType: "json",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    html_content: htmlContent,
+                    student_id: student_id
+                },
+                success: function(data) {
+                    hideLoading();
+                    if (data.success) {
+                        showAlert('success', 'Report sent successfully to parent!');
+                    } else {
+                        showAlert('error', 'Failed to send report: ' + data.message);
                     }
-                });
-            }
-        });
-    </script>
+                },
+                error: function(xhr, status, error) {
+                    hideLoading();
+                    showAlert('error', 'An error occurred while sending the report.');
+                    console.error('AJAX Error:', error);
+                }
+            });
+        }
 
-<script>
-    
-    function printMainContent() {
-        var content = document.getElementById("printArea").cloneNode(true);
-  $('#formSubmit').remove();
-        // Convert input fields, textareas, and selects to plain text with label formatting
-        content.querySelectorAll("input, textarea, select").forEach(field => {
-            var parent = field.parentNode;
-            var label = parent.querySelector("label"); // Get label
-          
-
-            if (field.type === "hidden") {
-                // Remove hidden inputs (they won't be printed)
-                field.remove();
-                return;
-            }
-
-            if (label) {
-                var labelText = label.textContent.trim();
-                label.remove(); // Remove original label
+        function showLoading(message) {
+            if (!document.getElementById('loading-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.id = 'loading-overlay';
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:9999;';
+                const spinner = document.createElement('div');
+                spinner.style.cssText = 'background:white;padding:20px;border-radius:5px;text-align:center;';
+                spinner.innerHTML = `<div class="spinner"></div><p>${message}</p>`;
+                overlay.appendChild(spinner);
+                document.body.appendChild(overlay);
             } else {
-                var labelText = ''; // If no label exists, keep it empty
+                document.getElementById('loading-overlay').style.display = 'flex';
             }
+        }
 
-            var valueText = ""; // Store the field value
-            if (field.tagName === "SELECT") {
-                valueText = field.options[field.selectedIndex]?.text || "";
-            } else if (field.type === "checkbox") {
-                valueText = field.checked ? "&#x2714" : "&#x2716"; // Show checkmark for selected, cross for unselected
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            alertDiv.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;border-radius:5px;z-index:9999;';
+            if (type === 'success') {
+                alertDiv.style.background = '#d4edda';
+                alertDiv.style.color = '#155724';
             } else {
-                valueText = field.value;
+                alertDiv.style.background = '#f8d7da';
+                alertDiv.style.color = '#721c24';
             }
-
-            // Create formatted output: Label - Value
-            var formattedRow = document.createElement("div");
-            formattedRow.classList.add("formatted-row");
-            formattedRow.innerHTML = `<strong class="label">${labelText}</strong> - <span class="value">${valueText}</span>`;
-
-            parent.replaceChild(formattedRow, field);
-        });
-
-        // Create print window
-        var printWindow = window.open("", "", "width=1000,height=800");
-        printWindow.document.write(`
-            <html>
-            <head>
-                <title>Print</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 20mm; }
-                    .print-container { font-size: 16px; line-height: 1.6; }
-                    .print-container h2 { text-align: center; border-bottom: 2px solid #333; padding-bottom: 5px; }
-                    .formatted-row { padding: 8px 0; border-bottom: 1px dashed #ccc; }
-                    .label { font-weight: bold; margin-right: 5px; }
-                    .value { font-weight: normal; }
-                    .no-print2 {  display: none !important; }
-                    .no-print3 {  display: none !important; }
-                    #formSubmit {display:none !important; }
-                </style>
-            </head>
-            <body>
-                <div class="print-container">${content.innerHTML}</div>
-            </body>
-            </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
-    }
-
-
-    function sendReportToParent() {
-        // alert();
-    // Show loading indicator
-    showLoading("Preparing PDF and sending email...");
-    
-    // Get the content just like in printMainContent()
-    var content = document.getElementById("printArea").cloneNode(true);
-
-    // Apply the same formatting as in printMainContent()
-    content.querySelectorAll("input, textarea, select").forEach(field => {
-        var parent = field.parentNode;
-        var label = parent.querySelector("label");
-
-        if (field.type === "hidden") {
-            field.remove();
-            return;
+            document.body.appendChild(alertDiv);
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
         }
-
-        if (label) {
-            var labelText = label.textContent.trim();
-            label.remove();
-        } else {
-            var labelText = '';
-        }
-
-        var valueText = "";
-        if (field.tagName === "SELECT") {
-            valueText = field.options[field.selectedIndex]?.text || "";
-        } else if (field.type === "checkbox") {
-            valueText = field.checked ? "&#10004; Yes" : "&#10008; No";  // Using HTML entities
-        } else {
-            valueText = field.value;
-        }
-
-        var formattedRow = document.createElement("div");
-        formattedRow.classList.add("formatted-row");
-        formattedRow.innerHTML = `<strong class="label">${labelText}</strong> - <span class="value">${valueText}</span>`;
-
-        parent.replaceChild(formattedRow, field);
-    });
-
-    // Create HTML content for PDF
-    var htmlContent = `
-        <html>
-        <head>
-            <title>Report</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20mm; }
-                .print-container { font-size: 16px; line-height: 1.6; }
-                .print-container h2 { text-align: center; border-bottom: 2px solid #333; padding-bottom: 5px; }
-                .formatted-row { padding: 8px 0; border-bottom: 1px dashed #ccc; }
-                .label { font-weight: bold; margin-right: 5px; }
-                .value { font-weight: normal; }
-                .no-print2 { display: none !important; }
-                .no-print3 { display: none !important; }
-                #formSubmit { display:none !important; }
-            </style>
-        </head>
-        <body>
-            <div class="print-container">${content.innerHTML}</div>
-        </body>
-        </html>
-    `;
-
-    // alert(htmlContent);
-   let student_id = document.getElementById('student_id').value;
- 
-//    alert(student_id);
-
-    // Send the HTML content to the server for PDF generation and email sending
-//     fetch("{{ route('Accidents.sendEmail') }}"
-// , {
-//         method: 'POST',
-//         headers: {
-//         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-//     },
-//         body: JSON.stringify({
-//             html_content: htmlContent,
-//             student_id:student_id// Assuming you have a student ID field
-//         })
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         hideLoading();
-//         if (data.success) {
-//             showAlert('success', 'Report sent successfully to parent!');
-//         } else {
-//             showAlert('error', 'Failed to send report: ' + data.message);
-//         }
-//     })
-//     .catch(error => {
-//         hideLoading();
-//         showAlert('error', 'An error occurred while sending the report.');
-//         console.error('Error:', error);
-//     });
-
-
-    $.ajax({
-        url: "{{ route('Accidents.sendEmail') }}",
-        type: "POST",
-        dataType: "json",
-           headers: {
-         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-     },
-        data: {
-            html_content: htmlContent,
-            student_id: student_id
-        },
-        success: function (data) {
-            hideLoading();
-            if (data.success) {
-                showAlert('success', 'Report sent successfully to parent!');
-            } else {
-                showAlert('error', 'Failed to send report: ' + data.message);
-            }
-        },
-        error: function (xhr, status, error) {
-            hideLoading();
-            showAlert('error', 'An error occurred while sending the report.');
-            console.error('AJAX Error:', error);
-        }
-    });
-}
-
-function showLoading(message) {
-    // Create or show a loading indicator
-    if (!document.getElementById('loading-overlay')) {
-        const overlay = document.createElement('div');
-        overlay.id = 'loading-overlay';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:9999;';
-        
-        const spinner = document.createElement('div');
-        spinner.style.cssText = 'background:white;padding:20px;border-radius:5px;text-align:center;';
-        spinner.innerHTML = `<div class="spinner"></div><p>${message}</p>`;
-        
-        overlay.appendChild(spinner);
-        document.body.appendChild(overlay);
-    } else {
-        document.getElementById('loading-overlay').style.display = 'flex';
-    }
-}
-
-function hideLoading() {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) overlay.style.display = 'none';
-}
-
-function showAlert(type, message) {
-    // Create or show an alert message
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type}`;
-    alertDiv.innerHTML = message;
-    alertDiv.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;border-radius:5px;z-index:9999;';
-    
-    if (type === 'success') {
-        alertDiv.style.background = '#d4edda';
-        alertDiv.style.color = '#155724';
-    } else {
-        alertDiv.style.background = '#f8d7da';
-        alertDiv.style.color = '#721c24';
-    }
-    
-    document.body.appendChild(alertDiv);
-    
-    // Remove the alert after 3 seconds
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 3000);
-}
-
 </script>
-
-@endpush

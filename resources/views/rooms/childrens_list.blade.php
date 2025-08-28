@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Childs List')
+@section('title', 'Children List')
 
 @section('parentPageTitle', '')
 <style>

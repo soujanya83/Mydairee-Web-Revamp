@@ -177,7 +177,7 @@
 
                     <div class="mb-2">
                         <i class="fa fa-child text-warning me-2"></i>
-                        Childrens: {{ count($room->children) }}
+                        Children: {{ count($room->children) }}
                     </div>
 
                     <div class="mb-2">
