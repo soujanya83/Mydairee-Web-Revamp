@@ -43,7 +43,7 @@ padding-inline:0;
 
         #person_sign{
             display: none;
-        } 
+        }
 
         #witness_sign{
             display: none;
@@ -82,7 +82,7 @@ padding-inline:0;
         .email-button {
     position: absolute;
     /* top: 9px; */
-    right: 210px; 
+    right: 210px;
     padding: 10px 20px;
     background-color: #007BFF; /* Blue to distinguish from print */
     color: white;
@@ -109,7 +109,7 @@ padding-inline:0;
         width: 0 !important;
         overflow: hidden !important;
     }
-        
+
             .print-container {
                 font-size: 16px;
                 line-height: 1.6;
@@ -136,9 +136,9 @@ padding-inline:0;
     <title>MyDiaree</title>
   </head>
   <body>
- 
+
     <main >
-        
+
     <div class="container-fluid">
     <div id="printArea">
         <div class="row">
@@ -620,18 +620,18 @@ $parents = [
 
             // $('.select2-container').addClass('select2-container--bootstrap select2-container--below select2-container--focus w-100');
             $('.select2-selection__rendered').addClass('select2-container--bootstrap select2-container--below select2-container--focus w-100');
-            
+
             $('.select2-container').removeClass('select2-container--default');
 
         });
 
         var canvas = new fabric.Canvas('c',{isDrawingMode:true});
 
-   fabric.Image.fromURL("{{ asset('assets/images/baby.jpg') }}", function(myImg) 
+   fabric.Image.fromURL("{{ asset('assets/images/baby.jpg') }}", function(myImg)
  {
-            
-            var img1 = myImg.set({ 
-                left: 0, 
+
+            var img1 = myImg.set({
+                left: 0,
                 top: 0,
                 scaleX: 500 / myImg.width,
                 scaleY: 500 / myImg.height,
@@ -640,7 +640,7 @@ $parents = [
             });
 
             // setCorners(img1);
-            canvas.add(img1);   
+            canvas.add(img1);
         },{ crossOrigin: 'Anonymous' });
 
         function saveImage(){
@@ -696,7 +696,7 @@ $parents = [
     </script>
 
 <script>
-    
+
     function printMainContent() {
         var content = document.getElementById("printArea").cloneNode(true);
   $('#formSubmit').remove();
@@ -704,7 +704,7 @@ $parents = [
         content.querySelectorAll("input, textarea, select").forEach(field => {
             var parent = field.parentNode;
             var label = parent.querySelector("label"); // Get label
-          
+
 
             if (field.type === "hidden") {
                 // Remove hidden inputs (they won't be printed)
@@ -768,7 +768,7 @@ $parents = [
         // alert();
     // Show loading indicator
     showLoading("Preparing PDF and sending email...");
-    
+
     // Get the content just like in printMainContent()
     var content = document.getElementById("printArea").cloneNode(true);
 
@@ -830,7 +830,7 @@ $parents = [
 
     // alert(htmlContent);
    let student_id = document.getElementById('student_id').value;
- 
+
 //    alert(student_id);
 
     // Send the HTML content to the server for PDF generation and email sending
@@ -894,11 +894,11 @@ function showLoading(message) {
         const overlay = document.createElement('div');
         overlay.id = 'loading-overlay';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:9999;';
-        
+
         const spinner = document.createElement('div');
         spinner.style.cssText = 'background:white;padding:20px;border-radius:5px;text-align:center;';
         spinner.innerHTML = `<div class="spinner"></div><p>${message}</p>`;
-        
+
         overlay.appendChild(spinner);
         document.body.appendChild(overlay);
     } else {
@@ -917,7 +917,7 @@ function showAlert(type, message) {
     alertDiv.className = `alert alert-${type}`;
     alertDiv.innerHTML = message;
     alertDiv.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;border-radius:5px;z-index:9999;';
-    
+
     if (type === 'success') {
         alertDiv.style.background = '#d4edda';
         alertDiv.style.color = '#155724';
@@ -925,9 +925,9 @@ function showAlert(type, message) {
         alertDiv.style.background = '#f8d7da';
         alertDiv.style.color = '#721c24';
     }
-    
+
     document.body.appendChild(alertDiv);
-    
+
     // Remove the alert after 3 seconds
     setTimeout(() => {
         alertDiv.remove();
