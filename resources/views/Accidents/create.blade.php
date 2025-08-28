@@ -383,7 +383,7 @@ input[type="radio"]:checked + .radio-pill {
            id="incidentdate" 
            name="incident_date" 
            value="{{ $incidentDate }}"
-           @if($incidentDate === $today) disabled @endif>
+           @if($incidentDate === $today)  @endif>
 </div>
 
 
