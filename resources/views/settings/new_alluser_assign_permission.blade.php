@@ -546,7 +546,7 @@
                                     style="color:#ffffff;margin-left:12px">
                                     <i class="fa fa-users"></i> Assigned Users List
                                 </a>
-                                @if(Auth::user()->admin == 1 || Auth::user()->userid == 1)
+                                @if(Auth::user()->userType == "superadmin" || Auth::user()->admin == 1)
                                         <button type="button" id="admin" class="select-all-btn2 btn-outline mb-0" data-category=""  style="color:#ffffff;margin-left:12px">
                                             <i class="far fa-check-circle"></i> Admin
                                         </button>
