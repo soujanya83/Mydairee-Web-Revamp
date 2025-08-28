@@ -29,37 +29,55 @@
         margin-top: -7px !important;
     }
 
-    /* filter  */
-        #FilterbyTitle{
-        display: none;
-    }
-     #FilterbyCreatedBy{
-        display: none;
-    }
-     #StatusFilter{
-        display: none;
-    }
-     #StatusFilter_label{
-        display: none;
-    }
-     #Filterbydate_from_label{
-        display: none;
-    }
-     #Filterbydate_from{
-        display: none;
-    }
-     #Filterbydate_to_label{
-        display: none;
-    }
-       #Filterbydate_to{
-        display: none;
-    }
-          #genderFilter{
-        display: none;
-    }
-           #genderFilter_label{
-        display: none;
-    }
+/* Filter inputs hidden by default */
+#FilterbyName {
+    display: none;
+}
+
+#FilterbyCreatedBy {
+    display: none;
+}
+
+#statusFilter {
+    display: none;
+}
+
+#StatusFilter_label {
+    display: none;
+}
+
+#birthFilter_label {
+    display: none;
+}
+
+#birthmonthFilter {
+    display: none;
+}
+
+#genderFilter {
+    display: none;
+}
+
+#genderFilter_label {
+    display: none;
+}
+
+#Filterbydate_from_label {
+    display: none;
+}
+
+#Filterbydate_from {
+    display: none;
+}
+
+#Filterbydate_to_label {
+    display: none;
+}
+
+#Filterbydate_to {
+    display: none;
+}
+
 </style>
 
 <style>
@@ -143,35 +161,18 @@
         <select name="filter" onchange="showfilter(this.value)" 
                 class="border-info uniform-input">
             <option value="">Choose</option>
-            <option value="title">Title</option>
+            <option value="title">Name</option>
             <option value="status">Status</option>
-            <option value="date">Date</option>
+            <option value="Birthmonth">Birth Month</option>
             <option value="gender">Gender</option>
         </select>
 
         <!-- Title Filter -->
-        <input type="text" name="filterbyTitle" id="FilterbyTitle"
+        <input type="text" name="filterbyName" id="FilterbyName"
                class="uniform-input"
                placeholder="Filter by name"
                onkeyup="filterProgramPlan()">
-
-        <!-- From Date -->
-        <div class="d-flex align-items-center gap-2">
-            <label for="Filterbydate_from" id="Filterbydate_from_label" class="text-info small m-0">From</label>
-            <input type="date" id="Filterbydate_from" name="date_from"
-                   class="form-control border-info form-control-sm uniform-input"
-                   value="{{ request('date_from') }}"
-                   onchange="filterProgramPlan()">
-        </div>
-
-        <!-- To Date -->
-        <div class="d-flex align-items-center gap-2">
-            <label for="Filterbydate_to" id="Filterbydate_to_label" class="text-info small m-0">To</label>
-            <input type="date" id="Filterbydate_to" name="date_to"
-                   class="form-control border-info form-control-sm uniform-input"
-                   value="{{ request('date_to') }}"
-                   onchange="filterProgramPlan()">
-        </div>
+   
 
         <!-- Status -->
         <div class="d-flex align-items-center gap-2">
@@ -181,7 +182,29 @@
                     onchange="filterProgramPlan()">
                 <option value="">All</option>
                 <option value="Active">Active</option>
-                <option value="In-active" >IN-Active</option>
+                <option value="Inactive" >IN-Active</option>
+            </select>
+        </div>
+
+            <div class="d-flex align-items-center gap-2">
+            <label for="statusFilter" id="birthFilter_label" class="text-info small m-0">Birth Month</label>
+            <select id="birthmonthFilter" name="status"
+                    class="form-control form-control-sm border-info uniform-input"
+                    onchange="filterProgramPlan()">
+                <option value="">All</option>
+                <option value="January">January</option>
+                <option value="Febuary" >Febuary</option>
+                <option value="March" >March</option>
+                <option value="April" >April</option>
+                <option value="May" >May</option>
+                <option value="June" >June</option>
+                <option value="July" >July</option>
+                <option value="August" >August</option>
+                <option value="September" >September</option>
+                <option value="October" >October</option>
+                <option value="November" >November</option>
+                <option value="December" >December</option>
+
             </select>
         </div>
 
@@ -378,242 +401,75 @@
 <script>
 function showfilter(val) {
     // Hide all filters first
-    $('#FilterbyTitle, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #Filterbydate_to_label, #Filterbydate_to, #Filterbydate_from_label, #Filterbydate_from, #genderFilter_label, #genderFilter').hide();
-
-    // Clear values of all fields
-    $('#FilterbyTitle, #FilterbyCreatedBy, #statusFilter, #Filterbydate_to, #Filterbydate_from, #genderFilter')
-        .val('')
+    $('#FilterbyName, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #birthFilter_label, #birthmonthFilter, #genderFilter_label, #genderFilter')
+        .hide()
+        .val('') // clear values
         .prop('checked', false)
         .trigger('change');
 
-        filterProgramPlan();
+    filterProgramPlan(); // apply filter after clearing
 
     // Show relevant fields based on selected filter
-    if (val === 'createdby') {
-        $('#FilterbyCreatedBy').show();
-    } 
-    else if (val === 'status') {
-        $('#StatusFilter_label').show();
-        $('#statusFilter').show();
-    } 
-    else if (val === 'title') {
-        $('#FilterbyTitle').show();
-    } 
-    else if (val === 'date') {
-        $('#Filterbydate_from_label, #Filterbydate_from, #Filterbydate_to_label, #Filterbydate_to').show();
-    } 
-    else if (val === 'gender') {
-        $('#genderFilter_label, #genderFilter').show();
-    } 
-    else {
-        // Reset view if "Choose" or invalid option
-        window.location.reload();
+    switch (val.toLowerCase()) {
+        case 'title':
+            $('#FilterbyName').show();
+            break;
+        case 'status':
+            $('#StatusFilter_label, #statusFilter').show();
+            break;
+        case 'birthmonth':
+            $('#birthFilter_label, #birthmonthFilter').show();
+            break;
+        case 'gender':
+            $('#genderFilter_label, #genderFilter').show();
+            break;
+        case 'createdby':
+            $('#FilterbyCreatedBy').show();
+            break;
+        default:
+            // If "Choose" or invalid option, hide all
+            $('#FilterbyName, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #birthFilter_label, #birthmonthFilter, #genderFilter_label, #genderFilter').hide();
+            break;
     }
 }
 
 
 
+
 function filterProgramPlan() {
-    var Title        = $('#FilterbyTitle').val();
-    var CreatedBy    = $('#FilterbyCreatedBy').val();
-    var date_from    = $('#Filterbydate_from').val();
-    var date_to      = $('#Filterbydate_to').val();
-    var statusFilter = $('#statusFilter').val();
+    // Get filter values
+    var name       = $('#FilterbyName').val().toLowerCase();
+    var status     = $('#statusFilter').val().toLowerCase();
+    var birthMonth = $('#birthmonthFilter').val().toLowerCase().slice(0,3); // trim to 3 letters
+    var gender     = $('#genderFilter').val().toLowerCase();
 
-    console.log('data:', Title, CreatedBy, date_from, date_to, statusFilter);
+    // Iterate over each child card
+    $('.row.mb-5 > .col-md-3').each(function() {
+        var card        = $(this);
+        var childName   = card.find('.card-title').text().toLowerCase();
+        var childStatus = card.find('form button[type="submit"]').text().toLowerCase();
+        var childGender = card.find('.badge i').hasClass('fa-mars') ? 'male' : 'female';
 
-    $.ajax({
-        url: "{{ route('announcements.Filterlist') }}",
-        type: "GET",
-        dataType: "json",
-        data: {
-            title: Title,
-            created_by: CreatedBy,
-            date_from: date_from,
-            date_to: date_to,
-            status: statusFilter
-        },
-        beforeSend: function () {
-            $('.annoucement-list').html('<div class="text-center py-5">Loading...</div>');
-        },
-        success: function (res) {
-            if (res.status && res.records.length > 0) {
-                let html = '';
-
-                $.each(res.records, function (i, announcement) {
-                    // --- MEDIA SECTION ---
-                    let mediaHtml = '';
-                    let mediaArr = [];
-
-                    // Parse media JSON safely
-                    try {
-                        if (typeof announcement.announcementMedia === 'string') {
-                            mediaArr = JSON.parse(announcement.announcementMedia);
-                        } else if (Array.isArray(announcement.announcementMedia)) {
-                            mediaArr = announcement.announcementMedia;
-                        }
-                    } catch (e) {
-                        console.error('Invalid media JSON:', announcement.announcementMedia);
-                    }
-
-                    if (mediaArr.length > 0) {
-                        let firstMedia = mediaArr[0];
-                        let extension = firstMedia.split('.').pop().toLowerCase();
-
-                        // Build file URL (assuming files stored in public/assets/media)
-                        let fileUrl = '/assets/media/' + firstMedia;
-
-                        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) {
-                            mediaHtml = `<img src="${fileUrl}" class="card-img-top" style="height:180px;object-fit:cover;" alt="Announcement Image">`;
-                        } else if (extension === 'pdf') {
-                            mediaHtml = `
-                                <div class="d-flex align-items-center justify-content-center bg-light" style="height:180px;">
-                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none">
-                                        <img src="/svg/pdf-icon.svg" style="width:80px;height:80px;" alt="PDF">
-                                        <div class="text-center mt-2 text-muted">PDF Document</div>
-                                    </a>
-                                </div>`;
-                        } else {
-                            mediaHtml = `
-                                <div class="d-flex align-items-center justify-content-center bg-light" style="height:180px;">
-                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none text-muted">Download File</a>
-                                </div>`;
-                        }
-
-                        mediaHtml = `<div class="position-relative">${mediaHtml}</div>`;
-                    } else {
-                        mediaHtml = `
-                            <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:180px;">
-                                <div class="text-center">
-                                    <i class="fas fa-image fa-3x mb-2"></i>
-                                    <div>No Media</div>
-                                </div>
-                            </div>`;
-                    }
-
-                    // --- STATUS BADGE ---
-                    let statusBadgeClass =
-                        announcement.status === 'Sent' ? 'bg-success' :
-                        announcement.status === 'Pending' ? 'bg-warning text-dark' : 'bg-danger';
-
-                    let statusIcon =
-                        announcement.status === 'Sent' ? 'fa-check' :
-                        announcement.status === 'Pending' ? 'fa-clock' : 'fa-times';
-
-                        let eventDate = new Date(announcement.eventDate);
-                     let createdAt = new Date(announcement.createdAt);
-let formattedDate = createdAt.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-});
-let today = new Date();
-let diffTime = eventDate - today; 
-let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-let eventDateHuman = '';
-if (diffDays > 0) {
-    eventDateHuman = `Event in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
-} else if (diffDays === 0) {
-    eventDateHuman = `Event is today`;
-} else {
-    eventDateHuman = `Event passed ${Math.abs(diffDays)} day${Math.abs(diffDays) > 1 ? 's' : ''} ago`;
-}
-
-                    // --- CARD HTML ---
-                    html += `
-                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                            <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition-all">
-                                <div class="card-header bg-light border-0 pb-2">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <span class="badge text-dark small">notification</span>
-                                        <span class="text-white badge fs-6 ${statusBadgeClass}">
-                                            <i class="fas ${statusIcon} me-1"></i>
-                                            ${announcement.status.charAt(0).toUpperCase() + announcement.status.slice(1)}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                ${mediaHtml}
-
-                                <div class="card-body d-flex flex-column">
-                                    <h6 class="card-title fw-bold mb-3 text-truncate" title="${announcement.title}">
-                                        ${announcement.title.charAt(0).toUpperCase() + announcement.title.slice(1)}
-                                    </h6>
-
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
-                                             style="width:30px;height:30px;background-color:#17a2b8;">
-                                            <small class="text-white fw-bold">${announcement.creatorName.charAt(0).toUpperCase()}</small>
-                                        </div>
-                                        <div>
-                                            <small class="text-muted d-block">Created by</small>
-                                            <span class="small fw-semibold">${announcement.creator.name}</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <small class="text-muted d-block">Event Date</small>
-                                        <div class="fw-semibold">${announcement.eventDate}</div>
-                                        <small class="text-muted">${eventDateHuman}</small>
-                                                       <small class="text-muted d-block">Created At</small>
-                                    <div class="fw-semibold">${formattedDate}</div>
-                                    </div>
-
-                               <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
-    <!-- View button always visible -->
-    <a href="view/${announcement.id}" 
-       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
-       style="min-width:38px;height:38px;" title="View">
-        <i class="fas fa-eye"></i>
-    </a>
-
-    <!-- Edit button only if key exists and is true -->
-    ${res.permission && res.permission.addAnnouncement ? `
-    <a href="create/${announcement.id}" 
-       class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
-       style="min-width:38px;height:38px;" title="Edit">
-        <i class="fas fa-pen-to-square"></i>
-    </a>` : ''}
-
-    <!-- Delete button only if key exists and is true -->
-    ${res.permission && res.permission.deleteAnnouncement ? `
-    <form action="delete" method="POST" class="d-inline delete-form">
-        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="_method" value="DELETE">
-        <input type="hidden" name="announcementid" value="${announcement.id}">
-        <button type="button" class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center delete-btn" 
-                style="min-width:38px;height:38px;" title="Delete">
-            <i class="fa-solid fa-trash"></i>
-        </button>
-    </form>` : ''}
-</div>
-
-                                </div>
-                            </div>
-                        </div>`;
-                });
-
-                $('.annoucement-list').html(`<div class="row g-3">${html}</div>`);
-
-            } else {
-                $('.annoucement-list').html(`
-                    <div class="col-12">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body text-center py-5 text-muted">
-                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-                                <h5>No announcements found</h5>
-                                <p class="mb-0">Create your first announcement to get started.</p>
-                            </div>
-                        </div>
-                    </div>
-                `);
-            }
-        },
-        error: function () {
-            $('.annoucement-list').html('<div class="text-center py-5 text-danger">Error loading announcements</div>');
+        // Extract DOB from badge
+        var dobText = card.find('.badge').first().text().trim(); // e.g. "DOB: 21 Apr 2023"
+        var dobMonth = '';
+        var dobMatch = dobText.match(/dob:\s*\d+\s+(\w+)/i);
+        if (dobMatch) {
+            dobMonth = dobMatch[1].toLowerCase().slice(0,3); // first 3 letters
         }
+
+        // Check if card matches all active filters
+        var show = true;
+        if (name && !childName.includes(name)) show = false;
+        if (status && !childStatus.includes(status)) show = false;
+        if (birthMonth && dobMonth !== birthMonth) show = false;
+        if (gender && childGender !== gender) show = false;
+
+        // Toggle card visibility
+        card.toggle(show);
     });
 }
+
 
 
 

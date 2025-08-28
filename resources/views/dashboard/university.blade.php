@@ -32,6 +32,10 @@
     cursor: pointer !important;
 }
 
+.birthday-event, .annoucement-event {
+     cursor: pointer;
+}
+
 
 
 </style>
@@ -763,7 +767,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     date: item.eventDate,
                     description: item.text || '',
                     media:item.announcementMedia,
-                   color: '#17a2b8' // Blue for announcements
+                   color: '#17a2b8' ,// Blue for announcements
+                    className: 'annoucement-event' 
                 }));
                 calendar.addEventSource(events);
             }
@@ -792,7 +797,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     date,
                     allDay: true,
                     color: '#74a5c9', // Red
-                    users
+                    users,
+                     className: 'birthday-event' 
                 }));
 
                 calendar.addEventSource(birthdayEvents);

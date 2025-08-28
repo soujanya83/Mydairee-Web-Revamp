@@ -21,6 +21,7 @@ class RoomController extends Controller
 
     public function toggleStatus($id)
     {
+    
         $child = Child::findOrFail($id);
         $oldStatus = $child->status;
         $child->status = $child->status === 'Active' ? 'In Active' : 'Active';

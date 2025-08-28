@@ -695,8 +695,8 @@
 
         </div>
 
-        @if(isset($permission) && $permission->add == 1)
-        <!-- <a href="#" class="btn btn-primary btn-lg top-right-button" id="addnewbtn" data-toggle="modal" data-target="#templateModal">ADD NEW</a> -->
+        @if(isset($permission) && $permission->addProgramPlan == 1 || Auth::user()->userType == "Superadmin")
+        <a href="{{ route('observation.activity-list') }}" class="btn btn-outline-info btn-lg top-right-button" >Activities</a>
         @endif
 
         @if($userType != 'Parent')

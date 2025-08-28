@@ -39,4 +39,10 @@ public function montessoriLinks()
 {
     return $this->hasMany(ObservationMontessori::class, 'idSubActivity');
 }
+
+// newly added
+public function montessoriSubActivityAccess()
+{
+    return $this->hasMany(MontessoriSubActivityAccess::class, 'idSubActivity', 'idSubActivity');
+}
 }
