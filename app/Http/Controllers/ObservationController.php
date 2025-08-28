@@ -63,7 +63,7 @@ $centerId = Session('user_center_id');
 
         // Create access record
         MontessoriSubActivityAccess::create([
-            'idSubActivity' => $subActivity->id, // Assuming primary key is `id`
+            'idSubActivity' => $subActivity->idActivity, // Assuming primary key is `id`
             'centerid' => $centerId,
             'added_by' => Auth::user()->userid,
             'added_at' => now(), 
@@ -107,7 +107,7 @@ public function addActivity(Request $request)
 
         // Insert into montessoriactivityaccess
         Montessoriactivityaccess::create([
-    'idActivity' => $activity->id,
+    'idActivity' => $activity->idActivity,
     'centerid' => $centerId,
     'added_by' => Auth::user()->userid, // assuming user is logged in
     'added_at' => now(),        // Laravel's current timestamp
