@@ -1959,6 +1959,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const title = document.getElementById('subActivityTitle').value;
     const subjectSelectForSub = document.getElementById('subjectSelectForSub').value;
      const csrfToken = $('meta[name="csrf-token"]').attr('content');
+     alert(idActivity);
     // AJAX call to save the sub-activity
     $.ajax({
       url: "{{ url('Observation/addSubActivity') }} ",
