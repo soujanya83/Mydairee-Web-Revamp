@@ -759,7 +759,9 @@ function updateStatus(currentStatus, id) {
         });
 
 function filterProgramPlan() {
+    // alert();
     var Title        = $('#FilterbyTitle').val();
+    // alert(Title);
     var CreatedBy    = $('#FilterbyCreatedBy').val();
     var date_from    = $('#Filterbydate_from').val();
     var date_to      = $('#Filterbydate_to').val();
@@ -1020,10 +1022,12 @@ function showfilter(val) {
     $('#FilterbyTitle, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #Filterbydate_to_label, #Filterbydate_to, #Filterbydate_from_label, #Filterbydate_from').hide();
 
     // Clear values of all fields
-    $('#FilterbyTitle input, #FilterbyCreatedBy input, #statusFilter, #Filterbydate_to, #Filterbydate_from')
+    $('#FilterbyTitle, #FilterbyCreatedBy, #statusFilter, #Filterbydate_to, #Filterbydate_from')
         .val('')
         .prop('checked', false)
         .trigger('change');
+
+        // filterProgramPlan();
 
     if (val === 'createdby') {
         $('#FilterbyCreatedBy').show();

@@ -700,15 +700,22 @@ input[type="radio"]:checked + .radio-pill {
                                         Signature
                                         <span class=" editbtn" data-toggle="modal" data-target="#signModal" data-identity="supervisor_sign"><i class="fas fa-pencil-alt"></i></span>
                                     </label>
-                                    <input type="text" class="form-control custom-input" id="nom_svs_dt" disabled>
+                                    <input type="text" class="form-control custom-input" id="nom_svs_dt" data-toggle="modal" data-target="#signModal" data-identity="supervisor_sign" readonly >
                                  <div id="supervisor_sign">
     <input type="hidden" name="nominated_supervisor_sign" id="nsv_sign_txt" value="">
-
+ <div id="nsv_sign_container" style="position: relative; display: inline-block;">
     @if (!empty($AccidentInfo->nominated_supervisor_sign))
         <img src="{{ $AccidentInfo->nominated_supervisor_sign }}" height="120px" width="300px" id="nsv_sign_img">
     @else
         <img src="" height="120px" width="300px" id="nsv_sign_img">
+            <span id="removensv_sign_txt"
+          style="position: absolute; top: 5px; right: 8px; cursor: pointer; 
+                 color: #fff; background: red; border-radius: 50%; 
+                 padding: 0 8px; font-weight: bold; font-size: 16px; line-height: 20px; display:none;">
+        ×
+    </span>
     @endif
+    </div>
 </div>
 
                                 </div>
@@ -835,8 +842,8 @@ input[type="radio"]:checked + .radio-pill {
       </div>
       <div class="modal-footer text-right">
       	<br>
-        <button type="button" class="btn btn-default btn-sm btn-danger" data-dismiss="modal">Exit</button>
-        <button type="button" class="btn btn-default btn-sm btn-success " id="btnSignature" data-identity="" data-dismiss="modal">Use</button>
+        <button type="button" class="btn btn-default btn-sm btn-danger" id="btnSignaturecancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-default btn-sm btn-success " id="btnSignature" data-identity="" data-dismiss="modal">Save</button>
       </div>
     </div>
   </div>
@@ -901,6 +908,65 @@ input[type="radio"]:checked + .radio-pill {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.signature/1.2.1/jquery.signature.min.js"></script>
 
 <script style="opacity: 1;">
+
+  $('#removensv_sign_txt').click(function () {
+    $('#nsv_sign_img').attr('src', '').hide(); // clear + hide image
+    $('#nsv_sign_txt').val('');                // unset hidden input
+    $(this).hide();                            // also hide the × button itself
+});
+
+  $('#removeres_pinc_txt').click(function () {
+    $('#res_pinc_img').attr('src', '').hide(); // clear + hide image
+    $('#res_pinc_txt').val('');                // unset hidden input
+    $(this).hide();                            // also hide the × button itself
+});
+
+    
+       $('#removewitness_sign_txt').click(function(){
+        $('#witness_sign_img').attr('src','').hide();
+         $('#witness_sign_txt').val('');
+          $(this).hide(); 
+    })
+
+       $('#removeperson_sign_txt').click(function(){
+        $('#person_sign_img').attr('src','').hide();
+         $('#person_sign_txt').val('');
+          $(this).hide(); 
+    })
+
+$('#btnSignaturecancel').on('click', function() {
+    clearSignatureCanvas();
+});
+
+// Also clear if modal closed by "X" or outside click
+$('#signModal').on('hidden.bs.modal', function () {
+    clearSignatureCanvas();
+});
+
+// Reusable function
+function clearSignatureCanvas() {
+    canvas1.clear();
+    canvas1.setBackgroundColor('#ffffff', canvas1.renderAll.bind(canvas1));
+}
+
+$('#signModal').on('hidden.bs.modal', function () {
+    clearSignatureCanvas(true); // clear + reset identity
+});
+
+// Reusable function
+function clearSignatureCanvas(resetIdentity = false) {
+    canvas1.clear();
+    canvas1.setBackgroundColor('#ffffff', canvas1.renderAll.bind(canvas1));
+
+    if (resetIdentity) {
+        $("#identityVal").val(""); // set empty
+    }
+}
+
+// clearing sign canvas modal
+
+
+
 
 $(document).ready(function(){
 
@@ -1036,7 +1102,7 @@ var canvas = new fabric.Canvas('c', {
     height: 500
 });
 
-   enableCircleMode(canvas, 10, "green");
+   enableCircleMode(canvas, 4, "green");
 
     function enableCircleMode(fCanvas, radius = 15, color = "red") {
         fCanvas.on('mouse:down', function (options) {
@@ -1064,8 +1130,8 @@ var canvas1 = new fabric.Canvas('d', {
 });
 
 // Brush settings
-canvas.freeDrawingBrush.width = 2;
-canvas.freeDrawingBrush.color = '#000000';
+canvas.freeDrawingBrush.width = 4;
+canvas.freeDrawingBrush.color = '#fd0707ff';
 
 canvas1.freeDrawingBrush.width = 2;
 canvas1.freeDrawingBrush.color = '#000000';

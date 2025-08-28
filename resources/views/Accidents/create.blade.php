@@ -383,7 +383,7 @@ input[type="radio"]:checked + .radio-pill {
            id="incidentdate" 
            name="incident_date" 
            value="{{ $incidentDate }}"
-           @if($incidentDate === $today) disabled @endif>
+           @if($incidentDate === $today)  @endif>
 </div>
 
 
@@ -413,7 +413,7 @@ input[type="radio"]:checked + .radio-pill {
           
         </label>
         <input type="text" class="form-control mb-2 shadow-sm custom-input" data-toggle="modal" data-target="#signModal" data-identity="witness_sign" style="cursor: pointer;" readonly>
-        <div id="witness_sign" class="border rounded bg-light p-2 shadow-sm">
+        <div id="witness_sign" class=" rounded p-2 ">
             <input type="hidden" name="witness_sign" id="witness_sign_txt">
            <div id="witness_sign_container" style="position: relative; display: inline-block;">
     <img src="" height="120" width="300" id="witness_sign_img" 
@@ -845,7 +845,7 @@ input[type="radio"]:checked + .radio-pill {
                                     Signature
                                     <!-- <span class=" editbtn" data-toggle="modal" data-target="#signModal" data-identity="incharge_sign"> <i class="fas fa-pencil-alt"></i></span> -->
                                 </label>
-                                <input type="text" class="form-control custom-input" id="res_pinc_dt" data-toggle="modal" data-target="#signModal" data-identity="incharge_sign" readonly>
+                                <input type="text" class="form-control mb-2 custom-input" id="res_pinc_dt" data-toggle="modal" data-target="#signModal" data-identity="incharge_sign" readonly>
                                 <div id="incharge_sign">
                                     <input type="hidden" name="responsible_person_sign" id="res_pinc_txt" value="">
                                    <div id="res_pinc_container" style="position: relative; display: inline-block;">
@@ -883,7 +883,7 @@ input[type="radio"]:checked + .radio-pill {
                                         Signature
                                         <!-- <span class=" editbtn" data-toggle="modal" data-target="#signModal" data-identity="supervisor_sign"><i class="fas fa-pencil-alt"></i></span> -->
                                     </label>
-                                    <input type="text" class="form-control custom-input" id="nom_svs_dt" data-toggle="modal" data-target="#signModal" data-identity="supervisor_sign" readonly>
+                                    <input type="text" class="form-control mb-2 custom-input" id="nom_svs_dt" data-toggle="modal" data-target="#signModal" data-identity="supervisor_sign" readonly>
                                     <div id="supervisor_sign">
                                         <input type="hidden" name="nominated_supervisor_sign" id="nsv_sign_txt" value="">
                                       <div id="nsv_sign_container" style="position: relative; display: inline-block;">
