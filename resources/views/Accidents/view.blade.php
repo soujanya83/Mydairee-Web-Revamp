@@ -11,9 +11,7 @@
 <!-- Font Awesome 5.15.4 - Compatible with Bootstrap 4 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-<link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -37,7 +35,7 @@
     }
 
     h1,
-    h2 {
+    h3 {
         color: #007bff;
         border-bottom: 2px solid #007bff;
         padding-bottom: 5px;
@@ -139,22 +137,34 @@
         color: #721c24;
     }
 </style>
+
+
+
 @endsection
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px; margin-top: -60px;">
+    style="margin-right: 20px; margin-top: -70px;    margin-bottom: -25px;">
 
 
-    <button onclick="printMainContent()" class="btn btn-success print-button no-print "
+    {{-- <button onclick="printMainContent()" class="btn btn-success print-button no-print "
         style="margin-inline:0.5rem;">Print
-        Pages&nbsp;<i class="fa-solid fa-print fa-beat-fade"></i></button>
+        Pages&nbsp;<i class="fa-solid fa-print fa-beat-fade"></i></button> --}}
 
+    <div class="mt-4 no-print" id="formSubmit">
+        {{-- <button type="button" onclick="printMainContent()" class="btn btn-success"
+            style="margin-inline:0.5rem;color:#fff">
+            Print Pages&nbsp;<i class="fa-solid fa-print fa-beat-fade"></i>
+        </button> --}}
 
+        <button type="button" onclick="downloadPDF()" style="margin-inline:0.5rem;color:#fff" class="btn btn-success"><i
+                class="fa-solid fa-print fa-beat-fade"></i> Download PDF</button>
 
+    </div>
 
     @if(Auth::user()->userType != 'Parent')
-    <button onclick="sendReportToParent()" class="btn btn-info email-button no-print ml-2">
-        Send to Parent <i class="fa-solid fa-envelope fa-beat-fade"></i>
+    <button onclick="sendReportToParent()" class="btn btn-info email-button no-print ml-2 mt-4"
+        style="    height: 35px;">
+        <i class="fa-solid fa-envelope fa-beat-fade"></i> Send to Parent
     </button>
     @endif
 
@@ -173,19 +183,21 @@
 
         <div class="row mt-1" style="color:#0056b3">
             <div class="col-sm-12 mt-1" style="color:#0056b3">
-                <h3 style="color:#0056b3;margin-left: 19%;"><b>Incident, Injury, Trauma and
-                        Illness Record</b></h3>
+                <h4 style="color:#0056b3;margin-left: 12%;"><b> <i class="fas fa-file-medical-alt me-2"></i> Incident,
+                        Injury, Trauma and Illness Record</b></h4>
+
             </div>
         </div>
+        <hr style="border: 2px solid #0056b3;">
 
-        <form action="#!" method="post" id="acc-form" enctype="multipart/form-data" autocomplete="off" class="mt-5">
+        <form action="#!" method="post" id="acc-form" enctype="multipart/form-data" autocomplete="off" class="mt-4">
             @csrf
             <input type="hidden" name="centerid" value="{{ $AccidentInfo->centerid ?? '' }}">
             <input type="hidden" name="roomid" value="{{ $AccidentInfo->roomid ?? '' }}">
             <input type="hidden" name="student_id" id="student_id" value="{{ $AccidentInfo->childid ?? '' }}">
 
             <!-- Details of person completing this record -->
-            <h2>Details of person completing this record</h2>
+            <h3>Details of person completing this record</h3>
             <div class="form-section">
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -208,7 +220,7 @@
                             placeholder="{{ $AccidentInfo->service_name ?? 'Enter service name' }}">
                     </div>
                     <div class="form-group col-md-6">
-                        <label for="date_record_made" class="custom-label">Date Record was made</label>
+                        <label for="date_record_made" class="custom-label">Date</label>
                         <input type="" class="form-control custom-input @error('made_record_date') is-invalid @enderror"
                             id="date_record_made" name="made_record_date"
                             value="{{ old('made_record_date', \Carbon\Carbon::parse($AccidentInfo->made_record_date)->format('d-m-Y')) }}">
@@ -218,7 +230,7 @@
 
 
                     <div class="col-md-6">
-                        <label for="made_record_time" class="custom-label">Time record was made</label>
+                        <label for="made_record_time" class="custom-label">Time</label>
                         <div class="input-group">
                             <input type="text" class="form-control" name="time" id="made_record_time"
                                 value="{{ !empty($AccidentInfo->made_record_time) ? \Carbon\Carbon::parse($AccidentInfo->made_record_time)->format('h:i A') : '' }}">
@@ -234,8 +246,8 @@
                         <div id="person_sign">
                             <input type="hidden" name="person_sign" id="person_sign_txt"
                                 value="{{ $AccidentInfo->made_person_sign ?? '' }}">
-                            <img src="{{ $AccidentInfo->made_person_sign ?? '' }}" height="100px" width="400px"
-                                id="person_sign_img" class="border rounded">
+                            <img src="{{ $AccidentInfo->made_person_sign ?? '' }}" height="70px" width="380px"
+                                id="person_sign_img">
 
                         </div>
                     </div>
@@ -243,7 +255,7 @@
             </div>
 
             <!-- Child details -->
-            <h2>Child details</h2>
+            <h3>Child details</h3>
             <div class="form-section">
                 <div class="row mb-3">
                     <div class="col-md-6 mb-3">
@@ -256,14 +268,14 @@
                         <input type="date" class="form-control" id="birthdate" name="child_dob"
                             value="{{ isset($AccidentInfo->child_dob) ? \Carbon\Carbon::parse($AccidentInfo->child_dob)->format('Y-m-d') : '' }}">
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <label class="form-label ">Age</label>
                         <input type="number" class="form-control" id="age" name="child_age"
                             value="{{ $AccidentInfo->child_age ?? '' }}">
                     </div>
 
 
-                    <div class="col-md-6 mt-4">
+                    <div class="col-md-6 mt-2">
                         <label class="form-label  d-block">Gender: {{ $AccidentInfo->child_gender }}</label>
 
 
@@ -278,7 +290,7 @@
             </div>
 
             <!-- Incident/injury/trauma/illness details -->
-            <h2>Incident/injury/trauma/illness details</h2>
+            <h3>Incident/injury/trauma/illness details</h3>
             <div class="form-section">
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -296,12 +308,12 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-12 mb-3">
                         <label class="form-label ">Location of service</label>
                         <input type="text" class="form-control" name="service_location"
                             value="{{ $AccidentInfo->incident_location ?? '' }}">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12 mb-3">
                         <label class="form-label ">Location of incident/injury/trauma/illness</label>
                         <input type="text" class="form-control" name="incident_location"
                             value="{{ $AccidentInfo->location_of_incident ?? '' }}">
@@ -323,48 +335,49 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Witness signature</label>
-                        <div id="witness_sign" class="bordered">
+                        <div id="witness_sign">
                             <input type="hidden" name="witness_sign" id="witness_sign_txt"
                                 value="{{ $AccidentInfo->witness_sign ?? '' }}">
-                            <img src="{{ $AccidentInfo->witness_sign ?? '' }}" height="100px" width="400px"
-                                id="witness_sign_img" class="border rounded">
+                            <img src="{{ $AccidentInfo->witness_sign ?? '' }}" height="90px" width="380px"
+                                id="witness_sign_img">
 
                         </div>
                     </div>
 
+
                 </div>
-                <div class="mb-3">
+                <div class="col-md-12 mb-3">
                     <label class="form-label ">Details of incident/injury/trauma/illness</label>
                     <textarea class="form-control" name="gen_actyvt"
-                        rows="4">{{ $AccidentInfo->details_injury ?? '' }}</textarea>
+                        rows="2">{{ $AccidentInfo->details_injury ?? '' }}</textarea>
                 </div>
             </div>
 
             <!-- Circumstances -->
-            <h2>Circumstances</h2>
+            <h3>Circumstances</h3>
             <div class="form-section">
                 <div class="mb-3">
                     <label class="form-label">Circumstances leading to the incident/injury/trauma/illness, including any
                         apparent symptoms</label>
                     <textarea class="form-control" name="illness_symptoms"
-                        rows="4">{{ $AccidentInfo->circumstances_leading ?? '' }}</textarea>
+                        rows="2">{{ $AccidentInfo->circumstances_leading ?? '' }}</textarea>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Circumstances if child appeared to be missing or otherwise unaccounted for
                         (incl. duration, who found child, etc.)</label>
                     <textarea class="form-control" name="missing_unaccounted"
-                        rows="4">{{ $AccidentInfo->circumstances_child_missingd ?? '' }}</textarea>
+                        rows="2">{{ $AccidentInfo->circumstances_child_missingd ?? '' }}</textarea>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Circumstances if child appeared to have been taken or removed from service
                         or was locked in/out of service (incl. who took the child, duration)</label>
                     <textarea class="form-control" name="taken_removed"
-                        rows="4">{{ $AccidentInfo->circumstances_child_removed ?? '' }}</textarea>
+                        rows="2">{{ $AccidentInfo->circumstances_child_removed ?? '' }}</textarea>
                 </div>
             </div>
 
             <!-- Nature of injury/trauma/illness -->
-            <h2>Nature of injury/trauma/illness</h2>
+            <h3>Nature of injury/trauma/illness</h3>
             <div class="form-section">
                 <div class="row">
 
@@ -528,13 +541,13 @@
             </div>
 
             <!-- Action Taken -->
-            <h2>Action Taken</h2>
+            <h3>Action Taken</h3>
             <div class="form-section">
                 <div class="mb-3">
                     <label class="form-label ">Details of action taken (including first aid,
                         administration of medication, etc.)</label>
                     <textarea class="form-control" name="action_taken"
-                        rows="4">{{ $AccidentInfo->action_taken ?? '' }}</textarea>
+                        rows="2">{{ $AccidentInfo->action_taken ?? '' }}</textarea>
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-4">
@@ -591,7 +604,7 @@
                 <div class="mb-3">
                     <label class="form-label">If yes to either of the above, provide details</label>
                     <textarea class="form-control" name="med_attention_details"
-                        rows="4">{{ $AccidentInfo->med_attention_details ?? '' }}</textarea>
+                        rows="2">{{ $AccidentInfo->med_attention_details ?? '' }}</textarea>
                 </div>
 
 
@@ -607,7 +620,7 @@
                 </div>
             </div>
             <!-- Notifications -->
-            <h2>Notifications (including attempted notifications)</h2>
+            <h3>Notifications (including attempted notifications)</h3>
             <div class="form-section">
                 <div class="row">
 
@@ -689,7 +702,7 @@
                             name="regulatory_authority"
                             value="{{ old('regulatory_authority', $AccidentInfo->regulatory_authority) }}">
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <label for="regulatory_authority_date" class="form-label">Date (Regulatory
                             authority)</label>
                         <input type="date" class="form-control shadow-sm custom-input" id="regulatory_authority_date"
@@ -707,7 +720,7 @@
             </div>
 
             <!-- Parental acknowledgement -->
-            <h2>Parental acknowledgement</h2>
+            <h3>Parental acknowledgement</h3>
             <div class="form-section">
                 <div class="mb-3">
                     <label class="form-label">I,</label>
@@ -765,8 +778,8 @@
                         <div id="parent_sign">
                             <input type="hidden" name="parent_sign" id="parent_sign_txt"
                                 value="{{ $AccidentInfo->final_sign ?? '' }}">
-                            <img src="{{ $AccidentInfo->final_sign ?? '' }}" height="100px" width="400px"
-                                id="parent_sign_img" class="border rounded">
+                            <img src="{{ $AccidentInfo->final_sign ?? '' }}" height="90px" width="380px"
+                                id="parent_sign_img">
 
                         </div>
                     </div>
@@ -774,15 +787,16 @@
             </div>
 
             <!-- Additional notes -->
-            <h2>Additional notes</h2>
+            <h3>Additional notes</h3>
             <div class="form-section">
-                <textarea class="form-control" name="add_notes" rows="4">{{ $AccidentInfo->add_notes ?? '' }}</textarea>
+                <textarea class="form-control" name="add_notes" rows="2">{{ $AccidentInfo->add_notes ?? '' }}</textarea>
             </div>
 
             <div class="mt-4 no-print" id="formSubmit">
                 {{-- <button type="button" id="form-submit" class="btn btn-primary">Save</button> --}}
-                <button type="button" onclick="printMainContent()" class="btn btn-secondary">Print</button>
+                {{-- <button type="button" onclick="printMainContent()" class="btn btn-secondary">Print</button>
                 <button type="button" onclick="sendReportToParent()" class="btn btn-success">Send to Parent</button>
+                --}}
                 {{-- <button type="reset" class="btn btn-outline-secondary">Clear Form</button> --}}
             </div>
         </form>
@@ -793,7 +807,7 @@
 </main>
 @endsection
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.signature/1.2.1/jquery.signature.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
@@ -1091,4 +1105,370 @@
                 alertDiv.remove();
             }, 3000);
         }
+</script> --}}
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.signature/1.2.1/jquery.signature.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.js-example-basic-single').select2();
+        var sig = $('#sig').signature();
+
+        $('#btnSignature').on('click', function() {
+            let _identity = $("#identityVal").val();
+            let _signature = $('#sig').signature('toDataURL');
+            if (_identity == "person_sign") {
+                $('#person_sign_img').attr('src', _signature).show();
+                $('#person_sign_txt').val(_signature);
+            } else if (_identity == "witness_sign") {
+                $('#witness_sign_img').attr('src', _signature).show();
+                $('#witness_sign_txt').val(_signature);
+            } else if (_identity == "parent_sign") {
+                $('#parent_sign_img').attr('src', _signature).show();
+                $('#parent_sign_txt').val(_signature);
+            }
+            $('#sig').signature('clear');
+            $('#signModal').modal('hide');
+        });
+
+        $(document).on('show.bs.modal', '#signModal', function (event) {
+            var button = $(event.relatedTarget);
+            var identity = button.data('identity');
+            $("#identityVal").val(identity);
+        });
+
+        $('input[name="other"]').on('click', function() {
+            $("#otherSpecify").toggle(this.checked);
+        });
+
+        $("#childid").on("change", function() {
+            let _val = $(this).val();
+            if (_val != "") {
+                $.ajax({
+                    url: "{{ route('Accidents.getCenterRooms') }}",
+                    type: 'post',
+                    data: {'childid': _val},
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                })
+                .done(function(json) {
+                    var res = $.parseJSON(json);
+                    if (res.Status == "SUCCESS") {
+                        $("#birthdate").val(res.Child.dob);
+                        $("#age").val(res.Child.age);
+                        if (res.Child.gender == "Male") {
+                            $("#male").prop('checked', true);
+                            $("#female").prop('checked', false);
+                            $("#other").prop('checked', false);
+                        } else if (res.Child.gender == "Female") {
+                            $("#male").prop('checked', false);
+                            $("#female").prop('checked', true);
+                            $("#other").prop('checked', false);
+                        } else {
+                            $("#male").prop('checked', false);
+                            $("#female").prop('checked', false);
+                            $("#other").prop('checked', true);
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    var canvas = new fabric.Canvas('c', { isDrawingMode: true });
+    fabric.Image.fromURL("{{ asset('assets/images/baby.jpg') }}", function(myImg) {
+        var img1 = myImg.set({
+            left: 0,
+            top: 0,
+            scaleX: 500 / myImg.width,
+            scaleY: 500 / myImg.height,
+            selectable: false,
+            hasControls: false
+        });
+        canvas.add(img1);
+    }, { crossOrigin: 'Anonymous' });
+
+    function saveImage() {
+        var pngURL = canvas.toDataURL();
+        $("#injury-image").val(pngURL);
+    }
+
+    $("#form-submit").click(function(event) {
+        saveImage();
+        $('#acc-form').submit();
+    });
+
+    function printMainContent() {
+        const element = document.getElementById('printArea').cloneNode(true);
+        $('#formSubmit', element).remove(); // Remove the form submit buttons
+
+        // Convert all form inputs to static text
+        element.querySelectorAll("input, textarea, select").forEach(field => {
+            var parent = field.parentNode;
+            var label = parent.querySelector("label");
+
+            if (field.type === "hidden") {
+                field.remove();
+                return;
+            }
+
+            if (label) {
+                var labelText = label.textContent.trim();
+                label.remove();
+            } else {
+                var labelText = '';
+            }
+
+            var valueText = "";
+            if (field.tagName === "SELECT") {
+                valueText = field.options[field.selectedIndex]?.text || "";
+            } else if (field.type === "checkbox") {
+                valueText = field.checked ? "✔ Yes" : "✖ No";
+            } else if (field.type === "radio") {
+                valueText = field.checked ? field.value : "";
+            } else {
+                valueText = field.value;
+            }
+
+            var formattedRow = document.createElement("div");
+            formattedRow.classList.add("formatted-row");
+            formattedRow.innerHTML = `<strong class="label">${labelText}</strong> - <span class="value">${valueText}</span>`;
+
+            parent.replaceChild(formattedRow, field);
+        });
+
+        // Convert canvas to image
+        element.querySelectorAll("canvas").forEach(canvas => {
+            var img = document.createElement("img");
+            img.src = canvas.toDataURL();
+            img.style.maxWidth = "100%";
+            img.style.height = "auto";
+            canvas.parentNode.replaceChild(img, canvas);
+        });
+
+        // Generate and download PDF
+        html2pdf().from(element).set({
+            margin: [10, 10, 10, 10],
+            filename: 'incident_report_{{ $AccidentInfo->id ?? 'default' }}_{{ now()->format('Ymd_His') }}.pdf',
+            html2canvas: {
+                scale: 2,
+                useCORS: true
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait',
+                putOnlyUsedFonts: true,
+                floatPrecision: 16
+            },
+            pagebreak: { mode: ['css', 'legacy'] }
+        }).save();
+    }
+
+    function sendReportToParent() {
+        showLoading("Preparing PDF and sending email...");
+        var content = document.getElementById("printArea").cloneNode(true);
+
+        content.querySelectorAll("input, textarea, select").forEach(field => {
+            var parent = field.parentNode;
+            var label = parent.querySelector("label");
+
+            if (field.type === "hidden") {
+                field.remove();
+                return;
+            }
+
+            if (label) {
+                var labelText = label.textContent.trim();
+                label.remove();
+            } else {
+                var labelText = '';
+            }
+
+            var valueText = "";
+            if (field.tagName === "SELECT") {
+                valueText = field.options[field.selectedIndex]?.text || "";
+            } else if (field.type === "checkbox") {
+                valueText = field.checked ? "✔ Yes" : "✖ No";
+            } else if (field.type === "radio") {
+                valueText = field.checked ? field.value : "";
+            } else {
+                valueText = field.value;
+            }
+
+            var formattedRow = document.createElement("div");
+            formattedRow.classList.add("formatted-row");
+            formattedRow.innerHTML = `<strong class="label">${labelText}</strong> - <span class="value">${valueText}</span>`;
+
+            parent.replaceChild(formattedRow, field);
+        });
+
+        content.querySelectorAll("canvas").forEach(canvas => {
+            var img = document.createElement("img");
+            img.src = canvas.toDataURL();
+            img.style.maxWidth = "100%";
+            img.style.height = "auto";
+            canvas.parentNode.replaceChild(img, canvas);
+        });
+
+        var htmlContent = `
+            <html>
+            <head>
+                <title>Report</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20mm; }
+                    .print-container { font-size: 16px; line-height: 1.6; }
+                    .print-container h2 { text-align: center; border-bottom: 2px solid #333; padding-bottom: 5px; }
+                    .formatted-row { padding: 8px 0; border-bottom: 1px dashed #ccc; }
+                    .label { font-weight: bold; margin-right: 5px; }
+                    .value { font-weight: normal; }
+                    .no-print { display: none !important; }
+                </style>
+            </head>
+            <body>
+                <div class="print-container">${content.innerHTML}</div>
+            </body>
+            </html>
+        `;
+
+        let student_id = document.getElementById('student_id').value;
+
+        $.ajax({
+            url: "{{ route('Accidents.sendEmail') }}",
+            type: "POST",
+            dataType: "json",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                html_content: htmlContent,
+                student_id: student_id
+            },
+            success: function(data) {
+                hideLoading();
+                if (data.success) {
+                    showAlert('success', 'Report sent successfully to parent!');
+                } else {
+                    showAlert('error', 'Failed to send report: ' + data.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                hideLoading();
+                showAlert('error', 'An error occurred while sending the report.');
+                console.error('AJAX Error:', error);
+            }
+        });
+    }
+
+    function downloadPDF() {
+        const element = document.getElementById('printArea').cloneNode(true);
+        $('#formSubmit', element).remove(); // Remove the form submit buttons
+
+        // Convert all form inputs to static text
+        element.querySelectorAll("input, textarea, select").forEach(field => {
+            var parent = field.parentNode;
+            var label = parent.querySelector("label");
+
+            if (field.type === "hidden") {
+                field.remove();
+                return;
+            }
+
+            if (label) {
+                var labelText = label.textContent.trim();
+                label.remove();
+            } else {
+                var labelText = '';
+            }
+
+            var valueText = "";
+            if (field.tagName === "SELECT") {
+                valueText = field.options[field.selectedIndex]?.text || "";
+            } else if (field.type === "checkbox") {
+                valueText = field.checked ? "✔ Yes" : "✖ No";
+            } else if (field.type === "radio") {
+                valueText = field.checked ? field.value : "";
+            } else {
+                valueText = field.value;
+            }
+
+            var formattedRow = document.createElement("div");
+            formattedRow.classList.add("formatted-row");
+            formattedRow.innerHTML = `<strong class="label">${labelText}</strong> - <span class="value">${valueText}</span>`;
+
+            parent.replaceChild(formattedRow, field);
+        });
+
+        // Convert canvas to image
+        element.querySelectorAll("canvas").forEach(canvas => {
+            var img = document.createElement("img");
+            img.src = canvas.toDataURL();
+            img.style.maxWidth = "100%";
+            img.style.height = "auto";
+            canvas.parentNode.replaceChild(img, canvas);
+        });
+
+        // Generate and download PDF
+        html2pdf().from(element).set({
+            margin: [10, 10, 10, 10],
+            filename: 'incident_report_{{ $AccidentInfo->id ?? 'default' }}_{{ now()->format('Ymd_His') }}.pdf',
+            html2canvas: {
+                scale: 2,
+                useCORS: true
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait',
+                putOnlyUsedFonts: true,
+                floatPrecision: 16
+            },
+            pagebreak: { mode: ['css', 'legacy'] }
+        }).save();
+    }
+
+    function showLoading(message) {
+        if (!document.getElementById('loading-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.id = 'loading-overlay';
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:9999;';
+            const spinner = document.createElement('div');
+            spinner.style.cssText = 'background:white;padding:20px;border-radius:5px;text-align:center;';
+            spinner.innerHTML = `<div class="spinner"></div><p>${message}</p>`;
+            overlay.appendChild(spinner);
+            document.body.appendChild(overlay);
+        } else {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+    }
+
+    function hideLoading() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'error' ? 'error' : 'success'}`;
+        alertDiv.innerHTML = message;
+        alertDiv.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;border-radius:5px;z-index:9999;';
+        if (type === 'success') {
+            alertDiv.style.background = '#d4edda';
+            alertDiv.style.color = '#155724';
+        } else {
+            alertDiv.style.background = '#f8d7da';
+            alertDiv.style.color = '#721c24';
+        }
+        document.body.appendChild(alertDiv);
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 3000);
+    }
 </script>
