@@ -316,26 +316,18 @@ class AccidentsController extends Controller
     }
 
 
+
+
     public function getAccidentDetails(Request $request)
     {
         $userid = Auth::user()->userid;
         $accidentId = $request->id ?? null;
         $centerid = Session('user_center_id');
-
-        //  Accident ID missing
         if (!$accidentId) {
             return redirect()->back()->with('msg', 'Error! Accident id could not be fetched. Please try again');
         }
-
-        // ✅ Fetch accident via Eloquent
-        // $accident = AccidentsModel::with(['child', 'addedByUser']) // assuming relations
-        //     ->find($accidentId);
-
-        //     $accidentIllness = AccidentIllnessModel::where('accident_id',$accidentId)->first();
-
         $accident = AccidentsModel::with(['child', 'addedByUser'])
             ->find($accidentId);
-
         $accidentIllness = AccidentIllnessModel::where('accident_id', $accidentId)->first();
 
         if ($accidentIllness) {
@@ -348,17 +340,14 @@ class AccidentsController extends Controller
                 $accident->$key = $value;
             }
         }
-
-
-        // dd($accident);
-
         if (!$accident) {
             return redirect()->back()->with('error', 'No Accident Details present');
         }
 
         return view('Accidents.view', [
 
-            'AccidentInfo' => $accident
+            'AccidentInfo' => $accident,
+            'accidentId' => $accidentId
         ]);
     }
 
