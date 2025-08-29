@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Program Plan')
+@section('title', 'Activities')
 @section('parentPageTitle', 'Dashboard')
 
 @section('page-styles')

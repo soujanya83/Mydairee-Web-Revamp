@@ -376,7 +376,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
 
     Route::prefix('observation')->name('observation.')->group(function () {
-
+        Route::post('/ai-assist', [ObservationsController::class, 'AiAssistance'])->name('ai-assist');
         Route::get('/index', [ObservationsController::class, 'index'])->name('index');
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
         Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
