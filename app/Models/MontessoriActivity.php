@@ -49,4 +49,8 @@ public function subActivities()
     {
         return $this->belongsTo(MontessoriActivity::class, 'parent_id');
     }
+
+    public function montessoriAccess(){
+        return $this->hasMany(Montessoriactivityaccess::class,'idActivity','idActivity');
+    }
 }
