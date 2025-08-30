@@ -804,88 +804,85 @@
                                 id="regulatory_authority_date" name="regulatory_authority_date"
                                 value="{{ old('regulatory_authority_date', $AccidentInfo->regulatory_authority_date ? \Carbon\Carbon::parse($AccidentInfo->regulatory_authority_date)->format('Y-m-d') : '') }}">
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="res_pinc">Responsible Person in Charge Name:</label>
-                                <input type="text" class="form-control custom-input" id="res_pinc"
-                                    name="responsible_person_name"
-                                    value="{{ isset($AccidentInfo->responsible_person_name) ?? '' }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>
-                                    Signature
-                                    <span class=" editbtn" data-toggle="modal" data-target="#signModal"
-                                        data-identity="incharge_sign"> <i class="fas fa-pencil-alt"></i></span>
-                                </label>
-                                <input type="text" class="form-control custom-input" id="res_pinc_dt" disabled>
-                                <div id="incharge_sign">
-                                    <input type="hidden" name="responsible_person_sign" id="res_pinc_txt" value="">
-                                    @if (!empty($AccidentInfo->responsible_person_sign))
-                                    <img src="{{ $AccidentInfo->responsible_person_sign }}" height="120px" width="300px"
-                                        id="res_pinc_img">
-                                    @else
-                                    <img src="" height="120px" width="300px" id="res_pinc_img">
-                                    @endif
+
+                        <div class="col-md-6">
+                            <label for="regulatory_authority_time" class="form-label">Time (Regulatory
+                                authority)</label>
+                            <input type="time" class="form-control shadow-sm custom-input"
+                                id="regulatory_authority_time" name="regulatory_authority_time"
+                                value="{{ old('regulatory_authority_time', $AccidentInfo->regulatory_authority_time ? \Carbon\Carbon::parse($AccidentInfo->regulatory_authority_time)->format('H:i') : '') }}">
+                        </div>
+
+                    </div>
+                    <div class="row mt-1" style="background-color: #0056b3;color:#fff">
+                        <div class="col-sm-12 mt-1" style="background-color: #0056b3;color:#fff">
+                            <h5 style="background-color: #0056b3;color:#fff">Parental acknowledgement</h5>
+                        </div>
+                    </div>
+                    <div class="inlineInput mt-3 mb-3">
+                        <b>I</b> <input type="text" name="ack_parent_name" class="custom-input"
+                            value="{{ old('ack_parent_name', $AccidentInfo->ack_parent_name) }}"> (name of parent /
+                        guardian) have been notified of my child’s incident / injury / trauma / illness.
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="RegulatoryauthorityDate">Date</label>
+                            <input type="date" class="form-control custom-input" id="RegulatoryauthorityDate"
+                                name="ack_date"
+                                value="{{ old('ack_date', $AccidentInfo->ack_date ? \Carbon\Carbon::parse($AccidentInfo->ack_date)->format('Y-m-d') : '') }}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="RegulatoryauthorityTime">Time</label>
+                            <input type="time" class="form-control custom-input" id="RegulatoryauthorityTime"
+                                name="ack_time"
+                                value="{{ old('ack_time', $AccidentInfo->ack_time ? \Carbon\Carbon::parse($AccidentInfo->ack_time)->format('H:i') : '') }}">
+                        </div>
+                        {{-- <div class="col-md-12 mb-3">
+                            <label class="form-label">Final Signature</label>
+                            <input type="text" class="form-control shadow-sm custom-input" data-toggle="modal"
+                                data-target="#signModal" data-identity="final_sign" id="final_sign_input"
+                                style="cursor: pointer; display: {{ $AccidentInfo->final_sign ? 'none' : 'block' }};"
+                                placeholder="Click to add signature" readonly>
+                            <div id="final_sign_preview" class="border rounded bg-light p-2 shadow-sm mt-2"
+                                style="display: {{ $AccidentInfo->final_sign ? 'block' : 'none' }};">
+                                <input type="hidden" name="final_sign" id="final_sign_txt"
+                                    value="{{ $AccidentInfo->final_sign }}">
+                                <div id="final_sign_container" style="position: relative; display: inline-block;">
+                                    <img src="{{ $AccidentInfo->final_sign }}" height="120" width="350"
+                                        id="final_sign_img" class="img-thumbnail" alt="Final Signature"
+                                        style="display: {{ $AccidentInfo->final_sign ? 'block' : 'none' }};">
+                                    <span id="remove_final_sign"
+                                        style="position: absolute; top: 5px; right: 8px; cursor: pointer; color: #fff; background: red; border-radius: 50%; padding: 0 8px; font-weight: bold; font-size: 16px; line-height: 20px; display: {{ $AccidentInfo->final_sign ? 'block' : 'none' }};">
+                                        ×
+                                    </span>
                                 </div>
+                            </div>
+                        </div> --}}
 
+                        <div class="form-group col-md-12">
+                            <label>
+                                Final Signature
+                                <span class="editbtn" data-toggle="modal" data-target="#signModal"
+                                    data-identity="final_sign">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </span>
+                            </label>
+
+                            {{-- Disabled text input just for display --}}
+                            <input type="text" class="form-control custom-input" id="final_sign_dt" disabled>
+
+                            <div id="final_sign">
+                                <input type="hidden" name="final_sign" id="final_sign_txt"
+                                    value="{{ $AccidentInfo->final_sign ?? '' }}">
+
+                                @if (!empty($AccidentInfo->final_sign))
+                                <img src="{{ $AccidentInfo->final_sign }}" height="120px" width="300px"
+                                    id="final_sign_img">
+                                @else
+                                <img src="" height="120px" width="300px" id="final_sign_img" style="display:none;">
+                                @endif
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="rp_internal_notif_date">Date</label>
-                                <input type="date" class="form-control custom-input" id="rp_internal_notif_date"
-                                    name="rp_internal_notif_date"
-                                    value="{{ $AccidentInfo->rp_internal_notif_date ?? '' }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="rp_internal_notif_time">Time</label>
-                                <input type="time" class="form-control custom-input" id="rp_internal_notif_time"
-                                    name="rp_internal_notif_time"
-                                    value="{{ $AccidentInfo->rp_internal_notif_time ?? '' }}">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="nom_sv">Nominated Supervisor Name:</label>
-                                <input type="text" class="form-control custom-input" id="nom_sv"
-                                    name="nominated_supervisor_name"
-                                    value="{{ $AccidentInfo->nominated_supervisor_name ?? '' }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>
-                                    Signature
-                                    <span class=" editbtn" data-toggle="modal" data-target="#signModal"
-                                        data-identity="supervisor_sign"><i class="fas fa-pencil-alt"></i></span>
-                                </label>
-                                <input type="text" class="form-control custom-input" id="nom_svs_dt" disabled>
-                                <div id="supervisor_sign">
-                                    <input type="hidden" name="nominated_supervisor_sign" id="nsv_sign_txt" value="">
-
-                                    @if (!empty($AccidentInfo->nominated_supervisor_sign))
-                                    <img src="{{ $AccidentInfo->nominated_supervisor_sign }}" height="120px"
-                                        width="300px" id="nsv_sign_img">
-                                    @else
-                                    <img src="" height="120px" width="300px" id="nsv_sign_img">
-                                    @endif
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="nsv_date">Date</label>
-                                <input type="date" class="form-control custom-input" id="nsv_date" name="nsv_date"
-                                    value="{{ $AccidentInfo->nominated_supervisor_date ?? '' }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="nsv_time">Time</label>
-                                <input type="time" class="form-control custom-input" id="nsv_time" name="nsv_time"
-                                    value="{{ $AccidentInfo->nominated_supervisor_time ?? '' }}">
-                            </div>
-                        </div>
-
-
 
 
                     </div>
