@@ -135,8 +135,109 @@ public function shareObservation(Request $request)
     }
 
 
+function AiAssistance(Request $request){
+
+    $observation = $request->observation;
+    // dd($observation);
+    
+   $response = $this->AiAssistanceRefiner($observation);
+
+$analysis = $reflection = $futurePlan = $childVoice = null;
+
+if (preg_match('/### \*\*Analysis\/Evaluation\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
+    $analysis = $this->formatAiText(trim($match[1]));
+  
+}
+
+if (preg_match('/### \*\*Reflection\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
+    $reflection = $this->formatAiText(trim($match[1]));
+}
+
+if (preg_match('/### \*\*Future Plan\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
+    $futurePlan =  $this->formatAiText(trim($match[1]));
+}
+
+if (preg_match('/###\s*\*\*Child[’\'`s]*\s*Voices?\*\*\n\n(.*)/si', $response, $match)) {
+     $childVoice1 =  trim($match[1]);
+    $childVoice =  $this->formatAiText(trim($match[1]));
+    // refin
+}
+//   dd(  $analysis);
+
+$data = [
+    'raw' => $response,
+ 'analysis'   => $analysis,
+    'reflection' => $reflection,
+    'futurePlan' => $futurePlan,
+    'childVoice' => $childVoice,
+    'childVoice1' => $childVoice1
+];
+
+return response()->json([
+    'status' => true,
+    'message' => 'Text retrieved successfully',
+    'data' => $data
+
+   
+]);
+
+}
 
 
+function formatAiText($text) {
+    // Step 0: Remove surrounding """ if present
+    $text = trim($text, "\" \n\r\t");
+
+    // Step 1: Convert **text** → <b>text</b>
+    $text = preg_replace('/\*\*(.*?)\*\*/s', '<b>$1</b>', $text);
+
+    // Step 2: Handle bullet points (lines starting with * but not **)
+    // Convert "* something" → "<br>• something"
+    $text = preg_replace('/(^|\n)\*\s*(.+)/', '$1<br>• $2', $text);
+
+    // Step 3: Bold labels ending with colon (like "Cognitive:")
+    $text = preg_replace('/(^|\n)([^:\n]+:)/', '$1<b>$2</b>', $text);
+
+    // Step 4: Numbered points (1. 2. etc.) → new line before
+    $text = preg_replace('/\s*(\d+\.\s+)/', '<br><br>$1', $text);
+
+    // Step 5: Clean up multiple breaks
+    $text = preg_replace('/(<br>\s*)+/', '<br>', $text);
+
+    return trim($text);
+}
+
+
+
+    private function AiAssistanceRefiner($observation)
+    {
+        // dd($observation);
+        $apiKey = 'sk-d1febdfb38e3491391e5ca4ce911be5c'; // replace with your key
+        $response = Http::withHeaders([
+            'Authorization' => "Bearer $apiKey",
+            'Content-Type' => 'application/json',
+        ])
+        ->timeout(60)
+->retry(3, 2000)->post('https://api.deepseek.com/chat/completions', [
+            "model" => "deepseek-chat",
+            "messages" => [
+                [
+                    "role" => "system",
+                    "content" => "write the analyis/evaluation , reflection ,future plan and child voice."
+                ],
+                [
+                    "role" => "user",
+                    "content" => $observation
+                ]
+            ]
+        ]);
+
+        $json = $response->json();
+
+        // dd( $json);
+
+        return $json['choices'][0]['message']['content'] ?? $observation;
+    }
 
     public function index()
     {
