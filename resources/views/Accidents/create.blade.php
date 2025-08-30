@@ -1,6 +1,6 @@
 @extends('layout.master')
-@section('title', 'Create Accident')
-@section('parentPageTitle', 'Dashboard')
+@section('title', 'Accident Create page')
+@section('parentPageTitle', 'Accidents')
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
 <style>
@@ -1010,10 +1010,39 @@
                         </div>
                     </div>
                     <div class="inlineInput mt-3 mb-3">
-                        <b>I</b> <input type="text" name="ack_parent_name" class="custom-input"> (name of parent /
+                        <b>I,</b> <input type="text" name="ack_parent_name" class="custom-input"> (name of parent /
                         guardian) have been notified of my child’s incident / injury / trauma / illness.
 
+                        <div class="d-flex flex-wrap gap-3 mt-1">
+                            <div class="form-check">
+                                <!-- Hidden input ensures unchecked state sends 0 -->
+                                <input type="hidden" name="ack_incident" value="0">
+                                <input class="form-check-input" type="checkbox" name="ack_incident" id="ackIncident"
+                                    value="1" {{ old('ack_incident') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="ackIncident">Incident</label>
+                            </div>
 
+                            <div class="form-check ml-3">
+                                <input type="hidden" name="ack_injury" value="0">
+                                <input class="form-check-input" type="checkbox" name="ack_injury" id="ackInjury"
+                                    value="1" {{ old('ack_injury') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="ackInjury">Injury</label>
+                            </div>
+
+                            <div class="form-check ml-3">
+                                <input type="hidden" name="ack_trauma" value="0">
+                                <input class="form-check-input" type="checkbox" name="ack_trauma" id="ackTrauma"
+                                    value="1" {{ old('ack_trauma') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="ackTrauma">Trauma</label>
+                            </div>
+
+                            <div class="form-check ml-3">
+                                <input type="hidden" name="ack_illness" value="0">
+                                <input class="form-check-input" type="checkbox" name="ack_illness" id="ackIllness"
+                                    value="1" {{ old('ack_illness') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="ackIllness">Illness</label>
+                            </div>
+                        </div>
 
                     </div>
                     <div class="form-row">
@@ -1111,9 +1140,9 @@
                 </div>
                 <div class="modal-footer text-right">
                     <br>
-                    <button type="button" class="btn btn-default btn-sm btn-danger" id="btnSignaturecancel"
+                    <button type="button" class="btn btn-danger btn-sm btn-danger" id="btnSignaturecancel"
                         data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-default btn-sm btn-success " id="btnSignature" data-identity=""
+                    <button type="button" class="btn btn-success btn-sm btn-success " id="btnSignature" data-identity=""
                         data-dismiss="modal">Save</button>
                 </div>
             </div>

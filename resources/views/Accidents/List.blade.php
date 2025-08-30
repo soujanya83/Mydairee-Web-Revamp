@@ -425,9 +425,9 @@
                 display: none;
             }
 
-            .table, 
-            .table tbody, 
-            .table tr, 
+            .table,
+            .table tbody,
+            .table tr,
             .table td {
                 display: block;
             }
@@ -646,22 +646,22 @@
             body {
                 background: white !important;
             }
-            
+
             .main-container {
                 padding: 0;
             }
-            
+
             .page-header, .pagination-container {
                 background: white !important;
                 box-shadow: none !important;
             }
-            
+
             .program-plan-card {
                 background: white !important;
                 box-shadow: none !important;
                 border: 1px solid #ddd !important;
             }
-            
+
             .action-buttons {
                 display: none !important;
             }
@@ -693,6 +693,11 @@ padding-inline:0;
         });
     </script>
 @endif
+
+
+
+
+
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
 
                 <div class="text-zero top-right-button-container">
@@ -742,17 +747,17 @@ padding-inline:0;
                     @endif
 
                     @if(Auth::user()->userType != 'Parent')
-                 
-                     
+
+
                        <a href="{{ route('Accidents.create', [
     'centerid' => $selectedCenter ?? optional($centers->first())->id,
     'roomid'   => $roomid ?? optional($rooms->first())->id
-]) }}" 
+]) }}"
 class="btn btn-info btn-lg">
     ADD NEW ACCIDENT
 </a>
 
-                    
+
 
                     @endif
                 </div>
@@ -770,17 +775,38 @@ class="btn btn-info btn-lg">
         <option value="childname">Child Name</option>
     </select>
 
-    <input 
-        type="text" 
-        name="filterbyCentername" 
+    <input
+        type="text"
+        name="filterbyCentername"
         id="filterchildname"
-        class="form-control border-info form-control-sm uniform-input flex-fill" 
-        placeholder="Filter by Child name" 
+        class="form-control border-info form-control-sm uniform-input flex-fill"
+        placeholder="Filter by Child name"
         onkeyup="filterbyChildname(this.value)">
 </div>
 @endif
              <!-- filter ends here  -->
+@if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" >
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
 
+        @endif
+
+        @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        @endif
  <div class="container-fluid px-0" style="padding-block:2em;padding-inline:2em;">
     <div class="program-plan-container">
         <div class="row">
@@ -797,7 +823,7 @@ class="btn btn-info btn-lg">
                                    data-toggle="tooltip"
                                    data-placement="top"
                                    title="Edit Record">
-                                  
+
                                 </a>
                             </h5>
 
@@ -817,7 +843,7 @@ class="btn btn-info btn-lg">
     </a>
 
     <!-- Edit -->
-   
+
     @if($permission && $permission->updateAccidents == 1 || Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
         <a href="{{ route('Accidents.edit') }}?id={{ $accident->id }}&centerid={{ $centerid }}&roomid={{ $roomid }}"
            class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
@@ -841,7 +867,7 @@ class="btn btn-info btn-lg">
     </button>
 </form>
 @endif
- 
+
 </div>
 
                         </div>
@@ -862,7 +888,7 @@ class="btn btn-info btn-lg">
         {{ $accidents->links('vendor.pagination.bootstrap-4') }}
     </div>
     @endif
-    
+
     </div>
 </div>
 
@@ -894,7 +920,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-</script>  
+</script>
          <script>
         // Add smooth animations and interactions
         document.addEventListener('DOMContentLoaded', function() {
@@ -904,7 +930,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 row.addEventListener('mouseenter', function() {
                     this.style.transform = 'scale(1.01)';
                 });
-                
+
                 row.addEventListener('mouseleave', function() {
                     this.style.transform = 'scale(1)';
                 });
@@ -947,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const originalContent = this.innerHTML;
                     this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                     this.disabled = true;
-                    
+
                     // Simulate loading (remove this in production)
                     setTimeout(() => {
                         this.innerHTML = originalContent;
@@ -980,14 +1006,14 @@ document.addEventListener('DOMContentLoaded', function () {
         window.addEventListener('resize', makeTableResponsive);
     </script>
 
-   
+
 <script>
 $(function () {
   $('[data-toggle="tooltip"]').tooltip();
 });
 
 
-// rtooltip ends 
+// rtooltip ends
     $(document).ready(function () {
         $('#new-accident-btn').on('click', function (event) {
             var _centerid = $(this).data('centerid');
@@ -1168,7 +1194,7 @@ function showfilter(val) {
 
 
 </script>
-    
+
 
     @endpush
     @include('layout.footer')

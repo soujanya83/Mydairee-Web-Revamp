@@ -365,7 +365,7 @@ class AccidentsController extends Controller
         }
 
         // Fetch parent IDs using Eloquent
-        $parentIds = Childparent::where('childid', $studentId)->pluck('parentid');;
+        $parentIds = Childparent::where('childid', $studentId)->pluck('parentid');
 
         if ($parentIds->isEmpty()) {
             return response()->json([
@@ -431,66 +431,132 @@ class AccidentsController extends Controller
         ]);
     }
 
+    // public function saveAccident(Request $request)
+    // {
+
+    //     $request->validate([
+    //         'childid' => 'required',
+    //         'incident_date' => 'required',
+    //         'incident_time' => 'required',
+
+    //     ], [
+    //         'childid.required' => 'Child is required.',
+    //         'incident_date.required' => 'accident date is required',
+    //         'incident_time.required' => 'accident time required'
+
+    //     ]);
+
+    //     $data = $request->all();
+    //     $request->merge([
+    //         'userid' => Auth::user()->userid,
+    //         'username' => Auth::user()->name,
+    //         'centerid' => session('user_center_id'),
+    //         'roomid' => $request->roomid,
+    //     ]);
+
+    //     $targetPath = public_path('assets/media/');
+    //     File::ensureDirectoryExists($targetPath);
+
+    //     $imageMappings = [
+    //         'person_sign' => "personSign",
+    //         'witness_sign' => "witnessSign",
+    //         'injury_image' => "injuryImage",
+    //         'responsible_person_sign' => "personInchargeSign",
+    //         'nominated_supervisor_sign' => "supervisorSign",
+    //     ];
+
+    //     // Insert or Update
+    //     if (!empty($request->id)) {
+    //         $this->updateAccident($request); // you must return accidentId from this if needed
+    //         $accidentId = $request->id;
+    //     } else {
+    //         $accidentId = $this->insertAccident($request);
+    //         if (!$accidentId) {
+    //             return redirect()->back()->with('error', 'Failed to save accident record.');
+    //         }
+    //     }
+
+    //     // Fetch the latest record
+    //     $existingAccident = AccidentsModel::find($accidentId);
+
+
+
+
+    //     // Handle image uploads
+    //     foreach ($imageMappings as $field => $prefix) {
+    //         if (!empty($data[$field])) {
+    //             $filename = "$prefix-$accidentId.png";
+    //             $relativePath = "uploads/accidents/$filename";
+    //             $absolutePath = public_path($relativePath);
+
+    //             // Delete old image
+    //             if ($existingAccident && !empty($existingAccident->$field)) {
+    //                 $oldPath = public_path("uploads/accidents/" . basename($existingAccident->$field));
+    //                 if (File::exists($oldPath)) {
+    //                     File::delete($oldPath);
+    //                 }
+    //             }
+
+    //             // Decode and save image
+    //             $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data[$field]));
+    //             File::ensureDirectoryExists(public_path('uploads/accidents'));
+    //             File::put($absolutePath, $imageData);
+
+    //             // Generate full URL to image
+    //             $imageUrl = url($relativePath); // Or use asset($relativePath)
+
+    //             // Update DB with full URL
+    //             AccidentsModel::where('id', $accidentId)->update([
+    //                 $field => $imageUrl
+    //             ]);
+
+    //             // Pass accidentId for any follow-up actions
+    //             $request->merge(['id' => $accidentId]);
+
+    //             if ($accidentId) {
+    //                 $this->updateIllness($request);
+    //             }
+    //         }
+    //     }
+
+    //     return redirect()->route('Accidents.list')->with('success', 'Accident record saved successfully.');
+    // }
     public function saveAccident(Request $request)
     {
 
-        $request->validate([
-            'childid' => 'required',
-            'incident_date' => 'required',
-            'incident_time' => 'required',
-
-        ], [
-            'childid.required' => 'Child is required.',
-            'incident_date.required' => 'accident date is required',
-            'incident_time.required' => 'accident time required'
-
-        ]);
 
         $data = $request->all();
 
+        $accidentId = $data['id'] ?? null;
 
-
-        // Add Auth/session fields
-        $request->merge([
-            'userid' => Auth::user()->userid,
-            'username' => Auth::user()->name,
-            'centerid' => session('user_center_id'),
-            'roomid' => $request->roomid,
-        ]);
-
-        $targetPath = public_path('assets/media/');
-        File::ensureDirectoryExists($targetPath);
-
-        $imageMappings = [
-            'person_sign' => "personSign",
-            'witness_sign' => "witnessSign",
-            'injury_image' => "injuryImage",
-            'responsible_person_sign' => "personInchargeSign",
-            'nominated_supervisor_sign' => "supervisorSign",
-        ];
-
-        // Insert or Update
-        if (!empty($request->id)) {
-            $this->updateAccident($request); // you must return accidentId from this if needed
-            $accidentId = $request->id;
+        // Save or update accident record first
+        if ($accidentId) {
+            $accident = AccidentsModel::find($accidentId);
+            $accident->update($data);
         } else {
-            $accidentId = $this->insertAccident($request);
-            if (!$accidentId) {
-                return redirect()->back()->with('error', 'Failed to save accident record.');
-            }
+            $accident = AccidentsModel::create($data);
+            $accidentId = $accident->id;
         }
 
-        // Fetch the latest record
+        // Fetch existing accident for old signatures/images
         $existingAccident = AccidentsModel::find($accidentId);
 
-        // Handle image uploads
+        // Mapping for signature/image fields
+        $imageMappings = [
+            'staff_signature'   => 'staff-signature',
+            'parent_signature'  => 'parent-signature',
+            'witness_signature' => 'witness-signature',
+            'injury_image'      => 'injury-image',
+        ];
+
         foreach ($imageMappings as $field => $prefix) {
             if (!empty($data[$field])) {
+                // ✅ User provided new signature/image → replace
                 $filename = "$prefix-$accidentId.png";
                 $relativePath = "uploads/accidents/$filename";
                 $absolutePath = public_path($relativePath);
 
-                // Delete old image
+                // Delete old only if replacing
                 if ($existingAccident && !empty($existingAccident->$field)) {
                     $oldPath = public_path("uploads/accidents/" . basename($existingAccident->$field));
                     if (File::exists($oldPath)) {
@@ -498,26 +564,26 @@ class AccidentsController extends Controller
                     }
                 }
 
-                // Decode and save image
+                // Decode + Save new image
                 $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data[$field]));
                 File::ensureDirectoryExists(public_path('uploads/accidents'));
                 File::put($absolutePath, $imageData);
 
-                // Generate full URL to image
-                $imageUrl = url($relativePath); // Or use asset($relativePath)
+                $imageUrl = url($relativePath);
 
-                // Update DB with full URL
-                AccidentsModel::where('id', $accidentId)->update([
+                // Update DB with new image URL
+                $accident->update([
                     $field => $imageUrl
                 ]);
-
-                // Pass accidentId for any follow-up actions
-                $request->merge(['id' => $accidentId]);
-
-                if ($accidentId) {
-                    $this->updateIllness($request);
-                }
+            } else {
+                // ⚡ No new signature → keep old one (do nothing)
             }
+        }
+
+        // Extra update call if you have illness function linked
+        $request->merge(['id' => $accidentId]);
+        if ($accidentId) {
+            $this->updateIllness($request);
         }
 
         return redirect()->route('Accidents.list')->with('success', 'Accident record saved successfully.');
@@ -526,6 +592,9 @@ class AccidentsController extends Controller
 
     public function updateAccident($request)
     {
+
+
+
         $request->validate([
             'id' => 'required|integer|exists:accidents,id',
             // You can add more validation rules here as needed
@@ -594,6 +663,12 @@ class AccidentsController extends Controller
             'ack_time' => $request->ack_time ?? '',
             'final_sign' => $request->final_sign ?? '',
             'add_notes' => $request->add_notes ?? '',
+
+            'ack_incident' => $request->ack_incident,
+            'ack_injury'   => $request->ack_injury,
+            'ack_trauma'   => $request->ack_trauma,
+            'ack_illness'  => $request->ack_illness,
+
             'added_by' => $request->userid ?? Auth::user()->userid,
             'added_at' => now()
         ]);
@@ -605,6 +680,7 @@ class AccidentsController extends Controller
 
     public function insertAccident($request)
     {
+        // dd($request);
         $accident = AccidentsModel::create([
             'centerid' => $request->centerid ?? '',
             'roomid' => $request->roomid ?? '',
@@ -653,6 +729,10 @@ class AccidentsController extends Controller
             'ack_parent_name' => $request->ack_parent_name ?? '',
             'ack_date' => $request->ack_date ?? '',
             'ack_time' => $request->ack_time ?? '',
+            'ack_incident' => $request->has('ack_incident') ? '1' : '0',
+            'ack_injury' => $request->has('ack_injury') ? '1' : '0',
+            'ack_trauma' => $request->has('ack_trauma') ? '1' : '0',
+            'ack_illness' => $request->has('ack_illness') ? '1' : '0',
             'final_sign' => $request->final_sign ?? '',
             'add_notes' => $request->add_notes ?? '',
             'added_by' => $request->userid ?? Auth::user()->userid,
