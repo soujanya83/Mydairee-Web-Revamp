@@ -12,6 +12,16 @@
 <!-- Flatpickr JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <style>
+    #aiAssistLoader {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.9);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 9999;
+}
 /* Assessment Container Styles */
 .assessment-container {
     background: #f8f9fa;
@@ -938,14 +948,60 @@
 }
     </style>
 
+    <style>
+/* Animated button pulse */
+#AiAssistance {
+    transition: all 0.3s ease-in-out;
+}
+#AiAssistance:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 188, 212, 0.6);
+}
+
+/* Sparkle effect */
+.sparkle-icon {
+    position: relative;
+}
+.sparkle-icon::after {
+    content: "✨";
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    font-size: 14px;
+    opacity: 0;
+    animation: sparkle 2s infinite;
+}
+@keyframes sparkle {
+    0% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+    30% { opacity: 1; transform: scale(1.2) rotate(20deg); }
+    60% { opacity: 0.8; transform: scale(1) rotate(-20deg); }
+    100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+}
+</style>
+
+<style>
+/* Custom background */
+#AiAssistance {
+    background: linear-gradient(135deg, #4facfe, #2ec1c9ff); /* blue gradient */
+    border: none;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hover effect */
+#AiAssistance:hover {
+    background: linear-gradient(135deg, #c330c1ff, #ebcef5ff); /* greenish gradient */
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(220, 207, 223, 0.6);
+}
+</style>
 @if(isset($observation) && $observation->id)
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
 
 
-    <div class="child-view" 
+    <div class="child-view " 
      style="position:absolute;
             top:16px;   /* adjust distance from top */
-            right:570px;
+            right:685px;
           
             background:rgba(255, 255, 255, 1); /* translucent white */
             padding:5px;
@@ -968,8 +1024,20 @@
       </div>
    @endif
 </div>
+
+<a href="javascript:void(0)" 
+   onclick="AiAssistance()" 
+   id="AiAssistance" 
+   class="btn shadow-lg btn-animated mr-2 text-white position-relative"
+   data-toggle="tooltip" 
+   data-placement="top" 
+   >
+    Ai<i class="sparkle-icon"></i> Assistance 
+</a>
+
+
 {{-- Date Display and Picker --}}
-<div id="createdAtContainer" class="mr-3" style="cursor:pointer;">
+<div id="createdAtContainer" class="mr-2" style="cursor:pointer;">
     <span id="createdAtDisplay" class="badge badge-info" style="font-size:16px; padding:8px;">
         <i class="far fa-calendar-alt mr-1"></i>
         {{ \Carbon\Carbon::parse($observation->created_at)->format('d M Y') }}
@@ -1833,11 +1901,53 @@
 
 
 
+<!-- Ai Assistance modal -->
+<div class="modal" id="AiAssistanceModal" tabindex="-1" role="dialog" aria-labelledby="AiAssistanceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <h5 class="modal-title" id="childrenModalLabel">Ai Assistance</h5>
+        <!-- <input type="text" id="childSearch" class="form-control ml-3" placeholder="Search children..." style="max-width: 250px;"> -->
+        <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="max-height:550px;overflow-y:auto;">
+       
+        
+         <h5 class="modal-title" id="AnalysisPreviewLabel"> Analysis/Evaluation</h5>
+         <div id="AnalysisPreview" class="mt-3"></div>
+
+         <h5 class="modal-title" id="ReflectionPreviewLabel"> Reflection</h5>
+         <div id="ReflectionPreview" class="mt-3"></div>
+
+         <h5 class="modal-title" id="childrenModalLabel"> Future Plans</h5>
+         <div id="futureplanPreview" class="mt-3"></div>
+   
+         <h5 class="modal-title" id="">child Voice</h5>
+         <div id="childvoicePreview" class="mt-3"></div>
+
+ 
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="" onclick="AiAssistance()" class="btn btn-success">Try Again</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
 <div id="toast-container" class="toast-bottom-right"
         style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
 
 
+<!-- processsing loader -->
+ <div id="aiAssistLoader" style="display:none; text-align:center;">
+    <i class="fas fa-spinner fa-spin fa-2x text-info"></i> Processing...
+</div>
 
 
         <script>
@@ -3484,7 +3594,84 @@ $(document).ready(function() {
         console.log('Final visible:', $target.is(':visible'));
         console.log('==================');
     });
+
+
+    // $(document).click('#AiAssistance',function(){
+    // // let editorData = CKEDITOR.instances['editor1'].getData();
+    //     let title =  editors["editor1"] ? editors["editor1"].getData() : "";
+    //     console.log(title); // this will print the content
+    // });
+ 
 });
+
+
+   function AiAssistance() {
+        // get editor instance
+        // let editorData = CKEDITOR.instances['editor1'].getData();
+        let title =  editors["editor1"] ? editors["editor1"].getData() : "";
+        console.log('functon'+ title); // this will print the content
+
+     $.ajax({
+        url: "{{ route('observation.ai-assist') }}",   // 👈 replace with your route name
+        type: "POST",
+        data: {
+            observation: title,
+            _token: "{{ csrf_token() }}"   // CSRF token for Laravel
+        },
+        dataType: "json",
+
+        // Runs before the request is sent
+        beforeSend: function () {
+            console.log("Sending data to AI Assistance...");
+            // Optional: show loader/spinner
+            $("#aiAssistLoader").show();
+        },
+
+        success: function (res) {
+             console.log("Response:", res.data.raw);
+            console.log("reflection:", res.data.reflection);
+            console.log("analysis:", res.data.analysis);
+            console.log("futurePlan:", res.data.futurePlan);
+            console.log("childVoice:", res.data.childVoice);
+            console.log("childVoice1:", res.data.childVoice1);
+
+//         $('#AnalysisPreview').text(res.data.analysis);
+// $('#ReflectionPreview').text(res.data.reflection);
+// $('#futureplanPreview').text(res.data.futurePlan);
+// $('#childvoicePreview').text(res.data.childVoice);
+
+        // obestitle: editors["editor6"] ? editors["editor6"].setData() : "",
+        // title: editors["editor1"] ? editors["editor1"].setData() : "",
+        // notes: editors["editor2"] ? editors["editor2"].setData() : "",
+        // reflection: editors["editor3"] ? editors["editor3"].setData() : "",
+        // child_voice: editors["editor4"] ? editors["editor4"].setData() : "",
+        // future_plan: editors["editor5"] ? editors["editor5"].setData() : "",
+
+      
+if (editors["editor2"]) editors["editor2"].setData(res.data.analysis || "");
+if (editors["editor3"]) editors["editor3"].setData(res.data.reflection || "");
+if (editors["editor4"]) editors["editor4"].setData(res.data.childVoice || "");
+if (editors["editor5"]) editors["editor5"].setData(res.data.futurePlan || "");
+
+
+                //   $('#AiAssistanceModal').modal('show'); 
+        
+
+            // hide loader
+            $("#aiAssistLoader").hide();
+        },
+
+        error: function (xhr, status, error) {
+            console.error("Error:", error);
+            console.log(xhr.responseText);
+            alert("Something went wrong!");
+
+            // hide loader
+            $("#aiAssistLoader").hide();
+        }
+    });
+    }
+  
 </script>
 
 
