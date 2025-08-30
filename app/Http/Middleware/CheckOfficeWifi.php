@@ -12,8 +12,16 @@ class CheckOfficeWifi
     public function handle(Request $request, Closure $next)
     {
         $allowedIps = ['192.168.0.105', '152.59.191.38']; // add LAN + public IP
-
         $currentIp = $request->ip();
+
+        if (!in_array($currentIp, $allowedIps)) {
+            Auth::logout();
+            return redirect('/login')->withErrors(['ip' => 'Access only allowed from office Wi-Fi.']);
+        }
+
+
+
+
 
         if (!in_array($currentIp, $allowedIps)) {
             Auth::logout();
