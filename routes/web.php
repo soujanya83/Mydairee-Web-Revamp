@@ -20,6 +20,7 @@ use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ClearCacheAfterLogout;
+Use App\Http\Middleware\CheckOfficeWifi;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Models\Child;
@@ -75,7 +76,7 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 
 
 // Route group with middleware this middleware use after login
-Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function () {
+Route::middleware(['web', 'auth',CheckOfficeWifi::class, ClearCacheAfterLogout::class])->group(function () {
     Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
     Route::get('/api/events', [DashboardController::class, 'getEvents']);
