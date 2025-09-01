@@ -32,6 +32,7 @@ class User extends Authenticatable
         'devicetype',
         'companyLogo',
         'theme',
+        'wifi_status',
         'image_position',
         'created_by',
         'email_verified_at',

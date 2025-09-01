@@ -20,7 +20,7 @@ use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ClearCacheAfterLogout;
-Use App\Http\Middleware\CheckOfficeWifi;
+use App\Http\Middleware\CheckOfficeWifi;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Models\Child;
@@ -30,6 +30,7 @@ use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\Auth\NotificationController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\WifiIPController;
 use App\Models\Observation;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Artisan;
@@ -76,7 +77,7 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 
 
 // Route group with middleware this middleware use after login
-Route::middleware(['web', 'auth',CheckOfficeWifi::class, ClearCacheAfterLogout::class])->group(function () {
+Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout::class])->group(function () {
     Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
     Route::get('/api/events', [DashboardController::class, 'getEvents']);
@@ -108,11 +109,11 @@ Route::middleware(['web', 'auth',CheckOfficeWifi::class, ClearCacheAfterLogout::
 
     Route::post('Observation/addActivity', [ObservationController::class, 'addActivity'])->name('Observation.addActivity');
     Route::post('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name(' Observation.addSubActivity');
-    Route::get('observation/activity/list',[ObservationController::class,'activityList'])->name('observation.activity-list');
- Route::post('observation/delete-activity',[ObservationController::class,'deleteActivity'])->name('observation.delete-activity');
-    Route::post('observation/delete-subactivity',[ObservationController::class,'deleteSubActivity'])->name('observation.delete-subactivity');
- Route::post('observation/update-activity',[ObservationController::class,'updateActivity'])->name('observation.update-activity');
-    Route::post('observation/update-subactivity',[ObservationController::class,'updateSubActivity'])->name('observation.update-subactivity');
+    Route::get('observation/activity/list', [ObservationController::class, 'activityList'])->name('observation.activity-list');
+    Route::post('observation/delete-activity', [ObservationController::class, 'deleteActivity'])->name('observation.delete-activity');
+    Route::post('observation/delete-subactivity', [ObservationController::class, 'deleteSubActivity'])->name('observation.delete-subactivity');
+    Route::post('observation/update-activity', [ObservationController::class, 'updateActivity'])->name('observation.update-activity');
+    Route::post('observation/update-subactivity', [ObservationController::class, 'updateSubActivity'])->name('observation.update-subactivity');
 
 
 
@@ -364,6 +365,11 @@ Route::middleware(['web', 'auth',CheckOfficeWifi::class, ClearCacheAfterLogout::
         Route::post('/parent/store', [SettingsController::class, 'parent_store'])->name('parent.store');
         Route::post('/assign-permissions', [SettingsController::class, 'assign_user_permissions'])->name('assign_permissions');
         Route::get('permissions-assigned', [SettingsController::class, 'assigned_permissions'])->name('assigned_permissions');
+
+        Route::get('add-wifi-ip', [WifiIPController::class, 'wifi_add_form'])->name('wifi_add_page');
+        Route::post('store-wifi-ip', [WifiIPController::class, 'wifi_store'])->name('WifiIp.store');
+        Route::post('wifi/change-status/{id}', [WifiIPController::class, 'changeStatus'])->name('WifiIp.changeStatus');
+        Route::delete('wifi/delete/{id}', [WifiIPController::class, 'destroy'])->name('WifiIp.destroy');
 
         Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
         Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');
