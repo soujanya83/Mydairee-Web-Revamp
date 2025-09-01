@@ -56,7 +56,7 @@
                             <th>Wifi Ip</th>
                             <th>Wfi Name</th>
                             <th>Wifi Address</th>
-                            <th>Status</th>
+                            <th>Wifi Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -69,9 +69,9 @@
                             <td>{{$wifi->wifi_address ?: '--' }}</td>
                             <td>
                                 @if($wifi->status == 1)
-                                <span class="badge bg-success text-white p-2">Active</span>
+                               <span style="color:green">Active</span>
                                 @else
-                                <span class="badge bg-danger text-white p-2">Inactive</span>
+                               <span style="color:red">Inactive</span>
                                 @endif
                             </td>
                             <td>
@@ -79,8 +79,8 @@
                                 <form action="{{ route('settings.WifiIp.changeStatus', $wifi->id) }}" method="POST"
                                     style="display:inline-block;">
                                     @csrf
-                                    <button class="btn btn-sm btn-warning">
-                                        <i class="fas fa-sync"></i> Status
+                                    <button class="btn btn-sm btn-warning" title="Wifi IP Status change">
+                                        <i class="fas fa-wifi"></i> Access
                                     </button>
                                 </form>
                                 <!-- Delete Button --> &nbsp;
@@ -88,8 +88,8 @@
                                     style="display:inline-block;" onsubmit="return confirm('Are you sure?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="btn btn-sm btn-danger">
-                                        <i class="fas fa-trash-alt"></i> Delete
+                                    <button class="btn btn-sm btn-danger" title="Record Delete">
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
                             </td>

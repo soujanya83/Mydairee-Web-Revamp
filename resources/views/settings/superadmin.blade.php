@@ -8,276 +8,316 @@
     .is-invalid {
         border-color: #dc3545 !important;
     }
+
     .toast-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1050;
-}
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+    }
 
-.toast {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+    .toast {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-.toast-success {
-    background-color: #28a745; /* Green for success */
-}
+    .toast-success {
+        background-color: #28a745;
+        /* Green for success */
+    }
 
-.toast-error {
-    background-color: #dc3545; /* Red for error */
-}
+    .toast-error {
+        background-color: #dc3545;
+        /* Red for error */
+    }
 
-.toast-close-button {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    color: white;
-    margin-left: 10px;
-}
+    .toast-close-button {
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: white;
+        margin-left: 10px;
+    }
 
-.toast-message {
-    flex: 1;
+    .toast-message {
+        flex: 1;
 
-}
+    }
 
-.c_list .avatar{
-    height:45px;
-    width: 50px;
-}
+    .c_list .avatar {
+        height: 45px;
+        width: 50px;
+    }
 </style>
-    <div class="header float-end text-zero top-right-button-container d-flex justify-content-between">
-                <h2>Super-Admin Settings<small></small> </h2>  
-                <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal" data-target="#addSuperadminModal">
-                <i class="fa fa-plus"></i>&nbsp;  Add Superadmin
-</button>                    
-            </div>
-
-                     <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
-    <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
-    <input 
-        type="text" 
-        name="filterbyCentername" 
-        class="form-control border-info" 
-        placeholder="Filter by name" onkeyup="filterbyAdminName(this.value)">
+<div class="header float-end text-zero top-right-button-container d-flex justify-content-between">
+    <h2>Super-Admin Settings<small></small> </h2>
+    <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
+        data-target="#addSuperadminModal">
+        <i class="fa fa-plus"></i>&nbsp; Add Superadmin
+    </button>
 </div>
-            
+
+<div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
+    <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
+    <input type="text" name="filterbyCentername" class="form-control border-info" placeholder="Filter by name"
+        onkeyup="filterbyAdminName(this.value)">
+</div>
+@if ($errors->any())
+<div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:20px">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+@endif
+
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top:20px">
+    {{ session('success') }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+@endif
 <div class="row clearfix" style="margin-top:30px">
     <div class="col-lg-12">
         <div class="">
-    
 
-    <div class="row admin-data">
-    @foreach($superadmins as $admin)
-        @php
-            $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
-            $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
-            $avatars = $admin->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-            $defaultAvatar = $avatars[array_rand($avatars)];
-            $avatar = $admin->imageUrl ? asset($admin->imageUrl) : asset('assets/img/xs/' . $defaultAvatar);
-        @endphp
 
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-primary h-100">
-                <div class="card-body text-center">
-                    <img src="{{ $avatar }}" class="rounded-circle mb-3" width="80" height="80" alt="Avatar">
-                    <h5 class="card-title mb-1">{{ $admin->name }}</h5>
-                    <p class="card-text mb-1"><strong>Email:</strong> {{ $admin->email }}</p>
-                    <p class="card-text mb-2"><strong>Contact:</strong> {{ $admin->contactNo }}</p>
+            <div class="row admin-data">
+                @foreach($superadmins as $admin)
+                @php
+                $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+                $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+                $avatars = $admin->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+                $defaultAvatar = $avatars[array_rand($avatars)];
+                $avatar = $admin->imageUrl ? asset($admin->imageUrl) : asset('assets/img/xs/' . $defaultAvatar);
+                @endphp
 
-                    <div class="d-flex justify-content-center gap-2">
-                        <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $admin->id }})">
-                            <i class="fa-solid fa-pen-to-square"></i> Edit
-                        </button>
-                        <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $admin->id }})">
-                            <i class="fa-solid fa-trash"></i> Delete
-                        </button>
+                <div class="col-md-3 mb-4">
+                    <div class="card shadow-sm border-primary h-100">
+                        <div class="card-body text-center">
+                            <img src="{{ $avatar }}" class="rounded-circle mb-3" width="80" height="80" alt="Avatar">
+                            <h5 class="card-title mb-1">{{ $admin->name }}</h5>
+                            <p class="card-text mb-1"><strong>Email:</strong> {{ $admin->email }}</p>
+                            <p class="card-text mb-2"><strong>Contact:</strong> {{ $admin->contactNo }}</p>
+
+                            <div class="d-flex justify-content-center gap-2">
+
+                                <form action="{{ route('settings.userWifi.changeStatus', $admin->id) }}" method="POST"
+                                    style="display:inline-block;">
+                                    @csrf
+                                    @if ($admin->wifi_status == 1)
+                                    <button class="btn btn-sm btn-success" title="Click to User WiFi Remove Access">
+                                        <i class="fas fa-wifi"></i> Access
+                                    </button>
+                                    @else
+                                    <button class="btn btn-sm btn-danger" title="Click to User WiFi Give Access">
+                                        <i class="fas fa-wifi"></i> No Access
+                                    </button>
+                                    @endif
+                                </form>
+                                &nbsp; &nbsp;
+                                <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $admin->id }})">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $admin->id }})">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                @endforeach
             </div>
+
         </div>
-    @endforeach
-</div>
 
     </div>
 
-</div>
 
 
 
+    <!-- Modal Form -->
+    <div class="modal" id="addSuperadminModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
 
-<!-- Modal Form -->
-<div class="modal" id="addSuperadminModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Add New Superadmin</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
 
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalLabel">Add New Superadmin</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+                <!-- Modal Body -->
+                <div class="modal-body" style="max-height:500px;overflow-y:auto;">
+                    <form id="superadminForm" enctype="multipart/form-data">
+                        @csrf
+                        <!-- Laravel CSRF -->
 
-            <!-- Modal Body -->
-            <div class="modal-body" style="max-height:500px;overflow-y:auto;">
-                <form id="superadminForm" enctype="multipart/form-data">
-                    @csrf <!-- Laravel CSRF -->
-
-                    <h6 class="mb-3">Superadmin Details</h6>
-                    <div class="form-row">
-                        <!-- <div class="form-group col-md-6">
+                        <h6 class="mb-3">Superadmin Details</h6>
+                        <div class="form-row">
+                            <!-- <div class="form-group col-md-6">
                             <label>Username</label>
                             <input type="text" class="form-control" name="username" required>
                         </div> -->
-                        <div class="form-group col-md-6">
-                            <label>Name</label>
-                            <input type="text" class="form-control" name="name" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Email ID</label>
-                            <input type="email" class="form-control" name="email" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Password</label>
-                            <input type="password" class="form-control" name="password" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Contact No</label>
-                            <input type="tel" class="form-control" name="contactNo" required>
-                        </div>
-                      
-                        <!-- <div class="form-group col-md-6">
+                            <div class="form-group col-md-6">
+                                <label>Name</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Email ID</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Password</label>
+                                <input type="password" class="form-control" name="password" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Contact No</label>
+                                <input type="tel" class="form-control" name="contactNo" required>
+                            </div>
+
+                            <!-- <div class="form-group col-md-6">
                             <label>Date of Birth</label>
                             <input type="date" class="form-control" name="dob" required>
                         </div> -->
+                            <div class="form-group col-md-6">
+                                <label>Gender</label>
+                                <select class="form-control" name="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="MALE">Male</option>
+                                    <option value="FEMALE">Female</option>
+                                    <option value="OTHERS">Other</option>
+                                </select>
+                            </div>
+                            <!-- <div class="form-group col-md-6">
+                            <label>Title</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div> -->
+                            <div class="form-group col-12">
+                                <label>Profile Image</label>
+                                <input type="file" class="form-control" name="imageUrl" accept="image/*">
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4 mb-3">Center Details</h6>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Center Name</label>
+                                <input type="text" class="form-control" name="centerName" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Street Address</label>
+                                <input type="text" class="form-control" name="adressStreet" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>City</label>
+                                <input type="text" class="form-control" name="addressCity" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>State</label>
+                                <input type="text" class="form-control" name="addressState" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>ZIP Code</label>
+                                <input type="text" class="form-control" name="addressZip" required>
+                            </div>
+                        </div>
+
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="Submit" class="btn btn-primary" onclick="submitSuperadminForm()">Save</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal" id="editSuperadminModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <form id="editSuperadminForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Superadmin</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body row">
+                        <input type="hidden" name="id" id="editId">
+
+                        <div class="form-group col-md-6">
+                            <label>Name</label>
+                            <input type="text" class="form-control" name="name" id="editName" required>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Email ID</label>
+                            <input type="email" class="form-control" name="email" id="editEmail" required>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Password <span style="color:green;">(Optional- Leave blank if not
+                                    changing)</span></label>
+                            <input type="password" class="form-control" name="password" id="editPassword">
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Contact No</label>
+                            <input type="tel" class="form-control" name="contactNo" id="editContactNo" required>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label>Change Image <span style="color:green;">(Optional)</span></label>
+                            <input type="file" class="form-control" id="imageUrl" name="imageUrl" accept="image/*">
+                        </div>
+
                         <div class="form-group col-md-6">
                             <label>Gender</label>
-                            <select class="form-control" name="gender" required>
+                            <select class="form-control" name="gender" id="editGender" required>
                                 <option value="">Select Gender</option>
                                 <option value="MALE">Male</option>
                                 <option value="FEMALE">Female</option>
                                 <option value="OTHERS">Other</option>
                             </select>
                         </div>
-                        <!-- <div class="form-group col-md-6">
-                            <label>Title</label>
-                            <input type="text" class="form-control" name="title" required>
-                        </div> -->
-                        <div class="form-group col-12">
-                            <label>Profile Image</label>
-                            <input type="file" class="form-control" name="imageUrl" accept="image/*">
-                        </div>
                     </div>
 
-                    <h6 class="mt-4 mb-3">Center Details</h6>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Center Name</label>
-                            <input type="text" class="form-control" name="centerName" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Street Address</label>
-                            <input type="text" class="form-control" name="adressStreet" required>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label>City</label>
-                            <input type="text" class="form-control" name="addressCity" required>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label>State</label>
-                            <input type="text" class="form-control" name="addressState" required>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label>ZIP Code</label>
-                            <input type="text" class="form-control" name="addressZip" required>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" onclick="updateSuperadmin()" class="btn btn-primary">Update</button>
                     </div>
-               
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="Submit" class="btn btn-primary" onclick="submitSuperadminForm()">Save</button>
-            </div>
+                </div>
             </form>
         </div>
     </div>
-</div>
-
-
-<div class="modal" id="editSuperadminModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <form id="editSuperadminForm">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Edit Superadmin</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-        </div>
-        <div class="modal-body row">
-          <input type="hidden" name="id" id="editId">
-
-          <div class="form-group col-md-6">
-            <label>Name</label>
-            <input type="text" class="form-control" name="name" id="editName" required>
-          </div>
-
-          <div class="form-group col-md-6">
-            <label>Email ID</label>
-            <input type="email" class="form-control" name="email" id="editEmail" required>
-          </div>
-
-          <div class="form-group col-md-6">
-            <label>Password <span style="color:green;">(Optional- Leave blank if not changing)</span></label>
-            <input type="password" class="form-control" name="password" id="editPassword">
-          </div>
-
-          <div class="form-group col-md-6">
-            <label>Contact No</label>
-            <input type="tel" class="form-control" name="contactNo" id="editContactNo" required>
-          </div>
-
-          <div class="form-group col-6">
-                <label>Change Image <span style="color:green;">(Optional)</span></label>
-                <input type="file" class="form-control" id="imageUrl" name="imageUrl" accept="image/*">
-            </div>
-
-          <div class="form-group col-md-6">
-            <label>Gender</label>
-            <select class="form-control" name="gender" id="editGender" required>
-              <option value="">Select Gender</option>
-              <option value="MALE">Male</option>
-              <option value="FEMALE">Female</option>
-              <option value="OTHERS">Other</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" onclick="updateSuperadmin()" class="btn btn-primary">Update</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
 
 
 
-<div id="toast-container" class="toast-bottom-right" style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
+    <div id="toast-container" class="toast-bottom-right"
+        style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
 
 
 
-<script>
-    
-    function showToast(type, message) {
+    <script>
+        function showToast(type, message) {
     const isSuccess = type === 'success';
     const toastType = isSuccess ? 'toast-success' : 'toast-error';
     const ariaLive = isSuccess ? 'polite' : 'assertive';
@@ -470,9 +510,8 @@ function deleteSuperadmin(id) {
 
     </script>
 
-<script>
-
-function filterbyAdminName(name) {
+    <script>
+        function filterbyAdminName(name) {
     console.log(name);
     $.ajax({
         url: 'filter-admins', // Your route
@@ -531,8 +570,7 @@ function filterbyAdminName(name) {
 }
 
 
-</script>
+    </script>
 
-@include('layout.footer')
-@stop
-
+    @include('layout.footer')
+    @stop

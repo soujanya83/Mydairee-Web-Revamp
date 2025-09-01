@@ -369,6 +369,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('add-wifi-ip', [WifiIPController::class, 'wifi_add_form'])->name('wifi_add_page');
         Route::post('store-wifi-ip', [WifiIPController::class, 'wifi_store'])->name('WifiIp.store');
         Route::post('wifi/change-status/{id}', [WifiIPController::class, 'changeStatus'])->name('WifiIp.changeStatus');
+        Route::post('wifi-status/{id}', [WifiIPController::class, 'userwifi_changeStatus'])->name('userWifi.changeStatus');
         Route::delete('wifi/delete/{id}', [WifiIPController::class, 'destroy'])->name('WifiIp.destroy');
 
         Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\WifiIP_Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -43,7 +44,14 @@ class WifiIPController extends Controller
         return back()->with('success', 'Wifi IP Story Successfully');
     }
 
+    public function userwifi_changeStatus($id)
+    {
+        $wifi = User::findOrFail($id);
+        $wifi->wifi_status = $wifi->wifi_status == 1 ? 0 : 1; // toggle
+        $wifi->save();
 
+        return back()->with('success', 'User WiFi status changed');
+    }
 
     // ✅ Change Status
     public function changeStatus($id)

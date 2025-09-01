@@ -261,6 +261,10 @@
                                 <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.superadmin_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Super-Admin Settings</a>
                                 </li>
+
+                                   <li class="{{ Request::segment(2) === 'add-wifi-ip' ? 'active' : null }}">
+                                    <a href="{{ route('settings.wifi_add_page') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Wifi Manage</a>
+                                </li>
                                 @endif
 
                                 @php
@@ -273,7 +277,7 @@
                                     <a href="{{ route('settings.center_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Center Settings</a>
                                 </li>
                                 @endif
-                                {{-- @if($userType == 'Superadmin') --}}
+
                                 <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.staff_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Staffs Settings</a>
                                 </li>
@@ -281,7 +285,7 @@
                                  <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}">
                                     <a href="{{ route('settings.manage_permissions') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Manage Permissions</a>
                                 </li>
-                                {{-- @endif --}}
+
                                 @if(!empty($permissions['viewParent']) && $permissions['viewParent'])
 
                                 <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}">
@@ -289,11 +293,9 @@
                                 </li>
                                 @endif
 
-                                @if($userType == 'Superadmin')
-                                <li class="{{ Request::segment(2) === 'add-wifi-ip' ? 'active' : null }}">
-                                    <a href="{{ route('settings.wifi_add_page') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Wifi Manage</a>
-                                </li>
-                                @endif
+
+
+
 
                             </ul>
                         </li>

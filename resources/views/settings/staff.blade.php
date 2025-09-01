@@ -106,15 +106,38 @@
                         <i class="fa fa-plus"></i>&nbsp; Add Staff
                     </button>
     </div>
-    
+
+
+
+</div>
+@if ($errors->any())
+<div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:20px">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
 </div>
 
+@endif
+
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top:20px">
+    {{ session('success') }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+@endif
                   <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
      <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
-    <input 
-        type="text" 
-        name="filterbyCentername" 
-        class="form-control border-info" 
+    <input
+        type="text"
+        name="filterbyCentername"
+        class="form-control border-info"
         placeholder="Filter by name" onkeyup="filterbyStaffName(this.value)">
 </div>
 
@@ -122,7 +145,7 @@
 
     <div class="col-lg-12">
         <div class="">
-          
+
             <div class="body">
            <div class="row staff-data">
     @foreach($staff as $index => $staffs)
@@ -132,40 +155,70 @@
             $avatars = $staffs->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
             $defaultAvatar = $avatars[array_rand($avatars)];
             $avatar = $staffs->imageUrl ? asset($staffs->imageUrl) : asset('assets/img/xs/' . $defaultAvatar);
+
+            $userId=Auth::user()->id;
+
+
         @endphp
 
         <div class="col-md-3 mb-4">
             <div class="card h-100 shadow-sm border-primary">
-                <div class="card-body text-center">
-                    <img src="{{ $avatar }}" alt="Avatar" class="rounded-circle mb-3" width="80" height="80">
-                    <h5 class="card-title mb-1">{{ $staffs->name }}</h5>
-                    <p class="card-text mb-1"><strong>Email:</strong> {{ $staffs->email }}</p>
-                    <p class="card-text mb-2"><strong>Contact:</strong> {{ $staffs->contactNo }}</p>
+               <div class="card-body text-center">
+    <div class="d-flex justify-content-center align-items-center mb-0">
+        {{-- Avatar --}}
+        <img src="{{ $avatar }}" alt="Avatar" class="rounded-circle" width="80" height="80">
 
-                    <div class="d-flex justify-content-center gap-2">
-                        <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $staffs->id }})">
-                            <i class="fa-solid fa-pen-to-square"></i> Edit
-                        </button>
-                        <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $staffs->id }})">
-                            <i class="fa-solid fa-trash"></i> Delete
-                        </button>
-               <button class="btn btn-sm border shadow-sm bg-white px-3 ml-2" onclick="UpdateStatusSuperadmin({{ $staffs->id }})">
-        @if($staffs->status === 'ACTIVE')
-            <i class="fa-solid fa-circle-check text-success me-1"></i>
-            <span class="text-success fw-bold">Active</span>
-        @elseif($staffs->status === 'IN-ACTIVE')
-            <i class="fa-solid fa-circle-xmark text-danger me-1"></i>
-            <span class="text-danger fw-bold">Inactive</span>
-        @else
-            <i class="fa-solid fa-clock text-warning me-1"></i>
-            <span class="text-warning fw-bold">Pending</span>
+       @if($userId == 1)
+      <form action="{{ route('settings.userWifi.changeStatus', $staffs->id) }}" method="POST"
+            style="position:absolute; top:5px; right:5px;">
+            @csrf
+            @if ($staffs->wifi_status == 1)
+                <button class="btn btn-sm btn-success" title="Click to User WiFi Remove Access">
+                    <i class="fas fa-wifi"></i> Access
+                </button>
+            @else
+                <button class="btn btn-sm btn-danger" title="Click to User WiFi Give Access">
+                    <i class="fas fa-wifi"></i> No Access
+                </button>
+            @endif
+        </form>
         @endif
-    </button>
+    </div>
+
+    {{-- Name, Email, Contact --}}
+    <h5 class="card-title mb-1">{{ $staffs->name }}</h5>
+    <p class="card-text mb-1"><strong>Email:</strong> {{ $staffs->email }}</p>
+    <p class="card-text mb-2"><strong>Contact:</strong> {{ $staffs->contactNo }}</p>
+
+    {{-- Other Action Buttons --}}
+    <div class="d-flex justify-content-center gap-3">
+        <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $staffs->id }})">
+            <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $staffs->id }})">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+        <button class="btn btn-sm border shadow-sm bg-white px-3 ml-2" onclick="UpdateStatusSuperadmin({{ $staffs->id }})">
+            @if($staffs->status === 'ACTIVE')
+                <i class="fa-solid fa-circle-check text-success me-1"></i>
+                <span class="text-success fw-bold">Active</span>
+            @elseif($staffs->status === 'IN-ACTIVE')
+                <i class="fa-solid fa-circle-xmark text-danger me-1"></i>
+                <span class="text-danger fw-bold">Inactive</span>
+            @else
+                <i class="fa-solid fa-clock text-warning me-1"></i>
+                <span class="text-warning fw-bold">Pending</span>
+            @endif
+        </button>
+    </div>
+</div>
 
 
-                    </div>
-                </div>
+
+
             </div>
+
+
         </div>
     @endforeach
 </div>
@@ -322,10 +375,10 @@
 
 
     <!-- spinner  -->
-     <div id="loader" style="display:none; 
-     position: fixed; 
-     top: 50%; left: 50%; 
-     transform: translate(-50%, -50%); 
+     <div id="loader" style="display:none;
+     position: fixed;
+     top: 50%; left: 50%;
+     transform: translate(-50%, -50%);
      z-index: 9999;">
     <div class="spinner-border text-info" role="status" style="width: 3rem; height: 3rem;">
         <span class="visually-hidden">Loading...</span>
