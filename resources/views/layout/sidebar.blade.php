@@ -289,11 +289,11 @@
                                 </li>
                                 @endif
 
-
+                                @if($userType == 'Superadmin')
                                 <li class="{{ Request::segment(2) === 'add-wifi-ip' ? 'active' : null }}">
                                     <a href="{{ route('settings.wifi_add_page') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Wifi Manage</a>
                                 </li>
-
+                                @endif
 
                             </ul>
                         </li>
