@@ -156,7 +156,7 @@
             $defaultAvatar = $avatars[array_rand($avatars)];
             $avatar = $staffs->imageUrl ? asset($staffs->imageUrl) : asset('assets/img/xs/' . $defaultAvatar);
 
-            $userId=Auth::user()->id;
+            $userType=Auth::user()->userType;
 
 
         @endphp
@@ -168,8 +168,8 @@
         {{-- Avatar --}}
         <img src="{{ $avatar }}" alt="Avatar" class="rounded-circle" width="80" height="80">
 
-       @if($userId == 1)
-      <form action="{{ route('settings.userWifi.changeStatus', $staffs->id) }}" method="POST"
+       @if($userType == 'Superadmin')
+        {{-- <form action="{{ route('settings.userWifi.changeStatus', $staffs->id) }}" method="POST"
             style="position:absolute; top:5px; right:5px;">
             @csrf
             @if ($staffs->wifi_status == 1)
@@ -181,45 +181,129 @@
                     <i class="fas fa-wifi"></i> No Access
                 </button>
             @endif
-        </form>
-        @endif
-    </div>
-
-    {{-- Name, Email, Contact --}}
-    <h5 class="card-title mb-1">{{ $staffs->name }}</h5>
-    <p class="card-text mb-1"><strong>Email:</strong> {{ $staffs->email }}</p>
-    <p class="card-text mb-2"><strong>Contact:</strong> {{ $staffs->contactNo }}</p>
-
-    {{-- Other Action Buttons --}}
-    <div class="d-flex justify-content-center gap-3">
-        <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $staffs->id }})">
-            <i class="fa-solid fa-pen-to-square"></i>
+        </form> --}}
+                <form action="{{ route('settings.userWifi.changeStatus', $staffs->id) }}"
+      method="POST"
+      style="position:absolute; top:5px; right:5px;"
+      onsubmit="return confirmRemoveAccess(event)">
+    @csrf
+    @if ($staffs->wifi_status == 1)
+        <button type="submit" class="btn btn-sm btn-success" title="Click to User WiFi Remove Access">
+            <i class="fas fa-wifi"></i> Access
         </button>
-        <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $staffs->id }})">
-            <i class="fa-solid fa-trash"></i>
-        </button>
-        <button class="btn btn-sm border shadow-sm bg-white px-3 ml-2" onclick="UpdateStatusSuperadmin({{ $staffs->id }})">
-            @if($staffs->status === 'ACTIVE')
-                <i class="fa-solid fa-circle-check text-success me-1"></i>
-                <span class="text-success fw-bold">Active</span>
-            @elseif($staffs->status === 'IN-ACTIVE')
-                <i class="fa-solid fa-circle-xmark text-danger me-1"></i>
-                <span class="text-danger fw-bold">Inactive</span>
-            @else
-                <i class="fa-solid fa-clock text-warning me-1"></i>
-                <span class="text-warning fw-bold">Pending</span>
-            @endif
-        </button>
-    </div>
-</div>
+    @else
+        <div class="dropdown">
+            <button type="button" class="dropbtn dropdown-toggle">
+                <i class="fas fa-wifi"></i> No Access
+            </button>
+            <div class="dropdown-content">
+                <a href="#" data-hour="1">1 Hour</a>
+                <a href="#" data-hour="2">2 Hours</a>
+                <a href="#" data-hour="3">3 Hours</a>
+                <a href="#" data-hour="4">4 Hours</a>
+                <a href="#" data-hour="5">5 Hours</a>
+                <a href="#" data-hour="6">6 Hours</a>
+                <a href="#" data-hour="7">7 Hours</a>
+                <a href="#" data-hour="8">8 Hours</a>
+            </div>
+        </div>
+        <input type="hidden" name="hours" class="selected-hour">
+    @endif
+</form>
 
 
 
 
+                 <style>
+                    /* Dropdown container */
+                    .dropdown {
+                    position: relative;
+                    display: inline-block;
+                    }
+
+                    /* Button */
+                    .dropbtn {
+                    background-color: #dc3545; /* red button */
+                    color: white;
+                    padding: 6px 10px;
+                    font-size: 14px;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    }
+
+                    /* Dropdown content */
+                    .dropdown-content {
+                    display: none;
+                    position: absolute;
+                    background-color: #fff;
+                    min-width: 120px;
+                    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+                    z-index: 1;
+                    border-radius: 5px;
+                    }
+
+                    /* Dropdown links */
+                    .dropdown-content a {
+                    color: #333;
+                    padding: 8px 12px;
+                    text-decoration: none;
+                    display: block;
+                    }
+
+                    .dropdown-content a:hover {
+                    background-color: #f1f1f1;
+                    }
+
+                    /* Show dropdown on hover OR toggle */
+                    .dropdown.show .dropdown-content {
+                    display: block;
+                    }
+                 </style>
+                @endif
             </div>
 
+            {{-- Name, Email, Contact --}}
+            <h5 class="card-title mb-1">{{ $staffs->name }}</h5>
+            <p class="card-text mb-1"><strong>Email:</strong> {{ $staffs->email }}</p>
+            <p class="card-text mb-2"><strong>Contact:</strong> {{ $staffs->contactNo }}</p>
 
-        </div>
+            {{-- Other Action Buttons --}}
+            <div class="d-flex justify-content-center gap-3">
+                <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $staffs->id }})">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $staffs->id }})">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+                <button class="btn btn-sm border shadow-sm bg-white px-3 ml-2" onclick="UpdateStatusSuperadmin({{ $staffs->id }})">
+                    @if($staffs->status === 'ACTIVE')
+                        <i class="fa-solid fa-circle-check text-success me-1"></i>
+                        <span class="text-success fw-bold">Active</span>
+                    @elseif($staffs->status === 'IN-ACTIVE')
+                        <i class="fa-solid fa-circle-xmark text-danger me-1"></i>
+                        <span class="text-danger fw-bold">Inactive</span>
+                    @else
+                        <i class="fa-solid fa-clock text-warning me-1"></i>
+                        <span class="text-warning fw-bold">Pending</span>
+                    @endif
+                </button>
+
+                </div>
+                </div>
+                @if($staffs->wifi_access_until != null)
+                    <span style="    margin-left:32px"><span style="color:#dc3545"><b>Access Expires:</b></span> <b>{{ \Carbon\Carbon::parse($staffs->wifi_access_until)->format('d M Y, h:i A') }}</b> </span>
+                     @endif
+            </div>
+
+    </div>
+
+
+
+
+
+
+
     @endforeach
 </div>
 
@@ -747,6 +831,44 @@ function showLoaderFor2Sec() {
 
 
 
+<script>
+// Toggle dropdown open/close
+document.querySelectorAll(".dropbtn").forEach(btn => {
+    btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        this.parentElement.classList.toggle("show");
+    });
+});
 
+// Auto-submit on selecting hour
+document.querySelectorAll(".dropdown-content a").forEach(item => {
+    item.addEventListener("click", function(e) {
+        e.preventDefault();
+        let hour = this.getAttribute("data-hour");
+        let form = this.closest("form");
+        form.querySelector(".selected-hour").value = hour;
+        form.submit();
+    });
+});
+
+// Close dropdown when clicking outside
+window.addEventListener("click", function(e) {
+    document.querySelectorAll(".dropdown").forEach(drop => {
+        if (!drop.contains(e.target)) {
+            drop.classList.remove("show");
+        }
+    });
+});
+</script>
+<script>
+function confirmRemoveAccess(event) {
+    // Only confirm when button has "Access" (meaning removing access)
+    const btn = event.target.querySelector("button[type='submit']");
+    if (btn && btn.textContent.includes("Access")) {
+        return confirm("Are you sure you want to remove this user's Login access?");
+    }
+    return true;
+}
+</script>
     @include('layout.footer')
     @stop

@@ -44,13 +44,28 @@ class WifiIPController extends Controller
         return back()->with('success', 'Wifi IP Story Successfully');
     }
 
-    public function userwifi_changeStatus($id)
+    public function userwifi_changeStatus(Request $request, $id)
     {
-        $wifi = User::findOrFail($id);
-        $wifi->wifi_status = $wifi->wifi_status == 1 ? 0 : 1; // toggle
-        $wifi->save();
 
-        return back()->with('success', 'User WiFi status changed');
+        $staff = User::findOrFail($id);
+
+        if ($staff->wifi_status == 1) {
+            // Access remove
+            $staff->wifi_status = 0;
+            $staff->wifi_access_until = null;
+        } else {
+            $request->validate([
+                'hours' => 'required|integer|in:1,2,3,4,5,6,7,8'
+            ]);
+
+            // Access give with selected hours
+            $staff->wifi_status = 1;
+            $staff->wifi_access_until = now()->addHours((int) $request->hours);
+        }
+
+        $staff->save();
+
+        return back()->with('success', 'WiFi access updated successfully.');
     }
 
     // ✅ Change Status

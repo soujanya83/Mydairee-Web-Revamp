@@ -113,7 +113,7 @@
 
                             <div class="d-flex justify-content-center gap-2">
 
-                                <form action="{{ route('settings.userWifi.changeStatus', $admin->id) }}" method="POST"
+                                {{-- <form action="{{ route('settings.userWifi.changeStatus', $admin->id) }}" method="POST"
                                     style="display:inline-block;">
                                     @csrf
                                     @if ($admin->wifi_status == 1)
@@ -126,7 +126,7 @@
                                     </button>
                                     @endif
                                 </form>
-                                &nbsp; &nbsp;
+                                &nbsp; &nbsp; --}}
                                 <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $admin->id }})">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>

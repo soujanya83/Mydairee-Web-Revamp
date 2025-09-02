@@ -1,6 +1,6 @@
 @extends('layout.master')
-@section('title', 'IP List')
-@section('parentPageTitle', 'Setting')
+@section('title', 'Wifi IP List')
+@section('parentPageTitle', 'Wifi Setting')
 <!-- Bootstrap 5 CSS -->
 {{--
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
@@ -15,7 +15,7 @@
 
 <div class="d-flex justify-content-end" style="margin-top: -52px;margin-right:50px">
     <button class="btn btn-outline-info" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal">
-        Add New IP
+        Add Wifi IP
     </button>
 
 
@@ -53,10 +53,10 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>IP</th>
-                            <th>IP Name</th>
-                            <th>IP Address</th>
-                            <th>IP Status</th>
+                            <th>Wifi Ip</th>
+                            <th>Wfi Name</th>
+                            <th>Wifi Address</th>
+                            <th>Wifi Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -79,8 +79,8 @@
                                 <form action="{{ route('settings.WifiIp.changeStatus', $wifi->id) }}" method="POST"
                                     style="display:inline-block;">
                                     @csrf
-                                    <button class="btn btn-sm btn-warning" title="IP Status change">
-                                        <i class="fas fa-wifi"></i> IP Status
+                                    <button class="btn btn-sm btn-warning" title="Wifi IP Status change">
+                                        <i class="fas fa-wifi"></i> Access
                                     </button>
                                 </form>
                                 <!-- Delete Button --> &nbsp;
@@ -112,17 +112,17 @@
 
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="ingredientModalLabel">Add New IP</h5>
+                    <h5 class="modal-title" id="ingredientModalLabel">Add New Wifi IP</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
                 </div>
 
                 <div class="modal-body">
                     <!-- WiFi IP -->
                     <div class="mb-3">
-                        <label for="wifiIp" class="form-label">IP</label>
+                        <label for="wifiIp" class="form-label">WiFi IP</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="wifiIp" name="wifi_ip" required
-                                placeholder="Enter IP">
+                                placeholder="Enter Wifi IP">
                             <button type="button" class="btn btn-secondary" id="checkIpBtn">Check IP</button>
                             <button type="button" class="btn btn-success d-none" id="pasteIpBtn">Paste</button>
                         </div>
@@ -131,21 +131,21 @@
 
                     <!-- WiFi Name -->
                     <div class="mb-3">
-                        <label for="wifiName" class="form-label">IP Name</label>
+                        <label for="wifiName" class="form-label">WiFi Name</label>
                         <input type="text" class="form-control" id="wifiName" name="wifi_name" required
-                            placeholder="Enter IP Name">
+                            placeholder="Enter Wifi Name">
                     </div>
 
                     <!-- WiFi Address -->
                     <div class="mb-3">
-                        <label for="wifiAddress" class="form-label">IP Address</label>
+                        <label for="wifiAddress" class="form-label">WiFi Address</label>
                         <input type="text" class="form-control" id="wifiAddress" name="wifi_address"
-                            placeholder="Enter IP Address">
+                            placeholder="Enter Wifi Address">
                     </div>
 
                     <!-- WiFi Status -->
                     <div class="mb-3">
-                        <label class="form-label d-block">IP Status</label>
+                        <label class="form-label d-block">WiFi Status</label>
                         <div class="d-flex gap-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" id="wifiActive" name="wifi_status"
@@ -231,5 +231,5 @@
 </script>
 
 
-@include('layout.footer')
+
 @stop

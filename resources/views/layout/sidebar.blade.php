@@ -261,12 +261,10 @@
                                 <li class="{{ Request::segment(2) === 'superadmin_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.superadmin_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Super-Admin Settings</a>
                                 </li>
-
-                                   <li class="{{ Request::segment(2) === 'add-wifi-ip' ? 'active' : null }}">
-                                    <a href="{{ route('settings.wifi_add_page') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Wifi Manage</a>
-                                </li>
                                 @endif
-
+                                <li class="{{ Request::segment(2) === 'add-wifi-ip' ? 'active' : null }}">
+                                    <a href="{{ route('settings.wifi_add_page') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;IP Manage</a>
+                                </li>
                                 @php
                                 $userType=Auth::user()->userType; @endphp
 
@@ -293,6 +291,9 @@
                                 </li>
                                 @endif
 
+                                 {{-- <li class="{{ Request::segment(2) === 'add-public-holiday' ? 'active' : null }}">
+                                    <a href="{{ route('settings.public_holiday') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Public Holiday</a>
+                                </li> --}}
 
 
 

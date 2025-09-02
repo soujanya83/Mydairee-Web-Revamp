@@ -30,6 +30,7 @@ use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\Auth\NotificationController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PublicHolidayController;
 use App\Http\Controllers\WifiIPController;
 use App\Models\Observation;
 use Illuminate\Notifications\DatabaseNotification;
@@ -366,11 +367,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::post('/assign-permissions', [SettingsController::class, 'assign_user_permissions'])->name('assign_permissions');
         Route::get('permissions-assigned', [SettingsController::class, 'assigned_permissions'])->name('assigned_permissions');
 
-        Route::get('add-wifi-ip', [WifiIPController::class, 'wifi_add_form'])->name('wifi_add_page');
-        Route::post('store-wifi-ip', [WifiIPController::class, 'wifi_store'])->name('WifiIp.store');
-        Route::post('wifi/change-status/{id}', [WifiIPController::class, 'changeStatus'])->name('WifiIp.changeStatus');
-        Route::post('wifi-status/{id}', [WifiIPController::class, 'userwifi_changeStatus'])->name('userWifi.changeStatus');
-        Route::delete('wifi/delete/{id}', [WifiIPController::class, 'destroy'])->name('WifiIp.destroy');
+
 
         Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
         Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');
@@ -380,6 +377,15 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::post('/upload-profile-image', [SettingsController::class, 'uploadImage'])->name('upload.profile.image');
         Route::post('/profile/update/{id}', [SettingsController::class, 'profileupdate'])->name('profile.update');
         Route::post('/profile/change-password/{id}', [SettingsController::class, 'changePassword'])->name('profile.change-password');
+
+        Route::get('ip-list', [WifiIPController::class, 'wifi_add_form'])->name('wifi_add_page');
+        Route::post('store-wifi-ip', [WifiIPController::class, 'wifi_store'])->name('WifiIp.store');
+        Route::post('wifi/change-status/{id}', [WifiIPController::class, 'changeStatus'])->name('WifiIp.changeStatus');
+        Route::post('wifi-status/{id}', [WifiIPController::class, 'userwifi_changeStatus'])->name('userWifi.changeStatus');
+        Route::delete('wifi/delete/{id}', [WifiIPController::class, 'destroy'])->name('WifiIp.destroy');
+
+        Route::get('add-public-holiday', [PublicHolidayController::class, 'add_public_holiday'])->name('public_holiday');
+
     });
 
 
