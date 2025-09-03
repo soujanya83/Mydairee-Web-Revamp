@@ -384,8 +384,12 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::post('wifi-status/{id}', [WifiIPController::class, 'userwifi_changeStatus'])->name('userWifi.changeStatus');
         Route::delete('wifi/delete/{id}', [WifiIPController::class, 'destroy'])->name('WifiIp.destroy');
 
-        Route::get('add-public-holiday', [PublicHolidayController::class, 'add_public_holiday'])->name('public_holiday');
-
+        Route::get('public-holiday-list', [PublicHolidayController::class, 'add_public_holiday'])->name('public_holiday');
+        Route::post('holiday/change-status/{id}', [PublicHolidayController::class, 'changeStatus'])->name('holiday.changeStatus');
+        Route::delete('holiday/delete/{id}', [PublicHolidayController::class, 'destroy'])->name('holiday.destroy');
+        Route::post('store-holiday', [PublicHolidayController::class, 'holiday_store'])->name('holiday.store');
+        Route::put('holiday/update/{id}', [PublicHolidayController::class, 'update'])->name('holiday.update');
+        Route::get('/holidays/events', [PublicHolidayController::class, 'holidayEvents']);
     });
 
 

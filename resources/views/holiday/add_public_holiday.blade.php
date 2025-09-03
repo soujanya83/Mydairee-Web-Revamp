@@ -1,6 +1,6 @@
 @extends('layout.master')
-@section('title', 'Wifi IP List')
-@section('parentPageTitle', 'Wifi Setting')
+@section('title', 'Public Holiday List')
+@section('parentPageTitle', 'Setting')
 <!-- Bootstrap 5 CSS -->
 {{--
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
@@ -14,8 +14,8 @@
 
 
 <div class="d-flex justify-content-end" style="margin-top: -52px;margin-right:50px">
-    <button class="btn btn-outline-info" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal">
-        Add Wifi IP
+    <button class="btn btn-outline-info" type="button" data-bs-toggle="modal" data-bs-target="#holidayModal">
+        Add New Holiday
     </button>
 
 
@@ -49,54 +49,93 @@
         <div class="card">
 
             <div class="body table-responsive">
+
+                <form method="GET" action="{{ route('settings.public_holiday') }}" class="mb-3 d-flex gap-3">
+                    <!-- Month Filter -->
+                    <select name="month" class="form-control" style="width:150px;margin-left:12px">
+                        <option value="">All Months</option>
+                        @for ($m = 1; $m <= 12; $m++) <option value="{{ $m }}" {{ request('month')==$m ? 'selected' : ''
+                            }}>
+                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                            </option>
+                            @endfor
+                    </select>
+
+                    <!-- Date Filter -->
+                    <select name="date" class="form-control" style="width:150px;margin-left:12px">
+                        <option value="">All Dates</option>
+                        @for ($d = 1; $d <= 31; $d++) <option value="{{ $d }}" {{ request('date')==$d ? 'selected' : ''
+                            }}>
+                            {{ $d }}
+                            </option>
+                            @endfor
+                    </select>
+
+                    <button type="submit" class="btn btn-info" style="margin-left:12px"><i class="fas fa-filter"></i>
+                        Filter</button>
+                    <a href="{{ route('settings.public_holiday') }}" class="btn btn-secondary"
+                        style="margin-left:12px"><i class="fas fa-refresh"></i> Reset</a>
+                </form>
+
+
+
                 <table class="table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Wifi Ip</th>
-                            <th>Wfi Name</th>
-                            <th>Wifi Address</th>
-                            <th>Wifi Status</th>
+                            <th>Date</th>
+                            <th>Occasion</th>
+                            <th>State</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($all_wifi as $index => $wifi)
-                        <tr class="{{ $ingredient->colorClass ?? 'xl-default' }}">
+                        @foreach($holidayData as $index => $holidays)
+                        <tr>
                             <th scope="row">{{ $index + 1 }}</th>
-                            <td>{{$wifi->wifi_ip }}</td>
-                            <td>{{$wifi->wifi_name }}</td>
-                            <td>{{$wifi->wifi_address ?: '--' }}</td>
+                            <td>{{ $holidays->full_date->format('d M Y') }}</td>
+                            <td>{{ $holidays->occasion }}</td>
+                            <td>{{ $holidays->state ?: '--' }}</td>
                             <td>
-                                @if($wifi->status == 1)
-                               <span style="color:green">Active</span>
+                                @if($holidays->status == 1)
+                                <span style="color:green">Active</span>
                                 @else
-                               <span style="color:red">Inactive</span>
+                                <span style="color:red">Inactive</span>
                                 @endif
                             </td>
                             <td>
                                 <!-- Change Status Button -->
-                                <form action="{{ route('settings.WifiIp.changeStatus', $wifi->id) }}" method="POST"
+                                <form action="{{ route('settings.holiday.changeStatus', $holidays->id) }}" method="POST"
                                     style="display:inline-block;">
                                     @csrf
                                     <button class="btn btn-sm btn-warning" title="Wifi IP Status change">
-                                        <i class="fas fa-wifi"></i> Access
+                                        <i class="fas fa-refresh"></i> Status
                                     </button>
                                 </form>
+                                &nbsp;
+                                <button class="btn btn-sm btn-primary edit-holiday-btn p-2"
+                                    data-id="{{ $holidays->id }}"
+                                    data-date="{{ $holidays->full_date->format('Y-m-d') }}"
+                                    data-occasion="{{ $holidays->occasion }}" data-state="{{ $holidays->state }}"
+                                    data-status="{{ $holidays->status }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+
                                 <!-- Delete Button --> &nbsp;
-                                <form action="{{ route('settings.WifiIp.destroy', $wifi->id) }}" method="POST"
+                                <form action="{{ route('settings.holiday.destroy', $holidays->id) }}" method="POST"
                                     style="display:inline-block;" onsubmit="return confirm('Are you sure?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="btn btn-sm btn-danger" title="Record Delete">
+                                    <button class="btn btn-sm btn-danger p-2" title="Record Delete">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
                             </td>
-
                         </tr>
                         @endforeach
                     </tbody>
+
                 </table>
             </div>
 
@@ -105,130 +144,170 @@
 </div>
 
 
-<div class="modal" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true">
+<div class="modal" id="holidayModal" tabindex="-1" aria-labelledby="holidayModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form id="ingredientForm" method="POST" action="{{ route('settings.WifiIp.store') }}">
+        <form id="holidayForm" method="POST" action="{{ route('settings.holiday.store') }}">
             @csrf
 
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="ingredientModalLabel">Add New Wifi IP</h5>
+                    <h5 class="modal-title" id="holidayModalLabel">Add New Public Holiday</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
                 </div>
 
                 <div class="modal-body">
-                    <!-- WiFi IP -->
+                    <!-- Date -->
                     <div class="mb-3">
-                        <label for="wifiIp" class="form-label">WiFi IP</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="wifiIp" name="wifi_ip" required
-                                placeholder="Enter Wifi IP">
-                            <button type="button" class="btn btn-secondary" id="checkIpBtn">Check IP</button>
-                            <button type="button" class="btn btn-success d-none" id="pasteIpBtn">Paste</button>
-                        </div>
-                        <small id="ipResult" class="text-muted"></small>
+                        <label for="holidayDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="holidayDate" name="date" required>
                     </div>
 
-                    <!-- WiFi Name -->
+                    <!-- State -->
                     <div class="mb-3">
-                        <label for="wifiName" class="form-label">WiFi Name</label>
-                        <input type="text" class="form-control" id="wifiName" name="wifi_name" required
-                            placeholder="Enter Wifi Name">
+                        <label for="holidayState" class="form-label">State</label>
+                        <input type="text" class="form-control" id="holidayState" name="state" required
+                            placeholder="Enter State Name">
                     </div>
 
-                    <!-- WiFi Address -->
+                    <!-- Occasion -->
                     <div class="mb-3">
-                        <label for="wifiAddress" class="form-label">WiFi Address</label>
-                        <input type="text" class="form-control" id="wifiAddress" name="wifi_address"
-                            placeholder="Enter Wifi Address">
+                        <label for="holidayOccasion" class="form-label">Occasion</label>
+                        <input type="text" class="form-control" id="holidayOccasion" name="occasion" required
+                            placeholder="Enter Occasion">
                     </div>
 
-                    <!-- WiFi Status -->
+                    <!-- Status -->
                     <div class="mb-3">
-                        <label class="form-label d-block">WiFi Status</label>
+                        <label class="form-label d-block">Status</label>
                         <div class="d-flex gap-4">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" id="wifiActive" name="wifi_status"
-                                    value="1" checked>
-                                <label class="form-check-label" for="wifiActive">Active</label>
+                                <input class="form-check-input" type="radio" id="holidayActive" name="status" value="1"
+                                    checked>
+                                <label class="form-check-label" for="holidayActive">Active</label>
                             </div>
                             <div class="form-check ml-4">
-                                <input class="form-check-input" type="radio" id="wifiInactive" name="wifi_status"
+                                <input class="form-check-input" type="radio" id="holidayInactive" name="status"
                                     value="0">
-                                <label class="form-check-label" for="wifiInactive">Inactive</label>
+                                <label class="form-check-label" for="holidayInactive">Inactive</label>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-info" id="ingredientSaveBtn">Save IP</button>
+                    <button type="submit" class="btn btn-info" id="holidaySaveBtn">Save Holiday</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
+<div class="modal" id="holidayEditModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="holidayEditForm" method="POST">
+            @csrf
+            @method('PUT')
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Holiday</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal">X</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Date</label>
+                        <input type="date" class="form-control" name="date" id="editDate" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Occasion</label>
+                        <input type="text" class="form-control" name="occasion" id="editOccasion" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>State</label>
+                        <input type="text" class="form-control" name="state" id="editState" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Status</label><br>
+                        <label><input type="radio" name="status" value="1" id="editStatusActive"> Active</label>
+                        <label style="margin-left:15px;"><input type="radio" name="status" value="0"
+                                id="editStatusInactive"> Inactive</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Update</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 <script>
-    let currentIP = "";
+    $(document).ready(function(){
+    $('.edit-holiday-btn').click(function(){
+        let id       = $(this).data('id');
+        let date     = $(this).data('date');
+        let occasion = $(this).data('occasion');
+        let state    = $(this).data('state');
+        let status   = $(this).data('status');
 
+        // fill modal fields
+        $('#editDate').val(date);
+        $('#editOccasion').val(occasion);
+        $('#editState').val(state);
+
+        if(status == 1){
+            $('#editStatusActive').prop('checked', true);
+        } else {
+            $('#editStatusInactive').prop('checked', true);
+        }
+
+        // set form action
+        $('#holidayEditForm').attr('action', '/settings/holiday/update/' + id);
+
+        // open modal
+        $('#holidayEditModal').modal('show');
+    });
+});
+</script>
+
+
+<script>
     $(document).ready(function () {
-
-        // Check IP button click
-        $('#checkIpBtn').click(function () {
-            $('#ipResult').text("Fetching your IP...");
-            $.getJSON("https://api.ipify.org?format=json", function (data) {
-                currentIP = data.ip;
-                $('#ipResult').text("Your IP: " + currentIP);
-                $('#pasteIpBtn').removeClass('d-none'); // Show paste button
-            });
-        });
-
-        // Paste IP button click
-        $('#pasteIpBtn').click(function () {
-            if (currentIP !== "") {
-                $('#wifiIp').val(currentIP);
-            }
-        });
-
         // Edit modal fill
-        $('.edit-ingredient-btn').click(function () {
+        $('.edit-holiday-btn').click(function () {
             const id      = $(this).data('id');
-            const ip      = $(this).data('ip');
-            const name    = $(this).data('name');
-            const address = $(this).data('address');
+            const date    = $(this).data('date');
+            const state   = $(this).data('state');
+            const occasion= $(this).data('occasion');
             const status  = $(this).data('status');
             const action  = $(this).data('action');
 
-            $('#wifiIp').val(ip);
-            $('#wifiName').val(name);
-            $('#wifiAddress').val(address);
-            $("input[name='wifi_status'][value='"+status+"']").prop('checked', true);
+            $('#holidayDate').val(date);
+            $('#holidayState').val(state);
+            $('#holidayOccasion').val(occasion);
+            $("input[name='status'][value='"+status+"']").prop('checked', true);
 
-            $('#ingredientForm').attr('action', action);
-            $('#formMethod').val('PUT');
-            $('#ingredientModalLabel').text('Edit Wifi IP');
-            $('#ingredientSaveBtn').text('Update');
+            $('#holidayForm').attr('action', action);
+            $('#holidayModalLabel').text('Edit Public Holiday');
+            $('#holidaySaveBtn').text('Update');
 
-            $('#ingredientModal').modal('show');
+            $('#holidayModal').modal('show');
         });
 
         // Reset modal
-        $('#ingredientModal').on('hidden.bs.modal', function () {
-            $('#ingredientForm').attr('action', "{{ route('settings.WifiIp.store') }}");
-            $('#formMethod').val('POST');
-            $('#wifiIp').val('');
-            $('#wifiName').val('');
-            $('#wifiAddress').val('');
-            $("input[name='wifi_status'][value='1']").prop('checked', true);
-            $('#ingredientModalLabel').text('Add New Wifi IP');
-            $('#ingredientSaveBtn').text('Save IP');
-            $('#ipResult').text('');
-            $('#pasteIpBtn').addClass('d-none');
-            currentIP = "";
+        $('#holidayModal').on('hidden.bs.modal', function () {
+            $('#holidayForm').attr('action', "{{ route('settings.holiday.store') }}");
+            $('#holidayForm')[0].reset();
+            $('#holidayModalLabel').text('Add New Public Holiday');
+            $('#holidaySaveBtn').text('Save Holiday');
         });
     });
 </script>
+
 
 
 
