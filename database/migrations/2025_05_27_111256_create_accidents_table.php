@@ -49,6 +49,10 @@ return new class extends Migration
             $table->string('emrg_serv_arrived')->nullable();
 
             $table->enum('med_attention', ['Yes', 'No'])->default('No');
+            $table->enum('ack_incident', ['1', '0'])->default('0');
+            $table->enum('ack_injury', ['1', '0'])->default('0');
+            $table->enum('ack_trauma', ['1', '0'])->default('0');
+            $table->enum('ack_illness', ['1', '0'])->default('0');
             $table->longText('med_attention_details')->nullable();
             $table->longText('provideDetails_minimise')->nullable();
 

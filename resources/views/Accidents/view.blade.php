@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Daily Journel')
+@section('title', 'Accident View Page')
 @section('parentPageTitle', 'Accidents')
 
 @section('page-styles')

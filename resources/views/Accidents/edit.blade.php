@@ -1,6 +1,6 @@
 @extends('layout.master')
-@section('title', 'Create Announcement')
-@section('parentPageTitle', 'Dashboard')
+@section('title', 'Accident Edit Page')
+@section('parentPageTitle', 'Accidents')
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
 <style>
@@ -308,15 +308,16 @@
                         <div class="form-group col-md-12">
                             <div class="form-group col-md-12">
                                 <label>
-                                    Author Signature
-                                    <span class="editbtn" data-toggle="modal" data-target="#signModal"
-                                        data-identity="author_sign">
+                                    Signature
+                                    <span class="" data-toggle="modal">
                                         <i class="fas fa-pencil-alt"></i>
                                     </span>
                                 </label>
 
                                 {{-- Disabled text input just for display --}}
-                                <input type="text" class="form-control custom-input" id="author_sign_dt" disabled>
+                                <input type="text" data-identity="author_sign" data-toggle="modal"
+                                    data-target="#signModal" class="form-control custom-input editbtn"
+                                    id="author_sign_dt" readonly>
 
                                 <div id="author_sign">
                                     <input type="hidden" name="made_person_sign" id="author_sign_txt"
@@ -439,29 +440,31 @@
                         <div class="form-group col-md-12">
                             <label>
                                 Witness Signature
-                                <span class="editbtn" data-toggle="modal" data-target="#signModal"
-                                    data-identity="witness_sign">
+                                <span>
                                     <i class="fas fa-pencil-alt"></i>
                                 </span>
                             </label>
+                            <input type="text" data-identity="witness_sign" data-toggle="modal" data-target="#signModal"
+                                class="form-control custom-input editbtn" id="witness_sign_dt" readonly>
+                            <!-- Always show input for modal trigger -->
+                            <input type="text" data-identity="witness_sign" data-toggle="modal" data-target="#signModal"
+                                class="form-control custom-input editbtn" id="witness_sign_dt" readonly
+                                style="pisplay: none">
 
-                            <input type="text" class="form-control custom-input" id="witness_sign_dt" disabled>
-
-                            <div id="witness_sign">
-                                {{-- Hidden input contains old image (URL or base64) --}}
+                            <!-- Preview area below input -->
+                            <div class="">
                                 <input type="hidden" name="witness_sign" id="witness_sign_txt"
                                     value="{{ $AccidentInfo->witness_sign ?? '' }}">
 
                                 @if (!empty($AccidentInfo->witness_sign))
                                 <img src="{{ $AccidentInfo->witness_sign }}" height="120px" width="300px"
-                                    id="witness_sign_img">
+                                    id="witness_sign_img" class="border">
                                 @else
-                                <img src="" height="120px" width="300px" id="witness_sign_img" style="display:none;">
+                                <img src="" height="120px" width="300px" id="witness_sign_img" style="display:none;"
+                                    class="border">
                                 @endif
                             </div>
                         </div>
-
-
 
 
 
@@ -804,88 +807,121 @@
                                 id="regulatory_authority_date" name="regulatory_authority_date"
                                 value="{{ old('regulatory_authority_date', $AccidentInfo->regulatory_authority_date ? \Carbon\Carbon::parse($AccidentInfo->regulatory_authority_date)->format('Y-m-d') : '') }}">
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="res_pinc">Responsible Person in Charge Name:</label>
-                                <input type="text" class="form-control custom-input" id="res_pinc"
-                                    name="responsible_person_name"
-                                    value="{{ isset($AccidentInfo->responsible_person_name) ?? '' }}">
+
+                        <div class="col-md-6">
+                            <label for="regulatory_authority_time" class="form-label">Time (Regulatory
+                                authority)</label>
+                            <input type="time" class="form-control shadow-sm custom-input"
+                                id="regulatory_authority_time" name="regulatory_authority_time"
+                                value="{{ old('regulatory_authority_time', $AccidentInfo->regulatory_authority_time ? \Carbon\Carbon::parse($AccidentInfo->regulatory_authority_time)->format('H:i') : '') }}">
+                        </div>
+
+                    </div>
+                    <div class="row mt-1" style="background-color: #0056b3;color:#fff">
+                        <div class="col-sm-12 mt-1" style="background-color: #0056b3;color:#fff">
+                            <h5 style="background-color: #0056b3;color:#fff">Parental acknowledgement</h5>
+                        </div>
+                    </div>
+                    <div class="inlineInput mt-3 mb-3">
+                        <b>I,</b> <input type="text" name="ack_parent_name" class="custom-input"
+                            value="{{ old('ack_parent_name', $AccidentInfo->ack_parent_name) }}"> (name of parent /
+                        guardian) have been notified of my child’s incident / injury / trauma / illness.
+
+                        <div class="d-flex flex-wrap gap-3 mt-1">
+                            <div class="form-check">
+                                <!-- Hidden input ensures unchecked state sends 0 -->
+                                <input type="hidden" name="ack_incident" value="0">
+                                <input class="form-check-input" type="checkbox" name="ack_incident" id="ackIncident"
+                                    value="1" {{ old('ack_incident', $AccidentInfo->ack_incident ?? false) ? 'checked' :
+                                '' }}>
+                                <label class="form-check-label" for="ackIncident">Incident</label>
                             </div>
-                            <div class="form-group col-md-6">
-                                <label>
-                                    Signature
-                                    <span class=" editbtn" data-toggle="modal" data-target="#signModal"
-                                        data-identity="incharge_sign"> <i class="fas fa-pencil-alt"></i></span>
-                                </label>
-                                <input type="text" class="form-control custom-input" id="res_pinc_dt" disabled>
-                                <div id="incharge_sign">
-                                    <input type="hidden" name="responsible_person_sign" id="res_pinc_txt" value="">
-                                    @if (!empty($AccidentInfo->responsible_person_sign))
-                                    <img src="{{ $AccidentInfo->responsible_person_sign }}" height="120px" width="300px"
-                                        id="res_pinc_img">
-                                    @else
-                                    <img src="" height="120px" width="300px" id="res_pinc_img">
-                                    @endif
+
+                            <div class="form-check ml-3">
+                                <input type="hidden" name="ack_injury" value="0">
+                                <input class="form-check-input" type="checkbox" name="ack_injury" id="ackInjury"
+                                    value="1" {{ old('ack_injury', $AccidentInfo->ack_injury ?? false) ? 'checked' : ''
+                                }}>
+                                <label class="form-check-label" for="ackInjury">Injury</label>
+                            </div>
+
+                            <div class="form-check ml-3">
+                                <input type="hidden" name="ack_trauma" value="0">
+                                <input class="form-check-input" type="checkbox" name="ack_trauma" id="ackTrauma"
+                                    value="1" {{ old('ack_trauma', $AccidentInfo->ack_trauma ?? false) ? 'checked' : ''
+                                }}>
+                                <label class="form-check-label" for="ackTrauma">Trauma</label>
+                            </div>
+
+                            <div class="form-check ml-3">
+                                <input type="hidden" name="ack_illness" value="0">
+                                <input class="form-check-input" type="checkbox" name="ack_illness" id="ackIllness"
+                                    value="1" {{ old('ack_illness', $AccidentInfo->ack_illness ?? false) ? 'checked' :
+                                '' }}>
+                                <label class="form-check-label" for="ackIllness">Illness</label>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="RegulatoryauthorityDate">Date</label>
+                            <input type="date" class="form-control custom-input" id="RegulatoryauthorityDate"
+                                name="ack_date"
+                                value="{{ old('ack_date', $AccidentInfo->ack_date ? \Carbon\Carbon::parse($AccidentInfo->ack_date)->format('Y-m-d') : '') }}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="RegulatoryauthorityTime">Time</label>
+                            <input type="time" class="form-control custom-input" id="RegulatoryauthorityTime"
+                                name="ack_time"
+                                value="{{ old('ack_time', $AccidentInfo->ack_time ? \Carbon\Carbon::parse($AccidentInfo->ack_time)->format('H:i') : '') }}">
+                        </div>
+                        {{-- <div class="col-md-12 mb-3">
+                            <label class="form-label">Final Signature</label>
+                            <input type="text" class="form-control shadow-sm custom-input" data-toggle="modal"
+                                data-target="#signModal" data-identity="final_sign" id="final_sign_input"
+                                style="cursor: pointer; display: {{ $AccidentInfo->final_sign ? 'none' : 'block' }};"
+                                placeholder="Click to add signature" readonly>
+                            <div id="final_sign_preview" class="border rounded bg-light p-2 shadow-sm mt-2"
+                                style="display: {{ $AccidentInfo->final_sign ? 'block' : 'none' }};">
+                                <input type="hidden" name="final_sign" id="final_sign_txt"
+                                    value="{{ $AccidentInfo->final_sign }}">
+                                <div id="final_sign_container" style="position: relative; display: inline-block;">
+                                    <img src="{{ $AccidentInfo->final_sign }}" height="120" width="350"
+                                        id="final_sign_img" class="img-thumbnail" alt="Final Signature"
+                                        style="display: {{ $AccidentInfo->final_sign ? 'block' : 'none' }};">
+                                    <span id="remove_final_sign"
+                                        style="position: absolute; top: 5px; right: 8px; cursor: pointer; color: #fff; background: red; border-radius: 50%; padding: 0 8px; font-weight: bold; font-size: 16px; line-height: 20px; display: {{ $AccidentInfo->final_sign ? 'block' : 'none' }};">
+                                        ×
+                                    </span>
                                 </div>
+                            </div>
+                        </div> --}}
 
+                        <div class="form-group col-md-12">
+                            <label>
+                                Final Signature
+                                <span>
+                                    <i class="fas fa-pencil-alt"></i>
+                                </span>
+                            </label>
+
+                            {{-- Disabled text input just for display --}}
+                            <input type="text" data-toggle="modal" data-target="#signModal" data-identity="final_sign"
+                                class="form-control custom-input editbtn" id="final_sign_dt" readonly>
+
+                            <div id="final_sign">
+                                <input type="hidden" name="final_sign" id="final_sign_txt"
+                                    value="{{ $AccidentInfo->final_sign ?? '' }}">
+
+                                @if (!empty($AccidentInfo->final_sign))
+                                <img src="{{ $AccidentInfo->final_sign }}" height="120px" width="300px"
+                                    id="final_sign_img">
+                                @else
+                                <img src="" height="120px" width="300px" id="final_sign_img" style="display:none;">
+                                @endif
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="rp_internal_notif_date">Date</label>
-                                <input type="date" class="form-control custom-input" id="rp_internal_notif_date"
-                                    name="rp_internal_notif_date"
-                                    value="{{ $AccidentInfo->rp_internal_notif_date ?? '' }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="rp_internal_notif_time">Time</label>
-                                <input type="time" class="form-control custom-input" id="rp_internal_notif_time"
-                                    name="rp_internal_notif_time"
-                                    value="{{ $AccidentInfo->rp_internal_notif_time ?? '' }}">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="nom_sv">Nominated Supervisor Name:</label>
-                                <input type="text" class="form-control custom-input" id="nom_sv"
-                                    name="nominated_supervisor_name"
-                                    value="{{ $AccidentInfo->nominated_supervisor_name ?? '' }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>
-                                    Signature
-                                    <span class=" editbtn" data-toggle="modal" data-target="#signModal"
-                                        data-identity="supervisor_sign"><i class="fas fa-pencil-alt"></i></span>
-                                </label>
-                                <input type="text" class="form-control custom-input" id="nom_svs_dt" disabled>
-                                <div id="supervisor_sign">
-                                    <input type="hidden" name="nominated_supervisor_sign" id="nsv_sign_txt" value="">
-
-                                    @if (!empty($AccidentInfo->nominated_supervisor_sign))
-                                    <img src="{{ $AccidentInfo->nominated_supervisor_sign }}" height="120px"
-                                        width="300px" id="nsv_sign_img">
-                                    @else
-                                    <img src="" height="120px" width="300px" id="nsv_sign_img">
-                                    @endif
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="nsv_date">Date</label>
-                                <input type="date" class="form-control custom-input" id="nsv_date" name="nsv_date"
-                                    value="{{ $AccidentInfo->nominated_supervisor_date ?? '' }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="nsv_time">Time</label>
-                                <input type="time" class="form-control custom-input" id="nsv_time" name="nsv_time"
-                                    value="{{ $AccidentInfo->nominated_supervisor_time ?? '' }}">
-                            </div>
-                        </div>
-
-
 
 
                     </div>
@@ -900,14 +936,16 @@
                                 rows="8">{{ old('add_notes', $AccidentInfo->add_notes) }}</textarea>
                         </div>
                     </div>
-                    <div class="row m-2">
+                    <div class="row m-4">
                         <div class="col-sm-12 text-right">
                             <div class="formSubmit">
-                                <button type="button" id="form-submit" class="btn btn-success">Update &amp;
-                                    Save</button>
-                                <a class="btn-warning p-2 rounded"
-                                    href="{{ route('Accidents.list', ['centerid' => request()->get('centerid'), 'roomid' => request()->get('roomid')]) }}">Cancel</a>
 
+                                <a class="btn-warning p-2 rounded"
+                                    href="{{ route('Accidents.list', ['centerid' => request()->get('centerid'), 'roomid' => request()->get('roomid')]) }}"
+                                    style="padding: 12px !important;border-radius: 5px">Cancel</a> &nbsp;&nbsp;&nbsp;
+
+                                <button type="button" id="form-submit" class="btn btn-success p-2">Update &amp;
+                                    Save</button>
 
                             </div>
                         </div>
@@ -941,9 +979,9 @@
                 </div>
                 <div class="modal-footer text-right">
                     <br>
-                    <button type="button" class="btn btn-default btn-sm btn-danger" data-dismiss="modal">Exit</button>
-                    <button type="button" class="btn btn-default btn-sm btn-success " id="btnSignature" data-identity=""
-                        data-dismiss="modal">Use</button>
+                    <button type="button" class="btn btn-danger " data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success " id="btnSignature" data-identity=""
+                        data-dismiss="modal">Save</button>
                 </div>
             </div>
         </div>
@@ -1002,9 +1040,13 @@
     let res_pinc_img = $('#res_pinc_img').attr('src');
     let nsv_sign_img = $('#nsv_sign_img').attr('src');
 
+
+
+
     if (src && src.trim() !== '') {
         $('#witness_sign').show();
         $('#witness_sign_dt').hide();
+
     } else if (personsrc && personsrc.trim() !== '') {
         $('#person_sign').show();
         $('#person_sign_dt').hide();
@@ -1028,28 +1070,17 @@
             $('#person_sign_dt').hide();
             $('#person_sign_img').attr('src', _signature);
             $('#person_sign_txt').val(_signature);
-        }else if (_identity === "witness_sign") {
-    $('#witness_sign').show();
+        }
+
 
     // Only update if new signature is provided
-    if (_signature && _signature.trim() !== "") {
-        $('#witness_sign_img').attr('src', _signature).show();
-        $('#witness_sign_txt').val(_signature); // overwrite with new base64
-    }
+  else if (_identity === "witness_sign") {
+    $('#witness_sign').show(); // show wrapper when signature exists
+    $('#witness_sign_img').attr('src', _signature).show();
+    $('#witness_sign_txt').val(_signature);
+    $('#remove_witness_sign').show();   // optional remove button
+    $('#witness_sign_input').hide();    // optional input toggle
 }
-
-
- else if (_identity === "incharge_sign") {
-            $('#incharge_sign').show();
-            $('#res_pinc_dt').hide();
-            $('#res_pinc_img').attr('src', _signature);
-            $('#res_pinc_txt').val(_signature);
-        } else if (_identity === "supervisor_sign") {
-            $('#supervisor_sign').show();
-            $('#nom_svs_dt').hide();
-            $('#nsv_sign_img').attr('src', _signature);
-            $('#nsv_sign_txt').val(_signature);
-        }
 
 else if (_identity === "final_sign") {
     $('#final_sign_preview').show(); // show wrapper when signature exists

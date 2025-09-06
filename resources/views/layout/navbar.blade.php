@@ -143,7 +143,6 @@
 
 
 
-
             <div id="navbar-menu">
                 <ul class="nav navbar-nav">
 
@@ -152,7 +151,7 @@
                     $notifications = auth()->user()->unreadNotifications;
                     @endphp
                     <li class="dropdown" style="margin-right: 35px;margin-top: 0px;">
-                      
+
 
                     <a href="javascript:void(0);" class="dropdown-toggle icon-menu notification-bell" data-toggle="dropdown" title="Notifications">
     <i class="fa fa-bell"></i>

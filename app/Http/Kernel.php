@@ -36,12 +36,14 @@ class Kernel extends HttpKernel
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            
+
         ],
     ];
 
     protected $routeMiddleware = [
         'auth' => \App\Http\Middleware\Authenticate::class,
+        'officewifi' => \App\Http\Middleware\CheckOfficeWifi::class,
+        'officewifi' => \App\Http\Middleware\CheckOfficeWifi::class,
         // 'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         // 'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         // Add custom middleware like:
