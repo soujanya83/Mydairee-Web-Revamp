@@ -404,7 +404,7 @@
                 <div class="container">
                     <!-- Back Button -->
                     <a href="{{ route('settings.manage_permissions') }}" class="back-btn">
-                        <i class="fas fa-arrow-left"></i> Back to Manage Permissions
+                        <i class="fas fa-arrow-left"></i> Back to Manage Permissions 
                     </a>
 
                     <!-- User Information -->
@@ -504,9 +504,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -537,9 +537,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -570,9 +570,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -603,9 +603,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -636,9 +636,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -669,9 +669,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -702,9 +702,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -735,9 +735,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -768,9 +768,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -801,9 +801,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -834,9 +834,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox"  class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -867,9 +867,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -900,9 +900,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -933,9 +933,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -966,9 +966,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -999,9 +999,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -1032,9 +1032,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -1065,9 +1065,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -1097,9 +1097,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox" class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -1131,9 +1131,9 @@
                                         {{ $perm['label'] }}
                                     </label>
                                     <label class="switch">
-                                        <input type="checkbox" {{ ($userPermissions->{$perm['name']} ?? false) ?
+                                        <input type="checkbox"  class="permission-toggle"  data-permission="{{ $perm['name'] }}" {{ ($userPermissions->{$perm['name']} ?? false) ?
                                         'checked' : '' }}
-                                        disabled>
+                                        >
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -1159,6 +1159,38 @@
         </div>
     </div>
 </div>
+
+
+<script>
+$(document).ready(function(){
+    $('.permission-toggle').on('change', function() {
+        let permissionName = $(this).data('permission');
+        let isChecked = $(this).is(':checked') ? 1 : 0;
+        let userid = {{ $username->userid}};
+
+        console.log(permissionName);
+        console.log(isChecked);
+console.log(userid);
+        $.ajax({
+            url: '{{ route("settings.update-permission")}}',   // Your route here
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                permission: permissionName,
+                value: isChecked,
+                userid:userid
+            },
+            success: function(response) {
+                console.log('Permission updated:', response);
+            },
+            error: function(xhr) {
+                console.error('Error updating permission:', xhr.responseText);
+                alert('Failed to update permission. Please try again.');
+            }
+        });
+    });
+});
+</script>
 
 @include('layout.footer')
 @endsection

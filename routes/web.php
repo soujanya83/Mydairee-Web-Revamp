@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Artisan;
 
 // share observation to family , feature for parents
 Route::get('/child/observation-link/{id}', [ObservationsController::class, 'print'])->name('sharelink');
+Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
 
 Route::get('/logout', function () {
     Auth::logout();
@@ -322,6 +323,8 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
     Route::get('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name('Observation.addSubActivity');
 
     Route::prefix('settings')->name('settings.')->group(function () {
+        Route::post('/update-permission', [PermissionController::class, 'updatepermission'])->name('update-permission');
+
 
         Route::post('/updateStatusSuperadmin', [SettingsController::class, 'updateStatusSuperadmin'])->name('updateStatusSuperadmin');
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
@@ -376,6 +379,7 @@ Route::middleware(['web', 'auth', ClearCacheAfterLogout::class])->group(function
 
 
     Route::prefix('observation')->name('observation.')->group(function () {
+         Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
         Route::post('/ai-assist', [ObservationsController::class, 'AiAssistance'])->name('ai-assist');
         Route::get('/index', [ObservationsController::class, 'index'])->name('index');
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');

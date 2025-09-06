@@ -543,52 +543,63 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var calendarEl = document.getElementById('calendar');
+  const calendarEl = document.getElementById('calendar');
+  const centerId = calendarEl.dataset.centerid;
 
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'title',
-            right: 'prev,next today'
-        },
-        height: 500,
-        themeSystem: 'standard',
+  const formatYMD = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`; // avoids timezone issues from toISOString()
+  };
 
-        dayCellDidMount: function (info) {
-            let today = new Date();
-            let cellDate = new Date(info.date);
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    headerToolbar: { left: 'title', right: 'prev,next today' },
+    height: 500,
+    themeSystem: 'standard',
 
-            // ✅ Only today and future dates
-            if (cellDate >= new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
-                let btn = document.createElement('button');
-                btn.innerHTML = '+';
-                btn.className = 'add-announcement-btn';
-                    btn.setAttribute('data-toggle', 'tooltip');
-                    btn.setAttribute('title', 'Add Announcement');
-                btn.style.cssText = `
-                    position:absolute;
-                    top:-8px;
-                    left:2px;
-                    font-size:16px;
-                    border:none;
-                    border-radius:50%;
-                    color:green;
-                    cursor:pointer;
-                `;
-                btn.onclick = function (e) {
-                    // e.stopPropagation();
-      window.location.href = "/announcements/create?centerid={{ session('user_center_id') }}";
+    dayCellDidMount: function (info) {
+      const today = new Date();
+      const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const cellDate = new Date(info.date.getFullYear(), info.date.getMonth(), info.date.getDate());
 
-                };
+      // ✅ Only today and future dates
+      if (cellDate >= startOfToday) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = '+';
+        btn.className = 'add-announcement-btn';
+        btn.setAttribute('data-toggle', 'tooltip');
+        btn.setAttribute('title', 'Add Announcement');
+        btn.style.cssText = `
+          position:absolute;
+          top:-8px;
+          left:2px;
+          font-size:16px;
+          border:none;
+          border-radius:50%;
+          color:green;
+          cursor:pointer;
+        `;
 
-                info.el.style.position = 'relative'; // ensure positioning
-                info.el.appendChild(btn);
-            }
-        }
-    });
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation(); // prevent calendar’s own click handling
+          const selectedDate = formatYMD(info.date); // ← use the cell's date
+          const url = `/announcements/create?centerid=${encodeURIComponent(centerId)}&date=${encodeURIComponent(selectedDate)}`;
+          window.location.assign(url);
+        });
 
-    calendar.render();
+        info.el.style.position = 'relative'; // ensure positioning
+        info.el.appendChild(btn);
+      }
+    }
+  });
+
+  calendar.render();
 });
+
 </script>
 
 <!-- <script>

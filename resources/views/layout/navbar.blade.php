@@ -107,6 +107,18 @@
 }
 
 
+
+.btn-toggle-fullwidth i {
+    font-family: "Font Awesome 5 Free"; /* depends on your FA version */
+    font-weight: 900; /* needed for solid icons in FA5+ */
+    content: "\f0c9" !important; /* Unicode for fa-bars */
+    font-size: 22px !important;
+}
+
+.btn-toggle-fullwidth i.fa-bars {
+    font-size: 22px !important;
+}
+
 </style>
 <nav class="navbar navbar-fixed-top" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
     <div class="container-fluid">
@@ -259,7 +271,7 @@
     </div>
 </nav>
 
-<script>
+<!-- <script>
     $('.btn-toggle-fullwidth').on('click', function(e) {
         e.preventDefault();
 
@@ -267,13 +279,31 @@
         $('#left-sidebar').toggleClass('minified');
 
         // Toggle the icon
-        $(this).find('i').toggleClass('fa-arrow-left fa-arrow-left');
+        $(this).find('i').toggleClass('fa-arrow-right fa-arrow-right');
 
         // Prevent the default layout-fullwidth class from being added to body
         $('body').removeClass('layout-fullwidth');
     });
-</script>
+</script> -->
+
 <script>
+$('.btn-toggle-fullwidth').on('click', function(e) {
+    e.preventDefault();
+
+    // Toggle sidebar collapse/expand
+    $('#left-sidebar').toggleClass('minified');
+
+    // Force the icon inside button to always stay fa-bars
+    $(this).find('i')
+        .removeClass()
+        .addClass('fa fa-bars')
+        .css('font-size', '22px !important');
+
+    // Prevent layout-fullwidth class from being added
+    $('body').removeClass('layout-fullwidth');
+});
+
+
     function markAsRead(event, notificationId) {
         event.preventDefault();
 

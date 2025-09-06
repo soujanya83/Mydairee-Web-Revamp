@@ -50,10 +50,400 @@ use Illuminate\Support\Str;
 use App\Notifications\ObservationAdded;
 use Illuminate\Support\Facades\Mail;
 
-
-
 class ObservationsController extends Controller
 {
+
+// public function TranslateObservation(Request $request)
+// {
+//     $reflection  = $request->reflection;
+//     $observation = $request->observation;
+//     $childvoice  = $request->childvoice;
+//     $futureplan  = $request->futureplan;
+//     $analysis    = $request->analysis;
+//     $language    = $request->language;
+//     $eylf = $request->eylf;
+//     $development_milestone = $request->development_milestone;
+//     $montessori_assesment = $request->montessori_assesment;
+
+//     // Combine all fields into one text for translation
+//     $texts = [
+//         'reflection' => $reflection,
+//         'observation' => $observation,
+//         'childvoice' => $childvoice,
+//         'futureplan' => $futureplan,
+//         'analysis' => $analysis,
+//         'eylf' => $eylf,
+//         'development_milestone' => $development_milestone,
+//         'montessori_assesment' => $montessori_assesment
+//     ];
+
+//     $translatedData = [];
+
+//     foreach($texts as $key => $text) {
+//         if (!empty($text)) {
+//             $translatedData[$key] = $this->translateApi($text, $language);
+//         } else {
+//             $translatedData[$key] = ''; // or null, depending on your preference
+//         }
+//     }
+
+//     return response()->json([
+//         'status' => true,
+//         'message' => 'translated successfully',
+//         'data' => $translatedData
+//     ]);
+// }
+
+
+
+// public function translateApi($text, $language)
+// {
+//      $apiKey = 'sk-d1febdfb38e3491391e5ca4ce911be5c';
+
+//     $prompt = "You are a professional translator. 
+//     Translate the following text into {$language}. 
+//     Keep the tone natural, fluent, and professional. 
+//     Maintain the original structure (headings, bullet points, etc.). 
+//     Return only the translated version, without any explanations.
+
+//     Text:
+//     {$text}";
+
+//     $response = Http::withHeaders([
+//         'Authorization' => "Bearer $apiKey",
+//         'Content-Type'  => 'application/json',
+//     ])->timeout(60)
+//         ->retry(3, 2000)->post('https://api.deepseek.com/chat/completions', [
+//         "model"    => "deepseek-chat",
+//         "messages" => [
+//             ["role" => "system", "content" => "You are a professional translator."],
+//             ["role" => "user", "content" => $prompt]
+//         ]
+//     ]);
+
+//     $json = $response->json();
+//     return $json['choices'][0]['message']['content'] ?? $text;
+// }
+
+
+
+// private function translateApi($fields, $targetLanguage)
+// {
+
+//      ini_set('max_execution_time', 300); // 5 minutes
+//     ini_set('default_socket_timeout', 300); 
+
+//     $apiKey = 'sk-d1febdfb38e3491391e5ca4ce911be5c';
+   
+
+//     $prompt = "Translate the following sections to {$targetLanguage},  including the text inside parentheses
+//     Maintain the section labels (Reflection, Observation, etc.) in English.
+//     Translate only the content after each label.
+//     Keep the structure exactly the same.
+
+//     Text:
+//     {$fields}
+
+//     Translated version:";
+
+//     $response = Http::withHeaders([
+//         'Authorization' => "Bearer {$apiKey}",
+//         'Content-Type' => 'application/json',
+//     ])
+//      ->timeout(120) // Increased from 60 to 120 seconds
+//         ->connectTimeout(120) // Connection timeout
+//         ->retry(3, 2000, function ($exception, $request) {
+//             // Retry only on timeout or connection errors
+//             return $exception instanceof \Illuminate\Http\Client\ConnectionException;
+//         })
+//     ->post('https://api.deepseek.com/chat/completions', [
+//         "model" => "deepseek-chat",
+//         "messages" => [
+//             [
+//                 "role" => "system", 
+//                 "content" => "You translate text while preserving section labels and structure."
+//             ],
+//             [
+//                 "role" => "user", 
+//                 "content" => $prompt
+//             ]
+//         ],
+//         "temperature" => 1.3
+//     ]);
+
+//     $data = $response->json();
+    
+//     return $data['choices'][0]['message']['content'];
+// }
+
+
+// public function TranslateObservation(Request $request)
+// {
+
+//           ini_set('max_execution_time', 300); // 5 minutes
+//     ini_set('default_socket_timeout', 300); 
+//     $texts = [
+//         'reflection' => $request->reflection,
+//         'observation' => $request->observation,
+//         'childvoice' => $request->childvoice,
+//         'futureplan' => $request->futureplan,
+//         'analysis' => $request->analysis,
+//         'eylf' => $request->eylf,
+//         'development_milestone' => $request->development_milestone,
+//         'montessori_assesment' => $request->montessori_assesment
+//     ];
+
+//     $apiKey = 'sk-d1febdfb38e3491391e5ca4ce911be5c';
+//     $language = $request->language;
+
+//     // run requests in parallel
+//     $responses = Http::pool(function ($pool) use ($texts, $language, $apiKey) {
+//         $promises = [];
+
+//         foreach ($texts as $key => $text) {
+//             if (!empty($text)) {
+//                 $prompt = "Translate the following section to {$language}, including text inside parentheses.
+//                 Maintain the section labels ({$key}) in English.
+//                 Translate only the content after each label.
+//                 Keep the structure exactly the same.
+
+//                 Text:
+//                 {$text}
+
+//                 Translated version:";
+
+//                 $promises[$key] = $pool->withHeaders([
+//                     'Authorization' => "Bearer {$apiKey}",
+//                     'Content-Type' => 'application/json',
+//                 ])
+//                  ->timeout(120) // Increased from 60 to 120 seconds
+//         ->connectTimeout(120) // Connection timeout
+//         ->retry(3, 2000, function ($exception, $request) {
+//              // Retry only on timeout or connection errors
+//             return $exception instanceof \Illuminate\Http\Client\ConnectionException;
+//          })->post('https://api.deepseek.com/chat/completions', [
+//                     "model" => "deepseek-chat",
+//                     "messages" => [
+//                         ["role" => "system", "content" => "You translate text while preserving section labels and structure."],
+//                         ["role" => "user", "content" => $prompt]
+//                     ],
+//                     "temperature" => 1.3
+//                 ]);
+//             }
+//         }
+
+//         return $promises;
+//     });
+
+//     Log::info('Raw responses:', $responses);
+
+//     // map results
+//     $translatedData = [];
+//     foreach ($texts as $key => $text) {
+//         if (!empty($text) && isset($responses[$key])) {
+//             $data = $responses[$key]->json();
+
+
+//              Log::info("Translation response for {$key}: " . json_encode($data));
+
+//             $translatedData[$key] = $data['choices'][0]['message']['content'] ?? '';
+//         } else {
+//                        Log::error("API Error for {$key}: " . $response->status() . " - " . $response->body());
+//             $translatedData[$key] = '';
+//         }
+//     }
+
+//     return response()->json([
+//         'status' => true,
+//         'message' => 'translated successfully',
+//         'data' => $translatedData
+//     ]);
+// }
+
+// public function TranslateObservation(Request $request)
+// {
+//     ini_set('max_execution_time', 300);
+//     ini_set('default_socket_timeout', 300);
+    
+//     $texts = [
+//         'reflection' => $request->reflection,
+//         'observation' => $request->observation,
+//         'childvoice' => $request->childvoice,
+//         'futureplan' => $request->futureplan,
+//         'analysis' => $request->analysis,
+//         'eylf' => $request->eylf,
+//         'development_milestone' => $request->development_milestone,
+//         'montessori_assesment' => $request->montessori_assesment
+//     ];
+
+//     $apiKey = 'sk-d1febdfb38e3491391e5ca4ce911be5c';
+//     $language = $request->language;
+
+//     // Debug: Check if texts are actually being received
+//     Log::info('Input texts:', $texts);
+//     Log::info('Language: ' . $language);
+
+//     $responses = Http::pool(function ($pool) use ($texts, $language, $apiKey) {
+//         $promises = [];
+
+//         foreach ($texts as $key => $text) {
+//             if (!empty($text)) {
+//                 $prompt = "Translate the following section to {$language}, including text inside parentheses.
+//                 Maintain the section labels ({$key}) in English.
+//                 Translate only the content after each label.
+//                 Keep the structure exactly the same.
+
+//                 Text:
+//                 {$text}
+
+//                 Translated version:";
+
+//                 $promises[$key] = $pool->withHeaders([
+//                     'Authorization' => "Bearer {$apiKey}",
+//                     'Content-Type' => 'application/json',
+//                 ])
+//                 ->timeout(120)
+//                 ->connectTimeout(120)
+//                 ->retry(3, 2000, function ($exception, $request) {
+//                     return $exception instanceof \Illuminate\Http\Client\ConnectionException;
+//                 })
+//                 ->post('https://api.deepseek.com/chat/completions', [
+//                     "model" => "deepseek-chat",
+//                     "messages" => [
+//                         ["role" => "system", "content" => "You translate text while preserving section labels and structure."],
+//                         ["role" => "user", "content" => $prompt]
+//                     ],
+//                     "temperature" => 1.3
+//                 ]);
+//             }
+//         }
+
+//         return $promises;
+//     });
+
+//     // Debug: Check the raw responses
+//     Log::info('Raw responses:', $responses);
+
+//     $translatedData = [];
+//   $keys = array_keys($texts);
+
+// foreach ($keys as $i => $key) {
+//     $response = $responses[$i];
+
+//     if (!empty($texts[$key]) && $response && $response->successful()) {
+//         $data = $response->json();
+//         $translatedData[$key] = $data['choices'][0]['message']['content'] ?? '';
+//     } else {
+//         $translatedData[$key] = '';
+//     }
+// }
+
+//     return response()->json([
+//         'status' => true,
+//         'message' => 'translated successfully',
+//         'data' => $translatedData
+//     ]);
+// }
+
+public function TranslateObservation(Request $request)
+{
+    ini_set('max_execution_time', 300);
+    ini_set('default_socket_timeout', 300);
+
+    $texts = [
+        'reflection'              => $request->reflection,
+        'observation'             => $request->observation,
+        'childvoice'              => $request->childvoice,
+        'futureplan'              => $request->futureplan,
+        'analysis'                => $request->analysis,
+        'eylf'                    => $request->eylf,
+        'development_milestone'   => $request->development_milestone,
+        'montessori_assesment'    => $request->montessori_assesment
+    ];
+
+    $apiKey   = 'sk-d1febdfb38e3491391e5ca4ce911be5c'; 
+    $language = $request->language;
+
+    // Log::info('Input texts:', $texts);
+    // Log::info('Language: ' . $language);
+
+    // keep track of which keys we are actually sending
+    $keysToTranslate = [];
+
+    $responses = Http::pool(function ($pool) use ($texts, $language, $apiKey, &$keysToTranslate) {
+        $requests = [];
+
+        foreach ($texts as $key => $text) {
+            if (!empty($text)) {
+                $keysToTranslate[] = $key; // mark this key as active
+
+                $prompt = "Translate the following section to {$language}, including text inside parentheses.
+                Translate only the content after each label.
+                Keep the structure exactly the same.
+
+                Text:
+                {$text}
+
+                Translated version:";
+
+                $requests[] = $pool->withHeaders([
+                    'Authorization' => "Bearer {$apiKey}",
+                    'Content-Type'  => 'application/json',
+                ])
+                ->timeout(120)
+                ->connectTimeout(120)
+                ->retry(3, 2000, function ($exception) {
+                    return $exception instanceof \Illuminate\Http\Client\ConnectionException;
+                })
+                ->post('https://api.deepseek.com/chat/completions', [
+                    "model"     => "deepseek-chat",
+                    "messages"  => [
+                        ["role" => "system", "content" => "You translate text while preserving section labels and structure."],
+                        ["role" => "user", "content" => $prompt]
+                    ],
+                     "temperature" => 1.3,    // DeepSeek's recommendation
+                    "top_p" => 0.9,          // Faster sampling
+                    "max_tokens" => 800,     // Reasonable limit
+                    "stream" => false    
+                ]);
+            }
+        }
+
+        return $requests;
+    });
+
+    // Log::info('Raw responses:', $responses);
+
+    // Map results back to keys
+    $translatedData = [];
+    $responseIndex  = 0;
+
+    foreach ($texts as $key => $text) {
+        if (!empty($text) && isset($keysToTranslate[$responseIndex])) {
+            $response = $responses[$responseIndex];
+
+            if ($response && $response->successful()) {
+                $data = $response->json();
+                $translatedData[$key] = $data['choices'][0]['message']['content'] ?? '';
+            } else {
+                $translatedData[$key] = '';
+            }
+
+            $responseIndex++;
+        } else {
+            // text was empty → just keep empty
+            $translatedData[$key] = '';
+        }
+    }
+
+    return response()->json([
+        'status'  => true,
+        'message' => 'translated successfully',
+        'data'    => $translatedData
+    ]);
+}
+
+
 
 public function shareObservation(Request $request)
 {
@@ -135,109 +525,564 @@ public function shareObservation(Request $request)
     }
 
 
-function AiAssistance(Request $request){
+// function AiAssistance(Request $request){
 
-    $observation = $request->observation;
-    // dd($observation);
+//     $observation = $request->observation;
+//     // dd($observation);
     
-   $response = $this->AiAssistanceRefiner($observation);
+//    $response = $this->AiAssistanceRefiner($observation);
 
-$analysis = $reflection = $futurePlan = $childVoice = null;
+//    $response = is_array($response) ? $response : json_decode($response, true);
 
-if (preg_match('/### \*\*Analysis\/Evaluation\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
-    $analysis = $this->formatAiText(trim($match[1]));
-  
-}
+// $analysis = $reflection = $futurePlan = $childVoice = null;
 
-if (preg_match('/### \*\*Reflection\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
-    $reflection = $this->formatAiText(trim($match[1]));
-}
+// if( $response ){
+// $childVoice = $response['child_voice'];
+// $reflection = $response['reflection'];
+// $analysis = $response['analysis'];
+// $futurePlan = $response['future_plan'];
+// }
 
-if (preg_match('/### \*\*Future Plan\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
-    $futurePlan =  $this->formatAiText(trim($match[1]));
-}
 
-if (preg_match('/###\s*\*\*Child[’\'`s]*\s*Voices?\*\*\n\n(.*)/si', $response, $match)) {
-     $childVoice1 =  trim($match[1]);
-    $childVoice =  $this->formatAiText(trim($match[1]));
-    // refin
-}
-//   dd(  $analysis);
 
-$data = [
-    'raw' => $response,
- 'analysis'   => $analysis,
-    'reflection' => $reflection,
-    'futurePlan' => $futurePlan,
-    'childVoice' => $childVoice,
-    'childVoice1' => $childVoice1
-];
+// $data = [
+//     'raw' => $response,
+//  'analysis'   => $analysis,
+//     'reflection' => $reflection,
+//     'futurePlan' => $futurePlan,
+//     'childVoice' => $childVoice,
 
-return response()->json([
-    'status' => true,
-    'message' => 'Text retrieved successfully',
-    'data' => $data
+    
+// ];
+
+// return response()->json([
+//     'status' => true,
+//     'message' => 'Text retrieved successfully',
+//     'data' => $data
 
    
-]);
+// ]);
 
+// }
+
+//     private function AiAssistanceRefiner($observation)
+//     {
+//         $apiKey = 'sk-d1febdfb38e3491391e5ca4ce911be5c'; 
+//         $response = Http::withHeaders([
+//             'Authorization' => "Bearer $apiKey",
+//             'Content-Type' => 'application/json',
+//         ])
+//         ->timeout(60)
+//         ->retry(3, 2000)->post('https://api.deepseek.com/chat/completions', [
+//             "model" => "deepseek-chat",
+//                     "messages" => [
+//                 [
+//                     "role" => "system",
+//                     "content" => "You are an assistant that rewrites observations. As an expert in child development, please generate an analysis and evaluation of daily activities, include reflections on progress and challenges, outline future plans to support growth, and incorporate authentic child voice using simple, everyday English suitable for a general audience. Always output in JSON with the following keys: analysis, reflection, future_plan, child_voice."
+//                 ],
+//                 [
+//                     "role" => "user",
+//                     "content" => "Observation: \"$observation\""
+//                 ]
+// ]
+
+//         ]);
+
+//         $json = $response->json();
+
+//         return $json['choices'][0]['message']['content'] ?? $observation;
+//     }
+
+//     public function AiAssistance(Request $request)
+// {
+//     ini_set('max_execution_time', 300);
+//     ini_set('default_socket_timeout', 300);
+
+//     $observation = $request->observation;
+//     $apiKey      = 'sk-d1febdfb38e3491391e5ca4ce911be5c';
+
+//     // Define sections & their custom prompts
+//     $sections = [
+//         'analysis'    => "You are an assistant that rewrites observations. As an expert in child development, please generate an analysis and evaluation of daily activities using simple, everyday English suitable for a general audience",
+//         'reflection'  => "You are an assistant that rewrites observations. As an expert in child development, please generate an include reflections on progress and challenges using simple, everyday English suitable for a general audience",
+//         'future_plan' => "You are an assistant that rewrites observations. As an expert in child development, please generate an outline future plans to support growth using simple, everyday English suitable for a general audience",
+      
+//     ];
+
+//     $responses = Http::pool(function ($pool) use ($sections, $apiKey) {
+//         $requests = [];
+
+//         foreach ($sections as $key => $prompt) {
+//             $requests[$key] = $pool->withHeaders([
+//                 'Authorization' => "Bearer {$apiKey}",
+//                 'Content-Type'  => 'application/json',
+//             ])
+//             ->timeout(120)
+//             ->connectTimeout(120)
+//             ->retry(3, 2000, function ($exception) {
+//                 return $exception instanceof \Illuminate\Http\Client\ConnectionException;
+//             })
+//             ->post('https://api.deepseek.com/chat/completions', [
+//                 "model"    => "deepseek-chat",
+//                 "messages" => [
+//                     ["role" => "system", "content" => "You are an assistant that rewrites observations in JSON-friendly format."],
+//                     ["role" => "user", "content" => $prompt]
+//                 ],
+//                 "temperature" => 0.7,
+//                 "max_tokens"  => 600,
+//                 "stream"      => false
+//             ]);
+//         }
+
+//         return $requests;
+//     });
+
+//     // Map responses back
+//   $finalData = [];
+//     $responseIndex  = 0;
+
+//     foreach ($sections as $key => $prompt) {
+//         if (!empty($sections) && isset($requests[$responseIndex])) {
+//             $response = $responses[$responseIndex];
+
+//             if ($response && $response->successful()) {
+//                 $data = $response->json();
+//                 $finalData[$key] = $data['choices'][0]['message']['content'] ?? '';
+//             } else {
+//                 $finalData[$key] = '';
+//             }
+
+//             $responseIndex++;
+//         } else {
+//             // text was empty → just keep empty
+//             $finalData[$key] = '';
+//         }
+//     }
+
+//     return response()->json([
+//         'status'  => true,
+//         'message' => 'AI assistance generated successfully',
+//         'data'    => $finalData
+//     ]);
+// }
+
+// public function AiAssistance(Request $request)
+// {
+//     ini_set('max_execution_time', 300);
+//     ini_set('default_socket_timeout', 300);
+
+//     $observation = $request->observation;
+//     $apiKey      = 'sk-d1febdfb38e3491391e5ca4ce911be5c';
+
+//     // Sections with observation included
+//     $sections = [
+//         'analysis'    => "Generate an analysis and evaluation of the following observation, highlighting progress and challenges in child development. Use simple, everyday English.\n\nObservation:\n{$observation}",
+//         'reflection'  => "Write a reflection on the following observation, including educator’s perspective, progress, and challenges in simple, everyday English.\n\nObservation:\n{$observation}",
+//         'future_plan' => "Suggest clear and actionable future plans to support the child’s growth based on the following observation. Use simple, everyday English.\n\nObservation:\n{$observation}"
+//     ];
+
+//     // Keep mapping of index → key
+//     $keys = array_keys($sections);
+
+//     $responses = Http::pool(function ($pool) use ($sections, $apiKey) {
+//         $requests = [];
+//         foreach ($sections as $prompt) {
+//             $requests[] = $pool->withHeaders([
+//                 'Authorization' => "Bearer {$apiKey}",
+//                 'Content-Type'  => 'application/json',
+//             ])
+//             ->timeout(120)
+//             ->connectTimeout(120)
+//             ->retry(3, 2000, function ($exception) {
+//                 return $exception instanceof \Illuminate\Http\Client\ConnectionException;
+//             })
+//             ->post('https://api.deepseek.com/chat/completions', [
+//                 "model"    => "deepseek-chat",
+//                 "messages" => [
+//                     ["role" => "system", "content" => "You are an assistant that rewrites observations. Always respond in plain text (not JSON)."],
+//                     ["role" => "user", "content" => $prompt]
+//                 ],
+//                 "temperature" => 0.7,
+//                 "max_tokens"  => 600,
+//                 "stream"      => false
+//             ]);
+//         }
+//         return $requests;
+//     });
+
+//     // Map back results
+//     $finalData = [];
+//     foreach ($responses as $index => $response) {
+//         $key = $keys[$index]; // correct mapping
+//         if ($response && $response->successful()) {
+//             $data = $response->json();
+
+//             // 🔍 Debug: log full response
+//             \Log::info("AI Response for {$key}:", $data);
+
+//             $finalData[$key] = trim($data['choices'][0]['message']['content'] ?? '');
+//         } else {
+//             \Log::error("AI request failed for {$key}", [
+//                 'status' => $response ? $response->status() : 'no response',
+//                 'body'   => $response ? $response->body() : 'empty'
+//             ]);
+//             $finalData[$key] = '';
+//         }
+//     }
+
+//     // 🔍 Debug final mapping
+//     \Log::info('Final AI Assistance Data:', $finalData);
+
+//     return response()->json([
+//         'status'  => true,
+//         'message' => 'AI assistance generated successfully',
+//         'data'    => $finalData
+//     ]);
+// }
+
+// public function AiAssistance(Request $request)
+// {
+//     ini_set('max_execution_time', 300);
+//     ini_set('default_socket_timeout', 300);
+
+//     $observation = $request->observation;
+//     $apiKey      = 'sk-d1febdfb38e3491391e5ca4ce911be5c';
+
+//     // Sections with JSON instructions
+//     $sections = [
+//         'analysis'    => "Based on the observation below, generate an analysis and evaluation of daily activities, focusing on progress and challenges in child development. 
+//         Respond strictly in JSON as {\"analysis\": [\"point 1\", \"point 2\", ...]}\n\nObservation:\n{$observation}",
+        
+//         'reflection'  => "Based on the observation below, write reflections from the educator’s perspective, highlighting strengths and areas for growth. 
+//         Respond strictly in JSON as {\"reflection\": [\"point 1\", \"point 2\", ...]}\n\nObservation:\n{$observation}",
+        
+//         'future_plan' => "Based on the observation below, suggest practical and actionable future plans to support the child’s growth. 
+//         Respond strictly in JSON as {\"future_plan\": [\"point 1\", \"point 2\", ...]}\n\nObservation:\n{$observation}"
+//     ];
+
+//     $keys = array_keys($sections);
+
+//     $responses = Http::pool(function ($pool) use ($sections, $apiKey) {
+//         $requests = [];
+//         foreach ($sections as $prompt) {
+//             $requests[] = $pool->withHeaders([
+//                 'Authorization' => "Bearer {$apiKey}",
+//                 'Content-Type'  => 'application/json',
+//             ])
+//             ->timeout(120)
+//             ->connectTimeout(120)
+//             ->retry(3, 2000, function ($exception) {
+//                 return $exception instanceof \Illuminate\Http\Client\ConnectionException;
+//             })
+//             ->post('https://api.deepseek.com/chat/completions', [
+//                 "model"    => "deepseek-chat",
+//                 "messages" => [
+//                     ["role" => "system", "content" => "Always respond strictly in JSON format. Do not include extra text."],
+//                     ["role" => "user", "content" => $prompt]
+//                 ],
+//                 "temperature" => 0.7,
+//                 "max_tokens"  => 800,
+//                 "stream"      => false
+//             ]);
+//         }
+//         return $requests;
+//     });
+
+//     // Parse responses
+//     $finalData = [];
+//     foreach ($responses as $index => $response) {
+//         $key = $keys[$index];
+//         if ($response && $response->successful()) {
+//             $data = $response->json();
+
+//             // Debug log full raw response
+//             \Log::info("AI Raw Response for {$key}:", $data);
+
+//             $content = $data['choices'][0]['message']['content'] ?? '';
+
+//             // Try parsing JSON
+//             $decoded = json_decode($content, true);
+//             if (json_last_error() === JSON_ERROR_NONE) {
+//                 // If model wrapped in array properly
+//                 $finalData[$key] = $decoded[$key] ?? [];
+//             } else {
+//                 // fallback → keep raw string
+//                 $finalData[$key] = [$content];
+//             }
+//         } else {
+//             \Log::error("AI request failed for {$key}", [
+//                 'status' => $response ? $response->status() : 'no response',
+//                 'body'   => $response ? $response->body() : 'empty'
+//             ]);
+//             $finalData[$key] = [];
+//         }
+//     }
+
+//     // Debug final structured output
+//     \Log::info('Final Structured AI Assistance Data:', $finalData);
+
+//     return response()->json([
+//         'status'  => true,
+//         'message' => 'AI assistance generated successfully',
+//         'data'    => $finalData
+//     ]);
+// }
+
+
+
+public function AiAssistance(Request $request) 
+{
+    ini_set('max_execution_time', 300);
+    ini_set('default_socket_timeout', 300);
+
+    $observation = $request->observation;
+    $apiKey = 'sk-d1febdfb38e3491391e5ca4ce911be5c';
+
+    if (empty($observation)) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Observation is required',
+            'data' => []
+        ], 400);
+    }
+
+    $sections = [
+        'analysis' => "Based on the observation below, generate an analysis and evaluation of daily activities, focusing on progress and challenges in child development.
+
+Respond strictly in JSON format as {\"analysis\": [\"point 1\", \"point 2\", ...]}
+
+Observation:
+{$observation}",
+
+        'reflection' => "Based on the observation below, write reflections from the educator's perspective, highlighting strengths and areas for growth.
+
+Respond strictly in JSON format as {\"reflection\": [\"point 1\", \"point 2\", ...]}
+
+Observation:
+{$observation}",
+
+        'future_plan' => "Based on the observation below, suggest practical and actionable future plans to support the child's growth.
+
+Respond strictly in JSON format as {\"future_plan\": [\"point 1\", \"point 2\", ...]}
+
+Observation:
+{$observation}"
+    ];
+
+    try {
+        // Store keys in order for mapping
+        $sectionKeys = array_keys($sections);
+        
+        $responses = Http::pool(function ($pool) use ($sections, $apiKey) {
+            $requests = [];
+            foreach ($sections as $key => $prompt) {
+                $requests[] = $pool->withHeaders([
+                    'Authorization' => "Bearer {$apiKey}",
+                    'Content-Type' => 'application/json',
+                ])
+                ->timeout(120)
+                ->connectTimeout(120)
+                ->retry(3, 2000)
+                ->post('https://api.deepseek.com/chat/completions', [
+                    "model" => "deepseek-chat",
+                    "messages" => [
+                        [
+                            "role" => "system", 
+                            "content" => "You are a helpful assistant that always responds in valid JSON format. Do not include any text outside the JSON structure."
+                        ],
+                        [
+                            "role" => "user", 
+                            "content" => $prompt
+                        ]
+                    ],
+                    "temperature" => 0.7,
+                    "max_tokens" => 800,
+                    "stream" => false
+                ]);
+            }
+            return $requests;
+        });
+
+        $finalData = [];
+        
+        // Map responses back to their corresponding keys
+        foreach ($responses as $index => $response) {
+            $key = $sectionKeys[$index]; // Use the stored key order
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info("AI Raw Response for {$key}:", $data);
+
+                if (isset($data['choices'][0]['message']['content'])) {
+                    $content = trim($data['choices'][0]['message']['content']);
+                    
+                    // Clean up content
+                    $content = preg_replace('/^```json\s*/', '', $content);
+                    $content = preg_replace('/\s*```$/', '', $content);
+                    $content = preg_replace('/^[^{\[]*/', '', $content);
+                    $content = preg_replace('/[^}\]]*$/', '', $content);
+                    
+                    $decoded = json_decode($content, true);
+                    
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        Log::info("Decoded JSON for {$key}:", $decoded);
+                        
+                        if (isset($decoded[$key]) && is_array($decoded[$key])) {
+                            $finalData[$key] = $decoded[$key];
+                        } else {
+                            // Find any array in the response
+                            $found = false;
+                            foreach ($decoded as $responseValue) {
+                                if (is_array($responseValue) && !empty($responseValue)) {
+                                    $finalData[$key] = $responseValue;
+                                    $found = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (!$found) {
+                                $finalData[$key] = is_array($decoded) ? $decoded : [$decoded];
+                            }
+                        }
+                    } else {
+                        Log::error("JSON parsing failed for {$key}", [
+                            'json_error' => json_last_error_msg(),
+                            'content' => $content
+                        ]);
+                        $finalData[$key] = $this->extractFallbackContent($content, $key);
+                    }
+                } else {
+                    Log::error("Missing content in AI response for {$key}", $data);
+                    $finalData[$key] = [];
+                }
+            } else {
+                Log::error("AI request failed for {$key}", [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                $finalData[$key] = [];
+            }
+        }
+
+        // Validate data
+        $hasData = array_filter($finalData, function($data) {
+            return !empty($data);
+        });
+
+        if (empty($hasData)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No data could be retrieved from AI service',
+                'data' => $finalData
+            ], 500);
+        }
+
+        Log::info('Final Structured AI Assistance Data:', $finalData);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'AI assistance generated successfully',
+            'data' => $finalData
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('AI Assistance Error:', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'status' => false,
+            'message' => 'An error occurred while processing AI assistance: ' . $e->getMessage(),
+            'data' => []
+        ], 500);
+    }
 }
 
+private function formatResponseData($dataArray)
+{
+    if (!is_array($dataArray) || empty($dataArray)) {
+        return $dataArray;
+    }
 
-function formatAiText($text) {
-    // Step 0: Remove surrounding """ if present
-    $text = trim($text, "\" \n\r\t");
+    $formattedData = [];
+    
+    foreach ($dataArray as $item) {
+        if (is_string($item)) {
+            // Check if the item appears to be in numbered or bullet point format
+            if ($this->isBulletPointFormat($item)) {
+                // Convert to HTML bullet points
+                $formattedData[] = $this->convertToBulletPoint($item);
+            } else {
+                // Keep as paragraph format
+                $formattedData[] = $this->formatAsParagraph($item);
+            }
+        } else {
+            $formattedData[] = $item;
+        }
+    }
+    
+    return $formattedData;
+}
 
-    // Step 1: Convert **text** → <b>text</b>
-    $text = preg_replace('/\*\*(.*?)\*\*/s', '<b>$1</b>', $text);
+private function isBulletPointFormat($text)
+{
+    // Check if text starts with numbers (1., 2., etc.) or bullet markers (-, *, •)
+    $patterns = [
+        '/^\d+\.\s+/',           // 1. 2. 3.
+        '/^\d+\)\s+/',           // 1) 2) 3)
+        '/^[\-\*\•]\s+/',        // - * •
+        '/^[IVX]+\.\s+/',        // I. II. III.
+        '/^[a-z]\.\s+/',         // a. b. c.
+        '/^[A-Z]\.\s+/',         // A. B. C.
+    ];
+    
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, trim($text))) {
+            return true;
+        }
+    }
+    
+    return false;
+}
 
-    // Step 2: Handle bullet points (lines starting with * but not **)
-    // Convert "* something" → "<br>• something"
-    $text = preg_replace('/(^|\n)\*\s*(.+)/', '$1<br>• $2', $text);
+private function convertToBulletPoint($text)
+{
+    // Remove existing numbering or bullet markers and clean up
+    $cleanText = preg_replace('/^\d+[\.\)]\s*/', '', trim($text));
+    $cleanText = preg_replace('/^[\-\*\•]\s*/', '', $cleanText);
+    $cleanText = preg_replace('/^[IVX]+\.\s*/', '', $cleanText);
+    $cleanText = preg_replace('/^[a-zA-Z][\.\)]\s*/', '', $cleanText);
+    
+    return '• ' . trim($cleanText);
+}
 
-    // Step 3: Bold labels ending with colon (like "Cognitive:")
-    $text = preg_replace('/(^|\n)([^:\n]+:)/', '$1<b>$2</b>', $text);
-
-    // Step 4: Numbered points (1. 2. etc.) → new line before
-    $text = preg_replace('/\s*(\d+\.\s+)/', '<br><br>$1', $text);
-
-    // Step 5: Clean up multiple breaks
-    $text = preg_replace('/(<br>\s*)+/', '<br>', $text);
-
+private function formatAsParagraph($text)
+{
+    // Keep as is for paragraph format, just ensure it's clean
     return trim($text);
 }
 
-
-
-    private function AiAssistanceRefiner($observation)
-    {
-        // dd($observation);
-        $apiKey = 'sk-d1febdfb38e3491391e5ca4ce911be5c'; // replace with your key
-        $response = Http::withHeaders([
-            'Authorization' => "Bearer $apiKey",
-            'Content-Type' => 'application/json',
-        ])
-        ->timeout(60)
-->retry(3, 2000)->post('https://api.deepseek.com/chat/completions', [
-            "model" => "deepseek-chat",
-            "messages" => [
-                [
-                    "role" => "system",
-                    "content" => "write the analyis/evaluation , reflection ,future plan and child voice."
-                ],
-                [
-                    "role" => "user",
-                    "content" => $observation
-                ]
-            ]
-        ]);
-
-        $json = $response->json();
-
-        // dd( $json);
-
-        return $json['choices'][0]['message']['content'] ?? $observation;
+private function extractFallbackContent($content, $key)
+{
+    $lines = explode("\n", $content);
+    $points = [];
+    
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (empty($line)) continue;
+        
+        $line = preg_replace('/^[\-\*\d+\.\)\s]+/', '', $line);
+        $line = trim($line);
+        
+        if (!empty($line) && strlen($line) > 10) {
+            $points[] = $line;
+        }
     }
+    
+    return empty($points) ? [$content] : $points;
+}
+
 
     public function index()
     {
@@ -1491,6 +2336,7 @@ public function autosaveobservation(Request $request)
 
     public function print($id)
     {
+        // dd($id);
         try {
             // Fetch the observation with all related data using the same relationships as view method
             $observation = Observation::with([
