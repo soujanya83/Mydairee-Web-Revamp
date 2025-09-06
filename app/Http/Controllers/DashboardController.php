@@ -53,13 +53,20 @@ class DashboardController extends BaseController
                 ->pluck('aid');
 
             // 3. Fetch only announcements for these IDs
-            $announcements = AnnouncementsModel::whereIn('id', $announcementIds)->get();
+                    $announcements = AnnouncementsModel::whereIn('id', $announcementIds)
+                    ->whereIn('audience', ['all', 'parents'])
+                    ->get();
+
         } else if(Auth::user()->userType == "Staff" || Auth::user()->userType == "Superadmin") {
             // Not a parent → fetch all announcements
             $announcements = AnnouncementsModel::where('centerid',$centerid)->get();
 
             if(Auth::user()->userType == "Staff"){
- $announcements = AnnouncementsModel::where('centerid',$centerid)->where('createdBy',Auth::user()->userid)->get();
+                $announcements = AnnouncementsModel::where('centerid', $centerid)
+                    
+                    ->whereIn('audience', ['all', 'staff'])
+                    ->get();
+
             }
 
             // dd( $announcements);

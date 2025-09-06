@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Validator;
 class SettingsController extends Controller
 {
 
+
+
     public function filterByParentName(Request $request)
     {
         $request->validate([
