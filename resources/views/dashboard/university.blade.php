@@ -278,14 +278,9 @@
 <!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script>
-<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', function () {
   const calendarEl = document.getElementById('calendar');
   const centerId = calendarEl.dataset.centerid;
-=======
-    document.addEventListener('DOMContentLoaded', function () {
-    var calendarEl = document.getElementById('calendar');
->>>>>>> origin/main
 
   const formatYMD = (d) => {
     const y = d.getFullYear();
