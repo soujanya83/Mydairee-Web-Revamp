@@ -99,7 +99,7 @@
 
 .triangle-indicator.level-2 .side-1,
 .triangle-indicator.level-2 .side-2 {
-  
+
     background: linear-gradient(45deg, #176ba6, #00a8ff);
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
     transform: scaleY(1.1);
@@ -940,7 +940,7 @@
     height: auto !important;
 }
 
-.rdp-accordion .collapse, 
+.rdp-accordion .collapse,
 .rdp-accordion .collapsing {
     transition: none !important;
     -webkit-transition: none !important;
@@ -998,24 +998,24 @@
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
 
 
-    <div class="child-view " 
+    <div class="child-view "
      style="position:absolute;
             top:16px;   /* adjust distance from top */
             right:685px;
-          
+
             background:rgba(255, 255, 255, 1); /* translucent white */
             padding:5px;
-           
+
             border-left:1px solid #ddd;
             box-shadow:-2px 0 6px rgba(0,0,0,0.1);
             z-index:1050;
             border-radius:5px;
-         
+
             overflow-y:auto;
             overflow-x:hidden;">
 
    @if(isset($childrens))
- 
+
       <div class="d-flex flex-row text-center" style="justify-content:center;">
              <p style="margin-bottom:5px;margin-right:2px;">Child Name:</p>
           @foreach($childrens as $child)
@@ -1025,14 +1025,14 @@
    @endif
 </div>
 
-<a href="javascript:void(0)" 
-   onclick="AiAssistance()" 
-   id="AiAssistance" 
+<a href="javascript:void(0)"
+   onclick="AiAssistance()"
+   id="AiAssistance"
    class="btn shadow-lg btn-animated mr-2 text-white position-relative"
-   data-toggle="tooltip" 
-   data-placement="top" 
+   data-toggle="tooltip"
+   data-placement="top"
    >
-    Ai<i class="sparkle-icon"></i> Assistance 
+    Ai<i class="sparkle-icon"></i> Assistance
 </a>
 
 
@@ -1062,7 +1062,7 @@
     <button type="button" id="draftObservation" class="btn btn-warning shadow-lg btn-animated">
         <i class="fas fa-file-alt mr-1"></i> Make Draft
     </button>
-   
+
 </div>
 @endif
 
@@ -1794,7 +1794,7 @@
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header d-flex align-items-center justify-content-center">
-       
+
       <h4 class="">New Observation</h4>
       </div>
       <form action="{{ route('observation.storeTitle') }}" method="post">
@@ -1813,7 +1813,7 @@
           <button type="button" class="btn btn-secondary" onclick="window.history.back()">
     <i class="fas fa-times mr-1"></i> Cancel
   </button>
-      
+
       </div>
       </form>
     </div>
@@ -1860,7 +1860,7 @@
            @if(isset($childrens))
          <h5 class="modal-title" id="childrenModalLabel"> Children</h5>
          <div id="selectedChildrenPreview" class="mt-3">
-     
+
             @foreach($childrens as $child)
                 <span class="badge badge-info mr-1">{{ $child->name }}</span>
             @endforeach
@@ -1871,7 +1871,7 @@
       @if(isset($rooms))
          <h5 class="modal-title" id="childrenModalLabel"> Rooms</h5>
          <div id="selectedChildrenPreview" class="mt-3">
-     
+
             @foreach($rooms as $room)
                 <span class="badge badge-success mr-1">{{ $room['name'] }}</span>
             @endforeach
@@ -1881,14 +1881,14 @@
       @if(isset($educators))
          <h5 class="modal-title" id="childrenModalLabel">Tagged Educators</h5>
          <div id="selectedChildrenPreview" class="mt-3">
-     
+
           @foreach($educators as $educator)
                 <span class="badge badge-danger mr-1">{{ $educator->name }}</span>
             @endforeach
         @endif
     </div>
 
- 
+
 
       </div>
       <!-- <div class="modal-footer">
@@ -1913,8 +1913,8 @@
         </button>
       </div>
       <div class="modal-body" style="max-height:550px;overflow-y:auto;">
-       
-        
+
+
          <h5 class="modal-title" id="AnalysisPreviewLabel"> Analysis/Evaluation</h5>
          <div id="AnalysisPreview" class="mt-3"></div>
 
@@ -1923,11 +1923,11 @@
 
          <h5 class="modal-title" id="childrenModalLabel"> Future Plans</h5>
          <div id="futureplanPreview" class="mt-3"></div>
-   
+
          <h5 class="modal-title" id="">child Voice</h5>
          <div id="childvoicePreview" class="mt-3"></div>
 
- 
+
       </div>
       <div class="modal-footer">
         <button type="button" id="" onclick="AiAssistance()" class="btn btn-success">Try Again</button>
@@ -1965,7 +1965,7 @@ $(document).ready(function () {
             $('#TitleModal').modal('show');
         }
     });
-    
+
 </script>
 
 <script>
@@ -2034,7 +2034,7 @@ function AutoSave() {
                     hiddenIdField.value = data.observation_id;
                 }
             }
-        } 
+        }
         else if (data.status === 'error') {
             // Show general error
             // Swal.fire({
@@ -2061,10 +2061,10 @@ Object.keys(data.errors).forEach(key => {
     // Show simple "Field is required" message
     // showToast('toast-error', `${fieldName} is required`);
 });
-               
-                 
+
+
             }
-        } 
+        }
         else {
             // Fallback for unexpected response
             Swal.fire({
@@ -2077,7 +2077,7 @@ Object.keys(data.errors).forEach(key => {
     .catch(error => {
         // Fallback for network/server errors
         console.error("AutoSave failed ❌", error);
-    
+
     });
 }
 
@@ -2134,7 +2134,7 @@ $(document).ready(function () {
 
         $('#selected_children').val([...selectedChildren].join(','));
         $('#selectedChildrenPreview').html(nameHtml);
-        
+
         $('#childrenModal').modal('hide');
     });
 
@@ -3484,7 +3484,7 @@ function showToast(type, message) {
                 const formatted = selectedDates[0].toISOString().split('T')[0];
                 fetch('{{ route("observation.changeCreatedAt") }}', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     },
@@ -3540,7 +3540,7 @@ $(document).ready(function() {
     $('.collapse').each(function() {
         const $collapse = $(this);
         const $button = $('[data-target="#' + $collapse.attr('id') + '"]');
-        
+
         // Force initial closed state
         if (!$collapse.hasClass('show')) {
             $collapse.hide().removeClass('show');
@@ -3550,29 +3550,29 @@ $(document).ready(function() {
             $button.removeClass('collapsed').attr('aria-expanded', 'true');
         }
     });
-    
+
     // Remove bootstrap collapse behavior
     $(document).off('click.bs.collapse.data-api');
-    
+
     $(document).on('click', '[data-toggle="collapse"]', function(e) {
         e.preventDefault();
-        
+
         const $button = $(this);
         const target = $button.attr('data-target');
         const $target = $(target);
         const parent = $button.attr('data-parent');
-        
+
         // Clean up any stuck states
         $('.collapsing').removeClass('collapsing').removeAttr('style');
-        
+
         console.log('=== CLICK DEBUG ===');
         console.log('Target is visible:', $target.is(':visible'));
         console.log('Target display:', $target.css('display'));
         console.log('Button aria-expanded:', $button.attr('aria-expanded'));
-        
+
         // Use aria-expanded as the source of truth instead of visibility
         const isCurrentlyOpen = $button.attr('aria-expanded') === 'true';
-        
+
         if (isCurrentlyOpen) {
             // CLOSE IT
             $target.hide().removeClass('show');
@@ -3584,12 +3584,12 @@ $(document).ready(function() {
                 $(parent).find('.collapse').hide().removeClass('show');
                 $(parent).find('[data-toggle="collapse"]').addClass('collapsed').attr('aria-expanded', 'false');
             }
-            
+
             $target.show().addClass('show');
             $button.removeClass('collapsed').attr('aria-expanded', 'true');
             console.log('OPENING element');
         }
-        
+
         console.log('Final aria-expanded:', $button.attr('aria-expanded'));
         console.log('Final visible:', $target.is(':visible'));
         console.log('==================');
@@ -3601,7 +3601,7 @@ $(document).ready(function() {
     //     let title =  editors["editor1"] ? editors["editor1"].getData() : "";
     //     console.log(title); // this will print the content
     // });
- 
+
 });
 
 
@@ -3647,15 +3647,15 @@ $(document).ready(function() {
         // child_voice: editors["editor4"] ? editors["editor4"].setData() : "",
         // future_plan: editors["editor5"] ? editors["editor5"].setData() : "",
 
-      
+
 if (editors["editor2"]) editors["editor2"].setData(res.data.analysis || "");
 if (editors["editor3"]) editors["editor3"].setData(res.data.reflection || "");
 if (editors["editor4"]) editors["editor4"].setData(res.data.childVoice || "");
 if (editors["editor5"]) editors["editor5"].setData(res.data.futurePlan || "");
 
 
-                //   $('#AiAssistanceModal').modal('show'); 
-        
+                //   $('#AiAssistanceModal').modal('show');
+
 
             // hide loader
             $("#aiAssistLoader").hide();
@@ -3671,7 +3671,7 @@ if (editors["editor5"]) editors["editor5"].setData(res.data.futurePlan || "");
         }
     });
     }
-  
+
 </script>
 
 

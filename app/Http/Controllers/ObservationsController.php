@@ -55,40 +55,39 @@ use Illuminate\Support\Facades\Mail;
 class ObservationsController extends Controller
 {
 
-public function shareObservation(Request $request)
-{
-    $request->validate([
-        'recipient_email' => 'required|email',
-        'message'         => 'nullable|string',
-        'obsId'           => 'required'
-    ]);
+    public function shareObservation(Request $request)
+    {
+        $request->validate([
+            'recipient_email' => 'required|email',
+            'message'         => 'nullable|string',
+            'obsId'           => 'required'
+        ]);
 
-    $email   = $request->recipient_email;
-    $message = $request->message ?? 'Please check the report link below.';
-    $obsId   = $request->obsId;
+        $email   = $request->recipient_email;
+        $message = $request->message ?? 'Please check the report link below.';
+        $obsId   = $request->obsId;
 
-    try {
-        // ✅ Generate the shareable URL
-        $url = route('sharelink' , $obsId);
+        try {
+            // ✅ Generate the shareable URL
+            $url = route('sharelink', $obsId);
 
-        // ✅ Send email
-        Mail::send([], [], function ($mail) use ($email, $url, $message, $obsId) {
-            $mail->from('mydairee47@gmail.com', 'Observation Report')
-                 ->to($email)
-                 ->subject('Observation Report - ' . $obsId)
-                 ->html("
+            // ✅ Send email
+            Mail::send([], [], function ($mail) use ($email, $url, $message, $obsId) {
+                $mail->from('mydairee47@gmail.com', 'Observation Report')
+                    ->to($email)
+                    ->subject('Observation Report - ' . $obsId)
+                    ->html("
                     <p>{$message}</p>
                     <p>You can view the observation by clicking the link below:</p>
                     <p><a href='{$url}' target='_blank'>{$url}</a></p>
                 ");
-        });
+            });
 
-        return back()->with('success', 'Observation shared successfully!');
-
-    } catch (\Exception $e) {
-        return back()->with('error', 'Error occurred while sending the email: ' . $e->getMessage());
+            return back()->with('success', 'Observation shared successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error occurred while sending the email: ' . $e->getMessage());
+        }
     }
-}
 
     public function refine(Request $request)
     {
@@ -135,77 +134,77 @@ public function shareObservation(Request $request)
     }
 
 
-function AiAssistance(Request $request){
+    function AiAssistance(Request $request)
+    {
 
-    $observation = $request->observation;
-    // dd($observation);
-    
-   $response = $this->AiAssistanceRefiner($observation);
+        $observation = $request->observation;
+        // dd($observation);
 
-$analysis = $reflection = $futurePlan = $childVoice = null;
+        $response = $this->AiAssistanceRefiner($observation);
 
-if (preg_match('/### \*\*Analysis\/Evaluation\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
-    $analysis = $this->formatAiText(trim($match[1]));
-  
-}
+        $analysis = $reflection = $futurePlan = $childVoice = null;
 
-if (preg_match('/### \*\*Reflection\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
-    $reflection = $this->formatAiText(trim($match[1]));
-}
+        if (preg_match('/### \*\*Analysis\/Evaluation\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
+            $analysis = $this->formatAiText(trim($match[1]));
+        }
 
-if (preg_match('/### \*\*Future Plan\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
-    $futurePlan =  $this->formatAiText(trim($match[1]));
-}
+        if (preg_match('/### \*\*Reflection\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
+            $reflection = $this->formatAiText(trim($match[1]));
+        }
 
-if (preg_match('/###\s*\*\*Child[’\'`s]*\s*Voices?\*\*\n\n(.*)/si', $response, $match)) {
-     $childVoice1 =  trim($match[1]);
-    $childVoice =  $this->formatAiText(trim($match[1]));
-    // refin
-}
-//   dd(  $analysis);
+        if (preg_match('/### \*\*Future Plan\*\*\n\n(.*?)\n\n###/s', $response, $match)) {
+            $futurePlan =  $this->formatAiText(trim($match[1]));
+        }
 
-$data = [
-    'raw' => $response,
- 'analysis'   => $analysis,
-    'reflection' => $reflection,
-    'futurePlan' => $futurePlan,
-    'childVoice' => $childVoice,
-    'childVoice1' => $childVoice1
-];
+        if (preg_match('/###\s*\*\*Child[’\'`s]*\s*Voices?\*\*\n\n(.*)/si', $response, $match)) {
+            $childVoice1 =  trim($match[1]);
+            $childVoice =  $this->formatAiText(trim($match[1]));
+            // refin
+        }
+        //   dd(  $analysis);
 
-return response()->json([
-    'status' => true,
-    'message' => 'Text retrieved successfully',
-    'data' => $data
+        $data = [
+            'raw' => $response,
+            'analysis'   => $analysis,
+            'reflection' => $reflection,
+            'futurePlan' => $futurePlan,
+            'childVoice' => $childVoice,
+            'childVoice1' => $childVoice1
+        ];
 
-   
-]);
-
-}
+        return response()->json([
+            'status' => true,
+            'message' => 'Text retrieved successfully',
+            'data' => $data
 
 
-function formatAiText($text) {
-    // Step 0: Remove surrounding """ if present
-    $text = trim($text, "\" \n\r\t");
+        ]);
+    }
 
-    // Step 1: Convert **text** → <b>text</b>
-    $text = preg_replace('/\*\*(.*?)\*\*/s', '<b>$1</b>', $text);
 
-    // Step 2: Handle bullet points (lines starting with * but not **)
-    // Convert "* something" → "<br>• something"
-    $text = preg_replace('/(^|\n)\*\s*(.+)/', '$1<br>• $2', $text);
+    function formatAiText($text)
+    {
+        // Step 0: Remove surrounding """ if present
+        $text = trim($text, "\" \n\r\t");
 
-    // Step 3: Bold labels ending with colon (like "Cognitive:")
-    $text = preg_replace('/(^|\n)([^:\n]+:)/', '$1<b>$2</b>', $text);
+        // Step 1: Convert **text** → <b>text</b>
+        $text = preg_replace('/\*\*(.*?)\*\*/s', '<b>$1</b>', $text);
 
-    // Step 4: Numbered points (1. 2. etc.) → new line before
-    $text = preg_replace('/\s*(\d+\.\s+)/', '<br><br>$1', $text);
+        // Step 2: Handle bullet points (lines starting with * but not **)
+        // Convert "* something" → "<br>• something"
+        $text = preg_replace('/(^|\n)\*\s*(.+)/', '$1<br>• $2', $text);
 
-    // Step 5: Clean up multiple breaks
-    $text = preg_replace('/(<br>\s*)+/', '<br>', $text);
+        // Step 3: Bold labels ending with colon (like "Cognitive:")
+        $text = preg_replace('/(^|\n)([^:\n]+:)/', '$1<b>$2</b>', $text);
 
-    return trim($text);
-}
+        // Step 4: Numbered points (1. 2. etc.) → new line before
+        $text = preg_replace('/\s*(\d+\.\s+)/', '<br><br>$1', $text);
+
+        // Step 5: Clean up multiple breaks
+        $text = preg_replace('/(<br>\s*)+/', '<br>', $text);
+
+        return trim($text);
+    }
 
 
 
@@ -217,20 +216,20 @@ function formatAiText($text) {
             'Authorization' => "Bearer $apiKey",
             'Content-Type' => 'application/json',
         ])
-        ->timeout(60)
-->retry(3, 2000)->post('https://api.deepseek.com/chat/completions', [
-            "model" => "deepseek-chat",
-            "messages" => [
-                [
-                    "role" => "system",
-                    "content" => "write the analyis/evaluation , reflection ,future plan and child voice."
-                ],
-                [
-                    "role" => "user",
-                    "content" => $observation
+            ->timeout(60)
+            ->retry(3, 2000)->post('https://api.deepseek.com/chat/completions', [
+                "model" => "deepseek-chat",
+                "messages" => [
+                    [
+                        "role" => "system",
+                        "content" => "write the analyis/evaluation , reflection ,future plan and child voice."
+                    ],
+                    [
+                        "role" => "user",
+                        "content" => $observation
+                    ]
                 ]
-            ]
-        ]);
+            ]);
 
         $json = $response->json();
 
@@ -254,11 +253,11 @@ function formatAiText($text) {
 
         if (Auth::user()->userType == "Superadmin") {
 
-            $observations = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
                 ->where('centerid', $centerid)
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
-                
+
 
         } elseif (Auth::user()->userType == "Staff") {
 
@@ -269,34 +268,34 @@ function formatAiText($text) {
                 'Seen.user',
                 'comments'
             ])
-            ->where(function ($query) use ($authId) {
-                // Observations created by the staff
-                $query->where('userId', $authId);
-        
-                // Or Observations where staff is tagged
-                $taggedObservationIds = ObservationStaff::where('userid', $authId)
-                    ->pluck('observationId')
-                    ->toArray();
-        
-                if (!empty($taggedObservationIds)) {
-                    $query->orWhereIn('id', $taggedObservationIds);
-                }
-            })
-            ->orderBy('id', 'desc')
-            ->paginate(10);
-    //         $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
-    // ->where('userid', $authId) // your created
-    // ->orWhereRaw("FIND_IN_SET(?, tagged_staff)", [$authId]) // your tagged
-    // ->orderBy('id', 'desc')
-    // ->paginate(10);
+                ->where(function ($query) use ($authId) {
+                    // Observations created by the staff
+                    $query->where('userId', $authId);
 
-    // $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
-    // ->where(function ($q) use ($authId) {
-    //     $q->where('userid', $authId)
-    //       ->orWhereRaw("FIND_IN_SET(?, COALESCE(tagged_staff, ''))", [$authId]);
-    // })
-    // ->orderBy('id', 'desc')
-    // ->paginate(10);
+                    // Or Observations where staff is tagged
+                    $taggedObservationIds = ObservationStaff::where('userid', $authId)
+                        ->pluck('observationId')
+                        ->toArray();
+
+                    if (!empty($taggedObservationIds)) {
+                        $query->orWhereIn('id', $taggedObservationIds);
+                    }
+                })
+                ->orderBy('id', 'desc')
+                ->paginate(10);
+            //         $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
+            // ->where('userid', $authId) // your created
+            // ->orWhereRaw("FIND_IN_SET(?, tagged_staff)", [$authId]) // your tagged
+            // ->orderBy('id', 'desc')
+            // ->paginate(10);
+
+            // $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
+            // ->where(function ($q) use ($authId) {
+            //     $q->where('userid', $authId)
+            //       ->orWhereRaw("FIND_IN_SET(?, COALESCE(tagged_staff, ''))", [$authId]);
+            // })
+            // ->orderBy('id', 'desc')
+            // ->paginate(10);
 
 
 
@@ -308,9 +307,9 @@ function formatAiText($text) {
                 ->unique()
                 ->toArray();
             // dd($childids);
-            $observations = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
                 ->whereIn('id', $observationIds)
-                ->where('status',"Published")
+                ->where('status', "Published")
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
 
@@ -331,7 +330,7 @@ function formatAiText($text) {
             $centerid = Session('user_center_id');
 
 
-            $query = Observation::with(['user', 'child', 'media', 'Seen.user','comments'])
+            $query = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
                 ->where('centerid', $centerid);
             // Status filter
             if ($request->has('observations') && !empty($request->observations)) {
@@ -484,18 +483,18 @@ function formatAiText($text) {
                         return null;
                     })->filter(),
 
-                  // Add comments data
-        'comments' => $observation->comments->map(function ($comment) {
-            return [
-                'id' => $comment->id,
-                'comments' => $comment->comments,
-                'userId' => $comment->userId,
-                'user_name' => $comment->user->name ?? 'Unknown',
-                'created_at_human' => $comment->created_at->diffForHumans(),
-                'created_at' => $comment->created_at->format('Y-m-d H:i:s'),
-            ];
-        }),
-        
+                    // Add comments data
+                    'comments' => $observation->comments->map(function ($comment) {
+                        return [
+                            'id' => $comment->id,
+                            'comments' => $comment->comments,
+                            'userId' => $comment->userId,
+                            'user_name' => $comment->user->name ?? 'Unknown',
+                            'created_at_human' => $comment->created_at->diffForHumans(),
+                            'created_at' => $comment->created_at->format('Y-m-d H:i:s'),
+                        ];
+                    }),
+
 
                     'userRole' => Auth::user()->userType,
                     'currentUserId' => Auth::id(),
@@ -563,7 +562,7 @@ function formatAiText($text) {
         $roomIds = Room::where('centerid', $centerid)->pluck('id');
 
         // Get all children in those rooms
-        $children = Child::whereIn('room', $roomIds)->where('status','Active')->get();
+        $children = Child::whereIn('room', $roomIds)->where('status', 'Active')->get();
 
         return $children;
     }
@@ -584,7 +583,7 @@ function formatAiText($text) {
         $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
 
         // Get all children in those rooms
-        $children = Child::whereIn('room', $allRoomIds)->where('status','Active')->get();
+        $children = Child::whereIn('room', $allRoomIds)->where('status', 'Active')->get();
 
         return $children;
     }
@@ -596,7 +595,7 @@ function formatAiText($text) {
 
         $childids = Childparent::where('parentid', $authId)->pluck('childid');
 
-        $children = Child::whereIn('id', $childids)->where('status','Active')->get();
+        $children = Child::whereIn('id', $childids)->where('status', 'Active')->get();
 
         return $children;
     }
@@ -612,7 +611,7 @@ function formatAiText($text) {
         // Exclude current user and Superadmins
         $staff = User::whereIn('id', $usersid)
             ->where('userType', 'Staff')
-            ->where('status','ACTIVE')
+            ->where('status', 'ACTIVE')
             ->get();
 
         return $staff;
@@ -738,10 +737,10 @@ function formatAiText($text) {
         $rooms = collect();
 
         $educators = collect();
-    
-if ($observation && !empty($observation->tagged_staff)){
-        $taggededucators = explode(',',$observation->tagged_staff);
-        $educators = User::whereIn('userid',$taggededucators)->get();
+
+        if ($observation && !empty($observation->tagged_staff)) {
+            $taggededucators = explode(',', $observation->tagged_staff);
+            $educators = User::whereIn('userid', $taggededucators)->get();
         }
 
 
@@ -756,7 +755,7 @@ if ($observation && !empty($observation->tagged_staff)){
         $outcomes = EYLFOutcome::with('activities.subActivities')->get();
         $milestones = DevMilestone::with('mains.subs')->get();
 
-        return view('observations.storeObservation', compact('centers', 'observation', 'childrens', 'activeTab', 'rooms', 'activesubTab', 'subjects', 'outcomes', 'milestones','educators'));
+        return view('observations.storeObservation', compact('centers', 'observation', 'childrens', 'activeTab', 'rooms', 'activesubTab', 'subjects', 'outcomes', 'milestones', 'educators'));
     }
 
 
@@ -928,7 +927,7 @@ if ($observation && !empty($observation->tagged_staff)){
 
         $observationId = $request->input('obsId');
 
-        ObservationLink::where('observationId', $observationId) ->where('linktype', 'OBSERVATION')->delete();
+        ObservationLink::where('observationId', $observationId)->where('linktype', 'OBSERVATION')->delete();
 
         $linkIds = $request->input('observation_ids');
 
@@ -949,147 +948,156 @@ if ($observation && !empty($observation->tagged_staff)){
 
 
     public function linkreflectiondata(Request $request)
-{
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
-    $search = $request->query('search');
-    $obsId = $request->query('obsId'); // Current observation ID for checking existing links
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+        $search = $request->query('search');
+        $obsId = $request->query('obsId'); // Current observation ID for checking existing links
 
-    $reflections = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-        ->when($search, function ($query, $search) {
-            return $query->where('title', 'like', "%{$search}%");
-        })
-        ->where('centerid', $centerid)
-        ->orderBy('created_at', 'desc')
-        ->get();
+        $reflections = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+            ->when($search, function ($query, $search) {
+                return $query->where('title', 'like', "%{$search}%");
+            })
+            ->where('centerid', $centerid)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-    $linkedIds = ObservationLink::where('observationId', $obsId)
-        ->where('linktype', 'REFLECTION')
-        ->pluck('linkid')
-        ->toArray();
+        $linkedIds = ObservationLink::where('observationId', $obsId)
+            ->where('linktype', 'REFLECTION')
+            ->pluck('linkid')
+            ->toArray();
 
-    return response()->json([
-        'reflections' => $reflections,
-        'linked_ids' => $linkedIds
-    ]);
-}
-
-public function storelinkreflection(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'obsId' => 'required|exists:observation,id',
-        'reflection_ids' => 'required|array',
-        'reflection_ids.*' => 'exists:reflection,id', // Adjust table name if needed
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
-
-    $observationId = $request->input('obsId');
-
-    // Remove existing reflection links for this observation
-    ObservationLink::where('observationId', $observationId)
-        ->where('linktype', 'REFLECTION')
-        ->delete();
-
-    $linkIds = $request->input('reflection_ids');
-
-    foreach ($linkIds as $linkId) {
-        ObservationLink::create([
-            'observationId' => $observationId,
-            'linkid' => $linkId,
-            'linktype' => 'REFLECTION',
+        return response()->json([
+            'reflections' => $reflections,
+            'linked_ids' => $linkedIds
         ]);
     }
 
-    return response()->json(['message' => 'Reflection links saved successfully.', 'id' => $observationId]);
-}
+    public function storelinkreflection(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'obsId' => 'required|exists:observation,id',
+            'reflection_ids' => 'required|array',
+            'reflection_ids.*' => 'exists:reflection,id', // Adjust table name if needed
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $observationId = $request->input('obsId');
+
+        // Remove existing reflection links for this observation
+        ObservationLink::where('observationId', $observationId)
+            ->where('linktype', 'REFLECTION')
+            ->delete();
+
+        $linkIds = $request->input('reflection_ids');
+
+        foreach ($linkIds as $linkId) {
+            ObservationLink::create([
+                'observationId' => $observationId,
+                'linkid' => $linkId,
+                'linktype' => 'REFLECTION',
+            ]);
+        }
+
+        return response()->json(['message' => 'Reflection links saved successfully.', 'id' => $observationId]);
+    }
 
 
 
 
-public function linkprogramplandata(Request $request)
-{
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
-    $search = $request->query('search');
-    $obsId = $request->query('obsId'); // Current observation ID for checking existing links
+    public function linkprogramplandata(Request $request)
+    {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+        $search = $request->query('search');
+        $obsId = $request->query('obsId'); // Current observation ID for checking existing links
 
-    // Month names for search
-    $monthNames = [
-        'january' => 1, 'february' => 2, 'march' => 3, 'april' => 4,
-        'may' => 5, 'june' => 6, 'july' => 7, 'august' => 8,
-        'september' => 9, 'october' => 10, 'november' => 11, 'december' => 12
-    ];
+        // Month names for search
+        $monthNames = [
+            'january' => 1,
+            'february' => 2,
+            'march' => 3,
+            'april' => 4,
+            'may' => 5,
+            'june' => 6,
+            'july' => 7,
+            'august' => 8,
+            'september' => 9,
+            'october' => 10,
+            'november' => 11,
+            'december' => 12
+        ];
 
-    $programPlans = ProgramPlanTemplateDetailsAdd::with(['room', 'creator'])
-        ->when($search, function ($query, $search) use ($monthNames) {
-            $searchLower = strtolower($search);
-            $monthNumber = null;
-            
-            // Check if search matches any month name
-            foreach ($monthNames as $monthName => $monthNum) {
-                if (strpos($monthName, $searchLower) !== false) {
-                    $monthNumber = $monthNum;
-                    break;
+        $programPlans = ProgramPlanTemplateDetailsAdd::with(['room', 'creator'])
+            ->when($search, function ($query, $search) use ($monthNames) {
+                $searchLower = strtolower($search);
+                $monthNumber = null;
+
+                // Check if search matches any month name
+                foreach ($monthNames as $monthName => $monthNum) {
+                    if (strpos($monthName, $searchLower) !== false) {
+                        $monthNumber = $monthNum;
+                        break;
+                    }
                 }
-            }
-            
-            if ($monthNumber) {
-                return $query->where('months', $monthNumber);
-            }
-            
-            // If no month found, search in year as well
-            return $query->where('year', 'like', "%{$search}%");
-        })
-        ->where('status', 'Published')
-        ->where('centerid', $centerid)
-        ->orderBy('created_at', 'desc')
-        ->get();
 
-    $linkedIds = ObservationLink::where('observationId', $obsId)
-        ->where('linktype', 'PROGRAMPLAN')
-        ->pluck('linkid')
-        ->toArray();
+                if ($monthNumber) {
+                    return $query->where('months', $monthNumber);
+                }
 
-    return response()->json([
-        'program_plans' => $programPlans,
-        'linked_ids' => $linkedIds
-    ]);
-}
+                // If no month found, search in year as well
+                return $query->where('year', 'like', "%{$search}%");
+            })
+            ->where('status', 'Published')
+            ->where('centerid', $centerid)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-public function storelinkprogramplan(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'obsId' => 'required|exists:observation,id',
-        'program_plan_ids' => 'required|array',
-        'program_plan_ids.*' => 'exists:programplantemplatedetailsadd,id', // Adjust table name if needed
-    ]);
+        $linkedIds = ObservationLink::where('observationId', $obsId)
+            ->where('linktype', 'PROGRAMPLAN')
+            ->pluck('linkid')
+            ->toArray();
 
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
-
-    $observationId = $request->input('obsId');
-
-    // Remove existing program plan links for this observation
-    ObservationLink::where('observationId', $observationId)
-        ->where('linktype', 'PROGRAMPLAN')
-        ->delete();
-
-    $linkIds = $request->input('program_plan_ids');
-
-    foreach ($linkIds as $linkId) {
-        ObservationLink::create([
-            'observationId' => $observationId,
-            'linkid' => $linkId,
-            'linktype' => 'PROGRAMPLAN',
+        return response()->json([
+            'program_plans' => $programPlans,
+            'linked_ids' => $linkedIds
         ]);
     }
 
-    return response()->json(['message' => 'Program Plan links saved successfully.', 'id' => $observationId]);
-}
+    public function storelinkprogramplan(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'obsId' => 'required|exists:observation,id',
+            'program_plan_ids' => 'required|array',
+            'program_plan_ids.*' => 'exists:programplantemplatedetailsadd,id', // Adjust table name if needed
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $observationId = $request->input('obsId');
+
+        // Remove existing program plan links for this observation
+        ObservationLink::where('observationId', $observationId)
+            ->where('linktype', 'PROGRAMPLAN')
+            ->delete();
+
+        $linkIds = $request->input('program_plan_ids');
+
+        foreach ($linkIds as $linkId) {
+            ObservationLink::create([
+                'observationId' => $observationId,
+                'linkid' => $linkId,
+                'linktype' => 'PROGRAMPLAN',
+            ]);
+        }
+
+        return response()->json(['message' => 'Program Plan links saved successfully.', 'id' => $observationId]);
+    }
 
 
 
@@ -1194,92 +1202,92 @@ public function storelinkprogramplan(Request $request)
     //     }
     // }
 
-public function storeTitle(Request $request) {
-    $request->validate([
-        'obestitle' => 'required'
-    ]);
+    public function storeTitle(Request $request)
+    {
+        $request->validate([
+            'obestitle' => 'required'
+        ]);
 
-    // dd($request->all());
+        // dd($request->all());
 
-    $centerid = Session('user_center_id');
-    
-    try {
-        $Observation = new Observation();
-        $Observation->obestitle = $request->obestitle;
-        $Observation->centerid = $centerid;
-        $Observation->userId = Auth::user()->userid;
-        $Observation->save();
-        
-        // dd($Observation->id); // Comment this out!
-        
-        return redirect()->route('observation.addnew.optional', [
-            'id' => $Observation->id,
-            'tab' => 'observation',
-            'tab2' => 'MONTESSORI'
-        ])->with('success', 'Observation created successfully.');
-        
-    } catch (\Exception $e) {
-        return back()->with('error', 'Something went wrong: ' . $e->getMessage());
-    }
-}
+        $centerid = Session('user_center_id');
 
+        try {
+            $Observation = new Observation();
+            $Observation->obestitle = $request->obestitle;
+            $Observation->centerid = $centerid;
+            $Observation->userId = Auth::user()->userid;
+            $Observation->save();
 
+            // dd($Observation->id); // Comment this out!
 
-public function autosaveobservation(Request $request)
-{
-    // Custom validation with fallback
-    $validator = Validator::make($request->all(), [
-        'obestitle'      => 'required',
-        'title'          => 'nullable',
-        'notes'          => 'nullable',
-        'reflection'     => 'nullable',
-        'child_voice'    => 'nullable',
-        'future_plan'    => 'nullable',
-        'observation_id' => 'required|integer',
-    ]);
-
-    if ($validator->fails()) {
-        // Return JSON with validation errors instead of default 422
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Validation failed.',
-            'errors' => $validator->errors()
-        ], 400);
+            return redirect()->route('observation.addnew.optional', [
+                'id' => $Observation->id,
+                'tab' => 'observation',
+                'tab2' => 'MONTESSORI'
+            ])->with('success', 'Observation created successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
     }
 
-    try {
-        // Find existing observation
-        $observation = Observation::find($request->observation_id);
 
-        if (!$observation) {
+
+    public function autosaveobservation(Request $request)
+    {
+        // Custom validation with fallback
+        $validator = Validator::make($request->all(), [
+            'obestitle'      => 'required',
+            'title'          => 'nullable',
+            'notes'          => 'nullable',
+            'reflection'     => 'nullable',
+            'child_voice'    => 'nullable',
+            'future_plan'    => 'nullable',
+            'observation_id' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            // Return JSON with validation errors instead of default 422
             return response()->json([
                 'status' => 'error',
-                'message' => 'Observation not found.'
-            ], 404);
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors()
+            ], 400);
         }
 
-        // Update fields
-        $observation->obestitle   = $request->obestitle;
-        $observation->title       = $request->title;
-        $observation->notes       = $request->notes;
-        $observation->reflection  = $request->reflection;
-        $observation->child_voice = $request->child_voice;
-        $observation->future_plan = $request->future_plan;
+        try {
+            // Find existing observation
+            $observation = Observation::find($request->observation_id);
 
-        $observation->save();
+            if (!$observation) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Observation not found.'
+                ], 404);
+            }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Observation autosaved successfully.',
-            'observation_id' => $observation->id
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Something went wrong: ' . $e->getMessage()
-        ], 500);
+            // Update fields
+            $observation->obestitle   = $request->obestitle;
+            $observation->title       = $request->title;
+            $observation->notes       = $request->notes;
+            $observation->reflection  = $request->reflection;
+            $observation->child_voice = $request->child_voice;
+            $observation->future_plan = $request->future_plan;
+
+            $observation->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Observation autosaved successfully.',
+                'observation_id' => $observation->id
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
 
@@ -1331,7 +1339,7 @@ public function autosaveobservation(Request $request)
         }
 
         $taggedStaff = "";
-        if(!empty($request->selected_staff)){
+        if (!empty($request->selected_staff)) {
             $taggedStaff = $request->selected_staff;
         }
 
@@ -1597,11 +1605,11 @@ public function autosaveobservation(Request $request)
             $snapshot->rooms = $rooms->whereIn('id', $roomIds)->values();
         });
 
-       $permissions = Permission::where('userid', Auth::user()->userid)->first();
+        $permissions = Permission::where('userid', Auth::user()->userid)->first();
 
         //  dd($snapshots);
 
-        return view('observations.snapshotindex', compact('snapshots', 'centers','permissions'));
+        return view('observations.snapshotindex', compact('snapshots', 'centers', 'permissions'));
     }
 
 
@@ -1626,9 +1634,9 @@ public function autosaveobservation(Request $request)
             $roomIds = explode(',', $reflection->roomids); // Convert comma-separated string to array
             $rooms = Room::whereIn('id', $roomIds)->get();
         }
-$educators = collect();
-        if($reflection && $reflection->educators){
-  $educatorsIds = explode(',', $reflection->educators); // Convert comma-separated string to array
+        $educators = collect();
+        if ($reflection && $reflection->educators) {
+            $educatorsIds = explode(',', $reflection->educators); // Convert comma-separated string to array
             $educators = User::whereIn('userid', $educatorsIds)->get();
         }
 
@@ -1646,188 +1654,187 @@ $educators = collect();
 
 
 
-        return view('observations.storesnapshots', compact('reflection', 'childrens', 'rooms', 'outcomes','educators'));
+        return view('observations.storesnapshots', compact('reflection', 'childrens', 'rooms', 'outcomes', 'educators'));
     }
 
 
 
 
-public function snapshotstore(Request $request)
-{
-    $uploadMaxSize = min(
-        $this->convertToBytes(ini_get('upload_max_filesize')),
-        $this->convertToBytes(ini_get('post_max_size'))
-    );
+    public function snapshotstore(Request $request)
+    {
+        $uploadMaxSize = min(
+            $this->convertToBytes(ini_get('upload_max_filesize')),
+            $this->convertToBytes(ini_get('post_max_size'))
+        );
 
-    $isEdit = $request->filled('id');
+        $isEdit = $request->filled('id');
 
-    // Validation rules
-    $rules = [
-        'selected_rooms'    => 'required',
-        'title'             => 'required|string',
-        'about'             => 'required|string',
-        'selected_children' => 'required|string',
-        'selected_staff'    => 'required|string'
-    ];
+        // Validation rules
+        $rules = [
+            'selected_rooms'    => 'required',
+            'title'             => 'required|string',
+            'about'             => 'required|string',
+            'selected_children' => 'required|string',
+            'selected_staff'    => 'required|string'
+        ];
 
-    if (!$isEdit) {
-        $rules['media'] = 'required|array|min:1';
-    } else {
-        $rules['media'] = 'nullable|array';
-    }
-
-    $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
-
-    $messages = [
-        'media.required' => 'At least one media file is required.',
-        'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
-    ];
-
-    $validator = Validator::make($request->all(), $rules, $messages);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'status'  => false,
-            'message' => 'Validation failed',
-            'errors'  => $validator->errors(),
-        ], 422);
-    }
-
-    $validated = $validator->validated();
-
-    DB::beginTransaction();
-
-    try {
-        $authId = Auth::user()->id;
-        $centerid = Session('user_center_id');
-
-        $snapshot = $isEdit
-            ? Snapshot::findOrFail($request->id)
-            : Snapshot::create([
-                'title'     => $validated['title'],
-                'about'     => $validated['about'],
-                'centerid'  => $centerid,
-                'createdBy' => $authId,
-                'educators' => $validated['selected_staff'],
-            ]);
-
-        // Update roomids after creation if new snapshot
         if (!$isEdit) {
-            $snapshot->roomids = $validated['selected_rooms'];
-            $snapshot->save();
+            $rules['media'] = 'required|array|min:1';
         } else {
-            $snapshot->roomids   = $validated['selected_rooms'];
-            $snapshot->title     = $validated['title'];
-            $snapshot->about     = $validated['about'];
-            $snapshot->centerid  = $centerid;
-            $snapshot->createdBy = $authId;
-            $snapshot->educators = $validated['selected_staff'];
-            $snapshot->save();
+            $rules['media'] = 'nullable|array';
         }
 
-        $snapshotId = $snapshot->id;
+        $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
 
-        // Replace children
-        SnapshotChild::where('snapshotid', $snapshotId)->delete();
-        $selectedChildren = explode(',', $validated['selected_children']);
-        foreach ($selectedChildren as $childId) {
-            if (trim($childId) !== '') {
-                SnapshotChild::create([
-                    'snapshotid' => $snapshotId,
-                    'childid'    => trim($childId),
+        $messages = [
+            'media.required' => 'At least one media file is required.',
+            'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        DB::beginTransaction();
+
+        try {
+            $authId = Auth::user()->id;
+            $centerid = Session('user_center_id');
+
+            $snapshot = $isEdit
+                ? Snapshot::findOrFail($request->id)
+                : Snapshot::create([
+                    'title'     => $validated['title'],
+                    'about'     => $validated['about'],
+                    'centerid'  => $centerid,
+                    'createdBy' => $authId,
+                    'educators' => $validated['selected_staff'],
                 ]);
+
+            // Update roomids after creation if new snapshot
+            if (!$isEdit) {
+                $snapshot->roomids = $validated['selected_rooms'];
+                $snapshot->save();
+            } else {
+                $snapshot->roomids   = $validated['selected_rooms'];
+                $snapshot->title     = $validated['title'];
+                $snapshot->about     = $validated['about'];
+                $snapshot->centerid  = $centerid;
+                $snapshot->createdBy = $authId;
+                $snapshot->educators = $validated['selected_staff'];
+                $snapshot->save();
             }
-        }
 
-        // Handle media
-        if ($request->hasFile('media')) {
-            $manager = new ImageManager(new GdDriver());
-            $destinationPath = public_path('uploads/Snapshots');
+            $snapshotId = $snapshot->id;
 
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0777, true);
-            }
-
-            foreach ($request->file('media') as $file) {
-                if ($file->isValid()) {
-                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
-                    if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
-                        $image = $manager->read($file->getPathname());
-                        $image->scale(1920);
-                        $image->save($destinationPath . '/' . $filename, 75);
-                    } else {
-                        $file->move($destinationPath, $filename);
-                    }
-
-                    SnapshotMedia::create([
+            // Replace children
+            SnapshotChild::where('snapshotid', $snapshotId)->delete();
+            $selectedChildren = explode(',', $validated['selected_children']);
+            foreach ($selectedChildren as $childId) {
+                if (trim($childId) !== '') {
+                    SnapshotChild::create([
                         'snapshotid' => $snapshotId,
-                        'mediaUrl'   => 'uploads/Snapshots/' . $filename,
-                        'mediaType'  => $file->getClientMimeType(),
+                        'childid'    => trim($childId),
                     ]);
                 }
             }
+
+            // Handle media
+            if ($request->hasFile('media')) {
+                $manager = new ImageManager(new GdDriver());
+                $destinationPath = public_path('uploads/Snapshots');
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+
+                foreach ($request->file('media') as $file) {
+                    if ($file->isValid()) {
+                        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+                        if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
+                            $image = $manager->read($file->getPathname());
+                            $image->scale(1920);
+                            $image->save($destinationPath . '/' . $filename, 75);
+                        } else {
+                            $file->move($destinationPath, $filename);
+                        }
+
+                        SnapshotMedia::create([
+                            'snapshotid' => $snapshotId,
+                            'mediaUrl'   => 'uploads/Snapshots/' . $filename,
+                            'mediaType'  => $file->getClientMimeType(),
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => true,
+                'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
+                'id'      => $snapshotId
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'  => false,
+                'message' => 'Something went wrong. Please try again later.',
+                'error'   => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+
+    public function viewSnapShot($id)
+    {
+        // Fetch snapshot or fail gracefully
+        $snapshots = Snapshot::findOrFail($id);
+
+        // Get children linked to this snapshot
+        $snapchildren = SnapshotChild::where('snapshotid', $id)->pluck('childid');
+        $childrens = Child::whereIn('id', $snapchildren)->get();
+        // dd( $childrens);
+
+        // Get educators (stored as CSV in snapshot->educators)
+        $snapeducators = $snapshots->educators;
+        $educators = collect(); // default empty
+
+        if (!empty($snapeducators)) {
+            $educatorsarray = explode(',', $snapeducators);
+            $educators = User::whereIn('userid', $educatorsarray)->get();
         }
 
-        DB::commit();
+        $snaprooms = $snapshots->roomids;
+        //  dd($snaprooms );
+        $rooms = collect(); // default empty
 
-        return response()->json([
-            'status'  => true,
-            'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
-            'id'      => $snapshotId
-        ], 200);
+        if (!empty($snaprooms)) {
+            $roomsarray = explode(',', $snaprooms);
+            $rooms = Room::whereIn('id', $roomsarray)->get();
+        }
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'status'  => false,
-            'message' => 'Something went wrong. Please try again later.',
-            'error'   => config('app.debug') ? $e->getMessage() : null
-        ], 500);
+
+        // Get media files linked to snapshot
+        $snapmedia = SnapshotMedia::where('snapshotid', $id)->get();
+
+        return view('observations.viewsnapshot', compact(
+            'childrens',
+            'snapshots',
+            'educators',
+            'snapmedia',
+            'rooms'
+        ));
     }
-}
-
-
-public function viewSnapShot($id)
-{
-    // Fetch snapshot or fail gracefully
-    $snapshots = Snapshot::findOrFail($id);
-
-    // Get children linked to this snapshot
-    $snapchildren = SnapshotChild::where('snapshotid', $id)->pluck('childid');
-    $childrens = Child::whereIn('id', $snapchildren)->get();
-    // dd( $childrens);
-
-    // Get educators (stored as CSV in snapshot->educators)
-    $snapeducators = $snapshots->educators;
-    $educators = collect(); // default empty
-
-    if (!empty($snapeducators)) {
-        $educatorsarray = explode(',', $snapeducators);
-        $educators = User::whereIn('userid', $educatorsarray)->get();
-    }
-
-     $snaprooms = $snapshots->roomids;
-    //  dd($snaprooms );
-    $rooms = collect(); // default empty
-
-    if (!empty($snaprooms)) {
-        $roomsarray = explode(',', $snaprooms);
-        $rooms = Room::whereIn('id', $roomsarray)->get();
-    }
-
-
-    // Get media files linked to snapshot
-    $snapmedia = SnapshotMedia::where('snapshotid', $id)->get();
-
-    return view('observations.viewsnapshot', compact(
-        'childrens',
-        'snapshots',
-        'educators',
-        'snapmedia',
-        'rooms'
-    ));
-}
 
 
 
@@ -1867,12 +1874,12 @@ public function viewSnapShot($id)
 
         return response()->json(['status' => 'success']);
     }
-    
+
 
     public function changeCreatedAt(Request $request)
     {
         $obs = Observation::find($request->id);
-        if(!$obs) return response()->json(['success' => false, 'message' => 'Observation not found']);
+        if (!$obs) return response()->json(['success' => false, 'message' => 'Observation not found']);
 
         $newDate = \Carbon\Carbon::parse($request->created_at)->addDay();
 
@@ -1882,12 +1889,13 @@ public function viewSnapShot($id)
         return response()->json(['success' => true]);
     }
 
-    public function commentstore(Request $request, Observation $observation) {
+    public function commentstore(Request $request, Observation $observation)
+    {
         $validated = $request->validate([
             'comments' => 'required|string|max:1000'
         ]);
         $comment = $observation->comments()->create([
-            'userId' => auth()->id(),
+            'userId' => auth::user()->id,
             'comments' => $validated['comments'],
         ]);
         return response()->json([
@@ -1907,7 +1915,7 @@ public function viewSnapShot($id)
         // Authorization: superadmin or owner of comment
         if ($user->userType === 'Superadmin' || $user->id === $comment->userId) {
             $comment->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Comment deleted successfully'
@@ -1925,15 +1933,14 @@ public function viewSnapShot($id)
         try {
             // Find the observation by ID
             $observation = Observation::findOrFail($id);
-            
+
             // Delete the observation
             $observation->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Observation deleted successfully!'
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -1941,6 +1948,4 @@ public function viewSnapShot($id)
             ], 500);
         }
     }
-
-    
 }

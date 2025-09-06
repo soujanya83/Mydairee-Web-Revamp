@@ -4,76 +4,148 @@
 
 
 <style>
-/* Make buttons look consistent & modern */
-.status-btn {
-    width: 100% !important;
-    padding: 10px 0 !important;
-    font-size: 16px !important;
-    border-radius: 8px !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+    /* Make buttons look consistent & modern */
+    .status-btn {
+        width: 100% !important;
+        padding: 10px 0 !important;
+        font-size: 16px !important;
+        border-radius: 8px !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
 
-.status-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
-}
+    .status-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    }
 
-/* Popup styling */
-.swal2-popup-custom {
-    border-radius: 15px !important;
-    padding: 20px !important;
-}
+    /* Popup styling */
+    .swal2-popup-custom {
+        border-radius: 15px !important;
+        padding: 20px !important;
+    }
 
 
-.is-invalid {
-    border-color: #dc3545 !important;
-}
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
 
-.toast-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1050;
-}
+    .toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+    }
 
-.toast {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+    .toast {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-.toast-success {
-    background-color: #28a745;
-    /* Green for success */
-}
+    .toast-success {
+        background-color: #28a745;
+        /* Green for success */
+    }
 
-.toast-error {
-    background-color: #dc3545;
-    /* Red for error */
-}
+    .toast-error {
+        background-color: #dc3545;
+        /* Red for error */
+    }
 
-.toast-close-button {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    color: white;
-    margin-left: 10px;
-}
+    .toast-close-button {
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: white;
+        margin-left: 10px;
+    }
 
-.toast-message {
-    flex: 1;
+    .toast-message {
+        flex: 1;
 
-}
+    }
 
-.c_list .avatar {
-    height: 45px;
-    width: 50px;
-}
+    .c_list .avatar {
+        height: 45px;
+        width: 50px;
+    }
 </style>
+<style>
+    .inline-options {
+        display: flex;
+        flex-wrap: wrap;
+        /* allows wrapping to next line */
+        gap: 8px;
+        /* space between options */
+        padding: 10px;
+    }
 
+    .inline-options a {
+        display: inline-block;
+        padding: 6px 12px;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #333;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .inline-options a:hover {
+        background: #007bff;
+        color: #fff;
+    }
+
+    /* Dropdown container */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Button */
+    .dropbtn {
+        background-color: #dc3545;
+        /* red button */
+        color: white;
+        padding: 6px 10px;
+        font-size: 14px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    /* Dropdown content */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        min-width: 120px;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        border-radius: 5px;
+    }
+
+    /* Dropdown links */
+    .dropdown-content a {
+        color: #333;
+        padding: 8px 12px;
+        text-decoration: none;
+        display: block;
+    }
+
+    /* .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    } */
+
+    /* Show dropdown on hover OR toggle */
+    .dropdown.show .dropdown-content {
+        display: block;
+    }
+</style>
 
 
 
@@ -81,30 +153,31 @@
 
 @section('content')
 
-<div class="text-zero top-right-button-container d-flex justify-content-end g-2" style="margin-right: 20px;margin-top: -60px;">
+<div class="text-zero top-right-button-container d-flex justify-content-end g-2"
+    style="margin-right: 20px;margin-top: -60px;">
     <div class="dropdown">
-        <button class="btn btn-outline-info btn-lg dropdown-toggle"
-                type="button" id="centerDropdown" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
+        <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="centerDropdown"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
         </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important;left:13px !important;">
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
+            style="top:3% !important;left:13px !important;">
             @foreach($centers as $center)
-                <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
-                 style="background-color:white;"  data-id="{{ $center->id }}">
-                    {{ $center->centerName }}
-                </a>
+            <a href="javascript:void(0);"
+                class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
+                style="background-color:white;" data-id="{{ $center->id }}">
+                {{ $center->centerName }}
+            </a>
             @endforeach
         </div>
     </div>
 
     <div class="header float-end text-zero top-right-button-container d-flex justify-content-end">
-                    <!-- <h2>Staff Settings<small></small> </h2> -->
-                    <button class="btn btn-outline-info btn-lg ml-2" style="float:right;margin-bottom:20px;" data-toggle="modal"
-                        data-target="#addSuperadminModal">
-                        <i class="fa fa-plus"></i>&nbsp; Add Staff
-                    </button>
+        <!-- <h2>Staff Settings<small></small> </h2> -->
+        <button class="btn btn-outline-info btn-lg ml-2" style="float:right;margin-bottom:20px;" data-toggle="modal"
+            data-target="#addSuperadminModal">
+            <i class="fa fa-plus"></i>&nbsp; Add Staff
+        </button>
     </div>
 
 
@@ -132,13 +205,10 @@
     </button>
 </div>
 @endif
-                  <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
-     <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
-    <input
-        type="text"
-        name="filterbyCentername"
-        class="form-control border-info"
-        placeholder="Filter by name" onkeyup="filterbyStaffName(this.value)">
+<div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
+    <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
+    <input type="text" id="staffNameFilter" name="filterbyCentername" class="form-control border-info"
+        placeholder="Filter by name">
 </div>
 
 <div class="row clearfix" style="margin-top:30px">
@@ -147,165 +217,98 @@
         <div class="">
 
             <div class="body">
-           <div class="row staff-data">
-    @foreach($staff as $index => $staffs)
-        @php
-            $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
-            $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
-            $avatars = $staffs->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-            $defaultAvatar = $avatars[array_rand($avatars)];
-            $avatar = $staffs->imageUrl ? asset($staffs->imageUrl) : asset('assets/img/xs/' . $defaultAvatar);
+                <div class="row staff-data">
+                    @foreach($staff as $index => $staffs)
+                    @php
+                    $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+                    $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+                    $avatars = $staffs->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+                    $defaultAvatar = $avatars[array_rand($avatars)];
+                    $avatar = $staffs->imageUrl ? asset($staffs->imageUrl) : asset('assets/img/xs/' . $defaultAvatar);
 
-            $userType=Auth::user()->userType;
-
-
-        @endphp
-
-        <div class="col-md-3 mb-4">
-            <div class="card h-100 shadow-sm border-primary">
-               <div class="card-body text-center">
-    <div class="d-flex justify-content-center align-items-center mb-0">
-        {{-- Avatar --}}
-        <img src="{{ $avatar }}" alt="Avatar" class="rounded-circle" width="80" height="80">
-
-       @if($userType == 'Superadmin')
-        {{-- <form action="{{ route('settings.userWifi.changeStatus', $staffs->id) }}" method="POST"
-            style="position:absolute; top:5px; right:5px;">
-            @csrf
-            @if ($staffs->wifi_status == 1)
-                <button class="btn btn-sm btn-success" title="Click to User WiFi Remove Access">
-                    <i class="fas fa-wifi"></i> Access
-                </button>
-            @else
-                <button class="btn btn-sm btn-danger" title="Click to User WiFi Give Access">
-                    <i class="fas fa-wifi"></i> No Access
-                </button>
-            @endif
-        </form> --}}
-                <form action="{{ route('settings.userWifi.changeStatus', $staffs->id) }}"
-      method="POST"
-      style="position:absolute; top:5px; right:5px;"
-      onsubmit="return confirmRemoveAccess(event)">
-    @csrf
-    @if ($staffs->wifi_status == 1)
-        <button type="submit" class="btn btn-sm btn-success" title="Click to User WiFi Remove Access">
-            <i class="fas fa-wifi"></i> Access
-        </button>
-    @else
-        <div class="dropdown">
-            <button type="button" class="dropbtn dropdown-toggle">
-                <i class="fas fa-wifi"></i> No Access
-            </button>
-            <div class="dropdown-content">
-                <a href="#" data-hour="1">1 Hour</a>
-                <a href="#" data-hour="2">2 Hours</a>
-                <a href="#" data-hour="3">3 Hours</a>
-                <a href="#" data-hour="4">4 Hours</a>
-                <a href="#" data-hour="5">5 Hours</a>
-                <a href="#" data-hour="6">6 Hours</a>
-                <a href="#" data-hour="7">7 Hours</a>
-                <a href="#" data-hour="8">8 Hours</a>
-            </div>
-        </div>
-        <input type="hidden" name="hours" class="selected-hour">
-    @endif
-</form>
+                    $userType=Auth::user()->userType;
 
 
+                    @endphp
 
 
-                 <style>
-                    /* Dropdown container */
-                    .dropdown {
-                    position: relative;
-                    display: inline-block;
-                    }
+                    <div class="col-md-3 mb-4 staff-card" data-staff-name="{{ strtolower($staffs->name) }}">
+                        <div class="card h-100 shadow-sm border-primary">
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-center align-items-center mb-0">
+                                    {{-- Avatar --}}
+                                    <img src="{{ $avatar }}" alt="Avatar" class="rounded-circle" width="80" height="80">
 
-                    /* Button */
-                    .dropbtn {
-                    background-color: #dc3545; /* red button */
-                    color: white;
-                    padding: 6px 10px;
-                    font-size: 14px;
-                    border: none;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    }
+                                    @if($userType == 'Superadmin')
+                                    <form action="{{ route('settings.userWifi.changeStatus', $staffs->id) }}"
+                                        method="POST" style="position:absolute; top:5px; right:5px;"
+                                        onsubmit="return confirmRemoveAccess(event)">
+                                        @csrf
+                                        @if ($staffs->wifi_status == 1)
+                                        <button type="submit" class="btn btn-sm btn-success"
+                                            title="Click to User Remove IP Access">
+                                            <i class="fas fa-location"></i> Access
+                                        </button>
+                                        @else
+                                        <div class="dropdown">
+                                            <button type="button" class="dropbtn dropdown-toggle" title="Click to User Give IP Access">
+                                                <i class="fas fa-location"></i> No Access
+                                            </button>
+                                            <div class="dropdown-content inline-options">
 
-                    /* Dropdown content */
-                    .dropdown-content {
-                    display: none;
-                    position: absolute;
-                    background-color: #fff;
-                    min-width: 120px;
-                    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-                    z-index: 1;
-                    border-radius: 5px;
-                    }
+                                                <a href="#" data-hour="1" class="mt-0">1 Hour</a>
+                                                <a href="#" data-hour="4" class="mt-1">4 Hours</a>
+                                                <a href="#" data-hour="8" class="mt-1">8 Hours</a>
+                                                <a href="#" data-hour="168" class="mt-1">1 Week</a>
+                                                <a href="#" data-hour="720" class="mt-1">1 Month</a>
+                                                <a href="#" data-hour="8760" class="mt-1">1 Year</a>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" name="hours" class="selected-hour">
+                                        @endif
+                                    </form>
+                                    @endif
+                                </div>
 
-                    /* Dropdown links */
-                    .dropdown-content a {
-                    color: #333;
-                    padding: 8px 12px;
-                    text-decoration: none;
-                    display: block;
-                    }
+                                {{-- Name, Email, Contact --}}
+                                <h5 class="card-title mb-1">{{ $staffs->name }}</h5>
+                                <p class="card-text mb-1"><strong>Email:</strong> {{ $staffs->email }}</p>
+                                <p class="card-text mb-2"><strong>Contact:</strong> {{ $staffs->contactNo }}</p>
 
-                    .dropdown-content a:hover {
-                    background-color: #f1f1f1;
-                    }
-
-                    /* Show dropdown on hover OR toggle */
-                    .dropdown.show .dropdown-content {
-                    display: block;
-                    }
-                 </style>
-                @endif
-            </div>
-
-            {{-- Name, Email, Contact --}}
-            <h5 class="card-title mb-1">{{ $staffs->name }}</h5>
-            <p class="card-text mb-1"><strong>Email:</strong> {{ $staffs->email }}</p>
-            <p class="card-text mb-2"><strong>Contact:</strong> {{ $staffs->contactNo }}</p>
-
-            {{-- Other Action Buttons --}}
-            <div class="d-flex justify-content-center gap-3">
-                <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $staffs->id }})">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $staffs->id }})">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-                <button class="btn btn-sm border shadow-sm bg-white px-3 ml-2" onclick="UpdateStatusSuperadmin({{ $staffs->id }})">
-                    @if($staffs->status === 'ACTIVE')
-                        <i class="fa-solid fa-circle-check text-success me-1"></i>
-                        <span class="text-success fw-bold">Active</span>
-                    @elseif($staffs->status === 'IN-ACTIVE')
-                        <i class="fa-solid fa-circle-xmark text-danger me-1"></i>
-                        <span class="text-danger fw-bold">Inactive</span>
-                    @else
-                        <i class="fa-solid fa-clock text-warning me-1"></i>
-                        <span class="text-warning fw-bold">Pending</span>
-                    @endif
-                </button>
-
+                                {{-- Other Action Buttons --}}
+                                <div class="d-flex justify-content-center gap-3">
+                                    <button class="btn btn-sm btn-info"
+                                        onclick="openEditSuperadminModal({{ $staffs->id }})">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger ml-2"
+                                        onclick="deleteSuperadmin({{ $staffs->id }})">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    <button class="btn btn-sm border shadow-sm bg-white px-3 ml-2"
+                                        onclick="UpdateStatusSuperadmin({{ $staffs->id }})">
+                                        @if($staffs->status === 'ACTIVE')
+                                        <i class="fa-solid fa-circle-check text-success me-1"></i>
+                                        <span class="text-success fw-bold">Active</span>
+                                        @elseif($staffs->status === 'IN-ACTIVE')
+                                        <i class="fa-solid fa-circle-xmark text-danger me-1"></i>
+                                        <span class="text-danger fw-bold">Inactive</span>
+                                        @else
+                                        <i class="fa-solid fa-clock text-warning me-1"></i>
+                                        <span class="text-warning fw-bold">Pending</span>
+                                        @endif
+                                    </button>
+                                </div>
+                            </div>
+                            @if($staffs->wifi_access_until != null)
+                            <span style="margin-left:32px"><span style="color:#dc3545"><b>Access Expires:</b></span>
+                                <b>{{ \Carbon\Carbon::parse($staffs->wifi_access_until)->format('d M Y, h:i A') }}</b>
+                            </span>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
-                </div>
-                @if($staffs->wifi_access_until != null)
-                    <span style="    margin-left:32px"><span style="color:#dc3545"><b>Access Expires:</b></span> <b>{{ \Carbon\Carbon::parse($staffs->wifi_access_until)->format('d M Y, h:i A') }}</b> </span>
-                     @endif
-            </div>
-
-    </div>
-
-
-
-
-
-
-
-    @endforeach
-</div>
 
 
             </div>
@@ -459,20 +462,42 @@
 
 
     <!-- spinner  -->
-     <div id="loader" style="display:none;
+    <div id="loader" style="display:none;
      position: fixed;
      top: 50%; left: 50%;
      transform: translate(-50%, -50%);
      z-index: 9999;">
-    <div class="spinner-border text-info" role="status" style="width: 3rem; height: 3rem;">
-        <span class="visually-hidden">Loading...</span>
+        <div class="spinner-border text-info" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     </div>
-</div>
 
-
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-function UpdateStatusSuperadmin(id) {
+        $(document).ready(function() {
+        // Filter staff list on input change
+        $('#staffNameFilter').on('input', function() {
+            var filterValue = $(this).val().toLowerCase().trim();
+
+            $('.staff-card').each(function() {
+                var staffName = $(this).data('staff-name');
+                if (staffName.includes(filterValue)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    });
+
+    // Placeholder for other functions (ensure they are defined if used)
+    function confirmRemoveAccess(event) {
+        return confirm("Are you sure you want to remove WiFi access?");
+    }
+
+    </script>
+    <script>
+        function UpdateStatusSuperadmin(id) {
     Swal.fire({
         title: '<h3 style="color:#17a2b8;">🔄 Update Status</h3>',
         html: `
@@ -767,108 +792,50 @@ function showLoaderFor2Sec() {
         });
     }
 
-  function filterbyStaffName(Staffname) {
-    var staff_data = $('.staff-data');
-    // console.log(Staffname);
-
-    $.ajax({
-        url: 'filter-staffs', // Update with your correct route
-        method: 'GET',
-        data: { staff_name: Staffname },
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function(response) {
-            //  console.log(response);
-            staff_data.empty();
-
-            if (response.staff.length === 0) {
-                staff_data.append('<p class="text-muted">No matching staff found.</p>');
-                return;
-            }
-
-            $.each(response.staff, function(index, staff) {
-                let defaultAvatars = staff.gender === 'FEMALE'
-                    ? ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg']
-                    : ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
-
-                let defaultAvatar = defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
-                let avatar = staff.imageUrl ? staff.imageUrl : '/assets/img/xs/' + defaultAvatar;
-
-                let card = `
-                    <div class="col-md-3 mb-4">
-                        <div class="card h-100 shadow-sm border-primary">
-                            <div class="card-body text-center">
-                                <img src="${avatar}" class="rounded-circle mb-3" width="80" height="80">
-                                <h5 class="card-title mb-1">${staff.name}</h5>
-                                <p class="card-text mb-1"><strong>Email:</strong> ${staff.email}</p>
-                                <p class="card-text mb-2"><strong>Contact:</strong> ${staff.contactNo}</p>
-
-                                <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal(${staff.id})">
-                                        <i class="fa-solid fa-pen-to-square"></i> Edit
-                                    </button>
-                                    <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin(${staff.id})">
-                                        <i class="fa-solid fa-trash"></i> Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                staff_data.append(card);
-            });
-        },
-        error: function(xhr) {
-            console.error('AJAX error:', xhr.responseText);
-        }
-    });
-}
-
     </script>
 
 
 
 
 
-<script>
-// Toggle dropdown open/close
-document.querySelectorAll(".dropbtn").forEach(btn => {
-    btn.addEventListener("click", function(e) {
-        e.preventDefault();
-        this.parentElement.classList.toggle("show");
-    });
-});
+    <script>
+        // Toggle dropdown open/close
+        document.querySelectorAll(".dropbtn").forEach(btn => {
+            btn.addEventListener("click", function(e) {
+                e.preventDefault();
+                this.parentElement.classList.toggle("show");
+            });
+        });
 
-// Auto-submit on selecting hour
-document.querySelectorAll(".dropdown-content a").forEach(item => {
-    item.addEventListener("click", function(e) {
-        e.preventDefault();
-        let hour = this.getAttribute("data-hour");
-        let form = this.closest("form");
-        form.querySelector(".selected-hour").value = hour;
-        form.submit();
-    });
-});
+        // Auto-submit on selecting hour
+        document.querySelectorAll(".dropdown-content a").forEach(item => {
+            item.addEventListener("click", function(e) {
+                e.preventDefault();
+                let hour = this.getAttribute("data-hour");
+                let form = this.closest("form");
+                form.querySelector(".selected-hour").value = hour;
+                form.submit();
+            });
+        });
 
-// Close dropdown when clicking outside
-window.addEventListener("click", function(e) {
-    document.querySelectorAll(".dropdown").forEach(drop => {
-        if (!drop.contains(e.target)) {
-            drop.classList.remove("show");
-        }
-    });
-});
-</script>
-<script>
-function confirmRemoveAccess(event) {
+        // Close dropdown when clicking outside
+        window.addEventListener("click", function(e) {
+            document.querySelectorAll(".dropdown").forEach(drop => {
+                if (!drop.contains(e.target)) {
+                    drop.classList.remove("show");
+                }
+            });
+        });
+    </script>
+    <script>
+        function confirmRemoveAccess(event) {
     // Only confirm when button has "Access" (meaning removing access)
     const btn = event.target.querySelector("button[type='submit']");
     if (btn && btn.textContent.includes("Access")) {
         return confirm("Are you sure you want to remove this user's Login access?");
     }
     return true;
-}
-</script>
+    }
+    </script>
     @include('layout.footer')
     @stop

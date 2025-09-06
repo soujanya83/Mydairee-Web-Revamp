@@ -55,7 +55,7 @@ class WifiIPController extends Controller
             $staff->wifi_access_until = null;
         } else {
             $request->validate([
-                'hours' => 'required|integer|in:1,2,3,4,5,6,7,8'
+                'hours' => 'required|integer|in:1,4,8,168,720,8760'
             ]);
 
             // Access give with selected hours
@@ -65,7 +65,7 @@ class WifiIPController extends Controller
 
         $staff->save();
 
-        return back()->with('success', 'WiFi access updated successfully.');
+        return back()->with('success', 'IP access updated successfully.');
     }
 
     // ✅ Change Status

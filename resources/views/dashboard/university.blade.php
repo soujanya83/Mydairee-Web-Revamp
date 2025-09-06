@@ -40,6 +40,11 @@
     .block-header {
         margin-top: -5px
     }
+
+    .fc-daygrid-event {
+        cursor: pointer !important;
+        /* Pointer for all events */
+    }
 </style>
 
 
@@ -263,9 +268,9 @@
 <div class="modal fade" id="holidayModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header text-white" style="background-color: rgb(104 131 178)">
+            <div class="modal-header text-white" style="background-color: green">
                 <h5 class="modal-title">Holiday Details</h5>
-                <button type="button" class="btn btn-sm btn-light text-danger border-0"style="cursor: pointer;"
+                <button type="button" class="btn btn-sm btn-light text-danger border-0" style="cursor: pointer;"
                     data-dismiss="modal" aria-label="Close">X</button>
 
             </div>
@@ -362,13 +367,19 @@
                 new bootstrap.Modal(document.getElementById('birthdayModal')).show();
             }  else if (isHoliday) {
         // 📅 Holiday Modal
-        let html = `
+                function formatDate(dateStr) {
+                const date = new Date(dateStr);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = date.toLocaleString('en-US', { month: 'long' }); // Full month name
+                const year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
 
-            <div class="mb-2"><strong>Date:</strong> ${info.event.startStr}</div>
-            <div class="mb-2"><strong>State:</strong> ${info.event.extendedProps.state}</div>
-            <div class="mb-2"><strong>Occasion:</strong> ${info.event.title.replace('📅 ', '')}</div>
-
-        `;
+            let html = `
+                <div class="mb-2"><strong>Date:</strong> ${formatDate(info.event.startStr)}</div>
+                <div class="mb-2"><strong>State:</strong> ${info.event.extendedProps.state}</div>
+                <div class="mb-2"><strong>Occasion:</strong> ${info.event.title.replace('📅 ', '')}</div>
+            `;
 
         document.getElementById('holidayModalBody').innerHTML = html;
         new bootstrap.Modal(document.getElementById('holidayModal')).show();
@@ -481,7 +492,7 @@
                         title: item.title,
                         date: item.date,
                         allDay: true,
-                        color: 'rgb(104 131 178)', // 🟢 Green for holidays
+                        color: 'green', // 🟢 Green for holidays
                         state: item.state,
                         status: item.status,
                         className: 'holiday-event'
