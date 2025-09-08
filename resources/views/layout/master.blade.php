@@ -10,7 +10,7 @@
         <meta name="description" content="@yield('meta_description', config('app.name'))">
         <meta name="author" content="@yield('meta_author', config('app.name'))">
         @yield('meta')
-<link rel="icon" type="image/png" sizes="36x36" href="{{ asset('assets/img/android-icon-36x36.png') }}">
+<link rel="icon" type="image/png" sizes="36x36" href="{{ asset('assets/img/Mydiaree d.png') }}">
 
         {{-- See https://laravel.com/docs/5.5/blade#stacks for usage --}}
         @stack('before-styles')

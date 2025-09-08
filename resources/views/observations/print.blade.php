@@ -9,6 +9,10 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+
+        <link rel="icon" type="image/png" sizes="36x36" href="{{ asset('assets/img/Mydiaree d.png') }}">
 
     <style>
     body {
@@ -114,6 +118,9 @@
     @media print {
         .print-button {
             display: none;
+        }
+        .language-wrapper{
+              display: none;
         }
 
         body {
@@ -278,13 +285,94 @@
 
     </style>
 
+    <style>
+.translate-button {
+  background-color: #17a2b8;   /* btn-info style */
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px 0 0 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.translate-button i {
+  margin-left: 6px;
+}
+
+.language-select {
+  background-color: #17a2b8;
+  color: #fff;
+  border: none;
+  padding: 8px 8px;
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  font-size: 14px;
+  appearance: none;  /* remove native arrow */
+  outline: none;
+}
+
+.language-wrapper {
+    position: fixed;
+        top: 20px;
+        left: 20px;
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 9999;
+
+}
+
+.language-wrapper::after {
+  content: "▼";
+  font-size: 10px;
+  color: #fff;
+  position: absolute;
+  right: 2px;
+  pointer-events: none;
+}
+</style>
+<style>
+/* Spinner animation */
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(255,255,255,0.3);
+    border-top: 6px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
 
 </head>
 
 <body>
 
 
-    <button onclick="window.print()" class="print-button">Print Pages&nbsp;<i
+<div class="language-wrapper" style="">
+  <!-- Main Translate Button -->
+  <button onclick="translateText()" class="translate-button" style="">
+    Translate <i class="fa-solid fa-language fa-beat-fade"></i>
+  </button>
+
+  <!-- Dropdown for languages -->
+  <select class="language-select" id="select-language" style="">
+  </select>
+</div>
+
+
+    <button onclick="window.print()" class="print-button">Print Page&nbsp;<i
             class="fa-solid fa-print fa-beat-fade"></i></button>
     <div class="container">
         <div class="header">
@@ -355,7 +443,7 @@
 
         <div class="info-block">
             <strong>Observation:</strong>
-            <span class="info-text">
+            <span class="info-text" id="observation">
                 {!! html_entity_decode($observation->title ?? '') !!}
             </span>
         </div>
@@ -365,7 +453,7 @@
 
         <div class="info-block">
             <strong>EYLF Outcomes:</strong>
-            <span class="info-text">
+            <span class="info-text" id="eylf">
                 @if($observation->eylfLinks && $observation->eylfLinks->isNotEmpty())
                 @php
                 $groupedByOutcome = $observation->eylfLinks->groupBy(function($item) {
@@ -387,7 +475,7 @@
 
         <div class="info-block">
             <strong>Analysis/Evaluation:</strong>
-            <span class="info-text">
+            <span class="info-text" id="analysis">
                 {!! html_entity_decode($observation->notes ?? '') !!}
             </span>
         </div>
@@ -395,7 +483,7 @@
 
         <div class="info-block">
             <strong>Reflection:</strong>
-            <span class="info-text">
+            <span class="info-text" id="reflection">
                 {!! html_entity_decode($observation->reflection ?? '') !!}
             </span>
         </div>
@@ -403,14 +491,14 @@
 
         <div class="info-block">
             <strong>Child's Voice:</strong>
-            <span class="info-text">
+            <span class="info-text" id="childvoice">
                 {!! html_entity_decode($observation->child_voice ?? 'Not recorded') !!}
             </span>
         </div>
 
         <div class="info-block">
             <strong>Montessori Assessment:</strong>
-            <span class="info-text">
+            <span class="info-text" id="montessori_assesment">
                 @if($observation->montessoriLinks && $observation->montessoriLinks->isNotEmpty())
                 @php
                 $groupedBySubject = $observation->montessoriLinks->groupBy(function($item) {
@@ -442,7 +530,7 @@
 
         <div class="info-block">
             <strong>Development Milestones:</strong>
-            <span class="info-text">
+            <span class="info-text" id="development_milestone">
                 @if($observation->devMilestoneSubs && $observation->devMilestoneSubs->isNotEmpty())
                 @php
                 $groupedByAgeGroup = $observation->devMilestoneSubs->groupBy(function($item) {
@@ -482,7 +570,7 @@
 
         <div class="info-block">
             <strong>Future Plan/Extension:</strong>
-            <span class="info-text">
+            <span class="info-text" id="futureplan">
                 {!! html_entity_decode($observation->future_plan ?? '') !!}
             </span>
         </div>
@@ -491,6 +579,37 @@
 
     </div>
 
+    <!-- Overlay -->
+<div id="overlay" style="
+    display:none;
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:rgba(0,0,0,0.6);
+    z-index:9998;
+    pointer-events:auto;
+">
+    <!-- Loader -->
+    <div style="
+        position:absolute;
+        top:50%;left:50%;
+        transform:translate(-50%,-50%);
+        text-align:center;
+        color:white;
+        font-family:Arial, sans-serif;
+    ">
+        <!-- Spinner -->
+        <div class="spinner"></div>
+        <div style="margin-top:15px; font-size:18px; font-weight:500;">
+            Translating...
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
    document.addEventListener('DOMContentLoaded', function() {
     var overlay = document.getElementById('imageLightbox');
@@ -553,7 +672,138 @@
         if (e.key === 'ArrowRight') showNext();
         if (e.key === 'ArrowLeft') showPrev();
     });
+
 });
+
+
+
+    // "Assamese", "Bengali", "Bodo", "Dogri", "Gujarati", "Hindi",
+    // "Kannada", "Kashmiri", "Konkani", "Maithili", "Malayalam",
+    // "Manipuri", "Marathi", "Nepali", "Odia", "Punjabi",
+    // "Sanskrit", "Santali", "Sindhi", "Tamil", "Telugu", "Urdu",
+    // "Bhojpuri", "Magahi", "Awadhi", "Chhattisgarhi",
+    // "Rajasthani", "Garhwali", "Kumaoni", "Tulu", "Mizo", "Khasi",
+    // "Garo", "Lepcha", "Limbu", "Sherpa", "Bhutia", "Nagamese","English"
+ 
+
+    const indianLanguages = ["Bengali","Gujarati", "Hindi","Kannada","Malayalam","Marathi", "Odia", "Punjabi/Gurmukhi ",
+    "Sindhi", "Tamil", "Telugu", "Urdu", "Tulu", "English","Vietnamese","Mandarin"];
+
+// Total count
+console.log(`Total languages in array: ${indianLanguages.length}`);
+
+  // Populate dropdown
+indianLanguages.sort((a, b) => a.localeCompare(b));
+
+// Reset dropdown first
+// $('#select-language').html('<option value="">Select Language</option>');
+
+// Populate dropdown
+indianLanguages.forEach(lang => {
+  if (lang === "English") {
+    $('#select-language').append(`<option value="${lang}" selected>${lang}</option>`);
+  } else {
+    $('#select-language').append(`<option value="${lang}">${lang}</option>`);
+  }
+});
+
+  // Activate Select2 search feature
+  $(document).ready(function () {
+    $('#select-language').select2({
+      placeholder: "Select Language",
+      allowClear: true
+    });
+  });
+
+// GET request
+// document.addEventListener("DOMContentLoaded", function () {
+//     // Use the correct Metadapi endpoint:
+//     fetch("https://global.metadapi.com/lang/v1/languages", {
+//         method: "GET"
+//     })
+//     .then(response => {
+//         if (!response.ok) {
+//             throw new Error(`Network response was not ok (status: ${response.status})`);
+//         }
+//         return response.json();
+//     })
+//     .then(json => {
+//         console.log("API Response:", json);
+
+//         const select = document.getElementById("select-language");
+//         select.innerHTML = '<option value="">Select Language</option>';
+
+//         if (json.data && Array.isArray(json.data)) {
+//             json.data.forEach(lang => {
+//                 const option = document.createElement("option");
+//                 option.value = lang.langCode; // like "fr"
+//                 // Show English + native names
+//                 option.textContent = `${lang.langEnglishName} (${lang.langNativeName})`;
+//                 select.appendChild(option);
+//             });
+//         } else {
+//             console.error("No language data found", json);
+//         }
+//     })
+//     .catch(error => console.error("Error fetching language list:", error));
+// });
+
+
+function translateText() {
+    let data = {
+        reflection:  $('#reflection').html(),
+        childvoice:  $('#childvoice').html(),
+        observation: $('#observation').html(),
+        analysis:    $('#analysis').html(),
+        futureplan:  $('#futureplan').html(),
+        language:    $('#select-language').val(),
+        eylf: $('#eylf').html(),
+        montessori_assesment : $('#montessori_assesment').html(),
+        development_milestone : $('#development_milestone').html()
+    };
+
+    // console.log("Sending data:", data);
+     $('#overlay').show();
+
+    $.ajax({
+        url: '{{ route("observation.translate-observation") }}',
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        data: data,
+    success: function(response) {
+    console.log('Translation Success:', response);
+
+    if (response.status) {
+        // Step 1: Clear all fields
+        $('#reflection, #childvoice, #observation, #analysis, #futureplan','#development_milestone','#montessori_assesment','#eylf').html('');
+
+        // Step 2: Fill with translated values
+        $('#reflection').html(response.data.reflection ?? '');
+        $('#childvoice').html(response.data.childvoice ?? '');
+        $('#observation').html(response.data.observation ?? '');
+        $('#analysis').html(response.data.analysis ?? '');
+        $('#futureplan').html(response.data.futureplan ?? '');
+         $('#development_milestone').html(response.data.development_milestone);
+         $('#eylf').html(response.data.eylf);
+          $('#montessori_assesment').html(response.data.montessori_assesment);
+    }
+
+}
+,
+        error: function(xhr) {
+            console.error('Translation Failed:', xhr.responseText);
+            alert('Something went wrong while translating.');
+        },
+           complete: function() {
+            // Hide loader & allow clicks again
+            $('#overlay').hide();
+        }
+    });
+}
+
+
 
     </script>
 </body>

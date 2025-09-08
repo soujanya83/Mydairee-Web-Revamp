@@ -3605,47 +3605,45 @@ $(document).ready(function() {
 });
 
 
-   function AiAssistance() {
-        // get editor instance
-        // let editorData = CKEDITOR.instances['editor1'].getData();
-        let title =  editors["editor1"] ? editors["editor1"].getData() : "";
-        console.log('functon'+ title); // this will print the content
+function AiAssistance() {
+    // get editor instance
+    let title = editors["editor1"] ? editors["editor1"].getData() : "";
 
-     $.ajax({
-        url: "{{ route('observation.ai-assist') }}",   // 👈 replace with your route name
+    $.ajax({
+        url: "{{ route('observation.ai-assist') }}",
         type: "POST",
         data: {
             observation: title,
-            _token: "{{ csrf_token() }}"   // CSRF token for Laravel
+            _token: "{{ csrf_token() }}"
         },
         dataType: "json",
 
-        // Runs before the request is sent
         beforeSend: function () {
             console.log("Sending data to AI Assistance...");
-            // Optional: show loader/spinner
             $("#aiAssistLoader").show();
         },
 
         success: function (res) {
-             console.log("Response:", res.data.raw);
-            console.log("reflection:", res.data.reflection);
-            console.log("analysis:", res.data.analysis);
-            console.log("futurePlan:", res.data.futurePlan);
-            console.log("childVoice:", res.data.childVoice);
-            console.log("childVoice1:", res.data.childVoice1);
+            console.log("Full Response:", res);
+            console.log("Analysis:", res.data.analysis);
+            console.log("Reflection:", res.data.reflection);
+            console.log("Future Plan:", res.data.future_plan); // ← Fixed key name
 
-//         $('#AnalysisPreview').text(res.data.analysis);
-// $('#ReflectionPreview').text(res.data.reflection);
-// $('#futureplanPreview').text(res.data.futurePlan);
-// $('#childvoicePreview').text(res.data.childVoice);
+            // Convert arrays to formatted strings for CKEditor
+            if (res.data.analysis && Array.isArray(res.data.analysis)) {
+                const analysisHtml = convertArrayToHtml(res.data.analysis);
+                if (editors["editor2"]) {
+                    editors["editor2"].setData(analysisHtml);
+                }
+            }
 
-        // obestitle: editors["editor6"] ? editors["editor6"].setData() : "",
-        // title: editors["editor1"] ? editors["editor1"].setData() : "",
-        // notes: editors["editor2"] ? editors["editor2"].setData() : "",
-        // reflection: editors["editor3"] ? editors["editor3"].setData() : "",
-        // child_voice: editors["editor4"] ? editors["editor4"].setData() : "",
-        // future_plan: editors["editor5"] ? editors["editor5"].setData() : "",
+            if (res.data.reflection && Array.isArray(res.data.reflection)) {
+                const reflectionHtml = convertArrayToHtml(res.data.reflection);
+                if (editors["editor3"]) {
+                    editors["editor3"].setData(reflectionHtml);
+                }
+            }
+
 
 
 if (editors["editor2"]) editors["editor2"].setData(res.data.analysis || "");
@@ -3658,20 +3656,156 @@ if (editors["editor5"]) editors["editor5"].setData(res.data.futurePlan || "");
 
 
             // hide loader
+
+            if (res.data.future_plan && Array.isArray(res.data.future_plan)) { // ← Fixed key name
+                const futurePlanHtml = convertArrayToHtml(res.data.future_plan);
+                if (editors["editor5"]) {
+                    editors["editor5"].setData(futurePlanHtml);
+                }
+            }
+
+
             $("#aiAssistLoader").hide();
         },
 
         error: function (xhr, status, error) {
             console.error("Error:", error);
-            console.log(xhr.responseText);
-            alert("Something went wrong!");
+            console.log("Response Text:", xhr.responseText);
 
-            // hide loader
+            // Try to parse error response
+            try {
+                const errorResponse = JSON.parse(xhr.responseText);
+                console.log("Error Response:", errorResponse);
+                alert("Error: " + (errorResponse.message || "Something went wrong!"));
+            } catch (e) {
+                alert("Something went wrong!");
+            }
+
             $("#aiAssistLoader").hide();
         }
     });
+}
+
+// Smart formatter that handles both bullet points and paragraphs
+function convertArrayToFormattedHtml(dataArray) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        return "";
     }
 
+
+    let html = "";
+
+    dataArray.forEach(function(item, index) {
+        // Check if item starts with bullet point
+        if (item.trim().startsWith('•')) {
+            // It's already formatted as bullet point, wrap in paragraph with line break
+            html += "<p>" + escapeHtml(item) + "</p>";
+        } else {
+            // Regular paragraph
+            html += "<p>" + escapeHtml(item) + "</p>";
+        }
+
+        // Add extra spacing between items (except for last item)
+        if (index < dataArray.length - 1) {
+            html += "<br>";
+        }
+    });
+
+    return html;
+}
+
+// Alternative: Create proper HTML lists for bullet points
+function convertArrayToSmartHtml(dataArray) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        return "";
+    }
+
+    // Check if most items are bullet points
+    let bulletCount = 0;
+    dataArray.forEach(function(item) {
+        if (item.trim().startsWith('•')) {
+            bulletCount++;
+        }
+    });
+
+    // If more than half are bullet points, format as HTML list
+    if (bulletCount > dataArray.length / 2) {
+        let html = "<ul>";
+        dataArray.forEach(function(item) {
+            let cleanItem = item.trim().startsWith('•') ? item.trim().substring(1).trim() : item.trim();
+            html += "<li>" + escapeHtml(cleanItem) + "</li>";
+        });
+        html += "</ul>";
+        return html;
+    } else {
+        // Format as paragraphs with line breaks
+        let html = "";
+        dataArray.forEach(function(item, index) {
+            html += "<p>" + escapeHtml(item) + "</p>";
+            if (index < dataArray.length - 1) {
+                html += "<br>";
+            }
+        });
+        return html;
+    }
+}
+
+// Helper function to convert array to HTML list
+function convertArrayToHtml(dataArray) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        return "";
+    }
+
+    // Create numbered list
+    let html = "<ol>";
+    dataArray.forEach(function(item) {
+        html += "<li>" + escapeHtml(item) + "</li>";
+    });
+    html += "</ol>";
+
+    return html;
+}
+
+// Alternative: Convert to bullet points
+function convertArrayToBulletPoints(dataArray) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        return "";
+    }
+
+    let html = "<ul>";
+    dataArray.forEach(function(item) {
+        html += "<li>" + escapeHtml(item) + "</li>";
+    });
+    html += "</ul>";
+
+    return html;
+}
+
+// Alternative: Convert to paragraphs
+function convertArrayToParagraphs(dataArray) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        return "";
+    }
+
+    let html = "";
+    dataArray.forEach(function(item) {
+        html += "<p>" + escapeHtml(item) + "</p>";
+    });
+
+    return html;
+}
+
+// Helper function to escape HTML characters
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+>>>>>>> origin/main
 </script>
 
 

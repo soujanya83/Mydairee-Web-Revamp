@@ -17,7 +17,8 @@ class AnnouncementsModel extends Model
 'centerid',
 'createdBy',
 'createdAt',
-'announcementMedia'
+'announcementMedia',
+'audience'
     ];
 
 public function children()

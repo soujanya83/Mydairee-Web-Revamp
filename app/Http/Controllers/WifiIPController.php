@@ -14,7 +14,7 @@ class WifiIPController extends Controller
     {
         $all_wifi = WifiIP_Model::latest()->get();
 
-        return view('Wifi_ip.wifi_ip_list', compact('all_wifi'));
+        return view('wifi_ip.wifi_ip_list', compact('all_wifi'));
     }
 
 
