@@ -93,15 +93,15 @@
                     <tbody>
                         @foreach($holidayData as $index => $holidays)
                         <tr>
-                            <th scope="row">{{ $index + 1 }}</th>
+                            <td>{{ $index + 1 }}</td> <!-- Use td instead of th -->
                             <td>{{ $holidays->full_date->format('d M Y') }}</td>
                             <td>{{ $holidays->occasion }}</td>
                             <td>{{ $holidays->state ?: '--' }}</td>
                             <td>
                                 @if($holidays->status == 1)
-                                <span style="color:green">Active</span>
+                                <span class="text-success">Active</span>
                                 @else
-                                <span style="color:red">Inactive</span>
+                                <span class="text-danger">Inactive</span>
                                 @endif
                             </td>
                             <td>
@@ -121,8 +121,8 @@
                                     data-status="{{ $holidays->status }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
-
-                                <!-- Delete Button --> &nbsp;
+                                &nbsp;
+                                <!-- Delete Button -->
                                 <form action="{{ route('settings.holiday.destroy', $holidays->id) }}" method="POST"
                                     style="display:inline-block;" onsubmit="return confirm('Are you sure?')">
                                     @csrf
@@ -135,6 +135,7 @@
                         </tr>
                         @endforeach
                     </tbody>
+
 
                 </table>
             </div>
@@ -212,6 +213,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Holiday</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal">X</button>
+                     {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button> --}}
                 </div>
 
                 <div class="modal-body">
@@ -295,7 +297,7 @@
             $('#holidayModalLabel').text('Edit Public Holiday');
             $('#holidaySaveBtn').text('Update');
 
-            $('#holidayModal').modal('show');
+            // $('#holidayModal').modal('show');
         });
 
         // Reset modal

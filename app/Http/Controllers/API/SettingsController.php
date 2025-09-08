@@ -740,7 +740,7 @@ public function staff_store(Request $request)
         $user->name      = $request->name;
         $user->gender    = $request->gender;
         $user->userType  = 'Staff';
-        $user->center_status = 1;
+        $user->center_status = $request->center_id;
 
         // Step 3: Handle image upload
         if ($request->hasFile('imageUrl')) {

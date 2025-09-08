@@ -55,7 +55,7 @@
                             <th>#</th>
                             <th>IP</th>
                             <th>IP Name</th>
-                            <th>IP Address</th>
+                            <th>IP Location</th>
                             <th>IP Status</th>
                             <th>Action</th>
                         </tr>
@@ -69,20 +69,28 @@
                             <td>{{$wifi->wifi_address ?: '--' }}</td>
                             <td>
                                 @if($wifi->status == 1)
-                               <span style="color:green">Active</span>
+
+                                <form action="{{ route('settings.WifiIp.changeStatus', $wifi->id) }}" method="POST"
+                                    style="display:inline-block;">
+                                    @csrf
+                                    <button class="btn btn-sm btn-success" title="Status change">
+                                        <i class="fas fa-location"></i> Active
+                                    </button>
+                                </form>
+
                                 @else
-                               <span style="color:red">Inactive</span>
+                                <form action="{{ route('settings.WifiIp.changeStatus', $wifi->id) }}" method="POST"
+                                    style="display:inline-block;">
+                                    @csrf
+                                    <button class="btn btn-sm btn-danger" title="Status change">
+                                        <i class="fas fa-location"></i> Inactive
+                                    </button>
+                                </form>
                                 @endif
                             </td>
                             <td>
                                 <!-- Change Status Button -->
-                                <form action="{{ route('settings.WifiIp.changeStatus', $wifi->id) }}" method="POST"
-                                    style="display:inline-block;">
-                                    @csrf
-                                    <button class="btn btn-sm btn-warning" title="IP Status change">
-                                        <i class="fas fa-wifi"></i> IP Status
-                                    </button>
-                                </form>
+
                                 <!-- Delete Button --> &nbsp;
                                 <form action="{{ route('settings.WifiIp.destroy', $wifi->id) }}" method="POST"
                                     style="display:inline-block;" onsubmit="return confirm('Are you sure?')">
@@ -138,9 +146,9 @@
 
                     <!-- WiFi Address -->
                     <div class="mb-3">
-                        <label for="wifiAddress" class="form-label">IP Address</label>
+                        <label for="wifiAddress" class="form-label">IP Location</label>
                         <input type="text" class="form-control" id="wifiAddress" name="wifi_address"
-                            placeholder="Enter IP Address">
+                            placeholder="Enter IP Location">
                     </div>
 
                     <!-- WiFi Status -->
