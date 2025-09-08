@@ -33,7 +33,7 @@ class CheckOfficeWifi
         $user = Auth::user();
 
         // Superadmin bypass
-        if ($user && $user->userType === 'Superadmin') {
+        if ($user && $user->userType === 'Superadmin' || $user->userType === 'Parent') {
             return $next($request);
         }
 
