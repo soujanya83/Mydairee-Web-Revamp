@@ -29,7 +29,7 @@ use App\Http\Controllers\API\Dashboard;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working!']);
-});
+});    
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/store', [RagisterController::class, 'store']);
