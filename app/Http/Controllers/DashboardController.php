@@ -63,9 +63,9 @@ class DashboardController extends BaseController
 
             if(Auth::user()->userType == "Staff"){
                 $announcements = AnnouncementsModel::where('centerid', $centerid)
-                    
+
                     ->whereIn('audience', ['all', 'staff'])
-                    ->get();
+                                        ->get();
 
             }
 
@@ -100,14 +100,14 @@ class DashboardController extends BaseController
         ]);
     }
 
-    
+
 private function cleanText($text)
 {
     if (empty($text)) {
         return '';
     }
 
-    // 1. Remove all HTML tags
+    // 1. Remov    e all HTML tags
     $cleanText = strip_tags($text);
 
     // 2. Decode HTML entities (&amp; → &, &nbsp; → space)

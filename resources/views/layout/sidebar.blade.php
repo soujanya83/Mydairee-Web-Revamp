@@ -27,41 +27,8 @@
 
 
     <div class="sidebar-scroll" style="    margin-top: 54px;">
-        {{-- <div class="user-account">
+   
 
-            @php
-            $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
-            $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
-            $avatars = Auth::user()->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-            $defaultAvatar = $avatars[array_rand($avatars)];
-            @endphp
-            <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
-            class="rounded-circle user-photo" style="vertical-align: bottom; height: 45px;"
-            alt="User Profile Picture" data-toggle="tooltip" data-placement="right" title="{{ Auth::user()->name }}">
-
-                <div class="dropdown">
-                    <span>Welcome,</span>
-                    <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown">
-                        <strong>{{ Auth::user()->name }}</strong>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-right account">
-                        <li><a href="{{route('settings.profile')}}"><i class="icon-user"></i>My Profile</a></li>
-                        <li class="divider"></li>
-                        <li><a href="{{route('logout')}}"><i class="icon-power"></i>Logout</a></li>
-                    </ul>
-                </div>
-
-        </div> --}}
-
-
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs">
-            <li class="nav-item" style="font-size:16px"><a class="nav-link active" data-toggle="tab"
-                    href="#menu">Menu</a></li>
-            <li class="nav-item" style="font-size:18px"><a class="nav-link" data-toggle="tab" href="#setting"><i
-                        class="icon-settings"></i></a>
-            </li>
-        </ul>
 
         <!-- Tab panes -->
         <div class="tab-content p-l-0 p-r-0">
@@ -307,38 +274,6 @@
                 </nav>
             </div>
 
-            <div class="tab-pane p-l-15 p-r-15" id="setting">
-                <h6>Choose Skin</h6>
-                <ul class="choose-skin list-unstyled">
-                    <li data-theme="purple">
-                        <div class="purple"></div>
-                        <span>Purple</span>
-                    </li>
-                    <li data-theme="blue">
-                        <div class="blue"></div>
-                        <span>Blue</span>
-                    </li>
-                    <li data-theme="cyan" class="active">
-                        <div class="cyan"></div>
-                        <span>Cyan</span>
-                    </li>
-                    <li data-theme="green">
-                        <div class="green"></div>
-                        <span>Green</span>
-                    </li>
-                    <li data-theme="orange">
-                        <div class="orange"></div>
-                        <span>Orange</span>
-                    </li>
-                    <li data-theme="blush">
-                        <div class="blush"></div>
-                        <span>Blush</span>
-                    </li>
-
-                </ul>
-                <hr>
-
-            </div>
 
         </div>
     </div>
