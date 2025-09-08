@@ -118,7 +118,7 @@ class LoginController extends Controller
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Superadmin and Staff login is currently under maintenance. Please try again later.',
-                    ], 401);
+                    ], 503);
                 }
 
                 // ✅ Generate token
