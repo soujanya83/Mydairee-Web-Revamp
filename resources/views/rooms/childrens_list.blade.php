@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Childs List')
+@section('title', 'Children List')
 
 @section('parentPageTitle', '')
 <style>
@@ -28,53 +28,218 @@
     #roomDropdown+.dropdown-menu {
         margin-top: -7px !important;
     }
+
+/* Filter inputs hidden by default */
+#FilterbyName {
+    display: none;
+}
+
+#FilterbyCreatedBy {
+    display: none;
+}
+
+#statusFilter {
+    display: none;
+}
+
+#StatusFilter_label {
+    display: none;
+}
+
+#birthFilter_label {
+    display: none;
+}
+
+#birthmonthFilter {
+    display: none;
+}
+
+#genderFilter {
+    display: none;
+}
+
+#genderFilter_label {
+    display: none;
+}
+
+#Filterbydate_from_label {
+    display: none;
+}
+
+#Filterbydate_from {
+    display: none;
+}
+
+#Filterbydate_to_label {
+    display: none;
+}
+
+#Filterbydate_to {
+    display: none;
+}
+
+</style>
+
+<style>
+        .hover-shadow-lg:hover {
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+            transform: translateY(-2px);
+        }
+        
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        
+        .card-title {
+            line-height: 1.3;
+            height: 2.6em;
+            overflow: hidden;
+        }
+
+        .search-highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .filter-badge {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+        
+        @media (max-width: 768px) {
+            .col-md-6 {
+                margin-bottom: 1rem;
+            }
+            
+            #searchFilters .row > div {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        .collapse.show {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 500px;
+            }
+        }
+    </style>
+    <style>
+    /* Make all inputs uniform */
+    .uniform-input {
+        width: 180px;    /* same width for all */
+        height: 36px;    /* same height */
+        font-size: 0.875rem;
+        margin-inline: 0.5rem;
+    }
+
+    /* Make sure labels don't misalign the row */
+    .top-right-button-container label {
+        line-height: 1;
+    }
 </style>
 
 @section('content')
 
+  <div class="col-12 d-flex align-items-center flex-nowrap gap-3 top-right-button-container mb-4 justify-content-end"
+     >  <!-- ✅ scroll if overflow -->
 
+    @if(Auth::user()->userType != "Parent")
+        <!-- Filter Icon -->
+        <i class="fas fa-filter text-info" style="font-size: 1.2rem;"></i>
 
-<form method="GET" action="{{ route('childrens_list') }}" class="d-flex justify-content-end align-items-center"
-    style="margin-top: -49px; margin-right: 100px;" id="roomFilterForm">
-    <div class="me-3 mr-3">
-        <input type="text" name="childName" id="childNameInput" class="form-control" placeholder="Search by child name"
-            value="{{ request('childName') }}" style="width: 200px;border-color:#49c5b6">
-    </div>
-    <div class="dropdown" style="position: relative;">
-        <button class="btn btn-outline-info dropdown-toggle" type="button" id="roomDropdown">
-            {{ $selectedRoom && $rooms->firstWhere('id', $selectedRoom) ? $rooms->firstWhere('id', $selectedRoom)->name
-            : '-- All Rooms --' }}
-        </button>
+        <!-- Filter Dropdown -->
+        <select name="filter" onchange="showfilter(this.value)" 
+                class="border-info uniform-input">
+            <option value="">Choose</option>
+            <option value="title">Name</option>
+            <option value="status">Status</option>
+            <option value="Birthmonth">Birth Month</option>
+            <option value="gender">Gender</option>
+        </select>
 
-        <ul class="dropdown-menu" style="
-            max-height: 300px;
-            overflow-y: auto;
-            position: absolute;
-            left: 0;
-            right: auto;
-            top: 100%;
-            display: none;
-            z-index: 999;
-            white-space: nowrap;">
-            <li>
-                <a class="dropdown-item" href="#" onclick="selectRoom('', '-- All Rooms --'); return false;">
-                    -- All Rooms --
-                </a>
-            </li>
+        <!-- Title Filter -->
+        <input type="text" name="filterbyName" id="FilterbyName"
+               class="uniform-input"
+               placeholder="Filter by name"
+               onkeyup="filterProgramPlan()">
+   
 
-            @foreach($rooms as $room)
-            <li>
-                <a class="dropdown-item" href="#"
-                    onclick="selectRoom('{{ $room->id }}', '{{ $room->name }}'); return false;">
-                    {{ $room->name }}
-                </a>
-            </li>
-            @endforeach
-        </ul>
+        <!-- Status -->
+        <div class="d-flex align-items-center gap-2">
+            <label for="statusFilter" id="StatusFilter_label" class="text-info small m-0">Status</label>
+            <select id="statusFilter" name="status"
+                    class="form-control form-control-sm border-info uniform-input"
+                    onchange="filterProgramPlan()">
+                <option value="">All</option>
+                <option value="Active">Active</option>
+                <option value="Inactive" >IN-Active</option>
+            </select>
+        </div>
 
-        <input type="hidden" name="roomId" id="roomInput" value="{{ $selectedRoom ?? '' }}">
-    </div>
-</form>
+            <div class="d-flex align-items-center gap-2">
+            <label for="statusFilter" id="birthFilter_label" class="text-info small m-0">Birth Month</label>
+            <select id="birthmonthFilter" name="status"
+                    class="form-control form-control-sm border-info uniform-input"
+                    onchange="filterProgramPlan()">
+                <option value="">All</option>
+                <option value="January">January</option>
+                <option value="Febuary" >Febuary</option>
+                <option value="March" >March</option>
+                <option value="April" >April</option>
+                <option value="May" >May</option>
+                <option value="June" >June</option>
+                <option value="July" >July</option>
+                <option value="August" >August</option>
+                <option value="September" >September</option>
+                <option value="October" >October</option>
+                <option value="November" >November</option>
+                <option value="December" >December</option>
+
+            </select>
+        </div>
+
+               <div class="d-flex align-items-center gap-2">
+            <label for="genderFilter" id="genderFilter_label" class="text-info small m-0">Gender</label>
+            <select id="genderFilter" name="gender"
+                    class="form-control form-control-sm border-info uniform-input"
+                    onchange="filterProgramPlan()">
+                <option value="">All</option>
+                <option value="Male">Male</option>
+                <option value="Female" >Female</option>
+            </select>
+        </div>
+    @endif
+
+    <!-- Room Dropdown -->
+    <form method="GET" action="{{ route('childrens_list') }}" id="roomFilterForm" class="d-inline-block m-0">
+        <div class="dropdown d-inline-block">
+            <button class="btn btn-outline-info dropdown-toggle" type="button" id="roomDropdown">
+                {{ $selectedRoom && $rooms->firstWhere('id', $selectedRoom) ? $rooms->firstWhere('id', $selectedRoom)->name : '-- All Rooms --' }}
+            </button>
+
+            <ul class="dropdown-menu"
+                style="max-height:300px; overflow-y:auto; z-index:999; display:none;">
+                <li><a class="dropdown-item" href="#" onclick="selectRoom('', '-- All Rooms --'); return false;">-- All Rooms --</a></li>
+                @foreach($rooms as $room)
+                <li><a class="dropdown-item" href="#" onclick="selectRoom('{{ $room->id }}', '{{ $room->name }}'); return false;">{{ $room->name }}</a></li>
+                @endforeach
+            </ul>
+
+            <input type="hidden" name="roomId" id="roomInput" value="{{ $selectedRoom ?? '' }}">
+        </div>
+    </form>
+</div>
+
 @if ($errors->any())
 <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:-5px">
     <ul class="mb-0">
@@ -234,6 +399,82 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+function showfilter(val) {
+    // Hide all filters first
+    $('#FilterbyName, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #birthFilter_label, #birthmonthFilter, #genderFilter_label, #genderFilter')
+        .hide()
+        .val('') // clear values
+        .prop('checked', false)
+        .trigger('change');
+
+    filterProgramPlan(); // apply filter after clearing
+
+    // Show relevant fields based on selected filter
+    switch (val.toLowerCase()) {
+        case 'title':
+            $('#FilterbyName').show();
+            break;
+        case 'status':
+            $('#StatusFilter_label, #statusFilter').show();
+            break;
+        case 'birthmonth':
+            $('#birthFilter_label, #birthmonthFilter').show();
+            break;
+        case 'gender':
+            $('#genderFilter_label, #genderFilter').show();
+            break;
+        case 'createdby':
+            $('#FilterbyCreatedBy').show();
+            break;
+        default:
+            // If "Choose" or invalid option, hide all
+            $('#FilterbyName, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #birthFilter_label, #birthmonthFilter, #genderFilter_label, #genderFilter').hide();
+            break;
+    }
+}
+
+
+
+
+function filterProgramPlan() {
+    // Get filter values
+    var name       = $('#FilterbyName').val().toLowerCase();
+    var status     = $('#statusFilter').val().toLowerCase();
+    var birthMonth = $('#birthmonthFilter').val().toLowerCase().slice(0,3); // trim to 3 letters
+    var gender     = $('#genderFilter').val().toLowerCase();
+
+    // Iterate over each child card
+    $('.row.mb-5 > .col-md-3').each(function() {
+        var card        = $(this);
+        var childName   = card.find('.card-title').text().toLowerCase();
+        var childStatus = card.find('form button[type="submit"]').text().toLowerCase();
+        var childGender = card.find('.badge i').hasClass('fa-mars') ? 'male' : 'female';
+
+        // Extract DOB from badge
+        var dobText = card.find('.badge').first().text().trim(); // e.g. "DOB: 21 Apr 2023"
+        var dobMonth = '';
+        var dobMatch = dobText.match(/dob:\s*\d+\s+(\w+)/i);
+        if (dobMatch) {
+            dobMonth = dobMatch[1].toLowerCase().slice(0,3); // first 3 letters
+        }
+
+        // Check if card matches all active filters
+        var show = true;
+        if (name && !childName.includes(name)) show = false;
+        if (status && !childStatus.includes(status)) show = false;
+        if (birthMonth && dobMonth !== birthMonth) show = false;
+        if (gender && childGender !== gender) show = false;
+
+        // Toggle card visibility
+        card.toggle(show);
+    });
+}
+
+
+
+
+
+
     document.addEventListener("DOMContentLoaded", function () {
     const dropdownToggle = document.getElementById("roomDropdown");
     const dropdownMenu = dropdownToggle.nextElementSibling;

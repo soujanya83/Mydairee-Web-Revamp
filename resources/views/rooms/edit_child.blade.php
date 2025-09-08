@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title', 'Childs')
+@section('title', 'Children')
 @section('parentPageTitle', 'Rooms')
 
 
@@ -9,7 +9,7 @@
 
 <div>
     <hr>
-    <h5>Edit Child</h5>
+    <h5>Edit Children</h5>
 
 
 

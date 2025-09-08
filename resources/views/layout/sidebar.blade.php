@@ -181,7 +181,7 @@
                          <li class="{{ Request::is('child*') ? 'active' : null }}">
                             <a href="{{ route('childrens_list') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-children fa-2x mb-2"
                                     style="font-size: 25px;"></i><span
-                                    style="font-size: 18px; margin-left:1px">Childs</span></a>
+                                    style="font-size: 18px; margin-left:1px">Children</span></a>
 
                         </li>
 
@@ -262,7 +262,9 @@
                                     <a href="{{ route('settings.superadmin_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Super-Admin Settings</a>
                                 </li>
                                 @endif
-
+                                <li class="{{ Request::segment(2) === 'add-wifi-ip' ? 'active' : null }}">
+                                    <a href="{{ route('settings.wifi_add_page') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;IP Manage</a>
+                                </li>
                                 @php
                                 $userType=Auth::user()->userType; @endphp
 
@@ -273,7 +275,7 @@
                                     <a href="{{ route('settings.center_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Center Settings</a>
                                 </li>
                                 @endif
-                                {{-- @if($userType == 'Superadmin') --}}
+
                                 <li class="{{ Request::segment(2) === 'staff_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.staff_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Staffs Settings</a>
                                 </li>
@@ -281,13 +283,19 @@
                                  <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}">
                                     <a href="{{ route('settings.manage_permissions') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Manage Permissions</a>
                                 </li>
-                                {{-- @endif --}}
+
                                 @if(!empty($permissions['viewParent']) && $permissions['viewParent'])
 
                                 <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.parent_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Parents Settings</a>
                                 </li>
                                 @endif
+
+                                 <li class="{{ Request::segment(2) === 'add-public-holiday' ? 'active' : null }}">
+                                    <a href="{{ route('settings.public_holiday') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Public Holiday</a>
+                                </li>
+
+
 
 
                             </ul>

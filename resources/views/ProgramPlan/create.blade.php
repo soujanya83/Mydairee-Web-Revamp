@@ -913,35 +913,50 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
         <div class="modal-body">
           <div class="form-group mb-4">
             <label for="months">Select Month</label>
-            <select class="form-control" id="months" name="months" required>
-              <option value="">Select Month</option>
-              <?php
-              $months = [
-                  '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April',
-                  '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August',
-                  '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
-              ];
-              foreach ($months as $key => $month):
-              ?>
-                  <option value="<?= $key ?>" <?= (isset($plan_data) && $plan_data->months == $key) ? 'selected' : '' ?>><?= $month ?></option>
-              <?php endforeach; ?>
-            </select>
+       <select class="form-control" id="months" name="months" required>
+    <option value="">Select Month</option>
+    <?php
+    $months = [
+        '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April',
+        '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August',
+        '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
+    ];
+
+    $currentMonth = date('m'); // current month in 2-digit format
+
+    foreach ($months as $key => $month):
+    ?>
+        <option value="<?= $key ?>"
+            <?= (isset($plan_data) && $plan_data->months == $key) 
+                ? 'selected' 
+                : ((!isset($plan_data) && $currentMonth == $key) ? 'selected' : '') ?>>
+            <?= $month ?>
+        </option>
+    <?php endforeach; ?>
+</select>
+
           </div>
 
           <div class="form-group mb-4">
             <label for="years">Select Year</label>
-            <select class="form-control" id="years" name="years" required>
-              <option value="">Select Year</option>
-              <?php
-              $currentYear = date('Y');
-              $startYear = $currentYear - 10;
-              $endYear = $currentYear + 10;
+           <select class="form-control" id="years" name="years" required>
+    <option value="">Select Year</option>
+    <?php
+    $currentYear = date('Y');
+    $startYear = $currentYear - 10;
+    $endYear   = $currentYear + 10;
 
-              for ($year = $startYear; $year <= $endYear; $year++):
-              ?>
-                <option value="<?= $year ?>" <?= (isset($plan_data) && $plan_data->years == $year) ? 'selected' : '' ?>><?= $year ?></option>
-              <?php endfor; ?>
-            </select>
+    for ($year = $startYear; $year <= $endYear; $year++):
+    ?>
+        <option value="<?= $year ?>"
+            <?= (isset($plan_data) && $plan_data->years == $year) 
+                ? 'selected' 
+                : ((!isset($plan_data) && $currentYear == $year) ? 'selected' : '') ?>>
+            <?= $year ?>
+        </option>
+    <?php endfor; ?>
+</select>
+
           </div>
         </div>
 
@@ -1959,6 +1974,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const title = document.getElementById('subActivityTitle').value;
     const subjectSelectForSub = document.getElementById('subjectSelectForSub').value;
      const csrfToken = $('meta[name="csrf-token"]').attr('content');
+     alert(idActivity);
     // AJAX call to save the sub-activity
     $.ajax({
       url: "{{ url('Observation/addSubActivity') }} ",

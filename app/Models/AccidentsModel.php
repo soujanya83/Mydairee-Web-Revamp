@@ -6,90 +6,82 @@ use Illuminate\Database\Eloquent\Model;
 
 class AccidentsModel extends Model
 {
-   protected $table = 'accidents';
-   public $timestamps = false;
+    protected $table = 'accidents';
+    public $timestamps = false;
 
-   protected $fillable = [
-'centerid',
-'roomid',
-'person_name',
-'person_role',
-'date',
-'time',
-'person_sign',
-'childid',
-'child_name',
-'child_dob',
-'child_age',
-'child_gender',
-'incident_date',
-'incident_time',
-'incident_location',
-'witness_name',
-'witness_sign',
-'witness_date',
-'injury_image',
-'gen_actyvt',
-'cause',
-'illness_symptoms',
-'missing_unaccounted',
-'taken_removed',
-'action_taken',
-'emrg_serv_attend',
-'med_attention',
-'med_attention_details',
-'prevention_step_1',
-'prevention_step_2',
-'prevention_step_3',
-'parent1_name',
-'contact1_method',
-'contact1_date',
-'contact1_time',
-'contact1_made',
-'contact1_msg',
-'parent2_name',
-'contact2_method',
-'contact2_date',
-'contact2_time',
-'contact2_made',
-'contact2_msg',
-'responsible_person_name',
-'responsible_person_sign',
-'rp_internal_notif_date',
-'rp_internal_notif_time',
-'nominated_supervisor_name',
-'nominated_supervisor_sign',
-'nominated_supervisor_date',
-'nominated_supervisor_time',
-'ext_notif_other_agency',
-'enor_date',
-'enor_time',
-'ext_notif_regulatory_auth',
-'enra_date',
-'enra_time',
-'ack_parent_name',
-'ack_date',
-'ack_time',
-'add_notes',
-'added_by',
-'added_at',
-   ];
-public function childParent()
-{
-    return $this->hasOne(ChildParent::class, 'childid', 'childid');
-}
+    protected $fillable = [
+        'centerid',
+        'roomid',
+        'person_name',
+        'person_role',
+        'service_name',
+        'made_record_date',
+        'made_record_time',
+        'childid',
+        'made_person_sign',
+        'child_name',
+        'child_dob',
+        'child_age',
+        'ack_incident',
+        'ack_injury',
+        'ack_trauma',
+        'ack_illness',
+        'child_gender',
+        'incident_date',
+        'incident_time',
+        'incident_location',
+        'location_of_incident',
+        'witness_name',
+        'witness_date',
+        'witness_sign',
+        'details_injury',
+        'circumstances_leading',
+        'circumstances_child_missingd',
+        'circumstances_child_removed',
+        'injury_image',
+        'remarks',
+        'action_taken',
+        'emrg_serv_attend',
+        'emrg_serv_time',
+        'emrg_serv_arrived',
+        'med_attention',
+        'med_attention_details',
+        'provideDetails_minimise',
+        'parent1_name',
+        'carers_date',
+        'carers_time',
+        'director_educator_coordinator',
+        'educator_date',
+        'educator_time',
+        'other_agency',
+        'other_agency_date',
+        'other_agency_time',
+        'regulatory_authority',
+        'regulatory_authority_date',
+        'regulatory_authority_time',
+        'ack_parent_name',
+        'ack_date',
+        'ack_time',
+        'final_sign',
+        'add_notes',
+        'added_by',
+        'added_at'
+    ];
 
-// In App\Models\AccidentsModel.php
+    public function childParent()
+    {
+        return $this->hasOne(ChildParent::class, 'childid', 'childid');
+    }
 
-public function child()
-{
-    return $this->belongsTo(Child::class, 'childid', 'id');
-}
+    // In App\Models\AccidentsModel.php
 
-public function addedByUser()
-{
-    return $this->belongsTo(User::class, 'added_by', 'id');
-}
+    public function child()
+    {
+        return $this->belongsTo(Child::class, 'childid', 'id');
+    }
 
-
+    public function addedByUser()
+    {
+        return $this->belongsTo(User::class, 'added_by', 'id');
+    }
 }

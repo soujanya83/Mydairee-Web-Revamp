@@ -1,6 +1,6 @@
 @extends('layout.master')
 @section('title', 'Edit')
-@section('parentPageTitle', 'Childs')
+@section('parentPageTitle', 'Children')
 
 
 

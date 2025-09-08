@@ -147,7 +147,7 @@ $edit = 1;
 @endphp
 
 <hr>
-<main data-centerid="{{ $centerid }}">
+<main data-centerid="{{ $centerid }}" >
     <div class="container-fluid">
         <!-- <div class="row">
             <div class="col-12">
@@ -166,13 +166,13 @@ $edit = 1;
             </div>
         </div> -->
 
-        <div class="row">
-            <div class="col-12">
+        <div class="row no-gutters" >
+            <div class="col-md-12 ">
                 <div class="card">
                     <div class="card-body">
-                        <div class="mb-5">
-                            <h5 class="card-title">Enter Details</h5>
-                        </div>
+                        <!-- <div class="mb-5"> -->
+                            <!-- <h5 class="card-title">Enter Details</h5> -->
+                        <!-- </div> -->
 
                         <form action="{{ route('announcements.store') }}" method="POST" autocomplete="off"
                             enctype="multipart/form-data">
@@ -190,18 +190,41 @@ $edit = 1;
                                             value="{{ old('title', $announcement->title ?? '') }}">
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="eventDate">Date</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control calendar" name="eventDate"
-                                                value="{{ isset($announcement->eventDate) ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y') : '' }}"
-                                                data-date-format="dd-mm-yyyy">
+                               <div class="form-group row align-items-center">
+    <!-- Date Field -->
+    <div class="col-md-6 mb-3">
+    <label for="eventDate" class="form-label fw-bold">📅 Date</label>
+    <div class="input-group">
+      <input type="text" 
+       class="form-control calendar"
+       name="eventDate"
+       value="{{ isset($announcement->eventDate) 
+            ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y') 
+            : (isset($selectedDate) 
+                ? \Carbon\Carbon::parse($selectedDate)->format('d-m-Y') 
+                : \Carbon\Carbon::now()->format('d-m-Y')) }}"
+       data-date-format="dd-mm-yyyy"
+       placeholder="Select date">
 
-                                            <span class="input-group-text input-group-append input-group-addon">
-                                                <i class="simple-icon-calendar"></i>
-                                            </span>
-                                        </div>
-                                    </div>
+        <span class="input-group-text">
+            <i class="simple-icon-calendar"></i>
+        </span>
+    </div>
+</div>
+
+    <!-- Access Field -->
+    <div class="col-md-6 mb-3">
+        <label for="audience" class="form-label fw-bold">👥 Access</label>
+        <div class="input-group">
+            <select class="form-select form-control" name="audience" required>
+                <option value="all" {{ isset($announcement) && $announcement->audience == 'all' ? 'selected' : '' }}>All</option>
+                <option value="parents" {{ isset($announcement) && $announcement->audience == 'parents' ? 'selected' : '' }}>Parents</option>
+                <option value="staff" {{ isset($announcement) && $announcement->audience == 'staff' ? 'selected' : '' }}>Staff</option>
+            </select>
+        </div>
+    </div>
+</div>
+
 
                                     <div class="form-group">
                                         <h4>Media Upload Section</h4>
@@ -413,7 +436,8 @@ $edit = 1;
         {{-- Validation Errors --}}
         @if ($errors->any())
         @foreach ($errors->all() as $error)
-        <div class="toast bg-danger text-white mb-2" data-delay="10000">
+        <div class="toast bg-danger text-white mb-2"   role="alert" aria-live="assertive" aria-atomic="true"
+     data-delay="3000" data-autohide="true">
 
             <div class="toast-body">
                 {{ $error }}
@@ -587,9 +611,16 @@ function updateFileInput() {
 </script>
 
 <script>
-    $(document).ready(function () {
-        $('.toast').toast('show');
-    });
+  $(document).ready(function () {
+    let toast = $('.toast');
+    toast.toast('show');
+
+    // Hide after 5 seconds
+    setTimeout(function () {
+        toast.toast('hide');
+    }, 5000);
+});
+
 </script>
 
 

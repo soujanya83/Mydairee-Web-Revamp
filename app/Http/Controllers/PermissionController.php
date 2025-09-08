@@ -14,6 +14,27 @@ use Illuminate\Support\Str;
 class PermissionController extends Controller
 {
 
+        public function updatepermission(Request $request)
+{
+    // dd('here');
+    $user = $request->userid;
+    $permission = $request->permission;
+    $value = $request->value;
+
+    $userPermissions = Permission::where('userid',$user)->first();
+
+    // Update user permission logic
+    // $userPermissions->update(
+    //     [$permission => $value],
+     
+    // );
+    // dd($userPermissions->$permission );
+ $userPermissions->$permission =  $value;
+ $userPermissions->save();
+
+
+    return response()->json(['success' => true, 'message' => 'Permission updated']);
+}
 
     // Updated show method to display assigned permissions with all data needed for the template
     public function show($userId)

@@ -12,6 +12,16 @@
 <!-- Flatpickr JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <style>
+    #aiAssistLoader {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.9);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 9999;
+}
 /* Assessment Container Styles */
 .assessment-container {
     background: #f8f9fa;
@@ -938,12 +948,96 @@
 }
     </style>
 
+    <style>
+/* Animated button pulse */
+#AiAssistance {
+    transition: all 0.3s ease-in-out;
+}
+#AiAssistance:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 188, 212, 0.6);
+}
+
+/* Sparkle effect */
+.sparkle-icon {
+    position: relative;
+}
+.sparkle-icon::after {
+    content: "✨";
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    font-size: 14px;
+    opacity: 0;
+    animation: sparkle 2s infinite;
+}
+@keyframes sparkle {
+    0% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+    30% { opacity: 1; transform: scale(1.2) rotate(20deg); }
+    60% { opacity: 0.8; transform: scale(1) rotate(-20deg); }
+    100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+}
+</style>
+
+<style>
+/* Custom background */
+#AiAssistance {
+    background: linear-gradient(135deg, #4facfe, #2ec1c9ff); /* blue gradient */
+    border: none;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hover effect */
+#AiAssistance:hover {
+    background: linear-gradient(135deg, #c330c1ff, #ebcef5ff); /* greenish gradient */
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(220, 207, 223, 0.6);
+}
+</style>
 @if(isset($observation) && $observation->id)
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
 
 
+    <div class="child-view " 
+     style="position:absolute;
+            top:16px;   /* adjust distance from top */
+            right:685px;
+          
+            background:rgba(255, 255, 255, 1); /* translucent white */
+            padding:5px;
+           
+            border-left:1px solid #ddd;
+            box-shadow:-2px 0 6px rgba(0,0,0,0.1);
+            z-index:1050;
+            border-radius:5px;
+         
+            overflow-y:auto;
+            overflow-x:hidden;">
+
+   @if(isset($childrens))
+ 
+      <div class="d-flex flex-row text-center" style="justify-content:center;">
+             <p style="margin-bottom:5px;margin-right:2px;">Child Name:</p>
+          @foreach($childrens as $child)
+              <span class="mb-1 badge badge-success">{{ $child->name }}</span>
+          @endforeach
+      </div>
+   @endif
+</div>
+
+<a href="javascript:void(0)" 
+   onclick="AiAssistance()" 
+   id="AiAssistance" 
+   class="btn shadow-lg btn-animated mr-2 text-white position-relative"
+   data-toggle="tooltip" 
+   data-placement="top" 
+   >
+    Ai<i class="sparkle-icon"></i> Assistance 
+</a>
+
+
 {{-- Date Display and Picker --}}
-<div id="createdAtContainer" class="mr-3" style="cursor:pointer;">
+<div id="createdAtContainer" class="mr-2" style="cursor:pointer;">
     <span id="createdAtDisplay" class="badge badge-info" style="font-size:16px; padding:8px;">
         <i class="far fa-calendar-alt mr-1"></i>
         {{ \Carbon\Carbon::parse($observation->created_at)->format('d M Y') }}
@@ -955,6 +1049,9 @@
    <!-- <button type="button" id="ObservationChildren" class="btn btn-secondary shadow-lg btn-animated mr-2">
         <i class="fas fa-child mr-1"></i> child
     </button> -->
+
+
+
 
 <a href="{{ route('observation.print', $observation->id) }}" target="_blank" class="btn btn-info shadow-lg btn-animated mr-2 text-white">
     <i class="fas fa-eye mr-1"></i> Preview
@@ -1802,29 +1899,44 @@
   </div>
 </div>
 
-<div class="child-view" 
-     style="position:fixed;
-            top:130px;   /* adjust distance from top */
-            right:0;
-            width:150px;
-            background:rgba(255, 255, 255, 0.1); /* translucent white */
-            padding:15px;
-            border-left:1px solid #ddd;
-            box-shadow:-2px 0 6px rgba(0,0,0,0.1);
-            z-index:1050;
-            max-height:300px;
-            overflow-y:auto;
-            overflow-x:hidden;">
 
-   @if(isset($childrens))
-      <h6 style="margin-bottom:5px;">Children</h6>
-      <div class="d-flex flex-column">
-          @foreach($childrens as $child)
-              <span class="mb-1">{{ $child->name }}</span>
-          @endforeach
+
+<!-- Ai Assistance modal -->
+<div class="modal" id="AiAssistanceModal" tabindex="-1" role="dialog" aria-labelledby="AiAssistanceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <h5 class="modal-title" id="childrenModalLabel">Ai Assistance</h5>
+        <!-- <input type="text" id="childSearch" class="form-control ml-3" placeholder="Search children..." style="max-width: 250px;"> -->
+        <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
-   @endif
+      <div class="modal-body" style="max-height:550px;overflow-y:auto;">
+       
+        
+         <h5 class="modal-title" id="AnalysisPreviewLabel"> Analysis/Evaluation</h5>
+         <div id="AnalysisPreview" class="mt-3"></div>
+
+         <h5 class="modal-title" id="ReflectionPreviewLabel"> Reflection</h5>
+         <div id="ReflectionPreview" class="mt-3"></div>
+
+         <h5 class="modal-title" id="childrenModalLabel"> Future Plans</h5>
+         <div id="futureplanPreview" class="mt-3"></div>
+   
+         <h5 class="modal-title" id="">child Voice</h5>
+         <div id="childvoicePreview" class="mt-3"></div>
+
+ 
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="" onclick="AiAssistance()" class="btn btn-success">Try Again</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
 </div>
+
 
 
 
@@ -1832,6 +1944,10 @@
         style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
 
 
+<!-- processsing loader -->
+ <div id="aiAssistLoader" style="display:none; text-align:center;">
+    <i class="fas fa-spinner fa-spin fa-2x text-info"></i> Processing...
+</div>
 
 
         <script>
@@ -3478,7 +3594,202 @@ $(document).ready(function() {
         console.log('Final visible:', $target.is(':visible'));
         console.log('==================');
     });
+
+
+    // $(document).click('#AiAssistance',function(){
+    // // let editorData = CKEDITOR.instances['editor1'].getData();
+    //     let title =  editors["editor1"] ? editors["editor1"].getData() : "";
+    //     console.log(title); // this will print the content
+    // });
+ 
 });
+
+
+function AiAssistance() {
+    // get editor instance
+    let title = editors["editor1"] ? editors["editor1"].getData() : "";
+
+    $.ajax({
+        url: "{{ route('observation.ai-assist') }}",
+        type: "POST",
+        data: {
+            observation: title,
+            _token: "{{ csrf_token() }}"
+        },
+        dataType: "json",
+
+        beforeSend: function () {
+            console.log("Sending data to AI Assistance...");
+            $("#aiAssistLoader").show();
+        },
+
+        success: function (res) {
+            console.log("Full Response:", res);
+            console.log("Analysis:", res.data.analysis);
+            console.log("Reflection:", res.data.reflection);
+            console.log("Future Plan:", res.data.future_plan); // ← Fixed key name
+
+            // Convert arrays to formatted strings for CKEditor
+            if (res.data.analysis && Array.isArray(res.data.analysis)) {
+                const analysisHtml = convertArrayToHtml(res.data.analysis);
+                if (editors["editor2"]) {
+                    editors["editor2"].setData(analysisHtml);
+                }
+            }
+
+            if (res.data.reflection && Array.isArray(res.data.reflection)) {
+                const reflectionHtml = convertArrayToHtml(res.data.reflection);
+                if (editors["editor3"]) {
+                    editors["editor3"].setData(reflectionHtml);
+                }
+            }
+
+            if (res.data.future_plan && Array.isArray(res.data.future_plan)) { // ← Fixed key name
+                const futurePlanHtml = convertArrayToHtml(res.data.future_plan);
+                if (editors["editor5"]) {
+                    editors["editor5"].setData(futurePlanHtml);
+                }
+            }
+
+            $("#aiAssistLoader").hide();
+        },
+
+        error: function (xhr, status, error) {
+            console.error("Error:", error);
+            console.log("Response Text:", xhr.responseText);
+            
+            // Try to parse error response
+            try {
+                const errorResponse = JSON.parse(xhr.responseText);
+                console.log("Error Response:", errorResponse);
+                alert("Error: " + (errorResponse.message || "Something went wrong!"));
+            } catch (e) {
+                alert("Something went wrong!");
+            }
+
+            $("#aiAssistLoader").hide();
+        }
+    });
+}
+
+// Smart formatter that handles both bullet points and paragraphs
+function convertArrayToFormattedHtml(dataArray) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        return "";
+    }
+    
+    let html = "";
+    
+    dataArray.forEach(function(item, index) {
+        // Check if item starts with bullet point
+        if (item.trim().startsWith('•')) {
+            // It's already formatted as bullet point, wrap in paragraph with line break
+            html += "<p>" + escapeHtml(item) + "</p>";
+        } else {
+            // Regular paragraph
+            html += "<p>" + escapeHtml(item) + "</p>";
+        }
+        
+        // Add extra spacing between items (except for last item)
+        if (index < dataArray.length - 1) {
+            html += "<br>";
+        }
+    });
+    
+    return html;
+}
+
+// Alternative: Create proper HTML lists for bullet points
+function convertArrayToSmartHtml(dataArray) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        return "";
+    }
+    
+    // Check if most items are bullet points
+    let bulletCount = 0;
+    dataArray.forEach(function(item) {
+        if (item.trim().startsWith('•')) {
+            bulletCount++;
+        }
+    });
+    
+    // If more than half are bullet points, format as HTML list
+    if (bulletCount > dataArray.length / 2) {
+        let html = "<ul>";
+        dataArray.forEach(function(item) {
+            let cleanItem = item.trim().startsWith('•') ? item.trim().substring(1).trim() : item.trim();
+            html += "<li>" + escapeHtml(cleanItem) + "</li>";
+        });
+        html += "</ul>";
+        return html;
+    } else {
+        // Format as paragraphs with line breaks
+        let html = "";
+        dataArray.forEach(function(item, index) {
+            html += "<p>" + escapeHtml(item) + "</p>";
+            if (index < dataArray.length - 1) {
+                html += "<br>";
+            }
+        });
+        return html;
+    }
+}
+
+// Helper function to convert array to HTML list
+function convertArrayToHtml(dataArray) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        return "";
+    }
+    
+    // Create numbered list
+    let html = "<ol>";
+    dataArray.forEach(function(item) {
+        html += "<li>" + escapeHtml(item) + "</li>";
+    });
+    html += "</ol>";
+    
+    return html;
+}
+
+// Alternative: Convert to bullet points
+function convertArrayToBulletPoints(dataArray) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        return "";
+    }
+    
+    let html = "<ul>";
+    dataArray.forEach(function(item) {
+        html += "<li>" + escapeHtml(item) + "</li>";
+    });
+    html += "</ul>";
+    
+    return html;
+}
+
+// Alternative: Convert to paragraphs
+function convertArrayToParagraphs(dataArray) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        return "";
+    }
+    
+    let html = "";
+    dataArray.forEach(function(item) {
+        html += "<p>" + escapeHtml(item) + "</p>";
+    });
+    
+    return html;
+}
+
+// Helper function to escape HTML characters
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+  
 </script>
 
 

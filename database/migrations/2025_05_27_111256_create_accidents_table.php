@@ -12,74 +12,78 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('accidents', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('centerid')->nullable();
-            $table->integer('roomid')->nullable();
-            $table->string('person_name', 80)->nullable();
-            $table->string('person_role', 60)->nullable();
-            $table->date('date')->nullable();
-            $table->string('time', 8)->nullable();
-            $table->binary('person_sign')->nullable();
-            $table->integer('childid')->nullable();
-            $table->string('child_name', 80)->nullable();
+            $table->id();
+            $table->unsignedBigInteger('centerid')->nullable();
+            $table->unsignedBigInteger('roomid')->nullable();
+            $table->string('person_name')->nullable();
+            $table->string('person_role')->nullable();
+            $table->string('service_name')->nullable();
+            $table->date('made_record_date')->nullable();
+            $table->time('made_record_time')->nullable();
+
+            $table->unsignedBigInteger('childid')->nullable();
+            $table->string('child_name')->nullable();
             $table->date('child_dob')->nullable();
-            $table->string('child_age', 20)->nullable();
-            $table->enum('child_gender', ['Male', 'Female', 'Other'])->nullable();
+            $table->string('child_age')->nullable();
+            $table->enum('child_gender', ['Male', 'Female', 'Others'])->nullable();
+
             $table->date('incident_date')->nullable();
-            $table->string('incident_time', 8)->nullable();
-            $table->string('incident_location', 80)->nullable();
-            $table->string('witness_name', 80)->nullable();
-            $table->binary('witness_sign')->nullable();
-            $table->dateTime('witness_date')->nullable();
-            $table->binary('injury_image')->nullable();
-            $table->text('gen_actyvt')->nullable();
-            $table->text('cause')->nullable();
-            $table->text('illness_symptoms')->nullable();
-            $table->text('missing_unaccounted')->nullable();
-            $table->text('taken_removed')->nullable();
-            $table->text('action_taken')->nullable();
-            $table->enum('emrg_serv_attend', ['Yes', 'No'])->nullable();
-            $table->enum('med_attention', ['Yes', 'No'])->nullable();
-            $table->text('med_attention_details')->nullable();
-            $table->string('prevention_step_1', 200)->nullable();
-            $table->string('prevention_step_2', 200)->nullable();
-            $table->string('prevention_step_3', 200)->nullable();
-            $table->string('parent1_name', 80)->nullable();
-            $table->string('contact1_method', 80)->nullable();
-            $table->date('contact1_date')->nullable();
-            $table->string('contact1_time', 8)->nullable();
-            $table->enum('contact1_made', ['Yes', 'No'])->nullable();
-            $table->enum('contact1_msg', ['Yes', 'No'])->nullable();
-            $table->string('parent2_name', 80)->nullable();
-            $table->string('contact2_method', 80)->nullable();
-            $table->date('contact2_date')->nullable();
-            $table->string('contact2_time', 8)->nullable();
-            $table->enum('contact2_made', ['Yes', 'No'])->nullable();
-            $table->enum('contact2_msg', ['Yes', 'No'])->nullable();
-            $table->string('responsible_person_name', 80)->nullable();
-            $table->binary('responsible_person_sign')->nullable();
-            $table->date('rp_internal_notif_date')->nullable();
-            $table->string('rp_internal_notif_time', 8)->nullable();
-            $table->string('nominated_supervisor_name', 80)->nullable();
-            $table->binary('nominated_supervisor_sign')->nullable();
-            $table->date('nominated_supervisor_date')->nullable();
-            $table->string('nominated_supervisor_time', 8)->nullable();
-            $table->string('ext_notif_other_agency', 80)->nullable();
-            $table->date('enor_date')->nullable();
-            $table->string('enor_time', 8)->nullable();
-            $table->string('ext_notif_regulatory_auth', 80)->nullable();
-            $table->date('enra_date')->nullable();
-            $table->string('enra_time', 8)->nullable();
-            $table->string('ack_parent_name', 80)->nullable();
+            $table->time('incident_time')->nullable();
+            $table->string('incident_location')->nullable();
+            $table->string('location_of_incident')->nullable();
+
+            $table->string('witness_name')->nullable();
+            $table->date('witness_date')->nullable();
+            $table->longText('witness_sign')->nullable();
+
+            $table->longText('details_injury')->nullable();
+            $table->longText('circumstances_leading')->nullable();
+            $table->longText('circumstances_child_missingd')->nullable();
+            $table->longText('circumstances_child_removed')->nullable();
+            $table->string('injury_image')->nullable();
+            $table->longText('remarks')->nullable();
+            $table->longText('action_taken')->nullable();
+
+            $table->enum('emrg_serv_attend', ['Yes', 'No'])->default('No');
+            $table->time('emrg_serv_time')->nullable();
+            $table->string('emrg_serv_arrived')->nullable();
+
+            $table->enum('med_attention', ['Yes', 'No'])->default('No');
+            $table->enum('ack_incident', ['1', '0'])->default('0');
+            $table->enum('ack_injury', ['1', '0'])->default('0');
+            $table->enum('ack_trauma', ['1', '0'])->default('0');
+            $table->enum('ack_illness', ['1', '0'])->default('0');
+            $table->longText('med_attention_details')->nullable();
+            $table->longText('provideDetails_minimise')->nullable();
+
+            $table->string('parent1_name')->nullable();
+            $table->date('carers_date')->nullable();
+            $table->time('carers_time')->nullable();
+
+            $table->string('director_educator_coordinator')->nullable();
+            $table->date('educator_date')->nullable();
+            $table->time('educator_time')->nullable();
+
+            $table->string('other_agency')->nullable();
+            $table->date('other_agency_date')->nullable();
+            $table->time('other_agency_time')->nullable();
+
+            $table->string('regulatory_authority')->nullable();
+            $table->date('regulatory_authority_date')->nullable();
+            $table->time('regulatory_authority_time')->nullable();
+
+            $table->string('ack_parent_name')->nullable();
             $table->date('ack_date')->nullable();
-            $table->string('ack_time', 8)->nullable();
-            $table->text('add_notes')->nullable();
-            $table->integer('added_by')->nullable();
-            $table->date('added_at')->nullable();
+            $table->time('ack_time')->nullable();
+
+            $table->longText('final_sign')->nullable();
+            $table->longText('add_notes')->nullable();
+
+            $table->unsignedBigInteger('added_by')->nullable();
+            $table->timestamp('added_at')->nullable();
+
             $table->timestamps();
-
         });
-
     }
     public function down(): void
     {
