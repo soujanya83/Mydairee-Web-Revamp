@@ -280,7 +280,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const calendarEl = document.getElementById('calendar');
-  const centerId = calendarEl.dataset.centerid;
+  const centerId = @json(Session('user_center_id'));
 
   const formatYMD = (d) => {
     const y = d.getFullYear();
@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
           e.preventDefault();
           e.stopPropagation(); // prevent calendar’s own click handling
           const selectedDate = formatYMD(info.date); // ← use the cell's date
-          const url = `/announcements/create?centerid=${encodeURIComponent(centerId)}&date=${encodeURIComponent(selectedDate)}`;
+          const url = `/announcements/create?centerid=${centerId }&date=${encodeURIComponent(selectedDate)}`;
           window.location.assign(url);
         });
 
