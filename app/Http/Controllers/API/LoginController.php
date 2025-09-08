@@ -117,7 +117,7 @@ class LoginController extends Controller
                 if($user->userType == "Superadmin" || $user->userType == "Staff"){
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Superadmin and Staff login is currently under maintenance. Please try again later.',
+                        'message' => 'Login for Superadmin and Staff is under maintenance.',
                     ], 503);
                 }
 
