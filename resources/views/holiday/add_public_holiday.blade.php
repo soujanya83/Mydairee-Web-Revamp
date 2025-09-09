@@ -95,7 +95,7 @@
                         <tr>
                             <td>{{ $index + 1 }}</td> <!-- Use td instead of th -->
                             <td>{{ $holidays->full_date->format('d M Y') }}</td>
-                            <td>{{ \Illuminate\Support\Str::limit($holidays->occasion, 80) }}</td>
+                            <td>{{ \Illuminate\Support\Str::limit($holidays->occasion, 75) }}</td>
                             <td>{{ $holidays->state ?: '--' }}</td>
                             <td>
                                 @if($holidays->status == 1)
