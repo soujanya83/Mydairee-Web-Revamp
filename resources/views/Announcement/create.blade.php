@@ -125,6 +125,36 @@
         min-height: 300px;
         /* This is like setting more "rows" */
     }
+
+    /* Active Save button */
+.btn-save {
+    background-color: #0a89a2ff;   /* Bootstrap info color */
+    color: #fff;
+    border: 2px solid #0dcaf0;
+    /* font-size: 1.1rem;           larger text */
+    border-radius: 0.5rem;       /* rounded corners */
+    transition: all 0.3s ease;
+       /* smooth hover */
+       padding-inline: 5px;
+}
+
+.btn-save:hover {
+    background-color: transparent;
+    color: #0995b1ff;
+    border: 2px solid #0dcaf0;
+}
+
+/* Disabled Save button */
+.btn-save-disabled {
+    background-color: #6c757d;   /* muted gray */
+    color: #fff;
+    border: 2px solid #6c757d;
+    font-size: 1.1rem;
+    border-radius: 0.5rem;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
 </style>
 @endsection
 
@@ -268,26 +298,24 @@ $edit = 1;
                             </div>
 
                             <div class="row">
-                                <div class="col-12 text-right">
-                                    @if ($announcement)
+                            <div class="col-12 text-right">
+    @php
+        $canSave = !empty($permissions->addAnnouncement) || auth()->user()->userType === "Superadmin" || auth()->user()->admin == 1;
+    @endphp
 
-                                    @if (!empty($permissions->addAnnouncement) || auth()->user()->userType == "Superadmin" || auth()->user()->admin == 1)
-                                    <button type="submit" class="btn btn-outline-info my-2">Save</button>
-                                    @else
-                                    <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip"
-                                        data-placement="top" title="You need permission to save!">Save</button>
-                                    @endif
+    @if ($canSave)
+        <button type="submit" class="btn btn-save my-2 btn-md-xl px-4 py-2">
+            Save
+        </button>
+    @else
+        <button type="button" class="btn btn-save-disabled my-2 px-4 py-2" 
+            data-toggle="tooltip" data-placement="top" 
+            title="You need permission to save!">
+            Save
+        </button>
+    @endif
+</div>
 
-
-                                    @else
-                                    @if (!empty($permissions->addAnnouncement) || auth()->user()->userType == "Superadmin" || auth()->user()->admin == 1)
-                                    <button type="submit" class="btn btn-outline-info my-2">Save</button>
-                                    @else
-                                    <button type="button" class="btn btn-outline-info my-2" data-toggle="tooltip"
-                                        data-placement="top" title="You need permission to save!">Save</button>
-                                    @endif
-                                    @endif
-                                </div>
                             </div>
                         </form>
                     </div>

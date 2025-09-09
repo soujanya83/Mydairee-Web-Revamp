@@ -667,6 +667,29 @@
             display: none !important;
         }
     }
+
+.tooltip-inner {
+    background-color: #17a2b8 !important; /* bg-info */
+    color: #fff !important;              /* text color */
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: #17a2b8 !important;
+}
+.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: #17a2b8 !important;
+}
+.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: #17a2b8 !important;
+}
+.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: #17a2b8 !important;
+}
+
+
 </style>
 @endsection
 @section('content')
@@ -834,7 +857,7 @@
 
                             <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
                                 <a href="{{ route('print.programplan', $plan->id) }}"
-                                   class="btn btn-outline-primary btn-sm" title="Print">
+                                   class="btn btn-outline-primary btn-sm" title="View">
                                     <i class="fas fa-eye"></i>
                                 </a>
 
@@ -1316,6 +1339,14 @@ function showfilter(val) {
         $('#FilterbyStatus').show();
     }
 }
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
 
 </script>
 
