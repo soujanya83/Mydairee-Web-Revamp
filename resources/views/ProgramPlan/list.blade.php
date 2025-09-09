@@ -713,7 +713,7 @@
 
 </div>
 
- <hr class="mt-3"> 
+ <hr class="mt-3">
   <!-- filter  -->
    @if(Auth::user()->userType != 'Parent')
              <div class="col-6 d-flex justify-content-start align-items-center top-right-button-container">
@@ -724,24 +724,24 @@
          <option value="createdby">Created By</option>
           <option value="status">Status</option>
     </select>
-    <input 
-        type="text" 
-        name="filterbyCentername" 
-        class="form-control border-info ml-2" 
+    <input
+        type="text"
+        name="filterbyCentername"
+        class="form-control border-info ml-2"
         id="FilterbyRoomName"
         placeholder="Filter by Room name" onkeyup="filterProgramPlan()">
 
-          <input 
-        type="text" 
-        name="filterbyCentername" 
-        class="form-control border-info mx-2" 
+          <input
+        type="text"
+        name="filterbyCentername"
+        class="form-control border-info mx-2"
         id="FilterbyCreatedBy"
         placeholder="Filter by Created by" onkeyup="filterProgramPlan()">
 
-          <input 
-        type="text" 
-        name="filterbyCentername" 
-        class="form-control border-info mx-2" 
+          <input
+        type="text"
+        name="filterbyCentername"
+        class="form-control border-info mx-2"
         id="FilterbyStatus"
         placeholder="Filter by Status" onkeyup="filterProgramPlan()">
 
@@ -803,7 +803,7 @@
     @else
   <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
           style="transition: 0.2s; background: linear-gradient(135deg, var(--danger-color), var(--secondary-color));"
-          onclick="updatestatus('{{ $plan->status ?? `` }}', '{{ $plan->id }}')"
+          onclick="updatestatus('{{ $plan->status ?? '--' }}', '{{ $plan->id }}')"
           onmouseover="this.style.opacity='0.8';"
           onmouseout="this.style.opacity='1';">
         {{ ucfirst($plan->status ?? 'Draft') }}
@@ -814,7 +814,7 @@
 
 
                             </div>
-                          
+
 
                             <ul class="list-unstyled mb-3">
                                 <!-- <li><strong>S No:</strong> {{ ($programPlans->currentPage() - 1) * $programPlans->perPage() + $loop->iteration }}</li> -->
@@ -825,7 +825,7 @@
 
 <li><strong>Room(s):</strong> {{ implode(', ', $rooms) }}</li>
 
-     
+
                                 <li><strong>Created By:</strong> {{ $plan->creator->name ?? '' }}</li>
                                 <!-- <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li> -->
                                 <li><strong>Published on :</strong> {{ \Carbon\Carbon::parse($plan->updated_at)->format('d M Y') }}</li>
@@ -867,7 +867,7 @@
             @endforelse
         </div>
 
- 
+
 
               @if(!$programPlans->isEmpty())
     <div class="col-12 d-flex justify-content-center mt-4 mb-5">
@@ -1035,9 +1035,9 @@
                             <div class="col-md-6 col-lg-3 mb-4">
                                 <div class="card h-100 shadow-sm rounded-3">
                                     <div class="card-body d-flex flex-column">
-                                
 
-                                    
+
+
      <div class="d-flex justify-content-between">
   <h5 class="">
     ${monthName} ${year}
@@ -1061,16 +1061,16 @@
 
 
 
-                                        
+
                                         <ul class="list-unstyled mb-3">
                                             <li><strong>Room:</strong> ${roomName}</li>
                                             <li><strong>Created By:</strong> ${creator}</li>
-                                           <!--- <li><strong>Created:</strong> ${createdAt}</li> -----> 
+                                           <!--- <li><strong>Created:</strong> ${createdAt}</li> ----->
                                             <li><strong>Published on :</strong> ${updatedAt}</li>
                                         </ul>
-                                        
+
                                         <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
-                                            <a href="/print/programplan/${plan.id}" 
+                                            <a href="/print/programplan/${plan.id}"
                                                class="btn btn-outline-primary btn-sm" title="Print">
                                                 <i class="fas fa-print"></i>
                                             </a>
@@ -1115,7 +1115,7 @@
                     <div class="row">
                         <div class="col-12 text-center">
                             <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-triangle me-1"></i> 
+                                <i class="fas fa-exclamation-triangle me-1"></i>
                                 ${response.message || 'Error loading program plans. Please try again.'}
                             </div>
                         </div>
@@ -1129,7 +1129,7 @@
                 <div class="row">
                     <div class="col-12 text-center">
                         <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-1"></i> 
+                            <i class="fas fa-exclamation-triangle me-1"></i>
                             Error loading program plans. Please try again.
                         </div>
                     </div>
@@ -1308,10 +1308,10 @@ function showfilter(val) {
     // Show the selected filter field
     if (val === 'roomname') {
         $('#FilterbyRoomName').show();
-    } 
+    }
     else if (val === 'createdby') {
         $('#FilterbyCreatedBy').show();
-    } 
+    }
     else if (val === 'status') {
         $('#FilterbyStatus').show();
     }
