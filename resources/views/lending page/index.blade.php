@@ -684,7 +684,7 @@
                             style="color:#49c5b6"> communications platform</span>
                     </h1>
                     <p class="mb-6 text-lg text-slate-600">
-                        Spend less time on paperwork and more time with children. MyDiare helps early educators capture
+                        Spend less time on paperwork and more time with children. MyDiaree helps early educators capture
                         and securely share the day's moments while ensuring compliance.
                     </p>
                     {{-- <div class="flex flex-col gap-3 sm:flex-row">
