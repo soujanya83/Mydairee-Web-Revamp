@@ -187,7 +187,7 @@
         </div>
 
         <div class="navbar-brand" style="margin-top: -12px;">
-            <a href="/"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}" alt="Lucid Logo"
+            <a href="/dashboard"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}" alt="Lucid Logo"
                     class="img-responsive logo"></a>
         </div>
         <a class="btn btn-xs btn-link btn-toggle-fullwidth">
