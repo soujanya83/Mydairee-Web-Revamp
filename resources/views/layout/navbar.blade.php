@@ -1,4 +1,3 @@
-
 <style>
     .navbar-fixed-top .navbar-brand img {
         width: 130px;
@@ -57,68 +56,129 @@
     }
 </style>
 <style>
-.notification-bell {
-  background-color: #0dcaf0;
-  border-radius: 6px;          /* square look with slight rounding */
-  color: white;
-  width: 30px;
-  height: 30px;
-  display: flex;               /* flex centers the child */
-  align-items: center;         /* vertical center */
-  justify-content: center;     /* horizontal center */
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  padding: 0;
-  margin-bottom: 15px;;
-}
+    .notification-bell {
+        background-color: #0dcaf0;
+        border-radius: 6px;
+        /* square look with slight rounding */
+        color: white;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        /* flex centers the child */
+        align-items: center;
+        /* vertical center */
+        justify-content: center;
+        /* horizontal center */
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        padding: 0;
+        margin-bottom: 15px;
+        ;
+    }
 
-.notification-bell i {
-    font-size: 12px;             /* fits nicely inside 30×30 */
-    color: white !important;
-    display: flex;               /* ensure centering */
-    align-items: center;
-    justify-content: center;
-    position: relative;          /* make top/bottom work */
-    top: -8px;                   /* shift up (adjust as needed) */
-    border: 1px solid transparent; /* optional, just for demo */
-}
+    .notification-bell i {
+        font-size: 12px;
+        /* fits nicely inside 30×30 */
+        color: white !important;
+        display: flex;
+        /* ensure centering */
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        /* make top/bottom work */
+        top: -8px;
+        /* shift up (adjust as needed) */
+        border: 1px solid transparent;
+        /* optional, just for demo */
+    }
 
-/* Badge */
-.notification-bell .notification-count {
-  position: absolute;
-  top: -5px;
-  right: -8px;
-  background: #f0456dff;
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  border-radius: 50%;
-  padding: 3px 3px;
-  line-height: 1;
-  min-width: 14px;
-  text-align: center;
-}
+    /* Badge */
+    .notification-bell .notification-count {
+        position: absolute;
+        top: -5px;
+        right: -8px;
+        background: #f0456dff;
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        border-radius: 50%;
+        padding: 3px 3px;
+        line-height: 1;
+        min-width: 14px;
+        text-align: center;
+    }
 
-/* Hover */
-.notification-bell:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
+    /* Hover */
+    .notification-bell:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
 
 
 
-.btn-toggle-fullwidth i {
-    font-family: "Font Awesome 5 Free"; /* depends on your FA version */
-    font-weight: 900; /* needed for solid icons in FA5+ */
-    content: "\f0c9" !important; /* Unicode for fa-bars */
-    font-size: 22px !important;
-}
+    .btn-toggle-fullwidth i {
+        font-family: "Font Awesome 5 Free";
+        /* depends on your FA version */
+        font-weight: 900;
+        /* needed for solid icons in FA5+ */
+        content: "\f0c9" !important;
+        /* Unicode for fa-bars */
+        font-size: 22px !important;
+    }
 
-.btn-toggle-fullwidth i.fa-bars {
-    font-size: 22px !important;
-}
+    .btn-toggle-fullwidth i.fa-bars {
+        font-size: 22px !important;
+    }
+</style>
 
+<style>
+    .theme-swatch {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+
+    .purple {
+        background-color: #6f42c1;
+    }
+
+    .blue {
+        background-color: #007bff;
+    }
+
+    .cyan {
+        background-color: #17a2b8;
+    }
+
+    .green {
+        background-color: #28a745;
+    }
+
+    .orange {
+        background-color: #fd7e14;
+    }
+
+    .blush {
+        background-color: #e83e8c;
+    }
+
+    .choose-skin li {
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .choose-skin li:hover {
+        background-color: #f1f1f1;
+    }
+
+    .choose-skin li.active {
+        background-color: #e9ecef;
+        font-weight: bold;
+    }
 </style>
 <nav class="navbar navbar-fixed-top" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
     <div class="container-fluid">
@@ -127,7 +187,7 @@
         </div>
 
         <div class="navbar-brand" style="margin-top: -12px;">
-            <a href="/"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}" alt="Lucid Logo"
+            <a href="/dashboard"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}" alt="Lucid Logo"
                     class="img-responsive logo"></a>
         </div>
         <a class="btn btn-xs btn-link btn-toggle-fullwidth">
@@ -153,10 +213,11 @@
                     <li class="dropdown" style="margin-right: 35px;margin-top: 0px;">
 
 
-                    <a href="javascript:void(0);" class="dropdown-toggle icon-menu notification-bell" data-toggle="dropdown" title="Notifications">
-    <i class="fa fa-bell"></i>
-    <span class="notification-count">{{ $notifications->count() }}</span>
-</a>
+                        <a href="javascript:void(0);" class="dropdown-toggle icon-menu notification-bell"
+                            data-toggle="dropdown" title="Notifications">
+                            <i class="fa fa-bell"></i>
+                            <span class="notification-count">{{ $notifications->count() }}</span>
+                        </a>
 
 
                         <ul class="dropdown-menu notifications" style="background-color: aliceblue">
@@ -208,55 +269,78 @@
 
                     </li>
 
-                    {{-- Profile Dropdown --}}
+                    <li class="nav-item dropdown mt-2" style="margin-right: 63px; position: relative;">
+                        <a href="#" class="nav-link d-flex align-items-center p-0" id="userDropdown"
+                            style="color:black; cursor: pointer;">
+                            <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
+                                class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                            <span class="font-weight-bold" style="font-size: 15px;">
+                                &nbsp;&nbsp;{{ Str::limit(Auth::user()->name, 20) }}
+                            </span>
+                        </a>
 
+                        <div class="dropdown-menu dropdown-menu-end shadow-sm" id="userDropdownMenu"
+                            style="min-width: 230px; display: none; position: absolute; top: 100%; right: 0;">
+                            <div class="px-3 py-2">
+                                <div class="fw-bold text-truncate" style="font-size: 15px;">
+                                    &nbsp;&nbsp;<i class="fa fa-user me-2"></i> &nbsp;{{ Auth::user()->name }}
+                                </div>
+                            </div>
 
-                   <li class="nav-item dropdown mt-2" style="margin-right: 63px; position: relative;">
-    <a href="#" class="nav-link d-flex align-items-center p-0" id="userDropdown"
-        style="color:black; cursor: pointer;">
-        <img src="{{ Auth::user()->imageUrl ? asset(Auth::user()->imageUrl) : asset('storage/assets/img/default.png') }}"
-            class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
-        <span class="font-weight-bold" style="font-size: 15px;">
-            &nbsp;&nbsp;{{ Str::limit(Auth::user()->name, 20) }}
-        </span>
-    </a>
+                            <div class="dropdown-divider"></div>
 
-    <div class="dropdown-menu dropdown-menu-end shadow-sm" id="userDropdownMenu"
-        style="min-width: 230px; display: none; position: absolute; top: 100%; right: 0;">
-        <div class="px-3 py-2">
-            <div class="fw-bold text-truncate" style="font-size: 15px;">
-               &nbsp;&nbsp;<i class="fa fa-user me-2"></i> &nbsp;{{ Auth::user()->name }}
-            </div>
-        </div>
+                            <a class="dropdown-item" href="{{ route('settings.profile') }}">
+                               &nbsp; <i class="fa fa-user me-2 text-primary"></i>&nbsp; My Profile
+                            </a>
+                            <a href="#" class="dropdown-item" id="themeTrigger" onclick="openThemeModal(event)">
+                                <i class="fa fa-paint-brush me-2 text-info"></i>&nbsp; &nbsp;Theme Color
+                            </a>
+                            <a class="dropdown-item text-danger" href="{{ route('logout') }}">
+                                &nbsp;<i class="fa fa-power-off me-2"></i>&nbsp; &nbsp;Logout
+                            </a>
+                        </div>
+                    </li>
 
-        <div class="dropdown-divider"></div>
+                    <!-- Modal for Theme Selection -->
+                    <div id="themeModal" class="modal"
+                        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+                        <div class="modal-content"
+                            style="background-color: #fff; margin-top: 50px; margin-left: auto; margin-right: auto; padding: 20px; width: 300px; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                            <h4 style="text-align: center; margin-bottom: 20px;">Select Theme Color</h4>
+                            <div class="tab-pane p-l-15 p-r-15" id="setting">
 
-        <a class="dropdown-item" href="{{ route('settings.profile') }}">
-            <i class="fa fa-user me-2 text-primary"></i>&nbsp; My Profile
-        </a>
-
-        <a class="dropdown-item text-danger" href="{{ route('logout') }}">
-            <i class="fa fa-power-off me-2"></i>&nbsp; Logout
-        </a>
-    </div>
-</li>
-
-<script>
-    const userDropdown = document.getElementById('userDropdown');
-    const dropdownMenu = document.getElementById('userDropdownMenu');
-
-    userDropdown.addEventListener('click', function (e) {
-        e.preventDefault();
-        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // Optional: close dropdown if clicking outside
-    document.addEventListener('click', function (e) {
-        if (!userDropdown.contains(e.target) && !dropdownMenu.contains(e.target)) {
-            dropdownMenu.style.display = 'none';
-        }
-    });
-</script>
+                                <ul class="choose-skin list-unstyled">
+                                    <li data-theme="purple">
+                                        <div class="purple"></div>
+                                        <span>Purple</span>
+                                    </li>
+                                    <li data-theme="blue">
+                                        <div class="blue"></div>
+                                        <span>Blue</span>
+                                    </li>
+                                    <li data-theme="cyan" class="active">
+                                        <div class="cyan"></div>
+                                        <span>Cyan</span>
+                                    </li>
+                                    <li data-theme="green">
+                                        <div class="green"></div>
+                                        <span>Green</span>
+                                    </li>
+                                    <li data-theme="orange">
+                                        <div class="orange"></div>
+                                        <span>Orange</span>
+                                    </li>
+                                    <li data-theme="blush">
+                                        <div class="blush"></div>
+                                        <span>Blush</span>
+                                    </li>
+                                </ul>
+                                <hr>
+                            </div>
+                            <button onclick="closeThemeModal()"
+                                style="display: block; margin: 20px auto 0; padding: 10px 20px; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+                        </div>
+                    </div>
 
 
 
@@ -270,23 +354,9 @@
     </div>
 </nav>
 
-<!-- <script>
-    $('.btn-toggle-fullwidth').on('click', function(e) {
-        e.preventDefault();
-
-        // Toggle the minified class on sidebar instead of layout-fullwidth on body
-        $('#left-sidebar').toggleClass('minified');
-
-        // Toggle the icon
-        $(this).find('i').toggleClass('fa-arrow-right fa-arrow-right');
-
-        // Prevent the default layout-fullwidth class from being added to body
-        $('body').removeClass('layout-fullwidth');
-    });
-</script> -->
 
 <script>
-$('.btn-toggle-fullwidth').on('click', function(e) {
+    $('.btn-toggle-fullwidth').on('click', function(e) {
     e.preventDefault();
 
     // Toggle sidebar collapse/expand
@@ -345,4 +415,48 @@ $('.btn-toggle-fullwidth').on('click', function(e) {
             window.location.href = notificationItem.getAttribute("href");
         }, 300);
     }
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const userDropdown = document.getElementById('userDropdown');
+    const dropdownMenu = document.getElementById('userDropdownMenu');
+
+    // Toggle dropdown when clicking the profile link
+    userDropdown.addEventListener('click', function (e) {
+        e.preventDefault();
+        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Open theme modal
+    function openThemeModal(event) {
+        event.preventDefault();
+        document.getElementById('themeModal').style.display = 'block';
+        dropdownMenu.style.display = 'none'; // Close dropdown when opening modal
+    }
+
+    // Close theme modal
+    function closeThemeModal() {
+        document.getElementById('themeModal').style.display = 'none';
+    }
+
+    // Close dropdown and modal when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!userDropdown.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.style.display = 'none';
+        }
+        if (!document.getElementById('themeModal').contains(e.target) && !document.getElementById('themeTrigger').contains(e.target)) {
+            closeThemeModal();
+        }
+    });
+
+    // Handle theme selection (no background color logic here, assume existing code handles it)
+    document.querySelectorAll('.choose-skin li').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+
+
+                closeThemeModal();
+
+        });
+    });
 </script>

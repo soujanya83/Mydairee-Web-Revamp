@@ -49,6 +49,8 @@ Route::get('/logout', function () {
 })->name('logout');
 
 Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
+Route::get('/', [DashboardController::class, 'lending_page']);
+
 Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
 Route::get('dashboard/analytical', [DashboardController::class, 'analytical'])->name('dashboard.analytical');
 Route::get('/api/events', [DashboardController::class, 'getEvents']);
@@ -80,7 +82,10 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 
 // Route group with middleware this middleware use after login
 Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout::class])->group(function () {
-    Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
+    Route::get('/dashboard', [DashboardController::class, 'university'])->name('dashboard.university');
+
+
+
     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
     Route::get('/api/events', [DashboardController::class, 'getEvents']);
     // service details
@@ -503,7 +508,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
 Route::get('data', [AccidentsController::class, 'index']);
 /* Dashboard */
-Route::get('dashboard', function () {
+Route::get('dashboard-fack', function () {
     return redirect('dashboard/analytical');
 });
 // service details

@@ -18,8 +18,14 @@ class DashboardController extends BaseController
 {
 
 
+
+    function lending_page(){
+        return view('lending page.index');
+    }
+
     function university()
     {
+       
         $usertype = Auth::user()->userType;
 
         $totalUsers = User::where('status', 'ACTIVE')->count();
