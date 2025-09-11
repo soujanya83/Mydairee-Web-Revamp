@@ -28,12 +28,12 @@ class DashboardController extends BaseController
        
         $usertype = Auth::user()->userType;
 
-        $totalUsers = User::count();
-        $totalSuperadmin = User::where('userType', 'Superadmin')->count();
-        $totalStaff = User::where('userType', 'Staff')->count();
-        $totalParent = User::where('userType', 'Parent')->count();
+        $totalUsers = User::where('status', 'ACTIVE')->count();
+        $totalSuperadmin = User::where('admin', '1')->count();
+        $totalStaff = User::where('userType', 'Staff')->where('status', 'ACTIVE')->count();
+        $totalParent = User::where('userType', 'Parent')->where('status', 'ACTIVE')->count();
         $totalCenter = Usercenter::count();
-        $totalRooms = Room::count();
+        $totalRooms = Room::where('status', 'Active')->count();
         $totalRecipes = RecipeModel::count();
         if ($usertype == 'Parent') {
             return view('dashboard.parents', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes'));
@@ -46,7 +46,7 @@ class DashboardController extends BaseController
         $auth = Auth::user();
         $userid = $auth->userid;
         $usertype = $auth->userType;
-           $centerid = session('user_center_id');
+        $centerid = session('user_center_id');
         // dd($usertype);
 
         if ($usertype === 'Parent') {
@@ -59,24 +59,22 @@ class DashboardController extends BaseController
                 ->pluck('aid');
 
             // 3. Fetch only announcements for these IDs
-                    $announcements = AnnouncementsModel::whereIn('id', $announcementIds)
-                    ->whereIn('audience', ['all', 'parents'])
-                    ->get();
-
-        } else if(Auth::user()->userType == "Staff" || Auth::user()->userType == "Superadmin") {
+            $announcements = AnnouncementsModel::whereIn('id', $announcementIds)
+                ->whereIn('audience', ['all', 'parents'])
+                ->get();
+        } else if (Auth::user()->userType == "Staff" || Auth::user()->userType == "Superadmin") {
             // Not a parent → fetch all announcements
-            $announcements = AnnouncementsModel::where('centerid',$centerid)->get();
+            $announcements = AnnouncementsModel::where('centerid', $centerid)->get();
 
-            if(Auth::user()->userType == "Staff"){
+            if (Auth::user()->userType == "Staff") {
                 $announcements = AnnouncementsModel::where('centerid', $centerid)
 
                     ->whereIn('audience', ['all', 'staff'])
-                                        ->get();
-
+                    ->get();
             }
 
             // dd( $announcements);
-        }else{
+        } else {
             $announcements = AnnouncementsModel::all();
         }
 
@@ -87,6 +85,8 @@ class DashboardController extends BaseController
                 'text'              => $this->cleanText($announcement->text) ?? '',
                 'status'            => $announcement->status ?? '',
                 'announcementMedia' => $announcement->announcementMedia ?? '',
+                'eventColor' => $announcement->eventColor ?? '',
+                'type' =>  $announcement->type ?? '',
                 'eventDate'         => $announcement->eventDate
                     ? Carbon::parse($announcement->eventDate)->format('Y-m-d')
                     : null,
@@ -99,6 +99,8 @@ class DashboardController extends BaseController
             ];
         });
 
+        // dd($events);
+
         return response()->json([
             'status'  => true,
             'message' => 'Events fetched successfully',
@@ -107,27 +109,27 @@ class DashboardController extends BaseController
     }
 
 
-private function cleanText($text)
-{
-    if (empty($text)) {
-        return '';
+    private function cleanText($text)
+    {
+        if (empty($text)) {
+            return '';
+        }
+
+        // 1. Remove all HTML tags
+        $cleanText = strip_tags($text);
+
+        // 2. Decode HTML entities (&amp; → &, &nbsp; → space)
+        $cleanText = html_entity_decode($cleanText, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        // 3. Remove control / unknown characters
+        $cleanText = preg_replace('/[^\P{C}\n]+/u', '', $cleanText);
+
+        // 4. Normalize multiple spaces/newlines
+        $cleanText = preg_replace('/\s+/', ' ', $cleanText);
+
+        // 5. Final trim
+        return trim($cleanText);
     }
-
-    // 1. Remov    e all HTML tags
-    $cleanText = strip_tags($text);
-
-    // 2. Decode HTML entities (&amp; → &, &nbsp; → space)
-    $cleanText = html_entity_decode($cleanText, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-    // 3. Remove control / unknown characters
-    $cleanText = preg_replace('/[^\P{C}\n]+/u', '', $cleanText);
-
-    // 4. Normalize multiple spaces/newlines
-    $cleanText = preg_replace('/\s+/', ' ', $cleanText);
-
-    // 5. Final trim
-    return trim($cleanText);
-}
 
 
     public function getUser()
@@ -140,14 +142,14 @@ private function cleanText($text)
         if ($usertype === 'Parent') {
             // Show only children of the logged-in parent
             $childparent = Childparent::where('parentid', $userid)->pluck('childid');
-            $children = Child::wherein('id', $childparent)->where('status','Active')->get();
-        } else if($usertype === 'Staff'){
+            $children = Child::wherein('id', $childparent)->where('status', 'Active')->get();
+        } else if ($usertype === 'Staff') {
             // Show all children for other user types (admin, teacher, etc.)
-                    $children = Child::where('centerid',Session('user_center_id'))->get();
-        }else{
-                    //  $usercenter = Usercenters::where('userid',Auth::user()->userid)->first();
-                    // Superadamin
-            $children = Child::where('centerid',Session('user_center_id'))->get();
+            $children = Child::where('centerid', Session('user_center_id'))->get();
+        } else {
+            //  $usercenter = Usercenters::where('userid',Auth::user()->userid)->first();
+            // Superadamin
+            $children = Child::where('centerid', Session('user_center_id'))->get();
         }
 
         $data = [

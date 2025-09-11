@@ -22,109 +22,110 @@ use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Models\PubicHoliday_Model;
 
 
 class AnnouncementController extends Controller
 {
 
-public function updateStatus(Request $request)
-{
-  
-    $id = $request->id;
-    $status = $request->status;
-if($status == 'Draft'){
-    $updateStatus = 'Pending';
-}else{
-     $updateStatus = 'Sent';
-}
-    $announcement = AnnouncementsModel::find($id);
+    public function updateStatus(Request $request)
+    {
 
-    if (!$announcement) {
+        $id = $request->id;
+        $status = $request->status;
+        if ($status == 'Draft') {
+            $updateStatus = 'Pending';
+        } else {
+            $updateStatus = 'Sent';
+        }
+        $announcement = AnnouncementsModel::find($id);
+
+        if (!$announcement) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Announcement not found.'
+            ], 404);
+        }
+
+        $announcement->status = $updateStatus;
+        $announcement->save();
+
         return response()->json([
-            'status' => false,
-            'message' => 'Announcement not found.'
-        ], 404);
+            'status' => true,
+            'message' => "Status changed to {$status} successfully."
+        ]);
     }
-
-    $announcement->status = $updateStatus;
-    $announcement->save();
-
-    return response()->json([
-        'status' => true,
-        'message' => "Status changed to {$status} successfully."
-    ]);
-}
 
     public function Filterlist(Request $request)
-{
-    $centerId = Session::get('user_center_id');
-    $user = Auth::user();
-    $userId = $user->userid;
-    $userType = $user->userType;
+    {
+        $centerId = Session::get('user_center_id');
+        $user = Auth::user();
+        $userId = $user->userid;
+        $userType = $user->userType;
 
-    // Base query - must filter by current center
-    if ($userType === 'Staff' || $userType === 'Superadmin') {
-        $query = AnnouncementsModel::with('creator')
-            ->where('centerid', $centerId);
+        // Base query - must filter by current center
+        if ($userType === 'Staff' || $userType === 'Superadmin') {
+            $query = AnnouncementsModel::with('creator')
+                ->where('centerid', $centerId);
 
-        if ($userType === 'Staff') {
-            $query->where('createdBy', $userId);
+            if ($userType === 'Staff') {
+                $query->where('createdBy', $userId);
+            }
+            if ($userType === 'Staff') {
+                $query->whereIn('audience', ['parents', 'all']);
+            }
+        } else {
+            $childIds = ChildParent::where('parentid', $userId)->pluck('childid');
+
+            $query = AnnouncementsModel::select('announcement.*')
+                ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
+                ->where('status', 'Sent')
+                ->whereIn('audience', ['parents', 'all'])
+                ->where('announcement.centerid', $centerId)
+                ->whereIn('announcementchild.childid', $childIds);
         }
-         if ($userType === 'Staff') {
-            $query->whereIn('audience',['parents','all']);
+
+        // ✅ Apply filters
+        if ($request->filled('title')) {
+            $query->where('title', 'like', "%{$request->title}%");
         }
-    } else {
-        $childIds = ChildParent::where('parentid', $userId)->pluck('childid');
 
-        $query = AnnouncementsModel::select('announcement.*')
-            ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
-            ->where('status','Sent')
-              ->whereIn('audience',['parents','all'])
-            ->where('announcement.centerid', $centerId)
-            ->whereIn('announcementchild.childid', $childIds);
-    }
+        if ($request->filled('createdBy')) {
+            $query->where('createdBy', $request->createdBy);
+        }
 
-    // ✅ Apply filters
-    if ($request->filled('title')) {
-        $query->where('title', 'like', "%{$request->title}%");
-    }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
 
-    if ($request->filled('createdBy')) {
-        $query->where('createdBy', $request->createdBy);
-    }
+        if ($request->filled('date_from')) {
+            $query->whereDate('createdAt', '>=', $request->date_from);
+        }
 
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
+        if ($request->filled('date_to')) {
+            $query->whereDate('createdAt', '<=', $request->date_to);
+        }
 
-    if ($request->filled('date_from')) {
-        $query->whereDate('createdAt', '>=', $request->date_from);
-    }
+        // ✅ Fetch all filtered records
+        $records = $query->orderByDesc('id')->get();
 
-    if ($request->filled('date_to')) {
-        $query->whereDate('createdAt', '<=', $request->date_to);
-    }
+        // Attach creator name manually
+        foreach ($records as $announcement) {
+            $creator = User::where('userid', $announcement->createdBy)->first();
+            $announcement->creatorName = $creator->name ?? 'Not Available';
+        }
 
-    // ✅ Fetch all filtered records
-    $records = $query->orderByDesc('id')->get();
-
-    // Attach creator name manually
-    foreach ($records as $announcement) {
-        $creator = User::where('userid', $announcement->createdBy)->first();
-        $announcement->creatorName = $creator->name ?? 'Not Available';
-    }
-
-      $permissions = PermissionsModel::where('userid', $userId)
+        $permissions = PermissionsModel::where('userid', $userId)
             ->where('centerid', $centerId)
             ->first();
 
-    return response()->json([
-        'status' => true,          // ✅ Boolean status
-        'count' => $records->count(),
-        'records' => $records,
-        'permission' => $permissions
-    ]);
-}
+        return response()->json([
+            'status' => true,          // ✅ Boolean status
+            'count' => $records->count(),
+            'records' => $records,
+            'permission' => $permissions
+        ]);
+    }
 
 
     public function list(Request $request)
@@ -152,10 +153,10 @@ if($status == 'Draft'){
                 $query->where('createdBy', $userId);
             }
 
-            if( $userType === 'Staff' && Auth::user()->admin == 1){
-                    $query = AnnouncementsModel::with('creator') // optional relationship
-                            ->whereIn('audience',['staff','all'])
-                            ->where('createdBy', $userId)
+            if ($userType === 'Staff' && Auth::user()->admin == 1) {
+                $query = AnnouncementsModel::with('creator') // optional relationship
+                    ->whereIn('audience', ['staff', 'all'])
+                    ->where('createdBy', $userId)
                     ->where('centerid', $centerId);
             }
 
@@ -167,10 +168,10 @@ if($status == 'Draft'){
             $records = AnnouncementsModel::select('announcement.*')
                 ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
                 ->whereIn('announcementchild.childid', $childIds)
-                ->where('status','Sent')
-                ->whereIn('audience',['parents','all'])
+                ->where('status', 'Sent')
+                ->whereIn('audience', ['parents', 'all'])
                 ->orderByDesc('announcement.id')
-                ->paginate(12); 
+                ->paginate(12);
         }
 
         // Attach creator name manually if needed
@@ -181,15 +182,20 @@ if($status == 'Draft'){
 
         // Permissions
         $permissions = PermissionsModel::where('userid', $userId)
-
             ->first();
+
+        $holidays = PubicHoliday_Model::orderBy('date', 'desc')
+            ->orderBy('month', 'desc')
+            ->get();
+
 
         return view('Announcement.list', compact(
             'records',
             'permissions',
             'centers',
             'centerId',
-            'userType'
+            'userType',
+            'holidays'
         ));
     }
 
@@ -200,7 +206,7 @@ if($status == 'Draft'){
         $announcement = null;
 
         $centerid = Session('user_center_id');
-       $selectedDate = $request->query('date') ?? "";
+        $selectedDate = $request->query('date') ?? "";
 
 
         $Childrens = [];
@@ -218,7 +224,7 @@ if($status == 'Draft'){
             ->join('room as r', 'c.room', '=', 'r.id')
             ->select('c.*', 'r.*', 'c.name as name', 'c.id as childid')
             ->where('r.centerid', $centerid)
-            ->where('c.status','Active')
+            ->where('c.status', 'Active')
             ->get();
 
         $now = Carbon::now();
@@ -255,7 +261,7 @@ if($status == 'Draft'){
                 ->join('child_group_member', 'child.id', '=', 'child_group_member.child_id')
                 ->where('child_group_member.group_id', $group->id)
                 ->select('child.*')
-                ->where('child.status','Active')
+                ->where('child.status', 'Active')
                 ->get();
 
             foreach ($groupChilds as $child) {
@@ -295,7 +301,7 @@ if($status == 'Draft'){
             $roomChilds = DB::table('child as c')
                 ->join('room as r', 'c.room', '=', 'r.id')
                 ->where('r.id', $room->id)
-                ->where('c.status','Active')
+                ->where('c.status', 'Active')
                 ->select('c.*', 'r.*', 'c.id as childid', 'c.name as name')
                 ->get();
 
@@ -348,442 +354,493 @@ if($status == 'Draft'){
     }
 
 
-// public function AnnouncementStore(Request $request)
-// {
-//  $request->validate([
-//     'title'      => 'required|string|max:255',
-//     'text'       => 'required|string',
-//     'eventDate'  => 'nullable|date_format:d-m-Y',
-//     'childId'    => [
-//         Rule::requiredIf(in_array($request->audience, ['all', 'parents'])),
-//         'array'
-//     ],
-//     'childId.*'  => 'numeric|exists:child,id',
-//     'media'      => 'nullable|array',
-//     'media.*'    => 'file|mimes:jpeg,jpg,png,pdf|max:2048',
-//     'audience'   => 'required'
-// ], [
-//     'childId.required' => 'Children are required when audience is All or Parents.',
-//     'text.required'    => 'Description is required.',
-//     'media.*.max'      => 'File must be under 2MB.',
-//     'media.*.mimes'    => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
-// ]);
-//     // dd($request->audience);
+    // public function AnnouncementStore(Request $request)
+    // {
+    //  $request->validate([
+    //     'title'      => 'required|string|max:255',
+    //     'text'       => 'required|string',
+    //     'eventDate'  => 'nullable|date_format:d-m-Y',
+    //     'childId'    => [
+    //         Rule::requiredIf(in_array($request->audience, ['all', 'parents'])),
+    //         'array'
+    //     ],
+    //     'childId.*'  => 'numeric|exists:child,id',
+    //     'media'      => 'nullable|array',
+    //     'media.*'    => 'file|mimes:jpeg,jpg,png,pdf|max:2048',
+    //     'audience'   => 'required'
+    // ], [
+    //     'childId.required' => 'Children are required when audience is All or Parents.',
+    //     'text.required'    => 'Description is required.',
+    //     'media.*.max'      => 'File must be under 2MB.',
+    //     'media.*.mimes'    => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
+    // ]);
+    //     // dd($request->audience);
 
-//     // ✅ Check if both image and PDF types are mixed
-//     if ($request->hasFile('media')) {
-//         $hasImage = false;
-//         $hasPdf   = false;
+    //     // ✅ Check if both image and PDF types are mixed
+    //     if ($request->hasFile('media')) {
+    //         $hasImage = false;
+    //         $hasPdf   = false;
 
-//         foreach ($request->file('media') as $file) {
-//             $mime = $file->getMimeType();
-//             if (str_starts_with($mime, 'image/')) {
-//                 $hasImage = true;
-//             } elseif ($mime === 'application/pdf') {
-//                 $hasPdf = true;
-//             }
-//         }
+    //         foreach ($request->file('media') as $file) {
+    //             $mime = $file->getMimeType();
+    //             if (str_starts_with($mime, 'image/')) {
+    //                 $hasImage = true;
+    //             } elseif ($mime === 'application/pdf') {
+    //                 $hasPdf = true;
+    //             }
+    //         }
 
-//         if ($hasImage && $hasPdf) {
-//             return redirect()->back()->withInput()->withErrors([
-//                 'media' => 'You can upload either images or PDFs, not both together.',
-//             ]);
-//         }
-//     }
+    //         if ($hasImage && $hasPdf) {
+    //             return redirect()->back()->withInput()->withErrors([
+    //                 'media' => 'You can upload either images or PDFs, not both together.',
+    //             ]);
+    //         }
+    //     }
 
-//     try {
-//         $userid    = Auth::user()->userid;
-//         $centerid  = session('user_center_id');
-//         $announcementId = null;
+    //     try {
+    //         $userid    = Auth::user()->userid;
+    //         $centerid  = session('user_center_id');
+    //         $announcementId = null;
 
-//         $eventDate = empty($request->eventDate)
-//             ? now()->addDay()->format('Y-m-d')
-//             : Carbon::createFromFormat('d-m-Y', $request->eventDate)->format('Y-m-d');
+    //         $eventDate = empty($request->eventDate)
+    //             ? now()->addDay()->format('Y-m-d')
+    //             : Carbon::createFromFormat('d-m-Y', $request->eventDate)->format('Y-m-d');
 
-//         $role   = Auth::user()->userType;
-//         $run    = 0;
-//         $status = 'Pending';
+    //         $role   = Auth::user()->userType;
+    //         $run    = 0;
+    //         $status = 'Pending';
 
-//         if ($role === "Superadmin") {
-//             $run = 1;
-//             $status = "Pending";
-//         } elseif ($role === "Staff") {
-//             $permission = \App\Models\PermissionsModel::where('userid', $userid)
-//                 ->first();
+    //         if ($role === "Superadmin") {
+    //             $run = 1;
+    //             $status = "Pending";
+    //         } elseif ($role === "Staff") {
+    //             $permission = \App\Models\PermissionsModel::where('userid', $userid)
+    //                 ->first();
 
-//             if ($permission && ($permission->addAnnouncement || $permission->updateAnnouncement)) {
-//                 $run = 1;
-//                 $status = "Pending";
-//             }
-//         }
+    //             if ($permission && ($permission->addAnnouncement || $permission->updateAnnouncement)) {
+    //                 $run = 1;
+    //                 $status = "Pending";
+    //             }
+    //         }
 
-//         if ($run !== 1) {
-//             return redirect()->back()->with([
-//                 'status' => 'error',
-//                 'message' => 'Permission Denied!',
-//             ]);
-//         }
+    //         if ($run !== 1) {
+    //             return redirect()->back()->with([
+    //                 'status' => 'error',
+    //                 'message' => 'Permission Denied!',
+    //             ]);
+    //         }
 
-//         $mediaFiles = [];
-//         $manager = new ImageManager(new Driver()); // ✅ Intervention v3 way
+    //         $mediaFiles = [];
+    //         $manager = new ImageManager(new Driver()); // ✅ Intervention v3 way
 
-//         if ($request->hasFile('media')) {
-//             foreach ($request->file('media') as $file) {
-//                 $destinationPath = public_path('uploads/announcements');
-//                 File::ensureDirectoryExists($destinationPath);
+    //         if ($request->hasFile('media')) {
+    //             foreach ($request->file('media') as $file) {
+    //                 $destinationPath = public_path('uploads/announcements');
+    //                 File::ensureDirectoryExists($destinationPath);
 
-//                 if (str_starts_with($file->getMimeType(), 'image/')) {
-//           $image = $manager->read($file)
-//     ->scaleDown(900, 900)        // keep full image, no crop
-//     ->pad(900, 900, 'white');    // only add padding where needed
-
-
-//                     $quality   = 90;
-//                     $maxSize   = 500 * 1024; // 500 KB
-//                     $tempPath  = storage_path('app/temp_' . Str::random(10) . '.jpg');
-
-//                     do {
-//                         $image->save($tempPath, quality: $quality);
-//                         $size = filesize($tempPath);
-//                         $quality -= 5;
-//                     } while ($size > $maxSize && $quality > 10);
-
-//                     $filename = uniqid() . '.jpg';
-//                     $finalPath = $destinationPath . '/' . $filename;
-//                     rename($tempPath, $finalPath);
-
-//                     $mediaFiles[] = url('uploads/announcements/' . $filename);
-//                 } else {
-//                     // ✅ PDF, just move
-//                     $filename = uniqid() . '_' . $file->getClientOriginalName();
-//                     $file->move($destinationPath, $filename);
-//                     $mediaFiles[] = url('uploads/announcements/' . $filename);
-//                 }
-//             }
-//         }
-
-//         // ✅ UPDATE CASE
-//         if ($request->annId) {
-//             $announcement = \App\Models\AnnouncementsModel::find($request->annId);
-
-//             if (!$announcement) {
-//                 return redirect()->back()->with([
-//                     'status' => 'error',
-//                     'message' => 'Announcement not found!',
-//                 ]);
-//             }
-
-//             if (!empty($mediaFiles) && $announcement->announcementMedia) {
-//                 $oldMedia = json_decode($announcement->announcementMedia, true);
-//                 foreach ($oldMedia as $oldFileUrl) {
-//                     $oldFilePath = public_path(str_replace(url('/') . '/', '', $oldFileUrl));
-//                     if (file_exists($oldFilePath)) {
-//                         @unlink($oldFilePath);
-//                     }
-//                 }
-//             }
-
-//             // dd($request->audience);
-// $validAudiences = ['all', 'parents', 'staff'];
-
-// // Assign values
-// $announcement->title             = $request->title;
-// $announcement->eventDate         = $eventDate;
-// $announcement->text              = $request->text;
-// $announcement->status            = $status;
-// $announcement->audience          = in_array($request->audience, $validAudiences) 
-//                                     ? $request->audience 
-//                                     : $announcement->audience;
-// $announcement->announcementMedia = !empty($mediaFiles) 
-//                                     ? json_encode($mediaFiles) 
-//                                     : $announcement->announcementMedia;
-
-// // Save to DB
-// $announcement->save();
-
-//             $announcementId = $announcement->id;
-
-//             \App\Models\AnnouncementChildModel::where('aid', $announcementId)->delete();
-//         } 
-//         // ✅ CREATE CASE
-//         else {
-//             $announcement = \App\Models\AnnouncementsModel::create([
-//                 'title'             => $request->title,
-//                 'text'              => $request->text,
-//                 'eventDate'         => $eventDate,
-//                 'status'            => $status,
-//                 'createdBy'         => $userid,
-//                 'centerid'          => $centerid,
-//                 'createdAt'         => now(),
-//                 'announcementMedia' => json_encode($mediaFiles),
-//                  'audience' => $request->audience,
-//             ]);
-
-//             if (!$announcement) {
-//                 return redirect()->back()->with([
-//                     'status' => 'error',
-//                     'message' => 'Failed to create announcement!',
-//                 ]);
-//             }
-
-//             $announcementId = $announcement->id;
-//         }
-
-//         if($request->childId){
-//     foreach ($request->childId as $childId) {
-//             if (!empty($childId)) {
-//                 \App\Models\AnnouncementChildModel::create([
-//                     'aid'     => $announcementId,
-//                     'childid' => $childId,
-//                 ]);
-//             }
-//         }
-//         }
-    
-
-//         $userIds = Usercenter::where('centerid', $centerid)
-//             ->pluck('userid')
-//             ->unique();
-
-//         foreach ($userIds as $userId) {
-//             $user = User::find($userId);
-//             if ($user) {
-//                 $user->notify(new AnnouncementAdded($announcement));
-//             }
-//         }
-
-//         return redirect()->back()->with([
-//             'status' => 'success',
-//             'msg'    => $request->annId ? 'Announcement updated successfully' : 'Announcement created successfully',
-//         ]);
-//     } catch (\Exception $e) {
-//         return redirect()->back()->with([
-//             'status' => 'error',
-//             'message' => 'Something went wrong! ' . $e->getMessage(),
-//         ]);
-//     }
-// }
+    //                 if (str_starts_with($file->getMimeType(), 'image/')) {
+    //           $image = $manager->read($file)
+    //     ->scaleDown(900, 900)        // keep full image, no crop
+    //     ->pad(900, 900, 'white');    // only add padding where needed
 
 
-public function AnnouncementStore(Request $request)
-{
-    // ✅ Dynamic validation rules
-    $rules = [
-        'title'     => 'required|string|max:255',
-        'text'      => 'required|string',
-        'eventDate' => 'nullable|date_format:d-m-Y',
-        'audience'  => 'required|string|in:all,parents,staff',
-    ];
+    //                     $quality   = 90;
+    //                     $maxSize   = 500 * 1024; // 500 KB
+    //                     $tempPath  = storage_path('app/temp_' . Str::random(10) . '.jpg');
 
-    if (in_array($request->audience, ['all', 'parents'])) {
-        $rules['childId']   = 'required|array';
-        $rules['childId.*'] = 'numeric|exists:child,id';
-    }
+    //                     do {
+    //                         $image->save($tempPath, quality: $quality);
+    //                         $size = filesize($tempPath);
+    //                         $quality -= 5;
+    //                     } while ($size > $maxSize && $quality > 10);
 
-    if ($request->annId) {
-        // Update → media optional
-        $rules['media']   = 'nullable|array';
-        $rules['media.*'] = 'file|mimes:jpeg,jpg,png,pdf|max:2048';
-    } else {
-        // Create → media required
-        $rules['media']   = 'required|array|min:1';
-        $rules['media.*'] = 'file|mimes:jpeg,jpg,png,pdf|max:2048';
-    }
+    //                     $filename = uniqid() . '.jpg';
+    //                     $finalPath = $destinationPath . '/' . $filename;
+    //                     rename($tempPath, $finalPath);
 
-    $messages = [
-        'childId.required' => 'Children are required when audience is All or Parents.',
-        'text.required'    => 'Description is required.',
-        'media.required'   => 'At least one media file is required.',
-        'media.min'        => 'At least one media file must be uploaded.',
-        'media.*.max'      => 'File must be under 2MB.',
-        'media.*.mimes'    => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
-    ];
+    //                     $mediaFiles[] = url('uploads/announcements/' . $filename);
+    //                 } else {
+    //                     // ✅ PDF, just move
+    //                     $filename = uniqid() . '_' . $file->getClientOriginalName();
+    //                     $file->move($destinationPath, $filename);
+    //                     $mediaFiles[] = url('uploads/announcements/' . $filename);
+    //                 }
+    //             }
+    //         }
 
-    $request->validate($rules, $messages);
+    //         // ✅ UPDATE CASE
+    //         if ($request->annId) {
+    //             $announcement = \App\Models\AnnouncementsModel::find($request->annId);
 
-    try {
-        $userid   = Auth::user()->userid;
-        $centerid = session('user_center_id');
-        $announcementId = null;
+    //             if (!$announcement) {
+    //                 return redirect()->back()->with([
+    //                     'status' => 'error',
+    //                     'message' => 'Announcement not found!',
+    //                 ]);
+    //             }
 
-        $eventDate = empty($request->eventDate)
-            ? now()->addDay()->format('Y-m-d')
-            : Carbon::createFromFormat('d-m-Y', $request->eventDate)->format('Y-m-d');
+    //             if (!empty($mediaFiles) && $announcement->announcementMedia) {
+    //                 $oldMedia = json_decode($announcement->announcementMedia, true);
+    //                 foreach ($oldMedia as $oldFileUrl) {
+    //                     $oldFilePath = public_path(str_replace(url('/') . '/', '', $oldFileUrl));
+    //                     if (file_exists($oldFilePath)) {
+    //                         @unlink($oldFilePath);
+    //                     }
+    //                 }
+    //             }
 
-        // ✅ Role-based permission
-        $role   = Auth::user()->userType;
-        $run    = 0;
-        $status = 'Pending';
+    //             // dd($request->audience);
+    // $validAudiences = ['all', 'parents', 'staff'];
 
-        if ($role === "Superadmin") {
-            $run = 1;
-        } elseif ($role === "Staff") {
-            $permission = \App\Models\PermissionsModel::where('userid', $userid)->first();
-            if ($permission && ($permission->addAnnouncement || $permission->updateAnnouncement)) {
-                $run = 1;
-            }
+    // // Assign values
+    // $announcement->title             = $request->title;
+    // $announcement->eventDate         = $eventDate;
+    // $announcement->text              = $request->text;
+    // $announcement->status            = $status;
+    // $announcement->audience          = in_array($request->audience, $validAudiences) 
+    //                                     ? $request->audience 
+    //                                     : $announcement->audience;
+    // $announcement->announcementMedia = !empty($mediaFiles) 
+    //                                     ? json_encode($mediaFiles) 
+    //                                     : $announcement->announcementMedia;
+
+    // // Save to DB
+    // $announcement->save();
+
+    //             $announcementId = $announcement->id;
+
+    //             \App\Models\AnnouncementChildModel::where('aid', $announcementId)->delete();
+    //         } 
+    //         // ✅ CREATE CASE
+    //         else {
+    //             $announcement = \App\Models\AnnouncementsModel::create([
+    //                 'title'             => $request->title,
+    //                 'text'              => $request->text,
+    //                 'eventDate'         => $eventDate,
+    //                 'status'            => $status,
+    //                 'createdBy'         => $userid,
+    //                 'centerid'          => $centerid,
+    //                 'createdAt'         => now(),
+    //                 'announcementMedia' => json_encode($mediaFiles),
+    //                  'audience' => $request->audience,
+    //             ]);
+
+    //             if (!$announcement) {
+    //                 return redirect()->back()->with([
+    //                     'status' => 'error',
+    //                     'message' => 'Failed to create announcement!',
+    //                 ]);
+    //             }
+
+    //             $announcementId = $announcement->id;
+    //         }
+
+    //         if($request->childId){
+    //     foreach ($request->childId as $childId) {
+    //             if (!empty($childId)) {
+    //                 \App\Models\AnnouncementChildModel::create([
+    //                     'aid'     => $announcementId,
+    //                     'childid' => $childId,
+    //                 ]);
+    //             }
+    //         }
+    //         }
+
+
+    //         $userIds = Usercenter::where('centerid', $centerid)
+    //             ->pluck('userid')
+    //             ->unique();
+
+    //         foreach ($userIds as $userId) {
+    //             $user = User::find($userId);
+    //             if ($user) {
+    //                 $user->notify(new AnnouncementAdded($announcement));
+    //             }
+    //         }
+
+    //         return redirect()->back()->with([
+    //             'status' => 'success',
+    //             'msg'    => $request->annId ? 'Announcement updated successfully' : 'Announcement created successfully',
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with([
+    //             'status' => 'error',
+    //             'message' => 'Something went wrong! ' . $e->getMessage(),
+    //         ]);
+    //     }
+    // }
+
+
+    public function AnnouncementStore(Request $request)
+    {
+        // ✅ Dynamic validation rules
+        // dd($request->all());
+        $rules = [
+            'title'     => 'required|string|max:255',
+            'text'      => 'required|string',
+            'eventDate' => 'nullable|date_format:d-m-Y',
+            'audience'  => 'required|string|in:all,parents,staff',
+            'type' => 'required|string|in:announcement,events',
+            'color' => 'nullable'
+        ];
+
+        if (in_array($request->audience, ['all', 'parents'])) {
+            $rules['childId']   = 'required|array';
+            $rules['childId.*'] = 'numeric|exists:child,id';
         }
 
-        if ($run !== 1) {
-            return redirect()->back()->with([
-                'status' => 'error',
-                'message' => 'Permission Denied!',
-            ]);
-        }
-
-        // ✅ Save media files (images/pdfs)
-        $mediaFiles = [];
-        if ($request->hasFile('media')) {
-            $mediaFiles = $this->saveMediaFiles($request->file('media'));
-        }
-
-        // ✅ UPDATE CASE
         if ($request->annId) {
-            $announcement = \App\Models\AnnouncementsModel::findOrFail($request->annId);
+            // Update → media optional
+            $rules['media']   = 'nullable|array';
+            $rules['media.*'] = 'file|mimes:jpeg,jpg,png,pdf|max:2048';
+        } else {
+            // Create → media required
+            $rules['media']   = 'required|array|min:1';
+            $rules['media.*'] = 'file|mimes:jpeg,jpg,png,pdf|max:2048';
+        }
 
-            // If new media uploaded → delete old and replace
-            if (!empty($mediaFiles)) {
-                if ($announcement->announcementMedia) {
-                    $oldMedia = json_decode($announcement->announcementMedia, true);
-                    foreach ($oldMedia as $oldFileUrl) {
-                        $oldFilePath = public_path(str_replace(url('/') . '/', '', $oldFileUrl));
-                        if (file_exists($oldFilePath)) {
-                            @unlink($oldFilePath);
+        $messages = [
+            'childId.required' => 'Children are required when audience is All or Parents.',
+            'text.required'    => 'Description is required.',
+            'media.required'   => 'At least one media file is required.',
+            'media.min'        => 'At least one media file must be uploaded.',
+            'media.*.max'      => 'File must be under 2MB.',
+            'media.*.mimes'    => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
+        ];
+
+        $request->validate($rules, $messages);
+
+        try {
+            $userid   = Auth::user()->userid;
+            $centerid = session('user_center_id');
+            $announcementId = null;
+
+            $eventDate = empty($request->eventDate)
+                ? now()->addDay()->format('Y-m-d')
+                : Carbon::createFromFormat('d-m-Y', $request->eventDate)->format('Y-m-d');
+
+            // ✅ Role-based permission
+            $role   = Auth::user()->userType;
+            $run    = 0;
+            $status = 'Pending';
+
+            if ($role === "Superadmin") {
+                $run = 1;
+            } elseif ($role === "Staff") {
+                $permission = \App\Models\PermissionsModel::where('userid', $userid)->first();
+                if ($permission && ($permission->addAnnouncement || $permission->updateAnnouncement)) {
+                    $run = 1;
+                }
+            }
+
+            if ($run !== 1) {
+                return redirect()->back()->with([
+                    'status' => 'error',
+                    'message' => 'Permission Denied!',
+                ]);
+            }
+
+            // ✅ Save media files (images/pdfs)
+            $mediaFiles = [];
+            if ($request->hasFile('media')) {
+                $mediaFiles = $this->saveMediaFiles($request->file('media'));
+            }
+
+            // ✅ UPDATE CASE
+            if ($request->annId) {
+                $announcement = \App\Models\AnnouncementsModel::findOrFail($request->annId);
+
+                // If new media uploaded → delete old and replace
+                if (!empty($mediaFiles)) {
+                    if ($announcement->announcementMedia) {
+                        $oldMedia = json_decode($announcement->announcementMedia, true);
+                        foreach ($oldMedia as $oldFileUrl) {
+                            $oldFilePath = public_path(str_replace(url('/') . '/', '', $oldFileUrl));
+                            if (file_exists($oldFilePath)) {
+                                @unlink($oldFilePath);
+                            }
                         }
                     }
+                    $announcement->announcementMedia = json_encode($mediaFiles);
                 }
-                $announcement->announcementMedia = json_encode($mediaFiles);
+
+                // ✅ Update fields
+                $announcement->title     = $request->title;
+                $announcement->eventDate = $eventDate;
+                $announcement->text      = $request->text;
+                $announcement->status    = $status;
+                $announcement->audience  = $request->audience;
+                $announcement->type  = $request->type;
+                $announcement->save();
+
+                if ($request->type == "events") {
+                    $announcement->title     = $request->title;
+                    $announcement->eventDate = $eventDate;
+                    $announcement->text      = $request->text;
+                    $announcement->status    = $status;
+                    $announcement->audience  = $request->audience;
+                    $announcement->type  = $request->type;
+                    $announcement->eventColor  = $request->color;
+                    $announcement->save();
+                } else {
+                    $announcement->title     = $request->title;
+                    $announcement->eventDate = $eventDate;
+                    $announcement->text      = $request->text;
+                    $announcement->status    = $status;
+                    $announcement->audience  = $request->audience;
+                    $announcement->type  = $request->type;
+                    $announcement->save();
+                }
+
+                $announcementId = $announcement->id;
+
+                // ✅ Update child relations (diff check)
+                if (in_array($request->audience, ['all', 'parents'])) {
+                    $existingChildIds = \App\Models\AnnouncementChildModel::where('aid', $announcementId)
+                        ->pluck('childid')->toArray();
+
+                    $newChildIds = $request->childId ?? [];
+
+                    // Add new
+                    foreach (array_diff($newChildIds, $existingChildIds) as $childId) {
+                        \App\Models\AnnouncementChildModel::create([
+                            'aid'     => $announcementId,
+                            'childid' => $childId,
+                        ]);
+                    }
+
+                    // Remove old
+                    foreach (array_diff($existingChildIds, $newChildIds) as $childId) {
+                        \App\Models\AnnouncementChildModel::where('aid', $announcementId)
+                            ->where('childid', $childId)
+                            ->delete();
+                    }
+                } else {
+                    // If not audience all/parents → clear any existing children
+                    \App\Models\AnnouncementChildModel::where('aid', $announcementId)->delete();
+                }
             }
-
-            // ✅ Update fields
-            $announcement->title     = $request->title;
-            $announcement->eventDate = $eventDate;
-            $announcement->text      = $request->text;
-            $announcement->status    = $status;
-            $announcement->audience  = $request->audience;
-            $announcement->save();
-
-            $announcementId = $announcement->id;
-
-            // ✅ Update child relations (diff check)
-            if (in_array($request->audience, ['all', 'parents'])) {
-                $existingChildIds = \App\Models\AnnouncementChildModel::where('aid', $announcementId)
-                    ->pluck('childid')->toArray();
-
-                $newChildIds = $request->childId ?? [];
-
-                // Add new
-                foreach (array_diff($newChildIds, $existingChildIds) as $childId) {
-                    \App\Models\AnnouncementChildModel::create([
-                        'aid'     => $announcementId,
-                        'childid' => $childId,
+            // ✅ CREATE CASE
+            else {
+                if ($request->type == "events") {
+                    $announcement = \App\Models\AnnouncementsModel::create([
+                        'title'             => $request->title,
+                        'text'              => $request->text,
+                        'eventDate'         => $eventDate,
+                        'status'            => $status,
+                        'createdBy'         => $userid,
+                        'centerid'          => $centerid,
+                        'createdAt'         => now(),
+                        'announcementMedia' => json_encode($mediaFiles),
+                        'audience'          => $request->audience,
+                        'eventColor'          => $request->color,
+                        'type'  => $request->type
+                    ]);
+                } else {
+                    $announcement = \App\Models\AnnouncementsModel::create([
+                        'title'             => $request->title,
+                        'text'              => $request->text,
+                        'eventDate'         => $eventDate,
+                        'status'            => $status,
+                        'createdBy'         => $userid,
+                        'centerid'          => $centerid,
+                        'createdAt'         => now(),
+                        'announcementMedia' => json_encode($mediaFiles),
+                        'audience'          => $request->audience,
+                        'type'  => $request->type
                     ]);
                 }
+                $announcement = \App\Models\AnnouncementsModel::create([
+                    'title'             => $request->title,
+                    'text'              => $request->text,
+                    'eventDate'         => $eventDate,
+                    'status'            => $status,
+                    'createdBy'         => $userid,
+                    'centerid'          => $centerid,
+                    'createdAt'         => now(),
+                    'announcementMedia' => json_encode($mediaFiles),
+                    'audience'          => $request->audience,
+                    'type'  => $request->type
+                ]);
 
-                // Remove old
-                foreach (array_diff($existingChildIds, $newChildIds) as $childId) {
-                    \App\Models\AnnouncementChildModel::where('aid', $announcementId)
-                        ->where('childid', $childId)
-                        ->delete();
+                $announcementId = $announcement->id;
+
+                if (in_array($request->audience, ['all', 'parents']) && $request->childId) {
+                    foreach ($request->childId as $childId) {
+                        \App\Models\AnnouncementChildModel::create([
+                            'aid'     => $announcementId,
+                            'childid' => $childId,
+                        ]);
+                    }
                 }
-            } else {
-                // If not audience all/parents → clear any existing children
-                \App\Models\AnnouncementChildModel::where('aid', $announcementId)->delete();
             }
-        } 
-        // ✅ CREATE CASE
-        else {
-            $announcement = \App\Models\AnnouncementsModel::create([
-                'title'             => $request->title,
-                'text'              => $request->text,
-                'eventDate'         => $eventDate,
-                'status'            => $status,
-                'createdBy'         => $userid,
-                'centerid'          => $centerid,
-                'createdAt'         => now(),
-                'announcementMedia' => json_encode($mediaFiles),
-                'audience'          => $request->audience,
+
+            // ✅ Notifications
+            $userIds = Usercenter::where('centerid', $centerid)->pluck('userid')->unique();
+            foreach ($userIds as $userId) {
+                $user = User::find($userId);
+                if ($user) {
+                    $user->notify(new AnnouncementAdded($announcement));
+                }
+            }
+
+            return redirect()->back()->with([
+                'status' => 'success',
+                'msg'    => $request->annId
+                    ? 'Announcement updated successfully'
+                    : 'Announcement created successfully',
             ]);
-
-            $announcementId = $announcement->id;
-
-            if (in_array($request->audience, ['all', 'parents']) && $request->childId) {
-                foreach ($request->childId as $childId) {
-                    \App\Models\AnnouncementChildModel::create([
-                        'aid'     => $announcementId,
-                        'childid' => $childId,
-                    ]);
-                }
-            }
-        }
-
-        // ✅ Notifications
-        $userIds = Usercenter::where('centerid', $centerid)->pluck('userid')->unique();
-        foreach ($userIds as $userId) {
-            $user = User::find($userId);
-            if ($user) {
-                $user->notify(new AnnouncementAdded($announcement));
-            }
-        }
-
-        return redirect()->back()->with([
-            'status' => 'success',
-            'msg'    => $request->annId 
-                        ? 'Announcement updated successfully' 
-                        : 'Announcement created successfully',
-        ]);
-
-    } catch (\Exception $e) {
-        return redirect()->back()->with([
-            'status' => 'error',
-            'message' => 'Something went wrong! ' . $e->getMessage(),
-        ]);
-    }
-}
-
-/**
- * ✅ Helper to save media files (images/PDFs)
- */
-private function saveMediaFiles($files)
-{
-    $mediaFiles = [];
-    $manager = new ImageManager(new Driver()); // Intervention v3
-
-    $destinationPath = public_path('uploads/announcements');
-    File::ensureDirectoryExists($destinationPath);
-
-    foreach ($files as $file) {
-        if (str_starts_with($file->getMimeType(), 'image/')) {
-            // ✅ Compress + resize image
-            $image = $manager->read($file)
-                ->scaleDown(900, 900)
-                ->pad(900, 900, 'white');
-
-            $quality   = 90;
-            $maxSize   = 500 * 1024; // 500 KB
-            $tempPath  = storage_path('app/temp_' . Str::random(10) . '.jpg');
-
-            do {
-                $image->save($tempPath, quality: $quality);
-                $size = filesize($tempPath);
-                $quality -= 5;
-            } while ($size > $maxSize && $quality > 10);
-
-            $filename  = uniqid() . '.jpg';
-            $finalPath = $destinationPath . '/' . $filename;
-            rename($tempPath, $finalPath);
-
-            $mediaFiles[] = url('uploads/announcements/' . $filename);
-        } else {
-            // ✅ PDF
-            $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move($destinationPath, $filename);
-            $mediaFiles[] = url('uploads/announcements/' . $filename);
+        } catch (\Exception $e) {
+            return redirect()->back()->with([
+                'status' => 'error',
+                'message' => 'Something went wrong! ' . $e->getMessage(),
+            ]);
         }
     }
 
-    return $mediaFiles;
-}
+    /**
+     * ✅ Helper to save media files (images/PDFs)
+     */
+    private function saveMediaFiles($files)
+    {
+        $mediaFiles = [];
+        $manager = new ImageManager(new Driver()); // Intervention v3
+
+        $destinationPath = public_path('uploads/announcements');
+        File::ensureDirectoryExists($destinationPath);
+
+        foreach ($files as $file) {
+            if (str_starts_with($file->getMimeType(), 'image/')) {
+                // ✅ Compress + resize image
+                $image = $manager->read($file)
+                    ->scaleDown(900, 900)
+                    ->pad(900, 900, 'white');
+
+                $quality   = 90;
+                $maxSize   = 500 * 1024; // 500 KB
+                $tempPath  = storage_path('app/temp_' . Str::random(10) . '.jpg');
+
+                do {
+                    $image->save($tempPath, quality: $quality);
+                    $size = filesize($tempPath);
+                    $quality -= 5;
+                } while ($size > $maxSize && $quality > 10);
+
+                $filename  = uniqid() . '.jpg';
+                $finalPath = $destinationPath . '/' . $filename;
+                rename($tempPath, $finalPath);
+
+                $mediaFiles[] = url('uploads/announcements/' . $filename);
+            } else {
+                // ✅ PDF
+                $filename = uniqid() . '_' . $file->getClientOriginalName();
+                $file->move($destinationPath, $filename);
+                $mediaFiles[] = url('uploads/announcements/' . $filename);
+            }
+        }
+
+        return $mediaFiles;
+    }
 
 
 

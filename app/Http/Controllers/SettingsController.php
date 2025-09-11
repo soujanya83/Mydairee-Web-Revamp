@@ -350,7 +350,8 @@ class SettingsController extends Controller
             $checkedPermissions = $request->input('permissions', []);
 
             // ✅ Check if centerid exists in session
-            $centerId = session('user_center_id');
+            $centerId = Session('user_center_id');
+            // dd( $centerId);
             if (empty($centerId)) {
                 return redirect()->back()->with('error', 'Center ID is missing in session.');
             }
