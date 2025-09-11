@@ -45,6 +45,12 @@
         cursor: pointer !important;
         /* Pointer for all events */
     }
+
+    .fc-event.merged-event {
+        background: whitesmoke;
+        border: none !important;
+        box-shadow: none !important;
+    }
 </style>
 
 
@@ -61,7 +67,7 @@
 
                 <div class="icon text-danger"><i class="fa fa-users"></i> </div>
                 <div class="content">
-                    <div class="text">Total SuperAdmin</div>
+                    <div class="text">Total Admin</div>
                     <h5 class="number">{{ $totalSuperadmin }}</h5>
                 </div>
 
@@ -249,8 +255,8 @@
 <!-- annoucement modal -->
 <div class="modal" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content shadow">
-            <div class="modal-header bg-info text-white">
+        <div class="modal-content shadow custom-shadow">
+            <div class="modal-header text-white" id="change-bg">
                 <h5 class="modal-title" id="announcementModalLabel">Announcement</h5>
                 <button type="button" class="btn btn-sm btn-light text-danger border-0" style="cursor: pointer;"
                     data-dismiss="modal" aria-label="Close">
@@ -266,9 +272,9 @@
 
 <!-- Holiday Modal -->
 <div class="modal fade" id="holidayModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-dialog ">
         <div class="modal-content">
-            <div class="modal-header text-white" style="background-color: green">
+            <div class="modal-header text-white" style="background-color: red">
                 <h5 class="modal-title">Holiday Details</h5>
                 <button type="button" class="btn btn-sm btn-light text-danger border-0" style="cursor: pointer;"
                     data-dismiss="modal" aria-label="Close">X</button>
@@ -280,40 +286,45 @@
 </div>
 
 
+
+
 <!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const calendarEl = document.getElementById('calendar');
-  const centerId = @json(Session('user_center_id'));
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        const centerId = @json(Session('user_center_id'));
 
-  const formatYMD = (d) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`; // avoids timezone issues from toISOString()
-  };
+        const formatYMD = (d) => {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`; // avoids timezone issues from toISOString()
+        };
 
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    headerToolbar: { left: 'title', right: 'prev,next today' },
-    height: 500,
-    themeSystem: 'standard',
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'title',
+                right: 'prev,next today'
+            },
+            height: 500,
+            themeSystem: 'standard',
 
-    dayCellDidMount: function (info) {
-      const today = new Date();
-      const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const cellDate = new Date(info.date.getFullYear(), info.date.getMonth(), info.date.getDate());
+            dayCellDidMount: function(info) {
+                const today = new Date();
+                const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const cellDate = new Date(info.date.getFullYear(), info.date.getMonth(), info.date.getDate());
 
-      // ✅ Only today and future dates
-      if (cellDate >= startOfToday) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = '+';
-        btn.className = 'add-announcement-btn';
-        btn.setAttribute('data-toggle', 'tooltip');
-        btn.setAttribute('title', 'Add Announcement');
-        btn.style.cssText = `
+                // ✅ Only today and future dates
+                if (cellDate >= startOfToday) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.textContent = '+';
+                    btn.className = 'add-announcement-btn';
+                    btn.setAttribute('data-toggle', 'tooltip');
+                    btn.setAttribute('title', 'Add Announcement');
+                    btn.style.cssText = `
           position:absolute;
           top:-8px;
           left:2px;
@@ -324,197 +335,573 @@ document.addEventListener('DOMContentLoaded', function () {
           cursor:pointer;
         `;
 
-        btn.addEventListener('click', function (e) {
-          e.preventDefault();
-          e.stopPropagation(); // prevent calendar’s own click handling
-          const selectedDate = formatYMD(info.date); // ← use the cell's date
-          const url = `/announcements/create?centerid=${centerId }&date=${encodeURIComponent(selectedDate)}`;
-          window.location.assign(url);
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation(); // prevent calendar’s own click handling
+                        const selectedDate = formatYMD(info.date); // ← use the cell's date
+                        const url = `/announcements/create?centerid=${centerId }&date=${encodeURIComponent(selectedDate)}`;
+                        window.location.assign(url);
+                    });
+
+                    info.el.style.position = 'relative'; // ensure positioning
+                    info.el.appendChild(btn);
+                }
+            }
         });
 
-        info.el.style.position = 'relative'; // ensure positioning
-        info.el.appendChild(btn);
-      }
-    }
-  });
-
-  calendar.render();
-});
-
+        calendar.render();
+    });
 </script>
 
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-    const calendarEl = document.getElementById('calendar');
+<!-- <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'title',
-            right: 'prev,next today'
-        },
-        height: 500,
-        themeSystem: 'standard',
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'title',
+                right: 'prev,next today'
+            },
+            height: 500,
+            themeSystem: 'standard',
 
-        eventClick: function(info) {
-            const isBirthday = info.event.title.includes('🎂');
-            const users = info.event.extendedProps.users;
-             const isHoliday  = info.event.classNames.includes('holiday-event');
-            if (isBirthday && Array.isArray(users)) {
-                // Birthday modal
-                let html = '';
-                users.forEach(user => {
-                    html += `
+            eventClick: function(info) {
+                const {
+                    announcements = [], normalEvents = [], birthdays = [], holidays = []
+                } = info.event.extendedProps;
+
+                // ------------------------------
+                // 🎂 Birthday Modal
+                // ------------------------------
+                if (birthdays.length > 0) {
+                    let html = '';
+                    birthdays.forEach(user => {
+                        html += `
                         <div class="mb-3 border-bottom pb-2">
-                            <strong>Name:</strong> ${user.name}  ${user.lastname || ''} <br>
-
+                            <strong>Name:</strong> ${user.name} ${user.lastname || ''}<br>
                             <strong>Gender:</strong> ${user.gender || 'N/A'}<br>
                             <strong>DOB:</strong> ${user.dob}
                         </div>`;
-                });
+                    });
 
-                document.getElementById('birthdayModalBody').innerHTML = html;
-                new bootstrap.Modal(document.getElementById('birthdayModal')).show();
-            }  else if (isHoliday) {
-        // 📅 Holiday Modal
-                function formatDate(dateStr) {
-                const date = new Date(dateStr);
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = date.toLocaleString('en-US', { month: 'long' }); // Full month name
-                const year = date.getFullYear();
-                return `${day} ${month} ${year}`;
+                    document.getElementById('birthdayModalBody').innerHTML = html;
+                    new bootstrap.Modal(document.getElementById('birthdayModal')).show();
+                    return;
                 }
 
-            let html = `
-                <div class="mb-2"><strong>Date:</strong> ${formatDate(info.event.startStr)}</div>
-                <div class="mb-2"><strong>State:</strong> ${info.event.extendedProps.state}</div>
-                <div class="mb-2"><strong>Occasion:</strong> ${info.event.title.replace('📅 ', '')}</div>
-            `;
+                // ------------------------------
+                // 🏖️ Holiday Modal
+                // ------------------------------
+                if (holidays.length > 0) {
+                    const formatDate = (dateStr) => {
+                        const date = new Date(dateStr);
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const month = date.toLocaleString('en-US', {
+                            month: 'long'
+                        });
+                        const year = date.getFullYear();
+                        return `${day} ${month} ${year}`;
+                    };
 
-        document.getElementById('holidayModalBody').innerHTML = html;
-        new bootstrap.Modal(document.getElementById('holidayModal')).show();
-    }      else {
-                // Announcement modal
-       const title = info.event.title || 'Announcement';
-        const date = info.event.startStr || '';
-        const description = info.event.extendedProps.description || 'No description available';
+                    let html = '';
+                    holidays.forEach(h => {
+                        html += `
+                        <div class="mb-3 border-bottom pb-2">
+                            <div><strong>Date:</strong> ${formatDate(h.date)}</div>
+                            <div><strong>State:</strong> ${h.state}</div>
+                            <div><strong>Occasion:</strong> ${h.occasion || 'Holiday'}</div>
+                        </div>`;
+                    });
 
-   let media = [];
-            const raw = info.event.extendedProps.media;
+                    document.getElementById('holidayModalBody').innerHTML = html;
+                    new bootstrap.Modal(document.getElementById('holidayModal')).show();
+                    return;
+                }
 
-        let html = `
-            <div class="mb-2"><strong>Title:</strong> ${title}</div>
-            <div class="mb-2"><strong>Date:</strong> ${date}</div>
-            <div class="mb-2"><strong>Description:</strong><br>${description}</div>
-        `;
+                // ------------------------------
+                // 📢 Announcement / 📅 Event Modal
+                // ------------------------------
+                const combined = [...announcements, ...normalEvents];
+                if (combined.length > 0) {
+                    let html = '';
+                    combined.forEach(item => {
+                        const title = item.title || 'Untitled';
+                        const date = item.eventDate || '';
+                        const description = item.text || 'No description available';
+                        const rawMedia = item.announcementMedia || [];
+                        const type = item.type || 'Announcement';
+                        const eventColor = item.eventColor || '#1598b3ff';
 
-        // Handle media display
+                        html += `
+                        <div class="mb-3 border-bottom pb-2">
+                            <div><strong>Title:</strong> ${title}</div>
+                            <div><strong>Date:</strong> ${date}</div>
+                            <div><strong>Description:</strong><br>${description}</div>`;
 
+                        // Media display
+                        let media = [];
+                        try {
+                            media = typeof rawMedia === 'string' ? JSON.parse(rawMedia) : rawMedia;
+                        } catch (e) {
+                            console.error('Invalid JSON media format', e);
+                        }
 
-          try {
-                media = typeof raw === 'string' ? JSON.parse(raw) : raw;
-            } catch (e) {
-                console.error('Invalid JSON media format', e);
+                        if (Array.isArray(media)) {
+                            media.forEach(file => {
+                                const fileUrl = `/assets/media/${file}`;
+                                const ext = file.split('.').pop().toLowerCase();
+
+                                if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                                    html += `<div><img src="${fileUrl}" style="max-width:200px;" class="img-fluid mb-2 shadow"></div>`;
+                                } else if (ext === 'pdf') {
+                                    html += `<div><a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm mb-2"><i class="fas fa-file-pdf"></i> Download PDF</a></div>`;
+                                }
+                            });
+                        }
+
+                        html += `</div>`;
+
+                        // Update modal header + bg
+                        $('#announcementModalLabel').html(type.charAt(0).toUpperCase() + type.slice(1));
+                        $('#change-bg').css('background-color', eventColor);
+                    });
+
+                    document.getElementById('announcementModalBody').innerHTML = html;
+                    new bootstrap.Modal(document.getElementById('announcementModal')).show();
+                }
             }
+        });
 
-            if (Array.isArray(media)) {
-                let html = '';
-                media.forEach(file => {
-                    const fileUrl = `/assets/media/${file}`;
-                    const ext = file.split('.').pop().toLowerCase();
+        calendar.render();
 
-                    if (['jpg', 'jpeg', 'png'].includes(ext)) {
-                        html += `<img src="${fileUrl}" style="max-width:200px;" class="img-fluid mb-2 shadow">`;
-                    } else if (ext === 'pdf') {
-                        html += `<a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm mb-2"><i class="fas fa-file-pdf"></i> Download PDF</a>`;
-                    }
-                });
 
-            }
-                document.getElementById('announcementModalBody').innerHTML = html;
-                new bootstrap.Modal(document.getElementById('announcementModal')).show();
-            }
+
+        // -------------------------------
+        // 1. Fetch announcements
+        // -------------------------------
+        // Utility: group array items by date key
+        function groupByDate(events, dateExtractor) {
+            const grouped = {};
+            events.forEach(item => {
+                const date = dateExtractor(item);
+                if (!grouped[date]) grouped[date] = [];
+                grouped[date].push(item);
+            });
+            return grouped;
         }
-    });
 
-    // -------------------------------
-    // 1. Fetch announcements
-    // -------------------------------
-    fetch('/announcements/events')
-        .then(res => res.json())
-        .then(data => {
-            if (data.status && Array.isArray(data.events)) {
-                const events = data.events.map(item => ({
-                    title: item.title || 'No Title',
-                    date: item.eventDate,
-                    description: item.text || '',
-                    media:item.announcementMedia,
-                   color: '#17a2b8' ,// Blue for announcements
-                    className: 'annoucement-event'
-                }));
-                calendar.addEventSource(events);
-            }
-        })
-        .catch(err => console.error('Announcement fetch error:', err));
+        // -----------------------------------
+        // Fetch + Merge All Event Types
+        // -----------------------------------
+        Promise.all([
+            fetch('/announcements/events').then(r => r.json()),
+            fetch('/users/birthday').then(r => r.json()),
+            fetch('settings/holidays/events').then(r => r.json())
+        ]).then(([annData, bdayData, holiData]) => {
+            const groupedAll = {};
 
-    // -------------------------------
-    // 2. Fetch birthdays
-    // -------------------------------
-    fetch('/users/birthday')
-        .then(res => res.json())
-        .then(data => {
-            if (data.status && Array.isArray(data.events)) {
-                const groupedByDate = {};
-
-                data.events.forEach(user => {
-                    const dob = new Date(user.dob);
-                    const eventDate = `${new Date().getFullYear()}-${String(dob.getMonth() + 1).padStart(2, '0')}-${String(dob.getDate()).padStart(2, '0')}`;
-
-                    if (!groupedByDate[eventDate]) groupedByDate[eventDate] = [];
-                    groupedByDate[eventDate].push(user);
-                });
-
-                const birthdayEvents = Object.entries(groupedByDate).map(([date, users]) => ({
-                    title: '🎂 Birthday',
-                    date,
-                    allDay: true,
-                    color: '#74a5c9', // Red
-                    users,
-                     className: 'birthday-event'
-                }));
-
-                calendar.addEventSource(birthdayEvents);
-            }
-
-            calendar.render(); // Final render after all events loaded
-        })
-        .catch(err => {
-            console.error('Birthday fetch error:', err);
-            calendar.render();
-        });
-
-
-        fetch('settings/holidays/events')
-            .then(res => res.json())
-            .then(data => {
-                if (data.status && Array.isArray(data.events)) {
-                    const holidays = data.events.map(item => ({
-                        title: item.title,
-                        date: item.date,
-                        allDay: true,
-                        color: 'green', // 🟢 Green for holidays
-                        state: item.state,
-                        status: item.status,
-                        className: 'holiday-event'
-                    }));
-                    calendar.addEventSource(holidays);
+            // 🔹 Announcements & Events
+            if (annData.status && Array.isArray(annData.events)) {
+                const byDate = groupByDate(annData.events, i => i.eventDate);
+                for (const [date, items] of Object.entries(byDate)) {
+                    if (!groupedAll[date]) groupedAll[date] = {
+                        announcements: [],
+                        normalEvents: [],
+                        birthdays: [],
+                        holidays: []
+                    };
+                    groupedAll[date].announcements.push(...items.filter(i => i.type === 'announcement'));
+                    groupedAll[date].normalEvents.push(...items.filter(i => i.type === 'events'));
                 }
-            })
-            .catch(err => console.error('Holiday fetch error:', err));
-        });
-</script>
+            }
 
+            // 🔹 Birthdays
+            if (bdayData.status && Array.isArray(bdayData.events)) {
+                const byDate = groupByDate(bdayData.events, user => {
+                    const dob = new Date(user.dob);
+                    return `${new Date().getFullYear()}-${String(dob.getMonth() + 1).padStart(2, '0')}-${String(dob.getDate()).padStart(2, '0')}`;
+                });
+                for (const [date, users] of Object.entries(byDate)) {
+                    if (!groupedAll[date]) groupedAll[date] = {
+                        announcements: [],
+                        normalEvents: [],
+                        birthdays: [],
+                        holidays: []
+                    };
+                    groupedAll[date].birthdays.push(...users);
+                }
+            }
+
+            // 🔹 Holidays
+            if (holiData.status && Array.isArray(holiData.events)) {
+                const byDate = groupByDate(holiData.events, item => {
+                    const d = new Date(item.date);
+                    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                });
+                for (const [date, items] of Object.entries(byDate)) {
+                    if (!groupedAll[date]) groupedAll[date] = {
+                        announcements: [],
+                        normalEvents: [],
+                        birthdays: [],
+                        holidays: []
+                    };
+                    groupedAll[date].holidays.push(...items);
+                }
+            }
+
+            // 🔹 Build one compact event per date
+            const finalEvents = Object.entries(groupedAll).map(([date, items]) => ({
+                title: '', // icons handled in eventContent
+                date,
+                allDay: true,
+                className: 'merged-event',
+                extendedProps: items
+            }));
+
+            calendar.addEventSource(finalEvents);
+
+            // -----------------------------------
+            // Custom renderer: icons + counts
+            // -----------------------------------
+            calendar.setOption('eventContent', function(arg) {
+                if (arg.event.classNames.includes('merged-event')) {
+                    const {
+                        announcements,
+                        normalEvents,
+                        birthdays,
+                        holidays
+                    } = arg.event.extendedProps;
+
+                    // Helper for building icons with badge
+                    const makeIcon = (emoji, count, color) => {
+                        if (count === 0) return '';
+                        return `
+                <div style="position:relative; display:inline-block; font-size:18px; margin:2px;">
+                    ${emoji}
+                    ${count > 1 ? `<span style="
+                        position:absolute; top:-8px; right:-10px;
+                        background:${color}; color:white;
+                        border-radius:50%; padding:2px 5px;
+                        font-size:11px; font-weight:bold;
+                    ">${count}</span>` : ''}
+                </div>
+            `;
+                    };
+
+                    // ✅ Flexbox with wrapping enabled
+                    let html = `
+            <div style="
+                display:flex; 
+                flex-wrap:wrap;   /* allow multiple rows */
+                gap:6px; 
+                justify-content:center;
+                align-items:center;
+                max-width:100%;
+            ">
+        `;
+                    html += makeIcon('📢', announcements.length, 'blue'); // announcements
+                    html += makeIcon('📅', normalEvents.length, 'green'); // events
+                    html += makeIcon('🎂', birthdays.length, '#b1e415ff'); // birthdays
+                    html += makeIcon('🏖️', holidays.length, 'red'); // holidays
+                    html += `</div>`;
+
+                    return {
+                        html
+                    };
+                }
+                return true;
+            });
+
+
+            calendar.render();
+        }).catch(err => console.error('Fetch error:', err));
+
+
+    });
+</script> -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'title',
+                right: 'prev,next today'
+            },
+            height: 500,
+            themeSystem: 'standard',
+
+            eventContent: function(arg) {
+                if (arg.event.classNames.includes('merged-event')) {
+                    const {
+                        announcements,
+                        normalEvents,
+                        birthdays,
+                        holidays
+                    } = arg.event.extendedProps;
+
+                    // helper with icon + badge + type attribute
+                    const makeIcon = (emoji, count, color, type) => {
+                        if (count === 0) return '';
+                        return `
+                        <div class="fc-icon-wrapper" data-type="${type}" style="position:relative; display:inline-block; font-size:16px; margin:2px; cursor:pointer;">
+                            ${emoji}
+                            ${count > 1 ? `<span style="
+                                position:absolute; top:-8px; right:-10px;
+                                background:${color}; color:white;
+                                border-radius:50%; padding:2px 5px;
+                                font-size:11px; font-weight:bold;
+                            ">${count}</span>` : ''}
+                        </div>
+                    `;
+                    };
+
+                    return {
+                        html: `
+                        <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:100%;">
+                            ${makeIcon('📢', announcements.length, 'blue', 'announcement')}
+                            ${makeIcon('📅', normalEvents.length, 'green', 'event')}
+                            ${makeIcon('🎂', birthdays.length, '#b1e415ff', 'birthday')}
+                            ${makeIcon('🏖️', holidays.length, 'red', 'holiday')}
+                        </div>
+                    `
+                    };
+                }
+                return true;
+            },
+
+            eventDidMount: function(info) {
+                if (info.event.classNames.includes('merged-event')) {
+                    // Attach click handler for each icon separately
+                    info.el.querySelectorAll('.fc-icon-wrapper').forEach(iconEl => {
+                        iconEl.addEventListener('click', (e) => {
+                            e.stopPropagation(); // prevent full event click
+                            const type = iconEl.dataset.type;
+                            const {
+                                announcements,
+                                normalEvents,
+                                birthdays,
+                                holidays
+                            } = info.event.extendedProps;
+
+                            if (type === 'birthday' && birthdays.length > 0) {
+                                let html = birthdays.map(user => `
+                                <div class="mb-3 border-bottom pb-2">
+                                    <strong>Name:</strong> ${user.name} ${user.lastname || ''}<br>
+                                    <strong>Gender:</strong> ${user.gender || 'N/A'}<br>
+                                    <strong>DOB:</strong> ${user.dob}
+                                </div>
+                            `).join('');
+                                document.getElementById('birthdayModalBody').innerHTML = html;
+                                new bootstrap.Modal(document.getElementById('birthdayModal')).show();
+                            }
+
+                            if (type === 'holiday' && holidays.length > 0) {
+                                const formatDate = (dateStr) => {
+                                    const date = new Date(dateStr);
+                                    return `${String(date.getDate()).padStart(2, '0')} ${date.toLocaleString('en-US', {month: 'long'})} ${date.getFullYear()}`;
+                                };
+                                let html = holidays.map(h => `
+                                <div class="mb-3 border-bottom pb-2">
+                                    <div><strong>Date:</strong> ${formatDate(h.date)}</div>
+                                    <div><strong>State:</strong> ${h.state}</div>
+                                    <div><strong>Occasion:</strong> ${h.occasion || 'Holiday'}</div>
+                                </div>
+                            `).join('');
+                                document.getElementById('holidayModalBody').innerHTML = html;
+                                new bootstrap.Modal(document.getElementById('holidayModal')).show();
+                            }
+
+                            if (type === 'announcement' && announcements.length > 0) {
+                                let html = announcements.map(item => {
+                                    const title = item.title || 'Untitled';
+                                    const date = item.eventDate || '';
+                                    const description = item.text || 'No description available';
+                                    const rawMedia = item.announcementMedia || [];
+                                    const eventColor = item.eventColor || '#1598b3ff';
+
+                                    let mediaHtml = '';
+                                    let media = [];
+                                    try {
+                                        media = typeof rawMedia === 'string' ? JSON.parse(rawMedia) : rawMedia;
+                                    } catch {}
+                                    if (Array.isArray(media)) {
+                                        media.forEach(file => {
+                                            const fileUrl = file;
+                                            const ext = file.split('.').pop().toLowerCase();
+                                            if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                                                mediaHtml += `<div><img src="${fileUrl}" style="max-width:200px;" class="img-fluid mb-2 shadow show-poster"></div>`;
+                                            } else if (ext === 'pdf') {
+                                                mediaHtml += `<div><a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm mb-2">
+                        <i class="fas fa-file-pdf"></i> Download PDF</a></div>`;
+                                            }
+                                        });
+                                    }
+
+                                    // update header + bg per announcement
+                                    $('#announcementModalLabel').html('Announcement');
+                                    $('#change-bg').css('background-color', eventColor);
+
+                                    return `
+            <div class="mb-3 border-bottom pb-2">
+                <div><strong>Title:</strong> ${title}</div>
+                <div><strong>Date:</strong> ${date}</div>
+                <div><strong>Description:</strong><br>${description}</div>
+                ${mediaHtml}
+            </div>
+        `;
+                                }).join('');
+
+                                document.getElementById('announcementModalBody').innerHTML = html;
+                                new bootstrap.Modal(document.getElementById('announcementModal')).show();
+                            }
+
+                            if (type === 'event' && normalEvents.length > 0) {
+                                let html = normalEvents.map(item => {
+                                    const title = item.title || 'Untitled';
+                                    const date = item.eventDate || '';
+                                    const description = item.text || 'No description available';
+                                    const rawMedia = item.announcementMedia || [];
+                                    const eventColor = item.eventColor || '#0d6efd';
+
+                                    let mediaHtml = '';
+                                    let media = [];
+                                    try {
+                                        media = typeof rawMedia === 'string' ? JSON.parse(rawMedia) : rawMedia;
+                                    } catch {}
+                                    if (Array.isArray(media)) {
+                                        media.forEach(file => {
+                                            const fileUrl = file;
+                                            const ext = file.split('.').pop().toLowerCase();
+                                            if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                                                mediaHtml += `<div><img src="${fileUrl}" style="max-width:200px;" class="img-fluid mb-2 shadow show-poster"></div>`;
+                                            } else if (ext === 'pdf') {
+                                                mediaHtml += `<div><a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm mb-2">
+                    <i class="fas fa-file-pdf"></i> Download PDF</a></div>`;
+                                            }
+                                        });
+                                    }
+
+                                    // update modal header + bg
+                                    $('#announcementModalLabel').html('Event');
+                                    $('#change-bg').css('background-color', eventColor);
+
+                                    // 🎨 Wrap each event in a card with colored shadow
+                                    return `
+        <div class="rounded mb-3" style="box-shadow: 0 0 12px ${eventColor}; border-left: 4px solid ${eventColor};">
+            <div class="card-body">
+                <div><strong>Title:</strong> ${title}</div>
+                <div><strong>Date:</strong> ${date}</div>
+                <div><strong>Description:</strong><br>${description}</div>
+                ${mediaHtml}
+            </div>
+        </div>
+    `;
+                                }).join('');
+
+                                document.getElementById('announcementModalBody').innerHTML = html;
+                                new bootstrap.Modal(document.getElementById('announcementModal')).show();
+                            }
+
+                        });
+                    });
+                }
+            }
+        });
+
+        calendar.render();
+
+        // ------------------------------- Data Fetching -------------------------------
+        function groupByDate(events, dateExtractor) {
+            const grouped = {};
+            events.forEach(item => {
+                const date = dateExtractor(item);
+                if (!grouped[date]) grouped[date] = [];
+                grouped[date].push(item);
+            });
+            return grouped;
+        }
+
+        Promise.all([
+            fetch('/announcements/events').then(r => r.json()),
+            fetch('/users/birthday').then(r => r.json()),
+            fetch('settings/holidays/events').then(r => r.json())
+        ]).then(([annData, bdayData, holiData]) => {
+            const groupedAll = {};
+
+            if (annData.status && Array.isArray(annData.events)) {
+                const byDate = groupByDate(annData.events, i => i.eventDate);
+                for (const [date, items] of Object.entries(byDate)) {
+                    if (!groupedAll[date]) groupedAll[date] = {
+                        announcements: [],
+                        normalEvents: [],
+                        birthdays: [],
+                        holidays: []
+                    };
+                    groupedAll[date].announcements.push(...items.filter(i => i.type === 'announcement'));
+                    groupedAll[date].normalEvents.push(...items.filter(i => i.type === 'events'));
+                }
+            }
+
+            if (bdayData.status && Array.isArray(bdayData.events)) {
+                const byDate = groupByDate(bdayData.events, user => {
+                    const dob = new Date(user.dob);
+                    return `${new Date().getFullYear()}-${String(dob.getMonth() + 1).padStart(2, '0')}-${String(dob.getDate()).padStart(2, '0')}`;
+                });
+                for (const [date, users] of Object.entries(byDate)) {
+                    if (!groupedAll[date]) groupedAll[date] = {
+                        announcements: [],
+                        normalEvents: [],
+                        birthdays: [],
+                        holidays: []
+                    };
+                    groupedAll[date].birthdays.push(...users);
+                }
+            }
+
+            if (holiData.status && Array.isArray(holiData.events)) {
+                const byDate = groupByDate(holiData.events, item => {
+                    const d = new Date(item.date);
+                    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                });
+                for (const [date, items] of Object.entries(byDate)) {
+                    if (!groupedAll[date]) groupedAll[date] = {
+                        announcements: [],
+                        normalEvents: [],
+                        birthdays: [],
+                        holidays: []
+                    };
+                    groupedAll[date].holidays.push(...items);
+                }
+            }
+
+            const finalEvents = Object.entries(groupedAll).map(([date, items]) => ({
+                title: '',
+                date,
+                allDay: true,
+                className: 'merged-event',
+                extendedProps: items
+            }));
+
+            calendar.addEventSource(finalEvents);
+        }).catch(err => console.error('Fetch error:', err));
+
+
+
+        $(document).on('click', '.show-poster', function() {
+            const url = $(this).attr('src'); // get clicked image src
+            // Open in a new tab/page
+            window.open(url, '_blank');
+        });
+
+
+
+    });
+</script>
 
 @include('layout.footer')
 @stop
