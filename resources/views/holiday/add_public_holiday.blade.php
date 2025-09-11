@@ -86,7 +86,7 @@
                             <th>Date</th>
                             <th>Occasion</th>
                             <th>State</th>
-                            <th>Status</th>
+
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -97,23 +97,10 @@
                             <td>{{ $holidays->full_date->format('d M Y') }}</td>
                             <td>{{ \Illuminate\Support\Str::limit($holidays->occasion, 75) }}</td>
                             <td>{{ $holidays->state ?: '--' }}</td>
-                            <td>
-                                @if($holidays->status == 1)
-                                <span class="text-success">Active</span>
-                                @else
-                                <span class="text-danger">Inactive</span>
-                                @endif
-                            </td>
+                        
                             <td>
                                 <!-- Change Status Button -->
-                                <form action="{{ route('settings.holiday.changeStatus', $holidays->id) }}" method="POST"
-                                    style="display:inline-block;">
-                                    @csrf
-                                    <button class="btn btn-sm btn-warning" title="Wifi IP Status change">
-                                        <i class="fas fa-refresh"></i> Status
-                                    </button>
-                                </form>
-                                &nbsp;
+
                                 <button class="btn btn-sm btn-primary edit-holiday-btn p-2"
                                     data-id="{{ $holidays->id }}"
                                     data-date="{{ $holidays->full_date->format('Y-m-d') }}"
@@ -217,6 +204,16 @@
                 </div>
 
                 <div class="modal-body">
+                    <div class="mb-3">
+    <label for="eventType">Select Type</label>
+    <select class="form-control" name="type" id="eventType" required>
+        <option value="">-- Select --</option>
+        <option value="events">Event</option>
+        <option value="announcement">Announcement</option>
+        <option value="public_holiday">Public Holiday</option>
+    </select>
+</div>
+
                     <div class="mb-3">
                         <label>Date</label>
                         <input type="date" class="form-control" name="date" id="editDate" required>

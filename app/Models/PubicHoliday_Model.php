@@ -13,6 +13,7 @@ class PubicHoliday_Model extends Model
         'month',
         'date',
         'occasion',
+        'Holiday_date'
 
     ];
 }
