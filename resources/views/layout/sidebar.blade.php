@@ -258,9 +258,9 @@
                                 </li>
                                 @endif
 
-                                <li class="{{ Request::segment(2) === 'add-public-holiday' ? 'active' : null }}">
+                                <!-- <li class="{{ Request::segment(2) === 'add-public-holiday' ? 'active' : null }}">
                                     <a href="{{ route('settings.public_holiday') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Public Holiday</a>
-                                </li>
+                                </li> -->
 
 
 

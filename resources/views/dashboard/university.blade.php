@@ -654,7 +654,7 @@
                                 position:absolute; top:-8px; right:-10px;
                                 background:${color}; color:white;
                                 border-radius:50%; padding:2px 5px;
-                                font-size:11px; font-weight:bold;
+                                font-size:9px; font-weight:bold;
                             ">${count}</span>` : ''}
                         </div>
                     `;

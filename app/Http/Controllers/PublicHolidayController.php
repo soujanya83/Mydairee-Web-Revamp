@@ -80,6 +80,9 @@ class PublicHolidayController extends Controller
                 ->withInput();
         }
 
+        $centerid = Session('user_center_id');
+        // dd($centerid);
+
         // ---------- Case 1: CSV/Excel Upload ----------
         if ($request->hasFile('csvExcel')) {
             $file = $request->file('csvExcel');
@@ -132,6 +135,8 @@ class PublicHolidayController extends Controller
                             'state'     => $state,
                             'occasion'  => $occasion,
                             'status'    => $status,
+                            'centerid' => $centerid,
+                            'Holiday_date' =>   $dayCarbon
                         ]);
                         $insertedCount++;
                     }
@@ -182,6 +187,8 @@ class PublicHolidayController extends Controller
                             'state'     => $state,
                             'occasion'  => $occasion,
                             'status'    => $status,
+                            'centerid' => $centerid,
+                            'Holiday_date' =>   $dayCarbon
                         ]);
                         $insertedCount++;
                     }
@@ -201,7 +208,8 @@ class PublicHolidayController extends Controller
 
             return redirect()->back()->with([
                 'status' => 'success',
-                'msg' => "Holidays imported successfully! ✅ {$insertedCount} entries added."
+                'msg' => "Holidays imported successfully! ✅ {$insertedCount} entries added.",
+                 "type" => "public_holiday"
             ]);
         }
 
@@ -215,16 +223,20 @@ class PublicHolidayController extends Controller
                 'state'     => $request->state,
                 'occasion'  => $request->occasion,
                 'status'    => $request->status ?? 1,
+                'centerid' => $centerid,
+                'Holiday_date' =>     $carbonDate
             ]);
 
             return redirect()->back()->with([
                 'status' => 'success',
-                'msg' => "Holidays imported successfully! ✅ "
+                'msg' => "Holidays imported successfully! ✅ ",
+                 "type" => "public_holiday"
             ]);
         }
         return redirect()->back()->with([
             'status' => 'error',
-            'msg' => "No data provided. please fill correctly "
+            'msg' => "No data provided. please fill correctly ",
+             "type" => "public_holiday"
         ]);
     }
 

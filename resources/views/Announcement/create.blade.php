@@ -1541,36 +1541,37 @@ $edit = 1;
         }
     });
 
-    $(document).ready(function() {
-        function toggleEventCards() {
-            $(".events-card, .announcement-card, .public-holiday-card").hide();
+$(document).ready(function () {
+    function toggleEventCards() {
+        $(".events-card, .announcement-card, .public-holiday-card").hide();
 
-            let selected = $("#eventType").val();
-            if (selected === "events") {
-                $(".events-card").show();
-            } else if (selected === "announcement") {
-                $(".announcement-card").show();
-            } else if (selected === "public_holiday") {
-                $(".public-holiday-card").show();
-            }
+        let selected = $("#eventType").val();
+        if (selected === "events") {
+            $(".events-card").show();
+        } else if (selected === "announcement") {
+            $(".announcement-card").show();
+        } else if (selected === "public_holiday") {
+            $(".public-holiday-card").show();
         }
+    }
 
-        // Trigger on change
-        $(document).on("change", "#eventType", toggleEventCards);
+    // Trigger on change
+    $(document).on("change", "#eventType", toggleEventCards);
 
-        @if(!empty($announcement) && in_array($announcement->type, ['announcement', 'events']))
+    // Handle pre-selected values
+    @if(!empty($announcement) && in_array($announcement->type, ['announcement', 'events', 'public_holiday']))
+        $("#eventType").val("{{ $announcement->type }}");
+    @elseif(Session('type'))
+        $("#eventType").val("{{ Session('type') }}");
+    @else
+        // Default to announcement if nothing set
+        $("#eventType").val("announcement");
+    @endif
 
-        $("#eventType").val("{{ $announcement->type }}").trigger('change');
+    // Fire toggle once on page load
+    toggleEventCards();
+});
 
-        @endif
-
-
-
-        // Trigger if backend passed an error and type
-        @if(Session('type'))
-        $("#eventType").val("{{ Session('type') }}").trigger('change');
-        @endif
-    });
 </script>
 
 @endpush
