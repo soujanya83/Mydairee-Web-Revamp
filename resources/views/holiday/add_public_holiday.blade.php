@@ -5,7 +5,7 @@
 {{--
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
 <!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
 
 
 @section('content')
@@ -14,9 +14,9 @@
 
 
 <div class="d-flex justify-content-end" style="margin-top: -52px;margin-right:50px">
-    <button class="btn btn-outline-info" type="button" data-bs-toggle="modal" data-bs-target="#holidayModal">
+    <a href="{{ route('announcements.create') }}" class="btn btn-outline-info">
         Add New Holiday
-    </button>
+    </a>
 
 
 </div>
@@ -213,7 +213,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Holiday</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal">X</button>
-                     {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button> --}}
+                    {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button> --}}
                 </div>
 
                 <div class="modal-body">
@@ -248,50 +248,50 @@
     </div>
 </div>
 <script>
-    $(document).ready(function(){
-    $('.edit-holiday-btn').click(function(){
-        let id       = $(this).data('id');
-        let date     = $(this).data('date');
-        let occasion = $(this).data('occasion');
-        let state    = $(this).data('state');
-        let status   = $(this).data('status');
+    $(document).ready(function() {
+        $('.edit-holiday-btn').click(function() {
+            let id = $(this).data('id');
+            let date = $(this).data('date');
+            let occasion = $(this).data('occasion');
+            let state = $(this).data('state');
+            let status = $(this).data('status');
 
-        // fill modal fields
-        $('#editDate').val(date);
-        $('#editOccasion').val(occasion);
-        $('#editState').val(state);
+            // fill modal fields
+            $('#editDate').val(date);
+            $('#editOccasion').val(occasion);
+            $('#editState').val(state);
 
-        if(status == 1){
-            $('#editStatusActive').prop('checked', true);
-        } else {
-            $('#editStatusInactive').prop('checked', true);
-        }
+            if (status == 1) {
+                $('#editStatusActive').prop('checked', true);
+            } else {
+                $('#editStatusInactive').prop('checked', true);
+            }
 
-        // set form action
-        $('#holidayEditForm').attr('action', '/settings/holiday/update/' + id);
+            // set form action
+            $('#holidayEditForm').attr('action', '/settings/holiday/update/' + id);
 
-        // open modal
-        $('#holidayEditModal').modal('show');
+            // open modal
+            $('#holidayEditModal').modal('show');
+        });
     });
-});
 </script>
 
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         // Edit modal fill
-        $('.edit-holiday-btn').click(function () {
-            const id      = $(this).data('id');
-            const date    = $(this).data('date');
-            const state   = $(this).data('state');
-            const occasion= $(this).data('occasion');
-            const status  = $(this).data('status');
-            const action  = $(this).data('action');
+        $('.edit-holiday-btn').click(function() {
+            const id = $(this).data('id');
+            const date = $(this).data('date');
+            const state = $(this).data('state');
+            const occasion = $(this).data('occasion');
+            const status = $(this).data('status');
+            const action = $(this).data('action');
 
             $('#holidayDate').val(date);
             $('#holidayState').val(state);
             $('#holidayOccasion').val(occasion);
-            $("input[name='status'][value='"+status+"']").prop('checked', true);
+            $("input[name='status'][value='" + status + "']").prop('checked', true);
 
             $('#holidayForm').attr('action', action);
             $('#holidayModalLabel').text('Edit Public Holiday');
@@ -301,7 +301,7 @@
         });
 
         // Reset modal
-        $('#holidayModal').on('hidden.bs.modal', function () {
+        $('#holidayModal').on('hidden.bs.modal', function() {
             $('#holidayForm').attr('action', "{{ route('settings.holiday.store') }}");
             $('#holidayForm')[0].reset();
             $('#holidayModalLabel').text('Add New Public Holiday');
