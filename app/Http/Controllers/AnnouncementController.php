@@ -573,8 +573,7 @@ class AnnouncementController extends Controller
 
     public function AnnouncementStore(Request $request)
     {
-        // ✅ Dynamic validation rules
-        // dd($request->all());
+        
         $rules = [
             'title'     => 'required|string|max:255',
             'text'      => 'required|string',
@@ -637,6 +636,7 @@ class AnnouncementController extends Controller
                 return redirect()->back()->with([
                     'status' => 'error',
                     'message' => 'Permission Denied!',
+                     "type" =>$request->type
                 ]);
             }
 
@@ -789,12 +789,14 @@ class AnnouncementController extends Controller
                 'msg'    => $request->annId
                     ? 'Announcement updated successfully'
                     : 'Announcement created successfully',
+                     "type" =>$request->type
             ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with([
-                'status' => 'error',
-                'message' => 'Something went wrong! ' . $e->getMessage(),
-            ]);
+            return redirect()
+        ->back()
+        ->withErrors($e->validator)
+        ->withInput()
+        ->with('type', $request->input('type'));
         }
     }
 
