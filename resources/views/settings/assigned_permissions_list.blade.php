@@ -6,6 +6,11 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+<style>
+    .btn {
+        font-size: 10px;
+    }
+</style>
 @section('content')
 
 
@@ -42,102 +47,45 @@
                         <input type="text" id="userSearchInput" class="form-control" placeholder="Search User Name...">
                     </div>
                 </div>
-                <table class="table">
-                    <thead>
-                        <th>#</th>
-                        <th>User Name</th>
-                        <th>Action</th>
-                    </thead>
-                    <tbody>
-                        @foreach($assignedUserList as $index => $user)
-                        <tr class="{{ $user->colorClass ?? 'xl-default' }}">
-                            <th scope="row">{{ $index + 1 }}</th>
-                            <td>{{ \Illuminate\Support\Str::title($user->name) }}</td>
-                            <td>
-                                <a href="{{ route('settings.show.assigned_permissions', ['userId' => $user->id]) }}"
-                                    class="btn btn-sm btn-info">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
+         <table class="table  table-hover align-middle  rounded">
+    <thead class="thead-light">
+        <tr>
 
+            <th scope="col">User Name</th>
+            <th scope="col" style="width: 180px;text-align: center;">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($assignedUserList as $index => $user)
+        <tr class="{{ $user->colorClass ?? 'xl-default' }}">
+   
+            <td>{{ \Illuminate\Support\Str::title($user->name) }}</td>
+            <td>
+                <a href="{{ route('settings.show.assigned_permissions', ['userId' => $user->id]) }}"
+                   class="btn btn-sm px-3 py-1 mr-1 rounded-pill"
+                   style="font-size: 12px; background-color: #126dcf; color: #fff; border: none;">
+                   <i class="fas fa-eye"></i> View
+                </a>
 
-                                {{-- <div class="modal" id="viewModal{{ $user->id }}" tabindex="-1"
-                                    aria-labelledby="viewModalLabel{{ $user->id }}" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg">
-                                        <form action="{{ route('settings.update_user_permissions', $user->id) }}"
-                                            method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="modal-content card">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="viewModalLabel{{ $user->id }}">
-                                                        <u>Permissions for {{ $user->name }}</u>
-                                                    </h5>
-                                                    <button type="button" class="btn-close" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body row">
-                                                    @php
-                                                    $userPermissions = DB::table('permissions')->where('userid',
-                                                    $user->id)->first();
-                                                    @endphp
+                <a href="{{ route('settings.show.assigned_permissions', ['userId' => $user->id]) }}"
+                   class="btn btn-sm px-3 py-1 rounded-pill"
+                   style="font-size: 12px; background-color: #076a91; color: #fff; border: none;">
+                   <i class="fas fa-pencil-alt"></i> Edit
+                </a>
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
 
-                                                    <!-- Select All Checkbox -->
-                                                    <div class="col-12 d-flex align-items-center justify-content-between mb-3"
-                                                        style="margin-left: 14px; margin-right: 14px;">
-                                                        <div>
-                                                            <input type="checkbox" class="form-check-input"
-                                                                id="selectAll_{{ $user->id }}"
-                                                                onclick="toggleAllPermissions({{ $user->id }})">
-                                                            <label class="form-check-label fw-bold ms-2"
-                                                                for="selectAll_{{ $user->id }}">
-                                                                <span style="color: green;"><u>Select All
-                                                                        Permissions</u>
-                                                                </span>
-                                                            </label>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-info"
-                                                            style="margin-right: 16px;">
-                                                            Save Changes
-                                                        </button>
-                                                    </div>
-                                                    <!-- Individual Permission Checkboxes -->
-                                                    @foreach($permissionColumns as $column)
-                                                    <div class="col-md-4 mb-2">
-                                                        <div class="form-check">
-                                                            <input
-                                                                class="form-check-input permission-checkbox-{{ $user->id }}"
-                                                                type="checkbox"
-                                                                name="permissions[{{ $column['name'] }}]" value="1" {{
-                                                                isset($userPermissions->{$column['name']}) &&
-                                                            $userPermissions->{$column['name']} ? 'checked' : '' }}>
-                                                            <label class="form-check-label" style="color:black">
-                                                                {{ $column['label'] }}
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    @endforeach
-                                                </div>
-                                                <div class="modal-footer  d-flex justify-content-end">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Close
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div> --}}
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
+</div>
 </div>
 
 
 <script>
-    document.getElementById("userSearchInput").addEventListener("keyup", function () {
+    document.getElementById("userSearchInput").addEventListener("keyup", function() {
         let filter = this.value.toLowerCase();
         let rows = document.querySelectorAll("table tbody tr");
 

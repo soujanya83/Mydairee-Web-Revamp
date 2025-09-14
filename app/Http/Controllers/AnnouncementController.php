@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Models\PubicHoliday_Model;
+use Illuminate\Support\Facades\Log;
 
 
 class AnnouncementController extends Controller
@@ -573,21 +574,25 @@ class AnnouncementController extends Controller
 
     public function AnnouncementStore(Request $request)
     {
-        
+        // ✅ Validation rules
+        // dd($request->all());
         $rules = [
             'title'     => 'required|string|max:255',
             'text'      => 'required|string',
-            'eventDate' => 'nullable|date_format:d-m-Y',
+            'eventDate' => 'nullable|date_format:m-d-Y',
+            'date'      => 'nullable|date_format:Y-m-d',
             'audience'  => 'required|string|in:all,parents,staff',
-            'type' => 'required|string|in:announcement,events',
-            'color' => 'nullable'
+            'type'      => 'required|string|in:announcement,events',
+            'color'     => 'nullable'
         ];
 
+        // If audience requires children
         if (in_array($request->audience, ['all', 'parents'])) {
             $rules['childId']   = 'required|array';
             $rules['childId.*'] = 'numeric|exists:child,id';
         }
 
+        // Media rules
         if ($request->annId) {
             // Update → media optional
             $rules['media']   = 'nullable|array';
@@ -598,6 +603,7 @@ class AnnouncementController extends Controller
             $rules['media.*'] = 'file|mimes:jpeg,jpg,png,pdf|max:2048';
         }
 
+        // Custom messages
         $messages = [
             'childId.required' => 'Children are required when audience is All or Parents.',
             'text.required'    => 'Description is required.',
@@ -607,6 +613,7 @@ class AnnouncementController extends Controller
             'media.*.mimes'    => 'Only JPG, JPEG, PNG, or PDF files are allowed.',
         ];
 
+        // ✅ Validate request
         $request->validate($rules, $messages);
 
         try {
@@ -614,11 +621,24 @@ class AnnouncementController extends Controller
             $centerid = session('user_center_id');
             $announcementId = null;
 
-            $eventDate = empty($request->eventDate)
-                ? now()->addDay()->format('Y-m-d')
-                : Carbon::createFromFormat('d-m-Y', $request->eventDate)->format('Y-m-d');
+            // ✅ Parse event date safely
+            if (!empty($request->date)) {
+                try {
+                    $eventDate = Carbon::createFromFormat('d-m-Y', $request->date)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $eventDate = now()->format('Y-m-d');
+                }
+            } elseif (!empty($request->eventDate)) {
+                try {
+                    $eventDate = Carbon::createFromFormat('m-d-Y', $request->eventDate)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $eventDate = now()->format('Y-m-d');
+                }
+            } else {
+                $eventDate = now()->format('Y-m-d');
+            }
 
-            // ✅ Role-based permission
+            // ✅ Role-based permission check
             $role   = Auth::user()->userType;
             $run    = 0;
             $status = 'Pending';
@@ -633,14 +653,15 @@ class AnnouncementController extends Controller
             }
 
             if ($run !== 1) {
+                dd('pemission denied');
                 return redirect()->back()->with([
                     'status' => 'error',
                     'message' => 'Permission Denied!',
-                     "type" =>$request->type
+                    "type" => $request->type
                 ]);
             }
 
-            // ✅ Save media files (images/pdfs)
+            // ✅ Save media files
             $mediaFiles = [];
             if ($request->hasFile('media')) {
                 $mediaFiles = $this->saveMediaFiles($request->file('media'));
@@ -648,53 +669,36 @@ class AnnouncementController extends Controller
 
             // ✅ UPDATE CASE
             if ($request->annId) {
+                dd('here');
                 $announcement = \App\Models\AnnouncementsModel::findOrFail($request->annId);
 
-                // If new media uploaded → delete old and replace
-                if (!empty($mediaFiles)) {
-                    if ($announcement->announcementMedia) {
-                        $oldMedia = json_decode($announcement->announcementMedia, true);
-                        foreach ($oldMedia as $oldFileUrl) {
-                            $oldFilePath = public_path(str_replace(url('/') . '/', '', $oldFileUrl));
-                            if (file_exists($oldFilePath)) {
-                                @unlink($oldFilePath);
-                            }
+                // Delete old media if new uploaded
+                if (!empty($mediaFiles) && $announcement->announcementMedia) {
+                    $oldMedia = json_decode($announcement->announcementMedia, true);
+                    foreach ($oldMedia as $oldFileUrl) {
+                        $oldFilePath = public_path(str_replace(url('/') . '/', '', $oldFileUrl));
+                        if (file_exists($oldFilePath)) {
+                            @unlink($oldFilePath);
                         }
                     }
                     $announcement->announcementMedia = json_encode($mediaFiles);
                 }
 
-                // ✅ Update fields
+                // Update fields
                 $announcement->title     = $request->title;
                 $announcement->eventDate = $eventDate;
                 $announcement->text      = $request->text;
                 $announcement->status    = $status;
                 $announcement->audience  = $request->audience;
-                $announcement->type  = $request->type;
-                $announcement->save();
-
+                $announcement->type      = $request->type;
                 if ($request->type == "events") {
-                    $announcement->title     = $request->title;
-                    $announcement->eventDate = $eventDate;
-                    $announcement->text      = $request->text;
-                    $announcement->status    = $status;
-                    $announcement->audience  = $request->audience;
-                    $announcement->type  = $request->type;
-                    $announcement->eventColor  = $request->color;
-                    $announcement->save();
-                } else {
-                    $announcement->title     = $request->title;
-                    $announcement->eventDate = $eventDate;
-                    $announcement->text      = $request->text;
-                    $announcement->status    = $status;
-                    $announcement->audience  = $request->audience;
-                    $announcement->type  = $request->type;
-                    $announcement->save();
+                    $announcement->eventColor = $request->color;
                 }
+                $announcement->save();
 
                 $announcementId = $announcement->id;
 
-                // ✅ Update child relations (diff check)
+                // Update child relations
                 if (in_array($request->audience, ['all', 'parents'])) {
                     $existingChildIds = \App\Models\AnnouncementChildModel::where('aid', $announcementId)
                         ->pluck('childid')->toArray();
@@ -716,41 +720,14 @@ class AnnouncementController extends Controller
                             ->delete();
                     }
                 } else {
-                    // If not audience all/parents → clear any existing children
                     \App\Models\AnnouncementChildModel::where('aid', $announcementId)->delete();
                 }
             }
             // ✅ CREATE CASE
             else {
-                if ($request->type == "events") {
-                    $announcement = \App\Models\AnnouncementsModel::create([
-                        'title'             => $request->title,
-                        'text'              => $request->text,
-                        'eventDate'         => $eventDate,
-                        'status'            => $status,
-                        'createdBy'         => $userid,
-                        'centerid'          => $centerid,
-                        'createdAt'         => now(),
-                        'announcementMedia' => json_encode($mediaFiles),
-                        'audience'          => $request->audience,
-                        'eventColor'          => $request->color,
-                        'type'  => $request->type
-                    ]);
-                } else {
-                    $announcement = \App\Models\AnnouncementsModel::create([
-                        'title'             => $request->title,
-                        'text'              => $request->text,
-                        'eventDate'         => $eventDate,
-                        'status'            => $status,
-                        'createdBy'         => $userid,
-                        'centerid'          => $centerid,
-                        'createdAt'         => now(),
-                        'announcementMedia' => json_encode($mediaFiles),
-                        'audience'          => $request->audience,
-                        'type'  => $request->type
-                    ]);
-                }
-                $announcement = \App\Models\AnnouncementsModel::create([
+
+                // dd('here in 728');
+                $data = [
                     'title'             => $request->title,
                     'text'              => $request->text,
                     'eventDate'         => $eventDate,
@@ -760,11 +737,17 @@ class AnnouncementController extends Controller
                     'createdAt'         => now(),
                     'announcementMedia' => json_encode($mediaFiles),
                     'audience'          => $request->audience,
-                    'type'  => $request->type
-                ]);
+                    'type'              => $request->type,
+                ];
 
+                if ($request->type == "events") {
+                    $data['eventColor'] = $request->color;
+                }
+//  dd($data);
+                $announcement = \App\Models\AnnouncementsModel::create($data);
                 $announcementId = $announcement->id;
 
+                // Save child relations
                 if (in_array($request->audience, ['all', 'parents']) && $request->childId) {
                     foreach ($request->childId as $childId) {
                         \App\Models\AnnouncementChildModel::create([
@@ -775,7 +758,7 @@ class AnnouncementController extends Controller
                 }
             }
 
-            // ✅ Notifications
+            // ✅ Send notifications
             $userIds = Usercenter::where('centerid', $centerid)->pluck('userid')->unique();
             foreach ($userIds as $userId) {
                 $user = User::find($userId);
@@ -784,19 +767,39 @@ class AnnouncementController extends Controller
                 }
             }
 
+            // Delete holiday if exists
+            if ($request->holidayid) {
+                PubicHoliday_Model::where('id', $request->holidayid)->delete();
+
+                   return redirect()->route('settings.public_holiday')->with([
+                'status' => 'success',
+                'msg'    =>  "{$request->type} updated successfully"
+                    ,
+                'type'   => $request->type,
+            ]);
+            }
+
             return redirect()->back()->with([
                 'status' => 'success',
                 'msg'    => $request->annId
-                    ? 'Announcement updated successfully'
-                    : 'Announcement created successfully',
-                     "type" =>$request->type
+                    ? "{$request->type} updated successfully"
+                    : "{$request->type} created successfully",
+                'type'   => $request->type,
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Validation errors
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput()
+                ->with('type', $request->input('type'));
         } catch (\Exception $e) {
-            return redirect()
-        ->back()
-        ->withErrors($e->validator)
-        ->withInput()
-        ->with('type', $request->input('type'));
+            // Other errors
+            Log::error($e);
+            return redirect()->back()
+                ->with('status', 'error')
+                ->with('message', 'Something went wrong: ' . $e->getMessage())
+                ->withInput()
+                ->with('type', $request->input('type'));
         }
     }
 

@@ -3805,7 +3805,7 @@ function escapeHtml(unsafe) {
         .replace(/'/g, "&#039;");
 }
 
->>>>>>> origin/main
+
 </script>
 
 
