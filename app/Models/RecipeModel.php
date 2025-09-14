@@ -9,5 +9,5 @@ class RecipeModel extends Model
     protected $table = 'recipes';
     public $timestamps = false;
 
-    protected $fillable = ['itemName', 'type', 'recipe', 'centerid', 'createdBy'];
+    protected $fillable = ['itemName', 'type', 'recipe', 'centerid', 'createdBy','foodtype','notes','RecipeVideolink'];
 }

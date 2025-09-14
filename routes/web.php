@@ -398,6 +398,8 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::post('store-holiday', [PublicHolidayController::class, 'holiday_store'])->name('holiday.store');
         Route::put('holiday/update/{id}', [PublicHolidayController::class, 'update'])->name('holiday.update');
         Route::get('/holidays/events', [PublicHolidayController::class, 'holidayEvents']);
+   Route::get('/holidays/edit/{id}', [PublicHolidayController::class, 'holidaysEdit'])->name('holidays.edit');
+        
     });
 
 

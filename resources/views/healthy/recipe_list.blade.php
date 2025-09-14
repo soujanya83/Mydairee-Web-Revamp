@@ -2,6 +2,12 @@
 @section('title', 'Recipes List')
 
 @section('parentPageTitle', '')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-CQZ2gdcX4H14R/2uOeGZ5ER5YjZL+Qyhr/KdxzeuL0qg6ldKMyjvIu5SozIpuH7/7MAHuD7msnXMjTfzVlv3CQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <style>
     .card-img-top {
         width: 100%;
@@ -17,6 +23,58 @@
 
     .dropdown-menu {
         z-index: 9999;
+    }
+
+    .custom-badge {
+        color: #fff;
+        /* white text */
+        border: 1px solid #fff;
+        /* white border */
+        padding: 0.4em 0.8em;
+        font-size: 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    /* Light green for veg */
+    .custom-badge.veg {
+        background-color: #6cc070;
+        /* light green */
+    }
+
+    /* Light red/orange for non-veg */
+    .custom-badge.non-veg {
+        background-color: #e57373;
+        /* light red */
+    }
+
+    .custom-badge {
+        color: #fff;
+        border: 1px solid #fff;
+        font-size: 0.75rem;
+        padding: 0.35em 0.6em;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .custom-badge.veg {
+        background-color: #81c784;
+        /* light green */
+    }
+
+    .custom-badge.non-veg {
+        background-color: #ef5350;
+        /* light red */
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .custom-text {
+        font-size: 1.5em;
     }
 </style>
 
@@ -75,101 +133,112 @@
 
 <hr>
 <div class="row clearfix">
-    {{-- {{ session('user_center_id')}} --}}
     <div class="col-sm-12">
         @foreach($recipes as $type => $recipeGroup)
-        <h4 class="mt-0 mb-3"> <u>{{ ucfirst(strtolower($type)) }}:</u> </h4>
+
+        <!-- Recipe Type Heading -->
+        <h4 class="mt-4 mb-3 fw-bold text-capitalize text-primary border-bottom border-2 pb-2">
+            <i class="fas fa-utensils me-2"></i> {{ ucfirst(strtolower($type)) }}
+        </h4>
+
         <div class="row">
             @foreach($recipeGroup as $recipe)
             <div class="col-md-3 mb-4">
-                {{-- <div class="card h-100 shadow-sm">
-                    <!-- Image clickable to open modal -->
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#imageModal{{ $recipe->id }}">
-                        <img src="{{ asset('uploads/recipes/' . $recipe->mediaUrl) }}" class="card-img-top"
-                            alt="{{ $recipe->itemName }}"
-                            style="height: 180px; object-fit: cover; padding: 4px;border-radius: 10px">
-                    </a>
-                    <div class="card-body">
-                        <h5 class="card-title mb-1"> &nbsp;&nbsp;&nbsp;{{
-                            \Illuminate\Support\Str::title($recipe->itemName) }}
-                        </h5>
-                        <p class="mb-0 text-muted" style="font-size: 0.9rem;">
-                            <i class="fas fa-user me-1"></i> {{ $recipe->created_by_name }} ({{
-                            $recipe->created_by_role }})<br>
-                            <i class="fas fa-calendar-alt me-1"></i> {{
-                            \Carbon\Carbon::parse($recipe->createdAt)->format('d M Y') }}
-                        </p>
+                <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
 
-                    </div>
-                </div> --}}
+                    <!-- Card Header with Title & Dropdown -->
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3 border-0">
+                        <h6 class="card-title mb-0 fw-bold text-truncate text-dark" title="{{ $recipe->itemName }}">
+                            {{ \Illuminate\Support\Str::title($recipe->itemName) }}
+                        </h6>
 
-                <div class="card h-100 shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">{{ \Illuminate\Support\Str::title($recipe->itemName) }}</h5>
-
-                        {{-- dropdown trigger --}}
+                        @if(!empty($permissions['updateRecipe']) || !empty($permissions['deleteRecipe']))
                         <div class="dropdown">
-                            <a href="#" class="text-secondary" id="dropdownMenu{{ $recipe->id }}"
-                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <a href="#" class="text-muted small" id="dropdownMenu{{ $recipe->id }}"
+                               data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v"></i>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu{{ $recipe->id }}">
-                                @if(!empty($permissions['updateRecipe']) && $permissions['updateRecipe'])
-
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm"
+                                aria-labelledby="dropdownMenu{{ $recipe->id }}">
+                                @if(!empty($permissions['updateRecipe']))
                                 <li>
                                     <a class="dropdown-item" href="{{ route('recipes.edit', $recipe->id) }}">
-                                        <i class="fas fa-edit me-2"></i> Edit
+                                        <i class="fas fa-edit me-2 text-primary"></i> Edit
                                     </a>
                                 </li>
                                 @endif
-                                @if(!empty($permissions['deleteRecipe']) && $permissions['deleteRecipe'])
-
+                                @if(!empty($permissions['deleteRecipe']))
                                 <li>
                                     <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST"
-                                        onsubmit="return confirm('Delete this recipe?')">
+                                          onsubmit="return confirm('Delete this recipe?')">
                                         @csrf @method('DELETE')
-                                        <button class="dropdown-item text-danger">
+                                        <button type="submit" class="dropdown-item text-danger">
                                             <i class="fas fa-trash-alt me-2"></i> Delete
                                         </button>
                                     </form>
                                 </li>
                                 @endif
-
                             </ul>
                         </div>
+                        @endif
                     </div>
 
+                    <!-- Recipe Image -->
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#imageModal{{ $recipe->id }}">
+                        <img src="{{ asset('storage/'.$recipe->mediaUrl) }}"
+                             onerror="this.onerror=null;this.src='{{ asset('storage/../'.$recipe->mediaUrl) }}';"
+                             class="card-img-top"
+                             alt="{{ $recipe->itemName }}"
+                             style="height: 180px; object-fit: cover;">
+                    </a>
 
+                    <!-- Card Body -->
+                    <div class="card-body p-3">
 
-                    <img src="{{ asset('storage/'.$recipe->mediaUrl) }}"
-                        onerror="this.onerror=null;this.src='{{ asset('storage/../'.$recipe->mediaUrl) }}';"
-                        class="card-img-top" alt="{{ $recipe->itemName }}"
-                        style="height: 180px; object-fit: cover; padding: 3px;">
+                        <!-- Food Type Badge -->
+                        @if(!empty($recipe->foodtype))
+                        <span class="badge rounded-pill px-3 py-1 mb-2 
+                                    {{ $recipe->foodtype == 'veg' ? 'bg-success text-white' : 'bg-danger text-white' }}">
+                            {{ strtoupper($recipe->foodtype) }}
+                        </span>
+                        @endif
 
-
-
-                    <div class="card-body">
-                        <p class="mb-0 text-muted" style="font-size: 0.9rem;">
-                            <i class="fas fa-user me-1"></i> {{ $recipe->created_by_name }} ({{
-                            $recipe->created_by_role }})<br>
-                            <i class="fas fa-calendar-alt me-1"></i> {{
-                            \Carbon\Carbon::parse($recipe->createdAt)->format('d M Y') }}
+                        <!-- Recipe Description -->
+                        <p class="mt-2 mb-2 text-muted small" style="word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
+                            {{ Str::limit($recipe->recipe, 100, '...') }}
                         </p>
+
+                        <!-- Author & Date -->
+                        <p class="mb-1 text-muted small">
+                            <i class="fas fa-user me-1"></i>
+                            {{ $recipe->created_by_name }} ({{ $recipe->created_by_role }})
+                        </p>
+                        <p class="mb-2 text-muted small">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            {{ \Carbon\Carbon::parse($recipe->createdAt)->format('d M Y') }}
+                        </p>
+
+                        <!-- Video Link -->
+                        @if(!empty($recipe->RecipeVideolink))
+                        <a href="{{ $recipe->RecipeVideolink }}"
+                           target="_blank" rel="noopener noreferrer"
+                           class="btn btn-sm btn-outline-danger w-100">
+                            <i class="fab fa-youtube me-1"></i> Watch Video
+                        </a>
+                        @endif
                     </div>
                 </div>
-
-
             </div>
 
-
             <!-- Modal for Full Image -->
-            <div class="modal" id="imageModal{{ $recipe->id }}" tabindex="-1"
-                aria-labelledby="imageModalLabel{{ $recipe->id }}" aria-hidden="true">
+            <div class="modal fade" id="imageModal{{ $recipe->id }}" tabindex="-1"
+                 aria-labelledby="imageModalLabel{{ $recipe->id }}" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-body text-center">
-                            <img src="{{ asset('uploads/recipes/' . $recipe->mediaUrl) }}" class="img-fluid"
-                                alt="{{ $recipe->itemName }}">
+                    <div class="modal-content rounded-4 shadow-lg">
+                        <div class="modal-body text-center p-0">
+                            <img src="{{ asset('uploads/recipes/' . $recipe->mediaUrl) }}"
+                                 class="img-fluid rounded-3"
+                                 alt="{{ $recipe->itemName }}">
                         </div>
                     </div>
                 </div>
@@ -177,11 +246,10 @@
             @endforeach
         </div>
         @endforeach
-
-
     </div>
-
 </div>
+
+
 
 
 <div class="modal" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
@@ -202,6 +270,15 @@
                         <label for="item-name">Item Name</label>
                         <input type="text" name="itemName" id="item-name" class="form-control" required>
                     </div>
+                    <div class="form-group">
+                        <label for="foodtype">Food Type</label>
+                        <select name="foodtype" id="foodtype" class="form-control" required>
+                            <option value="">-- Select Type --</option>
+                            <option value="veg">Veg</option>
+                            <option value="non-veg">Non-Veg</option>
+                        </select>
+                    </div>
+
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label for="ingredients">Select MealType</label>
@@ -220,8 +297,7 @@
                         <div class="form-group col-md-6">
                             <label for="ingredientSelect">Select Ingredient</label>
                             <div class="input-group">
-                                <select id="ingredientSelect" name="ingredient" class="form-control" required>
-                                    <option value="">Select Ingredient</option>
+                                <select id="ingredientSelect" name="ingredients[]" class="form-control select2" multiple="multiple" required>
                                     @foreach ($ingredients as $key => $ingredient)
                                     <option value="{{ $ingredient->id }}">
                                         {{ $key + 1 }} - {{ $ingredient->name }}
@@ -236,22 +312,28 @@
                         <label for="recipe">Description Recipe</label>
                         <textarea name="recipe" id="recipe" class="form-control"></textarea>
                     </div>
+
+                    <div class="form-group">
+                        <label for="recipe">Note(if ingredient not available)</label>
+                        <textarea name="notes" id="recipe" class="form-control"></textarea>
+                    </div>
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label>Add Image</label>
                             <div class="d-flex flex-wrap">
-                                <div id="img-holder"></div>
+                                <div id="img-holder" class="d-flex flex-wrap gap-2"></div>
                             </div>
                             <input type="file" name="image[]" id="itemImages" class="form-control-hidden" multiple>
-                            <div
-                                style="font-size: 14px;display:flex;font-family: auto;align-items: center;color: green;font-weight: 600;">
-                                (Under 5 MB Only)</div>
+                            <div style="font-size: 14px;display:flex;font-family: auto;align-items: center;color: green;font-weight: 600;">
+                                (Under 5 MB Only)
+                            </div>
                         </div>
+
                         <div class="form-group col-md-6">
-                            <label>Add Video</label>
+                            <label>Add Video Link</label>
                             <div class="d-flex flex-wrap">
                             </div>
-                            <input type="file" name="video[]" id="itemVideos" class="form-control-hidden" multiple>
+                            <input type="text" name="RecipeVideolink" id="itemVideos" class="form-control">
                             <div
                                 style="font-size: 14px;display:flex;font-family: auto;align-items: center;color: green;font-weight: 600;">
                                 (Under 10 MB Only)</div>
@@ -267,7 +349,7 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
 
 <!-- CKEditor 5 Classic -->
 <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
@@ -278,8 +360,46 @@
         .catch(error => {
             console.error(error);
         });
+
+    $(document).ready(function() {
+
+        // Ingredients static Select2
+        $('#ingredientSelect').select2({
+            placeholder: 'Select ingredients',
+            allowClear: true
+        });
+    });
 </script>
 
+<script>
+    document.getElementById('itemImages').addEventListener('change', function(event) {
+        const imgHolder = document.getElementById('img-holder');
+        imgHolder.innerHTML = ''; // clear old previews
+
+        const files = event.target.files;
+
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                if (file.size <= 5 * 1024 * 1024) { // 5 MB limit
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.classList.add('m-2');
+                        img.style.height = '100px';
+                        img.style.width = '100px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '8px';
+                        imgHolder.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert(`File "${file.name}" exceeds 5 MB limit.`);
+                }
+            }
+        });
+    });
+</script>
 
 @include('layout.footer')
 @stop

@@ -25,16 +25,19 @@ class DashboardController extends BaseController
 
     function university()
     {
+            $centerid = session('user_center_id');
        
         $usertype = Auth::user()->userType;
-
-        $totalUsers = User::where('status', 'ACTIVE')->count();
+        $userid = Auth::user()->userid;
+$staffusercenter = Usercenter::where('centerid',$centerid)->pluck('userid');
+// dd($staffusercenter);
+        $totalUsers = User::whereIn('userid',$staffusercenter)->where('status', 'ACTIVE')->count();
         $totalSuperadmin = User::where('admin', '1')->count();
-        $totalStaff = User::where('userType', 'Staff')->where('status', 'ACTIVE')->count();
-        $totalParent = User::where('userType', 'Parent')->where('status', 'ACTIVE')->count();
-        $totalCenter = Usercenter::count();
-        $totalRooms = Room::where('status', 'Active')->count();
-        $totalRecipes = RecipeModel::count();
+        $totalStaff = User::whereIn('userid',$staffusercenter)->where('userType', 'Staff')->where('status', 'ACTIVE')->count();
+        $totalParent = User::whereIn('userid',$staffusercenter)->where('userType', 'Parent')->where('status', 'ACTIVE')->count();
+        $totalCenter = Usercenter::where('centerid',$centerid)->where('userid',$userid )->count();
+        $totalRooms = Room::where('centerid',$centerid)->where('status', 'Active')->count();
+        $totalRecipes = RecipeModel::where('centerid',$centerid)->count();
         if ($usertype == 'Parent') {
             return view('dashboard.parents', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes'));
         } else {

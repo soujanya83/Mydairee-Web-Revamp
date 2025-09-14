@@ -3,12 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\PubicHoliday_Model;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
+use Illuminate\support\Facades\Auth;
+use App\Models\AnnouncementChildModel;
+use App\Models\User;
+use App\Models\Childparent;
+use App\Models\PermissionsModel;
+use App\Models\AnnouncementsModel;
+use App\Models\Usercenter;
+use App\Models\Center;
+use Illuminate\Support\Facades\DB;
+use App\Models\Child;
+use App\Notifications\AnnouncementAdded;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use App\Models\PubicHoliday_Model;
 
 class PublicHolidayController extends Controller
 {
@@ -209,7 +227,7 @@ class PublicHolidayController extends Controller
             return redirect()->back()->with([
                 'status' => 'success',
                 'msg' => "Holidays imported successfully! ✅ {$insertedCount} entries added.",
-                 "type" => "public_holiday"
+                "type" => "public_holiday"
             ]);
         }
 
@@ -230,13 +248,13 @@ class PublicHolidayController extends Controller
             return redirect()->back()->with([
                 'status' => 'success',
                 'msg' => "Holidays imported successfully! ✅ ",
-                 "type" => "public_holiday"
+                "type" => "public_holiday"
             ]);
         }
         return redirect()->back()->with([
             'status' => 'error',
             'msg' => "No data provided. please fill correctly ",
-             "type" => "public_holiday"
+            "type" => "public_holiday"
         ]);
     }
 
@@ -327,10 +345,319 @@ class PublicHolidayController extends Controller
             );
         })->values(); // indexes reset
 
-        return view('holiday.add_public_holiday', compact('holidayData'));
+        // value of childrens
+        $centerid = Session('user_center_id');
+        // $selectedDate = $request->query('date') ?? "";
+
+
+        $Childrens = [];
+        $Groups = [];
+        $Rooms = [];
+
+      
+        // dd( $announcement );
+
+
+        // Children List
+        $childs = DB::table('child as c')
+            ->join('room as r', 'c.room', '=', 'r.id')
+            ->select('c.*', 'r.*', 'c.name as name', 'c.id as childid')
+            ->where('r.centerid', $centerid)
+            ->where('c.status', 'Active')
+            ->get();
+
+        $now = Carbon::now();
+
+        foreach ($childs as $childobj) {
+            $dob = Carbon::parse($childobj->dob);
+            $checked = false;
+            if (isset($announcementid)) {
+                $check = DB::table('announcementchild')
+                    ->where('aid', $announcementid)
+                    ->where('childid', $childobj->childid)
+                    ->exists();
+                $checked = $check;
+            }
+
+            $Childrens[] = (object) [
+                'childid' => $childobj->childid,
+                'name' => $childobj->name . ' ' . $childobj->lastname,
+                'imageUrl' => $childobj->imageUrl,
+                'dob' => $dob->format('d-m-Y'),
+                'age' => $dob->diff($now)->format('%y years %m months'),
+                'gender' => $childobj->gender,
+                'checked' => $checked
+            ];
+        }
+        // Groups
+        $childGroups = DB::table('child_group')
+            ->when($centerid, fn($q) => $q->where('centerid', $centerid))
+            ->get();
+
+        foreach ($childGroups as $group) {
+            $groupChildren = [];
+            $groupChilds = DB::table('child')
+                ->join('child_group_member', 'child.id', '=', 'child_group_member.child_id')
+                ->where('child_group_member.group_id', $group->id)
+                ->select('child.*')
+                ->where('child.status', 'Active')
+                ->get();
+
+            foreach ($groupChilds as $child) {
+                $dob = Carbon::parse($child->dob);
+                $checked = false;
+                if (isset($announcementid)) {
+                    $check = DB::table('announcementchild')
+                        ->where('aid', $announcementid)
+                        ->where('childid', $child->id)
+                        ->exists();
+                    $checked = $check;
+                }
+
+                $groupChildren[] =  (object) [
+                    'childid' => $child->id,
+                    'name' => $child->name . ' ' . $child->lastname,
+                    'imageUrl' => $child->imageUrl,
+                    'dob' => $dob->format('d-m-Y'),
+                    'age' => $dob->diff($now)->format('%y years %m months'),
+                    'gender' => $child->gender,
+                    'checked' => $checked
+                ];
+            }
+
+            $Groups[] = (object) [
+                'groupid' => $group->id,
+                'name' => $group->name,
+                'Childrens' => $groupChildren
+            ];
+        }
+
+        // Rooms
+        $rooms = DB::table('room')->where('centerid', $centerid)->get();
+
+        foreach ($rooms as $room) {
+            $roomChildren = [];
+            $roomChilds = DB::table('child as c')
+                ->join('room as r', 'c.room', '=', 'r.id')
+                ->where('r.id', $room->id)
+                ->where('c.status', 'Active')
+                ->select('c.*', 'r.*', 'c.id as childid', 'c.name as name')
+                ->get();
+
+            foreach ($roomChilds as $child) {
+                $dob = Carbon::parse($child->dob);
+                $checked = false;
+                if (isset($json->annId)) {
+                    $check = DB::table('announcementchild')
+                        ->where('aid', $json->annId)
+                        ->where('childid', $child->childid)
+                        ->exists();
+                    $checked = $check;
+                }
+
+                $roomChildren[] = (object) [
+                    'childid' => $child->childid,
+                    'name' => $child->name . ' ' . $child->lastname,
+                    'imageUrl' => $child->imageUrl,
+                    'dob' => $dob->format('d-m-Y'),
+                    'age' => $dob->diff($now)->format('%y years %m months'),
+                    'gender' => $child->gender,
+                    'checked' => $checked
+                ];
+            }
+
+            $Rooms[] = (object) [
+                'roomid' => $room->id,
+                'name' => $room->name,
+                'Childrens' => $roomChildren
+            ];
+        }
+
+        // Permissions
+        $permissions = Auth::user()->userType === 'Superadmin'
+            ? null
+            : PermissionsModel::where('userid', Auth::user()->userid)
+            ->first();
+
+
+        return view('holiday.add_public_holiday', compact('holidayData',
+            'Childrens',
+            'Groups',
+            'Rooms',
+            'permissions',
+            ));
     }
 
+public function holidaysEdit($id){
 
+
+      $holidayData = PubicHoliday_Model::where('id',$id)->first();
+        //     $query = PubicHoliday_Model::query();
+
+   
+
+        // $holidayData = $query->get()->map(function ($holiday) {
+        //     $holiday->full_date = Carbon::createFromDate(
+        //         now()->year,
+        //         $holiday->month,
+        //         $holiday->date
+        //     );
+        //     return $holiday;
+        // })->sortBy(function ($holiday) {
+        //     $currentMonth = now()->month;
+
+        //     // 🎯 Pehle current month ke holidays ko priority dena
+        //     return sprintf(
+        //         '%02d-%02d',
+        //         ($holiday->month < $currentMonth ? $holiday->month + 12 : $holiday->month),
+        //         $holiday->date
+        //     );
+        // })->values(); // indexes reset
+
+       
+
+        // value of childrens
+        $centerid = Session('user_center_id');
+        // $selectedDate = $request->query('date') ?? "";
+
+
+        $Childrens = [];
+        $Groups = [];
+        $Rooms = [];
+
+      
+        // dd( $announcement );
+
+
+        // Children List
+        $childs = DB::table('child as c')
+            ->join('room as r', 'c.room', '=', 'r.id')
+            ->select('c.*', 'r.*', 'c.name as name', 'c.id as childid')
+            ->where('r.centerid', $centerid)
+            ->where('c.status', 'Active')
+            ->get();
+
+        $now = Carbon::now();
+
+        foreach ($childs as $childobj) {
+            $dob = Carbon::parse($childobj->dob);
+            $checked = false;
+            if (isset($announcementid)) {
+                $check = DB::table('announcementchild')
+                    ->where('aid', $announcementid)
+                    ->where('childid', $childobj->childid)
+                    ->exists();
+                $checked = $check;
+            }
+
+            $Childrens[] = (object) [
+                'childid' => $childobj->childid,
+                'name' => $childobj->name . ' ' . $childobj->lastname,
+                'imageUrl' => $childobj->imageUrl,
+                'dob' => $dob->format('d-m-Y'),
+                'age' => $dob->diff($now)->format('%y years %m months'),
+                'gender' => $childobj->gender,
+                'checked' => $checked
+            ];
+        }
+        // Groups
+        $childGroups = DB::table('child_group')
+            ->when($centerid, fn($q) => $q->where('centerid', $centerid))
+            ->get();
+
+        foreach ($childGroups as $group) {
+            $groupChildren = [];
+            $groupChilds = DB::table('child')
+                ->join('child_group_member', 'child.id', '=', 'child_group_member.child_id')
+                ->where('child_group_member.group_id', $group->id)
+                ->select('child.*')
+                ->where('child.status', 'Active')
+                ->get();
+
+            foreach ($groupChilds as $child) {
+                $dob = Carbon::parse($child->dob);
+                $checked = false;
+                if (isset($announcementid)) {
+                    $check = DB::table('announcementchild')
+                        ->where('aid', $announcementid)
+                        ->where('childid', $child->id)
+                        ->exists();
+                    $checked = $check;
+                }
+
+                $groupChildren[] =  (object) [
+                    'childid' => $child->id,
+                    'name' => $child->name . ' ' . $child->lastname,
+                    'imageUrl' => $child->imageUrl,
+                    'dob' => $dob->format('d-m-Y'),
+                    'age' => $dob->diff($now)->format('%y years %m months'),
+                    'gender' => $child->gender,
+                    'checked' => $checked
+                ];
+            }
+
+            $Groups[] = (object) [
+                'groupid' => $group->id,
+                'name' => $group->name,
+                'Childrens' => $groupChildren
+            ];
+        }
+
+        // Rooms
+        $rooms = DB::table('room')->where('centerid', $centerid)->get();
+
+        foreach ($rooms as $room) {
+            $roomChildren = [];
+            $roomChilds = DB::table('child as c')
+                ->join('room as r', 'c.room', '=', 'r.id')
+                ->where('r.id', $room->id)
+                ->where('c.status', 'Active')
+                ->select('c.*', 'r.*', 'c.id as childid', 'c.name as name')
+                ->get();
+
+            foreach ($roomChilds as $child) {
+                $dob = Carbon::parse($child->dob);
+                $checked = false;
+                if (isset($json->annId)) {
+                    $check = DB::table('announcementchild')
+                        ->where('aid', $json->annId)
+                        ->where('childid', $child->childid)
+                        ->exists();
+                    $checked = $check;
+                }
+
+                $roomChildren[] = (object) [
+                    'childid' => $child->childid,
+                    'name' => $child->name . ' ' . $child->lastname,
+                    'imageUrl' => $child->imageUrl,
+                    'dob' => $dob->format('d-m-Y'),
+                    'age' => $dob->diff($now)->format('%y years %m months'),
+                    'gender' => $child->gender,
+                    'checked' => $checked
+                ];
+            }
+
+            $Rooms[] = (object) [
+                'roomid' => $room->id,
+                'name' => $room->name,
+                'Childrens' => $roomChildren
+            ];
+        }
+
+        // Permissions
+        $permissions = Auth::user()->userType === 'Superadmin'
+            ? null
+            : PermissionsModel::where('userid', Auth::user()->userid)
+            ->first();
+
+
+        return view('holiday.edit_holiday', compact('holidayData',
+            'Childrens',
+            'Groups',
+            'Rooms',
+            'permissions',
+            ));
+}
 
     public function changeStatus($id)
     {
