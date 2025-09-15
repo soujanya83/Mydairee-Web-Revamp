@@ -114,12 +114,12 @@ class LoginController extends Controller
                     $user->save();
                 }
 
-                if($user->userType == "Superadmin" || $user->userType == "Staff"){
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Login for Superadmin and Staff is under maintenance.',
-                    ], 503);
-                }
+                // if($user->userType == "Superadmin" || $user->userType == "Staff"){
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'Login for Superadmin and Staff is under maintenance.',
+                //     ], 503);
+                // }
 
                 // ✅ Generate token
                 $token = $user->createToken('api-token')->plainTextToken;
