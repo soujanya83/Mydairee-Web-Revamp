@@ -49,6 +49,8 @@ Route::get('/logout', function () {
 })->name('logout');
 
 Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
+// Route::get('/', [DashboardController::class, 'lending_page']);
+
 Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
 Route::get('dashboard/analytical', [DashboardController::class, 'analytical'])->name('dashboard.analytical');
 Route::get('/api/events', [DashboardController::class, 'getEvents']);
@@ -81,6 +83,9 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 // Route group with middleware this middleware use after login
 Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout::class])->group(function () {
     Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
+
+
+
     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
     Route::get('/api/events', [DashboardController::class, 'getEvents']);
     // service details
@@ -393,6 +398,8 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::post('store-holiday', [PublicHolidayController::class, 'holiday_store'])->name('holiday.store');
         Route::put('holiday/update/{id}', [PublicHolidayController::class, 'update'])->name('holiday.update');
         Route::get('/holidays/events', [PublicHolidayController::class, 'holidayEvents']);
+   Route::get('/holidays/edit/{id}', [PublicHolidayController::class, 'holidaysEdit'])->name('holidays.edit');
+        
     });
 
 

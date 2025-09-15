@@ -527,6 +527,7 @@
                         <form action="{{ route('settings.assign_permissions') }}" method="POST">
                             @csrf
                             <input type="hidden" name="admin" value="" id="is_admin">
+                           
                             <div class="d-flex align-items-center gap-10 mb-5">
                                 <div class="col-md-7"> <select name="user_ids[]" id="user_ids" class="form-control"
                                         multiple required style="flex: 1;">

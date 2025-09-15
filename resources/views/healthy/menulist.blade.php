@@ -130,6 +130,9 @@ $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks
                                     <h5 class="card-title mb-0">
                                         &nbsp;&nbsp;{{ \Illuminate\Support\Str::title($menu->name) }}
                                     </h5>
+                                    <p class="card-title mb-0">
+                                        &nbsp;&nbsp;{{ \Illuminate\Support\Str::title($menu->recipe) }}
+                                    </p>
 
 
 
@@ -194,68 +197,68 @@ $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks
     {{-- <div class="tab-content">
         @foreach ($weekdays as $day)
         <div class="tab-pane fade {{ $day == $selectedDay ? 'show active' : '' }}" id="{{ strtolower($day) }}">
-            <div class="card">
-                <div class="card-body">
-                    @foreach ($mealTypes as $meal)
-                    <div class="row mb-3 align-items-center">
-                        <div class="col-10">
-                            <h6 class="mb-0">{{ $meal }}</h6>
-                            @php
-                            $items = $menus->where('day', $day)->where('mealType',
-                            \Illuminate\Support\Str::snake($meal));
-                            @endphp
-                            @if ($items->isEmpty())
-                            <p class="text-muted mb-0">No items added</p>
-                            @else
-                            @foreach ($items as $item)
-                            <p class="mb-0">{{ \Illuminate\Support\Str::title($item->name) }}</p>
-                            @endforeach
-                            @foreach ($items as $menu)
-                            <div class="card m-2 p-3" style="min-width: 250px;">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">{{ \Illuminate\Support\Str::title($menu->name) }}</h5>
-                                </div>
-
-                                @php
-                                $mediaFile = Str::replaceFirst('uploads/recipes/', '', $menu->mediaUrl);
-                                @endphp
-
-                                <img src="{{ asset('uploads/recipes/' . $mediaFile) }}"
-                                    onerror="this.onerror=null;this.src='{{ asset('storage/uploads/recipes/' . $mediaFile) }}';"
-                                    class="card-img-top" alt="{{ $menu->name }}"
-                                    style="height: 180px; object-fit: cover; padding: 3px;">
-
-                                <div class="card-body">
-                                    <p class="mb-0 text-muted" style="font-size: 0.9rem;">
-                                        <i class="fas fa-user me-1"></i> {{ $menu->created_by_name }} ({{
-                                        $menu->created_by_role }})<br>
-                                        <i class="fas fa-calendar-alt me-1"></i> {{
-                                        \Carbon\Carbon::parse($menu->createdAt)->format('d M Y') }}
-                                    </p>
-                                </div>
-                            </div>
-                            @endforeach
-
-                            @endif
+    <div class="card">
+        <div class="card-body">
+            @foreach ($mealTypes as $meal)
+            <div class="row mb-3 align-items-center">
+                <div class="col-10">
+                    <h6 class="mb-0">{{ $meal }}</h6>
+                    @php
+                    $items = $menus->where('day', $day)->where('mealType',
+                    \Illuminate\Support\Str::snake($meal));
+                    @endphp
+                    @if ($items->isEmpty())
+                    <p class="text-muted mb-0">No items added</p>
+                    @else
+                    @foreach ($items as $item)
+                    <p class="mb-0">{{ \Illuminate\Support\Str::title($item->name) }}</p>
+                    @endforeach
+                    @foreach ($items as $menu)
+                    <div class="card m-2 p-3" style="min-width: 250px;">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{{ \Illuminate\Support\Str::title($menu->name) }}</h5>
                         </div>
-                        <div class="col-2 text-end">
-                            <button class="btn btn-outline-info btn-sm add-item-btn" data-bs-toggle="modal"
-                                data-bs-target="#ingredientModal" data-day="{{ $day }}" data-meal="{{ $meal }}">
-                                Add Item
-                            </button>
+
+                        @php
+                        $mediaFile = Str::replaceFirst('uploads/recipes/', '', $menu->mediaUrl);
+                        @endphp
+
+                        <img src="{{ asset('uploads/recipes/' . $mediaFile) }}"
+                            onerror="this.onerror=null;this.src='{{ asset('storage/uploads/recipes/' . $mediaFile) }}';"
+                            class="card-img-top" alt="{{ $menu->name }}"
+                            style="height: 180px; object-fit: cover; padding: 3px;">
+
+                        <div class="card-body">
+                            <p class="mb-0 text-muted" style="font-size: 0.9rem;">
+                                <i class="fas fa-user me-1"></i> {{ $menu->created_by_name }} ({{
+                                        $menu->created_by_role }})<br>
+                                <i class="fas fa-calendar-alt me-1"></i> {{
+                                        \Carbon\Carbon::parse($menu->createdAt)->format('d M Y') }}
+                            </p>
                         </div>
                     </div>
-                    <hr>
                     @endforeach
+
+                    @endif
+                </div>
+                <div class="col-2 text-end">
+                    <button class="btn btn-outline-info btn-sm add-item-btn" data-bs-toggle="modal"
+                        data-bs-target="#ingredientModal" data-day="{{ $day }}" data-meal="{{ $meal }}">
+                        Add Item
+                    </button>
                 </div>
             </div>
+            <hr>
+            @endforeach
         </div>
-        @endforeach
-    </div> --}}
+    </div>
+</div>
+@endforeach
+</div> --}}
 </div>
 
 <!-- Include Bootstrap JS for tab functionality -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 
 <div class="modal" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -283,6 +286,7 @@ $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
@@ -293,59 +297,61 @@ $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks
             document.getElementById("dateFilterForm").submit();
         }
     });
-       $('.add-item-btn').on('click', function () {
-    // Get selected date from calendar
-    var selectedDate = $('#calendarPicker').val();
+    $('.add-item-btn').on('click', function() {
+        // Get selected date from calendar
+        var selectedDate = $('#calendarPicker').val();
 
-    // Set in hidden input field in modal form
-    $('#selectedDateInput').val(selectedDate);
+        // Set in hidden input field in modal form
+        $('#selectedDateInput').val(selectedDate);
 
-    // Also set day and meal type if needed
-    let day = $(this).data('day');  // Assuming you pass day
-    let mealType = $(this).data('meal');  // Assuming you pass meal type
+        // Also set day and meal type if needed
+        let day = $(this).data('day'); // Assuming you pass day
+        let mealType = $(this).data('meal'); // Assuming you pass meal type
 
-    $('#modalDay').val(day);
-    $('#modalMealType').val(mealType);
+        $('#modalDay').val(day);
+        $('#modalMealType').val(mealType);
 
-    // Now show modal
-    $('#ingredientModal').modal('show');
-});
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const imageModal = document.getElementById('imageModal');
-    const modalImage = document.getElementById('modalImage');
-
-    imageModal.addEventListener('show.bs.modal', function (event) {
-        const triggerImg = event.relatedTarget;
-        const imgSrc = triggerImg.getAttribute('data-img-src');
-        modalImage.src = imgSrc;
+        // Now show modal
+        $('#ingredientModal').modal('show');
     });
-});
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const imageModal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+
+        imageModal.addEventListener('show.bs.modal', function(event) {
+            const triggerImg = event.relatedTarget;
+            const imgSrc = triggerImg.getAttribute('data-img-src');
+            modalImage.src = imgSrc;
+        });
+    });
 </script>
 
 
 <script>
-    $(document).on('click', '.add-item-btn', function () {
-    const day = $(this).data('day');
-    const meal = $(this).data('meal');
+    $(document).on('click', '.add-item-btn', function() {
+        const day = $(this).data('day');
+        const meal = $(this).data('meal');
 
-    $('#modalDay').val(day);
-    $('#modalMealType').val(meal);
-    $('#ingredientModalLabel').text(`Add Items for ${meal}`);
+        $('#modalDay').val(day);
+        $('#modalMealType').val(meal);
+        $('#ingredientModalLabel').text(`Add Items for ${meal}`);
 
-    $('#recipeList').html('<p class="text-muted">Loading recipes...</p>');
+        $('#recipeList').html('<p class="text-muted">Loading recipes...</p>');
 
-    // Fetch recipes based on type
-    $.ajax({
-        url: '/get-recipes-by-type',
-        method: 'GET',
-        data: { type: meal },
-        success: function (data) {
-            if (data.length > 0) {
-                let html = '<div class="form-check">';
-                data.forEach(item => {
-                    html += `
+        // Fetch recipes based on type
+        $.ajax({
+            url: '/get-recipes-by-type',
+            method: 'GET',
+            data: {
+                type: meal
+            },
+            success: function(data) {
+                if (data.length > 0) {
+                    let html = '<div class="form-check">';
+                    data.forEach(item => {
+                        html += `
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="recipe_ids[]" value="${item.id}" id="recipe-${item.id}">
                             <label class="form-check-label" for="recipe-${item.id}">
@@ -353,19 +359,18 @@ $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks
                             </label>
                         </div>
                     `;
-                });
-                html += '</div>';
-                $('#recipeList').html(html);
-            } else {
-                $('#recipeList').html('<p class="text-danger">No recipes found for this type.</p>');
+                    });
+                    html += '</div>';
+                    $('#recipeList').html(html);
+                } else {
+                    $('#recipeList').html('<p class="text-danger">No recipes found for this type.</p>');
+                }
+            },
+            error: function() {
+                $('#recipeList').html('<p class="text-danger">Failed to load recipes.</p>');
             }
-        },
-        error: function () {
-            $('#recipeList').html('<p class="text-danger">Failed to load recipes.</p>');
-        }
+        });
     });
-});
-
 </script>
 
 @stop

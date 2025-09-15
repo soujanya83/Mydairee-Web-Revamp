@@ -14,26 +14,42 @@ use Illuminate\Support\Str;
 class PermissionController extends Controller
 {
 
-        public function updatepermission(Request $request)
+public function updatepermission(Request $request)
 {
-    // dd('here');
-    $user = $request->userid;
-    $permission = $request->permission;
-    $value = $request->value;
+    $request->validate([
+        'userid' => 'required|integer',
+    ]);
 
-    $userPermissions = Permission::where('userid',$user)->first();
+    $userId = $request->userid;
 
-    // Update user permission logic
-    // $userPermissions->update(
-    //     [$permission => $value],
-     
-    // );
-    // dd($userPermissions->$permission );
- $userPermissions->$permission =  $value;
- $userPermissions->save();
+    $userPermissions = Permission::where('userid', $userId)->first();
 
+    if (!$userPermissions) {
+        return redirect()->back()->with('error', 'User permissions not found');
+    }
 
-    return response()->json(['success' => true, 'message' => 'Permission updated']);
+    // 1️⃣ Get all columns in permissions table (except id/userid/timestamps)
+    $allColumns = \Schema::getColumnListing('permissions');
+    $exclude = ['id', 'userid', 'created_at', 'updated_at'];
+    $permissionColumns = array_diff($allColumns, $exclude);
+
+    // 2️⃣ Set all to 0 first
+    $updateData = [];
+    foreach ($permissionColumns as $col) {
+        $updateData[$col] = 0;
+    }
+
+    // 3️⃣ Set checked ones to 1
+    foreach ($request->except(['_token', 'userid']) as $key => $val) {
+        if (in_array($key, $permissionColumns)) {
+            $updateData[$key] = 1;
+        }
+    }
+
+    // 4️⃣ Save
+    $userPermissions->update($updateData);
+
+    return redirect()->back()->with('success', 'Permissions updated successfully');
 }
 
     // Updated show method to display assigned permissions with all data needed for the template
