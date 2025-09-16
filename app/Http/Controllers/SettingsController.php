@@ -282,6 +282,7 @@ class SettingsController extends Controller
         $AssessmentPermissions  = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'assessment'))->values();
         $AccidentsPermissions   = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'accidents'))->values();
         $SnapshotsPermissions   = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'snapshots'))->values();
+        $ActivityPermission = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'activity'))->values();
 
         // Combine all matched permissions
         $allMatched = $ObservationPermissions
@@ -303,6 +304,7 @@ class SettingsController extends Controller
             ->merge($AssessmentPermissions)
             ->merge($AccidentsPermissions)
             ->merge($SnapshotsPermissions)
+            ->merge($ActivityPermission)
             ->pluck('name')
             ->toArray();
 
@@ -335,7 +337,8 @@ class SettingsController extends Controller
                 'QipPermissions',
                 'ReflectionPermissions',
                 'DailyPermissions',
-                'otherPermissions'
+                'otherPermissions',
+                'ActivityPermission'
             )
         );
     }
@@ -345,44 +348,48 @@ class SettingsController extends Controller
     public function assign_user_permissions(Request $request)
     {
         try {
-            // dd($request->admin);
+            // dd($request->all());
             $userIds = $request->input('user_ids', []);
             $checkedPermissions = $request->input('permissions', []);
 
             // ✅ Check if centerid exists in session
             $centerId = Session('user_center_id');
             // dd( $centerId);
+         
             if (empty($centerId)) {
-                return redirect()->back()->with('error', 'Center ID is missing in session.');
+                $centerId = session('user_center_id');
             }
+            // dd($centerId);
 
             foreach ($userIds as $userId) {
                 // Check if the record exists
                 $user = User::find($userId);
 
-            if (isset($validated['admin'])) {
-                $user->admin = $validated['admin'];
-                $user->save();
-            }
-              
+                if (isset($validated['admin'])) {
+                    $user->admin = $validated['admin'];
+                    $user->save();
+                }
+
                 $permissionRecord = Permission::where('userid', $userId)->first();
 
                 if (!$permissionRecord) {
                     $permissionRecord = new Permission();
                     $permissionRecord->userid = $userId;
-                    $permissionRecord->centerid = $centerId;
+              
                 }
 
                 // Get all permission column names from table (excluding id, userid, centerid)
                 $allColumns = Schema::getColumnListing('permissions');
                 $permissionColumns = collect($allColumns)
                     ->filter(fn($col) => !in_array($col, ['id', 'userid', 'centerid']));
-
+                // dd($permissionColumns);
                 // Set 1 for checked, 0 for unchecked
                 foreach ($permissionColumns as $col) {
                     $permissionRecord->{$col} = isset($checkedPermissions[$col]) ? 1 : 0;
                 }
-
+            
+                $permissionRecord->centerid = $centerId;
+               
                 $permissionRecord->save();
             }
 
