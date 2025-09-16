@@ -718,7 +718,7 @@
 
         </div>
 
-        @if(isset($permission) && $permission->addProgramPlan == 1 || Auth::user()->userType == "Superadmin")
+        @if(isset($permission) && $permission->addActivity == 1 || Auth::user()->userType == "Superadmin" ||Auth::user()->admin == 1 )
         <a href="{{ route('observation.activity-list') }}" class="btn btn-outline-info btn-lg top-right-button" >Activities</a>
         @endif
 

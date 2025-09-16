@@ -398,13 +398,12 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::post('store-holiday', [PublicHolidayController::class, 'holiday_store'])->name('holiday.store');
         Route::put('holiday/update/{id}', [PublicHolidayController::class, 'update'])->name('holiday.update');
         Route::get('/holidays/events', [PublicHolidayController::class, 'holidayEvents']);
-   Route::get('/holidays/edit/{id}', [PublicHolidayController::class, 'holidaysEdit'])->name('holidays.edit');
-        
+        Route::get('/holidays/edit/{id}', [PublicHolidayController::class, 'holidaysEdit'])->name('holidays.edit');
     });
 
 
     Route::prefix('observation')->name('observation.')->group(function () {
-         Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
+        Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
         Route::post('/ai-assist', [ObservationsController::class, 'AiAssistance'])->name('ai-assist');
         Route::get('/index', [ObservationsController::class, 'index'])->name('index');
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');

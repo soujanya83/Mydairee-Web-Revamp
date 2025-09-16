@@ -227,7 +227,17 @@ class HealthyController extends Controller
         }
 
         // ✅ now handle request value
-        $menuweek = $request->get('menuweek', $currentWeek);
+        // $menuweek = (int) $request->get('menuweek', $currentWeek);
+
+        // check if user explicitly chose menuweek
+if ($request->filled('menuweek')) {
+    $menuweek = (int) $request->get('menuweek');
+} else {
+    // otherwise, detect week from selected_date
+    $menuweek = $currentWeek;
+}
+
+
 
         $mealTypes = ['Breakfast', 'Morning Tea', 'Lunch', 'Afternoon Tea', 'Late Snacks'];
         $weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -257,7 +267,7 @@ class HealthyController extends Controller
 
         // dd($recipes);
 
-        // dd( $mealTypes);
+        // dd( $menuweek);
 
         $permission = Permission::where('userid', Auth::user()->userid)->first();
         return view('healthy.menu_list_new', compact(
@@ -315,55 +325,104 @@ class HealthyController extends Controller
 
     //     return $weeks;
     // }
+    // private function getWeeksOfMonth($year = null, $month = null)
+    // {
+    //     $year = $year ?? now()->year;
+    //     $month = $month ?? now()->month;
+
+    //     // First and last day of month
+    //     $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfDay();
+    //     $endOfMonth   = (clone $startOfMonth)->endOfMonth();
+
+    //     $weeks = [];
+    //     $weekIndex = 1;
+    //     $weekStart = null;
+
+    //     for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
+
+    //         // ✅ Include weekends in loop (so current week detection works)
+
+    //         // If weekday, mark start
+    //         if (!$date->isSaturday() && !$date->isSunday()) {
+    //             if ($weekStart === null) {
+    //                 $weekStart = $date->copy();
+    //             }
+    //         }
+
+    //         // Close the week on Friday, OR at end of month
+    //         if ($date->isFriday() || $date->equalTo($endOfMonth)) {
+
+    //             // Find last valid weekday (not Sat/Sun)
+    //             $weekEnd = $date->copy();
+    //             if ($weekEnd->isSaturday()) {
+    //                 $weekEnd->subDay(); // Friday
+    //             } elseif ($weekEnd->isSunday()) {
+    //                 $weekEnd->subDays(2); // Friday
+    //             }
+
+    //             if ($weekStart) {
+    //                 $weeks[$weekIndex] = [
+    //                     'start' => $weekStart,
+    //                     'end'   => $weekEnd,
+    //                 ];
+    //                 $weekIndex++;
+    //                 $weekStart = null;
+    //             }
+    //         }
+    //     }
+
+    //     return $weeks;
+    // }
+
     private function getWeeksOfMonth($year = null, $month = null)
-    {
-        $year = $year ?? now()->year;
-        $month = $month ?? now()->month;
+{
+    $year = $year ?? now()->year;
+    $month = $month ?? now()->month;
 
-        // First and last day of month
-        $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfDay();
-        $endOfMonth   = (clone $startOfMonth)->endOfMonth();
+    // First and last day of month
+    $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfDay();
+    $endOfMonth   = $startOfMonth->copy()->endOfMonth();
 
-        $weeks = [];
-        $weekIndex = 1;
-        $weekStart = null;
+    $weeks = [];
+    $weekIndex = 1;
 
-        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
+    // Find first Monday in the month
+    $current = $startOfMonth->copy();
+    if (!$current->isMonday()) {
+        $current->next(Carbon::MONDAY);
+    }
 
-            // ✅ Include weekends in loop (so current week detection works)
+    while ($current->lte($endOfMonth)) {
+        // Start = Monday
+        $weekStart = $current->copy();
 
-            // If weekday, mark start
-            if (!$date->isSaturday() && !$date->isSunday()) {
-                if ($weekStart === null) {
-                    $weekStart = $date->copy();
-                }
-            }
+        // End = Friday of same week
+        $weekEnd = $current->copy()->endOfWeek(Carbon::FRIDAY);
 
-            // Close the week on Friday, OR at end of month
-            if ($date->isFriday() || $date->equalTo($endOfMonth)) {
-
-                // Find last valid weekday (not Sat/Sun)
-                $weekEnd = $date->copy();
-                if ($weekEnd->isSaturday()) {
-                    $weekEnd->subDay(); // Friday
-                } elseif ($weekEnd->isSunday()) {
-                    $weekEnd->subDays(2); // Friday
-                }
-
-                if ($weekStart) {
-                    $weeks[$weekIndex] = [
-                        'start' => $weekStart,
-                        'end'   => $weekEnd,
-                    ];
-                    $weekIndex++;
-                    $weekStart = null;
-                }
+        // Ensure it does not go beyond month end
+        if ($weekEnd->gt($endOfMonth)) {
+            $weekEnd = $endOfMonth->copy();
+            // If it lands on Sat/Sun, shift back to Friday
+            if ($weekEnd->isSaturday()) {
+                $weekEnd->subDay();
+            } elseif ($weekEnd->isSunday()) {
+                $weekEnd->subDays(2);
             }
         }
 
-        return $weeks;
+        $weeks[$weekIndex] = [
+            'start' => $weekStart,
+            'end'   => $weekEnd,
+        ];
+
+        $weekIndex++;
+
+        // Move to next Monday
+        $current->addWeek();
     }
 
+    return $weeks;
+}
 
 
     public function recipes_store(Request $request)

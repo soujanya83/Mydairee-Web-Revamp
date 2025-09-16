@@ -1200,6 +1200,36 @@
                                     </div>
                                 </div>
 
+                                <!-- Activity permission -->
+                                       <div class="permission-card">
+                                    <div class="card-header">
+                                        <div class="header-content">
+                                            <i class="fas fa-key"></i>
+                                            <h3>Activity Management</h3>
+                                        </div>
+                                        <button class="select-all-btn" type="button" data-category="activities">
+                                            <i class="fas fa-check-circle"></i> All
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        @foreach($ActivityPermission as $perm)
+                                        <div class="permission-item">
+                                            <label>
+                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                                {{ $perm['label'] }}
+                                            </label>
+                                            <label class="switch">
+                                                <input type="checkbox" class="permission-check"
+                                                    name="permissions[{{ $perm['name'] }}]" data-category="activities"
+                                                    {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' : '' }}>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="actions">

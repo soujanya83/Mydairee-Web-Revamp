@@ -4,62 +4,66 @@
 
 @section('page-styles')
 <style>
-    .sub-activity-scroll {
-    max-height: 100px;  /* adjust as needed */
+  .sub-activity-scroll {
+    max-height: 100px;
+    /* adjust as needed */
     overflow-y: auto;
-    overflow-x: hidden; /* prevent horizontal scrollbar */
-   /* space for scrollbar */
-}
+    overflow-x: hidden;
+    /* prevent horizontal scrollbar */
+    /* space for scrollbar */
+  }
 
-.top-right-button-container {
+  .top-right-button-container {
     position: relative;
     z-index: 10;
-}
+  }
 
-.top-right-button-container .btn {
+  .top-right-button-container .btn {
     font-weight: 600;
     border-radius: 8px;
     transition: all 0.2s ease-in-out;
-}
+  }
 
-.top-right-button-container .btn:hover {
+  .top-right-button-container .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
 </style>
 @endsection
 
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -60px;">
-<div class="top-right-button-container d-flex justify-content-end align-items-center mb-3">
+  style="margin-right: 20px;margin-top: -60px;">
+  <div class="top-right-button-container d-flex justify-content-end align-items-center mb-3">
     <div class="btn-group">
-        <button class="btn btn-outline-info mr-2" id="addActivityBtn">
-            <i class="fas fa-plus-circle"></i> Add Activity
-        </button>
-        <button class="btn btn-outline-info" id="addSubActivityBtn">
-            <i class="fas fa-plus"></i> Add Sub-Activity
-        </button>
+      @if(isset($permission) && $permission->addActivity == 1 || Auth::user()->userType == "Superadmin" )
+      <button class="btn btn-outline-info mr-2" id="addActivityBtn">
+        <i class="fas fa-plus-circle"></i> Add Activity
+      </button>
+      @endif
+      @if(isset($permission) && $permission->addsubActivity == 1 || Auth::user()->userType == "Superadmin" )
+      <button class="btn btn-outline-info" id="addSubActivityBtn">
+        <i class="fas fa-plus"></i> Add Sub-Activity
+      </button>
+      @endif
     </div>
-</div>
+  </div>
 
 
 </div>
 
 <hr>
 
-  <!-- filter  -->
-   
+<!-- filter  -->
 
-             <!-- filter ends here  -->
+
+<!-- filter ends here  -->
 <!-- resources/views/program_plan_list.blade.php -->
 
 <div class="main-container mt-4">
-   
-    <!-- Page Header -->
-    <!-- <div class="page-header">
+
+  <!-- Page Header -->
+  <!-- <div class="page-header">
             <h1 class="page-title">
                 <i class="fas fa-clipboard-list"></i>
                 Program Plan Management
@@ -72,45 +76,45 @@
             </div>
         </div> -->
 
-    <!-- Main Content -->
-     
- <div class="container-fluid px-0 mt-5">
+  <!-- Main Content -->
+
+  <div class="container-fluid px-0 mt-5">
     <div class="program-plan-container">
-          <!-- @if(Auth::user()->userType != 'Parent') -->
-        <div class="card-header-custom mb-3 mt-4">
-            <h5 class="card-header-title">
-                <i class="fas fa-table"></i> SUBJECTS / Activities
-            </h5>
-        </div>
-        <!-- @endif -->
-<div class="program-plan">
+      <!-- @if(Auth::user()->userType != 'Parent') -->
+      <div class="card-header-custom mb-3 mt-4">
+        <h5 class="card-header-title">
+          <i class="fas fa-table"></i> SUBJECTS / Activities
+        </h5>
+      </div>
+      <!-- @endif -->
+      <div class="program-plan">
 
 
-<div class="row">
-    @foreach($subjects as $subject)
-        <div class="col-md-6 mb-4">
+        <div class="row">
+          @foreach($subjects as $subject)
+          <div class="col-md-6 mb-4">
             <div class="card shadow-sm h-100 border-0 rounded-3 subject-card"
-                 data-toggle="modal"
-                 data-target="#activitymodal"
-                 data-activities='@json($subject->activities)'>
-                <div class="card-body text-center">
-                    <h6 class="card-title text-primary fw-bold">
-                        {{ $subject->name }}
-                    </h6>
-                </div>
+              data-toggle="modal"
+              data-target="#activitymodal"
+              data-activities='@json($subject->activities)'>
+              <div class="card-body text-center">
+                <h6 class="card-title text-primary fw-bold">
+                  {{ $subject->name }}
+                </h6>
+              </div>
             </div>
+          </div>
+          @endforeach
         </div>
-    @endforeach
-</div>
 
 
 
- 
 
 
-</div>
+
+      </div>
     </div>
-</div>
+  </div>
 
 </div>
 
@@ -121,6 +125,7 @@
       <div class="modal-header">
         <h5>Select Activity</h5>
         <input type="text" id="activitySearch" class="form-control ml-3" placeholder="Search activity..." style="max-width:250px;">
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">back</button>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body" id="activityList"></div>
@@ -135,18 +140,18 @@
       <div class="modal-header">
         <h5>Select SubActivity</h5>
         <input type="text" id="subActivitySearch" class="form-control ml-3" placeholder="Search subactivity..." style="max-width:250px;">
-             <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">back</button>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">back</button>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body" id="subActivityList">
-     
+
       </div>
     </div>
   </div>
 </div>
 
 <!-- edit mode of activity and sub activity -->
- <div class="modal fade" id="editactivitymodal" tabindex="-1">
+<div class="modal fade" id="editactivitymodal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
@@ -160,7 +165,7 @@
 </div>
 
 
- <div class="modal fade" id="editsubactivitymodal" tabindex="-1">
+<div class="modal fade" id="editsubactivitymodal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
@@ -172,13 +177,10 @@
     </div>
   </div>
 </div>
-
-
-
 <!-- add activity nd sub activity -->
 
-  <!-- Modal Structure -->
-  <div class="modal" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel" aria-hidden="true">
+<!-- Modal Structure -->
+<div class="modal" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -220,7 +222,7 @@
       <div class="modal-header">
         <h5 class="modal-title" id="subActivityModalLabel">Add New Sub-Activity</h5>
         <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-           
+
       </div>
       <div class="modal-body">
         <form id="subActivityForm">
@@ -262,21 +264,21 @@
 
 @push('scripts')
 <script>
-$(document).ready(function () {
+  $(document).ready(function() {
     // Handle Subject click -> open Activity Modal
-    $('.subject-card').on('click', function () {
-        let activities = $(this).data('activities');
-        let activityHtml = '';
+    $('.subject-card').on('click', function() {
+      let activities = $(this).data('activities');
+      let activityHtml = '';
 
       if (activities.length > 0) {
-    activities.forEach(activity => {
-        // ✅ parse added_at to Date object
-        let addedAt = new Date(activity.added_at); 
-        let cutoffDate = new Date("2025-08-25"); // yyyy-mm-dd format
+        activities.forEach(activity => {
+          // ✅ parse added_at to Date object
+          let addedAt = new Date(activity.added_at);
+          let cutoffDate = new Date("2025-08-25"); // yyyy-mm-dd format
 
-        // ✅ prepare buttons conditionally
-        let actionButtons = '';
-        if (addedAt > cutoffDate) {
+          // ✅ prepare buttons conditionally
+          let actionButtons = '';
+          if (addedAt > cutoffDate) {
             actionButtons = `
                 <button type="button" class="btn btn-warning mr-2 editactivity" 
                     data-activity='${JSON.stringify(activity)}'>
@@ -287,10 +289,10 @@ $(document).ready(function () {
                     <i class="fa fa-trash mr-1"></i>
                 </button>
             `;
-        }
+          }
 
-        // ✅ main card template
-        activityHtml += `
+          // ✅ main card template
+          activityHtml += `
             <div class="col-md-6 mb-3">
                 <div class="card  shadow-sm h-100 border-0 rounded-3"
                     >
@@ -302,37 +304,37 @@ $(document).ready(function () {
                     </div>
                 </div>
             </div>`;
-    });
-} else {
-    activityHtml = `<p class="text-center text-muted">No activities available</p>`;
-}
+        });
+      } else {
+        activityHtml = `<p class="text-center text-muted">No activities available</p>`;
+      }
 
 
-        $('#activityList').html(`<div class="row">${activityHtml}</div>`);
+      $('#activityList').html(`<div class="row">${activityHtml}</div>`);
     });
 
     // Search in Activity Modal
-    $('#activitySearch').on('keyup', function () {
-        let value = $(this).val().toLowerCase();
-        $('#activityList .activity-card').filter(function () {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-        });
+    $('#activitySearch').on('keyup', function() {
+      let value = $(this).val().toLowerCase();
+      $('#activityList .activity-card').filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+      });
     });
 
     // Handle Activity click -> open SubActivity Modal
-    $(document).on('click', '.activity-card', function () {
-        let subactivities = $(this).data('subactivities');
-        let subHtml = '';
+    $(document).on('click', '.activity-card', function() {
+      let subactivities = $(this).data('subactivities');
+      let subHtml = '';
 
-     if (subactivities && subactivities.length > 0) {
-    subactivities.forEach(sub => {
-        // ✅ parse sub.added_at as Date (assuming your DB/API returns it)
-        let addedAt = new Date(sub.added_at);
-        let cutoffDate = new Date("2025-08-25"); // YYYY-MM-DD format
+      if (subactivities && subactivities.length > 0) {
+        subactivities.forEach(sub => {
+          // ✅ parse sub.added_at as Date (assuming your DB/API returns it)
+          let addedAt = new Date(sub.added_at);
+          let cutoffDate = new Date("2025-08-25"); // YYYY-MM-DD format
 
-        // ✅ prepare buttons conditionally
-        let actionButtons = '';
-        if (addedAt > cutoffDate) {
+          // ✅ prepare buttons conditionally
+          let actionButtons = '';
+          if (addedAt > cutoffDate) {
             actionButtons = `
                 <button type="button" class="btn btn-warning mr-2 editsubactivity" 
                     data-subactivity='${JSON.stringify(sub)}'>
@@ -343,10 +345,10 @@ $(document).ready(function () {
                     <i class="fa fa-trash mr-1"></i>
                 </button>
             `;
-        }
+          }
 
-        // ✅ final HTML
-        subHtml += `
+          // ✅ final HTML
+          subHtml += `
             <div class="col-md-6 mb-3 ">
                 <div class="card shadow-sm border-0 rounded-3">
                     <div class="card-body text-center">
@@ -357,42 +359,42 @@ $(document).ready(function () {
                     </div>
                 </div>
             </div>`;
-    });
-} else {
-    subHtml = `<p class="text-center text-muted">No subactivities available</p>`;
-}
+        });
+      } else {
+        subHtml = `<p class="text-center text-muted">No subactivities available</p>`;
+      }
 
 
-        $('#subActivityList').html(`<div class="row">${subHtml}</div>`);
+      $('#subActivityList').html(`<div class="row">${subHtml}</div>`);
     });
 
     // Search in SubActivity Modal
-    $('#subActivitySearch').on('keyup', function () {
-        let value = $(this).val().toLowerCase();
-        $('#subActivityList .card').filter(function () {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-        });
+    $('#subActivitySearch').on('keyup', function() {
+      let value = $(this).val().toLowerCase();
+      $('#subActivityList .card').filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+      });
     });
 
     // Close first modal before opening SubActivity modal
-    $(document).on('click', '.activity-card', function () {
-        $('#activitymodal').modal('hide');
-        setTimeout(() => {
-            $('#subactivitymodal').modal('show');
-        }, 300);
+    $(document).on('click', '.activity-card', function() {
+      $('#activitymodal').modal('hide');
+      setTimeout(() => {
+        $('#subactivitymodal').modal('show');
+      }, 300);
     });
 
     // 🔹 Debug Logs for Activity buttons
-    $(document).on('click', '.editactivity', function (e) {
-         e.stopPropagation(); // prevent opening subactivity modal
+    $(document).on('click', '.editactivity', function(e) {
+      e.stopPropagation(); // prevent opening subactivity modal
 
-let Activity = $(this).data('activity');
+      let Activity = $(this).data('activity');
 
-   if (typeof Activity === 'string') {
+      if (typeof Activity === 'string') {
         Activity = JSON.parse(Activity);
-    }
+      }
 
-           let html = `
+      let html = `
 <form id="editSubActivityForm " class="w-100" action={{ route('observation.update-activity')}} method="post">
     <input type="hidden" name="activityid" value="${Activity.idActivity}" />
     @csrf
@@ -419,22 +421,22 @@ let Activity = $(this).data('activity');
         </button>
     </div>
 </form>`;
-        
-   $('#editActivityList').html(html);
-    $('#activitymodal').modal('hide');
-    $('#editactivitymodal').modal('show');
-    console.log("Edit Activity clicked:", Activity);
 
-        console.log("Edit Activity clicked:", $(this).data('activity'));
+      $('#editActivityList').html(html);
+      $('#activitymodal').modal('hide');
+      $('#editactivitymodal').modal('show');
+      console.log("Edit Activity clicked:", Activity);
+
+      console.log("Edit Activity clicked:", $(this).data('activity'));
     });
 
-$(document).on('click', '.deleteactivity', function (e) {
-    e.stopPropagation(); // prevent triggering other click events
+    $(document).on('click', '.deleteactivity', function(e) {
+      e.stopPropagation(); // prevent triggering other click events
 
-    let idActivity = $(this).data('activity_id');
-    let row = $(this).closest('.col-md-3'); // optional: remove row from DOM after deletion
+      let idActivity = $(this).data('activity_id');
+      let row = $(this).closest('.col-md-3'); // optional: remove row from DOM after deletion
 
-    Swal.fire({
+      Swal.fire({
         title: 'Are you sure?',
         text: "This will delete the activity and all related subactivities!",
         icon: 'warning',
@@ -443,51 +445,53 @@ $(document).on('click', '.deleteactivity', function (e) {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!',
         cancelButtonText: 'Cancel'
-    }).then((result) => {
+      }).then((result) => {
         if (result.isConfirmed) {
-            $.ajax({
-                url: "{{ route('observation.delete-activity') }}",
-                type: "POST",
-                data: { idActivity: idActivity },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    Swal.fire(
-                        'Deleted!',
-                        'Activity has been deleted.',
-                        'success'
-                    ).then(() => {
-                        // Reload page after confirmation
-                        location.reload();
-                    });
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire(
-                        'Error!',
-                        'Something went wrong while deleting.',
-                        'error'
-                    );
-                    console.error("❌ Error:", error);
-                    console.error("Status:", status);
-                    console.error("Response:", xhr.responseText);
-                }
-            });
+          $.ajax({
+            url: "{{ route('observation.delete-activity') }}",
+            type: "POST",
+            data: {
+              idActivity: idActivity
+            },
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+              Swal.fire(
+                'Deleted!',
+                'Activity has been deleted.',
+                'success'
+              ).then(() => {
+                // Reload page after confirmation
+                location.reload();
+              });
+            },
+            error: function(xhr, status, error) {
+              Swal.fire(
+                'Error!',
+                'Something went wrong while deleting.',
+                'error'
+              );
+              console.error("❌ Error:", error);
+              console.error("Status:", status);
+              console.error("Response:", xhr.responseText);
+            }
+          });
         }
+      });
     });
-});
 
 
     // 🔹 Debug Logs for SubActivity buttons
-    $(document).on('click', '.editsubactivity', function () {
-          let subActivity = $(this).data('subactivity');
+    $(document).on('click', '.editsubactivity', function() {
+      let subActivity = $(this).data('subactivity');
 
-    // if jQuery reads string, parse it
-    if (typeof subActivity === 'string') {
+      // if jQuery reads string, parse it
+      if (typeof subActivity === 'string') {
         subActivity = JSON.parse(subActivity);
-    }
+      }
 
-   let html = `
+      let html = `
 <form id="editSubActivityForm " class="w-100" action={{ route('observation.update-subactivity')}} method="post">
     <input type="hidden" name="subactivityid" value="${subActivity.idSubActivity}" />
     @csrf
@@ -516,17 +520,17 @@ $(document).on('click', '.deleteactivity', function (e) {
 </form>`;
 
 
-    $('#editsubActivityList').html(`<div class="row">${html}</div>`);
+      $('#editsubActivityList').html(`<div class="row">${html}</div>`);
       $('.modal').modal('hide');
-    $('#editsubactivitymodal').modal('show');
-        console.log("Edit SubActivity clicked:", $(this).data('subactivity_id'));
+      $('#editsubactivitymodal').modal('show');
+      console.log("Edit SubActivity clicked:", $(this).data('subactivity_id'));
     });
 
-$(document).on('click', '.deletesubactivity', function () {
-    let idSubActivity = $(this).data('subactivity_id');
-    let row = $(this).closest('.col-md-6'); // optional: row to remove on success
+    $(document).on('click', '.deletesubactivity', function() {
+      let idSubActivity = $(this).data('subactivity_id');
+      let row = $(this).closest('.col-md-6'); // optional: row to remove on success
 
-    Swal.fire({
+      Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
         icon: 'warning',
@@ -535,341 +539,343 @@ $(document).on('click', '.deletesubactivity', function () {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!',
         cancelButtonText: 'Cancel'
-    }).then((result) => {
+      }).then((result) => {
         if (result.isConfirmed) {
-            // Send AJAX request only if confirmed
-            $.ajax({
-                url: "{{ route('observation.delete-subactivity') }}",
-                type: "POST",
-                data: { idSubActivity: idSubActivity },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    Swal.fire(
-                        'Deleted!',
-                        'Subactivity has been deleted.',
-                        'success'
-                    );
-                    // Optionally remove the row from DOM
-                  location.reload();
+          // Send AJAX request only if confirmed
+          $.ajax({
+            url: "{{ route('observation.delete-subactivity') }}",
+            type: "POST",
+            data: {
+              idSubActivity: idSubActivity
+            },
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+              Swal.fire(
+                'Deleted!',
+                'Subactivity has been deleted.',
+                'success'
+              );
+              // Optionally remove the row from DOM
+              location.reload();
 
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire(
-                        'Error!',
-                        'Something went wrong while deleting.',
-                        'error'
-                    );
-                    console.error("❌ Error:", error);
-                    console.error("Status:", status);
-                    console.error("Response:", xhr.responseText);
-                }
-            });
-        }
-    });
-});
-
-});
-</script>
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const addActivityBtn = document.getElementById('addActivityBtn');
-  const activityForm = document.getElementById('activityForm');
-  const subjectSelect = document.getElementById('subjectSelect');
-  const activityModal = new bootstrap.Modal(document.getElementById('activityModal'));
-  const successMessage = document.getElementById('successMessage');
-  
-  // When the Add Activity button is clicked
-  addActivityBtn.addEventListener('click', function() {
-    // Fetch subjects via AJAX before opening the modal
-    fetchSubjects();
-  });
-  
-  // Function to fetch subjects from the database
-  function fetchSubjects() {
-    // Show loading state
-    subjectSelect.innerHTML = '<option value="" selected disabled>Loading subjects...</option>';
-    
-    // AJAX call to get subjects
-    $.ajax({
-      url: "{{url('Observation/getSubjects') }}",
-      type: 'GET',
-      dataType: 'json',
-      success: function(data) {
-        // Clear loading state
-        subjectSelect.innerHTML = '<option value="" selected disabled>Select a subject</option>';
-        
-        // Add the fetched subjects to the select element
-        data.forEach(function(subject) {
-          const option = document.createElement('option');
-          option.value = subject.idSubject;
-          option.textContent = subject.name;
-          subjectSelect.appendChild(option);
-        });
-        
-        // Open the modal after data is loaded
-        activityModal.show();
-      },
-      error: function(xhr, status, error) {
-        console.error('Error fetching subjects:', error);
-        alert('Failed to load subjects. Please try again.');
-      }
-    });
-  }
-  
-  // Form submission handler
-  activityForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Get form data
-    const idSubject = subjectSelect.value;
-    const title = document.getElementById('activityTitle').value;
-     const csrfToken = $('meta[name="csrf-token"]').attr('content');
-    // AJAX call to save the activity
-    $.ajax({
-      url: "{{ route('Observation.addActivity') }}",
-      type: 'POST',
-      data: {
-        idSubject: idSubject,
-        title: title
-      },
-                headers: {
-            'X-CSRF-TOKEN': csrfToken
-        },
-      dataType: 'json',
-      success: function(response) {
-     if (response.success) {
-    // Clear the title field
-    document.getElementById('activityTitle').value = '';
-
-    // Inline success message (if you want to keep it)
-    // successMessage.style.display = 'block';
-    // setTimeout(function() {
-    //     successMessage.style.display = 'none';
-    // }, 3000);
-
-    // 🎉 SweetAlert success popup
-    Swal.fire({
-        icon: 'success',
-        title: 'Activity Added!',
-        text: response.message || 'The activity was created successfully.',
-        timer: 2000,
-        showConfirmButton: false
-    });
-
-} else {
-    // ❌ SweetAlert error popup (instead of alert)
-    Swal.fire({
-        icon: 'error',
-        title: 'Failed to Add',
-        text: response.message || 'Something went wrong. Please try again.'
-    });
-}
-
-      },
-      error: function(xhr, status, error) {
-        console.error('Error adding activity:', error);
-        alert('Failed to add activity. Please try again.');
-      }
-    });
-  });
-  
-  // Ensure page refresh when modal is closed
-  document.getElementById('activityModal').addEventListener('hidden.bs.modal', function() {
-    location.reload();
-  });
-});
-</script>
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const addSubActivityBtn = document.getElementById('addSubActivityBtn');
-  const subActivityForm = document.getElementById('subActivityForm');
-  const subjectSelectForSub = document.getElementById('subjectSelectForSub');
-  const activitySelect = document.getElementById('activitySelect');
-  const subActivityModal = new bootstrap.Modal(document.getElementById('subActivityModal'));
-  const subActivitySuccessMessage = document.getElementById('subActivitySuccessMessage');
-  
-  // When the Add Sub-Activity button is clicked
-  addSubActivityBtn.addEventListener('click', function() {
-    // Fetch subjects via AJAX before opening the modal
-    fetchSubjectsForSubActivity();
-  });
-  
-  // Function to fetch subjects from the database
-  function fetchSubjectsForSubActivity() {
-    // Show loading state
-    subjectSelectForSub.innerHTML = '<option value="" selected disabled>Loading subjects...</option>';
-     const csrfToken = $('meta[name="csrf-token"]').attr('content');
-    // AJAX call to get subjects
-    $.ajax({
-      url: "{{ route('Observation.getSubjects') }}",
-      type: 'GET',
-      dataType: 'json',
-               headers: {
-            'X-CSRF-TOKEN': csrfToken
-        },
-      success: function(data) {
-        // Clear loading state
-        subjectSelectForSub.innerHTML = '<option value="" selected disabled>Select a subject</option>';
-        
-        // Add the fetched subjects to the select element
-        data.forEach(function(subject) {
-          const option = document.createElement('option');
-          option.value = subject.idSubject;
-          option.textContent = subject.name;
-          subjectSelectForSub.appendChild(option);
-        });
-        
-        // Open the modal after data is loaded
-        subActivityModal.show();
-      },
-      error: function(xhr, status, error) {
-        console.error('Error fetching subjects:', error);
-        alert('Failed to load subjects. Please try again.');
-      }
-    });
-  }
-  
-  // Function to fetch activities based on selected subject
-  function fetchActivitiesBySubject(subjectId) {
-    // Disable activity select and show loading
-    activitySelect.disabled = true;
-    activitySelect.innerHTML = '<option value="" selected disabled>Loading activities...</option>';
-     const csrfToken = $('meta[name="csrf-token"]').attr('content');
-    // AJAX call to get activities for the selected subject
-    $.ajax({
-      url: "{{ route('Observation.getActivitiesBySubject') }}",
-      type: 'GET',
-               headers: {
-            'X-CSRF-TOKEN': csrfToken
-        },
-      data: { idSubject: subjectId },
-      dataType: 'json',
-      success: function(data) {
-        // Clear loading state
-        activitySelect.innerHTML = '<option value="" selected disabled>Select an activity</option>';
-        
-        if (data.length === 0) {
-          activitySelect.innerHTML = '<option value="" selected disabled>No activities found for this subject</option>';
-        } else {
-          // Add the fetched activities to the select element
-          data.forEach(function(activity) {
-            const option = document.createElement('option');
-            option.value = activity.idActivity;
-            option.textContent = activity.title;
-            activitySelect.appendChild(option);
+            },
+            error: function(xhr, status, error) {
+              Swal.fire(
+                'Error!',
+                'Something went wrong while deleting.',
+                'error'
+              );
+              console.error("❌ Error:", error);
+              console.error("Status:", status);
+              console.error("Response:", xhr.responseText);
+            }
           });
-          
-          // Enable the activity select
-          activitySelect.disabled = false;
         }
-      },
-      error: function(xhr, status, error) {
-        console.error('Error fetching activities:', error);
-        activitySelect.innerHTML = '<option value="" selected disabled>Error loading activities</option>';
-      }
+      });
     });
-  }
-  
-  // When subject is selected, fetch related activities
-  subjectSelectForSub.addEventListener('change', function() {
-    const selectedSubjectId = this.value;
-    if (selectedSubjectId) {
-      fetchActivitiesBySubject(selectedSubjectId);
-    } else {
-      // Reset and disable activity select if no subject is selected
-      activitySelect.innerHTML = '<option value="" selected disabled>Select a subject first</option>';
-      activitySelect.disabled = true;
-    }
+
   });
-  
-  // Form submission handler
-  subActivityForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Get form data
-    const idActivity = activitySelect.value;
-    const title = document.getElementById('subActivityTitle').value;
-    const subjectSelectForSub = document.getElementById('subjectSelectForSub').value;
-     const csrfToken = $('meta[name="csrf-token"]').attr('content');
-     alert(idActivity);
-    // AJAX call to save the sub-activity
-    $.ajax({
-      url: "{{ url('Observation/addSubActivity') }} ",
-      type: 'POST',
-      data: {
-        idActivity: idActivity,
-        title: title,
-        subjectSelectForSub:subjectSelectForSub
-      },
-              headers: {
-            'X-CSRF-TOKEN': csrfToken
+</script>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const addActivityBtn = document.getElementById('addActivityBtn');
+    const activityForm = document.getElementById('activityForm');
+    const subjectSelect = document.getElementById('subjectSelect');
+    const activityModal = new bootstrap.Modal(document.getElementById('activityModal'));
+    const successMessage = document.getElementById('successMessage');
+
+    // When the Add Activity button is clicked
+    addActivityBtn.addEventListener('click', function() {
+      // Fetch subjects via AJAX before opening the modal
+      fetchSubjects();
+    });
+
+    // Function to fetch subjects from the database
+    function fetchSubjects() {
+      // Show loading state
+      subjectSelect.innerHTML = '<option value="" selected disabled>Loading subjects...</option>';
+
+      // AJAX call to get subjects
+      $.ajax({
+        url: "{{url('Observation/getSubjects') }}",
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          // Clear loading state
+          subjectSelect.innerHTML = '<option value="" selected disabled>Select a subject</option>';
+
+          // Add the fetched subjects to the select element
+          data.forEach(function(subject) {
+            const option = document.createElement('option');
+            option.value = subject.idSubject;
+            option.textContent = subject.name;
+            subjectSelect.appendChild(option);
+          });
+
+          // Open the modal after data is loaded
+          activityModal.show();
         },
-      dataType: 'json',
-      success: function(response) {
-     if (response.success) {
-    // Clear the title field
-    document.getElementById('subActivityTitle').value = '';
+        error: function(xhr, status, error) {
+          console.error('Error fetching subjects:', error);
+          alert('Failed to load subjects. Please try again.');
+        }
+      });
+    }
 
-    // Show success message below the input (your existing behavior)
-    // subActivitySuccessMessage.style.display = 'block';
+    // Form submission handler
+    activityForm.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-    // Hide success message after 3 seconds
-    // setTimeout(function() {
-    //     subActivitySuccessMessage.style.display = 'none';
-    // }, 3000);
+      // Get form data
+      const idSubject = subjectSelect.value;
+      const title = document.getElementById('activityTitle').value;
+      const csrfToken = $('meta[name="csrf-token"]').attr('content');
+      // AJAX call to save the activity
+      $.ajax({
+        url: "{{ route('Observation.addActivity') }}",
+        type: 'POST',
+        data: {
+          idSubject: idSubject,
+          title: title
+        },
+        headers: {
+          'X-CSRF-TOKEN': csrfToken
+        },
+        dataType: 'json',
+        success: function(response) {
+          if (response.success) {
+            // Clear the title field
+            document.getElementById('activityTitle').value = '';
 
-    // 🎉 SweetAlert success popup
-    Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: response.message || 'Sub-Activity added successfully!',
-        timer: 2000,
-        showConfirmButton: false
+            // Inline success message (if you want to keep it)
+            // successMessage.style.display = 'block';
+            // setTimeout(function() {
+            //     successMessage.style.display = 'none';
+            // }, 3000);
+
+            // 🎉 SweetAlert success popup
+            Swal.fire({
+              icon: 'success',
+              title: 'Activity Added!',
+              text: response.message || 'The activity was created successfully.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+
+          } else {
+            // ❌ SweetAlert error popup (instead of alert)
+            Swal.fire({
+              icon: 'error',
+              title: 'Failed to Add',
+              text: response.message || 'Something went wrong. Please try again.'
+            });
+          }
+
+        },
+        error: function(xhr, status, error) {
+          console.error('Error adding activity:', error);
+          alert('Failed to add activity. Please try again.');
+        }
+      });
     });
-} else {
-    // ❌ SweetAlert error popup
-    Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: response.message || 'Something went wrong!'
+
+    // Ensure page refresh when modal is closed
+    document.getElementById('activityModal').addEventListener('hidden.bs.modal', function() {
+      location.reload();
     });
-}
-      },
-      error: function(xhr, status, error) {
-        console.error('Error adding sub-activity:', error);
-        alert('Failed to add sub-activity. Please try again.');
+  });
+</script>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const addSubActivityBtn = document.getElementById('addSubActivityBtn');
+    const subActivityForm = document.getElementById('subActivityForm');
+    const subjectSelectForSub = document.getElementById('subjectSelectForSub');
+    const activitySelect = document.getElementById('activitySelect');
+    const subActivityModal = new bootstrap.Modal(document.getElementById('subActivityModal'));
+    const subActivitySuccessMessage = document.getElementById('subActivitySuccessMessage');
+
+    // When the Add Sub-Activity button is clicked
+    addSubActivityBtn.addEventListener('click', function() {
+      // Fetch subjects via AJAX before opening the modal
+      fetchSubjectsForSubActivity();
+    });
+
+    // Function to fetch subjects from the database
+    function fetchSubjectsForSubActivity() {
+      // Show loading state
+      subjectSelectForSub.innerHTML = '<option value="" selected disabled>Loading subjects...</option>';
+      const csrfToken = $('meta[name="csrf-token"]').attr('content');
+      // AJAX call to get subjects
+      $.ajax({
+        url: "{{ route('Observation.getSubjects') }}",
+        type: 'GET',
+        dataType: 'json',
+        headers: {
+          'X-CSRF-TOKEN': csrfToken
+        },
+        success: function(data) {
+          // Clear loading state
+          subjectSelectForSub.innerHTML = '<option value="" selected disabled>Select a subject</option>';
+
+          // Add the fetched subjects to the select element
+          data.forEach(function(subject) {
+            const option = document.createElement('option');
+            option.value = subject.idSubject;
+            option.textContent = subject.name;
+            subjectSelectForSub.appendChild(option);
+          });
+
+          // Open the modal after data is loaded
+          subActivityModal.show();
+        },
+        error: function(xhr, status, error) {
+          console.error('Error fetching subjects:', error);
+          alert('Failed to load subjects. Please try again.');
+        }
+      });
+    }
+
+    // Function to fetch activities based on selected subject
+    function fetchActivitiesBySubject(subjectId) {
+      // Disable activity select and show loading
+      activitySelect.disabled = true;
+      activitySelect.innerHTML = '<option value="" selected disabled>Loading activities...</option>';
+      const csrfToken = $('meta[name="csrf-token"]').attr('content');
+      // AJAX call to get activities for the selected subject
+      $.ajax({
+        url: "{{ route('Observation.getActivitiesBySubject') }}",
+        type: 'GET',
+        headers: {
+          'X-CSRF-TOKEN': csrfToken
+        },
+        data: {
+          idSubject: subjectId
+        },
+        dataType: 'json',
+        success: function(data) {
+          // Clear loading state
+          activitySelect.innerHTML = '<option value="" selected disabled>Select an activity</option>';
+
+          if (data.length === 0) {
+            activitySelect.innerHTML = '<option value="" selected disabled>No activities found for this subject</option>';
+          } else {
+            // Add the fetched activities to the select element
+            data.forEach(function(activity) {
+              const option = document.createElement('option');
+              option.value = activity.idActivity;
+              option.textContent = activity.title;
+              activitySelect.appendChild(option);
+            });
+
+            // Enable the activity select
+            activitySelect.disabled = false;
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error fetching activities:', error);
+          activitySelect.innerHTML = '<option value="" selected disabled>Error loading activities</option>';
+        }
+      });
+    }
+
+    // When subject is selected, fetch related activities
+    subjectSelectForSub.addEventListener('change', function() {
+      const selectedSubjectId = this.value;
+      if (selectedSubjectId) {
+        fetchActivitiesBySubject(selectedSubjectId);
+      } else {
+        // Reset and disable activity select if no subject is selected
+        activitySelect.innerHTML = '<option value="" selected disabled>Select a subject first</option>';
+        activitySelect.disabled = true;
       }
     });
-  });
-  
-  // Ensure page refresh when modal is closed
-  document.getElementById('subActivityModal').addEventListener('hidden.bs.modal', function() {
-    location.reload();
-  });
-});
-</script>
-<script>
-  $(document).ready(function() {
-    $('#activityModal').on('hidden.bs.modal', function () {
-      location.reload();
-    });
-  });
-</script>
-<script>
-  $(document).ready(function() {
-    $('#subActivityModal').on('hidden.bs.modal', function () {
-      location.reload();
-    });
-  });
 
-  
-  </script>
+    // Form submission handler
+    subActivityForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Get form data
+      const idActivity = activitySelect.value;
+      const title = document.getElementById('subActivityTitle').value;
+      const subjectSelectForSub = document.getElementById('subjectSelectForSub').value;
+      const csrfToken = $('meta[name="csrf-token"]').attr('content');
+      alert(idActivity);
+      // AJAX call to save the sub-activity
+      $.ajax({
+        url: "{{ url('Observation/addSubActivity') }} ",
+        type: 'POST',
+        data: {
+          idActivity: idActivity,
+          title: title,
+          subjectSelectForSub: subjectSelectForSub
+        },
+        headers: {
+          'X-CSRF-TOKEN': csrfToken
+        },
+        dataType: 'json',
+        success: function(response) {
+          if (response.success) {
+            // Clear the title field
+            document.getElementById('subActivityTitle').value = '';
+
+            // Show success message below the input (your existing behavior)
+            // subActivitySuccessMessage.style.display = 'block';
+
+            // Hide success message after 3 seconds
+            // setTimeout(function() {
+            //     subActivitySuccessMessage.style.display = 'none';
+            // }, 3000);
+
+            // 🎉 SweetAlert success popup
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: response.message || 'Sub-Activity added successfully!',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } else {
+            // ❌ SweetAlert error popup
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: response.message || 'Something went wrong!'
+            });
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error adding sub-activity:', error);
+          alert('Failed to add sub-activity. Please try again.');
+        }
+      });
+    });
+
+    // Ensure page refresh when modal is closed
+    document.getElementById('subActivityModal').addEventListener('hidden.bs.modal', function() {
+      location.reload();
+    });
+  });
+</script>
+<script>
+  $(document).ready(function() {
+    $('#activityModal').on('hidden.bs.modal', function() {
+      location.reload();
+    });
+  });
+</script>
+<script>
+  $(document).ready(function() {
+    $('#subActivityModal').on('hidden.bs.modal', function() {
+      location.reload();
+    });
+  });
+</script>
 
 @endpush
 

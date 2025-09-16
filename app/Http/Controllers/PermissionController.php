@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Session;
 
 class PermissionController extends Controller
 {
@@ -20,7 +21,8 @@ public function updatepermission(Request $request)
         'userid' => 'required|integer',
     ]);
 
-    $userId = $request->userid;
+    $userId   = $request->input('userid');
+    $centerId = session('user_center_id'); // ✅ use helper, consistent
 
     $userPermissions = Permission::where('userid', $userId)->first();
 
@@ -28,16 +30,13 @@ public function updatepermission(Request $request)
         return redirect()->back()->with('error', 'User permissions not found');
     }
 
-    // 1️⃣ Get all columns in permissions table (except id/userid/timestamps)
+    // 1️⃣ Get all columns in permissions table (except id/userid/timestamps/centerid)
     $allColumns = \Schema::getColumnListing('permissions');
-    $exclude = ['id', 'userid', 'created_at', 'updated_at'];
+    $exclude    = ['id', 'userid', 'centerid', 'created_at', 'updated_at'];
     $permissionColumns = array_diff($allColumns, $exclude);
 
-    // 2️⃣ Set all to 0 first
-    $updateData = [];
-    foreach ($permissionColumns as $col) {
-        $updateData[$col] = 0;
-    }
+    // 2️⃣ Start with all permissions set to 0
+    $updateData = array_fill_keys($permissionColumns, 0);
 
     // 3️⃣ Set checked ones to 1
     foreach ($request->except(['_token', 'userid']) as $key => $val) {
@@ -46,11 +45,55 @@ public function updatepermission(Request $request)
         }
     }
 
-    // 4️⃣ Save
+    // 4️⃣ Update record (permissions + centerid)
+    $updateData['centerid'] = $centerId;
     $userPermissions->update($updateData);
 
     return redirect()->back()->with('success', 'Permissions updated successfully');
 }
+
+
+    // public function updatepermission(Request $request)
+    // {
+    //     $request->validate([
+    //         'userid' => 'required|integer',
+    //     ]);
+    //     // dd($request->all());
+
+    //     $userId = $request->userid;
+    //     $centerid = Session('user_center_id');
+    //     // dd(  $centerid );
+
+    //     $userPermissions = Permission::where('userid', $userId)->first();
+
+    //     if (!$userPermissions) {
+    //         return redirect()->back()->with('error', 'User permissions not found');
+    //     }
+
+    //     // 1️⃣ Get all columns in permissions table (except id/userid/timestamps)
+    //     $allColumns = \Schema::getColumnListing('permissions');
+    //     $exclude = ['id', 'userid', 'created_at', 'updated_at'];
+    //     $permissionColumns = array_diff($allColumns, $exclude);
+
+    //     // 2️⃣ Set all to 0 first
+    //     $updateData = [];
+    //     foreach ($permissionColumns as $col) {
+    //         $updateData[$col] = 0;
+    //     }
+
+    //     // 3️⃣ Set checked ones to 1
+    //     foreach ($request->except(['_token', 'userid']) as $key => $val) {
+    //         if (in_array($key, $permissionColumns)) {
+    //             $updateData[$key] = 1;
+    //         }
+    //     }
+
+    //     // 4️⃣ Save
+    //     $userPermissions->centerid = $centerid;
+    //     $userPermissions->update($updateData);
+
+    //     return redirect()->back()->with('success', 'Permissions updated successfully');
+    // }
 
     // Updated show method to display assigned permissions with all data needed for the template
     public function show($userId)
