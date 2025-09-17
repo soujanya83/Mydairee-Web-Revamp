@@ -4,14 +4,37 @@
 
 @section('page-styles')
 <style>
-  .sub-activity-scroll {
-    max-height: 100px;
-    /* adjust as needed */
-    overflow-y: auto;
-    overflow-x: hidden;
-    /* prevent horizontal scrollbar */
-    /* space for scrollbar */
+  body.modal-open {
+    overflow: hidden !important;
+    padding-right: 0 !important;
+    /* prevent layout shift */
   }
+
+  body.modal-open {
+    overflow: hidden !important;
+  }
+
+  body {
+    overflow-y: auto !important;
+  }
+
+  /* Clickable cards */
+  .activity-card,
+  .subactivity-card,
+  .card-title,
+  .card-body {
+    cursor: pointer !important;
+    user-select: none !important;
+  }
+
+  /* .sub-activity-scroll {
+    max-height: 100px; */
+  /* adjust as needed */
+  /* overflow-y: auto;
+    overflow-x: hidden; */
+  /* prevent horizontal scrollbar */
+  /* space for scrollbar */
+  /* } */
 
   .top-right-button-container {
     position: relative;
@@ -27,6 +50,92 @@
   .top-right-button-container .btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* for backdrop */
+  /* -------------------------
+   Make modal body reliably scrollable
+   ------------------------- */
+  .modal-dialog.modal-dialog-scrollable {
+    max-height: calc(100vh - 120px);
+    /* room for header/footer */
+    margin: 1.5rem auto;
+  }
+
+  .modal-dialog.modal-dialog-scrollable .modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 120px);
+    overflow: hidden;
+    /* keep scroll inside modal-body */
+  }
+
+  .modal-dialog.modal-dialog-scrollable .modal-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* smooth scrolling on iOS */
+    padding-right: 1rem;
+    /* avoid hidden overflow behind scrollbar */
+  }
+
+  /* ensure any lists/cards inside modal also scroll if they are tall */
+  #activityList,
+  #subActivityList,
+  #editActivityList,
+  #editsubActivityList {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* -------------------------
+   Backdrop / stacking helpers
+   ------------------------- */
+  /* Base values (Bootstrap uses 1040/1050); keep backdrop under modal */
+  .modal-backdrop {
+    z-index: 1040 !important;
+  }
+
+  /* default modal above backdrop */
+  .modal {
+    z-index: 1050 !important;
+    pointer-events: auto !important;
+  }
+
+  /* topmost modal should sit above other modals/backdrops.
+   This rule raises the currently shown modal a lot so it won't be
+   visually blocked by leftover backdrops from previous modals */
+  .modal.show {
+    z-index: 2000 !important;
+  }
+
+  /* ensure backdrops sit under the topmost modal */
+  .modal-backdrop.show {
+    z-index: 1990 !important;
+  }
+
+  /* avoid accidental pointer blocking by stray backdrop layers */
+  .modal-backdrop {
+    pointer-events: auto;
+  }
+
+  /* small visual tweaks for nested cards so scrollbar is visible */
+  .card>.card-body {
+    overflow: visible;
+  }
+
+  /* optional: give a clear class you can apply to nested modals
+   (useful if you add a small JS to mark nested modals) */
+  .modal.nested-modal {
+    z-index: 2100 !important;
+  }
+
+  .modal-backdrop.nested-backdrop {
+    z-index: 2090 !important;
+  }
+
+  .card-title {
+    cursor: pointer !important;
   }
 </style>
 @endsection
@@ -81,11 +190,11 @@
   <div class="container-fluid px-0 mt-5">
     <div class="program-plan-container">
       <!-- @if(Auth::user()->userType != 'Parent') -->
-      <div class="card-header-custom mb-3 mt-4">
-        <h5 class="card-header-title">
+      <!-- <div class="card-header-custom mb-3 mt-4">
+        <h5 class="card-header-title text-info">
           <i class="fas fa-table"></i> SUBJECTS / Activities
         </h5>
-      </div>
+      </div> -->
       <!-- @endif -->
       <div class="program-plan">
 
@@ -125,7 +234,7 @@
       <div class="modal-header">
         <h5>Select Activity</h5>
         <input type="text" id="activitySearch" class="form-control ml-3" placeholder="Search activity..." style="max-width:250px;">
-        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">back</button>
+
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body" id="activityList"></div>
@@ -140,8 +249,13 @@
       <div class="modal-header">
         <h5>Select SubActivity</h5>
         <input type="text" id="subActivitySearch" class="form-control ml-3" placeholder="Search subactivity..." style="max-width:250px;">
-        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">back</button>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <div>
+          <button type="button" class="btn btn-back" id="backToActivity">Back</button>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+
+
       </div>
       <div class="modal-body" id="subActivityList">
 
@@ -151,32 +265,64 @@
 </div>
 
 <!-- edit mode of activity and sub activity -->
-<div class="modal fade" id="editactivitymodal" tabindex="-1">
+<div class="modal fade" id="editactivitymodal" tabindex="-1" aria-labelledby="editActivityModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5>Edit Activity</h5>
-        <input type="text" id="subActivitySearch" class="form-control ml-3" placeholder="Search subactivity..." style="max-width:250px;">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <div class="modal-content shadow-lg border-0 rounded-3">
+
+      <!-- Header -->
+      <div class="modal-header bg-light">
+        <h5 class="modal-title fw-bold text-success" id="editActivityModalLabel">
+          <i class="fa fa-tasks me-2"></i> Edit Activity
+        </h5>
+
+        <!-- Search Box -->
+
+
+        <!-- Back Button -->
+        <button type="button" class="btn btn-outline-secondary btn-sm ms-2" id="editbackToActivity">
+          <i class="fa fa-arrow-left me-1"></i> Back
+        </button>
       </div>
-      <div class="modal-body" id="editActivityList"></div>
+
+      <!-- Body -->
+      <div class="modal-body p-4" id="editActivityList">
+        <!-- Content will be injected here -->
+      </div>
+
     </div>
   </div>
 </div>
 
 
-<div class="modal fade" id="editsubactivitymodal" tabindex="-1">
+
+<div class="modal fade" id="editsubactivitymodal" tabindex="-1" aria-labelledby="editSubActivityModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5>Edit Sub-Activity</h5>
-        <input type="text" id="subActivitySearch" class="form-control ml-3" placeholder="Search subactivity..." style="max-width:250px;">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <div class="modal-content shadow-lg border-0 rounded-3">
+
+      <!-- Header -->
+      <div class="modal-header bg-light d-flex align-items-center">
+        <h5 class="modal-title fw-bold text-success" id="editSubActivityModalLabel">
+          <i class="fa fa-tasks me-2"></i> Edit Sub-Activity
+        </h5>
+
+        <!-- Search Box -->
+
+
+        <!-- Back Button -->
+        <button type="button" class="btn btn-outline-secondary btn-sm ms-2" id="backTosubActivity">
+          <i class="fa fa-arrow-left me-1"></i> Back
+        </button>
       </div>
-      <div class="modal-body" id="editsubActivityList"></div>
+
+      <!-- Body -->
+      <div class="modal-body p-4" id="editsubActivityList">
+        <!-- Sub-activity content will load here -->
+      </div>
+
     </div>
   </div>
 </div>
+
 <!-- add activity nd sub activity -->
 
 <!-- Modal Structure -->
@@ -322,51 +468,59 @@
     });
 
     // Handle Activity click -> open SubActivity Modal
+    // Open SubActivity modal from Activity
     $(document).on('click', '.activity-card', function() {
       let subactivities = $(this).data('subactivities');
-      let subHtml = '';
 
-      if (subactivities && subactivities.length > 0) {
-        subactivities.forEach(sub => {
-          // ✅ parse sub.added_at as Date (assuming your DB/API returns it)
-          let addedAt = new Date(sub.added_at);
-          let cutoffDate = new Date("2025-08-25"); // YYYY-MM-DD format
+      // Close Activity Modal first
+      $('#activitymodal').modal('hide');
 
-          // ✅ prepare buttons conditionally
-          let actionButtons = '';
-          if (addedAt > cutoffDate) {
-            actionButtons = `
-                <button type="button" class="btn btn-warning mr-2 editsubactivity" 
-                    data-subactivity='${JSON.stringify(sub)}'>
-                    <i class="fa fa-pencil mr-1"></i>
-                </button>
-                <button type="button" class="btn btn-danger deletesubactivity" 
-                    data-subactivity_id="${sub.idSubActivity}">
-                    <i class="fa fa-trash mr-1"></i>
-                </button>
-            `;
-          }
+      // Wait until activity modal is hidden
+      $('#activitymodal').one('hidden.bs.modal', function() {
+        // Fill subactivities
+        let subHtml = '';
+        if (subactivities && subactivities.length > 0) {
+          subactivities.forEach(sub => {
+            let addedAt = new Date(sub.added_at);
+            let cutoffDate = new Date("2025-08-25");
 
-          // ✅ final HTML
-          subHtml += `
-            <div class="col-md-6 mb-3 ">
-                <div class="card shadow-sm border-0 rounded-3">
-                    <div class="card-body text-center">
-                        <h6 class="card-title text-success fw-bold">${sub.title}</h6>
-                    </div>
-                    <div class="card-footer text-center d-flex flex-row gap-2">
-                        ${actionButtons}
-                    </div>
-                </div>
-            </div>`;
-        });
-      } else {
-        subHtml = `<p class="text-center text-muted">No subactivities available</p>`;
-      }
+            let actionButtons = '';
+            if (addedAt > cutoffDate) {
+              actionButtons = `
+                        <button type="button" class="btn btn-warning mr-2 editsubactivity" 
+                            data-subactivity='${JSON.stringify(sub)}'>
+                            <i class="fa fa-pencil mr-1"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger deletesubactivity" 
+                            data-subactivity_id="${sub.idSubActivity}">
+                            <i class="fa fa-trash mr-1"></i>
+                        </button>
+                    `;
+            }
 
+            subHtml += `
+                    <div class="col-md-6 mb-3 subactivity-card">
+                        <div class="card shadow-sm border-0 rounded-3">
+                            <div class="card-body text-center">
+                                <h6 class="card-title text-success fw-bold">${sub.title}</h6>
+                            </div>
+                            <div class="card-footer text-center d-flex flex-row gap-2">
+                                ${actionButtons}
+                            </div>
+                        </div>
+                    </div>`;
+          });
+        } else {
+          subHtml = `<p class="text-center text-muted">No subactivities available</p>`;
+        }
 
-      $('#subActivityList').html(`<div class="row">${subHtml}</div>`);
+        $('#subActivityList').html(`<div class="row">${subHtml}</div>`);
+
+        // Open Subactivity Modal safely
+        $('#subactivitymodal').modal('show');
+      });
     });
+
 
     // Search in SubActivity Modal
     $('#subActivitySearch').on('keyup', function() {
@@ -383,6 +537,7 @@
         $('#subactivitymodal').modal('show');
       }, 300);
     });
+
 
     // 🔹 Debug Logs for Activity buttons
     $(document).on('click', '.editactivity', function(e) {
@@ -805,7 +960,7 @@
       const title = document.getElementById('subActivityTitle').value;
       const subjectSelectForSub = document.getElementById('subjectSelectForSub').value;
       const csrfToken = $('meta[name="csrf-token"]').attr('content');
-      alert(idActivity);
+      // alert(idActivity);
       // AJAX call to save the sub-activity
       $.ajax({
         url: "{{ url('Observation/addSubActivity') }} ",
@@ -873,6 +1028,78 @@
   $(document).ready(function() {
     $('#subActivityModal').on('hidden.bs.modal', function() {
       location.reload();
+    });
+  });
+
+
+
+
+  // backbutton
+  $(document).on('click', '#backToActivity', function() {
+    let activityData = $(this).data('activity'); // ✅ get activity data
+
+    $('#subactivitymodal').modal('hide');
+
+    $('#subactivitymodal').on('hidden.bs.modal', function() {
+      // ✅ repopulate activity modal with data
+      if (activityData) {
+        $('#activityDetails').html(`
+                <h5 class="text-primary">${activityData.title}</h5>
+                <p>${activityData.description}</p>
+            `);
+      }
+
+      // ✅ show activity modal
+      $('#activitymodal').modal('show');
+
+      // detach this handler to prevent duplicates
+      $(this).off('hidden.bs.modal');
+    });
+  });
+
+  $(document).on('click', '#editbackToActivity', function() {
+    let activityData = $(this).data('activity'); // ✅ get activity data
+
+    // Close the current modal (#editactivitymodal)
+    $('#editactivitymodal').modal('hide');
+
+    // When closed, open the main activity modal again
+    $('#editactivitymodal').on('hidden.bs.modal', function() {
+      if (activityData) {
+        $('#activityDetails').html(`
+                <h5 class="text-primary">${activityData.title}</h5>
+                <p>${activityData.description}</p>
+            `);
+      }
+
+      // ✅ show activity modal
+      $('#activitymodal').modal('show');
+
+      // detach this handler to prevent duplicates
+      $(this).off('hidden.bs.modal');
+    });
+  });
+
+
+
+
+  $(document).on('click', '#backTosubActivity', function() {
+    $('#editsubactivitymodal').modal('hide');
+
+    $('#editsubactivitymodal').on('hidden.bs.modal', function() {
+      $('#subactivitymodal').modal('show');
+      $(this).off('hidden.bs.modal');
+    });
+  });
+
+  // Keep stacked modals/backdrops ordered so the top modal always receives scroll
+  $(document).on('shown.bs.modal', '.modal', function() {
+    $('.modal.show').each(function(i) {
+      // each shown modal gets higher z-index so topmost is on top
+      $(this).css('z-index', 1050 + (i * 20));
+    });
+    $('.modal-backdrop').each(function(i) {
+      $(this).css('z-index', 1040 + (i * 20));
     });
   });
 </script>
