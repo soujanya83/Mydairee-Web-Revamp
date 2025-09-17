@@ -162,6 +162,17 @@
                         </li>
                         @endif
 
+
+                        @if( in_array(auth()->user()->userType, ['Superadmin']))
+                        <li class="{{ Request::is('enrolment*') ? 'active' : null }}">
+                            <a href="{{ route('enrolment.dashboard') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-file-lines" style="font-size: 25px;"></i>
+                            <span
+                                    style="font-size: 18px; margin-left:12px">Form</span></a>
+
+                        </li>
+                        @endif
+
+
                         <li class="{{ Request::is('learningandprogress*') ? 'active' : null }}">
                             <a href="{{ route('learningandprogress.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-chart-simple"
                                     style="font-size: 25px;"></i><span

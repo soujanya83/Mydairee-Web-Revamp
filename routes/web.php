@@ -41,6 +41,12 @@ use Illuminate\Support\Facades\Artisan;
 Route::get('/child/observation-link/{id}', [ObservationsController::class, 'print'])->name('sharelink');
 Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
 
+Route::get('/re-enrollment/form', [UserController::class, 'createform'])->name('re-enrollment.form');
+Route::post('/re-enrolment/store', [UserController::class, 'storeform'])->name('re-enrolment.store');
+
+// Admin dashboard routes
+
+
 Route::get('/', [DashboardController::class, 'lending_page']);
 Route::get('/contact-us', [DashboardController::class, 'contact_us'])->name('contact-us');
 Route::post('/contact-us', [DashboardController::class, 'storeContactUs'])->name('contact-us');
@@ -88,6 +94,9 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'university'])->name('dashboard.university');
 
+
+    Route::get('/enrolment/dashboard', [UserController::class, 'dashboard'])->name('enrolment.dashboard');
+    Route::get('/admin/re-enrolments/{reEnrolment}/details', [UserController::class, 'getDetails'])->name('re-enrolment.details');
 
 
     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
