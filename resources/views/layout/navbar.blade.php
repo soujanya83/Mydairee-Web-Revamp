@@ -187,7 +187,7 @@
         </div>
 
         <div class="navbar-brand" style="margin-top: -12px;">
-            <a href="/"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}" alt="Lucid Logo"
+            <a href="/dashboard"><img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}" alt="Lucid Logo"
                     class="img-responsive logo"></a>
         </div>
         <a class="btn btn-xs btn-link btn-toggle-fullwidth">
@@ -290,7 +290,7 @@
                             <div class="dropdown-divider"></div>
 
                             <a class="dropdown-item" href="{{ route('settings.profile') }}">
-                               &nbsp; <i class="fa fa-user me-2 text-primary"></i>&nbsp; My Profile
+                                &nbsp; <i class="fa fa-user me-2 text-primary"></i>&nbsp; My Profile
                             </a>
                             <a href="#" class="dropdown-item" id="themeTrigger" onclick="openThemeModal(event)">
                                 <i class="fa fa-paint-brush me-2 text-info"></i>&nbsp; &nbsp;Theme Color
@@ -357,20 +357,20 @@
 
 <script>
     $('.btn-toggle-fullwidth').on('click', function(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    // Toggle sidebar collapse/expand
-    $('#left-sidebar').toggleClass('minified');
+        // Toggle sidebar collapse/expand
+        $('#left-sidebar').toggleClass('minified');
 
-    // Force the icon inside button to always stay fa-bars
-    $(this).find('i')
-        .removeClass()
-        .addClass('fa fa-bars')
-        .css('font-size', '22px !important');
+        // Force the icon inside button to always stay fa-bars
+        $(this).find('i')
+            .removeClass()
+            .addClass('fa fa-bars')
+            .css('font-size', '22px !important');
 
-    // Prevent layout-fullwidth class from being added
-    $('body').removeClass('layout-fullwidth');
-});
+        // Prevent layout-fullwidth class from being added
+        $('body').removeClass('layout-fullwidth');
+    });
 
 
     function markAsRead(event, notificationId) {
@@ -422,7 +422,7 @@
     const dropdownMenu = document.getElementById('userDropdownMenu');
 
     // Toggle dropdown when clicking the profile link
-    userDropdown.addEventListener('click', function (e) {
+    userDropdown.addEventListener('click', function(e) {
         e.preventDefault();
         dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
     });
@@ -440,7 +440,7 @@
     }
 
     // Close dropdown and modal when clicking outside
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
         if (!userDropdown.contains(e.target) && !dropdownMenu.contains(e.target)) {
             dropdownMenu.style.display = 'none';
         }
@@ -455,7 +455,7 @@
             e.preventDefault();
 
 
-                closeThemeModal();
+            closeThemeModal();
 
         });
     });

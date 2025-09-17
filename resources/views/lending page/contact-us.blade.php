@@ -78,8 +78,7 @@
             text-decoration: none;
         }
 
-        button,
-        .contact-us {
+        button {
             cursor: pointer;
         }
 
@@ -659,7 +658,7 @@
                     <img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}" alt="Lucid Logo"
                         class="img-responsive logo" width="180">
                 </a>
-                <nav class="hidden gap-6 md:flex">
+                <!-- <nav class="hidden gap-6 md:flex">
                     <a href="#features" class="text-sm text-slate-600 hover:text-slate-900"
                         aria-label="Features">Features</a>
                     <a href="#benefits" class="text-sm text-slate-600 hover:text-slate-900"
@@ -667,9 +666,9 @@
                     <a href="#pricing" class="text-sm text-slate-600 hover:text-slate-900"
                         aria-label="Pricing">Pricing</a>
                     <a href="#faq" class="text-sm text-slate-600 hover:text-slate-900" aria-label="FAQ">FAQ</a>
-                    <a href="{{ route('contact-us') }}" class="text-sm text-slate-600 hover:text-slate-900"
+                    <a href="#contact" class="text-sm text-slate-600 hover:text-slate-900"
                         aria-label="Contact">Contact</a>
-                </nav>
+                </nav> -->
                 <div class="hidden items-center gap-3 md:flex">
                     <a href="{{ route('login') }}"
                         style="background-color:#49c5b6; color:white; border:none; padding:7px 16px; border-radius:6px; text-decoration:none; display:inline-block;"
@@ -685,276 +684,18 @@
             </div>
         </header>
 
-        <!-- Hero -->
-        <section id="home" class="relative overflow-hidden">
-            <div class="container grid gap-10 px-4 py-16 md:grid-cols-2 md:items-center md:px-6 lg:py-24">
-                <div class="max-w-xl">
-                    <span class="badge badge-secondary mb-4 w-fit">Built for Australian Childcare-Montessori and EYLF
-                        Aligned</span>
-                    <h1 class="mb-4 text-4xl font-bold tracking-tight md:text-5xl">AI enabled Daily diary & family<span
-                            style="color:#49c5b6"> communications platform</span>
-                    </h1>
-                    <p class="mb-6 text-lg text-slate-600">
-                        Spend less time on paperwork and more time with children. MyDiaree helps early educators capture
-                        and securely share the day's moments while ensuring compliance.
-                    </p>
-                    {{-- <div class="flex flex-col gap-3 sm:flex-row">
-                        <button class="btn btn-primary btn-lg group">
-                            Start free trial
-                            <i data-lucide="chevron-right"
-                                class="ml-1 h-5 w-5 transition group-hover:translate-x-0.5"></i>
-                        </button>
-                        <button class="btn btn-outline btn-lg">Book a demo</button>
-                    </div> --}}
-                    <div class="mt-6 flex items-center gap-4 text-xs text-slate-500">
-                        <div class="flex items-center gap-1"><i data-lucide="shield-check" class="h-4 w-4"></i>&nbsp;AUS
-                            data
-                            hosting</div>
-                        <div class="flex items-center gap-1"><i data-lucide="credit-card"
-                                class="h-4 w-4"></i>&nbsp;Cancel
-                            anytime</div>
-                    </div>
-                </div>
-                <div class="relative">
-                    <div class="rounded-2xl border bg-white p-2 shadow-sm">
-                        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1600&auto=format&fit=crop"
-                            alt="MyDiaree interface mockup" class="h-full w-full rounded-xl object-cover" />
-                    </div>
-                    <div
-                        class="pointer-events-none absolute -bottom-6 -left-6 hidden rotate-2 rounded-2xl border bg-white-80 p-3 shadow-sm backdrop-blur md:block">
-                        <p class="text-xs text-slate-600">"So much faster than our old app—parents love it."</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+        @if (session('success'))
+        <div style="max-width:600px;margin:10px auto;padding:10px;border-radius:6px;background:#d4edda;color:#155724;border:1px solid #c3e6cb;">
+            {{ session('success') }}
+        </div>
+        @endif
 
-        <!-- Features -->
-        <section id="features" class="container px-4 py-16 md:px-6">
+        @if (session('error'))
+        <div style="max-width:600px;margin:10px auto;padding:10px;border-radius:6px;background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;">
+            {{ session('error') }}
+        </div>
+        @endif
 
-
-            <div class="mb-10 max-w-2xl">
-                <h2 class="text-2xl font-semibold md:text-3xl">Purpose-Built for Australian Childcare Centres</h2>
-                <p class="mt-2 text-slate-600">Everything you need for daily communication, documentation, and insights
-                    in one simple platform.</p>
-            </div>
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div class="card transition hover:shadow-md">
-                    <div class="card-header flex flex-row items-center gap-3">
-                        <div class="rounded-xl bg-blue-50 p-2 text-blue-700"><i data-lucide="calendar"
-                                style="color:#49c5b6"></i></div>
-                        <h3 class="text-base font-semibold">Daily Diary, Simplified</h3>
-                    </div>
-                    <div class="card-content">
-                        <p class="text-sm text-slate-600">Easily capture and automatically share meals, sleep times,
-                            learning moments, photos, and notes with parents in seconds.</p>
-                    </div>
-                </div>
-                <div class="card transition hover:shadow-md">
-                    <div class="card-header flex flex-row items-center gap-3">
-                        <div class="rounded-xl bg-blue-50 p-2 text-blue-700"><i data-lucide="users"
-                                style="color:#49c5b6"></i>
-                        </div>
-                        <h3 class="text-base font-semibold">Family-first Messaging</h3>
-                    </div>
-                    <div class="card-content">
-                        <p class="text-sm text-slate-600">Send secure one-to-one and broadcast messages with read
-                            receipts and media attachments</p>
-                    </div>
-                </div>
-                <div class="card transition hover:shadow-md">
-                    <div class="card-header flex flex-row items-center gap-3">
-                        <div class="rounded-xl bg-blue-50 p-2 text-blue-700"><i data-lucide="bar-chart-3"
-                                style="color:#49c5b6"></i></div>
-                        <h3 class="text-base font-semibold">Montessori Aligned</h3>
-                    </div>
-                    <div class="card-content">
-                        <p class="text-sm text-slate-600">Montessori and EYLF-aligned observations
-                            in one click.</p>
-                    </div>
-                </div>
-                <div class="card transition hover:shadow-md">
-                    <div class="card-header flex flex-row items-center gap-3">
-                        <div class="rounded-xl bg-blue-50 p-2 text-blue-700"><i data-lucide="plug-zap"
-                                style="color:#49c5b6"></i></div>
-                        <h3 class="text-base font-semibold">Plug‑and‑Play Integrations (Coming Soon)</h3>
-                    </div>
-                    <div class="card-content">
-                        <p class="text-sm text-slate-600">Integrate with Xero and more (API-ready). CSV in/out for
-                            quick migrations.</p>
-                    </div>
-                </div>
-                <div class="card transition hover:shadow-md">
-                    <div class="card-header flex flex-row items-center gap-3">
-                        <div class="rounded-xl bg-blue-50 p-2 text-blue-700"><i data-lucide="shield-check"
-                                style="color:#49c5b6"></i></div>
-                        <h3 class="text-base font-semibold">AUS‑Hosted & Secure</h3>
-                    </div>
-                    <div class="card-content">
-                        <p class="text-sm text-slate-600">Your data remains securely on Australian Servers, with
-                            built-in redundancies, IP restrictions. and role-based access control.</p>
-                    </div>
-                </div>
-                <div class="card transition hover:shadow-md">
-                    <div class="card-header flex flex-row items-center gap-3">
-                        <div class="rounded-xl bg-blue-50 p-2 text-blue-700"><i data-lucide="sparkles"
-                                style="color:#49c5b6"></i></div>
-                        <h3 class="text-base font-semibold">AI Assist</h3>
-                    </div>
-                    <div class="card-content" id="benefits">
-                        <p class="text-sm text-slate-600">Leverage AI to automatically refinet learning stories,
-                            translate communications for parents, and suggest next activities.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Benefit strip -->
-        <section class="border-y bg-slate-50">
-
-
-            <div class="container grid gap-6 px-4 py-14 md:grid-cols-3 md:px-6">
-                <h2 class="text-2xl font-semibold md:text-3xl">Benefits</h2>
-                <div>
-                    <h3 class="mb-1 text-lg font-semibold">Minutes, not hours</h3>
-                    <p class="text-slate-600">Templates and auto‑fill speed up documentation.</p>
-                </div>
-                <div>
-                    <h3 class="mb-1 text-lg font-semibold">Happier families</h3>
-                    <p class="text-slate-600">Beautiful timelines and instant notifications.</p>
-                </div>
-                <div>
-                    <h3 class="mb-1 text-lg font-semibold">Compliance, covered</h3>
-                    <p class="text-slate-600">Export what regulators need in a click.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Pricing -->
-        <section id="pricing" class="container px-4 py-16 md:px-6">
-            <div class="mb-10 text-center">
-                <h2 class="text-2xl font-semibold md:text-3xl">Simple pricing</h2>
-                <p class="mt-2 text-slate-600">Try it free, then pick a plan that fits your centre. No setup fees.</p>
-            </div>
-            <div class="grid gap-6 lg:grid-cols-3">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-base font-semibold">Starter</h3>
-                        </div>
-                        <div class="mt-2 text-4xl font-bold">$0 <span class="text-base font-medium text-slate-500">per
-                                centre / 14‑day trial</span></div>
-                    </div>
-                    <div class="card-content">
-                        <ul class="mb-6 space-y-2 text-sm text-slate-700">
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Up to 30 enrolled children</li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Core diary & media</li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Parent app & web portal</li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Email support</li>
-                        </ul>
-                        <button onclick="window.location.href='{{ route('contact-us') }}'" class="btn btn-primary w-full">Start free trial</button>
-                    </div>
-                </div>
-                <div class="card border-blue-600 shadow-lg">
-                    <div class="card-header">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-base font-semibold">Growth</h3>
-                            <span class="badge badge-primary">Most popular</span>
-                        </div>
-                        <div class="mt-2 text-4xl font-bold">$200 <span class="text-base font-medium text-slate-500">per
-                                centre / month</span></div>
-                    </div>
-                    <div class="card-content">
-                        <ul class="mb-6 space-y-2 text-sm text-slate-700">
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Unlimited children & rooms</li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Observations + EYLF tags</li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Bulk messaging & templates</li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Priority support</li>
-                        </ul>
-                        <button onclick="window.location.href='{{ route('contact-us') }}'" class="btn btn-primary contact-us w-full">Choose Growth</button>
-
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-base font-semibold">Multi‑Centre</h3>
-                        </div>
-                        <div class="mt-2 text-4xl font-bold">Custom <span
-                                class="text-base font-medium text-slate-500">volume pricing</span></div>
-                    </div>
-                    <div class="card-content">
-                        <ul class="mb-6 space-y-2 text-sm text-slate-700">
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Multi‑site analytics</li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> SSO & SCIM (optional)</li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Migration & onboarding</li>
-                            <li class="flex items-start gap-2"><i data-lucide="check"
-                                    class="mt-0.5 h-4 w-4 text-blue-600"></i> Success manager</li>
-                        </ul>
-
-                        <button onclick="window.location.href='{{ route('contact-us') }}'"
-                            class="btn btn-primary w-full contact-us">
-                            Talk to sales
-                        </button>
-
-                    </div>
-                </div>
-            </div>
-            <p class="mt-4 text-center text-xs text-slate-500">All prices in AUD. GST may apply.</p>
-        </section>
-
-        <!-- CTA strip -->
-        {{-- <section class="border-y bg-gradient-to-r-sky-blue">
-            <div
-                class="container flex flex-col items-center justify-between gap-4 px-4 py-10 text-center md:flex-row md:text-left md:px-6">
-                <div>
-                    <h3 class="text-xl font-semibold">Ready to modernise your daily diaries?</h3>
-                    <p class="text-slate-600">Start your 14‑day free trial—no credit card required.</p>
-                </div>
-                <div class="flex w-full max-w-md items-center gap-2 md:w-auto">
-                    <input type="email" placeholder="Work email" aria-label="Work email" />
-                    <button class="btn btn-primary">Get started</button>
-                </div>
-            </div>
-        </section> --}}
-
-        <!-- FAQ -->
-        <section id="faq" class="container-narrow px-4 py-16 md:px-6">
-            <h2 class="text-2xl font-semibold md:text-3xl">Frequently asked questions</h2>
-            <div class="accordion">
-                <div class="accordion-item">
-                    <button class="accordion-trigger">Is MyDiaree compliant with EYLF and Australian privacy
-                        laws?</button>
-                    <div class="accordion-content">
-                        <p>Yes. Observations can be tagged to EYLF outcomes and we host data in Australian regions with
-                            strict access controls. We also support exporting records for audits.</p>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <button class="accordion-trigger">How easy is it to migrate from our current app?</button>
-                    <div class="accordion-content">
-                        <p>Very. Import CSVs for children, rooms and guardians. Our team can assist with bulk media and
-                            historical notes for multi‑centre groups.</p>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <button class="accordion-trigger">Do parents need to download an app?</button>
-                    <div class="accordion-content">
-                        <p>Parents can use our iOS/Android app or the secure web portal—whichever they prefer.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <!-- Contact -->
         <section id="contact" class="border-t bg-white">
@@ -971,7 +712,61 @@
                         </p>
                     </div>
                 </div>
+                <form action="{{ route('contact-us') }}" method="post">
+                    @csrf
+                    <div style="max-width: 600px; margin: 2px auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                        <h3 style="font-size: 22px; font-weight: 600; margin-bottom: 20px;">Contact Us</h3>
+                        <p style="color: #6c757d; margin-bottom: 16px;">Have questions or want to learn more? Send us a message and we'll respond as soon as possible.</p>
 
+                        {{-- Full Name --}}
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Full Name"
+                            style="width: 100%; padding: 12px; margin-bottom: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" required />
+                        @error('name')
+                        <span style="color: red; font-size: 13px;">{{ $message }}</span>
+                        @enderror
+
+                        {{-- Email --}}
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="Email Address"
+                            style="width: 100%; padding: 12px; margin-bottom: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" required />
+                        @error('email')
+                        <span style="color: red; font-size: 13px;">{{ $message }}</span>
+                        @enderror
+
+                        {{-- Phone --}}
+                        <input type="text" name="phone" value="{{ old('phone') }}" placeholder="Phone Number"
+                            style="width: 100%; padding: 12px; margin-bottom: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" required />
+                        @error('phone')
+                        <span style="color: red; font-size: 13px;">{{ $message }}</span>
+                        @enderror
+
+                        {{-- Message --}}
+                        <textarea placeholder="Please enter your message" name="message" rows="8"
+                            style="width: 100%; padding: 12px; margin-bottom: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; font-family: Arial, sans-serif; color: #6c757d; resize: vertical;">{{ old('message') }}</textarea>
+                        @error('message')
+                        <span style="color: red; font-size: 13px;">{{ $message }}</span>
+                        @enderror
+
+                        {{-- Consent Checkbox --}}
+                        <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                            <input type="checkbox" id="consent" name="consent" {{ old('consent') ? 'checked' : '' }}
+                                style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;" />
+                            <label for="consent" style="font-size: 14px; color: #333; cursor: pointer;margin-block:4px;">
+                                I agree to the processing of my personal data for contact purposes
+                            </label>
+                        </div>
+                        @error('consent')
+                        <span style="color: red; font-size: 13px;">{{ $message }}</span>
+                        @enderror
+
+                        {{-- Submit --}}
+                        <div style="text-align: center;">
+                            <button type="submit"
+                                style="background-color: #49c5b6; color: #fff; font-size: 16px; font-weight: 600; padding: 12px 20px; border: none; border-radius: 6px; width: 100%; cursor: pointer;">
+                                Send Message
+                            </button>
+                        </div>
+                    </div>
+                </form>
 
 
 
@@ -1024,6 +819,8 @@
             </div>
         </footer>
     </div>
+
+
 
     <script>
         // Initialize Lucide icons
