@@ -10,7 +10,7 @@ use App\Models\MontessoriSubActivity;
 use App\Models\MontessoriSubActivityAccess;
 use App\Models\Montessoriactivityaccess;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Permission;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -114,11 +114,14 @@ $subjects = MontessoriSubject::with([
 ])->get();
 
 
+        $permission = Permission::where('userid',Auth::user()->userid)->first();
+
+
 
 
     // dd( $subjects);
 
-    return view('ProgramPlan.activityList', compact('subjects'));
+    return view('ProgramPlan.activityList', compact('subjects','permission'));
 }
 
 

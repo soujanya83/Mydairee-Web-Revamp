@@ -47,6 +47,9 @@ Route::post('/re-enrolment/store', [UserController::class, 'storeform'])->name('
 // Admin dashboard routes
 
 
+Route::get('/', [DashboardController::class, 'lending_page']);
+Route::get('/contact-us', [DashboardController::class, 'contact_us'])->name('contact-us');
+Route::post('/contact-us', [DashboardController::class, 'storeContactUs'])->name('contact-us');
 
 Route::get('/logout', function () {
     Auth::logout();
@@ -89,7 +92,7 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 
 // Route group with middleware this middleware use after login
 Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout::class])->group(function () {
-    Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
+    Route::get('/dashboard', [DashboardController::class, 'university'])->name('dashboard.university');
 
 
     Route::get('/enrolment/dashboard', [UserController::class, 'dashboard'])->name('enrolment.dashboard');
@@ -408,13 +411,12 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::post('store-holiday', [PublicHolidayController::class, 'holiday_store'])->name('holiday.store');
         Route::put('holiday/update/{id}', [PublicHolidayController::class, 'update'])->name('holiday.update');
         Route::get('/holidays/events', [PublicHolidayController::class, 'holidayEvents']);
-   Route::get('/holidays/edit/{id}', [PublicHolidayController::class, 'holidaysEdit'])->name('holidays.edit');
-        
+        Route::get('/holidays/edit/{id}', [PublicHolidayController::class, 'holidaysEdit'])->name('holidays.edit');
     });
 
 
     Route::prefix('observation')->name('observation.')->group(function () {
-         Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
+        Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
         Route::post('/ai-assist', [ObservationsController::class, 'AiAssistance'])->name('ai-assist');
         Route::get('/index', [ObservationsController::class, 'index'])->name('index');
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
@@ -520,7 +522,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
 Route::get('data', [AccidentsController::class, 'index']);
 /* Dashboard */
-Route::get('dashboard', function () {
+Route::get('dashboard-old', function () {
     return redirect('dashboard/analytical');
 });
 // service details

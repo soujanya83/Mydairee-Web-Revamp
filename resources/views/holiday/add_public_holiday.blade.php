@@ -3,7 +3,13 @@
 @section('parentPageTitle', 'Setting')
 
 @section('page-styles')
+<!-- Font Awesome 6 CDN -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
 <style>
+
+
+
     #holidayEditModal .modal-body {
     max-height: 70vh;   /* or any value */
     overflow-y: auto;
@@ -235,15 +241,16 @@ th.desc .arrow::before {
                 </form>
 
 <table id="holidayTable" class="table">
-    <thead>
-        <tr>
-            <th class="sortable default" data-col="0"># <span class="arrow"></span></th>
-            <th class="sortable" data-col="1">Date <span class="arrow"></span></th>
-            <th class="sortable" data-col="2">Occasion <span class="arrow"></span></th>
-            <th class="sortable" data-col="3">State <span class="arrow"></span></th>
-            <th>Action</th>
-        </tr>
-    </thead>
+   <thead>
+    <tr>
+        <th class="sortable" data-col="0">sno <i class="fas fa-sort"></i></th>
+        <th class="sortable" data-col="1">Date <i class="fas fa-sort"></i></th>
+        <th class="sortable" data-col="2">Occasion <i class="fas fa-sort"></i></th>
+        <th class="sortable" data-col="3">State <i class="fas fa-sort"></i></th>
+        <th>Action</th>
+    </tr>
+</thead>
+
     <tbody>
         @foreach($holidayData as $index => $holidays)
         <tr>
@@ -938,6 +945,70 @@ $('#selectChildrenModal').on('hidden.bs.modal', function () {
 
 
 
+// document.addEventListener("DOMContentLoaded", () => {
+//     const table = document.getElementById("holidayTable");
+//     const headers = table.querySelectorAll("th.sortable");
+
+//     headers.forEach(header => {
+//         header.addEventListener("click", () => {
+//             const columnIndex = header.getAttribute("data-col");
+//             const tbody = table.querySelector("tbody");
+//             const rows = Array.from(tbody.querySelectorAll("tr"));
+
+//             // Determine current sort order
+//             const isAsc = header.classList.contains("asc");
+//             const isDesc = header.classList.contains("desc");
+
+//             // Reset all headers
+//             headers.forEach(h => h.classList.remove("asc", "desc"));
+
+//             // Toggle direction
+//             if (!isAsc && !isDesc) {
+//                 header.classList.add("asc");
+//             } else if (isAsc) {
+//                 header.classList.remove("asc");
+//                 header.classList.add("desc");
+//             } else {
+//                 header.classList.remove("desc");
+//                 header.classList.add("asc");
+//             }
+
+//             const newIsAsc = header.classList.contains("asc");
+
+//             // Sort rows
+//             rows.sort((a, b) => {
+//                 const cellA = a.querySelectorAll("td")[columnIndex].innerText.trim();
+//                 const cellB = b.querySelectorAll("td")[columnIndex].innerText.trim();
+
+//                 // Handle numbers separately
+//                 if (!isNaN(cellA) && !isNaN(cellB)) {
+//                     return newIsAsc ? cellA - cellB : cellB - cellA;
+//                 }
+
+//                 // Handle dates (if format looks like "12 Sep 2025")
+//                 if (Date.parse(cellA) && Date.parse(cellB)) {
+//                     return newIsAsc
+//                         ? new Date(cellA) - new Date(cellB)
+//                         : new Date(cellB) - new Date(cellA);
+//                 }
+
+//                 // Default string comparison
+//                 return newIsAsc
+//                     ? cellA.localeCompare(cellB)
+//                     : cellB.localeCompare(cellA);
+//             });
+
+//             // Append sorted rows back
+//             rows.forEach(row => tbody.appendChild(row));
+//         });
+//     });
+// });
+
+
+</script>
+
+
+<script>
 document.addEventListener("DOMContentLoaded", () => {
     const table = document.getElementById("holidayTable");
     const headers = table.querySelectorAll("th.sortable");
@@ -952,8 +1023,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const isAsc = header.classList.contains("asc");
             const isDesc = header.classList.contains("desc");
 
-            // Reset all headers
-            headers.forEach(h => h.classList.remove("asc", "desc"));
+            // Reset all headers and icons
+            headers.forEach(h => {
+                h.classList.remove("asc", "desc");
+                const icon = h.querySelector("i");
+                if (icon) icon.className = "fas fa-sort";
+            });
 
             // Toggle direction
             if (!isAsc && !isDesc) {
@@ -968,17 +1043,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const newIsAsc = header.classList.contains("asc");
 
+            // Update clicked header icon
+            const icon = header.querySelector("i");
+            if (icon) {
+                icon.className = newIsAsc ? "fas fa-sort-up" : "fas fa-sort-down";
+            }
+
             // Sort rows
             rows.sort((a, b) => {
                 const cellA = a.querySelectorAll("td")[columnIndex].innerText.trim();
                 const cellB = b.querySelectorAll("td")[columnIndex].innerText.trim();
 
-                // Handle numbers separately
+                // Handle numbers
                 if (!isNaN(cellA) && !isNaN(cellB)) {
                     return newIsAsc ? cellA - cellB : cellB - cellA;
                 }
 
-                // Handle dates (if format looks like "12 Sep 2025")
+                // Handle dates (format "12 Sep 2025")
                 if (Date.parse(cellA) && Date.parse(cellB)) {
                     return newIsAsc
                         ? new Date(cellA) - new Date(cellB)
@@ -996,11 +1077,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
-
-
 </script>
-
-
 
 
 

@@ -260,8 +260,10 @@ public function programPlanList(Request $request)
         $userType = $user->userType;
         $userId = $authId;
 
+        $permission = Permission::where('userid',Auth::user()->userid)->first();
+
         return view('ProgramPlan.list', compact(
-            'programPlans', 'userType', 'userId', 'centerId', 'centers', 'getMonthName'
+            'programPlans', 'userType', 'userId', 'centerId', 'centers', 'getMonthName','permission'
         ));
     } else {
         return redirect('login');

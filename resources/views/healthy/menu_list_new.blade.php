@@ -88,7 +88,8 @@
         padding: 0.7rem 2rem;
         color: white;
         font-size: 1.1rem;
-        transition: all 0.3s ease;
+        /* transition: all 0.3s ease; */
+
         backdrop-filter: blur(10px);
     }
 
@@ -138,16 +139,21 @@
     
     } */
     .menu-table th,
-.menu-table td {
-    text-align: left;
-    vertical-align: top;
-    padding: 8px;
-    max-width: 250px;            /* limit column width */
-    width: 250px;                /* fix column width */
-    white-space: normal;         /* allow wrapping */
-    word-break: break-word;      /* break long words if needed */
-    overflow-wrap: break-word;   /* modern standard for word wrapping */
-}
+    .menu-table td {
+        text-align: left;
+        vertical-align: Start;
+        padding: 8px;
+        max-width: 350px;
+        /* limit column width */
+        width: 350px;
+        /* fix column width */
+        white-space: normal;
+        /* allow wrapping */
+        word-break: break-word;
+        /* break long words if needed */
+        overflow-wrap: break-word;
+        /* modern standard for word wrapping */
+    }
 
     .menu-table td:first-child {
         background: #f8f9fa;
@@ -162,12 +168,14 @@
         transform: scale(1.02);
         box-shadow: inset 0 0 0 2px var(--light-blue);
         cursor: pointer;
-      
+
     }
 
     .meal-content {
+        justify-items: start;
         position: relative;
         z-index: 1;
+        display: flex;
     }
 
     .meal-item {
@@ -177,16 +185,20 @@
         font-size: 0.95rem;
     }
 
-   .meal-description {
-    color: #666;
-    font-size: 0.85rem;
-    line-height: 1.4;
-    margin-bottom: 0.3rem;
-    white-space: normal;         /* allow wrapping */
-    word-break: break-word;      /* break long words if needed */
-    overflow-wrap: break-word;   /* modern way to ensure wrapping */
-    max-width: 250px;            /* keep inside cell */
-}
+    .meal-description {
+        color: #666;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        margin-bottom: 0.3rem;
+        white-space: normal;
+        /* allow wrapping */
+        word-break: break-word;
+        /* break long words if needed */
+        overflow-wrap: break-word;
+        /* modern way to ensure wrapping */
+        max-width: 350px;
+        /* keep inside cell */
+    }
 
 
     .dietary-tag {
@@ -231,11 +243,13 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         margin-bottom: 1.5rem;
         transition: all 0.3s ease;
+        /* width: 150px; */
     }
 
     .requirements-box:hover {
         transform: translateY(-3px);
         box-shadow: var(--hover-shadow);
+        /* width: 320px; */
     }
 
     .requirements-title {
@@ -364,64 +378,49 @@
         }
     }
 
-.week-selector {
-    appearance: none;           /* Remove default browser arrow */
-    -webkit-appearance: none;   /* Safari/Chrome */
-    -moz-appearance: none;      /* Firefox */
+    .week-selector {
+        appearance: none;
+        /* Remove default browser arrow */
+        -webkit-appearance: none;
+        /* Safari/Chrome */
+        -moz-appearance: none;
+        /* Firefox */
 
-    padding-right: 2rem;        /* Add space for custom arrow */
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'><path fill='white' d='M7 10l5 5 5-5z'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center; /* Move arrow inside */
-    background-size: 1rem auto;
-    background-color: #0a60a1ff !important;
+        padding-right: 2rem;
+        /* Add space for custom arrow */
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'><path fill='white' d='M7 10l5 5 5-5z'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        /* Move arrow inside */
+        background-size: 1rem auto;
+        background-color: #0d6bb4ff ;
 
-    border: 1px solid #036d82ff; /* match bg-info border */
-    border-radius: 50px;       /* capsule shape */
+        border: 1px solid #036d82ff;
+        /* match bg-info border */
+        border-radius: 50px;
+        /* capsule shape */
+        color: white;
+        font-weight: 500;
+        padding-left: 1rem;
+        /* add left padding for symmetry */
+        height: 50px;
+        /* consistent capsule height */
+        /* line-height: 40px; */
+    }
+
+    .week-selector option {
+    background-color: #0d6bb4;   /* Same as select bg */
     color: white;
     font-weight: 500;
-    padding-left: 1rem;        /* add left padding for symmetry */
-    height: 50px;              /* consistent capsule height */
-    /* line-height: 40px; */
 }
 
+.week-selector option:hover,
+.week-selector option:focus {
+    background-color: #036d82;   /* Darker on hover */
+    color: #fff;
+}
 
 </style>
-<!-- <style>
-    .menu-table {
-        table-layout: fixed;
-        /* fixes cell widths */
-        width: 100%;
-        word-wrap: break-word;
-        /* ensures text wraps */
-        border-collapse: collapse;
-    }
-
-   .menu-table th,
-.menu-table td {
-    text-align: left;
-    vertical-align: top;
-    padding: 8px;
-    max-width: 300px;          /* limit column width */
-    word-break: break-word;    /* break long words */
-    overflow-wrap: break-word; /* alternative, more standard */
-    white-space: normal;       /* allow wrapping */
-}
-
-
-    .meal-content {
-        font-size: 0.9rem;
-        line-height: 1.3;
-        word-break: break-word;
-    }
-
-    .meal-description {
-        max-height: 120px;
-        /* prevent overflowing */
-        overflow-y: auto;
-        /* scroll if too long */
-    }
-</style> -->
 
 
 
@@ -444,7 +443,7 @@
 
     &nbsp;&nbsp;&nbsp;&nbsp;
     <form method="GET" action="{{ route('healthy_menu') }}" id="dateFilterForm">
-        <input type="hidden" name="menuweek" value=" {{$menuweek }}">
+        <input type="hidden" name="menuweek" value=" {{$menuweek}}">
         <input type="text" id="calendarPicker" name="selected_date" class="btn btn-outline-info btn-lg" readonly
             value="{{ $selectedDate ?? now()->format('d-m-Y') }}">
     </form>
@@ -497,18 +496,21 @@
                 <form method="GET" action="{{ route('healthy_menu') }}" id="menuweekform">
                     <input type="hidden" name="selected_date" value="{{ $selectedDate }}">
 
-                    <select class="week-selector bg-info" id="menuweek" name="menuweek" onchange="this.form.submit()">
+
+
+                    <select class="week-selector " id="menuweek" name="menuweek">
                         @foreach ($weeks as $index => $range)
-                        <option value="{{ $index }}" {{ $menuweek == $index ? 'selected' : '' }}>
+                        <option value="{{ $index }}" @selected($menuweek==$index)>
                             Week {{ $index }} - {{ $range['start']->format('M j, Y') }} to {{ $range['end']->format('M j, Y') }}
                         </option>
+
+
                         @endforeach
                     </select>
                 </form>
 
             </div>
         </div>
-
 
         <!-- Menu Table -->
         <div class="table-container">
@@ -601,7 +603,7 @@
                             <div class="meal-content mb-2 border rounded p-2 position-relative">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div class="meal-item fw-bold">{{ $r->itemName ?? 'Untitled Dish' }}</div>
+                                        <div class="meal-item fw-bold text-wrap">{{ $r->itemName ?? 'Untitled Dish' }}</div>
                                         <div class="meal-description small text-muted">
                                             {{ $r->recipe ?? 'No recipe description' }}
 
@@ -636,6 +638,10 @@
                                     </div>
 
                                     <!-- Delete button -->
+                                          @if(($permission && $permission->addMenu == "1")
+                            || Auth::user()->userType == "Superadmin"
+                            || Auth::user()->admin == "1")
+
                                     <form action="{{ route('menu.destroy', $menuEntry->id) }}" method="POST" class="delete-menu-form">
                                         @csrf
                                         @method('DELETE')
@@ -643,12 +649,17 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endif
 
                                 </div>
                             </div>
                             @endforeach
 
                             <!-- Add Another button -->
+                                  @if(($permission && $permission->addMenu == "1")
+                            || Auth::user()->userType == "Superadmin"
+                            || Auth::user()->admin == "1")
+
                             <button type="button"
                                 class="btn btn-sm btn-outline-success mt-2 openIngredientModal"
                                 data-day="{{ $day }}"
@@ -657,6 +668,7 @@
                                 data-bs-target="#ingredientModal">
                                 <i class="fas fa-plus"></i>
                             </button>
+                            @endif
                             @endif
                         </td>
                         @endforeach
@@ -894,9 +906,7 @@
         // Also set day and meal type if needed
         let day = $(this).data('day'); // Assuming you pass day
         let mealType = $(this).data('meal'); // Assuming you pass meal type
-        // let menuweek = $('#menuweek').val();
-        // console.log(menuweek);
-        // $('#menuweekinput').val(menuweek);
+
 
         $('#modalDay').val(day);
         $('#modalMealType').val(mealType);
@@ -973,50 +983,6 @@
     });
 </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const weekSelector = document.querySelector('.week-selector');
-
-        // Get today's date
-        const today = new Date();
-
-        // Define week ranges (adjust as needed)
-        const weeks = [{
-                week: 1,
-                start: new Date(2025, 8, 9),
-                end: new Date(2025, 8, 13)
-            }, // Sep 9–13
-            {
-                week: 2,
-                start: new Date(2025, 8, 16),
-                end: new Date(2025, 8, 20)
-            }, // Sep 16–20
-            {
-                week: 3,
-                start: new Date(2025, 8, 23),
-                end: new Date(2025, 8, 27)
-            }, // Sep 23–27
-            {
-                week: 4,
-                start: new Date(2025, 8, 30),
-                end: new Date(2025, 9, 4)
-            } // Sep 30–Oct 4
-        ];
-
-        // Check which week today's date falls into
-        weeks.forEach(w => {
-            if (today >= w.start && today <= w.end) {
-                weekSelector.value = w.week;
-            }
-        });
-    });
-</script>
-<script>
-    document.getElementById('menuweek').addEventListener('change', function() {
-
-        document.getElementById('dateFilterForm').submit();
-    });
-</script>
 <script>
     document.getElementById('menuweek').addEventListener('change', function() {
 

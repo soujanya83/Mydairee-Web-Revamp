@@ -87,5 +87,11 @@ class Permission extends Model
         'editSelfAssessment',
         'deleteSelfAssessment',
         'viewSelfAssessment',
+        'addActivity',
+        'deleteActivity',
+        'editActivity',
+        'addsubActivity',
+        'deletesubActivity',
+        'editsubActivity'
     ];
 }
