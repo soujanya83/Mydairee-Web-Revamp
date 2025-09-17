@@ -426,56 +426,34 @@ public function sendReEnrollmentEmails(Request $request)
         'parent_ids.*' => 'integer|exists:users,id'
     ]);
 
-    $parentIds = $request->parent_ids;
     $sentCount = 0;
     $failedCount = 0;
-    $errors = [];
 
-    DB::beginTransaction();
+    $parents = User::whereIn('id', $request->parent_ids)
+        ->where('userType', 'Parent')
+        ->get();
 
-    try {
-        $parents = User::whereIn('id', $parentIds)
-            ->where('userType', 'Parent')
-            ->get();
-
-        foreach ($parents as $parent) {
-            try {
-                Mail::to($parent->email)->send(new ReEnrollmentInvitation($parent));
-                $sentCount++;
-                Log::info("Re-enrollment email sent to: {$parent->email}");
-            } catch (\Exception $e) {
-                $failedCount++;
-                $errors[] = "Failed to send to {$parent->email}: " . $e->getMessage();
-                Log::error("Failed to send re-enrollment email to {$parent->email}: " . $e->getMessage());
-            }
+    foreach ($parents as $parent) {
+        try {
+            Mail::to($parent->email)->send(new ReEnrollmentInvitation($parent));
+            $sentCount++;
+            Log::info("Re-enrollment email sent to: {$parent->email}");
+        } catch (\Exception $e) {
+            $failedCount++;
+            Log::error("Failed to send re-enrollment email to {$parent->email}: " . $e->getMessage());
         }
-
-        DB::commit();
-
-        $message = $failedCount > 0
-            ? "Email campaign completed with some issues"
-            : "All emails sent successfully!";
-
-        return response()->json([
-            'status' => 'success',    // 🔹 frontend-friendly key
-            'message' => $message,
-            'sent_count' => $sentCount,
-            'failed_count' => $failedCount,
-            'errors' => $errors
-        ], 200);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Error in email campaign: ' . $e->getMessage());
-
-        return response()->json([
-            'status' => 'error',      // 🔹 keep same key
-            'message' => 'Failed to send emails. Please try again.',
-            'sent_count' => $sentCount,
-            'failed_count' => $failedCount,
-            'errors' => [$e->getMessage()]
-        ], 200); // 🔹 still 200, frontend decides by "status"
     }
+
+    $message = $failedCount > 0
+        ? "Email campaign completed with some issues"
+        : "All emails sent successfully!";
+
+    return response()->json([
+        'status' => 'success',
+        'message' => $message,
+        'sent_count' => $sentCount,
+        'failed_count' => $failedCount
+    ]);
 }
 
 

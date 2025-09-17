@@ -99,9 +99,9 @@
         <h1 class="text-center mb-4">Re-Enrolment 2026</h1>
         
         <div class="alert alert-info">
-            <p>We thank you for being part of Nextgen Montessori in 2025. We are planning our rooms for 2026 and ask you to supply your preferred days. Your enrolment is ongoing, so your current days in 2025, will be moved across for you for 2026 e.g.: if you attend Monday, Tuesday, and Wednesday then these days will be automatically transferred across to 2026 for you. Many parents choose to change their days in the new year, so if you wish to change or increase days, we ask that you advise now, so we can start planning.
+            <p>We thank you for being part of Nextgen Montessori in 2025. We are planning our rooms for 2026 and ask you to supply your preferred days. Your enrolment is ongoing, so your current days in 2025, will be moved across for you for 2026 e.g.: if you attend Monday, Tuesday, and Wednesday then these days will be automatically transferred across to 2026 for you.
 </p>
-            <p class="mb-0">Your enrolment is ongoing, so your current days in 2025, will be moved across for you for 2026.</p>
+            <p class="mb-0">Many parents choose to change their days in the new year, so if you wish to change or increase days, we ask that you advise now, so we can start planning.</p>
             <p class="mb-0"><strong>I wish to change my child’s enrolment in 2026.</strong></p>
         </div>
         
