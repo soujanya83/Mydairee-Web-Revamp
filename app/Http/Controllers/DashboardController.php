@@ -14,12 +14,12 @@ use App\Models\AnnouncementChildModel;
 use App\Models\Childparent;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\Contact;
+use App\Models\contact;
 use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends BaseController
 {
-   
+
     public function storeContactUs(Request $request)
     {
         $validated = $request->validate([
@@ -33,7 +33,7 @@ class DashboardController extends BaseController
         $validated['consent'] = $request->has('consent') ? 1 : 0;
 
         try {
-            $contact = Contact::create($validated);
+            $contact = contact::create($validated);
 
             if ($contact) {
                 // get values from request
