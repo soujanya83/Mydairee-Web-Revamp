@@ -40,6 +40,11 @@ use Illuminate\Support\Facades\Artisan;
 // share observation to family , feature for parents
 Route::get('/child/observation-link/{id}', [ObservationsController::class, 'print'])->name('sharelink');
 Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
+Route::get('/privacy-policy', [UserController::class, 'privacyPolicy'])->name('privacypolicy');
+// Parent management routes
+Route::get('/admin/get-parents', [UserController::class, 'getParents'])->name('admin.get-parents');
+Route::post('/admin/send-reenrollment-emails', [UserController::class, 'sendReEnrollmentEmails'])->name('admin.send-reenrollment-emails');
+
 
 Route::get('/re-enrollment/form', [UserController::class, 'createform'])->name('re-enrollment.form');
 Route::post('/re-enrolment/store', [UserController::class, 'storeform'])->name('re-enrolment.store');

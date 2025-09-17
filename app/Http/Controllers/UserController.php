@@ -15,6 +15,10 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log; // ✅ add this
 
+use App\Mail\ReEnrollmentInvitation;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+
 
 class UserController extends Controller
 {
@@ -358,6 +362,123 @@ public function getDetails(ReEnrolment $reEnrolment)
         'created_at' => $reEnrolment->created_at->format('d M Y H:i'),
     ]);
 }
+
+
+public function privacyPolicy()
+{
+    return view('privacy_policy');
+}
+
+
+public function getParents()
+{
+    try {
+        $centerid = Session::get('user_center_id');
+        
+        if (!$centerid) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Center ID not found in session'
+            ], 400);
+        }
+
+        // Get all user IDs for this center
+        $userIds = UserCenter::where('centerid', $centerid)->pluck('userid');
+
+        // Get all parent users with children count
+        $parents = User::whereIn('id', $userIds)
+            ->where('userType', 'Parent')
+            ->withCount('children')
+            ->orderBy('name')
+            ->get(['id', 'name', 'email'])
+            ->map(function ($parent) {
+                return [
+                    'id' => $parent->id,
+                    'name' => $parent->name,
+                    'email' => $parent->email,
+                    'children_count' => $parent->children_count ?? 0
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'parents' => $parents,
+            'total_count' => $parents->count()
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error fetching parents: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching parents'
+        ], 500);
+    }
+}
+
+/**
+ * Send re-enrollment emails to selected parents
+ */
+public function sendReEnrollmentEmails(Request $request)
+{
+    $request->validate([
+        'parent_ids' => 'required|array|min:1',
+        'parent_ids.*' => 'integer|exists:users,id'
+    ]);
+
+    $parentIds = $request->parent_ids;
+    $sentCount = 0;
+    $failedCount = 0;
+    $errors = [];
+
+    DB::beginTransaction();
+
+    try {
+        $parents = User::whereIn('id', $parentIds)
+            ->where('userType', 'Parent')
+            ->get();
+
+        foreach ($parents as $parent) {
+            try {
+                Mail::to($parent->email)->send(new ReEnrollmentInvitation($parent));
+                $sentCount++;
+                Log::info("Re-enrollment email sent to: {$parent->email}");
+            } catch (\Exception $e) {
+                $failedCount++;
+                $errors[] = "Failed to send to {$parent->email}: " . $e->getMessage();
+                Log::error("Failed to send re-enrollment email to {$parent->email}: " . $e->getMessage());
+            }
+        }
+
+        DB::commit();
+
+        $message = $failedCount > 0
+            ? "Email campaign completed with some issues"
+            : "All emails sent successfully!";
+
+        return response()->json([
+            'status' => 'success',    // 🔹 frontend-friendly key
+            'message' => $message,
+            'sent_count' => $sentCount,
+            'failed_count' => $failedCount,
+            'errors' => $errors
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error in email campaign: ' . $e->getMessage());
+
+        return response()->json([
+            'status' => 'error',      // 🔹 keep same key
+            'message' => 'Failed to send emails. Please try again.',
+            'sent_count' => $sentCount,
+            'failed_count' => $failedCount,
+            'errors' => [$e->getMessage()]
+        ], 200); // 🔹 still 200, frontend decides by "status"
+    }
+}
+
+
 
 
 }
