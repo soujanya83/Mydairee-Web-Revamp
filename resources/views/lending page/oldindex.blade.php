@@ -1,44 +1,34 @@
 <script type="text/javascript">
     var gk_isXlsx = false;
-    var gk_xlsxFileLookup = {};
-    var gk_fileData = {};
-
-    function filledCell(cell) {
-        return cell !== '' && cell != null;
-    }
-
-    function loadFileData(filename) {
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
         if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
             try {
-                var workbook = XLSX.read(gk_fileData[filename], {
-                    type: 'base64'
-                });
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
                 var firstSheetName = workbook.SheetNames[0];
                 var worksheet = workbook.Sheets[firstSheetName];
 
                 // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, {
-                    header: 1,
-                    blankrows: false,
-                    defval: ''
-                });
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
                 // Filter out blank rows (rows where all cells are empty, null, or undefined)
                 var filteredData = jsonData.filter(row => row.some(filledCell));
 
                 // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
                 var headerRowIndex = filteredData.findIndex((row, index) =>
-                    row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
                 );
                 // Fallback
                 if (headerRowIndex === -1 || headerRowIndex > 25) {
-                    headerRowIndex = 0;
+                  headerRowIndex = 0;
                 }
 
                 // Convert filtered JSON back to CSV
                 var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, {
-                    header: 1
-                });
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
                 return csv;
             } catch (e) {
                 console.error(e);
@@ -46,7 +36,7 @@
             }
         }
         return gk_fileData[filename] || "";
-    }
+        }
 </script>
 <!DOCTYPE html>
 <html lang="en">
@@ -78,8 +68,7 @@
             text-decoration: none;
         }
 
-        button,
-        .contact-us {
+        button {
             cursor: pointer;
         }
 
@@ -654,7 +643,7 @@
         <!-- Nav -->
         <header class="sticky top-0 z-40 w-full border-b bg-white-80 backdrop-blur">
             <div class="container flex items-center justify-between px-4 py-3 md:px-6">
-                <a href="{{ url('/')}}" class="flex items-center gap-2 font-semibold">
+                <a href="#home" class="flex items-center gap-2 font-semibold">
 
                     <img src="{{ asset('assets/img/MYDIAREE-new-logo.png') }}" alt="Lucid Logo"
                         class="img-responsive logo" width="180">
@@ -667,7 +656,7 @@
                     <a href="#pricing" class="text-sm text-slate-600 hover:text-slate-900"
                         aria-label="Pricing">Pricing</a>
                     <a href="#faq" class="text-sm text-slate-600 hover:text-slate-900" aria-label="FAQ">FAQ</a>
-                    <a href="{{ route('contact-us') }}" class="text-sm text-slate-600 hover:text-slate-900"
+                    <a href="#contact" class="text-sm text-slate-600 hover:text-slate-900"
                         aria-label="Contact">Contact</a>
                 </nav>
                 <div class="hidden items-center gap-3 md:flex">
@@ -855,7 +844,7 @@
                             <li class="flex items-start gap-2"><i data-lucide="check"
                                     class="mt-0.5 h-4 w-4 text-blue-600"></i> Email support</li>
                         </ul>
-                        <button onclick="window.location.href='{{ route('contact-us') }}'" class="btn btn-primary w-full">Start free trial</button>
+                        <button class="btn btn-primary w-full">Start free trial</button>
                     </div>
                 </div>
                 <div class="card border-blue-600 shadow-lg">
@@ -864,7 +853,7 @@
                             <h3 class="text-base font-semibold">Growth</h3>
                             <span class="badge badge-primary">Most popular</span>
                         </div>
-                        <div class="mt-2 text-4xl font-bold">$200 <span class="text-base font-medium text-slate-500">per
+                        <div class="mt-2 text-4xl font-bold">$89 <span class="text-base font-medium text-slate-500">per
                                 centre / month</span></div>
                     </div>
                     <div class="card-content">
@@ -878,8 +867,7 @@
                             <li class="flex items-start gap-2"><i data-lucide="check"
                                     class="mt-0.5 h-4 w-4 text-blue-600"></i> Priority support</li>
                         </ul>
-                        <button onclick="window.location.href='{{ route('contact-us') }}'" class="btn btn-primary contact-us w-full">Choose Growth</button>
-
+                        <button class="btn btn-primary w-full">Choose Growth</button>
                     </div>
                 </div>
                 <div class="card">
@@ -901,12 +889,7 @@
                             <li class="flex items-start gap-2"><i data-lucide="check"
                                     class="mt-0.5 h-4 w-4 text-blue-600"></i> Success manager</li>
                         </ul>
-
-                        <button onclick="window.location.href='{{ route('contact-us') }}'"
-                            class="btn btn-primary w-full contact-us">
-                            Talk to sales
-                        </button>
-
+                        <button class="btn btn-primary w-full">Talk to sales</button>
                     </div>
                 </div>
             </div>
@@ -966,13 +949,49 @@
                     <div class="mt-6 space-y-3 text-slate-700">
                         <p class="flex items-center gap-2"><i data-lucide="mail" class="h-5 w-5"></i>
                             support@mydiaree.com.au</p>
-                        <p class="flex items-center gap-2"><i data-lucide="phone" class="h-5 w-5"></i> +61 493 889 880</p>
+                        <p class="flex items-center gap-2"><i data-lucide="phone" class="h-5 w-5"></i> +61 (0)3 0000
+                            0000</p>
                         <p class="flex items-center gap-2"><i data-lucide="globe" class="h-5 w-5"></i> MyDiaree.com.au
                         </p>
                     </div>
                 </div>
 
+                <div
+                    style="max-width: 600px; margin: 2px auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                    <h3 style="font-size: 22px; font-weight: 600; margin-bottom: 20px;">Contact Us</h3>
+                    <p style="color: #6c757d; margin-bottom: 16px;">Have questions or want to learn more? Send us a
+                        message and we'll
+                        respond as soon as possible.</p>
 
+                    <input type="text" placeholder="Full Name"
+                        style="width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" />
+
+                    <input type="email" placeholder="Email Address"
+                        style="width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" />
+
+                    <input type="text" placeholder="Phone Number"
+                        style="width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" />
+
+                    <textarea placeholder="Please enter your message"
+                        style="width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; font-family: Arial, sans-serif; color: #6c757d; resize: vertical;"></textarea>
+
+
+                    <!-- Checkbox inline -->
+                    <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <input type="checkbox" id="consent" required
+                            style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;" />
+                        <label for="consent" style="font-size: 14px; color: #333; cursor: pointer;">
+                            I agree to the processing of my personal data for contact purposes
+                        </label>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button type="submit"
+                            style="background-color: #49c5b6; color: #fff; font-size: 16px; font-weight: 600; padding: 12px 20px; border: none; border-radius: 6px; width: 100%; cursor: pointer;">
+                            Send Message
+                        </button>
+                    </div>
+                </div>
 
 
                 {{-- <div
@@ -1027,27 +1046,27 @@
 
     <script>
         // Initialize Lucide icons
-        lucide.createIcons();
+    lucide.createIcons();
 
-        // Accordion toggle (single open at a time)
-        document.querySelectorAll('.accordion-trigger').forEach(trigger => {
-            trigger.addEventListener('click', () => {
-                const content = trigger.nextElementSibling;
-                const isActive = content.classList.contains('active');
+    // Accordion toggle (single open at a time)
+    document.querySelectorAll('.accordion-trigger').forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const content = trigger.nextElementSibling;
+        const isActive = content.classList.contains('active');
 
-                // Close all accordion items
-                document.querySelectorAll('.accordion-content').forEach(c => {
-                    c.classList.remove('active');
-                    c.previousElementSibling.classList.remove('active');
-                });
-
-                // Toggle current item
-                if (!isActive) {
-                    content.classList.add('active');
-                    trigger.classList.add('active');
-                }
-            });
+        // Close all accordion items
+        document.querySelectorAll('.accordion-content').forEach(c => {
+          c.classList.remove('active');
+          c.previousElementSibling.classList.remove('active');
         });
+
+        // Toggle current item
+        if (!isActive) {
+          content.classList.add('active');
+          trigger.classList.add('active');
+        }
+      });
+    });
     </script>
 </body>
 

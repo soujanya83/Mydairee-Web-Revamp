@@ -41,6 +41,10 @@ use Illuminate\Support\Facades\Artisan;
 Route::get('/child/observation-link/{id}', [ObservationsController::class, 'print'])->name('sharelink');
 Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
 
+Route::get('/', [DashboardController::class, 'lending_page']);
+Route::get('/contact-us', [DashboardController::class, 'contact_us'])->name('contact-us');
+Route::post('/contact-us', [DashboardController::class, 'storeContactUs'])->name('contact-us');
+
 Route::get('/logout', function () {
     Auth::logout();
     session()->invalidate();
@@ -82,7 +86,7 @@ Route::get('login', [AuthenticationController::class, 'login'])->name('authentic
 
 // Route group with middleware this middleware use after login
 Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout::class])->group(function () {
-    Route::get('/', [DashboardController::class, 'university'])->name('dashboard.university');
+    Route::get('/dashboard', [DashboardController::class, 'university'])->name('dashboard.university');
 
 
 
@@ -509,7 +513,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
 Route::get('data', [AccidentsController::class, 'index']);
 /* Dashboard */
-Route::get('dashboard', function () {
+Route::get('dashboard-old', function () {
     return redirect('dashboard/analytical');
 });
 // service details
