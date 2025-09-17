@@ -669,6 +669,8 @@
                     <a href="#faq" class="text-sm text-slate-600 hover:text-slate-900" aria-label="FAQ">FAQ</a>
                     <a href="{{ route('contact-us') }}" class="text-sm text-slate-600 hover:text-slate-900"
                         aria-label="Contact">Contact</a>
+                    <a href="{{ route('privacypolicy') }}" target="_blank" class="text-sm text-slate-600 hover:text-slate-900"
+                        aria-label="privacypolicy">Privacy Policy</a>
                 </nav>
                 <div class="hidden items-center gap-3 md:flex">
                     <a href="{{ route('login') }}"
