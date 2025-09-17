@@ -1071,41 +1071,47 @@ function sendEmails() {
     });
     
     fetch('/admin/send-reenrollment-emails', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-        'X-Requested-With': 'XMLHttpRequest'
-    },
-    body: JSON.stringify({
-        parent_ids: selectedParents
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            parent_ids: selectedParents
+        })
     })
-})
-.then(response => response.json())
-.then(data => {
-    console.log('Response Data:', data);
-
-    if (data.status === 'success') {
-        showSuccess(data.message, data.sent_count, data.failed_count);
-
-        const modalEl = document.getElementById('parentSelectModal');
-        if (modalEl) {
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) modalInstance.hide();
+    .then(response => response.json())
+    .then(data => {
+        // Hide the modal first (simple approach)
+        const modal = document.getElementById('parentSelectModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.remove();
         }
-
-        resetModal();
-    } else {
-        showError(data.message || 'Failed to send emails');
-    }
-})
-.catch(error => {
-    console.error('Error:', error);
-    showError('Error sending emails. Please try again.');
-});
-
+        
+        // Reset selections
+        selectedParents = [];
+        
+        // Show success message
+        Swal.fire({
+            title: 'Success!',
+            text: data.message,
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Error sending emails. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
 }
-
 // Reset modal state
 function resetModal() {
     selectedParents = [];
