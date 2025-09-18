@@ -128,7 +128,7 @@
                         <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
                             <a href="{{ route('announcements.list') }}" data-toggle="tooltip" data-placement="right"> <i class="fa fa-bullhorn"
                                     style="font-size: 25px;"></i><span
-                                    style="font-size: 18px; margin-left:-1px">&nbsp; Announcements</span></a>
+                                    style="font-size: 18px; margin-left:-1px">&nbsp; Events</span></a>
 
                         </li>
                         @endif
