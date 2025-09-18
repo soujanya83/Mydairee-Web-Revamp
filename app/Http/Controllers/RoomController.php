@@ -472,7 +472,7 @@ class RoomController extends Controller
         $roomEducators = (clone $educatorsQuery)
             ->where('room_staff.roomid', $roomid)
             ->get();
-        $assignedEducatorIds = $roomEducators->pluck('userid')->toArray();
+        $assignedEducatorIds = $roomEducators->pluck('users.userid')->toArray();
 
         return view('rooms.children_details', compact('assignedEducatorIds', 'roomEducators', 'AllEducators', 'attendance', 'roomcapacity', 'rooms', 'allchilds', 'activechilds', 'enrolledchilds', 'malechilds', 'femalechilds', 'roomid', 'totalAttendance', 'patterns', 'breakdowns'));
     }
