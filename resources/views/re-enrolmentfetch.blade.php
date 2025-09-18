@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
@@ -269,9 +271,12 @@
                         <button class="btn btn-outline-secondary" id="sendEmail" data-bs-toggle="modal" data-bs-target="#parentSelectModal">
                                 <i class="fa-solid fa-envelope me-1"></i> Send Email
                             </button>
-                            <!-- <button class="btn" id="tableView" onclick="toggleView('table')">
+                            <button class="btn active" id="tableViewBtn" onclick="toggleView('table')">
                                 <i class="bi bi-table me-1"></i> Table
-                            </button> -->
+                            </button>
+                            <button class="btn" id="cardsViewBtn" onclick="toggleView('cards')">
+                                <i class="bi bi-grid me-1"></i> Cards
+                            </button>
                         </div>
     
                     </div>
@@ -355,7 +360,7 @@
                     </div>
                     
                     <!-- Cards View -->
-                    <div id="cardsView">
+                    <div id="cardsView" style="display: none;">
                         <div class="row">
                             @forelse($reEnrolments ?? [] as $enrollment)
                             <div class="col-lg-6 col-xl-4">
@@ -481,7 +486,7 @@
                     </div>
                     
                     <!-- Table View -->
-                    <div id="tableView" style="display: none;">
+                    <div id="tableView">
                         <div class="card table-card">
                             <div class="card-header">
                                 <h5 class="mb-0">
@@ -579,7 +584,7 @@
                                                             <li><a class="dropdown-item" href="#" onclick="viewDetails({{ $enrollment->id }})">
                                                                 <i class="bi bi-eye me-2"></i>View Details
                                                             </a></li>
-                                                            <li><a class="dropdown-item" href="#" onclick="editEnrollment({{ $enrollment->id }})">
+                                                            <!-- <li><a class="dropdown-item" href="#" onclick="editEnrollment({{ $enrollment->id }})">
                                                                 <i class="bi bi-pencil me-2"></i>Edit
                                                             </a></li>
                                                             <li><a class="dropdown-item" href="mailto:{{ $enrollment->parent_email }}">
@@ -588,7 +593,7 @@
                                                             <li><hr class="dropdown-divider"></li>
                                                             <li><a class="dropdown-item text-danger" href="#" onclick="deleteEnrollment({{ $enrollment->id }})">
                                                                 <i class="bi bi-trash me-2"></i>Delete
-                                                            </a></li>
+                                                            </a></li> -->
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -621,13 +626,13 @@
                         <i class="bi bi-person-circle me-2"></i>
                         Re-Enrollment Details
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="modalContent">
                     <!-- Dynamic content will be loaded here -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="printDetails()">
                         <i class="bi bi-printer me-1"></i> Print
                     </button>
@@ -702,7 +707,6 @@
         </div>
     </div>
 </div>
-
 <!-- Add SweetAlert2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css" rel="stylesheet">
 
@@ -748,8 +752,9 @@
         // View enrollment details
         function viewDetails(enrollmentId) {
             // You would typically fetch this data via AJAX
-            fetch(`/admin/re-enrolments/${enrollmentId}`)
+            fetch(`/re-enrolments/${enrollmentId}/details`)
                 .then(response => response.json())
+               
                 .then(data => {
                     document.getElementById('modalContent').innerHTML = generateDetailHTML(data);
                     new bootstrap.Modal(document.getElementById('detailModal')).show();
@@ -823,8 +828,83 @@
         }
         
         function printDetails() {
-            window.print();
-        }
+    // Get modal content
+    const modalContent = document.getElementById('modalContent').innerHTML;
+
+    // Open new window
+    const printWindow = window.open('', '', 'width=900,height=700');
+
+    // Write styled content
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Re-Enrollment Details</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    body {
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                        padding: 30px;
+                        background: #fff;
+                        color: #333;
+                    }
+                    .print-header {
+                        text-align: center;
+                        border-bottom: 2px solid #007bff;
+                        margin-bottom: 20px;
+                        padding-bottom: 10px;
+                    }
+                    .print-header h2 {
+                        color: #007bff;
+                        margin: 0;
+                    }
+                    .section-title {
+                        color: #007bff;
+                        font-weight: bold;
+                        margin-top: 25px;
+                        border-bottom: 1px solid #ddd;
+                        padding-bottom: 4px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 10px;
+                    }
+                    table td {
+                        padding: 6px 10px;
+                        border: 1px solid #ddd;
+                    }
+                    .alert {
+                        margin-top: 20px;
+                    }
+                    @media print {
+                        body {
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-header">
+                    <h2>Re-Enrollment Details</h2>
+                    <small>Generated on ${new Date().toLocaleDateString()}</small>
+                </div>
+                ${modalContent}
+            </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+
+    // Trigger print
+    printWindow.print();
+
+    // Optional: close window after print
+    printWindow.close();
+}
+
+
         
         // Search and filter functionality
         document.getElementById('searchInput').addEventListener('input', function(e) {
