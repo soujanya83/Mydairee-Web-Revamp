@@ -21,7 +21,7 @@ class RoomController extends Controller
 
     public function toggleStatus($id)
     {
-
+    
         $child = Child::findOrFail($id);
         $oldStatus = $child->status;
         $child->status = $child->status === 'Active' ? 'In Active' : 'Active';
@@ -42,7 +42,6 @@ class RoomController extends Controller
 
     public function assignEducators(Request $request, $roomid)
     {
-        // dd($request->all());
         DB::table('room_staff')->where('roomid', $roomid)->delete();
         if ($request->has('educators')) {
             foreach ($request->educators as $staffid) {
@@ -179,15 +178,16 @@ class RoomController extends Controller
         if ($userId == 145) {
             $userId = $userId - 1;
         }
-        //  $centerid = Session('user_center_id');
+//  $centerid = Session('user_center_id');
 
-        if (empty($centerid)) {
+ if(empty($centerid)){
+    
+  $centerid = Usercenter::where('userid', Auth::user()->userid)->value('centerid');
 
-            $centerid = Usercenter::where('userid', Auth::user()->userid)->value('centerid');
-        }
+ }
         $rooms = Room::where('name', '!=', null)
             ->where('userId', $userId)->where('status', 'Active')
-            ->where('centerid', $centerid)
+            ->where('centerid',$centerid)
             ->get();
 
         $chilData = Child::select(
@@ -401,9 +401,7 @@ class RoomController extends Controller
                 ->get();
         }
 
-        $roomStaffs = RoomStaff::where('usercenters.centerid', '=', $centerid)
-            ->join('users', 'users.id', '=', 'room_staff.staffid')
-            ->join('usercenters', 'usercenters.userid', '=', 'users.id')
+        $roomStaffs = RoomStaff::join('users', 'users.id', '=', 'room_staff.staffid')
             ->where('users.userType', 'Staff')
             ->where('users.status', 'Active')
             ->select('room_staff.staffid', 'users.name')
@@ -415,105 +413,66 @@ class RoomController extends Controller
 
 
     public function showChildren($roomid)
-{
-    $centerid = session('user_center_id');
-
-    // Get all active children in the room
-    $allchilds = Child::where('room', $roomid)
-        ->where('status', 'Active')
-        ->get();
-
-    // Attendance summary
-    $attendance = [
-        'Mon' => $allchilds->sum('mon'),
-        'Tue' => $allchilds->sum('tue'),
-        'Wed' => $allchilds->sum('wed'),
-        'Thu' => $allchilds->sum('thu'),
-        'Fri' => $allchilds->sum('fri'),
-    ];
-
-    // Total attendance (across all weekdays)
-    $totalAttendance = array_sum($attendance);
-
-    // Attendance patterns per child
-    $patterns = $allchilds->map(function ($child) {
-        return [
-            'pattern' => $child->mon . $child->tue . $child->wed . $child->thu . $child->fri,
-            'days' => [
-                'Mon' => $child->mon,
-                'Tue' => $child->tue,
-                'Wed' => $child->wed,
-                'Thu' => $child->thu,
-                'Fri' => $child->fri,
-            ],
+    {
+        $allchilds = Child::where('room', $roomid)->where('status', 'Active')->get();
+        $attendance = [
+            'Mon' => $allchilds->sum('mon'),
+            'Tue' => $allchilds->sum('tue'),
+            'Wed' => $allchilds->sum('wed'),
+            'Thu' => $allchilds->sum('thu'),
+            'Fri' => $allchilds->sum('fri'),
         ];
-    });
+        $centerid = Session('user_center_id');
 
-    // Breakdown of attendance per weekday
-    $breakdowns = [
-        'Mon' => $patterns->pluck('days.Mon')->implode('+'),
-        'Tue' => $patterns->pluck('days.Tue')->implode('+'),
-        'Wed' => $patterns->pluck('days.Wed')->implode('+'),
-        'Thu' => $patterns->pluck('days.Thu')->implode('+'),
-        'Fri' => $patterns->pluck('days.Fri')->implode('+'),
-    ];
+        // Calculate the total sum of children attending across all days
+        $totalAttendance = array_sum($attendance);
 
-    // Counts
-    $activechilds   = $allchilds->count();
-    $enrolledchilds = $activechilds; // same as active
-    $malechilds     = $allchilds->where('gender', 'Male')->count();
-    $femalechilds   = $allchilds->where('gender', 'Female')->count();
+        // Generate attendance patterns and breakdowns
+        $patterns = $allchilds->map(function ($child) {
+            return [
+                'pattern' => $child->mon . $child->tue . $child->wed . $child->thu . $child->fri,
+                'days' => [
+                    'Mon' => $child->mon,
+                    'Tue' => $child->tue,
+                    'Wed' => $child->wed,
+                    'Thu' => $child->thu,
+                    'Fri' => $child->fri,
+                ],
+            ];
+        });
 
-    // Room details
-    $rooms = Room::where('capacity', '!=', 0)
-        ->where(['status' => 'Active', 'centerid' => $centerid])
-        ->where('id', '!=', $roomid)
-        ->get();
+        // Generate breakdowns for each day
+        $breakdowns = [
+            'Mon' => $patterns->pluck('days.Mon')->implode('+'),
+            'Tue' => $patterns->pluck('days.Tue')->implode('+'),
+            'Wed' => $patterns->pluck('days.Wed')->implode('+'),
+            'Thu' => $patterns->pluck('days.Thu')->implode('+'),
+            'Fri' => $patterns->pluck('days.Fri')->implode('+'),
+        ];
+        $activechilds = Child::where('room', $roomid)->where('status', 'Active')->count();
+        $enrolledchilds = Child::where('room', $roomid)->where('status', 'Active')->count();
+        $malechilds = Child::where('room', $roomid)->where('gender', 'Male')->where('status', 'Active')->count();
+        $femalechilds = Child::where('room', $roomid)->where('gender', 'Female')->where('status', 'Active')->count();
+        $rooms = Room::where('capacity', '!=', 0)->where(['status' => 'Active', 'centerid' => $centerid])->whereNot('id', $roomid)->get();
+        $roomcapacity = Room::where('id', $roomid)->first();
 
-    $roomcapacity = Room::find($roomid);
+        $educatorsQuery = DB::table('room_staff')
+            ->leftJoin('users', 'users.userid', '=', 'room_staff.staffid')
+            ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl');
 
-    // Educators Query (with serial number)
-    $educatorsQuery = DB::table('room_staff as rs')
-        ->leftJoin('users as u', 'u.userid', '=', 'rs.staffid')
-        ->select(
-            DB::raw('ROW_NUMBER() OVER (ORDER BY u.userid) as serial_no'), // ✅ serial number
-            'u.userid',
-            'u.name',
-            'u.gender',
-            'u.imageUrl'
-        );
+        // Get all unique educators (across all rooms)
+        $AllEducators = $educatorsQuery
+            ->groupBy('users.userid', 'users.name', 'users.gender', 'users.imageUrl') // ensure uniqueness
+            ->get();
 
-    // All unique educators
-    $AllEducators = $educatorsQuery
-        ->groupBy('u.userid', 'u.name', 'u.gender', 'u.imageUrl')
-        ->get();
+        // Get educators for a specific room
+        $roomEducators = (clone $educatorsQuery)
+            ->where('room_staff.roomid', $roomid)
+            ->get();
+        $assignedEducatorIds = $roomEducators->pluck('users.userid')->toArray();
 
-    // Educators for this room
-    $roomEducators = (clone $educatorsQuery)
-        ->where('rs.roomid', $roomid)
-        ->get();
-
-    $assignedEducatorIds = $roomEducators->pluck('userid')->toArray();
-
-    return view('rooms.children_details', compact(
-        'assignedEducatorIds',
-        'roomEducators',
-        'AllEducators',
-        'attendance',
-        'roomcapacity',
-        'rooms',
-        'allchilds',
-        'activechilds',
-        'enrolledchilds',
-        'malechilds',
-        'femalechilds',
-        'roomid',
-        'totalAttendance',
-        'patterns',
-        'breakdowns'
-    ));
-}
-
+        return view('rooms.children_details', compact('assignedEducatorIds', 'roomEducators', 'AllEducators', 'attendance', 'roomcapacity', 'rooms', 'allchilds', 'activechilds', 'enrolledchilds', 'malechilds', 'femalechilds', 'roomid', 'totalAttendance', 'patterns', 'breakdowns'));
+    }
 
 
     public function add_new_children(Request $request)
