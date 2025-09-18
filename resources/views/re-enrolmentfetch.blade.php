@@ -54,7 +54,7 @@
         }
         
         .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
             border: none;
             border-radius: 15px;
             color: white;
@@ -284,7 +284,7 @@
                     <!-- Statistics Cards -->
                     <div class="row mb-4">
                         <div class="col-md-3 mb-3">
-                            <div class=" stats-card info">
+                            <div class=" stats-card" style="background-color:#989494;">
                                 <div class="card-body text-center">
                                     <i class="bi bi-people-fill fs-2 mb-2"></i>
                                     <h3 class="mb-0">{{ $totalEnrollments ?? '0' }}</h3>
@@ -311,7 +311,7 @@
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <div class="card stats-card danger">
+                            <div class="stats-card " style="background-color:#149898;">
                                 <div class="card-body text-center">
                                     <i class="bi bi-calendar-week fs-2 mb-2"></i>
                                     <h3 class="mb-0">{{ $thisWeekEnrollments ?? '0' }}</h3>
@@ -485,6 +485,14 @@
                         @endif
                     </div>
                     
+                    <style>
+                        table.custom-table th,
+table.custom-table td {
+  text-align: center;
+  vertical-align: middle; /* optional: centers vertically if rows are tall */
+}
+
+                        </style>
                     <!-- Table View -->
                     <div id="tableView">
                         <div class="card table-card">
@@ -514,7 +522,7 @@
                                             @forelse($reEnrolments ?? [] as $enrollment)
                                             <tr>
                                                 <td>
-                                                    <span class="fw-bold">#{{ $enrollment->id }}</span>
+                                                <span class="fw-bold">#{{ $loop->iteration }}</span>
                                                 </td>
                                                 <td>
                                                     <div class="d-flex align-items-center">
@@ -552,7 +560,7 @@
                                                 </td>
                                                 <td>
                                                     @if($enrollment->session_option)
-                                                        <span class="badge bg-info text-dark">
+                                                        <span class="badge bg-info text-dark" style="border:0px;color:white !important;">
                                                             {{ str_replace('_', ' ', $enrollment->session_option) }}
                                                         </span>
                                                     @else
@@ -576,27 +584,39 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                            <i class="bi bi-three-dots"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu">
-                                                            <li><a class="dropdown-item" href="#" onclick="viewDetails({{ $enrollment->id }})">
-                                                                <i class="bi bi-eye me-2"></i>View Details
-                                                            </a></li>
-                                                            <!-- <li><a class="dropdown-item" href="#" onclick="editEnrollment({{ $enrollment->id }})">
-                                                                <i class="bi bi-pencil me-2"></i>Edit
-                                                            </a></li>
-                                                            <li><a class="dropdown-item" href="mailto:{{ $enrollment->parent_email }}">
-                                                                <i class="bi bi-envelope me-2"></i>Send Email
-                                                            </a></li>
-                                                            <li><hr class="dropdown-divider"></li>
-                                                            <li><a class="dropdown-item text-danger" href="#" onclick="deleteEnrollment({{ $enrollment->id }})">
-                                                                <i class="bi bi-trash me-2"></i>Delete
-                                                            </a></li> -->
-                                                        </ul>
-                                                    </div>
-                                                </td>
+    <div class="dropdown position-relative dropup">
+        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-offset="0,5">
+            <i class="bi bi-three-dots"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" style="height:36px;" data-bs-display="static">
+            <li>
+                <a class="dropdown-item" href="#" onclick="viewDetails({{ $enrollment->id }})">
+                    <i class="bi bi-eye me-2"></i>View Details
+                </a>
+            </li>
+            <!--
+            <li>
+                <a class="dropdown-item" href="#" onclick="editEnrollment({{ $enrollment->id }})">
+                    <i class="bi bi-pencil me-2"></i>Edit
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="mailto:{{ $enrollment->parent_email }}">
+                    <i class="bi bi-envelope me-2"></i>Send Email
+                </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a class="dropdown-item text-danger" href="#" onclick="deleteEnrollment({{ $enrollment->id }})">
+                    <i class="bi bi-trash me-2"></i>Delete
+                </a>
+            </li>
+            -->
+        </ul>
+    </div>
+</td>
+
+
                                             </tr>
                                             @empty
                                             <tr>
@@ -715,6 +735,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+
+   
+
+
     
     <script>
         // Toggle between card and table view
@@ -828,13 +853,10 @@
         }
         
         function printDetails() {
-    // Get modal content
     const modalContent = document.getElementById('modalContent').innerHTML;
 
-    // Open new window
     const printWindow = window.open('', '', 'width=900,height=700');
 
-    // Write styled content
     printWindow.document.write(`
         <html>
             <head>
@@ -843,43 +865,72 @@
                 <style>
                     body {
                         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-                        padding: 30px;
+                        padding: 25px 40px;
                         background: #fff;
-                        color: #333;
+                        color: #000;
+                        font-size: 14px;
+                        line-height: 1.5;
                     }
+
+                    /* Header */
                     .print-header {
                         text-align: center;
-                        border-bottom: 2px solid #007bff;
-                        margin-bottom: 20px;
-                        padding-bottom: 10px;
+                        margin-bottom: 25px;
                     }
                     .print-header h2 {
                         color: #007bff;
                         margin: 0;
                     }
+                    .print-header small {
+                        color: #666;
+                    }
+
+                    /* Section titles */
                     .section-title {
                         color: #007bff;
-                        font-weight: bold;
-                        margin-top: 25px;
-                        border-bottom: 1px solid #ddd;
+                        font-weight: 600;
+                        margin: 20px 0 8px 0;
+                        font-size: 15px;
+                        border-bottom: 1px solid #ccc;
                         padding-bottom: 4px;
                     }
+
+                    /* Table styling */
                     table {
                         width: 100%;
                         border-collapse: collapse;
-                        margin-top: 10px;
+                        margin-bottom: 20px;
                     }
-                    table td {
-                        padding: 6px 10px;
-                        border: 1px solid #ddd;
+                    table th, table td {
+                        padding: 8px 10px;
+                        border: 1px solid #ccc;
+                        text-align: left;
+                        font-size: 13px;
                     }
+                    table th {
+                        background: #f1f5f9;
+                        font-weight: 600;
+                        color: #333;
+                    }
+
+                    /* Alerts / Notes */
                     .alert {
-                        margin-top: 20px;
+                        margin-top: 15px;
+                        padding: 8px 12px;
+                        border: 1px solid #ddd;
+                        background: #f9f9f9;
+                        font-size: 13px;
                     }
+
+                    /* Print adjustments */
                     @media print {
                         body {
                             -webkit-print-color-adjust: exact;
                             print-color-adjust: exact;
+                        }
+                        table th {
+                            background-color: #e9ecef !important;
+                            -webkit-print-color-adjust: exact;
                         }
                     }
                 </style>
@@ -895,14 +946,19 @@
     `);
 
     printWindow.document.close();
+
     printWindow.focus();
 
-    // Trigger print
-    printWindow.print();
-
-    // Optional: close window after print
-    printWindow.close();
+    // Trigger print after DOM is ready
+    printWindow.onload = () => {
+        printWindow.print();
+        // Close only AFTER print finishes
+        printWindow.onafterprint = () => {
+            printWindow.close();
+        };
+    };
 }
+
 
 
         
