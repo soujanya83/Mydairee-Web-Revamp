@@ -185,15 +185,34 @@
                         Educators:
 
                         @php
-                        $educators = $room->educators;
-                        $total = count($educators);
+                        // educators array me se sirf userid nikaal lo
+                        $educatorIds = collect($room->educators)->pluck('userid')->toArray();
+
+                        // fir DB query karo in ids ke against
+                        $educatorsCenterdata = DB::table('usercenters')
+                        ->join('users','users.id','=','usercenters.userid')
+                        ->where('usercenters.centerid', $room->centerid) // ya $centerid
+                        ->whereIn('users.id', $educatorIds)
+                        ->select('users.*')
+                        ->get();
+
+                        $total = count($educatorsCenterdata);
                         @endphp
 
-                        @foreach($educators->take(5) as $educator)
+
+                        {{-- @foreach($educators->take(5) as $educator)
                         <img src="{{ isset($educator->imageUrl) && $educator->imageUrl ? asset($educator->imageUrl) : asset('storage/children/images/download.jpg') }}"
                             class="rounded-circle border"
                             style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px;"
                             title="{{ ucfirst($educator->person_name ?? '') }}">
+                        @endforeach --}}
+
+                        @foreach($educatorsCenterdata->take(5) as $educator)
+                        <img src="{{ $educator->imageUrl ? asset($educator->imageUrl) : asset('storage/children/images/download.jpg') }}"
+                            class="rounded-circle border"
+                            style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px; cursor:pointer;"
+                            title="{{ ucfirst($educator->name ?? '') }}"
+                            onclick='showRoomEducators(@json($educatorsCenterdata))'>
                         @endforeach
 
                         @if($total > 5)
@@ -203,6 +222,7 @@
                             +{{ $total - 5 }}
                         </span>
                         @endif
+
                     </div>
 
 
@@ -372,6 +392,62 @@
         </form>
     </div>
 </div>
+
+
+<!-- Educator Details Modal -->
+<!-- Room Educators Modal -->
+<div class="modal" id="roomEducatorsModal" tabindex="-1" aria-labelledby="roomEducatorsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="roomEducatorsModalLabel">Room Educators</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row" id="roomEducatorsContainer">
+                    <!-- Educators list will load here -->
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function showRoomEducators(educators) {
+    let container = document.getElementById('roomEducatorsContainer');
+    container.innerHTML = ''; // Purana clear
+
+    educators.forEach(ed => {
+        let img = ed.imageUrl
+            ? "{{ asset('') }}" + ed.imageUrl
+            : "{{ asset('storage/children/images/download.jpg') }}";
+
+        let card = `
+          <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100 text-center p-3">
+              <img src="${img}" class="rounded-circle mx-auto mb-2"
+                   style="width:80px; height:80px; object-fit:cover;">
+              <h6 class="fw-bold mb-1">${ed.name ?? 'N/A'}</h6>
+              <p class="mb-1"><strong>Gender:</strong> ${ed.gender ?? '-'}</p>
+              <p class="mb-1"><strong>Email:</strong> ${ed.email ?? '-'}</p>
+            </div>
+          </div>`;
+
+        container.insertAdjacentHTML('beforeend', card);
+    });
+
+    var modal = new bootstrap.Modal(document.getElementById('roomEducatorsModal'));
+    modal.show();
+}
+</script>
+
+
 
 <!-- Script -->
 <script>

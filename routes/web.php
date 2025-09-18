@@ -64,7 +64,7 @@ Route::get('/logout', function () {
 })->name('logout');
 
 Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
-// Route::get('/', [DashboardController::class, 'lending_page']);
+Route::get('/', [DashboardController::class, 'lending_page']);
 
 Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
 Route::get('dashboard/analytical', [DashboardController::class, 'analytical'])->name('dashboard.analytical');
@@ -101,7 +101,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
 
     Route::get('/enrolment/dashboard', [UserController::class, 'dashboard'])->name('enrolment.dashboard');
-    Route::get('/admin/re-enrolments/{reEnrolment}/details', [UserController::class, 'getDetails'])->name('re-enrolment.details');
+    Route::get('/re-enrolments/{reEnrolment}/details', [UserController::class, 'getDetails'])->name('re-enrolment.details');
 
 
     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
@@ -414,6 +414,8 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::post('holiday/change-status/{id}', [PublicHolidayController::class, 'changeStatus'])->name('holiday.changeStatus');
         Route::delete('holiday/delete/{id}', [PublicHolidayController::class, 'destroy'])->name('holiday.destroy');
         Route::post('store-holiday', [PublicHolidayController::class, 'holiday_store'])->name('holiday.store');
+        // Route::post('store-holiday', [PublicHolidayController::class, 'holiday_store'])->name('holiday.store');
+
         Route::put('holiday/update/{id}', [PublicHolidayController::class, 'update'])->name('holiday.update');
         Route::get('/holidays/events', [PublicHolidayController::class, 'holidayEvents']);
         Route::get('/holidays/edit/{id}', [PublicHolidayController::class, 'holidaysEdit'])->name('holidays.edit');
@@ -527,7 +529,8 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
 Route::get('data', [AccidentsController::class, 'index']);
 /* Dashboard */
-Route::get('dashboard-old', function () {
+Route::get('dashboard-fack', function () {
+
     return redirect('dashboard/analytical');
 });
 // service details

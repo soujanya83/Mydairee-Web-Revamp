@@ -99,10 +99,9 @@
         <h1 class="text-center mb-4">Re-Enrolment 2026</h1>
         
         <div class="alert alert-info">
-            <p>We thank you for being part of Nextgen Montessori in 2025. We are planning our rooms for 2026 and ask you to supply your preferred days. Your enrolment is ongoing, so your current days in 2025, will be moved across for you for 2026 e.g.: if you attend Monday, Tuesday, and Wednesday then these days will be automatically transferred across to 2026 for you. Many parents choose to change their days in the new year, so if you wish to change or increase days, we ask that you advise now, so we can start planning.
-</p>
-            <p class="mb-0">Your enrolment is ongoing, so your current days in 2025, will be moved across for you for 2026.</p>
-            <p class="mb-0"><strong>I wish to change my child’s enrolment in 2026.</strong></p>
+            <p>We sincerely thank you for being part of Nextgen Montessori in 2025. As we begin planning for 2026, we kindly ask you to select your preferred days below. Please note that all current bookings will automatically end on <strong style="color:red;"> 31 December 2025</strong>.</p>
+            <p class="mb-0">To secure your child’s place at Nextgen Montessori in 2026, please complete the form below. If you would like to change or increase your child’s days, please select them below so we can arrange this for the new year starting <strong> 1 January 2026</strong>.</p>
+            <p class="mb-0">Even if you <strong><i>do not wish to make any changes</i></strong>, we ask that you still select the same days to confirm your child’s booking for next year</p>
         </div>
         
         <form id="reEnrolmentForm" action="{{ route('re-enrolment.store') }}" method="POST">
@@ -233,13 +232,12 @@
     </div>
             
             <div class="highlight-box">
-                <i class="bi bi-info-circle-fill"></i> If your child is attending the kindergarten at Nextgen Montessori, kindly fill the funded Kinder funding forms, available at the reception from November 2025.
+                <i class="bi bi-info-circle-fill"></i> *If your child is attending the kindergarten at Nextgen Montessori, kindly fill the funded-Kinder-funding forms, available at the reception. 
             </div>
             
             <!-- Finishing Up Section -->
             <h3 class="section-title">Finishing Up</h3>
-            <p class="text-muted">If your child will be attending Primary school in 2026 and finishing up at Nextgen Montessori, please provide the details below:</p>
-            
+            <p class="text-muted"><strong>I have a child attending Primary school in 2026, so I will be finishing up:</strong></p>
             <div class="row mb-4">
         <div class="col-md-6 mb-3">
             <label for="finishing_child_name" class="form-label">Child's Name</label>
@@ -257,7 +255,7 @@
             
             <!-- Holiday Information -->
             <h3 class="section-title">Holiday Plans</h3>
-            <p class="text-muted">If you are away on holidays (which are more than a week) between <strong>October 2025 – January 2026</strong>, kindly mention the dates below to organise the educator's Annual leave for that period.</p>
+            <p class="text-muted">If you are away on holidays <i>(which are more than a week)</i> between <strong style="color:blue;">October 2025 – January 2026</strong>, kindly mention the dates below to organise the educator’s Annual leave for that period.</p>
             
             <div class="mb-4">
         <label for="holiday_dates" class="form-label">Holiday Dates</label>
@@ -267,8 +265,9 @@
             <!-- Update Information Reminder -->
             <div class="alert alert-warning">
                 <h4><i class="bi bi-arrow-repeat"></i> Information Update Reminder</h4>
-                <p>We also take this time to remind you of any personal information that needs updating. This can be done on <a href="#" class="alert-link">iParent Portal</a> or via email to the center at <a href="mailto:truganina@nextgenmontessori.com.au" class="alert-link">truganina@nextgenmontessori.com.au</a>.</p>
-                <p class="mb-0">This includes change of address, work details, phone numbers, authorised contacts etc, as it is your responsibility to ensure that these are kept up to date and current.</p>
+                <p>We would also like to take this opportunity to remind you to update any personal information if required. Updates can be made directly through the <strong>iParent Portal</strong>, or via <strong>Re-enrolment form</strong> or by emailing the centre at <a href="mailto:truganina@nextgenmontessori.com.au" class="alert-link" style="color:blue;">truganina@nextgenmontessori.com.au</a>. This includes details such as changes to your address, workplace, phone numbers, or authorised contacts. It is your responsibility to ensure this information is accurate and current.</p>
+                <p class="mb-0">We look forward to continuing to support your family’s needs in 2026. </p>
+                <p class="mb-0">Please return the above form by <strong style="color:red;">Friday, 3 October 2025 </strong> to confirm your child’s bookings for the new year.</p>
             </div>
             
             <!-- Submit Section -->
@@ -279,7 +278,7 @@
     </div>
             
             <div class="text-center mt-4">
-                <p class="text-muted"><small>Please return this form by <strong>1st October 2025</strong> to confirm your child's bookings for 2026.</small></p>
+                <!-- <p class="text-muted"><small>Please return this form by <strong>1st October 2025</strong> to confirm your child's bookings for 2026.</small></p> -->
             </div>
         </form>
     </div>

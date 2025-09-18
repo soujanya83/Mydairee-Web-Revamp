@@ -21,7 +21,7 @@ class RoomController extends Controller
 
     public function toggleStatus($id)
     {
-    
+
         $child = Child::findOrFail($id);
         $oldStatus = $child->status;
         $child->status = $child->status === 'Active' ? 'In Active' : 'Active';
@@ -179,16 +179,15 @@ class RoomController extends Controller
         if ($userId == 145) {
             $userId = $userId - 1;
         }
-//  $centerid = Session('user_center_id');
+        //  $centerid = Session('user_center_id');
 
- if(empty($centerid)){
-    
-  $centerid = Usercenter::where('userid', Auth::user()->userid)->value('centerid');
+        if (empty($centerid)) {
 
- }
+            $centerid = Usercenter::where('userid', Auth::user()->userid)->value('centerid');
+        }
         $rooms = Room::where('name', '!=', null)
             ->where('userId', $userId)->where('status', 'Active')
-            ->where('centerid',$centerid)
+            ->where('centerid', $centerid)
             ->get();
 
         $chilData = Child::select(
@@ -402,7 +401,9 @@ class RoomController extends Controller
                 ->get();
         }
 
-        $roomStaffs = RoomStaff::join('users', 'users.id', '=', 'room_staff.staffid')
+        $roomStaffs = RoomStaff::where('usercenters.centerid', '=', $centerid)
+            ->join('users', 'users.id', '=', 'room_staff.staffid')
+            ->join('usercenters', 'usercenters.userid', '=', 'users.id')
             ->where('users.userType', 'Staff')
             ->where('users.status', 'Active')
             ->select('room_staff.staffid', 'users.name')
@@ -462,6 +463,8 @@ class RoomController extends Controller
         $usercenterid = Usercenter::where('centerid',$centerid)->pluck('userid');
 
         $educatorsQuery = DB::table('room_staff')
+            ->where('usercenters.centerid', '=', $centerid)
+            ->leftJoin('usercenters', 'usercenters.userid', '=', 'room_staff.staffid')
             ->leftJoin('users', 'users.userid', '=', 'room_staff.staffid')
             ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl');
 
