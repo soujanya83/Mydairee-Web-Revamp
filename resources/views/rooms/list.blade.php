@@ -226,10 +226,10 @@
                     </div>
 
 
-                    <div class="mb-1">
+                    {{-- <div class="mb-1">
                         <i class="fa fa-user text-secondary me-2"></i>
                         <span class="text-muted">Lead:</span> &nbsp;{{ Auth::user()->username ?? 'Not Assigned' }}
-                    </div>
+                    </div> --}}
                 </div>
             </div>
             @endforeach

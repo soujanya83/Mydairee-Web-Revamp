@@ -42,7 +42,6 @@ class RoomController extends Controller
 
     public function assignEducators(Request $request, $roomid)
     {
-        // dd($request->all());
         DB::table('room_staff')->where('roomid', $roomid)->delete();
         if ($request->has('educators')) {
             foreach ($request->educators as $staffid) {
@@ -179,15 +178,16 @@ class RoomController extends Controller
         if ($userId == 145) {
             $userId = $userId - 1;
         }
-        //  $centerid = Session('user_center_id');
+//  $centerid = Session('user_center_id');
 
-        if (empty($centerid)) {
+ if(empty($centerid)){
 
-            $centerid = Usercenter::where('userid', Auth::user()->userid)->value('centerid');
-        }
+  $centerid = Usercenter::where('userid', Auth::user()->userid)->value('centerid');
+
+ }
         $rooms = Room::where('name', '!=', null)
             ->where('userId', $userId)->where('status', 'Active')
-            ->where('centerid', $centerid)
+            ->where('centerid',$centerid)
             ->get();
 
         $chilData = Child::select(
@@ -401,12 +401,12 @@ class RoomController extends Controller
                 ->get();
         }
 
-        $roomStaffs = RoomStaff::where('usercenters.centerid', '=', $centerid)
-            ->join('users', 'users.id', '=', 'room_staff.staffid')
-            ->join('usercenters', 'usercenters.userid', '=', 'users.id')
+        $roomStaffs = RoomStaff::join('users', 'users.id', '=', 'room_staff.staffid')
+            ->where('usercenters.centerid', $centerid)
             ->where('users.userType', 'Staff')
             ->where('users.status', 'Active')
             ->select('room_staff.staffid', 'users.name')
+            ->join('usercenters','usercenters.userid','=','users.id')
             ->distinct('room_staff.staffid')
             ->get();
         return view('rooms.list', compact('getrooms', 'centers', 'centerid', 'roomStaffs'));
@@ -416,9 +416,7 @@ class RoomController extends Controller
 
     public function showChildren($roomid)
     {
-
-          $centerid = Session('user_center_id');
-        $allchilds = Child::where('room', $roomid)->where('status', 'Active')->where('centerid',$centerid)->orderBy('name','asc')->get();
+        $allchilds = Child::where('room', $roomid)->where('status', 'Active')->get();
         $attendance = [
             'Mon' => $allchilds->sum('mon'),
             'Tue' => $allchilds->sum('tue'),
@@ -426,7 +424,7 @@ class RoomController extends Controller
             'Thu' => $allchilds->sum('thu'),
             'Fri' => $allchilds->sum('fri'),
         ];
-      
+        $centerid = Session('user_center_id');
 
         // Calculate the total sum of children attending across all days
         $totalAttendance = array_sum($attendance);
@@ -460,8 +458,6 @@ class RoomController extends Controller
         $rooms = Room::where('capacity', '!=', 0)->where(['status' => 'Active', 'centerid' => $centerid])->whereNot('id', $roomid)->get();
         $roomcapacity = Room::where('id', $roomid)->first();
 
-        $usercenterid = Usercenter::where('centerid',$centerid)->pluck('userid');
-
         $educatorsQuery = DB::table('room_staff')
             ->where('usercenters.centerid', '=', $centerid)
             ->leftJoin('usercenters', 'usercenters.userid', '=', 'room_staff.staffid')
@@ -470,20 +466,15 @@ class RoomController extends Controller
 
         // Get all unique educators (across all rooms)
         $AllEducators = $educatorsQuery
-    ->whereIn('userid',$usercenterid)
-    ->where('status','ACTIVE')
             ->groupBy('users.userid', 'users.name', 'users.gender', 'users.imageUrl') // ensure uniqueness
-            
             ->get();
 
         // Get educators for a specific room
         $roomEducators = (clone $educatorsQuery)
             ->where('room_staff.roomid', $roomid)
             ->get();
+
         $assignedEducatorIds = $roomEducators->pluck('users.userid')->toArray();
-
-        // dd($rooms);
-
         return view('rooms.children_details', compact('assignedEducatorIds', 'roomEducators', 'AllEducators', 'attendance', 'roomcapacity', 'rooms', 'allchilds', 'activechilds', 'enrolledchilds', 'malechilds', 'femalechilds', 'roomid', 'totalAttendance', 'patterns', 'breakdowns'));
     }
 
