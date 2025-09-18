@@ -112,21 +112,22 @@ class DashboardController extends BaseController
             // 3. Fetch only announcements for these IDs
             $announcements = AnnouncementsModel::whereIn('id', $announcementIds)
                 ->whereIn('audience', ['all', 'parents'])
+                ->where('status','sent')
                 ->get();
         } else if (Auth::user()->userType == "Staff" || Auth::user()->userType == "Superadmin") {
             // Not a parent → fetch all announcements
-            $announcements = AnnouncementsModel::where('centerid', $centerid)->get();
+            $announcements = AnnouncementsModel::where('centerid', $centerid)->where('status','sent')->get();
 
             if (Auth::user()->userType == "Staff") {
                 $announcements = AnnouncementsModel::where('centerid', $centerid)
-
+->where('status','sent')
                     ->whereIn('audience', ['all', 'staff'])
                     ->get();
             }
 
             // dd( $announcements);
         } else {
-            $announcements = AnnouncementsModel::all();
+            $announcements = AnnouncementsModel::where('status','sent')->get();
         }
 
         $events = $announcements->map(function ($announcement) {

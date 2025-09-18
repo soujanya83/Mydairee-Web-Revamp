@@ -361,7 +361,7 @@ class PublicHolidayController extends Controller
         // Children List
         $childs = DB::table('child as c')
             ->join('room as r', 'c.room', '=', 'r.id')
-            ->select('c.*', 'r.*', 'c.name as name', 'c.id as childid')
+            ->select('c.*', 'r.*', 'c.name as name', 'c.id as childid','c.imageUrl')
             ->where('r.centerid', $centerid)
             ->where('c.status', 'Active')
             ->get();

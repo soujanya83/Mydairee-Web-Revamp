@@ -1748,7 +1748,7 @@ session()->forget('show_parent_notice');
                         return `
                         <div class="fc-icon-wrapper" data-type="${type}" style="position:relative; display:inline-block; font-size:16px; margin:2px; cursor:pointer;color:#c0bcbcff;">
                             ${emoji}
-                            ${count > 1 ? `<span style="
+                            ${count > 0 ? `<span style="
                                 position:absolute; top:-8px; right:-10px;
                                 background:${color}; color:white;
                                 border-radius:50%; padding:2px 4px;

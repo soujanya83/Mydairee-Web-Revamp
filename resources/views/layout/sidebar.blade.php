@@ -48,7 +48,7 @@
                         @endphp
 
                         <li class="{{ $isDiaryActive ? 'active open' : '' }}">
-                            <a href="javascript:void(0);" class="d-flex justify-content-between align-items-center" data-toggle="tooltip" data-placement="right">
+                            <a href="javascript:void(0);" class="d-flex justify-content-between align-items-center" data-toggle="tooltip" data-placement="right" >
                                 <div>
                                     <i class="fa fa-calendar" style="font-size: 25px;"></i>
                                     <span style="font-size: 18px;">Daily Journal</span>
@@ -56,33 +56,33 @@
                                 <i class="fa fa-chevron-right dropdown-arrow"></i>
                             </a>
                             <ul>
-                                @if(
-                                in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
-                                (auth()->user()->userType == 'Staff' && !empty($permissions['viewDailyDiary']) && $permissions['viewDailyDiary'])
-                                )
+                            @if(
+    in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewDailyDiary']) && $permissions['viewDailyDiary'])
+)
                                 <li class="{{ Route::is('dailyDiary.list') ? 'active' : '' }}">
-                                    <a href="{{ route('dailyDiary.list') }}" data-toggle="tooltip" data-placement="right"> &nbsp;Daily Diary</a>
+                                    <a href="{{ route('dailyDiary.list') }}" data-toggle="tooltip" data-placement="right" > &nbsp;Daily Diary</a>
                                 </li>
                                 @endif
 
                                 @if(auth()->user()->userType != 'Parent')
 
                                 <li class="{{ Route::is('headChecks') ? 'active' : '' }}">
-                                    <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right"> &nbsp;Head Checks</a>
+                                    <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right" >   &nbsp;Head Checks</a>
                                 </li>
 
                                 @endif
 
                                 <li class="{{ Route::is('sleepcheck.list') ? 'active' : '' }}">
-                                    <a href="{{ route('sleepcheck.list') }}" data-toggle="tooltip" data-placement="right"> &nbsp;Sleep Check List</a>
+                                    <a href="{{ route('sleepcheck.list') }}" data-toggle="tooltip" data-placement="right" >  &nbsp;Sleep Check List</a>
                                 </li>
                                 <li class="{{ Route::is('Accidents.list') ? 'active' : '' }}">
-                                    <a href="{{ route('Accidents.list') }}" data-toggle="tooltip" data-placement="right"> &nbsp;Accidents</a>
+                                    <a href="{{ route('Accidents.list') }}" data-toggle="tooltip" data-placement="right">  &nbsp;Accidents</a>
                                 </li>
                             </ul>
                         </li>
-                        @if( in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewProgramPlan']) && $permissions['viewProgramPlan']))
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewProgramPlan']) && $permissions['viewProgramPlan']))
 
                         <li class="{{ Request::is('programPlanList*') ? 'active' : '' }}">
                             <a href="/programPlanList" data-toggle="tooltip" data-placement="right">
@@ -92,8 +92,8 @@
                             </a>
                         </li>
                         @endif
-                        @if( in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllReflection']) && $permissions['viewAllReflection']))
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllReflection']) && $permissions['viewAllReflection']))
 
                         <li class="{{ Request::is('reflection*') ? 'active' : null }}">
                             <a href="{{route('reflection.index')}}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-window-restore"
@@ -102,8 +102,8 @@
                         </li>
                         @endif
 
-                        @if( in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllObservation']) && $permissions['viewAllObservation']))
+                        @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllObservation']) && $permissions['viewAllObservation']))
 
                         <li class="{{ Request::is('observation*') ? 'active' : null }}">
                             <a href="{{route('observation.index')}}" data-toggle="tooltip" data-placement="right">
@@ -122,8 +122,8 @@
 
 
 
-                        @if( in_array(auth()->user()->userType, ['Superadmin']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement']) || auth()->user()->admin == 1)
+                        @if(  in_array(auth()->user()->userType, ['Superadmin']) ||
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement']) || auth()->user()->admin == 1)
 
                         <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
                             <a href="{{ route('announcements.list') }}" data-toggle="tooltip" data-placement="right"> <i class="fa fa-bullhorn"
@@ -134,8 +134,8 @@
                         @endif
 
 
-                        @if( in_array(auth()->user()->userType, ['Superadmin']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewRoom']) && $permissions['viewRoom']))
+                        @if(  in_array(auth()->user()->userType, ['Superadmin']) ||
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewRoom']) && $permissions['viewRoom']))
 
                         <li class="{{ Request::is('room*') ? 'active' : null }}">
                             <a href="{{ route('rooms_list') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-users-viewfinder"
@@ -145,15 +145,15 @@
                         </li>
                         @endif
 
-                        <li class="{{ Request::is('child*') ? 'active' : null }}">
+                         <li class="{{ Request::is('child*') ? 'active' : null }}">
                             <a href="{{ route('childrens_list') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-children fa-2x mb-2"
                                     style="font-size: 25px;"></i><span
                                     style="font-size: 18px; margin-left:1px">Children</span></a>
 
                         </li>
 
-                        @if( in_array(auth()->user()->userType, ['Superadmin']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewQip']) && $permissions['viewQip']))
+@if(  in_array(auth()->user()->userType, ['Superadmin']) ||
+    (auth()->user()->userType == 'Staff' && !empty($permissions['viewQip']) && $permissions['viewQip']))
                         <li class="{{ Request::is('qip*') ? 'active' : null }}">
                             <a href="{{ route('qip.index') }}" data-toggle="tooltip" data-placement="right"><i class="fa-solid fa-clipboard"
                                     style="font-size: 25px;"></i><span
@@ -212,7 +212,7 @@
 
 
 
-                        @if(auth()->user()->userType != 'Parent')
+                    @if(auth()->user()->userType != 'Parent')
 
                         <li class="{{ Request::segment(1) === 'ServiceDetails' ? 'active' : '' }}">
                             <a href="/ServiceDetails" data-toggle="tooltip" data-placement="right">
@@ -220,7 +220,7 @@
                                 <span style="font-size: 18px;margin-left:6px">Service Details</span>
                             </a>
                         </li>
-                        @endif
+                    @endif
 
                         @if(auth()->user()->userType == 'Superadmin' || auth()->user()->admin == 1)
                         <li class="{{ Request::segment(1) === 'settings' ? 'active open' : null }}">
@@ -258,7 +258,7 @@
                                     <a href="{{ route('settings.staff_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Staffs Settings</a>
                                 </li>
 
-                                <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}">
+                                 <li class="{{ Request::segment(2) === 'manage_permissions' ? 'active' : null }}">
                                     <a href="{{ route('settings.manage_permissions') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Manage Permissions</a>
                                 </li>
 
@@ -269,7 +269,11 @@
                                 </li>
                                 @endif
 
+
+                                 <li class="{{ Request::segment(2) === 'add-public-holiday' ? 'active' : null }}">
+
                                 <!-- <li class="{{ Request::segment(2) === 'add-public-holiday' ? 'active' : null }}">
+
                                     <a href="{{ route('settings.public_holiday') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Public Holiday</a>
                                 </li> -->
 
@@ -287,13 +291,11 @@
 
 
         </div>
-
     </div>
-</div>
 </div>
 <script>
     document.querySelectorAll('.has-arrow').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
             const parent = this.closest('li');
             parent.classList.toggle('open');
