@@ -3,6 +3,10 @@
 @section('parentPageTitle', 'Dashboard')
 
 @section('page-styles') {{-- ✅ Injects styles into layout --}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+
 <style>
     /* Limit modal height and allow scroll */
     #selectChildrenModal .modal-body {
@@ -1558,7 +1562,7 @@ $edit = 1;
         // Trigger on change
         $(document).on("change", "#eventType", toggleEventCards);
 
-        @if(!empty($announcement) && in_array($announcement->type, ['announcement', 'events']))
+        @if(!empty($announcement) && in_array($announcement -> type, ['announcement', 'events']))
 
         $("#eventType").val("{{ $announcement->type }}").trigger('change');
 
@@ -1569,8 +1573,18 @@ $edit = 1;
         // Trigger if backend passed an error and type
         @if(Session('type'))
         $("#eventType").val("{{ Session('type') }}").trigger('change');
+        @else
+          $("#eventType").val("announcement").trigger('change');
         @endif
+       
     });
+
+    $('.calendar').datepicker({
+    format: 'dd-mm-yyyy',
+    todayHighlight: true,
+    autoclose: true
+});
+
 </script>
 
 @endpush

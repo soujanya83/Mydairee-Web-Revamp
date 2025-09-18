@@ -3,7 +3,17 @@
 @section('parentPageTitle', 'Setting')
 
 @section('page-styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 <style>
+.datepicker .prev, 
+.datepicker .next {
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+    /*  */
     #holidayEditModal .modal-body {
         max-height: 70vh;
         /* or any value */
@@ -205,10 +215,34 @@
 
                     <div class="edit-holidays">
 
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <label for="editDate" style="font-weight: bold;">Date</label>
-                            <input type="date" class="form-control" name="date" id="editDate" value="{{ $holidayData->Holiday_date }}" required>
-                        </div>
+                            <input type="date" class="form-control calendar" name="date" id="editDate" value="{{ $holidayData->Holiday_date }}" required>
+                        </div> -->
+<!--  -->
+
+<div class=" mb-3 date">
+    <label for="eventDate" class="form-label fw-bold">📅 Date</label>
+    <div class="input-group">
+        <input type="text" id="editDate"
+            class="form-control calendar"
+            name="date"
+            value="{{ isset($holidayData->Holiday_date) 
+    ? \Carbon\Carbon::parse($holidayData->Holiday_date)->format('d-m-Y') 
+    : '' }}"
+
+            data-date-format="dd-mm-yyyy"
+            placeholder="Select date" required>
+            
+
+        <span class="input-group-text">
+            <i class="simple-icon-calendar"></i>
+        </span>
+    </div>
+</div>
+
+
+                        <!--  -->
 
                         <div class="mb-3">
                             <label for="editOccasion" style="font-weight: bold;">Occasion</label>
@@ -228,7 +262,7 @@
 
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-info" id="holidaySaveBtn">Save Holiday</button>
+                        <button type="submit" class="btn btn-info" id="holidaySaveBtn">Save </button>
                     </div>
                 </form>
             </div>
@@ -376,6 +410,15 @@
 
 
 <script>
+    function formatDate(dateString) {
+        let date = new Date(dateString);
+        if (isNaN(date)) return dateString; // fallback if invalid
+        let day = String(date.getDate()).padStart(2, '0');
+        let month = String(date.getMonth() + 1).padStart(2, '0');
+        let year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    }
+
     $(document).ready(function() {
         $('#eventType').on('change', function() {
             const eventType = $(this).val();
@@ -385,17 +428,19 @@
             let html = '';
 
             // ✅ Prefilled values from backend
-            let eventtitle = @json($holidayData->occasion ?? '');
-            let date = @json($holidayData->Holiday_date ?? '');
-            let state = @json($holidayData->state ?? '');
-            let status = @json($holidayData->status ?? 0);
+            let eventtitle = @json($holidayData -> occasion ?? '');
+            let formatdate = @json($holidayData -> Holiday_date ?? '');
+            let state = @json($holidayData -> state ?? '');
+            let status = @json($holidayData -> status ?? 0);
+
+            let date = formatDate(formatdate);
 
             $('.update-holiday').attr("action", '');
             $('.update-holiday').attr("method", "");
 
-              if ($('#putmethod').length) {
-    $('#putmethod').remove(); // removes only if exists
-}
+            if ($('#putmethod').length) {
+                $('#putmethod').remove(); // removes only if exists
+            }
 
             if (eventType === 'events') {
 
@@ -409,10 +454,26 @@
                 <input type="hidden" name="type" value="${eventType}">
             
 
-                <div class="mb-3">
-                    <label for="eventDate" style="font-weight: bold;">Date</label>
-                    <input type="date" class="form-control" name="date" value="${date}" id="eventDate" required>
-                </div>
+             
+
+
+
+                <div class=" mb-3 date">
+    <label for="eventDate" class="form-label fw-bold">📅 Date</label>
+    <div class="input-group">
+        <input type="text" id="editDate"
+            class="form-control calendar"
+            name="date"
+            value="${date}"
+            data-date-format="dd-mm-yyyy"
+            placeholder="Select date" required>
+            
+
+        <span class="input-group-text">
+            <i class="simple-icon-calendar"></i>
+        </span>
+    </div>
+</div>
 
                 <div class="mb-3">
                     <label for="eventTitle" style="font-weight: bold;">Title</label>
@@ -421,7 +482,7 @@
 
                 <div class="mb-3">
                     <label for="eventDescription" style="font-weight: bold;">Description</label>
-                    <input type="text" class="form-control" name="text" id="eventDescription" required>
+                    <input type="text" class="form-control" name="text" id="eventDescription" >
                 </div>
 
                 <div class="mb-3">
@@ -518,17 +579,29 @@
 
 
             } else if (eventType === 'announcement') {
-
+                $('.update-holiday').attr("method", "post");
                 let url = "{{ route('announcements.store') }}";
 
                 $('.update-holiday').attr("action", url);
                 html = `
                 <input type="hidden" name="type" value="${eventType}">
 
-                <div class="mb-3">
-                    <label for="eventDate" style="font-weight: bold;">Date</label>
-                    <input type="date" class="form-control" name="date" value="${date}" id="eventDate" required>
-                </div>
+                     <div class=" mb-3 date">
+    <label for="eventDate" class="form-label fw-bold">📅 Date</label>
+    <div class="input-group">
+        <input type="text" id="editDate"
+            class="form-control calendar"
+            name="date"
+            value="${date}"
+            data-date-format="dd-mm-yyyy"
+            placeholder="Select date" required>
+            
+
+        <span class="input-group-text">
+            <i class="simple-icon-calendar"></i>
+        </span>
+    </div>
+</div>
 
                 <div class="mb-3">
                     <label for="eventTitle" style="font-weight: bold;">Title</label>
@@ -537,7 +610,7 @@
 
                 <div class="mb-3">
                     <label for="eventDescription" style="font-weight: bold;">Description</label>
-                    <input type="text" class="form-control" name="text" id="eventDescription" required>
+                    <input type="text" class="form-control" name="text" id="eventDescription" >
                 </div>
 
                 <div class="mb-3">
@@ -550,8 +623,6 @@
                         </select>
                     </div>
                 </div>
-
-
 
                 <div class="form-group media-div">
                     <h4>Media Upload Section</h4>
@@ -584,7 +655,7 @@
 
             } else if (eventType === 'public_holiday') {
                 // ✅ Simpler form for public holidays
-                let updateId = @json($holidayData->id ?? null);
+                let updateId = @json($holidayData -> id ?? null);
 
                 if (updateId) {
                     let updateUrl = `{{ route('settings.holiday.update', ':id') }}`.replace(':id', updateId);
@@ -598,10 +669,27 @@
             <input type="hidden" name="_method" value="PUT">
                 <input type="hidden" name="type" value="public_holiday">
 
-                <div class="mb-3">
-                    <label for="holidayDate" style="font-weight: bold;">Date</label>
-                    <input type="date" class="form-control" name="date" value="${date}" id="holidayDate" required>
-                </div>
+             
+
+
+        <div class=" mb-3 date">
+    <label for="eventDate" class="form-label fw-bold">📅 Date</label>
+    <div class="input-group">
+        <input type="text" id="holidayDate"
+            class="form-control calendar"
+            name="date"
+            value="${date}"
+            data-date-format="dd-mm-yyyy"
+            placeholder="Select date" required>
+            
+
+        <span class="input-group-text">
+            <i class="simple-icon-calendar"></i>
+        </span>
+    </div>
+</div>
+
+                
 
                 <div class="mb-3">
                     <label for="holidayOccasion" style="font-weight: bold;">Occasion</label>
@@ -622,6 +710,7 @@
             }
 
             edit_holidays.html(html);
+            initDatePickers();
         });
 
 
@@ -953,6 +1042,40 @@
             $('body').addClass('modal-open'); // restore scroll lock
         }
     });
+
+//       $('.calendar').datepicker({
+//     format: 'dd-mm-yyyy',
+//     todayHighlight: true,
+//     autoclose: true
+// });
+
+function initDatePickers() {
+    $('.calendar').datepicker({
+        format: 'dd-mm-yyyy',
+        todayHighlight: true,
+        autoclose: true
+    });
+}
+
+$(document).ready(function () {
+    $('.calendar').datepicker({
+        format: 'dd-mm-yyyy',
+        todayHighlight: true,
+        autoclose: true,
+        clearBtn: true,
+        templates: {
+            leftArrow: '<i class="fa fa-chevron-left"></i>',
+            rightArrow: '<i class="fa fa-chevron-right"></i>'
+        }
+    }).on('hide', function (e) {
+        if (!$(this).val()) {
+            $(this).val('');
+        }
+    });
+});
+
+
+
 </script>
 
 
