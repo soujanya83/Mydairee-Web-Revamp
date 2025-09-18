@@ -270,6 +270,29 @@
         });
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        @if(session('status') == 'success' && session('msg'))
+        Swal.fire({
+            title: 'Success!',
+            text: @json(session('msg')),
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        });
+        @endif
+
+        @if(session('status') == 'error' && session('msg'))
+        Swal.fire({
+            title: 'Error!',
+            text: @json(session('msg')),
+            icon: 'error',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Close'
+        });
+        @endif
+    });
+</script>
 @endif
 <!-- <hr> -->
 <div class="text-zero top-right-button-container d-flex justify-content-end"
@@ -446,10 +469,22 @@
                             <!-- Card Header with Status Badge -->
                             <div class="card-header bg-light border-0 pb-2">
                                 <div class="d-flex justify-content-between align-items-start">
-                                    <span class="badge  text-dark small">
-                                        <!-- {{ ($records->currentPage() - 1) * $records->perPage() + $loop->iteration }} -->
-                                        notification
-                                    </span>
+      
+
+    @if(isset($announcement->type) && $announcement->type == "events")
+        <span class="badge small text-white bg-info">
+            {{ $announcement->type }}
+        </span>
+    @endif
+
+      @if(isset($announcement->type) && $announcement->type == "announcement")
+        <span class="badge small text-white bg-secondary">
+            {{ $announcement->type }}
+        </span>
+    @endif
+
+
+
                                     <span class="text-white badge fs-6 
     {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"
                                         onclick="updateStatus('{{ $announcement->status }}', {{ $announcement->id }})">
