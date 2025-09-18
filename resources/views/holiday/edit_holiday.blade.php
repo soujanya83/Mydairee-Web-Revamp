@@ -3,17 +3,12 @@
 @section('parentPageTitle', 'Setting')
 
 @section('page-styles')
-<!-- Font Awesome 6 CDN -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-
 <style>
-
-
-
     #holidayEditModal .modal-body {
-    max-height: 70vh;   /* or any value */
-    overflow-y: auto;
-}
+        max-height: 70vh;
+        /* or any value */
+        overflow-y: auto;
+    }
 
     /* Limit modal height and allow scroll */
     #selectChildrenModal .modal-body {
@@ -127,48 +122,27 @@
         /* This is like setting more "rows" */
     }
 
-/* Slide-out style for child modal */
-.modal.right .modal-dialog {
-  position: fixed;
-  margin: auto;
-  width: 80%;
-  height: 100%;
-  right: 0;
-  top: 0;
-  transform: translate3d(100%, 0, 0);
-  transition: all 0.3s ease-out;
-}
+    /* Slide-out style for child modal */
+    .modal.right .modal-dialog {
+        position: fixed;
+        margin: auto;
+        width: 80%;
+        height: 100%;
+        right: 0;
+        top: 0;
+        transform: translate3d(100%, 0, 0);
+        transition: all 0.3s ease-out;
+    }
 
-.modal.right.show .modal-dialog {
-  transform: translate3d(0, 0, 0);
-}
+    .modal.right.show .modal-dialog {
+        transform: translate3d(0, 0, 0);
+    }
 
-
-th.sortable {
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-}
-.arrow {
-    display: inline-block;
-    width: 1em;
-    text-align: center;
-}
-.arrow::before {
-    content: "⇅"; /* neutral */
-    font-size: 0.8em;
-    color: #666;
-}
-th.asc .arrow::before {
-    content: "↑";
-    color: green;
-}
-th.desc .arrow::before {
-    content: "↓";
-    color: red;
-}
-
-
+    #selectChildrenModal .modal-body {
+        max-height: 70vh;
+        /* adjust as needed */
+        overflow-y: auto;
+    }
 </style>
 
 
@@ -210,76 +184,55 @@ th.desc .arrow::before {
 <div class="row clearfix">
     <div class="col-lg-12 col-md-12 col-sm-12">
         <div class="card">
-
-            <div class="body table-responsive">
-
-                <form method="GET" action="{{ route('settings.public_holiday') }}" class="mb-3 d-flex gap-3">
-                    <!-- Month Filter -->
-                    <select name="month" class="form-control" style="width:150px;margin-left:12px">
-                        <option value="">All Months</option>
-                        @for ($m = 1; $m <= 12; $m++) <option value="{{ $m }}" {{ request('month')==$m ? 'selected' : ''
-                            }}>
-                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
-                            </option>
-                            @endfor
+            <div class="modal-body " style="padding: 20px;">
+                <div class="mb-3">
+                    <label for="eventType" style="font-weight: bold;">Select Type</label>
+                    <select class="form-control" name="type" id="eventType" required>
+                        <option value="">-- Select --</option>
+                        <option value="events">Event</option>
+                        <option value="announcement">Announcement</option>
+                        <option value="public_holiday" selected>Public Holiday</option>
                     </select>
+                </div>
 
-                    <!-- Date Filter -->
-                    <!-- <select name="date" class="form-control" style="width:150px;margin-left:12px">
-                        <option value="">All Dates</option>
-                        @for ($d = 1; $d <= 31; $d++) <option value="{{ $d }}" {{ request('date')==$d ? 'selected' : ''
-                            }}>
-                            {{ $d }}
-                            </option>
-                            @endfor
-                    </select> -->
-
-                    <button type="submit" class="btn btn-info" style="margin-left:12px"><i class="fas fa-filter"></i>
-                        Filter</button>
-                    <a href="{{ route('settings.public_holiday') }}" class="btn btn-secondary"
-                        style="margin-left:12px"><i class="fas fa-refresh"></i> Reset</a>
-                </form>
-
-<table id="holidayTable" class="table">
-   <thead>
-    <tr>
-        <th class="sortable" data-col="0">sno <i class="fas fa-sort"></i></th>
-        <th class="sortable" data-col="1">Date <i class="fas fa-sort"></i></th>
-        <th class="sortable" data-col="2">Occasion <i class="fas fa-sort"></i></th>
-        <th class="sortable" data-col="3">State <i class="fas fa-sort"></i></th>
-        <th>Action</th>
-    </tr>
-</thead>
-
-    <tbody>
-        @foreach($holidayData as $index => $holidays)
-        <tr>
-            <td>{{ $index + 1 }}</td>
-            <td>{{ $holidays->full_date->format('d M Y') }}</td>
-            <td>{{ \Illuminate\Support\Str::limit($holidays->occasion, 75) }}</td>
-            <td>{{ $holidays->state ?: '--' }}</td>
-            <td>
-                <button type="button"
-                        class="btn btn-sm btn-info p-2"
-                        onclick="window.location.href='{{ route('settings.holidays.edit', $holidays->id) }}'">
-                    <i class="fas fa-edit"></i>
-                </button>
-                &nbsp;
-                <form action="{{ route('settings.holiday.destroy', $holidays->id) }}" method="POST"
-                      style="display:inline-block;" onsubmit="return confirm('Are you sure?')">
+                <form action="{{ route('settings.holiday.update', $holidayData->id) }}"
+                    method="post"
+                    class="update-holiday"
+                    enctype="multipart/form-data">
                     @csrf
-                    @method('DELETE')
-                    <button class="btn btn-sm btn-danger p-2" title="Record Delete">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </form>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
+                    <input type="hidden" name="holidayid" value="{{ $holidayData->id }}">
+                    <input type="hidden" name="_method" id="putmethod" value="PUT">
 
+                    <div class="edit-holidays">
+
+                        <div class="mb-3">
+                            <label for="editDate" style="font-weight: bold;">Date</label>
+                            <input type="date" class="form-control" name="date" id="editDate" value="{{ $holidayData->Holiday_date }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editOccasion" style="font-weight: bold;">Occasion</label>
+                            <input type="text" class="form-control" name="occasion" id="editOccasion" value="{{ $holidayData->occasion }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editState" style="font-weight: bold;">State</label>
+                            <input type="text" class="form-control" name="state" id="editState" value="{{ $holidayData->state }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label style="font-weight: bold;">Status</label><br>
+                            <label><input type="radio" name="status" value="1" id="editStatusActive"> Active</label>
+                            <label style="margin-left: 20px;"><input type="radio" name="status" value="0" id="editStatusInactive"> Inactive</label>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-info" id="holidaySaveBtn">Save Holiday</button>
+                    </div>
+                </form>
             </div>
+
 
         </div>
     </div>
@@ -287,12 +240,10 @@ th.desc .arrow::before {
 
 
 
-
-
 <!-- add children -->
 <div class="modal modal-right" id="selectChildrenModal" tabindex="-1" role="dialog"
     aria-labelledby="selectChildrenModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
         <div class="modal-content">
 
             <div class="modal-header">
@@ -424,198 +375,258 @@ th.desc .arrow::before {
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-@if(session('status') == 'success')
-<script>
-    Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: "{{ session('msg') }}",
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'OK'
-    });
-</script>
-@endif
-
-@if(session('status') == 'error')
-<script>
-    Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: "{{ session('msg') ?? 'Something went wrong!' }}",
-    });
-</script>
-@endif
-
-
 <script>
     $(document).ready(function() {
-        $('.edit-holiday-btn').click(function() {
-            let id = $(this).data('id');
-            let date = $(this).data('date');
-            let occasion = $(this).data('occasion');
-            let state = $(this).data('state');
-            let status = $(this).data('status');
-
-            // fill modal fields
-            $('#editDate').val(date);
-            $('#editOccasion').val(occasion);
-            $('#editState').val(state);
-
-            if (status == 1) {
-                $('#editStatusActive').prop('checked', true);
-            } else {
-                $('#editStatusInactive').prop('checked', true);
-            }
-
-            // set form action
-            $('#holidayEditForm').attr('action', '/settings/holiday/update/' + id);
-
-            // open modal
-            $('#holidayEditModal').modal('show');
-        });
-    });
-</script>
-
-
-<script>
-    $(document).ready(function() {
-        // Edit modal fill
-        $('.edit-holiday-btn').click(function() {
-            const id = $(this).data('id');
-            const date = $(this).data('date');
-            const state = $(this).data('state');
-            const occasion = $(this).data('occasion');
-            const status = $(this).data('status');
-            const action = $(this).data('action');
-
-            $('#holidayDate').val(date);
-            $('#holidayState').val(state);
-            $('#holidayOccasion').val(occasion);
-            $("input[name='status'][value='" + status + "']").prop('checked', true);
-
-            $('#holidayForm').attr('action', action);
-            $('#holidayModalLabel').text('Edit Public Holiday');
-            $('#holidaySaveBtn').text('Update');
-
-            // $('#holidayModal').modal('show');
-        });
-
-        // Reset modal
-        $('#holidayModal').on('hidden.bs.modal', function() {
-            $('#holidayForm').attr('action', "{{ route('settings.holiday.store') }}");
-            $('#holidayForm')[0].reset();
-            $('#holidayModalLabel').text('Add New Public Holiday');
-            $('#holidaySaveBtn').text('Save Holiday');
-        });
-
-
         $('#eventType').on('change', function() {
-            const eventType = $(this).val(); // ✅ fixed
+            const eventType = $(this).val();
             const edit_holidays = $('.edit-holidays');
-            edit_holidays.html(''); // ✅ reset container
+            edit_holidays.html('');
 
             let html = '';
 
+            // ✅ Prefilled values from backend
+            let eventtitle = @json($holidayData->occasion ?? '');
+            let date = @json($holidayData->Holiday_date ?? '');
+            let state = @json($holidayData->state ?? '');
+            let status = @json($holidayData->status ?? 0);
+
+            $('.update-holiday').attr("action", '');
+            $('.update-holiday').attr("method", "");
+
+              if ($('#putmethod').length) {
+    $('#putmethod').remove(); // removes only if exists
+}
+
             if (eventType === 'events') {
-                alert();
-                let eventtitle = $('#holidayOccasion').val() || '';
-                let date = $('#editDate').val() || '';
+
+
+                // Both Events & Announcements use the same structure
+                let url = "{{ route('announcements.store') }}";
+                $('.update-holiday').attr("method", "post");
+                $('.update-holiday').attr("action", url);
 
                 html = `
-            <input type="hidden" name="type" value="events">
+                <input type="hidden" name="type" value="${eventType}">
+            
 
-            <div class="mb-3">
-                <label for="eventDate" style="font-weight: bold;">Date</label>
-                <input type="date" class="form-control" name="date" value="${date}" id="eventDate" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="eventTitle" style="font-weight: bold;">Title</label>
-                <input type="text" class="form-control" name="occasion" id="eventTitle" value="${eventtitle}" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="eventDescription" style="font-weight: bold;">Description</label>
-                <input type="text" class="form-control" name="description" id="eventDescription" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="audience" class="form-label fw-bold">👥 Access</label>
-                <div class="">
-                    <select class="form-select form-control" name="audience" required>
-                        <option value="all" {{ isset($announcement) && $announcement->audience == 'all' ? 'selected' : '' }}>All</option>
-                        <option value="parents" {{ isset($announcement) && $announcement->audience == 'parents' ? 'selected' : '' }}>Parents</option>
-                        <option value="staff" {{ isset($announcement) && $announcement->audience == 'staff' ? 'selected' : '' }}>Staff</option>
-                    </select>
+                <div class="mb-3">
+                    <label for="eventDate" style="font-weight: bold;">Date</label>
+                    <input type="date" class="form-control" name="date" value="${date}" id="eventDate" required>
                 </div>
-            </div>
 
-       <div class="form-group media-div">
-    <h4>Media Upload Section</h4>
-    <div class="media-upload-box p-4 border rounded bg-light text-center">
-        <label for="mediaInputUpload1" class="btn btn-outline-info">
-            Select Image (png, jpeg, jpg) or PDF
-        </label>
-        <input type="file" id="mediaInputUpload1" name="mediaUpload1[]" class="d-none accept="image/*,application/pdf">
-        <small class="form-text text-muted mt-2">Only image and PDF allowed, up to 2MB</small>
-    </div>
-    <div id="mediaPreviewUpload1" class="row mt-4"></div>
-</div>
+                <div class="mb-3">
+                    <label for="eventTitle" style="font-weight: bold;">Title</label>
+                    <input type="text" class="form-control" name="title" id="eventTitle" value="${eventtitle}" required>
+                </div>
 
-                 <div class="form-group select-children">
-                                        <button type="button" class="btn btn-info mb-1" data-toggle="modal"
-                                            data-backdrop="static" data-target="#selectChildrenModal">+ Add
-                                            Children</button>
+                <div class="mb-3">
+                    <label for="eventDescription" style="font-weight: bold;">Description</label>
+                    <input type="text" class="form-control" name="text" id="eventDescription" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="audience" class="form-label fw-bold">👥 Access</label>
+                    <div>
+                        <select class="form-select form-control" name="audience" required>
+                            <option value="all" {{ isset($announcement) && $announcement->audience == 'all' ? 'selected' : '' }}>All</option>
+                            <option value="parents" {{ isset($announcement) && $announcement->audience == 'parents' ? 'selected' : '' }}>Parents</option>
+                            <option value="staff" {{ isset($announcement) && $announcement->audience == 'staff' ? 'selected' : '' }}>Staff</option>
+                        </select>
+                    </div>
+                </div>
+
+                  <div class="form-group row align-items-center">
+                                        <div class="col-md-12 mb-3 audience mx-0">
+                                            <label for="color" class="form-label fw-bold">🎨 Choose Color</label>
+                                            <div class="form-group">
+                                                <select name="color" id="color" class="form-select form-control" style="font-weight: bold;">
+                                                    <option value="#0d6efd" style="background-color:#0d6efd; color: white;"
+                                                        {{ (isset($announcement) && $announcement->color == '#0d6efd') ? 'selected' : '' }}>
+                                                        Blue
+                                                    </option>
+                                                    <option value="#198754" style="background-color:#198754; color: white;"
+                                                        {{ (isset($announcement) && $announcement->color == '#198754') ? 'selected' : '' }}>
+                                                        Green
+                                                    </option>
+                                                    <option value="#20c997" style="background-color:#20c997; color: white;"
+                                                        {{ (isset($announcement) && $announcement->color == '#20c997') ? 'selected' : '' }}>
+                                                        Teal
+                                                    </option>
+                                                    <option value="#0dcaf0" style="background-color:#0dcaf0; color: black;"
+                                                        {{ (isset($announcement) && $announcement->color == '#0dcaf0') ? 'selected' : '' }}>
+                                                        Cyan
+                                                    </option>
+                                                    <option value="#6610f2" style="background-color:#6610f2; color: white;"
+                                                        {{ (isset($announcement) && $announcement->color == '#6610f2') ? 'selected' : '' }}>
+                                                        Indigo
+                                                    </option>
+                                                    <option value="#6f42c1" style="background-color:#6f42c1; color: white;"
+                                                        {{ (isset($announcement) && $announcement->color == '#6f42c1') ? 'selected' : '' }}>
+                                                        Purple
+                                                    </option>
+                                                    <option value="#d63384" style="background-color:#d63384; color: white;"
+                                                        {{ (isset($announcement) && $announcement->color == '#d63384') ? 'selected' : '' }}>
+                                                        Pink
+                                                    </option>
+                                                    <option value="#ffc107" style="background-color:#ffc107; color: black;"
+                                                        {{ (isset($announcement) && $announcement->color == '#ffc107') ? 'selected' : '' }}>
+                                                        Yellow
+                                                    </option>
+                                                    <option value="#fd7e14" style="background-color:#fd7e14; color: white;"
+                                                        {{ (isset($announcement) && $announcement->color == '#fd7e14') ? 'selected' : '' }}>
+                                                        Orange
+                                                    </option>
+                                                    <option value="#343a40" style="background-color:#343a40; color: white;"
+                                                        {{ (isset($announcement) && $announcement->color == '#343a40') ? 'selected' : '' }}>
+                                                        Dark Gray
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-            <div class="children-tags">
-                @forelse ($announcement->children ?? [] as $child)
-                    <a href="#!" class="rem" data-role="remove" data-child="{{ $child->id }}">
-                        <input type="hidden" name="childId[]" value="{{ $child->id }}">
-                        <span class="badge badge-pill badge-outline-info mb-1">{{ $child->name }} ✖</span>
-                    </a>
-                @empty
-                    <p>No children selected</p>
-                @endforelse
-            </div>
-        `;
 
-            } else if (eventType === 'announcement') { // ✅ corrected spelling
+
+
+                <div class="form-group media-div">
+                    <h4>Media Upload Section</h4>
+                    <div class="media-upload-box p-4 border rounded bg-light text-center">
+                        <label for="mediaInputUpload1" class="btn btn-outline-info">
+                            Select Image (png, jpeg, jpg) or PDF
+                        </label>
+                        <input type="file" id="mediaInputUpload1" name="media[]" class="d-none" accept="image/*,application/pdf">
+                        <small class="form-text text-muted mt-2">Only image and PDF allowed, up to 2MB</small>
+                    </div>
+                    <div id="mediaPreviewUpload1" class="row mt-4"></div>
+                </div>
+
+                <div class="form-group select-children">
+                    <button type="button" class="btn btn-info mb-1" data-toggle="modal"
+                        data-backdrop="static" data-target="#selectChildrenModal">+ Add Children</button>
+                </div>
+
+                <div class="children-tags">
+                    @forelse ($announcement->children ?? [] as $child)
+                        <a href="#!" class="rem" data-role="remove" data-child="{{ $child->id }}">
+                            <input type="hidden" name="childId[]" value="{{ $child->id }}">
+                            <span class="badge badge-pill badge-outline-info mb-1">{{ $child->name }} ✖</span>
+                        </a>
+                    @empty
+                        <p>No children selected</p>
+                    @endforelse
+                </div>
+            `;
+
+
+            } else if (eventType === 'announcement') {
+
+                let url = "{{ route('announcements.store') }}";
+
+                $('.update-holiday').attr("action", url);
                 html = `
-            <input type="hidden" name="type" value="announcement">
+                <input type="hidden" name="type" value="${eventType}">
 
-            <div class="mb-3">
-                <label for="announcementDate" style="font-weight: bold;">Date</label>
-                <input type="date" class="form-control" name="date" id="announcementDate" required>
-            </div>
+                <div class="mb-3">
+                    <label for="eventDate" style="font-weight: bold;">Date</label>
+                    <input type="date" class="form-control" name="date" value="${date}" id="eventDate" required>
+                </div>
 
-            <div class="mb-3">
-                <label for="announcementOccasion" style="font-weight: bold;">Occasion</label>
-                <input type="text" class="form-control" name="occasion" id="announcementOccasion" required>
-            </div>
+                <div class="mb-3">
+                    <label for="eventTitle" style="font-weight: bold;">Title</label>
+                    <input type="text" class="form-control" name="title" id="eventTitle" value="${eventtitle}" required>
+                </div>
 
-            <div class="mb-3">
-                <label for="announcementState" style="font-weight: bold;">State</label>
-                <input type="text" class="form-control" name="state" id="announcementState" required>
-            </div>
+                <div class="mb-3">
+                    <label for="eventDescription" style="font-weight: bold;">Description</label>
+                    <input type="text" class="form-control" name="text" id="eventDescription" required>
+                </div>
 
-            <div class="mb-3">
-                <label style="font-weight: bold;">Status</label><br>
-                <label><input type="radio" name="status" value="1" id="announcementStatusActive"> Active</label>
-                <label style="margin-left: 20px;"><input type="radio" name="status" value="0" id="announcementStatusInactive"> Inactive</label>
-            </div>
-        `;
+                <div class="mb-3">
+                    <label for="audience" class="form-label fw-bold">👥 Access</label>
+                    <div>
+                        <select class="form-select form-control" name="audience" required>
+                            <option value="all" {{ isset($announcement) && $announcement->audience == 'all' ? 'selected' : '' }}>All</option>
+                            <option value="parents" {{ isset($announcement) && $announcement->audience == 'parents' ? 'selected' : '' }}>Parents</option>
+                            <option value="staff" {{ isset($announcement) && $announcement->audience == 'staff' ? 'selected' : '' }}>Staff</option>
+                        </select>
+                    </div>
+                </div>
+
+
+
+                <div class="form-group media-div">
+                    <h4>Media Upload Section</h4>
+                    <div class="media-upload-box p-4 border rounded bg-light text-center">
+                        <label for="mediaInputUpload1" class="btn btn-outline-info">
+                            Select Image (png, jpeg, jpg) or PDF
+                        </label>
+                        <input type="file" id="mediaInputUpload1" name="media[]" class="d-none" accept="image/*,application/pdf">
+                        <small class="form-text text-muted mt-2">Only image and PDF allowed, up to 2MB</small>
+                    </div>
+                    <div id="mediaPreviewUpload1" class="row mt-4"></div>
+                </div>
+
+                <div class="form-group select-children">
+                    <button type="button" class="btn btn-info mb-1" data-toggle="modal"
+                        data-backdrop="static" data-target="#selectChildrenModal">+ Add Children</button>
+                </div>
+
+                <div class="children-tags">
+                    @forelse ($announcement->children ?? [] as $child)
+                        <a href="#!" class="rem" data-role="remove" data-child="{{ $child->id }}">
+                            <input type="hidden" name="childId[]" value="{{ $child->id }}">
+                            <span class="badge badge-pill badge-outline-info mb-1">{{ $child->name }} ✖</span>
+                        </a>
+                    @empty
+                        <p>No children selected</p>
+                    @endforelse
+                </div>
+            `;
+
+            } else if (eventType === 'public_holiday') {
+                // ✅ Simpler form for public holidays
+                let updateId = @json($holidayData->id ?? null);
+
+                if (updateId) {
+                    let updateUrl = `{{ route('settings.holiday.update', ':id') }}`.replace(':id', updateId);
+
+                    $('.update-holiday').attr("action", updateUrl);
+                    // keep POST, spoof PUT
+                }
+
+
+                html = `
+            <input type="hidden" name="_method" value="PUT">
+                <input type="hidden" name="type" value="public_holiday">
+
+                <div class="mb-3">
+                    <label for="holidayDate" style="font-weight: bold;">Date</label>
+                    <input type="date" class="form-control" name="date" value="${date}" id="holidayDate" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="holidayOccasion" style="font-weight: bold;">Occasion</label>
+                    <input type="text" class="form-control" name="occasion" id="holidayOccasion" value="${eventtitle}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="holidayState" style="font-weight: bold;">State</label>
+                    <input type="text" class="form-control" name="state" id="holidayState" value="${state}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label style="font-weight: bold;">Status</label><br>
+                    <label><input type="radio" name="status" value="1" ${status == 1 ? 'checked' : ''}> Active</label>
+                    <label style="margin-left: 20px;"><input type="radio" name="status" value="0" ${status == 0 ? 'checked' : ''}> Inactive</label>
+                </div>
+            `;
             }
 
             edit_holidays.html(html);
         });
 
+
     });
-
-    
 </script>
-
 
 <script>
     $(document).ready(function() {
@@ -862,46 +873,46 @@ th.desc .arrow::before {
 
 <!-- image preview  -->
 <script>
-   let mediaFilesUpload1 = []; // store uploaded files
+    let mediaFilesUpload1 = []; // store uploaded files
 
-// Handle file selection (delegated because input is dynamic)
-$(document).on("change", "#mediaInputUpload1", function (e) {
-    const mediaInputUpload1 = this;
-    const mediaPreviewUpload1 = document.getElementById("mediaPreviewUpload1");
+    // Handle file selection (delegated because input is dynamic)
+    $(document).on("change", "#mediaInputUpload1", function(e) {
+        const mediaInputUpload1 = this;
+        const mediaPreviewUpload1 = document.getElementById("mediaPreviewUpload1");
 
-    const newFiles = Array.from(e.target.files);
+        const newFiles = Array.from(e.target.files);
 
-    // Restrict only 1 file
-    if (newFiles.length > 1 || mediaFilesUpload1.length >= 1) {
-        this.value = "";
-        return;
-    }
+        // Restrict only 1 file
+        if (newFiles.length > 1 || mediaFilesUpload1.length >= 1) {
+            this.value = "";
+            return;
+        }
 
-    const file = newFiles[0];
+        const file = newFiles[0];
 
-    // Validate size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-        this.value = "";
-        alert("File must be under 2MB.");
-        return;
-    }
+        // Validate size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            this.value = "";
+            alert("File must be under 2MB.");
+            return;
+        }
 
-    mediaPreviewUpload1.innerHTML = ""; // reset preview
-    const wrapper = document.createElement("div");
-    wrapper.className = "col-md-4 position-relative mb-3";
+        mediaPreviewUpload1.innerHTML = ""; // reset preview
+        const wrapper = document.createElement("div");
+        wrapper.className = "col-md-4 position-relative mb-3";
 
-    let previewHtml = "";
-    const fileURL = URL.createObjectURL(file);
+        let previewHtml = "";
+        const fileURL = URL.createObjectURL(file);
 
-    if (file.type.startsWith("image/")) {
-        previewHtml = `<img src="${fileURL}" class="media-thumb rounded w-100" alt="Image">`;
-    } else if (file.type === "application/pdf") {
-        previewHtml = `<embed src="${fileURL}" type="application/pdf" class="media-thumb rounded w-100" height="200px"/>`;
-    } else {
-        previewHtml = `<div class="alert alert-warning">Unsupported file type</div>`;
-    }
+        if (file.type.startsWith("image/")) {
+            previewHtml = `<img src="${fileURL}" class="media-thumb rounded w-100" alt="Image">`;
+        } else if (file.type === "application/pdf") {
+            previewHtml = `<embed src="${fileURL}" type="application/pdf" class="media-thumb rounded w-100" height="200px"/>`;
+        } else {
+            previewHtml = `<div class="alert alert-warning">Unsupported file type</div>`;
+        }
 
-    wrapper.innerHTML = `
+        wrapper.innerHTML = `
         <div class="position-relative">
             ${previewHtml}
             <button type="button" 
@@ -911,173 +922,40 @@ $(document).on("change", "#mediaInputUpload1", function (e) {
         </div>
     `;
 
-    mediaPreviewUpload1.appendChild(wrapper);
+        mediaPreviewUpload1.appendChild(wrapper);
 
-    mediaFilesUpload1 = [file]; // keep only one
-    syncMediaInputUpload1(mediaInputUpload1);
-});
-
-// Remove handler
-$(document).on("click", ".remove-file", function () {
-    mediaFilesUpload1 = [];
-    $("#mediaInputUpload1").val("");
-    $("#mediaPreviewUpload1").html("");
-});
-
-// Sync selected files back to input
-function syncMediaInputUpload1(inputEl) {
-    const dt = new DataTransfer();
-    mediaFilesUpload1.forEach((file) => dt.items.add(file));
-    inputEl.files = dt.files;
-}
-
-
-// When child modal closes, restore parent modal state
-// when clicking "Add Children"
-
-
-// When child modal closes, restore parent modal scroll
-$('#selectChildrenModal').on('hidden.bs.modal', function () {
-    if ($('#holidayEditModal').hasClass('show')) {
-        $('body').addClass('modal-open'); // restore scroll lock
-    }
-});
-
-
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     const table = document.getElementById("holidayTable");
-//     const headers = table.querySelectorAll("th.sortable");
-
-//     headers.forEach(header => {
-//         header.addEventListener("click", () => {
-//             const columnIndex = header.getAttribute("data-col");
-//             const tbody = table.querySelector("tbody");
-//             const rows = Array.from(tbody.querySelectorAll("tr"));
-
-//             // Determine current sort order
-//             const isAsc = header.classList.contains("asc");
-//             const isDesc = header.classList.contains("desc");
-
-//             // Reset all headers
-//             headers.forEach(h => h.classList.remove("asc", "desc"));
-
-//             // Toggle direction
-//             if (!isAsc && !isDesc) {
-//                 header.classList.add("asc");
-//             } else if (isAsc) {
-//                 header.classList.remove("asc");
-//                 header.classList.add("desc");
-//             } else {
-//                 header.classList.remove("desc");
-//                 header.classList.add("asc");
-//             }
-
-//             const newIsAsc = header.classList.contains("asc");
-
-//             // Sort rows
-//             rows.sort((a, b) => {
-//                 const cellA = a.querySelectorAll("td")[columnIndex].innerText.trim();
-//                 const cellB = b.querySelectorAll("td")[columnIndex].innerText.trim();
-
-//                 // Handle numbers separately
-//                 if (!isNaN(cellA) && !isNaN(cellB)) {
-//                     return newIsAsc ? cellA - cellB : cellB - cellA;
-//                 }
-
-//                 // Handle dates (if format looks like "12 Sep 2025")
-//                 if (Date.parse(cellA) && Date.parse(cellB)) {
-//                     return newIsAsc
-//                         ? new Date(cellA) - new Date(cellB)
-//                         : new Date(cellB) - new Date(cellA);
-//                 }
-
-//                 // Default string comparison
-//                 return newIsAsc
-//                     ? cellA.localeCompare(cellB)
-//                     : cellB.localeCompare(cellA);
-//             });
-
-//             // Append sorted rows back
-//             rows.forEach(row => tbody.appendChild(row));
-//         });
-//     });
-// });
-
-
-</script>
-
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const table = document.getElementById("holidayTable");
-    const headers = table.querySelectorAll("th.sortable");
-
-    headers.forEach(header => {
-        header.addEventListener("click", () => {
-            const columnIndex = header.getAttribute("data-col");
-            const tbody = table.querySelector("tbody");
-            const rows = Array.from(tbody.querySelectorAll("tr"));
-
-            // Determine current sort order
-            const isAsc = header.classList.contains("asc");
-            const isDesc = header.classList.contains("desc");
-
-            // Reset all headers and icons
-            headers.forEach(h => {
-                h.classList.remove("asc", "desc");
-                const icon = h.querySelector("i");
-                if (icon) icon.className = "fas fa-sort";
-            });
-
-            // Toggle direction
-            if (!isAsc && !isDesc) {
-                header.classList.add("asc");
-            } else if (isAsc) {
-                header.classList.remove("asc");
-                header.classList.add("desc");
-            } else {
-                header.classList.remove("desc");
-                header.classList.add("asc");
-            }
-
-            const newIsAsc = header.classList.contains("asc");
-
-            // Update clicked header icon
-            const icon = header.querySelector("i");
-            if (icon) {
-                icon.className = newIsAsc ? "fas fa-sort-up" : "fas fa-sort-down";
-            }
-
-            // Sort rows
-            rows.sort((a, b) => {
-                const cellA = a.querySelectorAll("td")[columnIndex].innerText.trim();
-                const cellB = b.querySelectorAll("td")[columnIndex].innerText.trim();
-
-                // Handle numbers
-                if (!isNaN(cellA) && !isNaN(cellB)) {
-                    return newIsAsc ? cellA - cellB : cellB - cellA;
-                }
-
-                // Handle dates (format "12 Sep 2025")
-                if (Date.parse(cellA) && Date.parse(cellB)) {
-                    return newIsAsc
-                        ? new Date(cellA) - new Date(cellB)
-                        : new Date(cellB) - new Date(cellA);
-                }
-
-                // Default string comparison
-                return newIsAsc
-                    ? cellA.localeCompare(cellB)
-                    : cellB.localeCompare(cellA);
-            });
-
-            // Append sorted rows back
-            rows.forEach(row => tbody.appendChild(row));
-        });
+        mediaFilesUpload1 = [file]; // keep only one
+        syncMediaInputUpload1(mediaInputUpload1);
     });
-});
+
+    // Remove handler
+    $(document).on("click", ".remove-file", function() {
+        mediaFilesUpload1 = [];
+        $("#mediaInputUpload1").val("");
+        $("#mediaPreviewUpload1").html("");
+    });
+
+    // Sync selected files back to input
+    function syncMediaInputUpload1(inputEl) {
+        const dt = new DataTransfer();
+        mediaFilesUpload1.forEach((file) => dt.items.add(file));
+        inputEl.files = dt.files;
+    }
+
+
+    // When child modal closes, restore parent modal state
+    // when clicking "Add Children"
+
+
+    // When child modal closes, restore parent modal scroll
+    $('#selectChildrenModal').on('hidden.bs.modal', function() {
+        if ($('#holidayEditModal').hasClass('show')) {
+            $('body').addClass('modal-open'); // restore scroll lock
+        }
+    });
 </script>
+
+
 
 
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Center;
 use App\Models\User;
+use App\Models\ReEnrolment;
 use App\Models\Usercenter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log; // ✅ add this
+
+use App\Mail\ReEnrollmentInvitation;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+
 
 class UserController extends Controller
 {
@@ -240,6 +247,216 @@ class UserController extends Controller
     {
         return view('forms.create_center');
     }
+
+
+    public function createform()
+    {
+        return view('reenrolment');
+    }
+
+
+    public function storeform(Request $request)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'child_name' => 'required|string|max:255',
+            'child_dob' => 'required|date',
+            'parent_email' => 'required|email|max:255',
+            'current_days' => 'nullable|array',
+            'current_days.*' => 'string|in:monday,tuesday,wednesday,thursday,friday',
+            'requested_days' => 'nullable|array',
+            'requested_days.*' => 'string|in:monday,tuesday,wednesday,thursday,friday',
+            'session_option' => 'nullable|string|in:9_hours,10_hours_8_6,10_hours_8_30_6_30,full_day',
+            'kinder_program' => 'nullable|string|in:3_year_old,4_year_old,unfunded,not_attending',
+            'finishing_child_name' => 'nullable|string|max:255',
+            'last_day' => 'nullable|date',
+            'holiday_dates' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // Create the re-enrollment record
+            $reEnrolment = ReEnrolment::create([
+                'child_name' => $request->child_name,
+                'child_dob' => $request->child_dob,
+                'parent_email' => $request->parent_email,
+                'current_days' => $request->current_days ?? [],
+                'requested_days' => $request->requested_days ?? [],
+                'session_option' => $request->session_option,
+                'kinder_program' => $request->kinder_program ?? 'not_attending',
+                'finishing_child_name' => $request->finishing_child_name,
+                'last_day' => $request->last_day,
+                'holiday_dates' => $request->holiday_dates
+            ]);
+
+            Log::info('Re-enrollment submitted successfully', [
+                'id' => $reEnrolment->id,
+                'child_name' => $reEnrolment->child_name,
+                'parent_email' => $reEnrolment->parent_email
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Re-enrollment submitted successfully!',
+                'data' => $reEnrolment
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('Error saving re-enrollment', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving your re-enrollment. Please try again.'
+            ], 500);
+        }
+    }
+
+
+
+    public function dashboard()
+{
+    $reEnrolments = ReEnrolment::with([])
+        ->orderBy('created_at', 'desc')
+        ->paginate(12);
+
+    $stats = [
+        'totalEnrollments' => ReEnrolment::count(),
+        'completedEnrollments' => ReEnrolment::whereNotNull('processed_at')->count(),
+        'pendingEnrollments' => ReEnrolment::whereNull('processed_at')->count(),
+        'thisWeekEnrollments' => ReEnrolment::whereBetween('created_at', [
+            now()->startOfWeek(),
+            now()->endOfWeek()
+        ])->count(),
+    ];
+
+    return view('re-enrolmentfetch', array_merge(compact('reEnrolments'), $stats));
+}
+
+/**
+ * Get enrollment details for AJAX request
+ */
+public function getDetails(ReEnrolment $reEnrolment)
+{
+    return response()->json([
+        'id' => $reEnrolment->id,
+        'child_name' => $reEnrolment->child_name,
+        'child_dob' => $reEnrolment->child_dob->format('d M Y'),
+        'parent_email' => $reEnrolment->parent_email,
+        'current_days' => $reEnrolment->current_days,
+        'requested_days' => $reEnrolment->requested_days,
+        'session_option' => $reEnrolment->session_option_display,
+        'kinder_program' => $reEnrolment->kinder_program_display,
+        'finishing_child_name' => $reEnrolment->finishing_child_name,
+        'last_day' => $reEnrolment->last_day ? $reEnrolment->last_day->format('d M Y') : null,
+        'holiday_dates' => $reEnrolment->holiday_dates,
+        'created_at' => $reEnrolment->created_at->format('d M Y H:i'),
+    ]);
+}
+
+
+public function privacyPolicy()
+{
+    return view('privacy_policy');
+}
+
+
+public function getParents()
+{
+    try {
+        $centerid = Session::get('user_center_id');
+        
+        if (!$centerid) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Center ID not found in session'
+            ], 400);
+        }
+
+        // Get all user IDs for this center
+        $userIds = UserCenter::where('centerid', $centerid)->pluck('userid');
+
+        // Get all parent users with children count
+        $parents = User::whereIn('id', $userIds)
+            ->where('userType', 'Parent')
+            ->withCount('children')
+            ->orderBy('name')
+            ->get(['id', 'name', 'email'])
+            ->map(function ($parent) {
+                return [
+                    'id' => $parent->id,
+                    'name' => $parent->name,
+                    'email' => $parent->email,
+                    'children_count' => $parent->children_count ?? 0
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'parents' => $parents,
+            'total_count' => $parents->count()
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error fetching parents: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching parents'
+        ], 500);
+    }
+}
+
+/**
+ * Send re-enrollment emails to selected parents
+ */
+public function sendReEnrollmentEmails(Request $request)
+{
+    $request->validate([
+        'parent_ids' => 'required|array|min:1',
+        'parent_ids.*' => 'integer|exists:users,id'
+    ]);
+
+    $sentCount = 0;
+    $failedCount = 0;
+
+    $parents = User::whereIn('id', $request->parent_ids)
+        ->where('userType', 'Parent')
+        ->get();
+
+    foreach ($parents as $parent) {
+        try {
+            Mail::to($parent->email)->send(new ReEnrollmentInvitation($parent));
+            $sentCount++;
+            Log::info("Re-enrollment email sent to: {$parent->email}");
+        } catch (\Exception $e) {
+            $failedCount++;
+            Log::error("Failed to send re-enrollment email to {$parent->email}: " . $e->getMessage());
+        }
+    }
+
+    $message = $failedCount > 0
+        ? "Email campaign completed with some issues"
+        : "All emails sent successfully!";
+
+    return response()->json([
+        'status' => 'success',
+        'message' => $message,
+        'sent_count' => $sentCount,
+        'failed_count' => $failedCount
+    ]);
+}
+
+
 
 
 }

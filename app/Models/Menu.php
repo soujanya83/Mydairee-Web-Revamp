@@ -9,5 +9,5 @@ class Menu extends Model
     protected $table = 'menu';
     public $timestamps = false;
 
-    protected $fillable=['mealType','centerId','currentDate','recipeid','addedBy','day'];
+    protected $fillable=['mealType','centerId','currentDate','recipeid','addedBy','day','menuweek'];
 }
