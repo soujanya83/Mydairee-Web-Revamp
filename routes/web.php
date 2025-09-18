@@ -101,7 +101,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
 
     Route::get('/enrolment/dashboard', [UserController::class, 'dashboard'])->name('enrolment.dashboard');
-    Route::get('/admin/re-enrolments/{reEnrolment}/details', [UserController::class, 'getDetails'])->name('re-enrolment.details');
+    Route::get('/re-enrolments/{reEnrolment}/details', [UserController::class, 'getDetails'])->name('re-enrolment.details');
 
 
     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
