@@ -29,115 +29,117 @@
         margin-top: -7px !important;
     }
 
-/* Filter inputs hidden by default */
-#FilterbyName {
-    display: none;
-}
+    /* Filter inputs hidden by default */
+    #FilterbyName {
+        display: none;
+    }
 
-#FilterbyCreatedBy {
-    display: none;
-}
+    #FilterbyCreatedBy {
+        display: none;
+    }
 
-#statusFilter {
-    display: none;
-}
+    #statusFilter {
+        display: none;
+    }
 
-#StatusFilter_label {
-    display: none;
-}
+    #StatusFilter_label {
+        display: none;
+    }
 
-#birthFilter_label {
-    display: none;
-}
+    #birthFilter_label {
+        display: none;
+    }
 
-#birthmonthFilter {
-    display: none;
-}
+    #birthmonthFilter {
+        display: none;
+    }
 
-#genderFilter {
-    display: none;
-}
+    #genderFilter {
+        display: none;
+    }
 
-#genderFilter_label {
-    display: none;
-}
+    #genderFilter_label {
+        display: none;
+    }
 
-#Filterbydate_from_label {
-    display: none;
-}
+    #Filterbydate_from_label {
+        display: none;
+    }
 
-#Filterbydate_from {
-    display: none;
-}
+    #Filterbydate_from {
+        display: none;
+    }
 
-#Filterbydate_to_label {
-    display: none;
-}
+    #Filterbydate_to_label {
+        display: none;
+    }
 
-#Filterbydate_to {
-    display: none;
-}
-
+    #Filterbydate_to {
+        display: none;
+    }
 </style>
 
 <style>
-        .hover-shadow-lg:hover {
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-            transform: translateY(-2px);
-        }
-        
-        .transition-all {
-            transition: all 0.3s ease;
-        }
-        
-        .card-title {
-            line-height: 1.3;
-            height: 2.6em;
-            overflow: hidden;
+    .hover-shadow-lg:hover {
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+        transform: translateY(-2px);
+    }
+
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+
+    .card-title {
+        line-height: 1.3;
+        height: 2.6em;
+        overflow: hidden;
+    }
+
+    .search-highlight {
+        background-color: #fff3cd;
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
+
+    .filter-badge {
+        background-color: #e3f2fd;
+        color: #1565c0;
+        border: 1px solid #bbdefb;
+    }
+
+    @media (max-width: 768px) {
+        .col-md-6 {
+            margin-bottom: 1rem;
         }
 
-        .search-highlight {
-            background-color: #fff3cd;
-            padding: 2px 4px;
-            border-radius: 3px;
+        #searchFilters .row>div {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    .collapse.show {
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
         }
 
-        .filter-badge {
-            background-color: #e3f2fd;
-            color: #1565c0;
-            border: 1px solid #bbdefb;
+        to {
+            opacity: 1;
+            max-height: 500px;
         }
-        
-        @media (max-width: 768px) {
-            .col-md-6 {
-                margin-bottom: 1rem;
-            }
-            
-            #searchFilters .row > div {
-                margin-bottom: 0.5rem;
-            }
-        }
-
-        .collapse.show {
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                max-height: 0;
-            }
-            to {
-                opacity: 1;
-                max-height: 500px;
-            }
-        }
-    </style>
-    <style>
+    }
+</style>
+<style>
     /* Make all inputs uniform */
     .uniform-input {
-        width: 180px;    /* same width for all */
-        height: 36px;    /* same height */
+        width: 180px;
+        /* same width for all */
+        height: 36px;
+        /* same height */
         font-size: 0.875rem;
         margin-inline: 0.5rem;
     }
@@ -150,88 +152,97 @@
 
 @section('content')
 
-  <div class="col-12 d-flex align-items-center flex-nowrap gap-3 top-right-button-container mb-4 justify-content-end"
-     >  <!-- ✅ scroll if overflow -->
+<div class="col-12 d-flex align-items-center flex-nowrap gap-3 top-right-button-container mb-3 justify-content-end">
+    <!-- ✅ scroll if overflow -->
+    <div style="margin-right:485px">
+        {{-- A-Z / Z-A toggle button --}}
+        <button id="sortBtn" class="btn btn-outline-info btn-sm" title="Sort A-Z / Z-A">
+            <i class="fas fa-sort-alpha-down"></i> A → Z
+        </button>
+        &nbsp;&nbsp;
+        {{-- Gender toggle button --}}
+        <button id="genderBtn" class="btn btn-outline-info btn-sm" title="Filter Male/Female">
+            <i class="fas fa-venus-mars"></i> All
+        </button>
+    </div>
+
 
     @if(Auth::user()->userType != "Parent")
-        <!-- Filter Icon -->
-        <i class="fas fa-filter text-info" style="font-size: 1.2rem;"></i>
+    <!-- Filter Icon -->
+    <i class="fas fa-filter text-info" style="font-size: 1.2rem;"></i>
 
-        <!-- Filter Dropdown -->
-        <select name="filter" onchange="showfilter(this.value)" 
-                class="border-info uniform-input">
-            <option value="">Choose</option>
-            <option value="title">Name</option>
-            <option value="status">Status</option>
-            <option value="Birthmonth">Birth Month</option>
-            <option value="gender">Gender</option>
+    <!-- Filter Dropdown -->
+    <select name="filter" onchange="showfilter(this.value)" class="border-info uniform-input">
+        <option value="">Select</option>
+        <option value="title">Name</option>
+        <option value="status">Status</option>
+        <option value="Birthmonth">Birth Month</option>
+        {{-- <option value="gender">Gender</option> --}}
+    </select>
+
+    <!-- Title Filter -->
+    <input type="text" name="filterbyName" id="FilterbyName" class="uniform-input" placeholder="Name"
+        onkeyup="filterProgramPlan()">
+
+
+    <!-- Status -->
+    <div class="d-flex align-items-center gap-2">
+        <label for="statusFilter" id="StatusFilter_label" class="text-info small m-0">Status</label>
+        <select id="statusFilter" name="status" class="form-control form-control-sm border-info uniform-input"
+            onchange="filterProgramPlan()">
+            <option value="">All</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">IN-Active</option>
         </select>
+    </div>
 
-        <!-- Title Filter -->
-        <input type="text" name="filterbyName" id="FilterbyName"
-               class="uniform-input"
-               placeholder="Filter by name"
-               onkeyup="filterProgramPlan()">
-   
+    <div class="d-flex align-items-center gap-2">
+        <label for="statusFilter" id="birthFilter_label" class="text-info small m-0">Birth Month</label>
+        <select id="birthmonthFilter" name="status" class="form-control form-control-sm border-info uniform-input"
+            onchange="filterProgramPlan()">
+            <option value="">All</option>
+            <option value="January">January</option>
+            <option value="Febuary">Febuary</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
 
-        <!-- Status -->
-        <div class="d-flex align-items-center gap-2">
-            <label for="statusFilter" id="StatusFilter_label" class="text-info small m-0">Status</label>
-            <select id="statusFilter" name="status"
-                    class="form-control form-control-sm border-info uniform-input"
-                    onchange="filterProgramPlan()">
-                <option value="">All</option>
-                <option value="Active">Active</option>
-                <option value="Inactive" >IN-Active</option>
-            </select>
-        </div>
+        </select>
+    </div>
 
-            <div class="d-flex align-items-center gap-2">
-            <label for="statusFilter" id="birthFilter_label" class="text-info small m-0">Birth Month</label>
-            <select id="birthmonthFilter" name="status"
-                    class="form-control form-control-sm border-info uniform-input"
-                    onchange="filterProgramPlan()">
-                <option value="">All</option>
-                <option value="January">January</option>
-                <option value="Febuary" >Febuary</option>
-                <option value="March" >March</option>
-                <option value="April" >April</option>
-                <option value="May" >May</option>
-                <option value="June" >June</option>
-                <option value="July" >July</option>
-                <option value="August" >August</option>
-                <option value="September" >September</option>
-                <option value="October" >October</option>
-                <option value="November" >November</option>
-                <option value="December" >December</option>
-
-            </select>
-        </div>
-
-               <div class="d-flex align-items-center gap-2">
-            <label for="genderFilter" id="genderFilter_label" class="text-info small m-0">Gender</label>
-            <select id="genderFilter" name="gender"
-                    class="form-control form-control-sm border-info uniform-input"
-                    onchange="filterProgramPlan()">
-                <option value="">All</option>
-                <option value="Male">Male</option>
-                <option value="Female" >Female</option>
-            </select>
-        </div>
+    <div class="d-flex align-items-center gap-2">
+        <label for="genderFilter" id="genderFilter_label" class="text-info small m-0">Gender</label>
+        <select id="genderFilter" name="gender" class="form-control form-control-sm border-info uniform-input"
+            onchange="filterProgramPlan()">
+            <option value="">All</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+    </div>
     @endif
 
     <!-- Room Dropdown -->
     <form method="GET" action="{{ route('childrens_list') }}" id="roomFilterForm" class="d-inline-block m-0">
         <div class="dropdown d-inline-block">
             <button class="btn btn-outline-info dropdown-toggle" type="button" id="roomDropdown">
-                {{ $selectedRoom && $rooms->firstWhere('id', $selectedRoom) ? $rooms->firstWhere('id', $selectedRoom)->name : '-- All Rooms --' }}
+                {{ $selectedRoom && $rooms->firstWhere('id', $selectedRoom) ? $rooms->firstWhere('id',
+                $selectedRoom)->name : '-- All Rooms --' }}
             </button>
 
-            <ul class="dropdown-menu"
-                style="max-height:300px; overflow-y:auto; z-index:999; display:none;">
-                <li><a class="dropdown-item" href="#" onclick="selectRoom('', '-- All Rooms --'); return false;">-- All Rooms --</a></li>
+            <ul class="dropdown-menu" style="max-height:300px; overflow-y:auto; z-index:999; display:none;">
+                <li><a class="dropdown-item" href="#" onclick="selectRoom('', '-- All Rooms --'); return false;">-- All
+                        Rooms --</a></li>
                 @foreach($rooms as $room)
-                <li><a class="dropdown-item" href="#" onclick="selectRoom('{{ $room->id }}', '{{ $room->name }}'); return false;">{{ $room->name }}</a></li>
+                <li><a class="dropdown-item" href="#"
+                        onclick="selectRoom('{{ $room->id }}', '{{ $room->name }}'); return false;">{{ $room->name
+                        }}</a></li>
                 @endforeach
             </ul>
 
@@ -265,29 +276,22 @@
 
 <hr>
 
-<div class="row mb-5">
+
+<div class="row mb-5" id="childrenWrapper">
+
     @foreach($chilData as $child)
-    <div class="col-md-3 mb-2">
+    <div class="col-md-3 mb-2 child-card" data-name="{{ strtolower($child->childname . ' ' . $child->lastname) }}"
+        data-gender="{{ strtolower($child->gender) }}">
+
+        {{-- 👇 Yahan aapka card code as it is rahega --}}
         <div class="card shadow rounded-lg position-relative">
+            <img src="{{ $child->imageUrl
+                    ? asset($child->imageUrl)
+                    : ($child->gender == 'Male'
+                        ? asset('assets/img/default-boyimage.jpg')
+                        : asset('assets/img/default-girlimage.jpg')) }}" class="card-img-top"
+                style="height: 200px; object-fit: cover; border-radius: 8px; padding: 5px;" alt="{{ $child->name }}">
 
-            {{-- Image --}}
-            <img src="{{ $child->imageUrl ? asset($child->imageUrl) : 'http://www.mydiaree.com.au/assets/img/MYDIAREE-new-logo.png' }}"
-                class="card-img-top" style="height: 200px; object-fit: cover;border-radius: 8px;padding: 5px;"
-                alt="{{ $child->name }}">
-
-            {{-- Status button (overlay top-right) --}}
-            <form action="{{ route('children.toggleStatus', $child->childId) }}" method="POST" class="position-absolute"
-                style="top: 10px; right: 10px;">
-                @csrf
-                @method('PATCH')
-                <button type="submit"
-                    class="btn btn-sm {{ $child->childstatus == 'Active' ? 'btn-success' : 'btn-danger' }}">
-                    {{ $child->childstatus == 'Active' ? 'Active' : 'Inactive' }}
-                </button>
-
-            </form>
-
-            {{-- Card body --}}
             <div class="card-body">
                 <h5 class="card-title">{{ $child->childname }} {{ $child->lastname }}</h5>
 
@@ -305,7 +309,8 @@
                     </span>
 
                     <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#statusModal{{ $child->childId }}" style="height: 23px;" title="View Status History">
+                        data-bs-target="#statusModal{{ $child->childId }}" style="height: 23px;"
+                        title="View Status History">
                         <i class="fas fa-eye"></i>
                     </button>
 
@@ -314,7 +319,9 @@
                 <p class="mb-1"><i class="fas fa-id-card me-1"></i> ID: {{ $child->childId }}</p>
                 <p class="mb-1"><i class="fas fa-door-open me-1"></i> Room: {{ $child->roomname ?? 'N/A' }}</p>
                 <p class="mb-3"><i class="fas fa-calendar-check me-1"></i>
-                    Joined: {{ optional($child->startDate ? \Carbon\Carbon::parse($child->startDate) : null)->format('d M Y') ?? 'N/A' }}
+                    Joined: {{ optional($child->startDate ? \Carbon\Carbon::parse($child->startDate) :
+                    null)->format('d
+                    M Y') ?? 'N/A' }}
                 </p>
 
                 <div class="d-flex justify-content-end" style="margin-top:-43px">
@@ -330,7 +337,8 @@
                         onsubmit="return confirm('Are you sure?')" class="me-2">
                         @csrf
                         @method('DELETE')
-                        <button class="btn btn-outline-danger btn-sm" title="Child Delete"><i class="fas fa-trash-alt"></i></button>
+                        <button class="btn btn-outline-danger btn-sm" title="Child Delete"><i
+                                class="fas fa-trash-alt"></i></button>
                     </form>
 
                 </div>
@@ -392,14 +400,73 @@
     </div>
 
     @endforeach
+
 </div>
 
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const sortBtn = document.getElementById("sortBtn");
+    const genderBtn = document.getElementById("genderBtn");
+    const wrapper = document.getElementById("childrenWrapper");
+
+    let sortAsc = true;   // toggle A→Z / Z→A
+    let genderFilter = "all"; // toggle male / female / all
+
+    // 🔹 Sorting Function
+    sortBtn.addEventListener("click", function () {
+        const cards = Array.from(wrapper.querySelectorAll(".child-card"));
+
+        cards.sort((a, b) => {
+            let nameA = a.dataset.name;
+            let nameB = b.dataset.name;
+
+            return sortAsc
+                ? nameA.localeCompare(nameB)   // A→Z
+                : nameB.localeCompare(nameA);  // Z→A
+        });
+
+        // re-append sorted cards
+        cards.forEach(card => wrapper.appendChild(card));
+
+        // toggle state
+        sortAsc = !sortAsc;
+        sortBtn.innerHTML = sortAsc
+            ? '<i class="fas fa-sort-alpha-down"></i> A → Z'
+            : '<i class="fas fa-sort-alpha-up"></i> Z → A';
+    });
+
+    // 🔹 Gender Filter Function
+    genderBtn.addEventListener("click", function () {
+        const cards = wrapper.querySelectorAll(".child-card");
+
+        if (genderFilter === "all") {
+            genderFilter = "male";
+            genderBtn.innerHTML = '<i class="fas fa-mars"></i> Male';
+        } else if (genderFilter === "male") {
+            genderFilter = "female";
+            genderBtn.innerHTML = '<i class="fas fa-venus"></i> Female';
+        } else {
+            genderFilter = "all";
+            genderBtn.innerHTML = '<i class="fas fa-venus-mars"></i> All';
+        }
+
+        cards.forEach(card => {
+            const gender = card.dataset.gender;
+            if (genderFilter === "all" || gender === genderFilter) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    });
+});
+</script>
 
 <script>
-function showfilter(val) {
+    function showfilter(val) {
     // Hide all filters first
     $('#FilterbyName, #FilterbyCreatedBy, #StatusFilter_label, #statusFilter, #birthFilter_label, #birthmonthFilter, #genderFilter_label, #genderFilter')
         .hide()

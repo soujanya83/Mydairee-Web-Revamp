@@ -199,6 +199,7 @@ class RoomController extends Controller
             'child.createdAt as childcreatedate'
         )
             ->where('child.createdBy', $userId)
+            ->orderBy('child.name', 'asc')
             ->join('room', 'room.id', '=', 'child.room');
 
         // Filter by roomId if provided
