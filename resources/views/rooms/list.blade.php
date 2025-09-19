@@ -176,7 +176,7 @@
                     </div>
 
                     <div class="mb-2">
-                     <i class="fa fa-children me-2" style="color:blue"></i>
+                        <i class="fa fa-children me-2" style="color:blue"></i>
                         Children: {{ count($room->children) }}
                     </div>
 
@@ -371,17 +371,20 @@
 
                     <div class="form-group col-6">
                         <label>Educators</label>
-                        <div class="border rounded p-2" style="height: 150px; overflow-y: auto;">
+                        <div class="border rounded p-2" style="height: 150px; overflow-y: auto;" id="editEducators">
                             @foreach($roomStaffs as $data)
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="educator_{{ $data->staffid }}"
-                                    name="educators[]" value="{{ $data->staffid }}">
-                                <label class="form-check-label" for="educator_{{ $data->staffid }}">{{ $data->name
-                                    }}</label>
+                            <div class="form-check d-flex align-items-center mb-2">
+                                <input type="checkbox" class="form-check-input" id="educator_{{ $data->userid }}"
+                                    name="educators[]" value="{{ $data->userid }}" {{ in_array($data->userid,
+                                $room->assignedEducatorIds ?? []) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="educator_{{ $data->userid }}">
+                                    {{ $data->name }}
+                                </label>
                             </div>
                             @endforeach
                         </div>
                     </div>
+
 
                 </div>
 
@@ -451,33 +454,23 @@
 
 <!-- Script -->
 <script>
-    function openEditModal(room) {
-        // Set form fields
-        document.getElementById('editRoomId').value = room.id;
-        document.getElementById('editRoomName').value = room.name;
-        document.getElementById('editRoomCapacity').value = room.capacity;
-        document.getElementById('editAgeFrom').value = room.ageFrom;
-        document.getElementById('editAgeTo').value = room.ageTo;
-        document.getElementById('editRoomStatus').value = room.status;
-        document.getElementById('editRoomColor').value = room.color;
-        // Clear all checkboxes first
-        document.querySelectorAll('#editEducators input[type="checkbox"]').forEach(cb => cb.checked = false);
+ function openEditModal(room) {
+    document.getElementById('editRoomId').value = room.roomid;
+    document.getElementById('editRoomName').value = room.name;
+    document.getElementById('editRoomCapacity').value = room.capacity;
+    document.getElementById('editAgeFrom').value = room.ageFrom;
+    document.getElementById('editAgeTo').value = room.ageTo;
+    document.getElementById('editRoomStatus').value = room.status;
+    document.getElementById('editRoomColor').value = room.color;
 
-        // Check the ones belonging to room
-        if (Array.isArray(room.educators)) {
-            room.educators.forEach(id => {
-                const checkbox = document.getElementById('educator_' + id);
-                if (checkbox) {
-                    checkbox.checked = true;
-                }
-            });
-        }
-        // Set form action
-        document.getElementById('editRoomForm').action = `/rooms/update/${room.id}`;
-        // Show modal
-        const modal = new bootstrap.Modal(document.getElementById('editRoomModal'));
-        modal.show();
-    }
+    // Form action
+    document.getElementById('editRoomForm').action = `/rooms/update/${room.roomid}`;
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('editRoomModal'));
+    modal.show();
+}
+
 </script>
 
 <script>

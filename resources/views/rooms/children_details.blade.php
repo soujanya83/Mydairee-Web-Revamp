@@ -306,7 +306,7 @@
                 </div>
                 <hr>
                 <div class="modal-body">
-                    @foreach ($AllEducators as $educator)
+                    {{-- @foreach ($AllEducators as $educator)
                     <div class="form-check d-flex align-items-center mb-2">
                         <img src="{{ asset($educator->imageUrl) }}" class="rounded-circle ms-2 me-2" width="40"
                             height="40">
@@ -317,7 +317,25 @@
 
                         &nbsp;&nbsp;&nbsp; <label class="form-check-label">{{ $educator->name }}</label>
                     </div>
+                    @endforeach --}}
+
+
+                    @foreach ($AllEducators as $educator)
+                    <div class="form-check d-flex align-items-center mb-2">
+                        <img src="{{ asset($educator->imageUrl) }}" class="rounded-circle ms-2 me-2" width="40"
+                            height="40">
+
+                        <input class="form-check-input" type="checkbox" name="educators[]"
+                            value="{{ $educator->userid }}" {{ in_array($educator->userid, $assignedEducatorIds) ?
+                        'checked' : '' }}>
+
+                        &nbsp;&nbsp;&nbsp;
+                        <label class="form-check-label">{{ $educator->name }}</label>
+                    </div>
                     @endforeach
+
+
+
 
                 </div>
 
