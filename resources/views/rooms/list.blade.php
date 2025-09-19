@@ -176,12 +176,12 @@
                     </div>
 
                     <div class="mb-2">
-                        <i class="fa fa-child text-warning me-2"></i>
+                     <i class="fa fa-children me-2" style="color:blue"></i>
                         Children: {{ count($room->children) }}
                     </div>
 
                     <div class="mb-2">
-                        <i class="fa fa-chalkboard-teacher text-primary me-2"></i>
+                        <i class="fa fa-chalkboard-teacher me-2" style="color:blue"></i>
                         Educators:
 
                         @php

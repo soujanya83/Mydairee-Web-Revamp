@@ -416,7 +416,8 @@ class RoomController extends Controller
 
     public function showChildren($roomid)
     {
-        $allchilds = Child::where('room', $roomid)->where('status', 'Active')->get();
+        $authId = Auth::user()->id;
+        $allchilds = Child::where('room', $roomid)->where('status', 'Active') ->orderBy('name', 'asc')->get();
         $attendance = [
             'Mon' => $allchilds->sum('mon'),
             'Tue' => $allchilds->sum('tue'),
@@ -460,14 +461,31 @@ class RoomController extends Controller
 
         $educatorsQuery = DB::table('room_staff')
             ->where('usercenters.centerid', '=', $centerid)
-            ->leftJoin('usercenters', 'usercenters.userid', '=', 'room_staff.staffid')
-            ->leftJoin('users', 'users.userid', '=', 'room_staff.staffid')
-            ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl');
+            ->Join('usercenters', 'usercenters.userid', '=', 'room_staff.staffid')
+            ->Join('users', 'users.userid', '=', 'room_staff.staffid')
+            ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl')
+            ->orderBy('users.name', 'asc');
 
         // Get all unique educators (across all rooms)
-        $AllEducators = $educatorsQuery
-            ->groupBy('users.userid', 'users.name', 'users.gender', 'users.imageUrl') // ensure uniqueness
+        // $AllEducators = $educatorsQuery
+        //     ->groupBy('users.userid', 'users.name', 'users.gender', 'users.imageUrl')
+        //     ->get();
+
+
+ $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
+
+        // Exclude current user and Superadmins
+        $AllEducators = User::whereIn('id', $usersid)
+            ->where('id', '!=', $authId)
+            ->where('userType', 'Staff')
             ->get();
+
+// dd($Allstaff);
+
+
+
+
+
 
         // Get educators for a specific room
         $roomEducators = (clone $educatorsQuery)
