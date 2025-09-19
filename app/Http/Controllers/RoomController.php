@@ -401,14 +401,23 @@ class RoomController extends Controller
                 ->get();
         }
 
-        $roomStaffs = RoomStaff::join('users', 'users.id', '=', 'room_staff.staffid')
-            ->where('usercenters.centerid', $centerid)
-            ->where('users.userType', 'Staff')
-            ->where('users.status', 'Active')
-            ->select('room_staff.staffid', 'users.name')
-            ->join('usercenters','usercenters.userid','=','users.id')
-            ->distinct('room_staff.staffid')
+$usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
+
+        // Exclude current user and Superadmins
+        $roomStaffs = User::whereIn('id', $usersid)
+            ->where('id', '!=', $authId)
+            ->where('userType', 'Staff')
             ->get();
+
+
+        // $roomStaffs = RoomStaff::join('users', 'users.id', '=', 'room_staff.staffid')
+        //     ->where('usercenters.centerid', $centerid)
+        //     ->where('users.userType', 'Staff')
+        //     ->where('users.status', 'Active')
+        //     ->select('room_staff.staffid', 'users.name')
+        //     ->join('usercenters','usercenters.userid','=','users.id')
+        //     ->distinct('room_staff.staffid')
+        //     ->get();
         return view('rooms.list', compact('getrooms', 'centers', 'centerid', 'roomStaffs'));
     }
 
