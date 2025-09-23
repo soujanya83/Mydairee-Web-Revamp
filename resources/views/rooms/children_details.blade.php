@@ -129,7 +129,7 @@
         <div class="col-lg-3 col-md-6">
             <div class="card top_counter">
                 <div class="body">
-                    <div class="icon text-info"><i class="fa fa-university"></i> </div>
+                    <div class="icon text-info"><i class="fa fa-home"></i> </div>
                     <div class="content">
                         <div class="text">Room Name</div>
                         <h5 class="number">{{ $roomcapacity->name }}</h5>
@@ -140,7 +140,7 @@
         <div class="col-lg-3 col-md-6">
             <div class="card top_counter">
                 <div class="body">
-                    <div class="icon text-info"><i class="fa fa-university"></i> </div>
+                    <div class="icon text-info"><i class="fa fa-university" style="color:orange"></i> </div>
                     <div class="content">
                         <div class="text">Room Capacity</div>
                         <h5 class="number">{{ $roomcapacity->capacity }}</h5>
@@ -239,7 +239,9 @@
                                         <p class="mb-0">Date of Birth: {{ date('d-M-Y', strtotime($child->dob)) }}</p>
                                         <p class="mb-0">Joining Date: {{ date('d-M-Y', strtotime($child->startDate)) }}
                                         </p>
+                                        <p class="mb-0">Gender: {{ $child->gender }}
                                         <p class="mb-0">{{ \Carbon\Carbon::parse($child->dob)->age }} years</p>
+
                                     </div>
                                 </div>
                                 {{-- <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a> --}}
@@ -304,7 +306,7 @@
                 </div>
                 <hr>
                 <div class="modal-body">
-                    @foreach ($AllEducators as $educator)
+                    {{-- @foreach ($AllEducators as $educator)
                     <div class="form-check d-flex align-items-center mb-2">
                         <img src="{{ asset($educator->imageUrl) }}" class="rounded-circle ms-2 me-2" width="40"
                             height="40">
@@ -315,7 +317,25 @@
 
                         &nbsp;&nbsp;&nbsp; <label class="form-check-label">{{ $educator->name }}</label>
                     </div>
+                    @endforeach --}}
+
+
+                    @foreach ($AllEducators as $educator)
+                    <div class="form-check d-flex align-items-center mb-2">
+                        <img src="{{ asset($educator->imageUrl) }}" class="rounded-circle ms-2 me-2" width="40"
+                            height="40">
+
+                        <input class="form-check-input" type="checkbox" name="educators[]"
+                            value="{{ $educator->userid }}" {{ in_array($educator->userid, $assignedEducatorIds) ?
+                        'checked' : '' }}>
+
+                        &nbsp;&nbsp;&nbsp;
+                        <label class="form-check-label">{{ $educator->name }}</label>
+                    </div>
                     @endforeach
+
+
+
 
                 </div>
 

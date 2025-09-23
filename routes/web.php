@@ -503,6 +503,9 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::post('/status/update', [ObservationsController::class, 'snapshotupdateStatus'])->name('status.update');
         Route::delete('snapshotsdelete/{id}', [ObservationsController::class, 'snapshotsdelete'])->name('snapshots.snapshotsdelete');
         Route::get('/view/{id}', [ObservationsController::class, 'viewSnapShot'])->name('view');
+
+        Route::get('/print/{id?}', [ObservationsController::class, 'print_snapshots'])->name('print');
+
     });
 
 

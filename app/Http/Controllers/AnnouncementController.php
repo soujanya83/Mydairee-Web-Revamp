@@ -53,22 +53,22 @@ class AnnouncementController extends Controller
 
         $centerid = Session('user_center_id');
 
-  if ($check) {
-    $childIds = AnnouncementChildModel::whereIn('aid', (array) $id)->pluck('childid');
+        if ($check) {
+            $childIds = AnnouncementChildModel::whereIn('aid', (array) $id)->pluck('childid');
 
-    // Get unique parent IDs directly
-    $userIds = Childparent::whereIn('childid', $childIds)
+            // Get unique parent IDs directly
+            $userIds = Childparent::whereIn('childid', $childIds)
                 ->pluck('parentid')
                 ->unique();
 
 
-    // Fetch all users in one query
-    $users = User::whereIn('id', $userIds)->get();
+            // Fetch all users in one query
+            $users = User::whereIn('id', $userIds)->get();
 
-    foreach ($users as $user) {
-        $user->notify(new AnnouncementAdded($announcement));
-    }
-}
+            foreach ($users as $user) {
+                $user->notify(new AnnouncementAdded($announcement));
+            }
+        }
 
 if ($check) {
     $users = User::join('usercenters', 'users.userid', '=', 'usercenters.userid')
@@ -257,7 +257,7 @@ if ($check) {
         // Children List
         $childs = DB::table('child as c')
             ->join('room as r', 'c.room', '=', 'r.id')
-            ->select('c.*', 'r.*', 'c.name as name', 'c.id as childid','c.imageUrl as imageUrl')
+            ->select('c.*', 'r.*', 'c.name as name', 'c.id as childid', 'c.imageUrl as imageUrl')
             ->where('r.centerid', $centerid)
             ->where('c.status', 'Active')
             ->get();

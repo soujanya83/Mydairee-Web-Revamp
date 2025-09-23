@@ -52,6 +52,54 @@ use Illuminate\Support\Facades\Mail;
 
 class ObservationsController extends Controller
 {
+public function print_snapshots($id)
+{
+    $authId = Auth::user()->id;
+    $centerid = Session('user_center_id');
+
+    if (Auth::user()->userType == "Superadmin") {
+        $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+        $centers = Center::whereIn('id', $center)->get();
+
+        $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+            ->where('centerid', $centerid)
+            ->where('id', $id)
+            ->firstOrFail();
+
+         
+
+    } elseif (Auth::user()->userType == "Staff") {
+        $centers = Center::where('id', $centerid)->get();
+
+        $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+            ->where('createdBy', $authId)
+            ->where('id', $id)
+            ->firstOrFail();
+
+    } else {
+        $centers = Center::where('id', $centerid)->get();
+
+        $childids = Childparent::where('parentid', $authId)->pluck('childid');
+        $snapshotid = SnapshotChild::whereIn('childid', $childids)
+            ->pluck('snapshotid')
+            ->unique()
+            ->toArray();
+
+        $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+            ->whereIn('id', $snapshotid)
+            ->where('id', $id)
+            ->firstOrFail();
+    }
+
+    // Rooms mapping
+    $roomIds = explode(',', $snapshot->roomids ?? '');
+    $rooms = Room::whereIn('id', $roomIds)->pluck('name')->toArray();
+    $roomNames = implode(', ', $rooms);
+
+    $permissions = Permission::where('userid', Auth::user()->userid)->first();
+
+    return view('snapshots.printsnapshots', compact('snapshot', 'centers', 'permissions', 'roomNames'));
+}
 
     // public function TranslateObservation(Request $request)
     // {

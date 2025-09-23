@@ -42,7 +42,6 @@ class RoomController extends Controller
 
     public function assignEducators(Request $request, $roomid)
     {
-        // dd($request->all());
         DB::table('room_staff')->where('roomid', $roomid)->delete();
         if ($request->has('educators')) {
             foreach ($request->educators as $staffid) {
@@ -200,6 +199,7 @@ class RoomController extends Controller
             'child.createdAt as childcreatedate'
         )
             ->where('child.createdBy', $userId)
+            ->orderBy('child.name', 'asc')
             ->join('room', 'room.id', '=', 'child.room');
 
         // Filter by roomId if provided
@@ -357,12 +357,9 @@ class RoomController extends Controller
     public function rooms_list(Request $request)
     {
         $userId = Auth::id();
-        // $centerId = $request->centerId ?? session('user_center_id');
-        // $centers = Center::take(3)->get();
 
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
-
 
         if (Auth::user()->userType == "Superadmin") {
             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
@@ -370,7 +367,6 @@ class RoomController extends Controller
         } else {
             $centers = Center::where('id', $centerid)->get();
         }
-        // dd($centers);
 
         $getrooms = Room::select('room.id as roomid', 'room.*')
             ->join('centers', 'centers.id', '=', 'room.centerid')
@@ -390,25 +386,43 @@ class RoomController extends Controller
             $getrooms = Room::whereIn('id', $roomIds)->get();
         }
 
-        // dd($getrooms);
+
+
+        // foreach ($getrooms as $room) {
+        //     $room->children = Child::where('room', $room->roomid)->where('status', 'Active')->get();
+        //     $room->educators = DB::table('room_staff')
+        //         ->leftJoin('users', 'users.userid', '=', 'room_staff.staffid')
+        //         ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl')
+        //         ->where('room_staff.roomid', $room->roomid)
+        //         ->get();
+        // }
 
         foreach ($getrooms as $room) {
             $room->children = Child::where('room', $room->roomid)->where('status', 'Active')->get();
             $room->educators = DB::table('room_staff')
-                ->leftJoin('users', 'users.userid', '=', 'room_staff.staffid')
-                ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl')
+                ->leftJoin('users', 'users.id', '=', 'room_staff.staffid')
+                ->select('users.id as userid', 'users.name', 'users.gender', 'users.imageUrl')
                 ->where('room_staff.roomid', $room->roomid)
                 ->get();
+
+            // ✅ assignEducatorIds array banado
+            $room->assignedEducatorIds = $room->educators->pluck('userid')->toArray();
         }
 
-        $roomStaffs = RoomStaff::where('usercenters.centerid', '=', $centerid)
-            ->join('users', 'users.id', '=', 'room_staff.staffid')
-            ->join('usercenters', 'usercenters.userid', '=', 'users.id')
-            ->where('users.userType', 'Staff')
-            ->where('users.status', 'Active')
-            ->select('room_staff.staffid', 'users.name')
-            ->distinct('room_staff.staffid')
+
+
+        $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
+
+        // Exclude current user and superadmins
+        $roomStaffs = User::whereIn('userid', $usersid)  // ✅ userid use karo
+            ->where('userid', '!=', $authId)
+            ->where('userType', 'Staff')
+            ->where('status', 'Active')
+            ->orderBy('name', 'asc')
             ->get();
+
+
+
         return view('rooms.list', compact('getrooms', 'centers', 'centerid', 'roomStaffs'));
     }
 
@@ -416,9 +430,8 @@ class RoomController extends Controller
 
     public function showChildren($roomid)
     {
-
-          $centerid = Session('user_center_id');
-        $allchilds = Child::where('room', $roomid)->where('status', 'Active')->where('centerid',$centerid)->orderBy('name','asc')->get();
+        $authId = Auth::user()->id;
+        $allchilds = Child::where('room', $roomid)->where('status', 'Active')->orderBy('name', 'asc')->get();
         $attendance = [
             'Mon' => $allchilds->sum('mon'),
             'Tue' => $allchilds->sum('tue'),
@@ -426,7 +439,7 @@ class RoomController extends Controller
             'Thu' => $allchilds->sum('thu'),
             'Fri' => $allchilds->sum('fri'),
         ];
-      
+        $centerid = Session('user_center_id');
 
         // Calculate the total sum of children attending across all days
         $totalAttendance = array_sum($attendance);
@@ -460,29 +473,38 @@ class RoomController extends Controller
         $rooms = Room::where('capacity', '!=', 0)->where(['status' => 'Active', 'centerid' => $centerid])->whereNot('id', $roomid)->get();
         $roomcapacity = Room::where('id', $roomid)->first();
 
-        $usercenterid = Usercenter::where('centerid',$centerid)->pluck('userid');
+        // Get all unique educators (across all rooms) //// change 19092025
+        // $AllEducators = $educatorsQuery
+        //     ->groupBy('users.userid', 'users.name', 'users.gender', 'users.imageUrl')
+        //     ->get();
+
 
         $educatorsQuery = DB::table('room_staff')
+            ->join('usercenters', 'usercenters.userid', '=', 'room_staff.staffid')
+            ->join('users', 'users.userid', '=', 'room_staff.staffid')
             ->where('usercenters.centerid', '=', $centerid)
-            ->leftJoin('usercenters', 'usercenters.userid', '=', 'room_staff.staffid')
-            ->leftJoin('users', 'users.userid', '=', 'room_staff.staffid')
-            ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl');
+            ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl')
+            ->orderBy('users.name', 'asc');
 
-        // Get all unique educators (across all rooms)
-        $AllEducators = $educatorsQuery
-    ->whereIn('userid',$usercenterid)
-    ->where('status','ACTIVE')
-            ->groupBy('users.userid', 'users.name', 'users.gender', 'users.imageUrl') // ensure uniqueness
-            
+        // Center ke saare educators IDs
+        $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
+
+        // Exclude current user and Superadmins
+        $AllEducators = User::whereIn('userid', $usersid)   // ✅ userid use karo, id nahi
+            ->where('userid', '!=', $authId)
+            ->where('status', 'Active')
+            ->where('userType', 'Staff')
+            ->orderBy('name', 'asc')
             ->get();
 
-        // Get educators for a specific room
+        // Room ke assigned educators
         $roomEducators = (clone $educatorsQuery)
             ->where('room_staff.roomid', $roomid)
             ->get();
-        $assignedEducatorIds = $roomEducators->pluck('userid')->toArray();
 
-        // dd($rooms);
+        // Sirf IDs ka array
+        $assignedEducatorIds = $roomEducators->pluck('userid')->toArray();  // ✅ userid hi pluck karo
+
 
         return view('rooms.children_details', compact('assignedEducatorIds', 'roomEducators', 'AllEducators', 'attendance', 'roomcapacity', 'rooms', 'allchilds', 'activechilds', 'enrolledchilds', 'malechilds', 'femalechilds', 'roomid', 'totalAttendance', 'patterns', 'breakdowns'));
     }
