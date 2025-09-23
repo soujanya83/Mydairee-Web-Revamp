@@ -398,16 +398,16 @@ class RoomController extends Controller
         // }
 
         foreach ($getrooms as $room) {
-    $room->children = Child::where('room', $room->roomid)->where('status', 'Active')->get();
-    $room->educators = DB::table('room_staff')
-        ->leftJoin('users', 'users.id', '=', 'room_staff.staffid')
-        ->select('users.id as userid', 'users.name', 'users.gender', 'users.imageUrl')
-        ->where('room_staff.roomid', $room->roomid)
-        ->get();
+            $room->children = Child::where('room', $room->roomid)->where('status', 'Active')->get();
+            $room->educators = DB::table('room_staff')
+                ->leftJoin('users', 'users.id', '=', 'room_staff.staffid')
+                ->select('users.id as userid', 'users.name', 'users.gender', 'users.imageUrl')
+                ->where('room_staff.roomid', $room->roomid)
+                ->get();
 
-    // ✅ assignEducatorIds array banado
-    $room->assignedEducatorIds = $room->educators->pluck('userid')->toArray();
-}
+            // ✅ assignEducatorIds array banado
+            $room->assignedEducatorIds = $room->educators->pluck('userid')->toArray();
+        }
 
 
 

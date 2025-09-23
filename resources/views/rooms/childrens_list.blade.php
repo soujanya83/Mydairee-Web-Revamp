@@ -291,7 +291,16 @@
                         ? asset('assets/img/default-boyimage.jpg')
                         : asset('assets/img/default-girlimage.jpg')) }}" class="card-img-top"
                 style="height: 200px; object-fit: cover; border-radius: 8px; padding: 5px;" alt="{{ $child->name }}">
+            <form action="{{ route('children.toggleStatus', $child->childId) }}" method="POST" class="position-absolute"
+                style="top: 10px; right: 10px;">
+                @csrf
+                @method('PATCH')
+                <button type="submit"
+                    class="btn btn-sm {{ $child->childstatus == 'Active' ? 'btn-success' : 'btn-danger' }}">
+                    {{ $child->childstatus == 'Active' ? 'Active' : 'Inactive' }}
+                </button>
 
+            </form>
             <div class="card-body">
                 <h5 class="card-title">{{ $child->childname }} {{ $child->lastname }}</h5>
 
