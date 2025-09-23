@@ -172,6 +172,10 @@
                             style="background-color: #f0ece4;">
                             <i class="fa fa-edit" class="d-flex justify-content-between align-items-start"></i>
                         </button>
+
+
+
+
                         @endif
                     </div>
 
@@ -374,16 +378,16 @@
                         <div class="border rounded p-2" style="height: 150px; overflow-y: auto;" id="editEducators">
                             @foreach($roomStaffs as $data)
                             <div class="form-check d-flex align-items-center mb-2">
-                                <input type="checkbox" class="form-check-input" id="educator_{{ $data->userid }}"
-                                    name="educators[]" value="{{ $data->userid }}" {{ in_array($data->userid,
-                                $room->assignedEducatorIds ?? []) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="educator_{{ $data->userid }}">
+                                <input type="checkbox" class="form-check-input edit-educator-checkbox"
+                                    id="educator_{{ $data->id }}" name="educators[]" value="{{ $data->id }}">
+                                <label class="form-check-label" for="educator_{{ $data->id }}">
                                     {{ $data->name }}
                                 </label>
                             </div>
                             @endforeach
                         </div>
                     </div>
+
 
 
                 </div>
@@ -454,7 +458,8 @@
 
 <!-- Script -->
 <script>
- function openEditModal(room) {
+    function openEditModal(room) {
+    // Set form fields
     document.getElementById('editRoomId').value = room.roomid;
     document.getElementById('editRoomName').value = room.name;
     document.getElementById('editRoomCapacity').value = room.capacity;
@@ -463,15 +468,26 @@
     document.getElementById('editRoomStatus').value = room.status;
     document.getElementById('editRoomColor').value = room.color;
 
-    // Form action
+    // Reset all checkboxes first
+    document.querySelectorAll('#editEducators input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+    // ✅ Check the educators of this room
+    if (Array.isArray(room.assignedEducatorIds)) {
+        room.assignedEducatorIds.forEach(id => {
+            const checkbox = document.getElementById('educator_' + id);
+            if (checkbox) checkbox.checked = true;
+        });
+    }
+
+    // Set form action
     document.getElementById('editRoomForm').action = `/rooms/update/${room.roomid}`;
 
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('editRoomModal'));
     modal.show();
 }
-
 </script>
+
 
 <script>
     document.getElementById('roomSearch').addEventListener('input', function () {

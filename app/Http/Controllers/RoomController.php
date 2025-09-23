@@ -398,22 +398,17 @@ class RoomController extends Controller
         // }
 
         foreach ($getrooms as $room) {
-            // Children
-            $room->children = Child::where('room', $room->roomid)
-                ->where('status', 'Active')
-                ->orderBy('name', 'asc') // optional sorting
-                ->get();
+    $room->children = Child::where('room', $room->roomid)->where('status', 'Active')->get();
+    $room->educators = DB::table('room_staff')
+        ->leftJoin('users', 'users.id', '=', 'room_staff.staffid')
+        ->select('users.id as userid', 'users.name', 'users.gender', 'users.imageUrl')
+        ->where('room_staff.roomid', $room->roomid)
+        ->get();
 
-            // Educators list (details)
-            $room->educators = DB::table('room_staff')
-                ->leftJoin('users', 'users.userid', '=', 'room_staff.staffid')
-                ->select('users.userid', 'users.name', 'users.gender', 'users.imageUrl')
-                ->where('room_staff.roomid', $room->roomid)
-                ->get();
+    // ✅ assignEducatorIds array banado
+    $room->assignedEducatorIds = $room->educators->pluck('userid')->toArray();
+}
 
-            // Only IDs for "already assigned" educators
-            $room->assignedEducatorIds = $room->educators->pluck('userid')->toArray();
-        }
 
 
         $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
