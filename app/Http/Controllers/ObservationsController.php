@@ -1370,13 +1370,18 @@ Observation:
         try {
             $user = Auth::user();
             $children = collect();
+            $rooms = $request->rooms;
+
+            $roomIds = !empty($rooms) ? explode(',', $rooms) : [];
+
+            // dd($rooms);
 
             if ($user->userType === 'Superadmin') {
-                $children = $this->getChildrenForSuperadmin();
+                $children = $this->getChildrenForSuperadmin( $roomIds);
             } elseif ($user->userType === 'Staff') {
-                $children = $this->getChildrenForStaff();
+                $children = $this->getChildrenForStaff( $roomIds);
             } else {
-                $children = $this->getChildrenForParent();
+                $children = $this->getChildrenForParent( $roomIds);
             }
 
             return response()->json([
@@ -1396,49 +1401,53 @@ Observation:
     }
 
 
-    private function getChildrenForSuperadmin()
+    private function getChildrenForSuperadmin($roomIds)
     {
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
 
         // Get all room IDs for the center
-        $roomIds = Room::where('centerid', $centerid)->pluck('id');
+        // $roomIds = Room::where('centerid', $centerid)->pluck('id');
+
+      
 
         // Get all children in those rooms
-        $children = Child::whereIn('room', $roomIds)->where('status', 'Active')->get();
+        $children = Child::whereIn('room', $roomIds)->where('status', 'Active')->orderBy('name','asc')->get();
 
         return $children;
     }
 
 
-    private function getChildrenForStaff()
+    private function getChildrenForStaff($allRoomIds)
     {
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
 
         // Get room IDs from RoomStaff where staff is assigned
-        $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
+        // $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
 
         // Get room IDs where user is the owner (userId matches)
-        $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
+        // $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
 
         // Merge both collections and remove duplicates
-        $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
+        // $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
+
+      
 
         // Get all children in those rooms
-        $children = Child::whereIn('room', $allRoomIds)->where('status', 'Active')->get();
+        $children = Child::whereIn('room', $allRoomIds)->where('status', 'Active')->orderBy('name','asc')->get();
 
         return $children;
     }
 
-    private function getChildrenForParent()
+    private function getChildrenForParent($childids)
     {
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
 
-        $childids = Childparent::where('parentid', $authId)->pluck('childid');
+        // $childids = Childparent::where('parentid', $authId)->pluck('childid');
 
-        $children = Child::whereIn('id', $childids)->where('status', 'Active')->get();
+        $children = Child::whereIn('id', $childids)->where('status', 'Active')->orderBy('name','asc')->get();
 
         return $children;
     }

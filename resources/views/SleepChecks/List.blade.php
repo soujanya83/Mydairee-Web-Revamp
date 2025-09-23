@@ -648,7 +648,7 @@
         </div>
     </div>
 </main>
-@endsection
+
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -1086,4 +1086,4 @@ function showfilter(val) {
 </script>
 
 @endpush
-@include('layout.footer')
+@stop

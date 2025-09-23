@@ -4,6 +4,39 @@
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
+        /* Floating Button Style */
+/* Floating Button Style */
+.floating-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: transparent;
+    color: #71d9e9ff;
+    border: none;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* box-shadow: 0 4px 10px rgba(193, 123, 123, 0.2); */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    z-index: 1000;
+    font-size: 20px;
+}
+
+.floating-btn:focus,
+.floating-btn:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* floating button */
+</style>
+<style>
     #filterchildname{
         display: none;
     }
@@ -894,7 +927,14 @@ class="btn btn-info btn-lg">
 
     </div>
 
-    @endsection
+    <!-- Floating Toggle Button -->
+<button id="floatingBtn" type="button" class="floating-btn">
+    <i class="fas fa-arrow-down"></i>
+</button>
+
+
+ <!-- floating button for migration from up to down , down to up -->
+
     @push('scripts')
     	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
@@ -1195,6 +1235,30 @@ function showfilter(val) {
 
 </script>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const floatingBtn = document.getElementById("floatingBtn");
+    const icon = floatingBtn.querySelector("i");
 
+    let atBottom = false;
+
+    floatingBtn.addEventListener("click", function() {
+        if (!atBottom) {
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            icon.classList.remove("fa-arrow-up");
+            icon.classList.add("fa-arrow-down");
+        } else {
+            // Scroll to bottom
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+            icon.classList.remove("fa-arrow-down");
+            icon.classList.add("fa-arrow-up");
+        }
+        atBottom = !atBottom;
+    });
+});
+
+
+</script>
     @endpush
-    @include('layout.footer')
+ @stop

@@ -355,21 +355,34 @@ $edit = 1;
                             </div>
 
                             <div class="row">
-                                <div class="col-12 text-right">
+                                  <div class="col-12 text-right">
                                     @php
                                     $canSave = !empty($permissions->addAnnouncement) || auth()->user()->userType === "Superadmin" || auth()->user()->admin == 1;
                                     @endphp
 
                                     @if ($canSave)
+                                 
                                     <button type="submit" class="btn btn-save my-2 btn-md-xl px-4 py-2">
                                         Save
                                     </button>
+                                      <a href="{{ url()->previous() }}" class="btn btn-save my-2 btn-md-xl px-4 py-2">
+    Cancel
+</a>
+
+                              
                                     @else
+                                
+
+                                  
                                     <button type="button" class="btn btn-save-disabled my-2 px-4 py-2"
                                         data-toggle="tooltip" data-placement="top"
                                         title="You need permission to save!">
                                         Save
                                     </button>
+                                    <a href="{{ url()->previous() }}" class="btn btn-save my-2 btn-md-xl px-4 py-2">
+    Cancel
+</a>
+
                                     @endif
                                 </div>
 
@@ -540,21 +553,34 @@ $edit = 1;
                             </div>
 
                             <div class="row">
-                                <div class="col-12 text-right">
+                                  <div class="col-12 text-right">
                                     @php
                                     $canSave = !empty($permissions->addAnnouncement) || auth()->user()->userType === "Superadmin" || auth()->user()->admin == 1;
                                     @endphp
 
                                     @if ($canSave)
+                                 
                                     <button type="submit" class="btn btn-save my-2 btn-md-xl px-4 py-2">
                                         Save
                                     </button>
+                                      <a href="{{ url()->previous() }}" class="btn btn-save my-2 btn-md-xl px-4 py-2">
+    Cancel
+</a>
+
+                              
                                     @else
+                                
+
+                                  
                                     <button type="button" class="btn btn-save-disabled my-2 px-4 py-2"
                                         data-toggle="tooltip" data-placement="top"
                                         title="You need permission to save!">
                                         Save
                                     </button>
+                                    <a href="{{ url()->previous() }}" class="btn btn-save my-2 btn-md-xl px-4 py-2">
+    Cancel
+</a>
+
                                     @endif
                                 </div>
 
@@ -716,15 +742,28 @@ $edit = 1;
                                     @endphp
 
                                     @if ($canSave)
+                                 
                                     <button type="submit" class="btn btn-save my-2 btn-md-xl px-4 py-2">
                                         Save
                                     </button>
+                                      <a href="{{ url()->previous() }}" class="btn btn-save my-2 btn-md-xl px-4 py-2">
+    Cancel
+</a>
+
+                              
                                     @else
+                                
+
+                                  
                                     <button type="button" class="btn btn-save-disabled my-2 px-4 py-2"
                                         data-toggle="tooltip" data-placement="top"
                                         title="You need permission to save!">
                                         Save
                                     </button>
+                                    <a href="{{ url()->previous() }}" class="btn btn-save my-2 btn-md-xl px-4 py-2">
+    Cancel
+</a>
+
                                     @endif
                                 </div>
 
@@ -912,7 +951,6 @@ $edit = 1;
 
 
 
-@endsection
 
 @push('scripts')
 <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
@@ -1589,4 +1627,4 @@ $edit = 1;
 
 @endpush
 
-@include('layout.footer')
+@stop

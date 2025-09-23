@@ -15,7 +15,18 @@
     }
 </style>
 
+  <div class="header float-end text-zero top-right-button-container d-flex justify-content-between" >
+                <h2>Centers Settings<small></small> </h2>
+                @if(!empty($permissions['addCenters']) && $permissions['addCenters'])
 
+                <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
+                    data-target="#addCenterModal">
+                    <i class="fa fa-plus"></i>&nbsp; Manage Role Center
+                </button>
+                @endif
+
+            </div>
+ <hr class="mt-3">
 @if ($errors->any())
 <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:-22px">
     <ul class="mb-0">
@@ -84,7 +95,7 @@
                             <!-- Permissions List -->
                             <div class="row" style="padding: 10px;">
                                 @foreach($permissionColumns as $col)
-                                <div class="form-check form-check-inline"
+                                <div class="form-check form-check-inline " id="{{ collapse($col['name'])}}"
                                     style="min-width: 200px; margin-bottom: 10px;">
                                     <input type="checkbox" name="permissions[{{ $col['name'] }}]" value="1"
                                         class="form-check-input permission-checkbox" id="perm_{{ $col['name'] }}">

@@ -353,6 +353,14 @@
 
         @yield('content')
 
+        <!-- Floating Toggle Button -->
+<button id="floatingBtn" type="button" class="floating-btn">
+    <i class="fas fa-arrow-down"></i>
+</button>
+
+
+ <!-- floating button for migration from up to down , down to up -->
+
     </div>
 </div>
 
@@ -693,6 +701,39 @@
     }
 
 </style>
+<style>
+      /* Floating Button Style */
+/* Floating Button Style */
+.floating-btn {
+    position: fixed;
+    bottom: 45px;
+    right: 15px;
+ background: rgba(113, 217, 233, 0.2);
+    color: #42c2d5ff;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* box-shadow: 0 4px 10px rgba(193, 123, 123, 0.2); */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    z-index: 1000;
+    font-size: 16px;
+}
+
+.floating-btn:focus,
+.floating-btn:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* floating button */
+</style>
 
 
 
@@ -708,7 +749,32 @@
         @stack('scripts')
 
 
-  
+  <!-- up and down floating button -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const floatingBtn = document.getElementById("floatingBtn");
+    const icon = floatingBtn.querySelector("i");
+
+    let atBottom = false; // start state = at top, so we show "down" initially
+    
+
+    floatingBtn.addEventListener("click", function () {
+      if (!atBottom) {
+        // Scroll to bottom
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        icon.classList.remove("fa-arrow-down");
+        icon.classList.add("fa-arrow-up");
+        atBottom = true;
+      } else {
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        icon.classList.remove("fa-arrow-up");
+        icon.classList.add("fa-arrow-down");
+        atBottom = false;
+      }
+    });
+  });
+</script>
 
     </body>
 </html>

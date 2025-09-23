@@ -145,7 +145,7 @@
 
     .back-btn {
         background: #49c5b6;
-        border: 1px solid #000;
+        border: 1px solid #f9f8f8ff;
         color: #ffffff;
         padding: 12px 20px;
         border-radius: var(--border-radius);
@@ -159,7 +159,7 @@
     }
 
     .back-btn:hover {
-        background: black;
+        background: #04c0aaff;
         color: white;
         text-decoration: none;
     }
@@ -454,9 +454,10 @@
             <body>
                 <div class="container">
                     <!-- Back Button -->
-                    <a href="{{ route('settings.manage_permissions') }}" class="back-btn">
-                        <i class="fas fa-arrow-left"></i> Back to Manage Permissions 
-                    </a>
+                <a href="{{ url('settings/permissions-assigned') }}" class="back-btn">
+    <i class="fas fa-arrow-left"></i> Back
+</a>
+
 
                     <!-- User Information -->
                <div class="user-info d-flex justify-content-between align-items-center">
@@ -536,7 +537,7 @@
                         @csrf
    <input type="hidden" name="userid" value="{{ $userPermissions->userid }}">
 
-                    <div class="permission-grid">
+                    <div class="permission-grid py-4">
                         <!-- Observation Manage -->
                         @if($ObservationPermissions->count() > 0)
                         <div class="permission-card">
@@ -1240,7 +1241,43 @@
                         </div>
                         @endif
 
+<!-- activity -->
+        @if($ActivitiesPermissions->count() > 0)
+                        <div class="permission-card">
+                            <div class="card-header">
+                                <div class="header-content">
+                                    <i class="icon-camera"></i>
+                                    <h3>Activity Permissions</h3>
+                                </div>
+                                <div class="permission-count">
+                                    <i class="fas fa-check"></i>
+                                    {{ $ActivitiesPermissions->filter(fn($perm) => $userPermissions->{$perm['name']} ??
+                                    false)->count() }} / {{ $ActivitiesPermissions->count() }}
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                @foreach($ActivitiesPermissions as $perm)
+                                <div class="permission-item">
+                                    <label>
+                                        <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                        {{ $perm['label'] }}
+                                    </label>
+                                    <label class="switch">
+                                     <input type="checkbox" 
+       class="permission-toggle" 
+       name="{{ $perm['name'] }}" 
+       value="{{ ($userPermissions->{$perm['name']} ?? 0) }}" 
+       data-permission="{{ $perm['name'] }}" 
+       {{ ($userPermissions->{$perm['name']} ?? false) ? 'checked' : '' }}>
 
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+ <!-- activity ends -->
                         <!-- Other Permissions Manage -->
                         @if($otherPermissions->count() > 0)
                         <div class="permission-card">
@@ -1279,7 +1316,7 @@
                         @endif
                     </div>
                                        <div class="submit-btn float-right" 
-     style="position:relative; z-index:9999; bottom:70px;">
+     style="position:relative; z-index:9999; bottom:35px;">
     <button type="submit" class="btn btn-light">Submit</button>
 </div>
                 </form>

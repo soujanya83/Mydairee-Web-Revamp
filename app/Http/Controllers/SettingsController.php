@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Permission_Role;
 
 class SettingsController extends Controller
 {
@@ -237,8 +238,11 @@ class SettingsController extends Controller
         $assignedUserList = User::select('users.id', 'users.name')
             ->join('permissions', 'permissions.userid', '=', 'users.id')
             ->where('permissions.centerid', session('user_center_id'))
+            ->where('users.userType','staff')
             ->distinct()
-            ->get();
+            ->orderBy('users.name','asc')->get();
+
+            
         return view('settings.assigned_permissions_list', compact('assignedUserList'));
     }
 
@@ -313,9 +317,12 @@ class SettingsController extends Controller
             return in_array($item['name'], $allMatched);
         })->values();
 
+        $permission_role = Permission_Role::all();
+
         return view(
             'settings.new_alluser_assign_permission',
             compact(
+                'permission_role',
                 'users',
                 'SnapshotsPermissions',
                 'permissionColumns',
