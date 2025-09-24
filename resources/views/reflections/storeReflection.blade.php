@@ -559,6 +559,19 @@
                     <form id="observationform" method="POST" enctype="multipart/form-data">
 
       <div class="row">
+        <!-- Select Rooms -->
+<div class="col-md-6 select-section">
+    <label>Rooms</label><br>
+    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#roomsModal">Select Rooms</button>
+    <input type="hidden" name="selected_rooms" id="selected_rooms" value="{{ isset($rooms) ? implode(',', collect($rooms)->pluck('id')->toArray()) : '' }}">
+    <div id="selectedRoomsPreview" class="mt-3">
+        @if(isset($rooms))
+            @foreach($rooms as $room)
+                <span class="badge badge-success mr-1">{{ $room['name'] }}</span>
+            @endforeach
+        @endif
+    </div>
+</div>
 
      <!-- Select Children -->
 <div class="col-md-6 select-section">
@@ -590,19 +603,7 @@
 </div>
 
 
-<!-- Select Rooms -->
-<div class="col-md-6 select-section">
-    <label>Rooms</label><br>
-    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#roomsModal">Select Rooms</button>
-    <input type="hidden" name="selected_rooms" id="selected_rooms" value="{{ isset($rooms) ? implode(',', collect($rooms)->pluck('id')->toArray()) : '' }}">
-    <div id="selectedRoomsPreview" class="mt-3">
-        @if(isset($rooms))
-            @foreach($rooms as $room)
-                <span class="badge badge-success mr-1">{{ $room['name'] }}</span>
-            @endforeach
-        @endif
-    </div>
-</div>
+
 
 <!-- Select educators -->
 
@@ -1039,9 +1040,12 @@ $(document).ready(function () {
 
     // Load children on modal open
     $('#childrenModal').on('show.bs.modal', function () {
+        let rooms = $('#selected_rooms').val();
+        // console.log(rooms);
         $.ajax({
             url: '{{ route("observation.get.children") }}',
             method: 'GET',
+            data:{ rooms:rooms},
             success: function (response) {
                 if (response.success) {
                     let html = '';

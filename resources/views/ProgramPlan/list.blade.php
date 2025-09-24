@@ -2,7 +2,7 @@
 @section('title', 'Program Plan')
 @section('parentPageTitle', 'Dashboard')
 
-@section('page-styles')
+
 <style>
     #FilterbyCreatedBy{
         display: none;
@@ -691,7 +691,7 @@
 
 
 </style>
-@endsection
+
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
     style="margin-right: 20px;margin-top: -60px;">
@@ -904,9 +904,7 @@
 
 </div>
 
-@endsection
 
-@push('scripts')
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.1.1/js/bootstrap.min.js"></script> -->
@@ -1350,6 +1348,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 </script>
 
-@endpush
 
-@include('layout.footer')
+@stop
+

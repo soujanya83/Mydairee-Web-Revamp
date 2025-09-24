@@ -22,9 +22,9 @@
 
     /* Limit modal height and allow scroll */
     #selectChildrenModal .modal-body {
-        max-height: 80vh;
+        max-height: 50vh;
         /* limit vertical height */
-        overflow-y: auto;
+        overflow-y: scroll;
         /* enable vertical scroll */
         overflow-x: hidden;
         /* prevent horizontal scroll */
@@ -263,6 +263,10 @@
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-info" id="holidaySaveBtn">Save </button>
+                        <a href="{{ url()->previous() }}" class="btn btn-info">
+    Cancel
+</a>
+
                     </div>
                 </form>
             </div>

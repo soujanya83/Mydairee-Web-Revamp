@@ -404,11 +404,11 @@
   </div>
 </div>
 
-@endsection
 
 
 
-@push('scripts')
+
+
 <script>
   $(document).ready(function() {
     // Handle Subject click -> open Activity Modal
@@ -1104,6 +1104,4 @@
   });
 </script>
 
-@endpush
-
-@include('layout.footer')
+@stop
