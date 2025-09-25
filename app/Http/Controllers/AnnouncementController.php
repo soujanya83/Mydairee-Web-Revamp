@@ -70,17 +70,19 @@ class AnnouncementController extends Controller
             }
         }
 
-        if ($check) {
-            $users = User::join('usercenters', 'users.userid', '=', 'usercenters.userid')
-                ->where('usercenters.centerid', $centerid)
-                ->whereIn('users.userType', ['staff', 'Superadmin'])
-                ->select('users.*') // important to avoid duplicate/extra cols from join
-                ->get();
+if ($check) {
+    $users = User::join('usercenters', 'users.userid', '=', 'usercenters.userid')
+                 ->where('usercenters.centerid', $centerid)
+                 ->whereIn('users.userType', ['staff', 'Superadmin'])
+                 ->select('users.*') // important to avoid duplicate/extra cols from join
+                 ->get();
 
-            foreach ($users as $user) {
-                $user->notify(new AnnouncementAdded($announcement));
-            }
-        }
+    foreach ($users as $user) {
+        $user->notify(new AnnouncementAdded($announcement));
+    }
+}
+
+
 
 
         return response()->json([

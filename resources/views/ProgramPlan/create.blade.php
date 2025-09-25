@@ -896,10 +896,10 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
 
 
 
-@endsection
 
 
-@push('scripts')
+
+
 <script>
 let editors = {}; // Store all CKEditor instances
 
@@ -1682,10 +1682,6 @@ $('#cultureModal').on('shown.bs.modal', function () {
 </script>
 
 
-<!-- JavaScript for Modal and AJAX -->
 
-</script>
 
-@endpush
-
-@include('layout.footer')
+@stop

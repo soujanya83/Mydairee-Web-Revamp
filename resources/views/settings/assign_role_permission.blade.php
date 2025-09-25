@@ -538,18 +538,13 @@
 
 
 
-                    {{-- <div class="controls"> --}}
-                        <form action="{{ route('settings.assign_permissions') }}" method="POST">
+                    {{-- <div class="controls">    --}}
+                        <form action="{{ route('settings.update-role-permissions') }}" method="POST">
                             @csrf
-                            <input type="hidden" name="admin" value="" id="is_admin">
+                            <input type="hidden" name="id" value="{{ $role_id }}" id="">
                            
                             <div class="d-flex align-items-center gap-10 mb-5">
-                                <div class="col-md-7"> <select name="user_ids[]" id="user_ids" class="form-control"
-                                        multiple required style="flex: 1;">
-                                        @foreach($users as $user)
-                                        <option value="{{ $user->userid }}">{{ $user->name }}</option>
-                                        @endforeach
-                                    </select></div>
+                               
 
                             
                                 <button type="button" class="select-all-btn btn-outline mb-0" data-category="">
@@ -558,50 +553,9 @@
 
 
 
-                                <a class="btn-outline mb-0" href="{{ route('settings.assigned_permissions') }}"
-                                    style="color:#ffffff;margin-left:12px">
-                                    <i class="fa fa-users"></i> Assigned Users List
-                                </a>
-          @if(Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
-    <div class="dropdown d-inline-block ml-2">
-        <button class="btn btn-info btn-sm dropdown-toggle shadow-sm rounded-pill px-3 py-2"
-                type="button"
-                id="roleDropdown"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false">
-            <i class="far fa-check-circle mr-1"></i> Select Role
-        </button>
-        <div class="dropdown-menu dropdown-menu-right shadow-lg border-0 rounded-lg mt-2"
-             aria-labelledby="roleDropdown"
-             style="min-width: 220px;">
-             
-            <h6 class="dropdown-header text-primary font-weight-bold">Available Roles</h6>
-            
-            @php
-                $allowedColumns = array_diff(
-                    \Schema::getColumnListing("permission_role"),
-                    ["id","name","created_by","created_at","updated_at","centerid"]
-                );
-            @endphp
-
-            @foreach(\App\Models\Permission_Role::all() as $role)
-                <a class="dropdown-item select-role d-flex align-items-center"
-                   href="#"
-                   role="button"
-                   data-category="{{ $role->id }}"
-                   data-role-permissions='@json($role->only($allowedColumns))'>
-                    <i class="fas fa-user-tag text-info mr-2"></i> 
-                    {{ $role->name }}
-                </a>
-            @endforeach
-        </div>
-    </div>
-@endif
-
-
-
+                            
                             </div>
+                         
 
 
                             @php
@@ -633,6 +587,8 @@
 
                                     <div class="card-body">
                                         @foreach($ObservationPermissions as $perm)
+                             
+
                                         <div class="permission-item">
                                             <label>
                                                 <i class="{{ getPermissionIcon($perm['label']) }}"></i>
@@ -1447,34 +1403,6 @@
     updateMasterButtonState();
 
 });
-
-// on the basis of role 
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".select-role").forEach(item => {
-        item.addEventListener("click", function (e) {
-            e.preventDefault();
-
-            // Get permissions JSON from dropdown
-            let permissions = JSON.parse(this.getAttribute("data-role-permissions") || "{}");
-
-            // Update button text
-            document.getElementById("roleDropdown").innerHTML =
-                `<i class="far fa-check-circle"></i> ${this.textContent.trim()}`;
-
-            // Loop through all checkboxes
-            document.querySelectorAll(".permission-check").forEach(cb => {
-                let permName = cb.getAttribute("name").replace("permissions[", "").replace("]", "");
-
-                if (permissions[permName] && permissions[permName] == 1) {
-                    cb.checked = true;
-                } else {
-                    cb.checked = false;
-                }
-            });
-        });
-    });
-});
-
 </script>
 @include('layout.footer')
 

@@ -349,6 +349,12 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
     Route::get('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name('Observation.addSubActivity');
 
     Route::prefix('settings')->name('settings.')->group(function () {
+
+        Route::delete('/role-permission-delete/{id}', [PermissionController::class, 'delete_role_permission'])->name('role-permission-delete');
+        Route::post('/update-role-permissions', [PermissionController::class, 'update_role_permissions'])->name('update-role-permissions');
+        Route::get('/permission-role/{id}', [PermissionController::class, 'create_role_permission'])->name('role-permission');
+        Route::get('/manage-permission-role', [PermissionController::class, 'manage_role'])->name('manage-permission-role');
+        Route::post('/add-permission-role', [PermissionController::class, 'store_role'])->name('add-permission-role');
         Route::post('/update-permission', [PermissionController::class, 'updatepermission'])->name('update-permission');
 
 
