@@ -129,23 +129,23 @@ class UserController extends Controller
                 }
 
 
-                 // Handle Parent user type
-            // if ($user->userType === 'Parent') {
-            //     $center = Usercenter::where('userid', $user->id)->first();
-            //     session(['user_center_id' => $center->centerid ?? null]);
+                // Handle Parent user type
+                // if ($user->userType === 'Parent') {
+                //     $center = Usercenter::where('userid', $user->id)->first();
+                //     session(['user_center_id' => $center->centerid ?? null]);
 
-            //     // Check if parent has seen the login notice
-            //     if (!$user->has_seen_login_notice) {
-            //         // Mark as seen and save
-            //         $user->has_seen_login_notice = true;
-            //         $user->save();
+                //     // Check if parent has seen the login notice
+                //     if (!$user->has_seen_login_notice) {
+                //         // Mark as seen and save
+                //         $user->has_seen_login_notice = true;
+                //         $user->save();
 
-            //         // Set session flag to show modal
-            //         session(['show_parent_notice' => true]);
-            //     }
+                //         // Set session flag to show modal
+                //         session(['show_parent_notice' => true]);
+                //     }
 
-            //     return redirect()->route('dashboard.university');
-            // }
+                //     return redirect()->route('dashboard.university');
+                // }
 
 
 
@@ -307,7 +307,6 @@ class UserController extends Controller
                 'message' => 'Re-enrollment submitted successfully!',
                 'data' => $reEnrolment
             ], 201);
-
         } catch (\Exception $e) {
             Log::error('Error saving re-enrollment', [
                 'error' => $e->getMessage(),
@@ -324,139 +323,134 @@ class UserController extends Controller
 
 
     public function dashboard()
-{
-    $reEnrolments = ReEnrolment::with([])
-        ->orderBy('created_at', 'desc')
-        ->paginate(12);
+    {
+        $reEnrolments = ReEnrolment::with([])
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
 
-    $stats = [
-        'totalEnrollments' => ReEnrolment::count(),
-        'completedEnrollments' => ReEnrolment::whereNotNull('processed_at')->count(),
-        'pendingEnrollments' => ReEnrolment::whereNull('processed_at')->count(),
-        'thisWeekEnrollments' => ReEnrolment::whereBetween('created_at', [
-            now()->startOfWeek(),
-            now()->endOfWeek()
-        ])->count(),
-    ];
+        $stats = [
+            'totalEnrollments' => ReEnrolment::count(),
+            'completedEnrollments' => ReEnrolment::whereNotNull('processed_at')->count(),
+            'pendingEnrollments' => ReEnrolment::whereNull('processed_at')->count(),
+            'thisWeekEnrollments' => ReEnrolment::whereBetween('created_at', [
+                now()->startOfWeek(),
+                now()->endOfWeek()
+            ])->count(),
+        ];
 
-    return view('re-enrolmentfetch', array_merge(compact('reEnrolments'), $stats));
-}
+        return view('re-enrolmentfetch', array_merge(compact('reEnrolments'), $stats));
+    }
 
-/**
- * Get enrollment details for AJAX request
- */
-public function getDetails(ReEnrolment $reEnrolment)
-{
-    return response()->json([
-        'id' => $reEnrolment->id,
-        'child_name' => $reEnrolment->child_name,
-        'child_dob' => $reEnrolment->child_dob->format('d M Y'),
-        'parent_email' => $reEnrolment->parent_email,
-        'current_days' => $reEnrolment->current_days,
-        'requested_days' => $reEnrolment->requested_days,
-        'session_option' => $reEnrolment->session_option_display,
-        'kinder_program' => $reEnrolment->kinder_program_display,
-        'finishing_child_name' => $reEnrolment->finishing_child_name,
-        'last_day' => $reEnrolment->last_day ? $reEnrolment->last_day->format('d M Y') : null,
-        'holiday_dates' => $reEnrolment->holiday_dates,
-        'created_at' => $reEnrolment->created_at->format('d M Y H:i'),
-    ]);
-}
-
-
-public function privacyPolicy()
-{
-    return view('privacy_policy');
-}
+    /**
+     * Get enrollment details for AJAX request
+     */
+    public function getDetails(ReEnrolment $reEnrolment)
+    {
+        return response()->json([
+            'id' => $reEnrolment->id,
+            'child_name' => $reEnrolment->child_name,
+            'child_dob' => $reEnrolment->child_dob->format('d M Y'),
+            'parent_email' => $reEnrolment->parent_email,
+            'current_days' => $reEnrolment->current_days,
+            'requested_days' => $reEnrolment->requested_days,
+            'session_option' => $reEnrolment->session_option_display,
+            'kinder_program' => $reEnrolment->kinder_program_display,
+            'finishing_child_name' => $reEnrolment->finishing_child_name,
+            'last_day' => $reEnrolment->last_day ? $reEnrolment->last_day->format('d M Y') : null,
+            'holiday_dates' => $reEnrolment->holiday_dates,
+            'created_at' => $reEnrolment->created_at->format('d M Y H:i'),
+        ]);
+    }
 
 
-public function getParents()
-{
-    try {
-        $centerid = Session::get('user_center_id');
-        
-        if (!$centerid) {
+    public function privacyPolicy()
+    {
+        return view('privacy_policy');
+    }
+
+
+    public function getParents()
+    {
+        try {
+            $centerid = Session::get('user_center_id');
+
+            if (!$centerid) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Center ID not found in session'
+                ], 400);
+            }
+
+            // Get all user IDs for this center
+            $userIds = UserCenter::where('centerid', $centerid)->pluck('userid');
+
+            // Get all parent users with children count
+            $parents = User::whereIn('id', $userIds)
+                ->where('userType', 'Parent')
+                ->withCount('children')
+                ->orderBy('name')
+                ->get(['id', 'name', 'email'])
+                ->map(function ($parent) {
+                    return [
+                        'id' => $parent->id,
+                        'name' => $parent->name,
+                        'email' => $parent->email,
+                        'children_count' => $parent->children_count ?? 0
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'parents' => $parents,
+                'total_count' => $parents->count()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching parents: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Center ID not found in session'
-            ], 400);
+                'message' => 'Error fetching parents'
+            ], 500);
         }
+    }
 
-        // Get all user IDs for this center
-        $userIds = UserCenter::where('centerid', $centerid)->pluck('userid');
-
-        // Get all parent users with children count
-        $parents = User::whereIn('id', $userIds)
-            ->where('userType', 'Parent')
-            ->withCount('children')
-            ->orderBy('name')
-            ->get(['id', 'name', 'email'])
-            ->map(function ($parent) {
-                return [
-                    'id' => $parent->id,
-                    'name' => $parent->name,
-                    'email' => $parent->email,
-                    'children_count' => $parent->children_count ?? 0
-                ];
-            });
-
-        return response()->json([
-            'success' => true,
-            'parents' => $parents,
-            'total_count' => $parents->count()
+    /**
+     * Send re-enrollment emails to selected parents
+     */
+    public function sendReEnrollmentEmails(Request $request)
+    {
+        $request->validate([
+            'parent_ids' => 'required|array|min:1',
+            'parent_ids.*' => 'integer|exists:users,id'
         ]);
 
-    } catch (\Exception $e) {
-        Log::error('Error fetching parents: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error fetching parents'
-        ], 500);
-    }
-}
+        $sentCount = 0;
+        $failedCount = 0;
 
-/**
- * Send re-enrollment emails to selected parents
- */
-public function sendReEnrollmentEmails(Request $request)
-{
-    $request->validate([
-        'parent_ids' => 'required|array|min:1',
-        'parent_ids.*' => 'integer|exists:users,id'
-    ]);
+        $parents = User::whereIn('id', $request->parent_ids)
+            ->where('userType', 'Parent')
+            ->get();
 
-    $sentCount = 0;
-    $failedCount = 0;
-
-    $parents = User::whereIn('id', $request->parent_ids)
-        ->where('userType', 'Parent')
-        ->get();
-
-    foreach ($parents as $parent) {
-        try {
-            Mail::to($parent->email)->send(new ReEnrollmentInvitation($parent));
-            $sentCount++;
-            Log::info("Re-enrollment email sent to: {$parent->email}");
-        } catch (\Exception $e) {
-            $failedCount++;
-            Log::error("Failed to send re-enrollment email to {$parent->email}: " . $e->getMessage());
+        foreach ($parents as $parent) {
+            try {
+                Mail::to($parent->email)->send(new ReEnrollmentInvitation($parent));
+                $sentCount++;
+                Log::info("Re-enrollment email sent to: {$parent->email}");
+            } catch (\Exception $e) {
+                $failedCount++;
+                Log::error("Failed to send re-enrollment email to {$parent->email}: " . $e->getMessage());
+            }
         }
+
+        $message = $failedCount > 0
+            ? "Email campaign completed with some issues"
+            : "All emails sent successfully!";
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+            'sent_count' => $sentCount,
+            'failed_count' => $failedCount
+        ]);
     }
-
-    $message = $failedCount > 0
-        ? "Email campaign completed with some issues"
-        : "All emails sent successfully!";
-
-    return response()->json([
-        'status' => 'success',
-        'message' => $message,
-        'sent_count' => $sentCount,
-        'failed_count' => $failedCount
-    ]);
-}
-
-
-
-
 }

@@ -368,9 +368,9 @@
             onkeyup="filterProgramPlan()">
 
         <!-- Created By Filter -->
-        <!-- <input 
-        type="text" 
-        name="filterbyCreatedBy" 
+        <!-- <input
+        type="text"
+        name="filterbyCreatedBy"
         class="form-control border-info form-control-sm uniform-input"
         id="FilterbyCreatedBy"
         placeholder="Filter by Created by"
@@ -378,7 +378,7 @@
 
         <!-- From Date -->
         <div class="d-flex flex-column Filterbydate_from">
-            <label for="Filterbydate_from" id="Filterbydate_from_label" class="text-info small mb-1 Filterbydate_from_label">From Date</label>
+            <label for="Filterbydate_from " id="Filterbydate_fr om_label" class="text-info small m b-1 Filterbydate_from_label">From Date</label>
             <input type="date"
                 class="form-control border-info form-control-sm uniform-input"
                 id="Filterbydate_from"
@@ -469,7 +469,7 @@
                             <!-- Card Header with Status Badge -->
                             <div class="card-header bg-light border-0 pb-2">
                                 <div class="d-flex justify-content-between align-items-start">
-      
+
 
     @if(isset($announcement->type) && $announcement->type == "events")
         <span class="badge small text-white bg-info">
@@ -485,8 +485,8 @@
 
 
 
-                                    <span class="text-white badge fs-6 
-    {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"
+                                    <span class="text-white badge fs-6
+          {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"
                                         onclick="updateStatus('{{ $announcement->status }}', {{ $announcement->id }})">
 
                                         <i class="fas {{ $announcement->status == 'Sent' ? 'fa-check' : ($announcement->status == 'Pending' ? 'fa-clock' : 'fa-times') }} me-1"></i>
@@ -932,7 +932,7 @@
                                     </h6>
 
                                     <div class="d-flex align-items-center mb-3">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
                                              style="width:30px;height:30px;background-color:#17a2b8;">
                                             <small class="text-white fw-bold">${announcement.creatorName.charAt(0).toUpperCase()}</small>
                                         </div>
@@ -945,23 +945,23 @@
                                     <div class="mb-3">
                                         <small class="text-muted d-block">Event Date</small>
                                         <div class="fw-semibold">${announcement.eventDate}</div>
-                                        <small class="text-muted">${eventDateHuman}</small>
+                                        <small class=" text-muted">${eventDateHuman}</small>
                                                        <small class="text-muted d-block">Created At</small>
                                     <div class="fw-semibold">${formattedDate}</div>
                                     </div>
 
                                <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
     <!-- View button always visible -->
-    <a href="view/${announcement.id}" 
-       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
+    <a href="view/${announcement.id}"
+       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
        style="min-width:38px;height:38px;" title="View">
         <i class="fas fa-eye"></i>
     </a>
 
     <!-- Edit button only if key exists and is true -->
     ${res.permission && res.permission.addAnnouncement ? `
-    <a href="create/${announcement.id}" 
-       class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
+    <a href="create/${announcement.id}"
+       class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
        style="min-width:38px;height:38px;" title="Edit">
         <i class="fas fa-pen-to-square"></i>
     </a>` : ''}
@@ -971,8 +971,8 @@
     <form action="delete" method="POST" class="d-inline delete-form">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <input type="hidden" name="_method" value="DELETE">
-        <input type="hidden" name="announcementid" value="${announcement.id}">
-        <button type="button" class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center delete-btn" 
+        <input type="hidden" name="announcementid " value="${announcement.id}">
+        <button type="button" class="btn btn-outline-danger btn-sm mr-2 mb-2  d-flex align-items-center justify-content-center delete-btn"
                 style="min-width:38px;height:38px;" title="Delete">
             <i class="fa-solid fa-trash"></i>
         </button>
@@ -980,11 +980,11 @@
 </div>
 
                                 </div>
-                            </div>
+                             </div>
                         </div>`;
                     });
 
-                    $('.annoucement-list').html(`<div class="row g-3">${html}</div>`);
+                     $('.annoucement-list').html(`<div class="row g-3">${html}</div>`);
 
                 } else {
                     $('.annoucement-list').html(`
@@ -997,7 +997,7 @@
                             </div>
                         </div>
                     </div>
-                `);
+                 `);
                 }
             },
             error: function() {

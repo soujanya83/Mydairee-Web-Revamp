@@ -11,7 +11,7 @@
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         :root {
             --primary-color: #3a7c8c;
@@ -21,38 +21,38 @@
             --warning-color: #ffc107;
             --danger-color: #dc3545;
         }
-        
+
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
-        .sidebar {
+
+        .sidebar2 {
             background: linear-gradient(135deg, var(--primary-color) 0%, #2c6371 100%);
             min-height: 100vh;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
-        
-        .sidebar .nav-link {
+
+        .sidebar2 .nav-link {
             color: rgba(255,255,255,0.8);
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
             margin: 0.25rem;
             transition: all 0.3s ease;
         }
-        
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
+
+        .sidebar2 .nav-link:hover,
+        .sidebar2 .nav-link.active {
             background-color: rgba(255,255,255,0.1);
             color: white;
             transform: translateX(5px);
         }
-        
+
         .main-content {
             background-color: #ffffff;
             min-height: 100vh;
         }
-        
+
         .stats-card {
             /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
             border: none;
@@ -60,24 +60,24 @@
             color: white;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .stats-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
-        
+
         .stats-card.success {
             background: linear-gradient(135deg, var(--success-color) 0%, #20c997 100%);
         }
-        
+
         .stats-card.warning {
             background: linear-gradient(135deg, var(--warning-color) 0%, #fd7e14 100%);
         }
-        
+
         .stats-card.danger {
             background: linear-gradient(135deg, var(--danger-color) 0%, #e91e63 100%);
         }
-        
+
         .enrollment-card {
             border: none;
             border-radius: 12px;
@@ -85,19 +85,19 @@
             transition: all 0.3s ease;
             margin-bottom: 1.5rem;
         }
-        
+
         .enrollment-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-        
+
         .enrollment-card .card-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, #2c6371 100%);
             color: white;
             border-radius: 12px 12px 0 0 !important;
             border: none;
         }
-        
+
         .badge-days {
             background-color: var(--accent-color);
             color: #333;
@@ -105,52 +105,52 @@
             padding: 0.4em 0.8em;
             border-radius: 20px;
         }
-        
+
         .badge-session {
             background-color: var(--primary-color);
             color: white;
         }
-        
+
         .badge-kinder {
             background-color: var(--success-color);
             color: white;
         }
-        
+
         .view-toggle {
             background-color: white;
             border-radius: 25px;
             padding: 0.5rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
+
         .view-toggle .btn {
             border-radius: 20px;
             border: none;
             padding: 0.5rem 1rem;
             transition: all 0.3s ease;
         }
-        
+
         .view-toggle .btn.active {
             background-color: var(--primary-color);
             color: white;
         }
-        
+
         .table-card {
             border: none;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
-        
+
         .table-card .card-header {
             background-color: var(--primary-color);
             color: white;
             border-radius: 12px 12px 0 0 !important;
         }
-        
+
         .custom-table {
             border-radius: 0 0 12px 12px;
         }
-        
+
         .custom-table thead th {
             background-color: var(--secondary-color);
             border: none;
@@ -158,24 +158,24 @@
             color: #495057;
             padding: 1rem;
         }
-        
+
         .custom-table tbody td {
             padding: 0.75rem 1rem;
             vertical-align: middle;
             border-color: #e9ecef;
         }
-        
+
         .custom-table tbody tr:hover {
             background-color: rgba(58, 124, 140, 0.05);
         }
-        
+
         .action-buttons .btn {
             border-radius: 20px;
             padding: 0.4rem 0.8rem;
             font-size: 0.875rem;
             margin: 0.1rem;
         }
-        
+
         .search-filter-bar {
             background-color: white;
             border-radius: 12px;
@@ -183,9 +183,9 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             margin-bottom: 2rem;
         }
-        
+
         @media (max-width: 768px) {
-            .sidebar {
+            .sidebar2 {
                 position: fixed;
                 top: 0;
                 left: -250px;
@@ -193,15 +193,15 @@
                 z-index: 1000;
                 transition: left 0.3s ease;
             }
-            
-            .sidebar.show {
+
+            .sidebar2.show {
                 left: 0;
             }
-            
+
             .main-content {
                 margin-left: 0;
             }
-            
+
             .enrollment-card {
                 margin-bottom: 1rem;
             }
@@ -241,16 +241,49 @@
     justify-content: center;
     font-weight: bold;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    list-style: none;
+}
+
+.page-item {
+    margin: 0 3px;
+}
+
+.page-item .page-link {
+    color: #007bff;
+    border-radius: 8px;
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+
+.page-item .page-link:hover {
+    background-color: #e9ecef;
+    color: #0056b3;
+}
+
+
+
 </style>
 
 @section('content')
 
 <body>
-    <!-- Sidebar -->
+    <!-- sidebar2 -->
     <div class="container-fluid">
         <div class="row">
-      
-            
+
+
             <!-- Main Content -->
             <div class="col-md-12 col-lg-12 p-0">
                 <div class="main-content p-4">
@@ -278,9 +311,9 @@
                                 <i class="bi bi-grid me-1"></i> Cards
                             </button>
                         </div>
-    
+
                     </div>
-                    
+
                     <!-- Statistics Cards -->
                     <div class="row mb-4">
                         <div class="col-md-3 mb-3">
@@ -320,7 +353,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Search and Filter Bar -->
                     <div class="search-filter-bar">
                         <div class="row">
@@ -358,7 +391,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Cards View -->
                     <div id="cardsView" style="display: none;">
                         <div class="row">
@@ -387,7 +420,7 @@
                                                 <div class="fw-bold">{{ $enrollment->created_at->format('d M Y') }}</div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <small class="text-muted">Parent Email</small>
                                             <div class="fw-bold">
@@ -395,7 +428,7 @@
                                                 {{ $enrollment->parent_email }}
                                             </div>
                                         </div>
-                                        
+
                                         @if($enrollment->current_days)
                                         <div class="mb-3">
                                             <small class="text-muted d-block mb-1">Current Days (2025)</small>
@@ -404,7 +437,7 @@
                                             @endforeach
                                         </div>
                                         @endif
-                                        
+
                                         @if($enrollment->requested_days)
                                         <div class="mb-3">
                                             <small class="text-muted d-block mb-1">Requested Days (2026)</small>
@@ -413,7 +446,7 @@
                                             @endforeach
                                         </div>
                                         @endif
-                                        
+
                                         @if($enrollment->session_option)
                                         <div class="mb-3">
                                             <span class="badge badge-session">
@@ -422,7 +455,7 @@
                                             </span>
                                         </div>
                                         @endif
-                                        
+
                                         @if($enrollment->kinder_program !== 'not_attending')
                                         <div class="mb-3">
                                             <span class="badge badge-kinder">
@@ -431,14 +464,14 @@
                                             </span>
                                         </div>
                                         @endif
-                                        
+
                                         @if($enrollment->holiday_dates)
                                         <div class="mb-3">
                                             <small class="text-muted">Holiday Plans</small>
                                             <div class="text-truncate">{{ $enrollment->holiday_dates }}</div>
                                         </div>
                                         @endif
-                                        
+
                                         @if($enrollment->finishing_child_name)
                                         <div class="alert alert-warning py-2 px-3 mb-3">
                                             <small>
@@ -476,15 +509,16 @@
                             </div>
                             @endforelse
                         </div>
-                        
+
                         <!-- Pagination for Cards -->
-                        @if(isset($reEnrolments) && $reEnrolments->hasPages())
-                        <div class="d-flex justify-content-center mt-4">
-                            {{ $reEnrolments->links() }}
-                        </div>
-                        @endif
+                      @if(isset($reEnrolments) && $reEnrolments->hasPages())
+    <div class="d-flex justify-content-center mt-1 mb-5">
+        {{ $reEnrolments->links('pagination::bootstrap-5') }}
+    </div>
+@endif
+
                     </div>
-                    
+
                     <style>
                         table.custom-table th,
 table.custom-table td {
@@ -636,7 +670,7 @@ table.custom-table td {
             </div>
         </div>
     </div>
-    
+
     <!-- Detail Modal -->
     <div class="modal fade" id="detailModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -682,7 +716,7 @@ table.custom-table td {
                         <input type="text" class="form-control" id="parentSearch" placeholder="Search parents by name or email...">
                     </div>
                 </div>
-                
+
                 <!-- Select All Checkbox -->
                 <div class="mb-3">
                     <div class="form-check">
@@ -693,7 +727,7 @@ table.custom-table td {
                     </div>
                     <hr>
                 </div>
-                
+
                 <!-- Loading Spinner -->
                 <div id="loadingSpinner" class="text-center" style="display: none;">
                     <div class="spinner-border text-primary" role="status">
@@ -701,12 +735,12 @@ table.custom-table td {
                     </div>
                     <p class="mt-2 text-muted">Loading parents...</p>
                 </div>
-                
+
                 <!-- Parents List -->
                 <div id="parentsList" class="max-height-400 overflow-auto">
                     <!-- Dynamic content will be loaded here -->
                 </div>
-                
+
                 <!-- Selected Count -->
                 <div class="mt-3 p-2 bg-light rounded">
                     <small class="text-muted">
@@ -737,10 +771,10 @@ table.custom-table td {
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 
-   
 
 
-    
+
+
     <script>
         // Toggle between card and table view
         function toggleView(viewType) {
@@ -748,7 +782,7 @@ table.custom-table td {
             const tableView = document.getElementById('tableView');
             const cardBtn = document.getElementById('cardView');
             const tableBtn = document.getElementById('tableView');
-            
+
             if (viewType === 'cards') {
                 cardsView.style.display = 'block';
                 tableView.style.display = 'none';
@@ -759,7 +793,7 @@ table.custom-table td {
                 tableView.style.display = 'block';
                 cardBtn.classList.remove('active');
                 tableBtn.classList.add('active');
-                
+
                 // Initialize DataTable if not already initialized
                 if (!$.fn.DataTable.isDataTable('#enrollmentTable')) {
                     $('#enrollmentTable').DataTable({
@@ -773,13 +807,13 @@ table.custom-table td {
                 }
             }
         }
-        
+
         // View enrollment details
         function viewDetails(enrollmentId) {
             // You would typically fetch this data via AJAX
             fetch(`/re-enrolments/${enrollmentId}/details`)
                 .then(response => response.json())
-               
+
                 .then(data => {
                     document.getElementById('modalContent').innerHTML = generateDetailHTML(data);
                     new bootstrap.Modal(document.getElementById('detailModal')).show();
@@ -789,7 +823,7 @@ table.custom-table td {
                     alert('Error loading enrollment details');
                 });
         }
-        
+
         // Generate detail HTML for modal
         function generateDetailHTML(enrollment) {
             return `
@@ -831,27 +865,27 @@ table.custom-table td {
                 ` : ''}
             `;
         }
-        
+
         // Additional functions
         function editEnrollment(id) {
             window.location.href = `/admin/re-enrolments/${id}/edit`;
         }
-        
+
         function sendEmail(email) {
             window.location.href = `mailto:${email}`;
         }
-        
+
         function deleteEnrollment(id) {
             if (confirm('Are you sure you want to delete this enrollment?')) {
                 // Implement delete functionality
                 console.log('Delete enrollment:', id);
             }
         }
-        
+
         function exportData() {
             window.location.href = '/admin/re-enrolments/export/csv';
         }
-        
+
         function printDetails() {
     const modalContent = document.getElementById('modalContent').innerHTML;
 
@@ -961,18 +995,18 @@ table.custom-table td {
 
 
 
-        
+
         // Search and filter functionality
         document.getElementById('searchInput').addEventListener('input', function(e) {
             // Implement search functionality
             console.log('Search:', e.target.value);
         });
-        
-        // Mobile sidebar toggle
-        function toggleSidebar() {
-            document.querySelector('.sidebar').classList.toggle('show');
+
+        // Mobile sidebar2 toggle
+        function togglesidebar2() {
+            document.querySelector('.sidebar2').classList.toggle('show');
         }
-        
+
         // Initialize tooltips
         document.addEventListener('DOMContentLoaded', function() {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -1000,7 +1034,7 @@ document.getElementById('parentSelectModal').addEventListener('show.bs.modal', f
 function loadParents() {
     document.getElementById('loadingSpinner').style.display = 'block';
     document.getElementById('parentsList').innerHTML = '';
-    
+
     fetch('/admin/get-parents', {
         method: 'GET',
         headers: {
@@ -1011,7 +1045,7 @@ function loadParents() {
     .then(response => response.json())
     .then(data => {
         document.getElementById('loadingSpinner').style.display = 'none';
-        
+
         if (data.success) {
             allParents = data.parents;
             filteredParents = [...allParents];
@@ -1030,7 +1064,7 @@ function loadParents() {
 // Render parents list
 function renderParentsList() {
     const parentsList = document.getElementById('parentsList');
-    
+
     if (filteredParents.length === 0) {
         parentsList.innerHTML = `
             <div class="text-center py-4">
@@ -1040,11 +1074,11 @@ function renderParentsList() {
         `;
         return;
     }
-    
+
     const parentsHTML = filteredParents.map(parent => `
         <div class="parent-item p-3" data-parent-id="${parent.id}">
             <div class="form-check d-flex align-items-center">
-                <input class="form-check-input me-3" type="checkbox" value="${parent.id}" 
+                <input class="form-check-input me-3" type="checkbox" value="${parent.id}"
                        id="parent_${parent.id}" onchange="toggleParentSelection(${parent.id})">
                 <div class="parent-avatar me-3">
                     ${parent.name.charAt(0).toUpperCase()}
@@ -1067,7 +1101,7 @@ function renderParentsList() {
             </div>
         </div>
     `).join('');
-    
+
     parentsList.innerHTML = parentsHTML;
     updateSelectedCount();
 }
@@ -1076,7 +1110,7 @@ function renderParentsList() {
 function toggleParentSelection(parentId) {
     const checkbox = document.getElementById(`parent_${parentId}`);
     const parentItem = document.querySelector(`[data-parent-id="${parentId}"]`);
-    
+
     if (checkbox.checked) {
         if (!selectedParents.includes(parentId)) {
             selectedParents.push(parentId);
@@ -1086,7 +1120,7 @@ function toggleParentSelection(parentId) {
         selectedParents = selectedParents.filter(id => id !== parentId);
         parentItem.classList.remove('selected');
     }
-    
+
     updateSelectedCount();
     updateSelectAllState();
 }
@@ -1094,11 +1128,11 @@ function toggleParentSelection(parentId) {
 // Select/Deselect all parents
 document.getElementById('selectAllParents').addEventListener('change', function() {
     const isChecked = this.checked;
-    
+
     filteredParents.forEach(parent => {
         const checkbox = document.getElementById(`parent_${parent.id}`);
         const parentItem = document.querySelector(`[data-parent-id="${parent.id}"]`);
-        
+
         if (checkbox) {
             checkbox.checked = isChecked;
             if (isChecked) {
@@ -1112,7 +1146,7 @@ document.getElementById('selectAllParents').addEventListener('change', function(
             }
         }
     });
-    
+
     updateSelectedCount();
 });
 
@@ -1121,7 +1155,7 @@ function updateSelectAllState() {
     const selectAllCheckbox = document.getElementById('selectAllParents');
     const visibleParentIds = filteredParents.map(p => p.id);
     const selectedVisibleParents = selectedParents.filter(id => visibleParentIds.includes(id));
-    
+
     if (selectedVisibleParents.length === 0) {
         selectAllCheckbox.indeterminate = false;
         selectAllCheckbox.checked = false;
@@ -1140,7 +1174,7 @@ function updateSelectedCount() {
     document.getElementById('selectedCount').textContent = count;
     document.getElementById('selectedCountBtn').textContent = count;
     document.getElementById('sendEmailBtn').disabled = count === 0;
-    
+
     if (count > 0) {
         document.getElementById('sendEmailBtn').classList.remove('btn-primary');
         document.getElementById('sendEmailBtn').classList.add('btn-success');
@@ -1153,16 +1187,16 @@ function updateSelectedCount() {
 // Search functionality
 document.getElementById('parentSearch').addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase().trim();
-    
+
     if (searchTerm === '') {
         filteredParents = [...allParents];
     } else {
-        filteredParents = allParents.filter(parent => 
+        filteredParents = allParents.filter(parent =>
             parent.name.toLowerCase().includes(searchTerm) ||
             parent.email.toLowerCase().includes(searchTerm)
         );
     }
-    
+
     renderParentsList();
     updateSelectAllState();
 });
@@ -1173,7 +1207,7 @@ document.getElementById('sendEmailBtn').addEventListener('click', function() {
         showWarning('Please select at least one parent');
         return;
     }
-    
+
     // Confirm before sending
     Swal.fire({
         title: 'Send Re-Enrollment Links?',
@@ -1205,7 +1239,7 @@ function sendEmails() {
             Swal.showLoading();
         }
     });
-    
+
     fetch('/admin/send-reenrollment-emails', {
         method: 'POST',
         headers: {
@@ -1226,10 +1260,10 @@ function sendEmails() {
             const backdrop = document.querySelector('.modal-backdrop');
             if (backdrop) backdrop.remove();
         }
-        
+
         // Reset selections
         selectedParents = [];
-        
+
         // Show success message
         Swal.fire({
             title: 'Success!',
@@ -1268,7 +1302,7 @@ function showSuccess(message, sentCount, failedCount) {
                     <span class="fw-bold text-success">${sentCount}</span>
                 </div>
     `;
-    
+
     if (failedCount > 0) {
         htmlMessage += `
                 <div class="d-flex justify-content-between mt-1">
@@ -1277,12 +1311,12 @@ function showSuccess(message, sentCount, failedCount) {
                 </div>
         `;
     }
-    
+
     htmlMessage += `
             </div>
         </div>
     `;
-    
+
     Swal.fire({
         title: 'Email Campaign Complete!',
         html: htmlMessage,
