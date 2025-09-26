@@ -61,7 +61,7 @@ public function headcheckprint(Request $request)
 
 
         $centerId = Session('user_center_id');
-     
+
 
          if ($userType === "Superadmin") {
         $centerIds = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
@@ -91,7 +91,7 @@ $staff = RoomStaff::where('roomid', $request->roomid)->pluck('staffid');
 
 $staffDetails = User::whereIn('userid', $staff)->get();
 
-      
+
 
         // Role-based permission check (customize based on your DB)
         $role = $user->role; // or $user->user_type
@@ -120,7 +120,7 @@ $staffDetails = User::whereIn('userid', $staff)->get();
     'roomcolor' => $roomcolor,
     'rooms' => $centerRooms,
     'headChecks' => $headChecks,
-    'permissions' => $permission,
+    'permissionsData' => $permission,         ///// old veriable permissions ot permissionsData for setting submenu remove for change this (26/09/2025) CS.
     'centers'=>$centers,
     'staffs' => $staffDetails
 ]);

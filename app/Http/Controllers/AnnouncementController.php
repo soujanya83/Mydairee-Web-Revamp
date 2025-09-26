@@ -216,7 +216,7 @@ if ($check) {
         }
 
         // Permissions
-        $permissions = PermissionsModel::where('userid', $userId)
+        $permissionsData = PermissionsModel::where('userid', $userId)
             ->first();
 
         $holidays = PubicHoliday_Model::orderBy('date', 'desc')
@@ -226,7 +226,7 @@ if ($check) {
 
         return view('Announcement.list', compact(
             'records',
-            'permissions',
+            'permissionsData',
             'centers',
             'centerId',
             'userType',
@@ -370,7 +370,7 @@ if ($check) {
         }
 
         // Permissions
-        $permissions = Auth::user()->userType === 'Superadmin'
+        $permissionsData = Auth::user()->userType === 'Superadmin'
             ? null
             : PermissionsModel::where('userid', Auth::user()->userid)
             ->first();
@@ -383,7 +383,7 @@ if ($check) {
             'Childrens',
             'Groups',
             'Rooms',
-            'permissions',
+            'permissionsData',
             'selectedDate'
         ));
     }

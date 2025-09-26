@@ -162,11 +162,11 @@ class ObservationsController extends Controller
             $snapshot->rooms = $rooms->whereIn('id', $roomIds)->values();
         });
 
-        $permissions = Permission::where('userid', Auth::user()->userid)->first();
+        $permissionsData = Permission::where('userid', Auth::user()->userid)->first();
 
         //  dd($snapshots);
 
-        return view('observations.snapshotindex', compact('snapshots', 'centers', 'permissions'));
+        return view('observations.snapshotindex', compact('snapshots', 'centers', 'permissionsData'));
     }
 
     // public function TranslateObservation(Request $request)

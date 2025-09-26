@@ -6,13 +6,12 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 <style>
-.datepicker .prev, 
+.datepicker .prev,
 .datepicker .next {
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
 }
-
     /*  */
     #holidayEditModal .modal-body {
         max-height: 70vh;
@@ -227,13 +226,13 @@
         <input type="text" id="editDate"
             class="form-control calendar"
             name="date"
-            value="{{ isset($holidayData->Holiday_date) 
-    ? \Carbon\Carbon::parse($holidayData->Holiday_date)->format('d-m-Y') 
+            value="{{ isset($holidayData->Holiday_date)
+    ? \Carbon\Carbon::parse($holidayData->Holiday_date)->format('d-m-Y')
     : '' }}"
 
             data-date-format="dd-mm-yyyy"
             placeholder="Select date" required>
-            
+
 
         <span class="input-group-text">
             <i class="simple-icon-calendar"></i>
@@ -456,9 +455,9 @@
 
                 html = `
                 <input type="hidden" name="type" value="${eventType}">
-            
 
-             
+
+
 
 
 
@@ -471,7 +470,7 @@
             value="${date}"
             data-date-format="dd-mm-yyyy"
             placeholder="Select date" required>
-            
+
 
         <span class="input-group-text">
             <i class="simple-icon-calendar"></i>
@@ -599,7 +598,7 @@
             value="${date}"
             data-date-format="dd-mm-yyyy"
             placeholder="Select date" required>
-            
+
 
         <span class="input-group-text">
             <i class="simple-icon-calendar"></i>
@@ -673,7 +672,7 @@
             <input type="hidden" name="_method" value="PUT">
                 <input type="hidden" name="type" value="public_holiday">
 
-             
+
 
 
         <div class=" mb-3 date">
@@ -685,7 +684,7 @@
             value="${date}"
             data-date-format="dd-mm-yyyy"
             placeholder="Select date" required>
-            
+
 
         <span class="input-group-text">
             <i class="simple-icon-calendar"></i>
@@ -693,7 +692,7 @@
     </div>
 </div>
 
-                
+
 
                 <div class="mb-3">
                     <label for="holidayOccasion" style="font-weight: bold;">Occasion</label>
@@ -755,7 +754,7 @@
                 });
 
                 // Hide the entire tab-pane if no visible children in any section
-                $(this).toggle(tabHasVisibleChildren);
+                // $(this).toggle(tabHasVisibleChildren);
             });
         });
     });
@@ -1008,7 +1007,7 @@
         wrapper.innerHTML = `
         <div class="position-relative">
             ${previewHtml}
-            <button type="button" 
+            <button type="button"
                     class="btn btn-danger btn-sm remove-file position-absolute top-0 end-0 m-1">
                 ✕
             </button>

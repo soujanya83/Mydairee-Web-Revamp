@@ -324,16 +324,7 @@
         <a href="{{ route('settings.public_holiday') }}" class="btn btn-outline-info btn-lg top-right-button">Public Holiday</a>
         @endif
 
-
-        @if(Auth::user()->userType != 'Parent')
-        @if(!empty($permissions['addAnnouncement']) && $permissions['addAnnouncement'] )
-
-        <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}"
-            class="btn btn-outline-info btn-lg">ADD NEW</a>
-        @endif
-        @endif
-
-        @if(Auth::user()->userType === 'Superadmin')
+        @if((Auth::user()->userType != 'Parent') || (!empty($permissions['addAnnouncement']) && $permissions['addAnnouncement'] ))
         <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}"
             class="btn btn-outline-info btn-lg">ADD NEW</a>
         @endif
@@ -582,7 +573,7 @@
                                     </a>
 
                                     <!-- Edit -->
-                                    @if($permissions && $permissions->updateAnnouncement == 1 || Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
+                                    @if($permissionsData && $permissionsData->updateAnnouncement == 1 || Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
                                     <a href="{{ route('announcements.create', $announcement->id) }}"
                                         class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
                                         style="min-width: 38px; height: 38px;"
@@ -592,7 +583,7 @@
                                     @endif
 
                                     <!-- Delete -->
-                                    @if($permissions && $permissions->deleteAnnouncement == 1 || Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
+                                    @if($permissionsData && $permissionsData->deleteAnnouncement == 1 || Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
                                     <form action="{{ route('announcements.delete') }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
