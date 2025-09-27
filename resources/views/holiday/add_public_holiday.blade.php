@@ -238,11 +238,15 @@ th.desc .arrow::before {
                         Filter</button>
                     <a href="{{ route('settings.public_holiday') }}" class="btn btn-secondary"
                         style="margin-left:12px"><i class="fas fa-refresh"></i> Reset</a>
+
+                           <button type="button" class="btn btn-danger deleteselected-btn d-none" style="margin-left:12px" onclick="deleteselected()"><i class="fas fa-trash"></i>
+                        Delete Selected </button>
                 </form>
 
 <table id="holidayTable" class="table">
    <thead>
     <tr>
+        <th class="sortable" data-col="0"><i class="fas fa-sort"></i></th>
         <th class="sortable" data-col="0">sno <i class="fas fa-sort"></i></th>
         <th class="sortable" data-col="1">Date <i class="fas fa-sort"></i></th>
         <th class="sortable" data-col="2">Occasion <i class="fas fa-sort"></i></th>
@@ -254,6 +258,7 @@ th.desc .arrow::before {
     <tbody>
         @foreach($holidayData as $index => $holidays)
         <tr>
+            <td><input type="checkbox" name="deleteid[]" value="{{ $holidays->id }}" id="" class="deleteselected"></td>
             <td>{{ $index + 1 }}</td>
             <td>{{ $holidays->full_date->format('d M Y') }}</td>
             <td>{{ \Illuminate\Support\Str::limit($holidays->occasion, 75) }}</td>
@@ -1077,7 +1082,72 @@ document.addEventListener("DOMContentLoaded", () => {
             rows.forEach(row => tbody.appendChild(row));
         });
     });
+
+   
 });
+
+$('.deleteselected').on('change', function () {
+    if ($('.deleteselected:checked').length > 0) {
+        $('.deleteselected-btn').removeClass('d-none'); // show
+    } else {
+        $('.deleteselected-btn').addClass('d-none'); // hide
+    }
+});
+
+
+function deleteselected() {
+    let ids = $('.deleteselected:checked').map(function () {
+        return $(this).val();
+    }).get();
+
+    if (ids.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No items selected',
+            text: 'Please select at least one record to delete.',
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this action!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "{{route('settings.holidays.deleteSelected')}}",  // your Laravel route
+                type: 'POST',
+                data: {
+                    ids: ids,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: response.message || 'Selected holidays deleted successfully.',
+                    }).then(() => {
+                        location.reload(); // reload table/page
+                    });
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again later.'
+                    });
+                }
+            });
+        }
+    });
+}
+
+
 </script>
 
 

@@ -1239,7 +1239,7 @@
 
                             <div class="actions">
                                 <button type="submit" class="btn btn-info mb-3">
-                                    Assign Permissions
+                                    Save
                                 </button>
                             </div>
                         </form>

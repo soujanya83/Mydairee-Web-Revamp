@@ -351,12 +351,32 @@
     <button type="button" class="lightbox-next" aria-label="Next">&#10095;</button>
 </div>
 
-        <div class="info-block">
-            <strong>EYLF Outcomes:</strong>
-            <span class="info-text">
-                {!! nl2br(e($reflection->eylf ?? '')) !!}
-            </span>
-        </div>
+
+@php
+// Break into separate outcome strings
+$outcomes = preg_split('/(?=Outcome)/', $reflection->eylf ?? '', -1, PREG_SPLIT_NO_EMPTY);
+
+$grouped = collect($outcomes)->mapToGroups(function($item) {
+    [$heading, $sub] = explode(":", $item, 2);
+    return [trim($heading) => trim($sub)];
+});
+@endphp
+
+<div class="info-block">
+    <strong>EYLF Outcomes:</strong>
+    <br>
+    <span class="info-text">
+        @foreach($grouped as $heading => $subs)
+            <strong>{{ $heading }}</strong><br>
+            <ul>
+                @foreach($subs as $sub)
+                    <li>{{ $sub }}</li>
+                @endforeach
+            </ul>
+        @endforeach
+    </span>
+</div>
+
     </div>
 
 

@@ -257,6 +257,16 @@
             padding-inline: 0;
         }
     }
+
+    .status-btn {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    .status-btn:hover {
+        transform: scale(1.1);
+        /* zoom effect */
+    }
 </style>
 @endsection
 @section('content')
@@ -462,27 +472,29 @@
                                 <div class="d-flex justify-content-between align-items-start">
 
 
-    @if(isset($announcement->type) && $announcement->type == "events")
-        <span class="badge small text-white bg-info">
-            {{ $announcement->type }}
-        </span>
-    @endif
+                                    @if(isset($announcement->type) && $announcement->type == "events")
+                                    <span class="badge small text-white bg-info">
+                                        {{ $announcement->type }}
+                                    </span>
+                                    @endif
 
-      @if(isset($announcement->type) && $announcement->type == "announcement")
-        <span class="badge small text-white bg-secondary">
-            {{ $announcement->type }}
-        </span>
-    @endif
+                                    @if(isset($announcement->type) && $announcement->type == "announcement")
+                                    <span class="badge small text-white bg-secondary">
+                                        {{ $announcement->type }}
+                                    </span>
+                                    @endif
 
 
 
-                                    <span class="text-white badge fs-6
-          {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"
+                                    <<<<<<< HEAD
+                                        <span class="text-white badge fs-6 status-btn 
+    {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"=======<span class="text-white badge fs-6
+          {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}">>>>>>> origin/main
                                         onclick="updateStatus('{{ $announcement->status }}', {{ $announcement->id }})">
 
                                         <i class="fas {{ $announcement->status == 'Sent' ? 'fa-check' : ($announcement->status == 'Pending' ? 'fa-clock' : 'fa-times') }} me-1"></i>
                                         {{ ucfirst($announcement->status == 'Sent' ? 'Published' : 'Draft') }}
-                                    </span>
+                                        </span>
 
                                 </div>
                             </div>
@@ -682,7 +694,6 @@
                             didOpen: () => {
                                 Swal.showLoading();
 
-
                             }
 
                         });
@@ -819,6 +830,7 @@
                 $('.annoucement-list').html('<div class="text-center py-5">Loading...</div>');
             },
             success: function(res) {
+                const currentUserType = "{{ Auth::user()->userType }}";
                 if (res.status && res.records.length > 0) {
                     let html = '';
 
@@ -881,6 +893,8 @@
                         let statusIcon =
                             announcement.status === 'Sent' ? 'fa-check' :
                             announcement.status === 'Pending' ? 'fa-clock' : 'fa-times';
+                        let status = announcement.status === 'Sent' ? 'Published' :
+                            announcement.status === 'Pending' ? 'Draft' : 'Draft';
 
                         let eventDate = new Date(announcement.eventDate);
                         let createdAt = new Date(announcement.createdAt);
@@ -892,6 +906,18 @@
                         let today = new Date();
                         let diffTime = eventDate - today;
                         let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        let type = announcement.type;
+                        let htmltext = "";
+                        if (type == "events") {
+                            htmltext = `<span class="badge small text-white bg-info">
+                        ${type}
+        </span>`;
+                        } else {
+                            htmltext = `<span class="badge small text-white bg-secondary">
+            ${type }
+        </span>`;
+                        }
+
                         let eventDateHuman = '';
                         if (diffDays > 0) {
                             eventDateHuman = `Event in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
@@ -901,17 +927,26 @@
                             eventDateHuman = `Event passed ${Math.abs(diffDays)} day${Math.abs(diffDays) > 1 ? 's' : ''} ago`;
                         }
 
+
                         // --- CARD HTML ---
                         html += `
                         <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                             <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition-all">
                                 <div class="card-header bg-light border-0 pb-2">
                                     <div class="d-flex justify-content-between align-items-start">
-                                        <span class="badge text-dark small">notification</span>
-                                        <span class="text-white badge fs-6 ${statusBadgeClass}">
-                                            <i class="fas ${statusIcon} me-1"></i>
-                                            ${announcement.status.charAt(0).toUpperCase() + announcement.status.slice(1)}
-                                        </span>
+                    ${htmltext}
+
+              <span class="text-white badge fs-6 ${statusBadgeClass} status-btn"
+          onclick="updateStatus('${announcement.status}', ${announcement.id})">
+
+        <i class="fas ${statusIcon} me-1"></i>
+                    ${status}
+    </span>
+
+
+
+
+                                     
                                     </div>
                                 </div>
 
@@ -950,15 +985,15 @@
     </a>
 
     <!-- Edit button only if key exists and is true -->
-    ${res.permission && res.permission.addAnnouncement ? `
-    <a href="create/${announcement.id}"
-       class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
+    ${(res.permission && res.permission.addAnnouncement) || currentUserType === "Superadmin" ? `
+    <a href="create/${announcement.id}" 
+       class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
        style="min-width:38px;height:38px;" title="Edit">
         <i class="fas fa-pen-to-square"></i>
     </a>` : ''}
 
     <!-- Delete button only if key exists and is true -->
-    ${res.permission && res.permission.deleteAnnouncement ? `
+    ${(res.permission && res.permission.deleteAnnouncement) || currentUserType === "Superadmin" ? `
     <form action="delete" method="POST" class="d-inline delete-form">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <input type="hidden" name="_method" value="DELETE">
@@ -975,7 +1010,9 @@
                         </div>`;
                     });
 
-                     $('.annoucement-list').html(`<div class="row g-3">${html}</div>`);
+                    $('.annoucement-list').html(` < div class = "row g-3" > $ {
+                                            html
+                                        } < /div>`);
 
                 } else {
                     $('.annoucement-list').html(`

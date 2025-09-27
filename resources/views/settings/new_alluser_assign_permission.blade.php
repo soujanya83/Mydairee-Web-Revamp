@@ -187,7 +187,7 @@
     }
 
 
-        .select-all-btn2 {
+    .select-all-btn2 {
         background: rgba(255, 255, 255, 0.2);
         border: none;
         color: white;
@@ -500,7 +500,7 @@
 
 </div>
 
- <hr class="mt-3">
+<hr class="mt-3">
 
 @if ($errors->any())
 <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert" style="margin-top:-22px">
@@ -539,756 +539,756 @@
 
 
                     {{-- <div class="controls"> --}}
-                        <form action="{{ route('settings.assign_permissions') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="admin" value="" id="is_admin">
-                           
-                            <div class="d-flex align-items-center gap-10 mb-5">
-                                <div class="col-md-7"> <select name="user_ids[]" id="user_ids" class="form-control"
-                                        multiple required style="flex: 1;">
-                                        @foreach($users as $user)
-                                        <option value="{{ $user->userid }}">{{ $user->name }}</option>
-                                        @endforeach
-                                    </select></div>
+                    <form action="{{ route('settings.assign_permissions') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="admin" value="" id="is_admin">
 
-                            
-                                <button type="button" class="select-all-btn btn-outline mb-0" data-category="">
-                                    <i class="far fa-check-circle"></i> Select All Permissions
+                        <div class="d-flex align-items-center gap-10 mb-5">
+                            <div class="col-md-7"> <select name="user_ids[]" id="user_ids" class="form-control"
+                                    multiple required style="flex: 1;">
+                                    @foreach($users as $user)
+                                    <option value="{{ $user->userid }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select></div>
+
+
+                            <button type="button" class="select-all-btn btn-outline mb-0" data-category="">
+                                <i class="far fa-check-circle"></i> Select All Permissions
+                            </button>
+
+
+
+                            <a class="btn-outline mb-0" href="{{ route('settings.assigned_permissions') }}"
+                                style="color:#ffffff;margin-left:12px">
+                                <i class="fa fa-users"></i> Assigned Users List
+                            </a>
+                            @if(Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
+                            <div class="dropdown d-inline-block ml-2">
+                                <button class="btn btn-info btn-sm dropdown-toggle shadow-sm rounded-pill px-3 py-2"
+                                    type="button"
+                                    id="roleDropdown"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                    <i class="far fa-check-circle mr-1"></i> Select Role
                                 </button>
+                                <div class="dropdown-menu dropdown-menu-right shadow-lg border-0 rounded-lg mt-2"
+                                    aria-labelledby="roleDropdown"
+                                    style="min-width: 220px;">
+
+                                    <h6 class="dropdown-header text-primary font-weight-bold">Available Roles</h6>
+
+                                    @php
+                                    $allowedColumns = array_diff(
+                                    \Schema::getColumnListing("permission_role"),
+                                    ["id","name","created_by","created_at","updated_at","centerid"]
+                                    );
+                                    @endphp
+
+                                    @foreach(\App\Models\Permission_Role::all() as $role)
+                                    <a class="dropdown-item select-role d-flex align-items-center"
+                                        href="#"
+                                        role="button"
+                                        data-category="{{ $role->id }}"
+                                        data-role-permissions='@json($role->only($allowedColumns))'>
+                                        <i class="fas fa-user-tag text-info mr-2"></i>
+                                        {{ $role->name }}
+                                    </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
 
 
 
-                                <a class="btn-outline mb-0" href="{{ route('settings.assigned_permissions') }}"
-                                    style="color:#ffffff;margin-left:12px">
-                                    <i class="fa fa-users"></i> Assigned Users List
-                                </a>
-          @if(Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
-    <div class="dropdown d-inline-block ml-2">
-        <button class="btn btn-info btn-sm dropdown-toggle shadow-sm rounded-pill px-3 py-2"
-                type="button"
-                id="roleDropdown"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false">
-            <i class="far fa-check-circle mr-1"></i> Select Role
-        </button>
-        <div class="dropdown-menu dropdown-menu-right shadow-lg border-0 rounded-lg mt-2"
-             aria-labelledby="roleDropdown"
-             style="min-width: 220px;">
-             
-            <h6 class="dropdown-header text-primary font-weight-bold">Available Roles</h6>
-            
-            @php
-                $allowedColumns = array_diff(
-                    \Schema::getColumnListing("permission_role"),
-                    ["id","name","created_by","created_at","updated_at","centerid"]
-                );
-            @endphp
-
-            @foreach(\App\Models\Permission_Role::all() as $role)
-                <a class="dropdown-item select-role d-flex align-items-center"
-                   href="#"
-                   role="button"
-                   data-category="{{ $role->id }}"
-                   data-role-permissions='@json($role->only($allowedColumns))'>
-                    <i class="fas fa-user-tag text-info mr-2"></i> 
-                    {{ $role->name }}
-                </a>
-            @endforeach
-        </div>
-    </div>
-@endif
+                        </div>
 
 
+                        @php
+                        function getPermissionIcon($label) {
+                        $labelLower = strtolower($label);
+                        if (str_contains($labelLower, 'add')) return 'fas fa-plus-circle';
+                        if (str_contains($labelLower, 'approve')) return 'fas fa-check-circle';
+                        if (str_contains($labelLower, 'delete')) return 'fas fa-trash-alt';
+                        if (str_contains($labelLower, 'update') || str_contains($labelLower, 'edit')) return 'fas
+                        fa-edit';
+                        if (str_contains($labelLower, 'view')) return 'fas fa-eye';
+                        return 'fas fa-cog'; // default icon
+                        }
+                        @endphp
 
+
+                        <div class="permission-grid">
+                            <!-- Observation Management -->
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="icon-equalizer"></i>
+                                        <h3>Observation Management</h3>
+                                    </div>
+                                    <button type="button" class="select-all-btn" data-category="observation">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+
+                                <div class="card-body">
+                                    @foreach($ObservationPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                data-category="observation" name="permissions[{{ $perm['name'] }}]"
+                                                {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' : '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Reflection Management -->
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fa-solid fa-window-restore"></i>
+                                        <h3>Reflection Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="reflection">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($ReflectionPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="reflection"
+                                                {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- QIP Management -->
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fa-solid fa-clipboard"></i>
+                                        <h3>QIP Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="qip">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($QipPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" name="permissions[{{ $perm['name'] }}]"
+                                                class="permission-check" data-category="qip" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Room Management -->
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fa-solid fa-users-viewfinder"></i>
+                                        <h3>Room Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="room">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($RoomPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="room" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
                             </div>
 
 
-                            @php
-                            function getPermissionIcon($label) {
-                            $labelLower = strtolower($label);
-                            if (str_contains($labelLower, 'add')) return 'fas fa-plus-circle';
-                            if (str_contains($labelLower, 'approve')) return 'fas fa-check-circle';
-                            if (str_contains($labelLower, 'delete')) return 'fas fa-trash-alt';
-                            if (str_contains($labelLower, 'update') || str_contains($labelLower, 'edit')) return 'fas
-                            fa-edit';
-                            if (str_contains($labelLower, 'view')) return 'fas fa-eye';
-                            return 'fas fa-cog'; // default icon
-                            }
-                            @endphp
-
-
-                            <div class="permission-grid">
-                                <!-- Observation Management -->
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="icon-equalizer"></i>
-                                            <h3>Observation Management</h3>
-                                        </div>
-                                        <button type="button" class="select-all-btn" data-category="observation">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fa fa-bullhorn"></i>
+                                        <h3>Announcement Manage</h3>
                                     </div>
-
-                                    <div class="card-body">
-                                        @foreach($ObservationPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    data-category="observation" name="permissions[{{ $perm['name'] }}]"
-                                                    {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' : '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="announcement">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
                                 </div>
-
-                                <!-- Reflection Management -->
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fa-solid fa-window-restore"></i>
-                                            <h3>Reflection Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="reflection">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($ReflectionPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="reflection"
-                                                    {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                <div class="card-body">
+                                    @foreach($AnnouncementPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="announcement"
+                                                {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
                                                 'checked' :
                                                 '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
+                                            <span class="slider"></span>
+                                        </label>
                                     </div>
+                                    @endforeach
                                 </div>
-
-                                <!-- QIP Management -->
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fa-solid fa-clipboard"></i>
-                                            <h3>QIP Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="qip">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($QipPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" name="permissions[{{ $perm['name'] }}]"
-                                                    class="permission-check" data-category="qip" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <!-- Room Management -->
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fa-solid fa-users-viewfinder"></i>
-                                            <h3>Room Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="room">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($RoomPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="room" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fa fa-bullhorn"></i>
-                                            <h3>Announcement Manage</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="announcement">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($AnnouncementPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="announcement"
-                                                    {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-door-open"></i>
-                                            <h3>Survey Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="survey">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($SurveyPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="survey" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-utensils"></i>
-                                            {{-- <i class="fas fa-utensils" style="font-size: 25px;"></i> --}}
-                                            <h3>Healthy Eating(Recipes)</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="recipes">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($RecipePermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="recipes" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-utensils"></i>
-
-                                            <h3>Healthy Eating(Menu)</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="menu">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($MenuPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="menu" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-                                <!-- Program Plan -->
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            <h3>Program Plan Manage</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="program">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($ProgramPlanPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="program" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <!-- Daily Operations -->
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-calendar-day"></i>
-                                            <h3>Daily Journal Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="daily">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($DailyPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="daily" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <!-- User Management -->
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-users"></i>
-                                            <h3>User Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="user">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($UsersPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="user" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-location"></i>
-                                            <h3>Centers Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="centers">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($CentersPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="centers" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-child"></i>
-                                            <h3>Childrens Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="childrens">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($ChildPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="childrens" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-user-friends"></i>
-                                            <h3>Parent Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="parent">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($ParentPlanPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="parent" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-chart-line"></i>
-                                            <h3>Progress Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="progress">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($ProgressPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="progress" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-book-open"></i>
-                                            <h3>Lesson Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="lesson">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($LessonPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="lesson" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-file-alt"></i>
-                                            <h3>Assessment Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="assessment">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($AssessmentPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="assessment"
-                                                    {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-ambulance"></i>
-                                            <h3>Accidents Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="accidents">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($AccidentsPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="accidents" {{
-                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' :
-                                                '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="icon-camera"></i>
-                                            <h3>Snapshots Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="snapshots">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($SnapshotsPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="snapshots"
-                                                    {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' : '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-
-                                <!-- Permissions Module -->
-                                <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-key"></i>
-                                            <h3>Permissions Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="permissions">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($otherPermissions as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="permissions"
-                                                    {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' : '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <!-- Activity permission -->
-                                       <div class="permission-card">
-                                    <div class="card-header">
-                                        <div class="header-content">
-                                            <i class="fas fa-key"></i>
-                                            <h3>Activity Management</h3>
-                                        </div>
-                                        <button class="select-all-btn" type="button" data-category="activities">
-                                            <i class="fas fa-check-circle"></i> All
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($ActivityPermission as $perm)
-                                        <div class="permission-item">
-                                            <label>
-                                                <i class="{{ getPermissionIcon($perm['label']) }}"></i>
-                                                {{ $perm['label'] }}
-                                            </label>
-                                            <label class="switch">
-                                                <input type="checkbox" class="permission-check"
-                                                    name="permissions[{{ $perm['name'] }}]" data-category="activities"
-                                                    {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
-                                                'checked' : '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
                             </div>
 
-                            <div class="actions">
-                                <button type="submit" class="btn btn-info mb-3">
-                                    Assign Permissions
-                                </button>
-                            </div>
-                        </form>
 
-                    </div>
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-door-open"></i>
+                                        <h3>Survey Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="survey">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($SurveyPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="survey" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-utensils"></i>
+                                        {{-- <i class="fas fa-utensils" style="font-size: 25px;"></i> --}}
+                                        <h3>Healthy Eating(Recipes)</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="recipes">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($RecipePermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="recipes" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-utensils"></i>
+
+                                        <h3>Healthy Eating(Menu)</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="menu">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($MenuPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="menu" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+                            <!-- Program Plan -->
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <h3>Program Plan Manage</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="program">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($ProgramPlanPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="program" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Daily Operations -->
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-calendar-day"></i>
+                                        <h3>Daily Journal Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="daily">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($DailyPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="daily" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- User Management -->
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-users"></i>
+                                        <h3>User Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="user">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($UsersPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="user" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-location"></i>
+                                        <h3>Centers Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="centers">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($CentersPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="centers" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-child"></i>
+                                        <h3>Childrens Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="childrens">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($ChildPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="childrens" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-user-friends"></i>
+                                        <h3>Parent Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="parent">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($ParentPlanPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="parent" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-chart-line"></i>
+                                        <h3>Progress Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="progress">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($ProgressPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="progress" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-book-open"></i>
+                                        <h3>Lesson Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="lesson">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($LessonPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="lesson" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-file-alt"></i>
+                                        <h3>Assessment Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="assessment">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($AssessmentPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="assessment"
+                                                {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-ambulance"></i>
+                                        <h3>Accidents Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="accidents">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($AccidentsPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="accidents" {{
+                                                    !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' :
+                                                '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="icon-camera"></i>
+                                        <h3>Snapshots Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="snapshots">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($SnapshotsPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="snapshots"
+                                                {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' : '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+                            <!-- Permissions Module -->
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-key"></i>
+                                        <h3>Permissions Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="permissions">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($otherPermissions as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="permissions"
+                                                {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' : '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Activity permission -->
+                            <div class="permission-card">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-key"></i>
+                                        <h3>Activity Management</h3>
+                                    </div>
+                                    <button class="select-all-btn" type="button" data-category="activities">
+                                        <i class="fas fa-check-circle"></i> All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($ActivityPermission as $perm)
+                                    <div class="permission-item">
+                                        <label>
+                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                            {{ $perm['label'] }}
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" class="permission-check"
+                                                name="permissions[{{ $perm['name'] }}]" data-category="activities"
+                                                {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ?
+                                                'checked' : '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="actions">
+                            <button type="submit" class="btn btn-info mb-3">
+                                Assign Permissions
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
             </body>
         </div>
 
@@ -1299,182 +1299,193 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    $(document).ready(function () {
-    $('#user_ids').select2({
-        placeholder: "Select users",
-        width: '100%'
-    });
-
-    const selectAllBtns = document.querySelectorAll('.select-all-btn');
-    const permissionChecks = document.querySelectorAll('.permission-check');
-   
-
-
-    // Master "Select All Permissions" button functionality
-    const masterBtn = document.querySelector('.select-all-btn[data-category=""]');
-    masterBtn.addEventListener('click', function () {
-        const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
-        const newState = !allChecked;
-        permissionChecks.forEach(checkbox => {
-            checkbox.checked = newState;
+    $(document).ready(function() {
+        $('#user_ids').select2({
+            placeholder: "Select users",
+            width: '100%'
         });
+
+        const selectAllBtns = document.querySelectorAll('.select-all-btn');
+        const permissionChecks = document.querySelectorAll('.permission-check');
+
+
+
+        // Master "Select All Permissions" button functionality
+        const masterBtn = document.querySelector('.select-all-btn[data-category=""]');
+        masterBtn.addEventListener('click', function() {
+            const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
+            const newState = !allChecked;
+            permissionChecks.forEach(checkbox => {
+                checkbox.checked = newState;
+            });
+            selectAllBtns.forEach(btn => {
+                btn.classList.toggle('active', newState);
+            });
+        });
+
+        // Card-specific "All" button functionality
         selectAllBtns.forEach(btn => {
-            btn.classList.toggle('active', newState);
+            if (btn.getAttribute('data-category')) { // Skip master button
+                btn.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    const checkboxes = document.querySelectorAll(`.permission-check[data-category="${category}"]`);
+                    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                    const newState = !allChecked;
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = newState;
+                    });
+                    this.classList.toggle('active', newState);
+                    updateMasterButtonState();
+                });
+            }
         });
-    });
 
-    // Card-specific "All" button functionality
-    selectAllBtns.forEach(btn => {
-        if (btn.getAttribute('data-category')) { // Skip master button
-            btn.addEventListener('click', function () {
+
+
+
+        // Update "All" button state when individual checkboxes change
+        permissionChecks.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
                 const category = this.getAttribute('data-category');
                 const checkboxes = document.querySelectorAll(`.permission-check[data-category="${category}"]`);
+                const selectAllBtn = document.querySelector(`.select-all-btn[data-category="${category}"]`);
                 const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                const newState = !allChecked;
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = newState;
-                });
-                this.classList.toggle('active', newState);
+                selectAllBtn.classList.toggle('active', allChecked);
                 updateMasterButtonState();
             });
-        }
-    });
-
-
-
-
-    // Update "All" button state when individual checkboxes change
-    permissionChecks.forEach(checkbox => {
-        checkbox.addEventListener('change', function () {
-            const category = this.getAttribute('data-category');
-            const checkboxes = document.querySelectorAll(`.permission-check[data-category="${category}"]`);
-            const selectAllBtn = document.querySelector(`.select-all-btn[data-category="${category}"]`);
-            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-            selectAllBtn.classList.toggle('active', allChecked);
-            updateMasterButtonState();
         });
+
+        // Update master button state based on all checkboxes
+        function updateMasterButtonState() {
+            const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
+            const noneChecked = Array.from(permissionChecks).every(cb => !cb.checked);
+            masterBtn.classList.toggle('active', allChecked);
+        }
+
+        // Initialize button states
+        updateMasterButtonState();
+
     });
-
-    // Update master button state based on all checkboxes
-    function updateMasterButtonState() {
-        const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
-        const noneChecked = Array.from(permissionChecks).every(cb => !cb.checked);
-        masterBtn.classList.toggle('active', allChecked);
-    }
-
-    // Initialize button states
-    updateMasterButtonState();
-
-});
 </script>
 
 <script>
-    $(document).ready(function () {
-    $('#user_ids').select2({
-        placeholder: "Select users",
-        width: '100%'
-    });
-
-    const selectAllBtns = document.querySelectorAll('.select-all-btn2');
-    const permissionChecks = document.querySelectorAll('.permission-check');
-    
-
-    
-    // Master "Select All Permissions" button functionality
-    const masterBtn = document.querySelector('.select-all-btn2[data-category=""]');
-    masterBtn.addEventListener('click', function () {
-        if( $('#is_admin').val() == 1){
-  $('#is_admin').val('0');
-        }else{
-              $('#is_admin').val('1');
-        }
-         
-        const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
-        const newState = !allChecked;
-        permissionChecks.forEach(checkbox => {
-            checkbox.checked = newState;
+    $(document).ready(function() {
+        $('#user_ids').select2({
+            placeholder: "Select users",
+            width: '100%'
         });
+
+        const selectAllBtns = document.querySelectorAll('.select-all-btn2');
+        const permissionChecks = document.querySelectorAll('.permission-check');
+
+
+
+        // Master "Select All Permissions" button functionality
+        const masterBtn = document.querySelector('.select-all-btn2[data-category=""]');
+        masterBtn.addEventListener('click', function() {
+            if ($('#is_admin').val() == 1) {
+                $('#is_admin').val('0');
+            } else {
+                $('#is_admin').val('1');
+            }
+
+            const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
+            const newState = !allChecked;
+            permissionChecks.forEach(checkbox => {
+                checkbox.checked = newState;
+            });
+            selectAllBtns.forEach(btn => {
+                btn.classList.toggle('active', newState);
+            });
+        });
+
+
+
+        // Card-specific "All" button functionality
         selectAllBtns.forEach(btn => {
-            btn.classList.toggle('active', newState);
+            if (btn.getAttribute('data-category')) { // Skip master button
+                btn.addEventListener('click', function() {
+
+                    const category = this.getAttribute('data-category');
+                    const checkboxes = document.querySelectorAll(`.permission-check[data-category="${category}"]`);
+                    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                    const newState = !allChecked;
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = newState;
+                    });
+                    this.classList.toggle('active', newState);
+                    updateMasterButtonState();
+                });
+            }
         });
-    });
 
-   
 
-    // Card-specific "All" button functionality
-    selectAllBtns.forEach(btn => {
-        if (btn.getAttribute('data-category')) { // Skip master button
-            btn.addEventListener('click', function () {
-            
+
+
+        // Update "All" button state when individual checkboxes change
+        permissionChecks.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+
                 const category = this.getAttribute('data-category');
                 const checkboxes = document.querySelectorAll(`.permission-check[data-category="${category}"]`);
+                const selectAllBtn = document.querySelector(`.select-all-btn2[data-category="${category}"]`);
                 const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                const newState = !allChecked;
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = newState;
-                });
-                this.classList.toggle('active', newState);
+                selectAllBtn.classList.toggle('active', allChecked);
                 updateMasterButtonState();
             });
-        }
-    });
-
-
-
-
-    // Update "All" button state when individual checkboxes change
-    permissionChecks.forEach(checkbox => {
-        checkbox.addEventListener('change', function () {
-          
-            const category = this.getAttribute('data-category');
-            const checkboxes = document.querySelectorAll(`.permission-check[data-category="${category}"]`);
-            const selectAllBtn = document.querySelector(`.select-all-btn2[data-category="${category}"]`);
-            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-            selectAllBtn.classList.toggle('active', allChecked);
-            updateMasterButtonState();
         });
+
+        // Update master button state based on all checkboxes
+        function updateMasterButtonState() {
+            const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
+            const noneChecked = Array.from(permissionChecks).every(cb => !cb.checked);
+            masterBtn.classList.toggle('active', allChecked);
+
+        }
+
+        // Initialize button states
+        updateMasterButtonState();
+
     });
 
-    // Update master button state based on all checkboxes
-    function updateMasterButtonState() {
-        const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
-        const noneChecked = Array.from(permissionChecks).every(cb => !cb.checked);
-        masterBtn.classList.toggle('active', allChecked);
-          
-    }
+    // on the basis of role 
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".select-role").forEach(item => {
+            item.addEventListener("click", function(e) {
+                e.preventDefault();
 
-    // Initialize button states
-    updateMasterButtonState();
+                // ✅ Get selected role name (trimmed + lowercase)
+                let selectedRole = this.textContent.trim().toLowerCase();
 
-});
-
-// on the basis of role 
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".select-role").forEach(item => {
-        item.addEventListener("click", function (e) {
-            e.preventDefault();
-
-            // Get permissions JSON from dropdown
-            let permissions = JSON.parse(this.getAttribute("data-role-permissions") || "{}");
-
-            // Update button text
-            document.getElementById("roleDropdown").innerHTML =
-                `<i class="far fa-check-circle"></i> ${this.textContent.trim()}`;
-
-            // Loop through all checkboxes
-            document.querySelectorAll(".permission-check").forEach(cb => {
-                let permName = cb.getAttribute("name").replace("permissions[", "").replace("]", "");
-
-                if (permissions[permName] && permissions[permName] == 1) {
-                    cb.checked = true;
+                // ✅ Update hidden input for admin
+                if (selectedRole === 'admin') {
+                    document.getElementById("is_admin").value = "1";
                 } else {
-                    cb.checked = false;
+                    document.getElementById("is_admin").value = "0";
                 }
+
+
+
+                // Get permissions JSON from dropdown
+                let permissions = JSON.parse(this.getAttribute("data-role-permissions") || "{}");
+
+                // Update button text
+                document.getElementById("roleDropdown").innerHTML =
+                    `<i class="far fa-check-circle"></i> ${this.textContent.trim()}`;
+
+                // Loop through all checkboxes
+                document.querySelectorAll(".permission-check").forEach(cb => {
+                    let permName = cb.getAttribute("name").replace("permissions[", "").replace("]", "");
+
+                    if (permissions[permName] && permissions[permName] == 1) {
+                        cb.checked = true;
+                    } else {
+                        cb.checked = false;
+                    }
+                });
             });
         });
     });
-});
-
 </script>
 @include('layout.footer')
 
