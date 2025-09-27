@@ -130,11 +130,21 @@
         @endif
     </div>
     <hr>
-
+   
+   
     <form method="POST" action="{{ route('rooms.bulk_delete') }}" id="deleteRoomsForm">
         @csrf
         @method('DELETE')
         @if(!empty($permissions['deleteRoom']) && $permissions['deleteRoom'])
+
+        <div class="d-flex flex-row d-flex justify-content-end mb-3">
+<div class="d-flex justify-content-end mb-3 mx-2">
+    <button type="button" id="toggle-age-btn" class="btn btn-outline-danger">
+        <i class="fa fa-toggle-on"></i> <span class="toggle-label">Years</span>
+    </button>
+</div>
+
+
 
         <div class="d-flex justify-content-end mb-3">
 
@@ -143,6 +153,11 @@
                 <i class="fa fa-trash"></i> Delete Selected
             </button>
         </div>
+        </div>
+
+        
+
+
         @endif
 
         <div class="row clearfix" style="margin-bottom: 43px;">
@@ -178,6 +193,15 @@
 
                         @endif
                     </div>
+
+                  <div class="mb-2 children-age" 
+     data-age-from="{{ $room->ageFrom }}" 
+     data-age-to="{{ $room->ageTo }}">
+    <i class="fa fa-children me-2" style="color:blue"></i>
+    <span class="age-text">
+        Age Group (years): {{ $room->ageFrom }} to {{ $room->ageTo }}
+    </span>
+</div>
 
                     <div class="mb-2">
                         <i class="fa fa-children me-2" style="color:blue"></i>
@@ -503,7 +527,89 @@
             }
         });
     });
+
+    children-months
+       document.getElementById('roomSearch').addEventListener('input', function () {
+        let searchTerm = this.value.toLowerCase();
+        let cards = document.querySelectorAll('.room-card');
+
+        cards.forEach(card => {
+            let roomName = card.getAttribute('data-room-name');
+            if (roomName.includes(searchTerm)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+
+
+
 </script>
+
+<!-- <script>
+$(document).ready(function () {
+    let showInMonths = false;
+
+    $('#toggle-age-btn').click(function () {
+        // alert();
+        showInMonths = !showInMonths;
+
+        $('.children-age').each(function () {
+           
+            let ageFrom = parseFloat($(this).data('age-from'));
+            let ageTo   = parseFloat($(this).data('age-to'));
+
+            if (showInMonths) {
+                // Convert years to months
+                let fromMonths = Math.round(ageFrom * 12);
+                let toMonths   = Math.round(ageTo * 12);
+                $(this).find('.age-text').text(`Age Group (months): ${fromMonths} to ${toMonths}`);
+            } else {
+                // Back to years
+                $(this).find('.age-text').text(`Age Group (years): ${ageFrom} to ${ageTo}`);
+            }
+        });
+
+        // Toggle button text
+        $(this).html(showInMonths 
+            ? '<i class="fa fa-toggle-off"></i> Show in Years' 
+            : '<i class="fa fa-toggle-on"></i> Show in Months'
+        );
+    });
+});
+</script> -->
+
+<script>
+$(document).ready(function () {
+    let showInYears = true; // default
+
+    $('#toggle-age-btn').on('click', function () {
+        showInYears = !showInYears; // flip state
+
+        $('.children-age').each(function () {
+            let ageFrom = parseFloat($(this).data('age-from'));
+            let ageTo   = parseFloat($(this).data('age-to'));
+
+            if (showInYears) {
+                // Show in years
+                $(this).find('.age-text').text(`Age Group (years): ${ageFrom} to ${ageTo}`);
+            } else {
+                // Convert years → months
+                let fromMonths = Math.round(ageFrom * 12);
+                let toMonths   = Math.round(ageTo * 12);
+                $(this).find('.age-text').text(`Age Group (months): ${fromMonths} to ${toMonths}`);
+            }
+        });
+
+        // Update icon + label
+        $(this).find('i').toggleClass('fa-toggle-on fa-toggle-off');
+        $(this).find('.toggle-label').text(showInYears ? 'Years' : 'Months');
+    });
+});
+</script>
+
 
 @include('layout.footer')
 @stop

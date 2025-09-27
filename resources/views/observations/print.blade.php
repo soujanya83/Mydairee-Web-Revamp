@@ -461,14 +461,24 @@
                 });
                 @endphp
 
-                @foreach($groupedByOutcome as $outcomeTitle => $links)
-                <strong>{{ $outcomeTitle }}</strong><br>
-                @foreach($links as $link)
-                - {{ $link->subActivity->activity->title ?? 'N/A' }}<br>
-                &nbsp;&nbsp;&nbsp;• {{ $link->subActivity->title ?? 'N/A' }}<br>
-                @endforeach
-                <br>
-                @endforeach
+               @foreach($groupedByOutcome as $outcomeTitle => $links)
+    <strong>{{ $outcomeTitle }}</strong><br>
+
+    @php
+        // Group links by activity title
+        $groupedByActivity = collect($links)->groupBy(fn($link) => $link->subActivity->activity->title ?? 'N/A');
+    @endphp
+
+    @foreach($groupedByActivity as $activityTitle => $subLinks)
+        - {{ $activityTitle }}<br>
+        @foreach($subLinks as $link)
+            &nbsp;&nbsp;&nbsp;• {{ $link->subActivity->title ?? 'N/A' }}<br>
+        @endforeach
+    @endforeach
+
+    <br>
+@endforeach
+
                 @endif
             </span>
         </div>
@@ -506,7 +516,7 @@
                 });
                 @endphp
 
-                @foreach($groupedBySubject as $subjectName => $assessments)
+             {{--   @foreach($groupedBySubject as $subjectName => $assessments)
                 <strong>{{ $subjectName }}</strong><br>
                 @foreach($assessments as $assessment)
                 - {{ $assessment->subActivity->activity->title ?? 'N/A' }}<br>
@@ -523,6 +533,36 @@
                 @endforeach
                 <br>
                 @endforeach
+                --}}
+                @foreach($groupedBySubject as $subjectName => $assessments)
+    <strong>{{ $subjectName }}</strong><br>
+
+    @php
+        // Group by Activity title inside each Subject
+        $groupedByActivity = collect($assessments)->groupBy(fn($assessment) => $assessment->subActivity->activity->title ?? 'N/A');
+
+        $statusClass = [
+            'Not Assessed' => 'badge-danger',
+            'Introduced'   => 'badge-info',
+            'Working'      => 'badge-warning',
+            'Completed'    => 'badge-success'
+        ];
+    @endphp
+
+    @foreach($groupedByActivity as $activityTitle => $subAssessments)
+        - {{ $activityTitle }}<br>
+
+        @foreach($subAssessments as $assessment)
+            &nbsp;&nbsp;&nbsp;• {{ $assessment->subActivity->title ?? 'N/A' }}
+            <span class="badge {{ $statusClass[$assessment->assesment] ?? 'badge-secondary' }}">
+                {{ $assessment->assesment }}
+            </span>
+            <br>
+        @endforeach
+    @endforeach
+
+    <br>
+@endforeach
                 @endif
             </span>
         </div>

@@ -30,6 +30,26 @@ use App\Models\PubicHoliday_Model;
 
 class PublicHolidayController extends Controller
 {
+   public function deleteSelected(Request $request)
+{
+    $ids = $request->input('ids', []);
+
+    if (!empty($ids)) {
+        // Delete all records with given IDs
+        PubicHoliday_Model::destroy($ids);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Selected holidays deleted successfully.'
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'error',
+        'message' => 'No holidays selected.'
+    ], 400);
+}
+
 
     public function holidayEvents()
     {
