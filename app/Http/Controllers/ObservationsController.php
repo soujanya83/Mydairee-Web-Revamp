@@ -52,54 +52,122 @@ use Illuminate\Support\Facades\Mail;
 
 class ObservationsController extends Controller
 {
-public function print_snapshots($id)
-{
-    $authId = Auth::user()->id;
-    $centerid = Session('user_center_id');
 
-    if (Auth::user()->userType == "Superadmin") {
-        $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $center)->get();
+    public function print_snapshots($id)
+    {
+        $authId   = Auth::id();
+        $centerid = session('user_center_id');
 
-        $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-            ->where('centerid', $centerid)
-            ->where('id', $id)
-            ->firstOrFail();
+        // Get centers based on user type
+        if (Auth::user()->userType === "Superadmin") {
+            $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers   = Center::whereIn('id', $centerIds)->get();
 
-         
+            $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('centerid', $centerid)
+                ->where('id', $id)
+                ->firstOrFail();
+        } elseif (Auth::user()->userType === "Staff") {
+            $centers = Center::where('id', $centerid)->get();
 
-    } elseif (Auth::user()->userType == "Staff") {
-        $centers = Center::where('id', $centerid)->get();
+            $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('createdBy', $authId)
+                ->where('id', $id)
+                ->firstOrFail();
+        } else { // Parent
+            $centers = Center::where('id', $centerid)->get();
 
-        $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-            ->where('createdBy', $authId)
-            ->where('id', $id)
-            ->firstOrFail();
+            $childIds   = Childparent::where('parentid', $authId)->pluck('childid');
+            $snapshotIds = SnapshotChild::whereIn('childid', $childIds)
+                ->pluck('snapshotid')
+                ->unique()
+                ->toArray();
 
-    } else {
-        $centers = Center::where('id', $centerid)->get();
+            $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->whereIn('id', $snapshotIds)
+                ->where('id', $id)
+                ->firstOrFail();
+        }
 
-        $childids = Childparent::where('parentid', $authId)->pluck('childid');
-        $snapshotid = SnapshotChild::whereIn('childid', $childids)
-            ->pluck('snapshotid')
-            ->unique()
-            ->toArray();
+        // ✅ Rooms mapping
+        $roomIds = !empty($snapshot->roomids) ? explode(',', $snapshot->roomids) : [];
+        $rooms   = Room::whereIn('id', $roomIds)->get();
+        $roomNames = $rooms->pluck('name')->implode(', ');
 
-        $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-            ->whereIn('id', $snapshotid)
-            ->where('id', $id)
-            ->firstOrFail();
+        // Permissions
+        $permissions = Permission::where('userid', Auth::user()->userid)->first();
+
+        return view('snapshots.printSnapshots', compact('snapshot', 'centers', 'permissions', 'rooms', 'roomNames'));
     }
 
-    // Rooms mapping
-    $roomIds = explode(',', $snapshot->roomids ?? '');
-    $rooms = Room::whereIn('id', $roomIds)->pluck('name')->toArray();
-    $roomNames = implode(', ', $rooms);
+    public function snapshotindex()
+    {
 
-    $permissions = Permission::where('userid', Auth::user()->userid)->first();
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
 
-    return view('snapshots.printsnapshots', compact('snapshot', 'centers', 'permissions', 'roomNames'));
-}
+        if (Auth::user()->userType == "Superadmin") {
+            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+
+        if (Auth::user()->userType == "Superadmin") {
+
+            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('centerid', $centerid)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
+
+        } elseif (Auth::user()->userType == "Staff") {
+
+            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('createdBy', $authId)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
+
+        } else {
+
+            $childids = Childparent::where('parentid', $authId)->pluck('childid');
+            $snapshotid = SnapshotChild::whereIn('childid', $childids)
+                ->pluck('snapshotid')
+                ->unique()
+                ->toArray();
+            // dd($childids);
+            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->whereIn('id', $snapshotid)
+                ->orderBy('id', 'desc') // optional: to show latest first
+                ->paginate(10); // 10 items per page
+
+        }
+
+
+        $allRoomIds = $snapshots->pluck('roomids')
+            ->flatMap(function ($roomids) {
+                return explode(',', $roomids);
+            })
+            ->unique()
+            ->filter(); // Use filter to remove any empty values
+
+
+        $rooms = collect();
+        if ($allRoomIds->isNotEmpty()) {
+            $rooms = Room::whereIn('id', $allRoomIds)->get()->keyBy('id');
+        }
+
+
+        $snapshots->each(function ($snapshot) use ($rooms) {
+            $roomIds = explode(',', $snapshot->roomids);
+            $snapshot->rooms = $rooms->whereIn('id', $roomIds)->values();
+        });
+
+        $permissionsData = Permission::where('userid', Auth::user()->userid)->first();
+
+        //  dd($snapshots);
+
+        return view('observations.snapshotindex', compact('snapshots', 'centers', 'permissionsData'));
+    }
 
     // public function TranslateObservation(Request $request)
     // {
@@ -1457,7 +1525,7 @@ Observation:
         // Get all room IDs for the center
         // $roomIds = Room::where('centerid', $centerid)->pluck('id');
 
-      
+
 
         // Get all children in those rooms
         $children = Child::whereIn('room', $roomIds)->where('status', 'Active')->orderBy('name','asc')->get();
@@ -1480,7 +1548,7 @@ Observation:
         // Merge both collections and remove duplicates
         // $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
 
-      
+
 
         // Get all children in those rooms
         $children = Child::whereIn('room', $allRoomIds)->where('status', 'Active')->orderBy('name','asc')->get();
@@ -2444,74 +2512,7 @@ Observation:
 
 
 
-    public function snapshotindex()
-    {
 
-        $authId = Auth::user()->id;
-        $centerid = Session('user_center_id');
-
-        if (Auth::user()->userType == "Superadmin") {
-            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-            $centers = Center::whereIn('id', $center)->get();
-        } else {
-            $centers = Center::where('id', $centerid)->get();
-        }
-
-        if (Auth::user()->userType == "Superadmin") {
-
-            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-                ->where('centerid', $centerid)
-                ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page
-
-        } elseif (Auth::user()->userType == "Staff") {
-
-            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-                ->where('createdBy', $authId)
-                ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page
-
-        } else {
-
-            $childids = Childparent::where('parentid', $authId)->pluck('childid');
-            $snapshotid = SnapshotChild::whereIn('childid', $childids)
-                ->pluck('snapshotid')
-                ->unique()
-                ->toArray();
-            // dd($childids);
-            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-                ->whereIn('id', $snapshotid)
-                ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page
-
-        }
-
-
-        $allRoomIds = $snapshots->pluck('roomids')
-            ->flatMap(function ($roomids) {
-                return explode(',', $roomids);
-            })
-            ->unique()
-            ->filter(); // Use filter to remove any empty values
-
-
-        $rooms = collect();
-        if ($allRoomIds->isNotEmpty()) {
-            $rooms = Room::whereIn('id', $allRoomIds)->get()->keyBy('id');
-        }
-
-
-        $snapshots->each(function ($snapshot) use ($rooms) {
-            $roomIds = explode(',', $snapshot->roomids);
-            $snapshot->rooms = $rooms->whereIn('id', $roomIds)->values();
-        });
-
-        $permissions = Permission::where('userid', Auth::user()->userid)->first();
-
-        //  dd($snapshots);
-
-        return view('observations.snapshotindex', compact('snapshots', 'centers', 'permissions'));
-    }
 
 
 
@@ -2796,7 +2797,7 @@ Observation:
             'comments' => 'required|string|max:1000'
         ]);
         $comment = $observation->comments()->create([
-            'userId' => auth()->id(),
+            'userId' => Auth::user()->id,
             'comments' => $validated['comments'],
         ]);
         return response()->json([

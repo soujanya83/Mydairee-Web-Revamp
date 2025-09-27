@@ -203,10 +203,10 @@ $edit = $add = 0;
 if ($role === 'Superadmin') {
 $edit = $add = 1;
 } elseif ($role === 'Staff') {
-if (isset($permissions->addAnnouncement) && $permissions->addAnnouncement == 1) {
+if (isset($permissionsData->addAnnouncement) && $permissionsData->addAnnouncement == 1) {
 $add = 1;
 }
-if (isset($permissions->updateAnnouncement) && $permissions->updateAnnouncement == 1) {
+if (isset($permissionsData->updateAnnouncement) && $permissionsData->updateAnnouncement == 1) {
 $edit = 1;
 }
 }
@@ -285,10 +285,10 @@ $edit = 1;
                                                 <input type="text"
                                                     class="form-control calendar"
                                                     name="eventDate"
-                                                    value="{{ isset($announcement->eventDate) 
-            ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y') 
-            : (isset($selectedDate) 
-                ? \Carbon\Carbon::parse($selectedDate)->format('d-m-Y') 
+                                                    value="{{ isset($announcement->eventDate)
+            ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y')
+            : (isset($selectedDate)
+                ? \Carbon\Carbon::parse($selectedDate)->format('d-m-Y')
                 : \Carbon\Carbon::now()->format('d-m-Y')) }}"
                                                     data-date-format="dd-mm-yyyy"
                                                     placeholder="Select date">
@@ -357,11 +357,11 @@ $edit = 1;
                             <div class="row">
                                   <div class="col-12 text-right">
                                     @php
-                                    $canSave = !empty($permissions->addAnnouncement) || auth()->user()->userType === "Superadmin" || auth()->user()->admin == 1;
+                                    $canSave = !empty($permissionsData->addAnnouncement) || auth()->user()->userType === "Superadmin" || auth()->user()->admin == 1;
                                     @endphp
 
                                     @if ($canSave)
-                                 
+
                                     <button type="submit" class="btn btn-save my-2 btn-md-xl px-4 py-2">
                                         Save
                                     </button>
@@ -369,11 +369,11 @@ $edit = 1;
     Cancel
 </a>
 
-                              
-                                    @else
-                                
 
-                                  
+                                    @else
+
+
+
                                     <button type="button" class="btn btn-save-disabled my-2 px-4 py-2"
                                         data-toggle="tooltip" data-placement="top"
                                         title="You need permission to save!">
@@ -426,10 +426,10 @@ $edit = 1;
                                                 <input type="text"
                                                     class="form-control calendar"
                                                     name="eventDate"
-                                                    value="{{ isset($announcement->eventDate) 
-            ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y') 
-            : (isset($selectedDate) 
-                ? \Carbon\Carbon::parse($selectedDate)->format('d-m-Y') 
+                                                    value="{{ isset($announcement->eventDate)
+            ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y')
+            : (isset($selectedDate)
+                ? \Carbon\Carbon::parse($selectedDate)->format('d-m-Y')
                 : \Carbon\Carbon::now()->format('d-m-Y')) }}"
                                                     data-date-format="dd-mm-yyyy"
                                                     placeholder="Select date">
@@ -555,11 +555,11 @@ $edit = 1;
                             <div class="row">
                                   <div class="col-12 text-right">
                                     @php
-                                    $canSave = !empty($permissions->addAnnouncement) || auth()->user()->userType === "Superadmin" || auth()->user()->admin == 1;
+                                    $canSave = !empty($permissionsData->addAnnouncement) || auth()->user()->userType === "Superadmin" || auth()->user()->admin == 1;
                                     @endphp
 
                                     @if ($canSave)
-                                 
+
                                     <button type="submit" class="btn btn-save my-2 btn-md-xl px-4 py-2">
                                         Save
                                     </button>
@@ -567,11 +567,11 @@ $edit = 1;
     Cancel
 </a>
 
-                              
-                                    @else
-                                
 
-                                  
+                                    @else
+
+
+
                                     <button type="button" class="btn btn-save-disabled my-2 px-4 py-2"
                                         data-toggle="tooltip" data-placement="top"
                                         title="You need permission to save!">
@@ -665,10 +665,10 @@ $edit = 1;
                                                 <input type="text"
                                                     class="form-control calendar"
                                                     name="date"
-                                                    value="{{ isset($announcement->eventDate) 
-            ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y') 
-            : (isset($selectedDate) 
-                ? \Carbon\Carbon::parse($selectedDate)->format('d-m-Y') 
+                                                    value="{{ isset($announcement->eventDate)
+            ? \Carbon\Carbon::parse($announcement->eventDate)->format('d-m-Y')
+            : (isset($selectedDate)
+                ? \Carbon\Carbon::parse($selectedDate)->format('d-m-Y')
                 : \Carbon\Carbon::now()->format('d-m-Y')) }}"
                                                     data-date-format="dd-mm-yyyy"
                                                     placeholder="Select date">
@@ -738,11 +738,11 @@ $edit = 1;
                             <div class="row">
                                 <div class="col-12 text-right">
                                     @php
-                                    $canSave = !empty($permissions->addAnnouncement) || auth()->user()->userType === "Superadmin" || auth()->user()->admin == 1;
+                                    $canSave = !empty($permissionsData->addAnnouncement) || auth()->user()->userType === "Superadmin" || auth()->user()->admin == 1;
                                     @endphp
 
                                     @if ($canSave)
-                                 
+
                                     <button type="submit" class="btn btn-save my-2 btn-md-xl px-4 py-2">
                                         Save
                                     </button>
@@ -750,11 +750,11 @@ $edit = 1;
     Cancel
 </a>
 
-                              
-                                    @else
-                                
 
-                                  
+                                    @else
+
+
+
                                     <button type="button" class="btn btn-save-disabled my-2 px-4 py-2"
                                         data-toggle="tooltip" data-placement="top"
                                         title="You need permission to save!">
@@ -1214,7 +1214,7 @@ $edit = 1;
             wrapper.innerHTML = `
                 <div class="position-relative">
                     ${previewHtml}
-                    <button type="button" 
+                    <button type="button"
                             class="btn btn-danger btn-sm remove-file position-absolute top-0 end-0 m-1">
                         ✕
                     </button>
@@ -1362,7 +1362,8 @@ $edit = 1;
                 });
 
                 // Hide the entire tab-pane if no visible children in any section
-                $(this).toggle(tabHasVisibleChildren);
+
+                // $(this).toggle(tabHasVisibleChildren);    //// sidebar hide if search child
             });
         });
     });
@@ -1614,7 +1615,7 @@ $edit = 1;
         @else
           $("#eventType").val("announcement").trigger('change');
         @endif
-       
+
     });
 
     $('.calendar').datepicker({

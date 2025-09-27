@@ -242,7 +242,7 @@
                                     <a href="{{ route('settings.superadmin_settings') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;Super-Admin Settings</a>
                                 </li>
                                 @endif
-                                <li class="{{ Request::segment(2) === 'add-wifi-ip' ? 'active' : null }}">
+                                <li class="{{ Request::segment(2) === 'ip-list' ? 'active' : null }}">
                                     <a href="{{ route('settings.wifi_add_page') }}" data-toggle="tooltip" data-placement="right"> &nbsp; &nbsp; &nbsp;IP Manage</a>
                                 </li>
                                 @php

@@ -374,7 +374,7 @@ class PublicHolidayController extends Controller
         $Groups = [];
         $Rooms = [];
 
-      
+
         // dd( $announcement );
 
 
@@ -494,7 +494,7 @@ class PublicHolidayController extends Controller
         }
 
         // Permissions
-        $permissions = Auth::user()->userType === 'Superadmin'
+        $permissionsData = Auth::user()->userType === 'Superadmin'
             ? null
             : PermissionsModel::where('userid', Auth::user()->userid)
             ->first();
@@ -504,7 +504,7 @@ class PublicHolidayController extends Controller
             'Childrens',
             'Groups',
             'Rooms',
-            'permissions',
+            'permissionsData',
             ));
     }
 
@@ -514,7 +514,7 @@ public function holidaysEdit($id){
       $holidayData = PubicHoliday_Model::where('id',$id)->first();
         //     $query = PubicHoliday_Model::query();
 
-   
+
 
         // $holidayData = $query->get()->map(function ($holiday) {
         //     $holiday->full_date = Carbon::createFromDate(
@@ -534,7 +534,7 @@ public function holidaysEdit($id){
         //     );
         // })->values(); // indexes reset
 
-       
+
 
         // value of childrens
         $centerid = Session('user_center_id');
@@ -545,7 +545,7 @@ public function holidaysEdit($id){
         $Groups = [];
         $Rooms = [];
 
-      
+
         // dd( $announcement );
 
 
@@ -665,7 +665,7 @@ public function holidaysEdit($id){
         }
 
         // Permissions
-        $permissions = Auth::user()->userType === 'Superadmin'
+        $permissionsData = Auth::user()->userType === 'Superadmin'
             ? null
             : PermissionsModel::where('userid', Auth::user()->userid)
             ->first();
@@ -675,7 +675,7 @@ public function holidaysEdit($id){
             'Childrens',
             'Groups',
             'Rooms',
-            'permissions',
+            'permissionsData',
             ));
 }
 

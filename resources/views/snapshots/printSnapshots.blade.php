@@ -287,11 +287,12 @@
     <div class="container">
         <div class="header">
             <img src="{{ asset('assets/profile_1739442700.jpeg') }}" alt="NEXTGEN Montessori" class="logo">
-            <div class="title">Snapshot Gallery</div>
+            <div class="title"><i class="fas fa-camera-retro mr-3"></i> Snapshots Gallery</div>
             <hr>
         </div>
 
         <div class="info-block">
+               <i class="fas fa-calendar-alt"></i>
             <strong>Date:</strong>
             <span class="info-text">
                 {{ \Carbon\Carbon::parse($snapshot->created_at)->format('d M Y') }}
@@ -301,11 +302,15 @@
         <div class="snapshot-card" style="page-break-after: always;">
             <div class="card-header">
 
+                <i class="fas fa-bookmark"></i> <!-- bookmark style title -->
+
                 <strong>Title: {{ strip_tags($snapshot->title) }}</strong>
                 <br>
 
                 <div>
                     <br>
+                    <i class="fas fa-check-circle"></i> <!-- success -->
+
                     <strong>Status:</strong>
                     <span
                         class="status-badge {{ strtolower($snapshot->status) === 'published' ? 'status-published' : 'status-draft' }}">
@@ -323,7 +328,7 @@
             $children = $snapshot->children->pluck('child')->filter();
             @endphp
             <div class="image-count">
-                <i class="fas fa-images mr-1"></i> <strong>{{ count($images) }} Images</strong>
+                <i class="fas fa-images mr-1"></i> <strong>Images: {{ count($images) }} </strong>
             </div>
             <div class="image-gallery" style="display:flex; flex-wrap:wrap; gap:10px;margin-top:8px">
                 @foreach($images as $image)
@@ -338,7 +343,7 @@
 
             {{-- Children --}}
             <div class="children-section" style="margin-top:10px;">
-                <div class="section-title"><i class="fas fa-child"></i> <strong>Children</strong></div>
+                <div class="section-title"><i class="fas fa-children"></i> <strong>Children</strong></div>
                 <div class="children-list" style="margin-top:8px;">
                     @foreach($children as $child)
                     @php
@@ -359,17 +364,18 @@
 
 
             {{-- Rooms --}}
-            {{-- <div class="rooms-section" style="margin-top:15px;">
-                <div class="section-title"><i class="fas fa-door-open"></i> <strong>Rooms</strong></div>
+            <div class="rooms-section" style="margin-top:15px;">
+                <div class="section-title"><i class="fas fa-home"></i> <strong>Rooms</strong></div>
                 <div class="rooms-list" style="margin-top:8px;">
-                     @foreach($snapshot->rooms as $room)
-                            <span class="room-item">{{ $room->name }}</span>
-                            @endforeach
+                    <div class="rooms-list" style="margin-top:8px;">
+                        <span class="room-item">{{ $roomNames }}</span>
+                    </div>
+
                 </div>
-            </div> --}}
+            </div>
 
             <div class="card-body" style="margin-top:15px;">
-                <div class="snapshot-details">
+                <div class="snapshot-details"> <i class="fas fa-info-circle"></i>
                     <strong>About: </strong> {{ strip_tags($snapshot->about) }}
                 </div>
             </div>

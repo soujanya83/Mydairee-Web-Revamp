@@ -258,13 +258,15 @@
         }
     }
 
-    .status-btn{
+    .status-btn {
         cursor: pointer;
-         transition: transform 0.3s ease; 
+        transition: transform 0.3s ease;
     }
-  .status-btn:hover {
-    transform: scale(1.1); /* zoom effect */
-}
+
+    .status-btn:hover {
+        transform: scale(1.1);
+        /* zoom effect */
+    }
 </style>
 @endsection
 @section('content')
@@ -332,16 +334,7 @@
         <a href="{{ route('settings.public_holiday') }}" class="btn btn-outline-info btn-lg top-right-button">Public Holiday</a>
         @endif
 
-
-        @if(Auth::user()->userType != 'Parent')
-        @if(!empty($permissions['addAnnouncement']) && $permissions['addAnnouncement'] )
-
-        <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}"
-            class="btn btn-outline-info btn-lg">ADD NEW</a>
-        @endif
-        @endif
-
-        @if(Auth::user()->userType === 'Superadmin')
+        @if((Auth::user()->userType != 'Parent') || (!empty($permissions['addAnnouncement']) && $permissions['addAnnouncement'] ))
         <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}"
             class="btn btn-outline-info btn-lg">ADD NEW</a>
         @endif
@@ -376,9 +369,9 @@
             onkeyup="filterProgramPlan()">
 
         <!-- Created By Filter -->
-        <!-- <input 
-        type="text" 
-        name="filterbyCreatedBy" 
+        <!-- <input
+        type="text"
+        name="filterbyCreatedBy"
         class="form-control border-info form-control-sm uniform-input"
         id="FilterbyCreatedBy"
         placeholder="Filter by Created by"
@@ -386,7 +379,7 @@
 
         <!-- From Date -->
         <div class="d-flex flex-column Filterbydate_from">
-            <label for="Filterbydate_from" id="Filterbydate_from_label" class="text-info small mb-1 Filterbydate_from_label">From Date</label>
+            <label for="Filterbydate_from " id="Filterbydate_fr om_label" class="text-info small m b-1 Filterbydate_from_label">From Date</label>
             <input type="date"
                 class="form-control border-info form-control-sm uniform-input"
                 id="Filterbydate_from"
@@ -493,13 +486,15 @@
 
 
 
-                                    <span class="text-white badge fs-6 status-btn 
-    {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"
+                                    <<<<<<< HEAD
+                                        <span class="text-white badge fs-6 status-btn 
+    {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"=======<span class="text-white badge fs-6
+          {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}">>>>>>> origin/main
                                         onclick="updateStatus('{{ $announcement->status }}', {{ $announcement->id }})">
 
                                         <i class="fas {{ $announcement->status == 'Sent' ? 'fa-check' : ($announcement->status == 'Pending' ? 'fa-clock' : 'fa-times') }} me-1"></i>
                                         {{ ucfirst($announcement->status == 'Sent' ? 'Published' : 'Draft') }}
-                                    </span>
+                                        </span>
 
                                 </div>
                             </div>
@@ -590,7 +585,7 @@
                                     </a>
 
                                     <!-- Edit -->
-                                    @if($permissions && $permissions->updateAnnouncement == 1 || Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
+                                    @if($permissionsData && $permissionsData->updateAnnouncement == 1 || Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
                                     <a href="{{ route('announcements.create', $announcement->id) }}"
                                         class="btn btn-outline-info btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
                                         style="min-width: 38px; height: 38px;"
@@ -600,7 +595,7 @@
                                     @endif
 
                                     <!-- Delete -->
-                                    @if($permissions && $permissions->deleteAnnouncement == 1 || Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
+                                    @if($permissionsData && $permissionsData->deleteAnnouncement == 1 || Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
                                     <form action="{{ route('announcements.delete') }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
@@ -835,7 +830,7 @@
                 $('.annoucement-list').html('<div class="text-center py-5">Loading...</div>');
             },
             success: function(res) {
-                 const currentUserType = "{{ Auth::user()->userType }}"; 
+                const currentUserType = "{{ Auth::user()->userType }}";
                 if (res.status && res.records.length > 0) {
                     let html = '';
 
@@ -898,7 +893,7 @@
                         let statusIcon =
                             announcement.status === 'Sent' ? 'fa-check' :
                             announcement.status === 'Pending' ? 'fa-clock' : 'fa-times';
-                            let status =             announcement.status === 'Sent' ? 'Published' :
+                        let status = announcement.status === 'Sent' ? 'Published' :
                             announcement.status === 'Pending' ? 'Draft' : 'Draft';
 
                         let eventDate = new Date(announcement.eventDate);
@@ -963,7 +958,7 @@
                                     </h6>
 
                                     <div class="d-flex align-items-center mb-3">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
                                              style="width:30px;height:30px;background-color:#17a2b8;">
                                             <small class="text-white fw-bold">${announcement.creatorName.charAt(0).toUpperCase()}</small>
                                         </div>
@@ -976,15 +971,15 @@
                                     <div class="mb-3">
                                         <small class="text-muted d-block">Event Date</small>
                                         <div class="fw-semibold">${announcement.eventDate}</div>
-                                        <small class="text-muted">${eventDateHuman}</small>
+                                        <small class=" text-muted">${eventDateHuman}</small>
                                                        <small class="text-muted d-block">Created At</small>
                                     <div class="fw-semibold">${formattedDate}</div>
                                     </div>
 
                                <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
     <!-- View button always visible -->
-    <a href="view/${announcement.id}" 
-       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center" 
+    <a href="view/${announcement.id}"
+       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
        style="min-width:38px;height:38px;" title="View">
         <i class="fas fa-eye"></i>
     </a>
@@ -1002,8 +997,8 @@
     <form action="delete" method="POST" class="d-inline delete-form">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <input type="hidden" name="_method" value="DELETE">
-        <input type="hidden" name="announcementid" value="${announcement.id}">
-        <button type="button" class="btn btn-outline-danger btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center delete-btn" 
+        <input type="hidden" name="announcementid " value="${announcement.id}">
+        <button type="button" class="btn btn-outline-danger btn-sm mr-2 mb-2  d-flex align-items-center justify-content-center delete-btn"
                 style="min-width:38px;height:38px;" title="Delete">
             <i class="fa-solid fa-trash"></i>
         </button>
@@ -1011,11 +1006,13 @@
 </div>
 
                                 </div>
-                            </div>
+                             </div>
                         </div>`;
                     });
 
-                    $('.annoucement-list').html(`<div class="row g-3">${html}</div>`);
+                    $('.annoucement-list').html(` < div class = "row g-3" > $ {
+                                            html
+                                        } < /div>`);
 
                 } else {
                     $('.annoucement-list').html(`
@@ -1028,7 +1025,7 @@
                             </div>
                         </div>
                     </div>
-                `);
+                 `);
                 }
             },
             error: function() {
