@@ -1627,5 +1627,5 @@ $edit = 1;
 </script>
 
 @endpush
-
+@include('layout.footer')
 @stop

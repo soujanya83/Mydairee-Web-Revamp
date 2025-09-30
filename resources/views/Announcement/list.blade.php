@@ -486,10 +486,10 @@
 
 
 
-                                    <<<<<<< HEAD
+                                  
                                         <span class="text-white badge fs-6 status-btn 
     {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"=======<span class="text-white badge fs-6
-          {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}">>>>>>> origin/main
+          {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"
                                         onclick="updateStatus('{{ $announcement->status }}', {{ $announcement->id }})">
 
                                         <i class="fas {{ $announcement->status == 'Sent' ? 'fa-check' : ($announcement->status == 'Pending' ? 'fa-clock' : 'fa-times') }} me-1"></i>
@@ -1111,4 +1111,5 @@
     }
 </script>
 @endpush
+@include('layout.footer')
 @stop

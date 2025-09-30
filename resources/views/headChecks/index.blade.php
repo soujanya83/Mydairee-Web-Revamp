@@ -1113,4 +1113,5 @@ $(document).ready(function() {
 
 
 @endpush
+@include('layout.footer')
 @stop

@@ -1683,5 +1683,5 @@ $('#cultureModal').on('shown.bs.modal', function () {
 
 
 
-
+@include('layout.footer')
 @stop
