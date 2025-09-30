@@ -1481,4 +1481,5 @@ function clearSignatureCanvas(resetIdentity = false) {
 
 
 @endpush
+@include('layout.footer')
 @stop
