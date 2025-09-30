@@ -664,7 +664,14 @@ table.custom-table td {
                                     </table>
                                 </div>
                             </div>
+                            
                         </div>
+                                       <!-- Pagination for Cards -->
+                      @if(isset($reEnrolments) && $reEnrolments->hasPages())
+    <div class="d-flex justify-content-center mt-1 mb-5">
+        {{ $reEnrolments->links('pagination::bootstrap-5') }}
+    </div>
+@endif
                     </div>
                 </div>
             </div>

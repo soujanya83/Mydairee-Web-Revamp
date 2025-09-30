@@ -870,7 +870,7 @@
 <!-- Birthday Modal -->
 <!-- 🎂 Birthday Modal -->
   <div class="particles" id="particles"></div>
- <div class="modal fade" id="birthdayModal" tabindex="-1" aria-labelledby="birthdayModalLabel" aria-hidden="true">
+ <div class="modal " id="birthdayModal" tabindex="-1" aria-labelledby="birthdayModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow-lg border-0 rounded-3">
                 <!-- Confetti overlay -->
@@ -931,7 +931,7 @@
     </div>
 
     <!-- 📢 Announcement Modal -->
-    <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+    <div class="modal " id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow-lg border-0 rounded-3">
                 <div class="modal-header announcement-header text-white">
@@ -962,7 +962,7 @@
     </div>
 
     <!-- 🎌 Holiday Modal -->
-    <div class="modal fade" id="holidayModal" tabindex="-1" aria-hidden="true">
+    <div class="modal " id="holidayModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow-lg border-0 rounded-3">
                 <div class="modal-header holiday-header text-white">

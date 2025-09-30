@@ -169,6 +169,8 @@ class ReflectionController extends Controller
             ->pluck('name')
             ->implode(', '); // or ->toArray() if you prefer array
 
+            
+
         return view('reflections.printReflection', compact('reflection', 'roomNames'));
     }
 

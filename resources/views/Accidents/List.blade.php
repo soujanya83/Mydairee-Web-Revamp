@@ -1261,4 +1261,5 @@ function showfilter(val) {
 
 </script>
     @endpush
+    @include('layout.footer')
  @stop

@@ -827,6 +827,7 @@ class SettingsController extends Controller
 
     public function parent_settings()
     {
+        // dd('here');
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
 
@@ -841,10 +842,9 @@ class SettingsController extends Controller
                 $query->select('child.id', 'name', 'lastname');
             }])
             ->get();
+           
 
-        // dd($parents);
-
-        $children = Child::where('centerid', $centerid)->get();
+        $children = Child::where('centerid', $centerid)->orderBy('name','asc')->get();
         // dd($children);
 
         if (Auth::user()->userType == "Superadmin") {

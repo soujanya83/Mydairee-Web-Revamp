@@ -1348,6 +1348,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 </script>
 
-
+@include('layout.footer')
 @stop
 

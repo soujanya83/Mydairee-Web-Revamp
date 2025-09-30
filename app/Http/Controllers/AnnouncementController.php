@@ -129,7 +129,11 @@ if ($check) {
             $query->where('createdBy', $request->createdBy);
         }
 
+
+
         if ($request->filled('status')) {
+
+            
             $query->where('status', $request->status);
         }
 

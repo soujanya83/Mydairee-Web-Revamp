@@ -1103,5 +1103,5 @@
     });
   });
 </script>
-
+@include('layout.footer')
 @stop

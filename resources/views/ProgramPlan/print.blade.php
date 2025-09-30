@@ -311,10 +311,41 @@
             </tr>
         </table>
 
-        <div class="eylf-section">
-            <div class="section-label" style="margin:10px;">EYLF:</div>
-            <div style="margin:10px;">{!! nl2br(e($plan['eylf'] ?? '')) !!}</div>
-        </div>
+      <div class="eylf-section">
+    <div class="section-label" style="margin:10px;">EYLF:</div>
+    <div style="margin:10px;">
+        @php
+            $raw = $plan['eylf'] ?? '';
+
+            // Split on "Outcome" while keeping "Outcome" text
+            $outcomes = preg_split('/(?=Outcome)/', $raw, -1, PREG_SPLIT_NO_EMPTY);
+
+            $grouped = collect($outcomes)->mapToGroups(function($item) {
+                // If there's a ":" separate heading and sub, otherwise treat as heading only
+                if (strpos($item, ':') !== false) {
+                    [$heading, $sub] = explode(":", $item, 2);
+                    return [trim($heading) => trim($sub)];
+                } else {
+                    return [trim($item) => null];
+                }
+            });
+        @endphp
+
+        @foreach($grouped as $heading => $subs)
+            <strong>{{ $heading }}</strong><br>
+            @if($subs->filter()->isNotEmpty())
+                <ul>
+                    @foreach($subs as $sub)
+                        @if($sub)
+                            <li>{{ $sub }}</li>
+                        @endif
+                    @endforeach
+                </ul>
+            @endif
+        @endforeach
+    </div>
+</div>
+
 
         <div class="footer">
             1 Capricorn Road, Truganina, VIC 3029
