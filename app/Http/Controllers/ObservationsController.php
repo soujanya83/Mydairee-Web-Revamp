@@ -1493,11 +1493,11 @@ Observation:
             // dd($rooms);
 
             if ($user->userType === 'Superadmin') {
-                $children = $this->getChildrenForSuperadmin( $roomIds);
+                $children = $this->getChildrenForSuperadmin($roomIds);
             } elseif ($user->userType === 'Staff') {
-                $children = $this->getChildrenForStaff( $roomIds);
+                $children = $this->getChildrenForStaff($roomIds);
             } else {
-                $children = $this->getChildrenForParent( $roomIds);
+                $children = $this->getChildrenForParent($roomIds);
             }
 
             return response()->json([
@@ -1516,19 +1516,62 @@ Observation:
         }
     }
 
+    public function getChildren_for_filter(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // Get selected child IDs from request (if any)
+            $selectedChildIds = $request->input('child_ids', []);
+
+            if (!empty($selectedChildIds)) {
+                // If child IDs are selected → filter by those IDs
+                $children = Child::whereIn('id', $selectedChildIds)
+                    ->where('status', 'Active')
+                    ->orderBy('name', 'asc')
+                    ->get();
+            } else {
+                // If no IDs selected → return all children (based on user type)
+                if ($user->userType === 'Superadmin') {
+                    $children = Child::where('status', 'Active')
+                        ->orderBy('name', 'asc')
+                        ->get();
+                } elseif ($user->userType === 'Staff') {
+                    $children = Child::where('status', 'Active')
+                        ->orderBy('name', 'asc')
+                        ->get();
+                } else {
+                    // For parents → only their children
+                    $childIds = Childparent::where('parentid', $user->id)->pluck('childid');
+                    $children = Child::whereIn('id', $childIds)
+                        ->where('status', 'Active')
+                        ->orderBy('name', 'asc')
+                        ->get();
+                }
+            }
+
+            return response()->json([
+                'children' => $children,
+                'status' => 'success',
+                'success' => true
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Filter error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while applying filters',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
     private function getChildrenForSuperadmin($roomIds)
     {
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
 
-        // Get all room IDs for the center
-        // $roomIds = Room::where('centerid', $centerid)->pluck('id');
-
-
-
-        // Get all children in those rooms
-        $children = Child::whereIn('room', $roomIds)->where('status', 'Active')->orderBy('name','asc')->get();
+        $children = Child::whereIn('room', $roomIds)->where('status', 'Active')->orderBy('name', 'asc')->get();
 
         return $children;
     }
@@ -1538,20 +1581,7 @@ Observation:
     {
         $authId = Auth::user()->id;
         $centerid = Session('user_center_id');
-
-        // Get room IDs from RoomStaff where staff is assigned
-        // $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
-
-        // Get room IDs where user is the owner (userId matches)
-        // $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
-
-        // Merge both collections and remove duplicates
-        // $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
-
-
-
-        // Get all children in those rooms
-        $children = Child::whereIn('room', $allRoomIds)->where('status', 'Active')->orderBy('name','asc')->get();
+        $children = Child::whereIn('room', $allRoomIds)->where('status', 'Active')->orderBy('name', 'asc')->get();
 
         return $children;
     }
@@ -1563,7 +1593,7 @@ Observation:
 
         // $childids = Childparent::where('parentid', $authId)->pluck('childid');
 
-        $children = Child::whereIn('id', $childids)->where('status', 'Active')->orderBy('name','asc')->get();
+        $children = Child::whereIn('id', $childids)->where('status', 'Active')->orderBy('name', 'asc')->get();
 
         return $children;
     }
