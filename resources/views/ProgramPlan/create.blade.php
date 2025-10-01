@@ -5,7 +5,12 @@
 
 
 
-
+<style>
+    #eylfModal .modal-body {
+    max-height: none !important;
+    overflow-y: auto;
+}
+    </style>
 @section('content')
 
     <main data-centerid="<?= isset($centerId)?$centerId:null; ?>" style="padding-block:5em;padding-inline:2em;">
