@@ -5,12 +5,7 @@
 
 
 
-<style>
-    #eylfModal .modal-body {
-    max-height: none !important;
-    overflow-y: auto;
-}
-    </style>
+
 @section('content')
 
     <main data-centerid="<?= isset($centerId)?$centerId:null; ?>" style="padding-block:5em;padding-inline:2em;">
@@ -327,36 +322,44 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-
             <div class="modal-body" style="max-height:500px;overflow-y:auto;">
                 <div class="eylf-tree">
                     <ul class="list-group">
                         <!-- Main EYLF Framework -->
                         <li class="list-group-item eylf-framework">
-                            <div>
-                                <strong>Early Years Learning Framework (EYLF) - Australia (V2.0 2022)</strong>
+                            <div class="d-flex align-items-center">
+                                <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#eylfFramework">
+                                    <i class="fa fa-chevron-right"></i>
+                                </span>
+                                <span>Early Years Learning Framework (EYLF) - Australia (V2.0 2022)</span>
                             </div>
                             
                             <!-- EYLF Framework content -->
-                            <div class="mt-2">
+                            <div id="eylfFramework" class="collapse mt-2">
                                 <ul class="list-group">
                                     <!-- EYLF Learning Outcomes -->
                                     <li class="list-group-item eylf-outcomes-container">
-                                        <div>
-                                            <strong>EYLF Learning Outcomes</strong>
+                                        <div class="d-flex align-items-center">
+                                            <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#eylfOutcomes">
+                                                <i class="fa fa-chevron-right"></i>
+                                            </span>
+                                            <span>EYLF Learning Outcomes</span>
                                         </div>
                                         
                                         <!-- List of all outcomes -->
-                                        <div class="mt-2">
+                                        <div id="eylfOutcomes" class="collapse mt-2">
                                             <ul class="list-group">
                                                 <?php foreach ($eylf_outcomes as $outcome) : ?>
                                                 <li class="list-group-item eylf-outcome">
-                                                    <div>
-                                                        <strong><?= $outcome->title ?> - <?= $outcome->name ?></strong>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#outcome<?= $outcome->id ?>">
+                                                            <i class="fa fa-chevron-right"></i>
+                                                        </span>
+                                                        <span><?= $outcome->title ?> - <?= $outcome->name ?></span>
                                                     </div>
                                                     
                                                     <!-- Activities for this outcome -->
-                                                    <div class="mt-2">
+                                                    <div id="outcome<?= $outcome->id ?>" class="collapse mt-2">
                                                         <ul class="list-group">
                                                             <?php foreach ($outcome->activities as $activity) : ?>
                                                             <li class="list-group-item eylf-activity">
@@ -382,13 +385,14 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                                             </ul>
                                         </div>
                                     </li>
+                                    
+                                    <!-- You can add EYLF Practices and EYLF Principles here if needed -->
                                 </ul>
                             </div>
                         </li>
                     </ul>
                 </div>
             </div>
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="saveEylfSelections">Save selections</button>
@@ -396,6 +400,8 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
         </div>
     </div>
 </div>
+
+
 
 
 
@@ -895,8 +901,6 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
 
 
 <script>
-
-
 let editors = {}; // Store all CKEditor instances
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -1679,5 +1683,5 @@ $('#cultureModal').on('shown.bs.modal', function () {
 
 
 
-@include('layout.footer')
+
 @stop
