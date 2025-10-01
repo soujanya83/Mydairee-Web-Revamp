@@ -394,7 +394,7 @@
                                         data-toggle=""
                                         data-target="" onclick="shareObservation({{$observation->id}})">
                                     <i class="fa fa-share"></i>
-                                 
+
                                 </button>
                             </div>
 @endif
@@ -432,9 +432,9 @@
         </div>
 
         @if($canDelete)
-            <button type="button" class="btn btn-sm btn-danger position-absolute" 
-                style="top: 0;  {{ $isMe ? 'left' : 'right' }}: -30px;" 
-                onclick="deleteComment({{ $comment->id }}, {{ $observation->id }})" 
+            <button type="button" class="btn btn-sm btn-danger position-absolute"
+                style="top: 0;  {{ $isMe ? 'left' : 'right' }}: -30px;"
+                onclick="deleteComment({{ $comment->id }}, {{ $observation->id }})"
                 title="Delete comment">
                 &times;
             </button>
@@ -456,11 +456,11 @@
 
 
                                     <!-- share modal  -->
-                                  
+
                          <div class="modal fade" id="sharemodal" tabindex="-1" role="dialog" aria-labelledby="shareModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content shadow-lg border-0 rounded-lg">
-            
+
             <!-- Header -->
             <div class="modal-header bg-info text-white">
                 <h5 class="modal-title font-weight-bold" id="shareModalLabel">
@@ -470,7 +470,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            
+
             <!-- Body -->
             <div class="modal-body px-4 py-3">
                 <form id="shareForm" method="post" action="{{ route('observation.share')}} ">
@@ -478,20 +478,20 @@
                     <input type="hidden" name="obsId" value="" id="share">
                     <div class="form-group">
                         <label for="recipient-email" class="font-weight-bold">Recipient Email</label>
-                        <input type="email" class="form-control form-control-lg" 
-                               id="recipient-email" name="recipient_email" 
+                        <input type="email" class="form-control form-control-lg"
+                               id="recipient-email" name="recipient_email"
                                placeholder="Enter recipient's email address" required>
                         <small class="form-text text-muted">You can enter a single email address.</small>
                     </div>
-                    
+
                     <div class="form-group mt-3">
                         <label for="share-message" class="font-weight-bold">Message <span class="text-muted">(optional)</span></label>
-                        <textarea class="form-control" id="share-message" name="message" rows="4" 
+                        <textarea class="form-control" id="share-message" name="message" rows="4"
                                   placeholder="Write a short message..."></textarea>
                     </div>
                 </form>
             </div>
-            
+
             <!-- Footer -->
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-outline-secondary px-4" data-dismiss="modal">
@@ -501,7 +501,7 @@
                     <i class="fas fa-paper-plane mr-1"></i> Send
                 </button>
             </div>
-            
+
         </div>
     </div>
 </div>
@@ -1253,10 +1253,10 @@ if ($('#filter_author_any').is(':checked')) {
                     const femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
                     const avatars = seen.gender === 'FEMALE' ? femaleAvatars : maleAvatars;
                     const defaultAvatar = avatars[Math.floor(Math.random() * avatars.length)];
-                    
+
                     // Fix the asset path - remove Laravel blade syntax
-                    const imageUrl = seen.imageUrl ? 
-                        (seen.imageUrl.startsWith('http') ? seen.imageUrl : window.location.origin + '/' + seen.imageUrl) : 
+                    const imageUrl = seen.imageUrl ?
+                        (seen.imageUrl.startsWith('http') ? seen.imageUrl : window.location.origin + '/' + seen.imageUrl) :
                         window.location.origin + '/assets/img/xs/' + defaultAvatar;
 
                     seenModalHtml += `
@@ -1302,7 +1302,7 @@ if ($('#filter_author_any').is(':checked')) {
         observation.comments.forEach(function(comment) {
             var isMe = comment.userId == currentUserId; // Now use the passed currentUserId
             var canDelete = userRole === 'Superadmin' || comment.userId == currentUserId;
-            
+
             commentsModalHtml += `
                 <div id="comment_${comment.id}" class="d-flex mb-3 ${isMe ? 'justify-content-end' : 'justify-content-start'}">
                     <div style="max-width:68%; position: relative;">
@@ -1314,9 +1314,9 @@ if ($('#filter_author_any').is(':checked')) {
                             ${comment.user_name || 'Unknown'}, ${comment.created_at_human || 'recently'}
                         </div>
                         ${canDelete ? `
-                            <button type="button" class="btn btn-sm btn-danger position-absolute" 
-                                style="top: 0; ${isMe ? 'left' : 'right'}: -30px;" 
-                                onclick="deleteComment(${comment.id}, ${observation.id})" 
+                            <button type="button" class="btn btn-sm btn-danger position-absolute"
+                                style="top: 0; ${isMe ? 'left' : 'right'}: -30px;"
+                                onclick="deleteComment(${comment.id}, ${observation.id})"
                                 title="Delete comment">
                                 &times;
                             </button>
@@ -1373,9 +1373,9 @@ window.sendCommentDynamic = function(e, observationId) {
                         <div class="small text-muted mt-1 text-right">
                             ${response.comment.user_name}, ${now}
                         </div>
-                        <button type="button" class="btn btn-sm btn-danger position-absolute" 
-                            style="top: 0; left: -30px;" 
-                            onclick="deleteComment(${response.comment.id}, ${observationId})" 
+                        <button type="button" class="btn btn-sm btn-danger position-absolute"
+                            style="top: 0; left: -30px;"
+                            onclick="deleteComment(${response.comment.id}, ${observationId})"
                             title="Delete comment">
                             &times;
                         </button>
@@ -1386,7 +1386,7 @@ window.sendCommentDynamic = function(e, observationId) {
             input.value = '';
             input.disabled = false;
             chatBody.scrollTop(chatBody.prop("scrollHeight"));
-            
+
             // Update comment count badge
             let badge = $('button[data-target="#commentsModal_' + observationId + '"] .badge');
             let n = parseInt(badge.text() || '0');
@@ -1460,28 +1460,51 @@ function cleanupDynamicModals() {
 
     });
 
-    function loadChildren() {
-        $.ajax({
-            url: '/observation/get-children',
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    var childCheckboxes = '';
-                    $.each(response.children, function(index, child) {
-                        childCheckboxes += `
-                            <div class="custom-control custom-checkbox mb-4">
-                                <input type="checkbox" class="custom-control-input filter_child"
-                                    id="filter_child_${child.id}" value="${child.id}">
-                                <label class="custom-control-label" for="filter_child_${child.id}">${child.name}</label>
-                            </div>
-                        `;
-                    });
-                    $('#child-checkboxes').html(childCheckboxes);
-                }
+    // function loadChildren() {
+    //     $.ajax({
+    //         url: '/observation/filter/get-children',
+    //         type: 'GET',
+    //         dataType: 'json',
+    //         success: function(response) {
+    //             if (response.status === 'success') {
+    //                 var childCheckboxes = '';
+    //                 $.each(response.children, function(index, child) {
+    //                     childCheckboxes += `
+    //                         <div class="custom-control custom-checkbox mb-4">
+    //                             <input type="checkbox" class="custom-control-input filter_child"
+    //                                 id="filter_child_${child.id}" value="${child.id}">
+    //                             <label class="custom-control-label" for="filter_child_${child.id}">${child.name}</label>
+    //                         </div>
+    //                     `;
+    //                 });
+    //                 $('#child-checkboxes').html(childCheckboxes);
+    //             }
+    //         }
+    //     });
+    // }
+function loadChildren(selectedIds = []) {
+    $.ajax({
+        url: '/observation/filter/get-children',
+        type: 'GET',
+        data: { child_ids: selectedIds }, // pass selected IDs
+        dataType: 'json',
+        success: function(response) {
+            if (response.status === 'success') {
+                var childCheckboxes = '';
+                $.each(response.children, function(index, child) {
+                    childCheckboxes += `
+                        <div class="custom-control custom-checkbox mb-4">
+                            <input type="checkbox" class="custom-control-input filter_child"
+                                id="filter_child_${child.id}" value="${child.id}">
+                            <label class="custom-control-label" for="filter_child_${child.id}">${child.name}</label>
+                        </div>
+                    `;
+                });
+                $('#child-checkboxes').html(childCheckboxes);
             }
-        });
-    }
+        }
+    });
+}
 
     $(document).on('input', '#childSearchInput', function () {
     var searchTerm = $(this).val().toLowerCase();
@@ -1570,7 +1593,7 @@ function deleteObservation(id) {
         if (result.isConfirmed) {
             // Get CSRF token
             var token = $('meta[name="csrf-token"]').attr('content');
-            
+
             $.ajax({
                 url: '/observation/' + id,
                 type: 'DELETE',

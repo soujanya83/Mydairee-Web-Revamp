@@ -1350,28 +1350,52 @@ if ($('#filter_author_any').is(':checked')) {
 
     });
 
-    function loadChildren() {
-        $.ajax({
-            url: '/observation/get-children',
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    var childCheckboxes = '';
-                    $.each(response.children, function(index, child) {
-                        childCheckboxes += `
-                            <div class="custom-control custom-checkbox mb-4">
-                                <input type="checkbox" class="custom-control-input filter_child"
-                                    id="filter_child_${child.id}" value="${child.id}">
-                                <label class="custom-control-label" for="filter_child_${child.id}">${child.name}</label>
-                            </div>
-                        `;
-                    });
-                    $('#child-checkboxes').html(childCheckboxes);
-                }
+    // function loadChildren() {
+    //     $.ajax({
+    //         url: '/observation/get-children',
+    //         type: 'GET',
+    //         dataType: 'json',
+    //         success: function(response) {
+    //             if (response.status === 'success') {
+    //                 var childCheckboxes = '';
+    //                 $.each(response.children, function(index, child) {
+    //                     childCheckboxes += `
+    //                         <div class="custom-control custom-checkbox mb-4">
+    //                             <input type="checkbox" class="custom-control-input filter_child"
+    //                                 id="filter_child_${child.id}" value="${child.id}">
+    //                             <label class="custom-control-label" for="filter_child_${child.id}">${child.name}</label>
+    //                         </div>
+    //                     `;
+    //                 });
+    //                 $('#child-checkboxes').html(childCheckboxes);
+    //             }
+    //         }
+    //     });
+    // }
+
+function loadChildren(selectedIds = []) {
+    $.ajax({
+        url: '/observation/filter/get-children',
+        type: 'GET',
+        data: { child_ids: selectedIds }, // pass selected IDs
+        dataType: 'json',
+        success: function(response) {
+            if (response.status === 'success') {
+                var childCheckboxes = '';
+                $.each(response.children, function(index, child) {
+                    childCheckboxes += `
+                        <div class="custom-control custom-checkbox mb-4">
+                            <input type="checkbox" class="custom-control-input filter_child"
+                                id="filter_child_${child.id}" value="${child.id}">
+                            <label class="custom-control-label" for="filter_child_${child.id}">${child.name}</label>
+                        </div>
+                    `;
+                });
+                $('#child-checkboxes').html(childCheckboxes);
             }
-        });
-    }
+        }
+    });
+}
 
     $(document).on('input', '#childSearchInput', function () {
     var searchTerm = $(this).val().toLowerCase();
