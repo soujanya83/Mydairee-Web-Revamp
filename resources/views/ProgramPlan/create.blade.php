@@ -330,7 +330,7 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
             </div>
 
             <!-- Modal Body -->
-            <div class="modal-body" style="max-height:500px;overflow-y:auto;">
+            <div class="modal-body" >
                 <div class="eylf-tree">
                     <ul class="list-group">
                         <!-- Main EYLF Framework -->
