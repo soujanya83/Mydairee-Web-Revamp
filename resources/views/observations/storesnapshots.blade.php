@@ -808,11 +808,15 @@ document.addEventListener("DOMContentLoaded", function () {
         <script>
 $(document).ready(function () {
     let selectedChildren = new Set($('#selected_children').val().split(',').filter(id => id));
-          let selectedrooms = $('#selected_rooms').val();
-console.log('selected rooms ' , selectedrooms);
+ 
+
+        //   alert(selectedrooms);
+
 
     // Load children on modal open
     $('#childrenModal').on('show.bs.modal', function () {
+         let selectedrooms = $('[name="selected_rooms"]').val();
+         console.log('selected rooms ' , selectedrooms);
         $.ajax({
             url: '{{ route("observation.get.children") }}',
             method: 'GET',
