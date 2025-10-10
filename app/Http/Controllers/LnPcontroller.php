@@ -25,63 +25,118 @@ use Illuminate\Support\Facades\Log;
 
 class LnPcontroller extends Controller
 {
-    public function index(Request $request){
+//     public function index(Request $request){
 
-        $authId = Auth::user()->id; 
-        // $centerid = session('user_center_id');
+//         $authId = Auth::user()->id; 
+//         // $centerid = session('user_center_id');
 
 
-        $centerid = session('user_center_id') ?? $request->query('center_id');
+//         $centerid = session('user_center_id') ?? $request->query('center_id');
 
-        // Store centerid back into session if it came from query
-        if (!session()->has('user_center_id') && $centerid) {
-            session(['user_center_id' => $centerid]);
-        }
+//         // Store centerid back into session if it came from query
+//         if (!session()->has('user_center_id') && $centerid) {
+//             session(['user_center_id' => $centerid]);
+//         }
 
     
-        if(Auth::user()->userType == "Superadmin"){
-            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-            $centers = Center::whereIn('id', $center)->get();
-        } else {
-            $centers = Center::where('id', $centerid)->get();
-        }
+//         if(Auth::user()->userType == "Superadmin"){
+//             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+//             $centers = Center::whereIn('id', $center)->get();
+//         } else {
+//             $centers = Center::where('id', $centerid)->get();
+//         }
     
-        $room = $this->getrooms5();
+//         $room = $this->getrooms5();
+       
     
-        // Try to find the selected room in the available rooms
-        $selectedroom = $room->where('id', $request->query('room_id'))->first();
+//         // Try to find the selected room in the available rooms
+//         // dd($request->room_id);
+//         $selectedroom = $room->where('id', $request->room_id)->first();
     
-        // If not found or not selected, fallback to first room
-        if (!$selectedroom) {
-            $selectedroom = $room->first();
-        }
-
-        $children = collect();
-
-        if (auth()->user()->userType == 'Parent') {
-            $parentId = auth()->user()->id;
-
-            $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
-
-            $children = Child::whereIn('id', $childIds)
+//         // If not found or not selected, fallback to first room
+//         if (!$selectedroom) {
+//             $selectedroom = $room->first();
            
-            ->get();
+//         }
+// //   dd( $selectedroom);
+//         $children = collect();
 
-        }else{
+//         if (auth()->user()->userType == 'Parent') {
+//             $parentId = auth()->user()->id;
 
-        if ($selectedroom) {
-            $children = Child::where('room', $selectedroom->id)
-                ->get();
-        }
+//             $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
 
-        }
+//             $children = Child::whereIn('id', $childIds)
+           
+//             ->get();
 
-        return view('LnP.index', compact('centers', 'room', 'selectedroom', 'children'));
+//         }else{
+
+//         if ($selectedroom) {
+//             $children = Child::where('room', $selectedroom->id)
+//                 ->get();
+//         }
+
+//         }
+
+//         return view('LnP.index', compact('centers', 'room', 'selectedroom', 'children'));
     
 
     
+//     }
+
+public function index(Request $request)
+{
+    $authId = Auth::id();
+
+    // Center handling
+    $centerid = session('user_center_id') ?? $request->query('center_id');
+    if (!session()->has('user_center_id') && $centerid) {
+        session(['user_center_id' => $centerid]);
     }
 
+    // Fetch centers based on user type
+    if (Auth::user()->userType == "Superadmin") {
+        $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+        $centers = Center::whereIn('id', $centerIds)->get();
+    } else {
+        $centers = Center::where('id', $centerid)->get();
+    }
+
+    // Get all rooms (for selected center ideally)
+    $room = $this->getrooms5();
+
+    // Determine selected room
+    $roomId = $request->query('room_id') 
+             ?? session('selected_room_id') 
+             ?? optional($room->first())->id;
+
+    // Save selected room to session
+    if ($roomId) {
+        session(['selected_room_id' => $roomId]);
+    }
+
+    // Find selected room in available list
+    $selectedroom = $room->firstWhere('id', $roomId);
+
+    // Fallback to first if not found
+    if (!$selectedroom && $room->isNotEmpty()) {
+        $selectedroom = $room->first();
+        session(['selected_room_id' => $selectedroom->id]);
+    }
+
+    // Get children based on user type
+    $children = collect();
+    if (auth()->user()->userType == 'Parent') {
+        $parentId = auth()->user()->id;
+        $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
+        $children = Child::whereIn('id', $childIds)->get();
+    } elseif ($selectedroom) {
+        $children = Child::where('room', $selectedroom->id)->get();
+    }
+
+    return view('LnP.index', compact('centers', 'room', 'selectedroom', 'children'));
+}
 
 
     public function getrooms5(){
