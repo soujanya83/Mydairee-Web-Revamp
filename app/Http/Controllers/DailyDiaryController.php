@@ -1268,7 +1268,7 @@ $children = Child::whereIn('id', $childIds)
             'signature' => 'nullable|string'
         ]);
 
-        try {
+        try {  
             DB::beginTransaction();
             $authId = Auth::user()->id;
             $count = 0;
@@ -1279,11 +1279,14 @@ $children = Child::whereIn('id', $childIds)
                     ->first();
 
                 if ($existingEntry) {
+                   
                     $existingEntry->update([
                         'startTime' => $request->time,
                         'comments' => $request->comments,
                         'signature' => $request->signature
                     ]);
+
+                      $diary = $existingEntry;
                 } else {
                     $diary = DailyDiarySunscreen::create([
                         'childid' => $childId,
@@ -1293,6 +1296,7 @@ $children = Child::whereIn('id', $childIds)
                         'signature' => $request->signature,
                         'createdBy' => $authId
                     ]);
+                  
                 }
                 $count++;
                 $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
