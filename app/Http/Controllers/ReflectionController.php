@@ -96,11 +96,6 @@ class ReflectionController extends Controller
         return view('reflections.index', compact('centers', 'reflection'));
     }
 
-
-
-
-
-
     public function storepage($id = null)
     {
         // dd($id);

@@ -549,14 +549,22 @@
   ">
                         @foreach($reflectionItem->staff as $staffRelation)
 
-                        @php
-                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
-                        'avatar10.jpg'];
-                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
-                        'avatar7.jpg'];
-                        $avatars = ($staffRelation->staff->gender ?? 'FEMALE') === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-                        $defaultAvatar = $avatars[array_rand($avatars)];
-                        @endphp
+                      @php
+    $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+    $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+
+    $gender = strtoupper($staffRelation->staff->gender ?? '');
+
+    if ($gender === 'MALE') {
+        $avatars = $maleAvatars;
+    } elseif ($gender === 'FEMALE') {
+        $avatars = $femaleAvatars;
+    } else {
+        $avatars = []; // empty if gender is null or unknown
+    }
+
+    $defaultAvatar = !empty($avatars) ? $avatars[array_rand($avatars)] : ''; // empty if gender not found
+@endphp
 
 
                         @if($staffRelation->staff)
@@ -568,8 +576,16 @@
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
-                            <img src="{{ $staffRelation->staff->imageUrl ? asset($staffRelation->staff->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
-                                alt="{{ $staffRelation->staff->name }}" class="educator-avatar">
+                      <img 
+    src="{{ 
+        $staffRelation->staff->imageUrl 
+            ? asset($staffRelation->staff->imageUrl) 
+            : ($defaultAvatar 
+                ? asset('assets/img/xs/' . $defaultAvatar) 
+                : asset('assets/img/xs/default-avatar.png')) 
+    }}" 
+    alt="{{ $staffRelation->staff->name ?? 'No Name' }}" 
+    class="educator-avatar">
                             <div class="educator-name">{{ $staffRelation->staff->name }}</div>
                         </div>
                         @endif
@@ -601,14 +617,22 @@
   ">
                         @forelse($reflectionItem->Seen as $seen)
 
-                        @php
-                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
-                        'avatar10.jpg'];
-                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
-                        'avatar7.jpg'];
-                        $avatars = $seen->user->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
-                        $defaultAvatar = $avatars[array_rand($avatars)];
-                        @endphp
+                     @php
+    $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+    $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+
+    $gender = strtoupper($seen->user->gender ?? '');
+
+    if ($gender === 'MALE') {
+        $avatars = $maleAvatars;
+    } elseif ($gender === 'FEMALE') {
+        $avatars = $femaleAvatars;
+    } else {
+        $avatars = []; // No avatar when gender is null or invalid
+    }
+
+    $defaultAvatar = !empty($avatars) ? $avatars[array_rand($avatars)] : '';
+@endphp
 
                         @if($seen->user && $seen->user->userType === 'Parent')
 
@@ -626,8 +650,12 @@
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
-                            <img src="{{ $seen->user->imageUrl ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
-                                alt="{{ $seen->user->name }}" class="educator-avatar">
+                          <img src="{{ $seen->user->imageUrl 
+    ? asset($seen->user->imageUrl) 
+    : ($defaultAvatar ? asset('assets/img/xs/' . $defaultAvatar) : '') }}"
+    alt="{{ $seen->user->name }}" 
+    class="educator-avatar">
+
                             <div class="educator-name">{{ $seen->user->name }}</div>
                         </div>
 
