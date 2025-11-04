@@ -288,8 +288,8 @@ public function print(Request $request)
     $rules = [
         'selected_rooms'    => 'required|string',
         'title'             => 'required|string|max:255',
-        'about'             => 'required|string',
-        'eylf'              => 'required|string',
+        'about'             => 'nullable|string',
+        'eylf'              => 'nullable|string',
         'selected_children' => 'required|string',
         'selected_staff'    => 'required|string',
         'center_id'         => 'required|integer|exists:centers,id',
