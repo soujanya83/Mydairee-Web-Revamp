@@ -1,0 +1,620 @@
+<?php
+
+use App\Http\Controllers\AccidentsController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\DailyDiaryController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DBBackupController;
+use App\Http\Controllers\FileManagerController;
+use App\Http\Controllers\HeadChecks;
+use App\Http\Controllers\LessonPlanList;
+use App\Http\Controllers\HealthyController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ObservationsController;
+use App\Http\Controllers\PTMController;
+use App\Http\Controllers\LnPcontroller;
+use App\Http\Controllers\Qipcontroller;
+use App\Http\Controllers\ResetPassword;
+use App\Http\Controllers\RoomController;
+use App\Http\Controllers\UserController;
+use App\Http\Middleware\ClearCacheAfterLogout;
+use App\Http\Middleware\CheckOfficeWifi;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ServiceDetailsController;
+use App\Models\Child;
+use App\Http\Controllers\ObservationController;
+use App\Http\Controllers\ReflectionController;
+use App\Http\Controllers\SleepCheckController;
+use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\Auth\NotificationController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PublicHolidayController;
+use App\Http\Controllers\WifiIPController;
+use App\Models\Observation;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\Artisan;
+
+
+// share observation to family , feature for parents
+Route::get('/child/observation-link/{id}', [ObservationsController::class, 'print'])->name('sharelink');
+Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
+Route::get('/privacy-policy', [UserController::class, 'privacyPolicy'])->name('privacypolicy');
+// Parent management routes
+Route::get('/admin/get-parents', [UserController::class, 'getParents'])->name('admin.get-parents');
+Route::post('/admin/send-reenrollment-emails', [UserController::class, 'sendReEnrollmentEmails'])->name('admin.send-reenrollment-emails');
+
+
+Route::get('/re-enrollment/form', [UserController::class, 'createform'])->name('re-enrollment.form');
+Route::post('/re-enrolment/store', [UserController::class, 'storeform'])->name('re-enrolment.store');
+
+// Admin dashboard routes
+
+Route::get('/', [DashboardController::class, 'lending_page']);
+Route::get('/contact-us', [DashboardController::class, 'contact_us'])->name('contact-us');
+Route::post('/contact-us', [DashboardController::class, 'storeContactUs'])->name('contact-us');
+
+Route::get('/logout', function () {
+    Auth::logout();
+    session()->invalidate();
+    session()->regenerateToken();
+    return redirect('login');
+})->name('logout');
+
+Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
+Route::get('/', [DashboardController::class, 'lending_page']);
+
+Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
+Route::get('dashboard/analytical', [DashboardController::class, 'analytical'])->name('dashboard.analytical');
+Route::get('/api/events', [DashboardController::class, 'getEvents']);
+// Route::get('file-manager/dashboard', [FileManagerController::class, 'dashboard'])->name('file-manager.dashboard');
+// Route::get('app/calendar', [AppController::class, 'calendar'])->name('app.calendar');
+// Route::get('app/chat', [AppController::class, 'chat'])->name('app.chat');
+// Route::get('app/inbox', [AppController::class, 'inbox'])->name('app.inbox');
+// Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.profile1');
+
+Route::post('create-superadmin', [UserController::class, 'store'])->name('create_superadmin');
+Route::post('login-submit', [UserController::class, 'login'])->name('user_login');
+Route::get('create-center', [UserController::class, 'create_center'])->name('create_center');
+
+Route::post('store-center', [UserController::class, 'store_center'])->name('center_store');
+Route::post('reset-password', [ResetPassword::class, 'reset_password'])->name('reset_password');
+Route::get('verify-otp', [ResetPassword::class, 'show_verify_otp'])->name('verify_otp');
+// Route::post('verify-otp', [ResetPassword::class, 'verify_otp'])->name('verify_otp.submit');
+Route::get('/reset-password-form', [ResetPassword::class, 'showResetForm'])->name('reset_password_form');
+Route::post('/reset-password-update', [ResetPassword::class, 'updatePassword'])->name('reset_password.update');
+Route::post('/resend-otp', [ResetPassword::class, 'resend_otp'])->name('resend_otp');
+Route::post('/verify-otp', [ResetPassword::class, 'verifyOtp'])->name('verify_otp.submit');
+Route::get('register', [AuthenticationController::class, 'register'])->name('authentication.register');
+Route::get('authentication/forgot-password', [AuthenticationController::class, 'forgotPassword'])->name('authentication.forgot-password');
+Route::get('login-page', [AuthenticationController::class, 'login_page'])->name('login');
+Route::get('login', [AuthenticationController::class, 'login'])->name('authentication.login');
+
+
+
+
+// Route group with middleware this middleware use after login
+Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout::class])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'university'])->name('dashboard.university');
+
+
+    Route::get('/enrolment/dashboard', [UserController::class, 'dashboard'])->name('enrolment.dashboard');
+    Route::get('/re-enrolments/{reEnrolment}/details', [UserController::class, 'getDetails'])->name('re-enrolment.details');
+
+
+    Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
+    Route::get('/api/events', [DashboardController::class, 'getEvents']);
+    // service details
+    Route::get('ServiceDetails', [ServiceDetailsController::class, 'create'])->name('create.serviceDetails');
+    Route::post('ServiceDetails', [ServiceDetailsController::class, 'store'])->name('store.serviceDetails');
+
+
+    Route::get('programPlanList', [LessonPlanList::class, 'programPlanList'])->name('programPlanList');
+
+
+    Route::get('LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans');
+    Route::get('programPlan/create', [LessonPlanList::class, 'createForm'])->name('create.programplan');
+    Route::post('LessonPlanList/deletedataofprogramplan', [LessonPlanList::class, 'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
+
+    Route::get('programPlan/print/{planId}', [LessonPlanList::class, 'programplanprintpage'])->name('print.programplan');
+    // ajax
+    Route::post('LessonPlanList/get_room_users', [LessonPlanList::class, 'getRoomUsers'])->name('LessonPlanList.get_room_users');
+    Route::post('LessonPlanList/get_room_children', [LessonPlanList::class, 'getRoomChildren'])->name('LessonPlanList.get_room_children');
+    Route::post('LessonPlanList/save_program_planinDB', [LessonPlanList::class, 'saveProgramPlan'])->name('LessonPlanList.save_program_planinDB');
+    // ajax ends
+    Route::post('programPlan', [LessonPlanList::class, 'store'])->name('store.programPlan');
+
+    Route::post('programPlan/autosave', [LessonPlanList::class, 'programplanAutosave'])->name('programplan.autosave');
+
+    Route::post('programplan/MonthYear', [LessonPlanList::class, 'programplanMonthYear'])->name('programplan.MonthYear');
+    Route::post('/update-program-plan-status', [LessonPlanList::class, 'updatestatus'])->name('update-program-plan-status');
+    // Route::post('/update-program-plan-status', [LessonPlanList::class, 'updatestatus'])->name('update-program-plan-status');
+
+    Route::post('Observation/addActivity', [ObservationController::class, 'addActivity'])->name('Observation.addActivity');
+    Route::post('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name(' Observation.addSubActivity');
+    Route::get('observation/activity/list', [ObservationController::class, 'activityList'])->name('observation.activity-list');
+    Route::post('observation/delete-activity', [ObservationController::class, 'deleteActivity'])->name('observation.delete-activity');
+    Route::post('observation/delete-subactivity', [ObservationController::class, 'deleteSubActivity'])->name('observation.delete-subactivity');
+    Route::post('observation/update-activity', [ObservationController::class, 'updateActivity'])->name('observation.update-activity');
+    Route::post('observation/update-subactivity', [ObservationController::class, 'updateSubActivity'])->name('observation.update-subactivity');
+
+
+
+    Route::get('announcements/list', [AnnouncementController::class, 'list'])->name('announcements.list');
+    Route::get('announcements/Filterlist', [AnnouncementController::class, 'Filterlist'])->name('announcements.Filterlist');
+    Route::get('announcements/create/{id?}', [AnnouncementController::class, 'AnnouncementCreate'])->name('announcements.create');
+    Route::post('announcements/store', [AnnouncementController::class, 'AnnouncementStore'])->name('announcements.store');
+    Route::delete('announcements/delete', [AnnouncementController::class, 'AnnouncementDelete'])->name('announcements.delete');
+    Route::get('announcements/view/{annid}', [AnnouncementController::class, 'AnnouncementView'])->name('announcements.view');
+    Route::get('announcements/events', [DashboardController::class, 'getEvents'])->name('announcements.events');
+    Route::post('update-annoucement-status', [AnnouncementController::class, 'updateStatus'])->name('update-annoucement-status');
+
+
+    // headchecks
+    Route::get('headChecks', [HeadChecks::class, 'index'])->name('headChecks');
+    Route::post('headchecks/store', [HeadChecks::class, 'headchecksStore'])->name('headchecks.store');
+    Route::post('headchecks/getCenterRooms', [HeadChecks::class, 'getCenterRooms'])->name('headchecks.getCenterRooms');
+    Route::post('headcheckdelete', [HeadChecks::class, 'headcheckDelete'])->name('headcheck.delete');
+    Route::post('headcheck/print', [HeadChecks::class, 'headcheckprint'])->name('headcheck.print');
+
+
+
+    Route::get('/notifications/mark-all-read', function () {
+        Auth::user()->unreadNotifications->markAsRead();
+        return redirect()->back();
+    })->name('notifications.markAllRead');
+
+    Route::post('/notifications/read/{id}', function ($id) {
+        $notification = DatabaseNotification::find($id);
+
+        if ($notification && $notification->notifiable_id == Auth::id()) {
+            $notification->markAsRead();
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false], 404);
+    })->name('notifications.read');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
+
+
+
+    Route::get('sleepcheck/list', [SleepCheckController::class, 'getSleepChecksList'])->name('sleepcheck.list');
+    Route::get('sleepcheck/filter-sleep-list-by-child', [SleepCheckController::class, 'fetchSleepChecks'])->name('sleepcheck.filter-sleep-list-by-child');
+    Route::post('sleepcheck/save', [SleepCheckController::class, 'sleepcheckSave'])->name('sleepcheck.save');
+    Route::post('sleepcheck/update', [SleepCheckController::class, 'sleepcheckUpdate'])->name('sleepcheck.update');
+    Route::post('sleepcheck/delete', [SleepCheckController::class, 'sleepcheckDelete'])->name('sleepcheck.delete');
+
+    // Accidents
+    Route::get('Accidents/list', [AccidentsController::class, 'AccidentsList'])->name('Accidents.list');
+    Route::get('Accidents/filter-by-child', [AccidentsController::class, 'filterByChild'])->name('filter-by-child');
+    Route::post('Accidents/getCenterRooms', [AccidentsController::class, 'getCenterRooms'])->name('Accidents.getCenterRooms');
+    Route::put('Accidents/update/{id}', [AccidentsController::class, 'AccidentsUpdate'])->name('accidents.update');
+    Route::get('Accidents/details', [AccidentsController::class, 'getAccidentDetails'])->name('Accidents.details');
+    Route::post('Accidents/sendEmail', [AccidentsController::class, 'sendEmail'])->name('Accidents.sendEmail');
+    Route::get('Accidents/create', [AccidentsController::class, 'create'])->name('Accidents.create');
+    Route::get('Accidents/edit', [AccidentsController::class, 'AccidentEdit'])->name('Accidents.edit');
+    Route::post('Accident/saveAccident', [AccidentsController::class, 'saveAccident'])->name('Accidents.saveAccident');
+    Route::post('Accident/getChildDetails', [AccidentsController::class, 'getChildDetails'])->name('Accident/getChildDetails');
+    Route::post('Accident/delete', [AccidentsController::class, 'AccidentDelete'])->name('Accident.delete');
+
+
+
+
+    // Route::get('surveys/list', [SurveyController::class, 'list'])->name('survey.list');
+
+    Route::post('/observations/{observation}/comments', [ObservationsController::class, 'commentstore'])->name('observations.comments.store');
+    Route::delete('/observations/comments/{comment}', [ObservationsController::class, 'destroycomment'])
+        ->name('observations.comments.destroy');
+
+    // Daily Journel here
+    Route::get('DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.list');
+    Route::post('dailyDiary/storeBottle', [DailyDiaryController::class, 'storeBottle'])->name('dailyDiary.storeBottle');
+    Route::post('dailyDiary/storeFood', [DailyDiaryController::class, 'storeFood'])->name('dailyDiary.storeFood');
+    Route::post('dailyDiary.storeSleep', [DailyDiaryController::class, 'storeSleep'])->name('dailyDiary.storeSleep');
+    Route::post('dailyDiary/storeToileting', [DailyDiaryController::class, 'storeToileting'])->name('dailyDiary.storeToileting');
+
+    Route::post('dailyDiary/storeSunscreen', [DailyDiaryController::class, 'storeSunscreen'])->name('dailyDiary.storeSunscreen');
+    Route::post('dailyDiary/getItems', [DailyDiaryController::class, 'getItems'])->name('dailyDiary.getItems');
+    Route::post('dailyDiary/addFoodRecord', [DailyDiaryController::class, 'addFoodRecord'])->name('dailyDiary.addFoodRecord');
+
+    Route::post('dailyDiary/addSleepRecord', [DailyDiaryController::class, 'addSleepRecord'])->name('dailyDiary.addSleepRecord');
+    Route::post('dailyDiary/addToiletingRecord', [DailyDiaryController::class, 'addToiletingRecord'])->name('dailyDiary.addToiletingRecord');
+    Route::post('dailyDiary/addSunscreenRecord', [DailyDiaryController::class, 'addSunscreenRecord'])->name('dailyDiary.addSunscreenRecord');
+    Route::post('dailyDiary/addBottle', [DailyDiaryController::class, 'addBottle'])->name('dailyDiary.addBottle');
+    Route::post('dailyDiary/deleteBottleTime', [DailyDiaryController::class, 'deleteBottleTime'])->name('dailyDiary.deleteBottleTime');
+
+    Route::post('dailyDiary/updateBottleTimes', [DailyDiaryController::class, 'updateBottleTimes'])->name('dailyDiary.updateBottleTimes');
+    // Route::post('dailyDiary/addToiletingRecord', [DailyDiaryController::class, 'addToiletingRecord'])->name('dailyDiary.addToiletingRecord');
+    // Route::post('dailyDiary/addSunscreenRecord', [DailyDiaryController::class, 'addSunscreenRecord'])->name('dailyDiary.addSunscreenRecord');
+    // Route::post('dailyDiary/addBottle', [DailyDiaryController::class, 'addBottle'])->name('dailyDiary.addBottle');
+    // Route::post('dailyDiary/deleteBottleTime', [DailyDiaryController::class, 'deleteBottleTime'])->name('dailyDiary.deleteBottleTime');
+
+
+    Route::get('/daily-diary/breakfast2', [DailyDiaryController::class, 'getBreakfast2']);
+    Route::post('/daily-diary/breakfast2', [DailyDiaryController::class, 'storeOrUpdateBreakfast']);
+
+    Route::get('/daily-diary/morning-tea2', [DailyDiaryController::class, 'getMorningTea2']);
+    Route::post('/daily-diary/morning-tea2', [DailyDiaryController::class, 'storeOrUpdateMorningTea']);
+
+
+    Route::get('/daily-diary/lunch', [DailyDiaryController::class, 'getLunch2']);
+    Route::post('/daily-diary/lunch', [DailyDiaryController::class, 'storeOrUpdateLunch']);
+
+    Route::get('/daily-diary/afternoon-tea', [DailyDiaryController::class, 'getAfternoonTea2']);
+    Route::post('/daily-diary/afternoon-tea', [DailyDiaryController::class, 'storeOrUpdateAfternoonTea']);
+
+    Route::get('/daily-diary/snacks', [DailyDiaryController::class, 'getSnacks2']);
+    Route::post('/daily-diary/snacks', [DailyDiaryController::class, 'storeOrUpdateSnacks']);
+
+
+    Route::get('/daily-diary/sleep/{id}', [DailyDiaryController::class, 'show2']); // Get one
+    Route::post('/daily-diary/sleep', [DailyDiaryController::class, 'store2']);    // Add
+    Route::put('/daily-diary/sleep/{id}', [DailyDiaryController::class, 'update2']); // Edit
+
+
+    Route::get('/daily-diary/sunscreen/{id}', [DailyDiaryController::class, 'show3']); // Single entry
+    Route::post('/daily-diary/sunscreen', [DailyDiaryController::class, 'store3']);    // Add new
+    Route::put('/daily-diary/sunscreen/{id}', [DailyDiaryController::class, 'update3']); // Edit
+
+    Route::get('/daily-diary/toileting/{id}', [DailyDiaryController::class, 'show4']); // View one entry
+    Route::post('/daily-diary/toileting', [DailyDiaryController::class, 'store4']);    // Add new
+    Route::put('/daily-diary/toileting/{id}', [DailyDiaryController::class, 'update4']); // Edit
+
+
+    Route::get('/daily-diary/bottle/{id}', [DailyDiaryController::class, 'show5']);
+    Route::post('/daily-diary/bottle', [DailyDiaryController::class, 'store5']);
+    Route::put('/daily-diary/bottle/{id}', [DailyDiaryController::class, 'update5']);
+
+
+    Route::get('dailyDiary/viewChildDiary', [DailyDiaryController::class, 'viewChildDiary'])->name('dailyDiary.viewChildDiary');
+
+    Route::post('/activities/breakfast', [DailyDiaryController::class, 'storeBreakfast']);
+    Route::post('/activities/morning-tea', [DailyDiaryController::class, 'storeMorningTea']);
+    Route::post('/activities/lunch', [DailyDiaryController::class, 'storeLunch']);
+    Route::post('/activities/sleep', [DailyDiaryController::class, 'storeSleep']);
+    Route::post('/activities/afternoon-tea', [DailyDiaryController::class, 'storeAfternoonTea']);
+    Route::post('/activities/snacks', [DailyDiaryController::class, 'storeSnacks']);
+    Route::post('/activities/sunscreen', [DailyDiaryController::class, 'storeSunscreen']);
+    Route::post('/activities/toileting', [DailyDiaryController::class, 'storeToileting']);
+    Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
+
+    // Daily Journel Ends here
+    Route::get('/backup-now', [DBBackupController::class, 'runBackup']);
+
+
+   Route::post('/update-theme', [UserController::class, 'updateTheme'])->name('update.theme');
+
+    Route::post('/logout', function () {
+        Auth::logout(); // Logs out the user
+        session()->invalidate();      // Invalidate session
+        session()->regenerateToken(); // Prevent CSRF issues
+        return redirect('login'); // Redirect to login page
+    })->name('logout');
+    // service details
+
+    Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
+    Route::get('/edit-child/{id}', [RoomController::class, 'edit_child'])->name('edit_child');
+    Route::put('/child/update/{id}', [RoomController::class, 'update_child'])->name('update_child');
+    Route::put('/update/child{id}', [RoomController::class, 'update_child_progress'])->name('update_child_progress');
+    Route::post('/move-children', [RoomController::class, 'moveChildren'])->name('move_children');
+    Route::post('/children/delete-selected', [RoomController::class, 'delete_selected_children'])->name('delete_selected_children');
+
+    Route::post('add-children', [RoomController::class, 'add_new_children'])->name('add_children');
+    Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
+    Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
+    Route::delete('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
+    Route::match(['get', 'post'], '/children', [RoomController::class, 'childrens_list'])->name('childrens_list');
+    Route::get('/childrens-edit/{id}', [RoomController::class, 'childrens_edit'])->name('children.edit');
+    Route::delete('/childrens-delete/{id}', [RoomController::class, 'children_destroy'])->name('children.destroy');
+
+    Route::post('/rooms/update/{id}', [RoomController::class, 'rooms_update'])->name('room_update');
+    Route::post('/rooms/{roomid}/assign-educators', [RoomController::class, 'assignEducators'])->name('rooms.assign.educators');
+    Route::patch('/children/{id}/toggle-status', [RoomController::class, 'toggleStatus'])
+        ->name('children.toggleStatus');
+
+
+    // recipe
+    Route::match(['get', 'post'], '/healthy-recipe', [HealthyController::class, 'healthy_recipe'])->name('healthy_recipe');
+    Route::get('/recipes/{id}/edit', [HealthyController::class, 'edit'])->name('recipes.edit');
+    Route::delete('/recipes/{id}/delete', [HealthyController::class, 'destroy'])->name('recipes.destroy');
+    Route::get('/recipes/ingredients', [HealthyController::class, 'recipes_Ingredients'])->name('recipes.Ingredients');
+    Route::get('/ingredients/{id}/edit', [HealthyController::class, 'ingredients_edit'])->name('ingredients.edit');
+    Route::delete('/ingredients/{id}/delete', [HealthyController::class, 'destroy_ingredent'])->name('ingredients.destroy');
+    Route::post('/ingredients', [HealthyController::class, 'ingredients_store'])->name('ingredients.store');
+    Route::put('/ingredients/{id}', [HealthyController::class, 'ingredients_update'])->name('ingredients.update');
+    Route::post('/recipes/store', [HealthyController::class, 'recipes_store'])->name('recipes.store');
+    Route::post('/recipes/{id}/update', [HealthyController::class, 'update'])->name('recipes.update');
+
+    Route::match(['get', 'post'], '/healthy-menu', [HealthyController::class, 'healthy_menu'])->name('healthy_menu');
+    // Route::post('/store-menu', [HealthyController::class, 'store_menu'])->name('menu.store');
+    Route::get('/get-recipes-by-type', [HealthyController::class, 'getByType']);
+    Route::post('/save-recipes', [HealthyController::class, 'store_menu'])->name('menu.store');
+    Route::delete('/menu/{id}', [HealthyController::class, 'menu_destroy'])->name('menu.destroy');
+
+    // settings
+    Route::post('/change-center', [SettingsController::class, 'changeCenter'])->name('change.center');
+
+
+    Route::post('add-children', [RoomController::class, 'add_new_children'])->name('add_children');
+    Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
+
+    Route::get('Observation/getSubjects', [ObservationController::class, 'getSubjects'])->name('Observation.getSubjects');
+
+    Route::get('Observation/getActivitiesBySubject', [ObservationController::class, 'getActivitiesBySubject'])->name('Observation.getActivitiesBySubject');
+
+
+    Route::get('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name('Observation.addSubActivity');
+
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::post('/holidays/delete-selected', [PublicHolidayController::class, 'deleteSelected'])
+    ->name('holidays.deleteSelected');
+
+
+        Route::delete('/role-permission-delete/{id}', [PermissionController::class, 'delete_role_permission'])->name('role-permission-delete');
+        Route::post('/update-role-permissions', [PermissionController::class, 'update_role_permissions'])->name('update-role-permissions');
+        Route::get('/permission-role/{id}', [PermissionController::class, 'create_role_permission'])->name('role-permission');
+        Route::get('/manage-permission-role', [PermissionController::class, 'manage_role'])->name('manage-permission-role');
+        Route::post('/add-permission-role', [PermissionController::class, 'store_role'])->name('add-permission-role');
+        Route::post('/update-permission', [PermissionController::class, 'updatepermission'])->name('update-permission');
+
+
+        Route::post('/updateStatusSuperadmin', [SettingsController::class, 'updateStatusSuperadmin'])->name('updateStatusSuperadmin');
+        Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
+        Route::get('/filter-admins', [SettingsController::class, 'filterByAdminName'])->name('filter-admins');
+        Route::delete('/superadmin/{id}', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
+        Route::post('/superadmin/store', [SettingsController::class, 'store'])->name('superadmin.store');
+        Route::get('/superadmin/{id}/edit', [SettingsController::class, 'edit'])->name('superadmin.edit');
+        Route::post('/superadmin/{id}', [SettingsController::class, 'update'])->name('superadmin.update');
+        Route::get('/center_settings', [SettingsController::class, 'center_settings'])->name('center_settings');
+        Route::post('/center_store', [SettingsController::class, 'center_store'])->name('center_store');
+        Route::get('/center/{id}/edit', [SettingsController::class, 'center_edit'])->name('center.edit');
+        Route::post('/center/{id}', [SettingsController::class, 'center_update'])->name('center.update');
+        Route::delete('/center/{id}', [SettingsController::class, 'destroycenter'])->name('center.destroy');
+        // filter
+        Route::get('filter-centers', [SettingsController::class, 'filterbycentername'])->name('filter-centers');
+        // filter by center ends
+
+
+        Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
+        Route::get('filter-staffs', [SettingsController::class, 'filterStaffByName'])->name('filter-staffs');
+        Route::post('/staff/store', [SettingsController::class, 'staff_store'])->name('staff.store');
+
+
+        Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
+        Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
+        Route::put('/settings/update-permissions/{user}', [SettingsController::class, 'updateUserPermissions'])->name('update_user_permissions');
+
+        Route::get('/show/assigned_permissions/{userId}', [PermissionController::class, 'show'])
+            ->name('show.assigned_permissions');
+
+
+
+
+        Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
+        Route::get('/filter-parents', [SettingsController::class, 'filterByParentName']);
+
+        Route::get('/manage_permissions', [SettingsController::class, 'manage_permissions'])->name('manage_permissions');
+        Route::get('user/permissions', [SettingsController::class, 'user_permissions'])->name('allusers_permissions');
+        Route::post('/parent/store', [SettingsController::class, 'parent_store'])->name('parent.store');
+        Route::post('/assign-permissions', [SettingsController::class, 'assign_user_permissions'])->name('assign_permissions');
+        Route::get('permissions-assigned', [SettingsController::class, 'assigned_permissions'])->name('assigned_permissions');
+
+
+
+        Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
+        Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');
+        Route::post('/parent/send-email', [SettingsController::class, 'sendEmailToParent'])->name('parent.sendEmail');
+        Route::get('/parent/track-mails', [SettingsController::class, 'trackMails'])->name('parent.trackMails');
+
+
+        Route::get('/profile', [SettingsController::class, 'getprofile_page'])->name('profile');
+        Route::post('/upload-profile-image', [SettingsController::class, 'uploadImage'])->name('upload.profile.image');
+        Route::post('/profile/update/{id}', [SettingsController::class, 'profileupdate'])->name('profile.update');
+        Route::post('/profile/change-password/{id}', [SettingsController::class, 'changePassword'])->name('profile.change-password');
+
+        Route::get('ip-list', [WifiIPController::class, 'wifi_add_form'])->name('wifi_add_page');
+        Route::post('store-wifi-ip', [WifiIPController::class, 'wifi_store'])->name('WifiIp.store');
+        Route::post('wifi/change-status/{id}', [WifiIPController::class, 'changeStatus'])->name('WifiIp.changeStatus');
+        Route::post('wifi-status/{id}', [WifiIPController::class, 'userwifi_changeStatus'])->name('userWifi.changeStatus');
+        Route::delete('wifi/delete/{id}', [WifiIPController::class, 'destroy'])->name('WifiIp.destroy');
+
+        Route::get('public-holiday-list', [PublicHolidayController::class, 'add_public_holiday'])->name('public_holiday');
+        Route::post('holiday/change-status/{id}', [PublicHolidayController::class, 'changeStatus'])->name('holiday.changeStatus');
+        Route::delete('holiday/delete/{id}', [PublicHolidayController::class, 'destroy'])->name('holiday.destroy');
+        Route::post('store-holiday', [PublicHolidayController::class, 'holiday_store'])->name('holiday.store');
+        // Route::post('store-holiday', [PublicHolidayController::class, 'holiday_store'])->name('holiday.store');
+
+        Route::put('holiday/update/{id}', [PublicHolidayController::class, 'update'])->name('holiday.update');
+        Route::get('/holidays/events', [PublicHolidayController::class, 'holidayEvents']);
+        Route::get('/holidays/edit/{id}', [PublicHolidayController::class, 'holidaysEdit'])->name('holidays.edit');
+    });
+
+
+    Route::prefix('observation')->name('observation.')->group(function () {
+        Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
+        Route::post('/ai-assist', [ObservationsController::class, 'AiAssistance'])->name('ai-assist');
+        Route::get('/index', [ObservationsController::class, 'index'])->name('index');
+        Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
+        Route::get('/filter/get-children', [ObservationsController::class, 'getChildren_for_filter'])->name('get-children-filter');
+        Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
+        Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
+        Route::get('/view', [ObservationsController::class, 'index'])->name('view');
+        Route::get('/print/{id}', [ObservationsController::class, 'print'])->name('print');
+        Route::post('/share', [ObservationsController::class, 'shareObservation'])->name('share');
+
+        Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
+        Route::get('/addnew/{id}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
+
+
+        Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get.children');
+        Route::get('/get-rooms', [ObservationsController::class, 'getrooms'])->name('get.rooms');
+        Route::post('/store', [ObservationsController::class, 'store'])->name('store');
+        Route::post('/autosave-observation', [ObservationsController::class, 'autosaveobservation'])->name('autosave-observation');
+
+        Route::post('/storeTitle', [ObservationsController::class, 'storeTitle'])->name('storeTitle');
+        Route::post('/refine-text', [ObservationsController::class, 'refine'])->name('refine.text');
+
+        Route::delete('/observation-media/{id}', [ObservationsController::class, 'destroyimage']);
+
+        Route::post('/montessori/store', [ObservationsController::class, 'storeMontessoriData'])->name('montessori.store');
+        Route::post('/eylf/store', [ObservationsController::class, 'storeEylfData'])->name('eylf.store');
+        Route::post('/devmilestone/store', [ObservationsController::class, 'storeDevMilestone'])->name('devmilestone.store');
+        Route::post('/status/update', [ObservationsController::class, 'updateStatus'])->name('status.update');
+        Route::get('/view/{id}', [ObservationsController::class, 'view'])->name('view');
+        Route::get('/observationslink', [ObservationsController::class, 'linkobservationdata']);
+        Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
+        Route::post('/change-created-at', [ObservationsController::class, 'changeCreatedAt'])->name('changeCreatedAt');
+        Route::delete('/{id}', [ObservationsController::class, 'destroy'])->name('destroy');
+
+
+        Route::get('/reflectionslink', [ObservationsController::class, 'linkreflectiondata']);
+        Route::post('/submit-selectedreflink', [ObservationsController::class, 'storelinkreflection']);
+
+        Route::get('/programplanslink', [ObservationsController::class, 'linkprogramplandata']);
+        Route::post('/submit-selectedpplink', [ObservationsController::class, 'storelinkprogramplan']);
+    });
+
+    Route::prefix('ptm')->name('ptm.')->group(function ()
+    {
+        Route::get('/index', [PTMController::class, 'index'])->name('index');
+        Route::get('/addnew', [PTMController::class, 'storepage'])->name('addnew');
+        Route::post('/store', [PTMController::class, 'store'])->name('store');
+        Route::get('/get-rooms', [PTMController::class, 'getrooms'])->name('get.rooms');
+        Route::get('/get-children', [PTMController::class, 'getChildren'])->name('get.children');
+        Route::get('/get-staff', [PTMController::class, 'getStaff'])->name('get-staff');
+        Route::get('/edit/{ptm}', [PTMController::class, 'edit'])->name('editptm');
+        Route::delete('/delete/{ptm}', [PTMController::class, 'delete'])->name('deleteptm');
+        Route::get('/view/{ptm}', [PTMController::class, 'view'])->name('viewptm');
+        Route::get('/events', [PTMController::class, 'getPtmEvents']);
+        Route::get('/directpublish/{ptm}', [PTMController::class, 'directPublish'])->name('directpublish');
+        Route::get('/events', [PTMController::class, 'events']);
+        Route::get('/get-slots', [PTMController::class, 'getSlots'])->name('get-slots');
+        Route::get('/get-date-slots', [PTMController::class, 'getPtmDateSlots'])->name('get-date-slots');
+        Route::post('/reschedule-ptm', [PTMController::class, 'reschedulePtm'])->name('reschedule-ptm');
+        Route::get('/details/{id}', [PTMController::class, 'ptmDetails'])->name('details');
+        Route::get('/{ptm}/reschedule/{child_id}', [PTMController::class, 'rescheduleFromStaff'])->name('reschedule-fstaff');
+        Route::put('/{ptm}/reschedule/{child}', [PTMController::class, 'resupdateFromStaff'])->name('resupdate-fstaff');
+        Route::get('/{ptm}/bulk-reschedule', [PTMController::class, 'bulkReschedulePage'])->name('bulk-reschedule');
+        Route::post('/{ptm}/bulk-reschedule-fstaff', [PTMController::class, 'bulkResupdate'])->name('resupdateFromStaffBulk');
+
+    });
+
+    Route::prefix('reflection')->name('reflection.')->group(function () {
+        Route::get('/index', [ReflectionController::class, 'index'])->name('index');
+        Route::get('/addnew/{id}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
+        Route::get('/addnew', [ReflectionController::class, 'storepage'])->name('addnew');
+
+        Route::get('/print/{id?}', [ReflectionController::class, 'print'])->name('print');
+
+        Route::post('/storetitle', [ReflectionController::class, 'storeTitle'])->name('storeTitle');
+        Route::post('/store', [ReflectionController::class, 'store'])->name('store');
+        Route::post('/autosave-reflection', [ReflectionController::class, 'autosavereflection'])->name('autosave-reflection');
+        Route::delete('/reflection-media/{id}', [ReflectionController::class, 'destroyimage']);
+
+        Route::post('/status/update', [ReflectionController::class, 'updateStatus'])->name('status.update');
+
+        Route::delete('/delete/{id}', [ReflectionController::class, 'destroy'])->name('delete');
+
+        Route::post('/filters', [ReflectionController::class, 'applyFilters'])->name('filters');
+    });
+
+
+    Route::prefix('snapshot')->name('snapshot.')->group(function () {
+
+        Route::get('/index', [ObservationsController::class, 'snapshotindex'])->name('index');
+        Route::get('/addnew', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew');
+        Route::get('/addnew/{id?}', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew.optional');
+        Route::post('/store', [ObservationsController::class, 'snapshotstore'])->name('store');
+        Route::delete('/snapshot-media/{id}', [ObservationsController::class, 'snapshotdestroyimage']);
+        Route::post('/status/update', [ObservationsController::class, 'snapshotupdateStatus'])->name('status.update');
+        Route::delete('snapshotsdelete/{id}', [ObservationsController::class, 'snapshotsdelete'])->name('snapshots.snapshotsdelete');
+        Route::get('/view/{id}', [ObservationsController::class, 'viewSnapShot'])->name('view');
+
+        Route::get('/print/{id?}', [ObservationsController::class, 'print_snapshots'])->name('print');
+
+    });
+
+
+
+    Route::prefix('learningandprogress')->name('learningandprogress.')->group(function () {
+
+        Route::get('/index', [LnPcontroller::class, 'index'])->name('index');
+        Route::get('/lnpdata/{id?}', [LnPcontroller::class, 'lnpData'])->name('lnpdata');
+        Route::post('/update-assessment-status', [LnPcontroller::class, 'updateAssessmentStatus'])->name('update.assessment.status');
+    });
+
+    Route::prefix('qip')->name('qip.')->group(function () {
+
+        Route::get('/index', [Qipcontroller::class, 'index'])->name('index');
+        Route::get('/addnew', [Qipcontroller::class, 'addnew'])->name('addnew');
+        Route::post('/update-name', [QipController::class, 'updateName'])->name('update.name');
+        Route::get('/{id}/area/{area}', [QipController::class, 'viewArea'])->name('area.view');
+        Route::get('/{qip}/element/{element}', [QipController::class, 'viewElement'])->name('element.view');
+        Route::get('/{qip}/standard/{standard}/edit', [QipController::class, 'editStandard'])->name('standard.edit');
+        Route::post('/discussion/send', [QipController::class, 'sendDiscussion'])->name('discussion.send');
+    });
+});
+
+
+
+
+
+
+// no used but only use for template pages......after remove this
+
+Route::get('data', [AccidentsController::class, 'index']);
+/* Dashboard */
+Route::get('dashboard-fack', function () {
+
+    return redirect('dashboard/analytical');
+});
+// service details
+
+
+/* App */
+Route::get('app', function () {
+    return redirect('app/inbox');
+});
+/* File Manager */
+Route::get('file-manager', function () {
+    return redirect('file-manager/dashboard');
+});
+/* Blog */
+Route::get('blog', function () {
+    return redirect('blog/dashboard');
+});
+/* UI Elements */
+Route::get('ui-elements', function () {
+    return redirect('ui-elements/typography');
+});
+/* Widgets */
+Route::get('widgets', function () {
+    return redirect('widgets/statistics');
+});
+/* Authentication */
+Route::get('authentication', function () {
+    return redirect('authentication/login');
+});
+/* Pages */
+Route::get('pages', function () {
+    return redirect('pages/blank-page');
+});
+/* Forms */
+Route::get('forms', function () {
+    return redirect('forms/advance-elements');
+});
+/* Forms */
+Route::get('table', function () {
+    return redirect('table/basic');
+});
+/* Charts */
+Route::get('charts', function () {
+    return redirect('charts/morris');
+});
+/* Maps */
+Route::get('map', function () {
+    return redirect('map/google');
+});
