@@ -42,4 +42,4 @@ horizon.log
 !/public/uploads/.gitkeep
 /storage/*
 !/storage/.gitkeep
-/routes/api.php
+/routes/oldapi.php
