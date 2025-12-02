@@ -69,7 +69,7 @@
 
 
 
-    <div class="sidebar-scroll" style="    margin-top: 54px;">
+    <div class="sidebar-scroll">
 
 
 
@@ -136,6 +136,8 @@
                             </a>
                         </li>
                         @endif
+                        
+
                         @if(  in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
     (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllReflection']) && $permissions['viewAllReflection']))
 
@@ -161,6 +163,17 @@
                               <i class="icon-users" style="font-size: 25px; "></i><span
                                     style="font-size: 18px; margin-left:3px">PTM</span></a>
                         </li>
+
+                                {{-- Messaging menu item --}}
+                        <li class="{{ Request::is('messaging*') ? 'active' : '' }}">
+                            <a href="/messaging" data-toggle="tooltip" data-placement="right">
+                                <i class="fa fa-comments" style="font-size: 25px;"></i>
+                                <span style="font-size: 18px; ">Messages
+                                    <span id="sidebar-messages-badge" class="badge bg-danger text-white" style="display:none;  font-size:.75rem;"></span>
+                                </span>
+                            </a>
+                        </li>
+
                         <li class="{{ Request::is('snapshot*') ? 'active' : null }}">
                             <a href="{{route('snapshot.index')}}" data-toggle="tooltip" data-placement="right">
                                 <i class="icon-camera" style="font-size: 25px;"></i>
@@ -360,5 +373,33 @@
     $('.btn-toggle-fullwidth').on('click', function() {
         $('#left-sidebar').toggleClass('minified');
         $(this).find('i').toggleClass('fa-arrow-left fa-arrow-right');
+    });
+</script>
+
+<script>
+    // poll unread count for messages and update sidebar badge
+    async function updateUnreadBadge() {
+        try {
+            const res = await fetch('/messaging/unread-count');
+            const data = await res.json();
+            if (data && data.success) {
+                const count = data.unread || 0;
+                const el = document.getElementById('sidebar-messages-badge');
+                if (!el) return;
+                if (count > 0) {
+                    el.style.display = 'inline-block';
+                    el.innerText = count;
+                } else {
+                    el.style.display = 'none';
+                    el.innerText = '';
+                }
+            }
+        } catch (e) {
+            // ignore
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function(){
+        updateUnreadBadge();
+        setInterval(updateUnreadBadge, 5000);
     });
 </script>

@@ -449,7 +449,7 @@
 
         }
     </style>
-  <h1> adil assigned per user </h1>
+
     <div class="row clearfix" style="margin-top:30px">
         <div class="col-lg-12">
             <div class="card">
@@ -1279,7 +1279,7 @@
                                         <div class="permission-card">
                                             <div class="card-header">
                                                 <div class="header-content">
-                                                    <i class="fas fa-handshake"></i>
+                                                    <i class="icon-users"></i>
                                                     <h3>PTM Permissions</h3>
                                                 </div>
                                                 <div class="permission-count">
@@ -1424,8 +1424,8 @@
         $(function() {
             // Delegated handler for individual checkboxes (works for dynamic content)
             $(document).on('change', '.permission-toggle', function() {
-                console.log('permission changed:', this.dataset.permission, 'checked=', this
-                .checked); // debug
+               // console.log('permission changed:', this.dataset.permission, 'checked=', this
+                //.checked); // debug
 
                 let $card = $(this).closest('.permission-card');
                 let checkedCount = $card.find('.permission-toggle:checked').length;

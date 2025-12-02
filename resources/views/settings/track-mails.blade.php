@@ -14,7 +14,7 @@
         overflow: hidden;
         position: relative;
         border: 1px solid #e0e0e0;
-       
+
     }
 
     /* Gmail-style Header */
@@ -28,7 +28,7 @@
         align-items: center;
         gap: 16px;
     }
-    
+
     .inbox-header h5 {
         font-size: 18px;
         font-weight: 500;
@@ -38,7 +38,7 @@
         align-items: center;
         gap: 12px;
     }
-    
+
     .inbox-header a {
         color: #5f6368;
         text-decoration: none;
@@ -50,15 +50,15 @@
         border-radius: 50%;
         transition: background-color 0.2s;
     }
-    
+
     .inbox-header a:hover {
         background-color: #f1f3f4;
     }
-    
+
     .inbox-header a i {
         color: #5f6368 !important;
     }
-    
+
     .inbox-body {
         flex: 1;
         overflow-y: auto;
@@ -92,7 +92,7 @@
 
     .parent-row:hover {
         box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0,
-            0 1px 2px rgba(60,64,67,.3), 0 1px 3px rgba(60,64,67,.15);
+            0 1px 2px rgba(60, 64, 67, .3), 0 1px 3px rgba(60, 64, 67, .15);
         z-index: 1;
     }
 
@@ -135,7 +135,7 @@
         top: 0;
         background: linear-gradient(135deg, #1a73e8, #1557b0);
         color: #ffffff;
-        
+
         display: flex;
         align-items: center;
         gap: 12px;
@@ -155,8 +155,9 @@
         border-radius: 50%;
         transition: 0.2s;
     }
+
     .email-back-btn:hover {
-        background: rgba(255,255,255,0.2);
+        background: rgba(255, 255, 255, 0.2);
         transform: scale(1.05);
     }
 
@@ -198,8 +199,15 @@
     }
 
     @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
     }
 
     /* Email item details */
@@ -259,14 +267,14 @@
         font-size: 19px;
         font-weight: 500;
         color: #202124;
-       padding-left: 13px;
+        padding-left: 13px;
         border-bottom: 1px solid #e0e0e0;
         padding-bottom: 12px;
         line-height: 1.4;
     }
 
-    .parent-details{
-        margin-left:10px;
+    .parent-details {
+        margin-left: 10px;
     }
 
     .email-full-meta {
@@ -275,7 +283,7 @@
         gap: 8px 16px;
         margin-bottom: 24px;
         padding: 6px;
-        padding-left:  10px !important;
+        padding-left: 10px !important;
         background: #f8f9fa;
         border-radius: 8px;
         font-size: 14px;
@@ -343,7 +351,7 @@
     }
 
     .attachment-preview-card:hover {
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
     }
 
@@ -358,7 +366,7 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
         color: white;
         padding: 4px 6px;
         font-size: 9px;
@@ -395,7 +403,7 @@
 
     .attachment-badge:hover {
         background: #e8eaed;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .attachment-badge i {
@@ -434,7 +442,7 @@
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgba(0,0,0,0.9);
+        background-color: rgba(0, 0, 0, 0.9);
     }
 
     .image-modal.show {
@@ -450,8 +458,13 @@
     }
 
     @keyframes zoom {
-        from { transform: scale(0); }
-        to { transform: scale(1); }
+        from {
+            transform: scale(0);
+        }
+
+        to {
+            transform: scale(1);
+        }
     }
 
     .modal-close {
@@ -520,279 +533,299 @@
                 </div>
 
                 <div class="inbox-body"> @if ($parents->count() > 0)
-    @foreach ($parents as $parent)
-        @php
-            $parentEmails = $emails->where('parent_id', $parent->id);
-            $emailCount = $parentEmails->count();
-            $initials = strtoupper(substr($parent->name, 0, 1));
+                    @foreach ($parents as $parent)
+                    @php
+                    $parentEmails = $emails->where('parent_id', $parent->id);
+                    $emailCount = $parentEmails->count();
+                    $initials = strtoupper(substr($parent->name, 0, 1));
 
-            // Collect unique children
-            $allChildren = collect();
-            foreach ($parentEmails as $email) {
-                if ($email->children && count($email->children) > 0) {
-                    foreach ($email->children as $child) {
-                        $allChildren->push($child);
+                    // Collect unique children using normalized relation `childrenRelation`
+                    $allChildren = collect();
+                    foreach ($parentEmails as $email) {
+                        $list = $email->relationLoaded('childrenRelation') ? $email->childrenRelation : $email->childrenRelation()->get();
+                        foreach ($list as $child) {
+                            // normalize object -> array for display (handle Eloquent models properly)
+                            $c = ($child instanceof \Illuminate\Database\Eloquent\Model) ? $child->toArray() : (is_array($child) ? $child : (array)$child);
+                            $allChildren->push($c);
+                        }
                     }
-                }
-            }
-            $uniqueChildren = $allChildren->unique('id');
-        @endphp
+                    $uniqueChildren = $allChildren->unique('id')->values();
+                    @endphp
 
-        <!-- Parent Row -->
-        <div class="parent-row"
-            id="parent-row-{{ $parent->id }}"
-            onclick="openParentEmails({{ $parent->id }})">
+                    <!-- Parent Row -->
+                    <div class="parent-row" id="parent-row-{{ $parent->id }}"
+                        onclick="openParentEmails({{ $parent->id }})">
 
-            <div class="d-flex align-items-center gap-3">
-                <div class="parent-avatar">{{ $initials }}</div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="parent-avatar">{{ $initials }}</div>
 
-                <div class="parent-details">
-                    <h6>{{ $parent->name }}</h6>
-                    <small>
-                        <i class="fa fa-envelope"></i> {{ $parent->email }}
+                            <div class="parent-details">
+                                <h6>{{ $parent->name }}</h6>
+                                <small>
+                                    <i class="fa fa-envelope"></i> {{ $parent->email }}
 
-                        @if ($uniqueChildren->count() > 0)
-                            <span class="ml-2">
-                                <i class="fa fa-child text-success"></i>
-                                @foreach ($uniqueChildren as $child)
-                                    <span class="child-tag">{{ $child['name'] ?? 'N/A' }}</span>
-                                @endforeach
-                            </span>
-                        @endif
-                    </small>
-                </div>
-            </div>
-
-            <div class="d-flex align-items-center gap-3">
-                <span class="email-count">{{ $emailCount }} {{ $emailCount == 1 ? 'email' : 'emails' }}</span>
-                <i class="fa fa-chevron-right expand-icon"></i>
-            </div>
-        </div>
-
-        <!-- Parent Emails Panel (inside container) -->
-        <div class="parent-emails-fullpage" id="parent-emails-{{ $parent->id }}">
-
-            <div class="email-fullpage-header">
-                <button class="email-back-btn"
-                    onclick="closeParentEmails({{ $parent->id }})">
-                    <i class="fa fa-arrow-left"></i>
-                </button>
-
-                <div>
-                    <h7 class="mb-0"><i class="fa fa-inbox"></i> Emails for {{ $parent->name }}</h7>
-                    <small>{{ $emailCount }} {{ $emailCount == 1 ? 'email' : 'emails' }}</small>
-                </div>
-            </div>
-
-            <div class="parent-emails-split">
-
-                <!-- EMAIL LIST -->
-                <div class="emails-list-pane">
-                    @if ($parentEmails->count() > 0)
-                        @foreach ($parentEmails as $email)
-                            <div class="email-item"
-                                id="email-item-{{ $email->id }}"
-                                onclick="openFullEmail({{ $email->id }}, event)">
-
-                                <div class="email-header-row d-flex justify-content-between">
-                                    <div>
-                                        <div class="email-subject">
-                                            <i class="fa fa-envelope text-info"></i> {{ $email->subject }}
-                                        </div>
-                                        <div class="email-meta">
-                                            <i class="fa fa-user"></i>
-                                            From: <strong>{{ $email->sender ? $email->sender->name : 'System' }}</strong>
-                                        </div>
-                                    </div>
-
-                                    <div class="email-date text-right">
-                                        <strong>{{ $email->sent_at->format('M d, Y') }}</strong>
-                                        <div>{{ $email->sent_at->format('h:i A') }}</div>
-                                    </div>
-                                </div>
-
+                                    @if ($uniqueChildren->count() > 0)
+                                    <span class="ml-2">
+                                        <i class="fa fa-child text-success"></i>
+                                        @foreach ($uniqueChildren as $child)
+                                        <span class="child-tag">{{ $child['name'] ?? 'N/A' }}</span>
+                                        @endforeach
+                                    </span>
+                                    @endif
+                                </small>
                             </div>
-                        @endforeach
-                    @else
-                        <div class="no-emails">
-                            <i class="fa fa-inbox fa-2x mb-2"></i>
-                            <p>No emails sent to this parent yet</p>
                         </div>
-                    @endif
-                </div>
 
-                <!-- EMAIL DETAIL VIEW -->
-                <div class="email-detail-pane">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="email-count">{{ $emailCount }} {{ $emailCount == 1 ? 'email' : 'emails'
+                                }}</span>
+                            <i class="fa fa-chevron-right expand-icon"></i>
+                        </div>
+                    </div>
 
-                    @if ($parentEmails->count() > 0)
-                        @foreach ($parentEmails as $email)
-                            <div class="email-detail" id="email-full-{{ $email->id }}">
+                    <!-- Parent Emails Panel (inside container) -->
+                    <div class="parent-emails-fullpage" id="parent-emails-{{ $parent->id }}">
 
-                                <h1 class="email-full-subject">{{ $email->subject }}</h1>
+                        <div class="email-fullpage-header">
+                            <button class="email-back-btn" onclick="closeParentEmails({{ $parent->id }})">
+                                <i class="fa fa-arrow-left"></i>
+                            </button>
 
-                                <div class="email-full-meta">
-                                    <div class="email-full-meta-label">
-                                        <i class="fa fa-user"></i> From:
+                            <div>
+                                <h7 class="mb-0"><i class="fa fa-inbox"></i> Emails for {{ $parent->name }}</h7>
+                                <small>{{ $emailCount }} {{ $emailCount == 1 ? 'email' : 'emails' }}</small>
+                            </div>
+                        </div>
+
+                        <div class="parent-emails-split">
+
+                            <!-- EMAIL LIST -->
+                            <div class="emails-list-pane">
+                                @if ($parentEmails->count() > 0)
+                                @foreach ($parentEmails as $email)
+                                <div class="email-item" id="email-item-{{ $email->id }}"
+                                    onclick="openFullEmail({{ $email->id }}, event)">
+
+                                    <div class="email-header-row d-flex justify-content-between">
+                                        <div>
+                                            <div class="email-subject">
+                                                <i class="fa fa-envelope text-info"></i> {{ $email->subject }}
+                                            </div>
+                                            <div class="email-meta">
+                                                <i class="fa fa-user"></i>
+                                                From: <strong>{{ $email->sender ? $email->sender->name : 'System'
+                                                    }}</strong>
+                                            </div>
+                                        </div>
+
+                                        <div class="email-date text-right">
+                                            <strong>{{ $email->sent_at->format('M d, Y') }}</strong>
+                                            <div>{{ $email->sent_at->format('h:i A') }}</div>
+                                        </div>
                                     </div>
-                                    <div class="email-full-meta-value">
-                                        {{ $email->sender ? $email->sender->name : 'System' }}
-                                    </div>
 
-                                    <div class="email-full-meta-label">
-                                        <i class="fa fa-envelope"></i> To:
-                                    </div>
-                                    <div class="email-full-meta-value">
-                                        {{ $email->parent_name }} ({{ $email->parent_email }})
-                                    </div>
+                                </div>
+                                @endforeach
+                                @else
+                                <div class="no-emails">
+                                    <i class="fa fa-inbox fa-2x mb-2"></i>
+                                    <p>No emails sent to this parent yet</p>
+                                </div>
+                                @endif
+                            </div>
 
-                                    @if ($email->children && count($email->children) > 0)
+                            <!-- EMAIL DETAIL VIEW -->
+                            <div class="email-detail-pane">
+
+                                @if ($parentEmails->count() > 0)
+                                @foreach ($parentEmails as $email)
+                                <div class="email-detail" id="email-full-{{ $email->id }}">
+
+                                    <h1 class="email-full-subject">{{ $email->subject }}</h1>
+
+                                    <div class="email-full-meta">
+                                        <div class="email-full-meta-label">
+                                            <i class="fa fa-user"></i> From:
+                                        </div>
+                                        <div class="email-full-meta-value">
+                                            {{ $email->sender ? $email->sender->name : 'System' }}
+                                        </div>
+
+                                        <div class="email-full-meta-label">
+                                            <i class="fa fa-envelope"></i> To:
+                                        </div>
+                                        <div class="email-full-meta-value">
+                                            {{ $email->parent_name }} ({{ $email->parent_email }})
+                                        </div>
+
+                                        @php
+                                            $childrenList = $email->relationLoaded('childrenRelation') ? $email->childrenRelation : $email->childrenRelation()->get();
+                                        @endphp
+                                        @if ($childrenList->count() > 0)
                                         <div class="email-full-meta-label">
                                             <i class="fa fa-child"></i> Children:
                                         </div>
                                         <div class="email-full-meta-value">
-                                            @foreach ($email->children as $child)
-                                                <span class="child-tag">{{ $child['name'] }}</span>
+                                            @foreach ($childrenList as $child)
+                                            @php $c = ($child instanceof \Illuminate\Database\Eloquent\Model) ? $child->toArray() : (is_array($child) ? $child : (array)$child); @endphp
+                                            <span class="child-tag">{{ $c['name'] ?? 'N/A' }}</span>
                                             @endforeach
                                         </div>
-                                    @endif
+                                        @endif
 
-                                    <div class="email-full-meta-label">
-                                        <i class="fa fa-calendar"></i> Sent:
+                                        <div class="email-full-meta-label">
+                                            <i class="fa fa-calendar"></i> Sent:
+                                        </div>
+                                        <div class="email-full-meta-value">
+                                            {{ $email->sent_at->format('l, F d, Y \\a\\t h:i A') }}
+                                        </div>
                                     </div>
-                                    <div class="email-full-meta-value">
-                                        {{ $email->sent_at->format('l, F d, Y \\a\\t h:i A') }}
-                                    </div>
-                                </div>
 
-                                <div class="email-full-message">
-                                    {!! $email->message !!}
-                                </div>                                 @if ($email->attachments && count($email->attachments) > 0)
+                                    <div class="email-full-message">
+                                        {!! $email->message !!}
+                                    </div>
+                                    @php
+                                        $attachmentsList = $email->relationLoaded('attachmentsRelation') ? $email->attachmentsRelation : $email->attachmentsRelation()->get();
+                                    @endphp
+                                    @if ($attachmentsList->count() > 0)
                                     <div class="attachment-section">
                                         <div class="d-flex align-items-center mb-2">
                                             <i class="fa fa-paperclip text-info mr-2"></i>
-                                            <strong>{{ count($email->attachments) }}
-                                                Attachment{{ count($email->attachments) > 1 ? 's' : '' }}</strong>
+                                            <strong>{{ $attachmentsList->count() }}
+                                                Attachment{{ $attachmentsList->count() > 1 ? 's' : '' }}</strong>
                                         </div>
 
                                         @php
-                                            $imageExtensions = ['jpg','jpeg','png','gif','bmp','webp'];
-                                            $images = [];
-                                            $files = [];
+                                        $imageExtensions = ['jpg','jpeg','png','gif','bmp','webp'];
+                                        $images = [];
+                                        $files = [];
 
-                                            foreach ($email->attachments as $attachment) {
-                                                $path = $attachment['path'] ?? '';
-                                                $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                        foreach ($attachmentsList as $attachment) {
+                                            // attachments may be Eloquent models or arrays
+                                            $att = ($attachment instanceof \Illuminate\Database\Eloquent\Model) ? $attachment->toArray() : (is_array($attachment) ? $attachment : (array)$attachment);
+                                            $path = $att['path'] ?? '';
+                                            $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 
-                                                if (in_array($extension, $imageExtensions)) {
-                                                    $images[] = $attachment;
-                                                } else {
-                                                    $files[] = $attachment;
-                                                }
+                                            if (in_array($extension, $imageExtensions)) {
+                                                $images[] = $att;
+                                            } else {
+                                                $files[] = $att;
                                             }
+                                        }
                                         @endphp
 
                                         {{-- IMAGE ATTACHMENTS --}}
                                         @if (count($images) > 0)
-                                            <div class="attachment-grid">
-                                                @foreach ($images as $image)
-                                                    @php
-                                                        $rawPath = $image['path'] ?? '';
-                                                        $src = '';
+                                        <div class="attachment-grid">
+                                            @foreach ($images as $image)
+                                            @php
+                                            $rawPath = $image['path'] ?? '';
+                                            $src = '';
 
-                                                        if (preg_match('#^https?://#i', $rawPath)) {
-                                                            $src = $rawPath;
-                                                        } else {
-                                                            $clean = str_replace('\\', '/', ltrim($rawPath, '/'));
+                                            if (preg_match('#^https?://#i', $rawPath)) {
+                                            $parts = parse_url($rawPath);
+                                            $path = $parts['path'] ?? '';
+                                            $query = isset($parts['query']) ? '?' . $parts['query'] : '';
 
-                                                            if (str_starts_with($clean, 'public/')) {
-                                                                $clean = 'storage/' . substr($clean, 7);
-                                                            }
+                                            $segments = array_map('rawurlencode', explode('/', ltrim($path, '/')));
+                                            $base = rtrim(url('/'), '/');
+                                            $src = $base . '/' . implode('/', $segments) . $query;
+                                            } else {
+                                            $clean = str_replace('\\', '/', ltrim($rawPath, '/'));
 
-                                                            $segments = array_map('rawurlencode', explode('/', $clean));
-                                                            $src = asset(implode('/', $segments));
-                                                        }
-                                                    @endphp
+                                            if (str_starts_with($clean, 'public/')) {
+                                            $clean = 'storage/' . substr($clean, 7);
+                                            }
 
-                                                    @if ($src)
-                                                        <div class="attachment-preview-card"
-                                                            onclick="openImageModal('{{ $src }}', '{{ $image['name'] ?? 'Image' }}', '{{ number_format(($image['size'] ?? 0)/1024, 2) }} KB')">
+                                            $segments = array_map('rawurlencode', explode('/', $clean));
+                                            $src = asset(implode('/', $segments));
+                                            }
+                                            @endphp
 
-                                                            <img src="{{ $src }}"
-                                                                alt="{{ $image['name'] ?? 'Image' }}"
-                                                                onerror="this.closest('.attachment-preview-card').classList.add('broken'); this.remove();">
+                                            @if ($src)
+                                            <div class="attachment-preview-card"
+                                                onclick="openImageModal('{{ $src }}', '{{ $image['name'] ?? 'Image' }}', '{{ number_format(($image['size'] ?? 0)/1024, 2) }} KB')">
 
-                                                            <div class="attachment-overlay">
-                                                                <span class="filename">{{ $image['name'] ?? 'Image' }}</span>
-                                                                <small>{{ number_format(($image['size'] ?? 0)/1024, 2) }} KB</small>
-                                                            </div>
-                                                        </div>
-                                                    @endif
-                                                @endforeach
+                                                <img src="{{ $src }}" alt="{{ $image['name'] ?? 'Image' }}"
+                                                    onerror="this.closest('.attachment-preview-card').classList.add('broken'); this.remove();">
+
+                                                <div class="attachment-overlay">
+                                                    <span class="filename">{{ $image['name'] ?? 'Image' }}</span>
+                                                    <small>{{ number_format(($image['size'] ?? 0)/1024, 2) }} KB</small>
+                                                </div>
                                             </div>
+                                            @endif
+                                            @endforeach
+                                        </div>
                                         @endif
 
                                         {{-- FILE ATTACHMENTS --}}
                                         @if (count($files) > 0)
-                                            <div class="mt-3">
-                                                @foreach ($files as $file)
-                                                    @php
-                                                        $path = $file['path'] ?? '';
-                                                        if (preg_match('#^https?://#i', $path)) {
-                                                            $fileUrl = $path;
-                                                        } else {
-                                                            $clean = str_replace('\\', '/', ltrim($path, '/'));
+                                        <div class="mt-3">
+                                            @foreach ($files as $file)
+                                            @php
+                                            $path = $file['path'] ?? '';
+                                            if (preg_match('#^https?://#i', $path)) {
+                                            $parts = parse_url($path);
+                                            $ppath = $parts['path'] ?? '';
+                                            $query = isset($parts['query']) ? '?' . $parts['query'] : '';
 
-                                                            if (str_starts_with($clean, 'public/')) {
-                                                                $clean = 'storage/' . substr($clean, 7);
-                                                            }
+                                            $segments = array_map('rawurlencode', explode('/', ltrim($ppath, '/')));
+                                            $base = rtrim(url('/'), '/');
+                                            $fileUrl = $base . '/' . implode('/', $segments) . $query;
+                                            } else {
+                                            $clean = str_replace('\\', '/', ltrim($path, '/'));
 
-                                                            $segments = array_map('rawurlencode', explode('/', $clean));
-                                                            $fileUrl = asset(implode('/', $segments));
-                                                        }
-                                                    @endphp
+                                            if (str_starts_with($clean, 'public/')) {
+                                            $clean = 'storage/' . substr($clean, 7);
+                                            }
 
-                                                    <a href="{{ $fileUrl }}" target="_blank" download class="attachment-badge">
-                                                        <i class="fa fa-file-alt"></i>
-                                                        <span>
-                                                            <strong>{{ $file['name'] ?? 'Attachment' }}</strong>
-                                                            <small>{{ number_format(($file['size'] ?? 0)/1024, 2) }} KB</small>
-                                                        </span>
-                                                    </a>
-                                                @endforeach
-                                            </div>
+                                            $segments = array_map('rawurlencode', explode('/', $clean));
+                                            $fileUrl = asset(implode('/', $segments));
+                                            }
+                                            @endphp
+
+                                            <a href="{{ $fileUrl }}" target="_blank" download class="attachment-badge">
+                                                <i class="fa fa-file-alt"></i>
+                                                <span>
+                                                    <strong>{{ $file['name'] ?? 'Attachment' }}</strong>
+                                                    <small>{{ number_format(($file['size'] ?? 0)/1024, 2) }} KB</small>
+                                                </span>
+                                            </a>
+                                            @endforeach
+                                        </div>
                                         @endif
 
                                     </div>
+                                    @endif
+                                </div>
+                                @endforeach
+
+                                <div class="email-detail-placeholder" id="email-detail-placeholder-{{ $parent->id }}">
+                                    <i class="fa fa-envelope-open-text fa-2x mb-2 text-muted"></i>
+                                    <div>Select an email to view its content</div>
+                                </div>
                                 @endif
-                            </div>
-                        @endforeach
 
-                        <div class="email-detail-placeholder"
-                            id="email-detail-placeholder-{{ $parent->id }}">
-                            <i class="fa fa-envelope-open-text fa-2x mb-2 text-muted"></i>
-                            <div>Select an email to view its content</div>
-                        </div>
+                            </div> <!-- email-detail-pane -->
+                        </div> <!-- parent-emails-split -->
+                    </div> <!-- parent-emails-fullpage -->
+                    @endforeach
+
+                    @else
+                    <div class="no-emails">
+                        <i class="fa fa-inbox fa-3x mb-3"></i>
+                        <h5>No parents selected</h5>
+                        <p>Select parents from the list to view their email history.</p>
+                    </div>
                     @endif
+                </div>
 
-                </div> <!-- email-detail-pane -->
-            </div> <!-- parent-emails-split -->
-        </div> <!-- parent-emails-fullpage -->
-    @endforeach
 
-@else
-    <div class="no-emails">
-        <i class="fa fa-inbox fa-3x mb-3"></i>
-        <h5>No parents selected</h5>
-        <p>Select parents from the list to view their email history.</p>
+
+            </div>
+        </div>
     </div>
-@endif
-</div> <!-- inbox-body -->
-
-
-
-</div> <!-- inbox-container -->
-</div>
-</div>
 </div>
 
 <!-- IMAGE MODAL -->
@@ -803,84 +836,84 @@
 </div>
 
 <script>
-let currentParentId = null;
+    let currentParentId = null;
 
-function openParentEmails(parentId) {
-    // Close any other open panels first
-    document.querySelectorAll('.parent-emails-fullpage.active').forEach(p => {
-        if (p.id !== 'parent-emails-' + parentId) {
-            p.classList.remove('active');
+    function openParentEmails(parentId) {
+        // Close any other open panels first
+        document.querySelectorAll('.parent-emails-fullpage.active').forEach(p => {
+            if (p.id !== 'parent-emails-' + parentId) {
+                p.classList.remove('active');
+            }
+        });
+
+        // Hide all parent rows
+        document.querySelectorAll('.parent-row').forEach(row => row.style.display = 'none');
+
+        // Show panel
+        const panel = document.getElementById('parent-emails-' + parentId);
+        if (panel) panel.classList.add('active');
+
+        currentParentId = parentId;
+
+        // Reset inside panel
+        panel.querySelectorAll('.email-detail').forEach(d => d.classList.remove('active'));
+        panel.querySelectorAll('.email-item').forEach(i => i.classList.remove('selected'));
+
+        const placeholder = document.getElementById('email-detail-placeholder-' + parentId);
+        if (placeholder) placeholder.style.display = 'block';
+    }
+
+    function closeParentEmails(parentId) {
+        // Hide email panel
+        const panel = document.getElementById('parent-emails-' + parentId);
+        if (panel) panel.classList.remove('active');
+
+        // Show parent list again
+        document.querySelectorAll('.parent-row').forEach(row => row.style.display = 'flex');
+
+        currentParentId = null;
+    }
+
+    function openFullEmail(emailId, event) {
+        event.stopPropagation();
+
+        const parentId = currentParentId;
+        if (!parentId) return;
+
+        const parentPanel = document.getElementById('parent-emails-' + parentId);
+
+        // Hide placeholder
+        const placeholder = document.getElementById('email-detail-placeholder-' + parentId);
+        if (placeholder) placeholder.style.display = 'none';
+
+        parentPanel.querySelectorAll('.email-detail').forEach(d => d.classList.remove('active'));
+        parentPanel.querySelectorAll('.email-item').forEach(i => i.classList.remove('selected'));
+
+        document.getElementById('email-full-' + emailId).classList.add('active');
+        document.getElementById('email-item-' + emailId).classList.add('selected');
+    }
+
+    function openImageModal(src, name, size) {
+        document.getElementById('imageModal').classList.add('show');
+        document.getElementById('modalImage').src = src;
+        document.getElementById('modalCaption').innerHTML = name + ' - ' + size;
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const modal = document.getElementById('imageModal');
+            if (modal.classList.contains('show')) return closeImageModal();
+
+            const activeParent = document.querySelector('.parent-emails-fullpage.active');
+            if (activeParent) return closeParentEmails(currentParentId);
         }
     });
-
-    // Hide all parent rows
-    document.querySelectorAll('.parent-row').forEach(row => row.style.display = 'none');
-
-    // Show panel
-    const panel = document.getElementById('parent-emails-' + parentId);
-    if (panel) panel.classList.add('active');
-
-    currentParentId = parentId;
-
-    // Reset inside panel
-    panel.querySelectorAll('.email-detail').forEach(d => d.classList.remove('active'));
-    panel.querySelectorAll('.email-item').forEach(i => i.classList.remove('selected'));
-
-    const placeholder = document.getElementById('email-detail-placeholder-' + parentId);
-    if (placeholder) placeholder.style.display = 'block';
-}
-
-function closeParentEmails(parentId) {
-    // Hide email panel
-    const panel = document.getElementById('parent-emails-' + parentId);
-    if (panel) panel.classList.remove('active');
-
-    // Show parent list again
-    document.querySelectorAll('.parent-row').forEach(row => row.style.display = 'flex');
-
-    currentParentId = null;
-}
-
-function openFullEmail(emailId, event) {
-    event.stopPropagation();
-
-    const parentId = currentParentId;
-    if (!parentId) return;
-
-    const parentPanel = document.getElementById('parent-emails-' + parentId);
-
-    // Hide placeholder
-    const placeholder = document.getElementById('email-detail-placeholder-' + parentId);
-    if (placeholder) placeholder.style.display = 'none';
-
-    parentPanel.querySelectorAll('.email-detail').forEach(d => d.classList.remove('active'));
-    parentPanel.querySelectorAll('.email-item').forEach(i => i.classList.remove('selected'));
-
-    document.getElementById('email-full-' + emailId).classList.add('active');
-    document.getElementById('email-item-' + emailId).classList.add('selected');
-}
-
-function openImageModal(src, name, size) {
-    document.getElementById('imageModal').classList.add('show');
-    document.getElementById('modalImage').src = src;
-    document.getElementById('modalCaption').innerHTML = name + ' - ' + size;
-    document.body.style.overflow = 'hidden';
-}
-
-function closeImageModal() {
-    document.getElementById('imageModal').classList.remove('show');
-    document.body.style.overflow = 'auto';
-}
-
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        const modal = document.getElementById('imageModal');
-        if (modal.classList.contains('show')) return closeImageModal();
-
-        const activeParent = document.querySelector('.parent-emails-fullpage.active');
-        if (activeParent) return closeParentEmails(currentParentId);
-    }
-});
 </script>
 
 @stop

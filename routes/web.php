@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\AccidentsController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthenticationController;
@@ -63,6 +62,19 @@ Route::get('/logout', function () {
     return redirect('login');
 })->name('logout');
 
+// Messaging routes (auth-protected)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/messaging', [App\Http\Controllers\MessagingController::class, 'index'])->name('messaging.index');
+    Route::get('/messaging/contacts', [App\Http\Controllers\MessagingController::class, 'contacts']);
+    Route::get('/messaging/thread/{id}', [App\Http\Controllers\MessagingController::class, 'thread']);
+    Route::get('/messaging/group-thread', [App\Http\Controllers\MessagingController::class, 'groupThread']);
+    //Route::post('/messaging/group-read', [App\Http\Controllers\MessagingController::class, 'markGroupRead']);
+    Route::post('/messaging/send', [App\Http\Controllers\MessagingController::class, 'send']);
+    Route::post('/messaging/broadcast-center', [App\Http\Controllers\MessagingController::class, 'broadcastCenter']);
+    Route::get('/messaging/unread-count', [App\Http\Controllers\MessagingController::class, 'unreadCount']);
+});
+
+
 Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
 Route::get('/', [DashboardController::class, 'lending_page']);
 
@@ -102,8 +114,6 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
     Route::get('/enrolment/dashboard', [UserController::class, 'dashboard'])->name('enrolment.dashboard');
     Route::get('/re-enrolments/{reEnrolment}/details', [UserController::class, 'getDetails'])->name('re-enrolment.details');
-
-
     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
     Route::get('/api/events', [DashboardController::class, 'getEvents']);
     // service details
@@ -350,7 +360,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::post('/holidays/delete-selected', [PublicHolidayController::class, 'deleteSelected'])
-    ->name('holidays.deleteSelected');
+        ->name('holidays.deleteSelected');
 
 
         Route::delete('/role-permission-delete/{id}', [PermissionController::class, 'delete_role_permission'])->name('role-permission-delete');
@@ -359,7 +369,6 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('/manage-permission-role', [PermissionController::class, 'manage_role'])->name('manage-permission-role');
         Route::post('/add-permission-role', [PermissionController::class, 'store_role'])->name('add-permission-role');
         Route::post('/update-permission', [PermissionController::class, 'updatepermission'])->name('update-permission');
-
 
         Route::post('/updateStatusSuperadmin', [SettingsController::class, 'updateStatusSuperadmin'])->name('updateStatusSuperadmin');
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
@@ -386,7 +395,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
         Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
         Route::put('/settings/update-permissions/{user}', [SettingsController::class, 'updateUserPermissions'])->name('update_user_permissions');
-
+        // Route::get('/staff/{id}', [SettingsController::class, 'StaffFullDetails'])->name('StaffDetails');
         Route::get('/show/assigned_permissions/{userId}', [PermissionController::class, 'show'])
             ->name('show.assigned_permissions');
 
@@ -394,6 +403,8 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
 
         Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
+        Route::get('/staff/{id}/details', [SettingsController::class, 'staff_details'])->name('staff.details');
+        Route::get('/staff/{id}', [SettingsController::class, 'staff_details'])->name('staff.show');
         Route::get('/filter-parents', [SettingsController::class, 'filterByParentName']);
 
         Route::get('/manage_permissions', [SettingsController::class, 'manage_permissions'])->name('manage_permissions');
@@ -441,7 +452,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('/filter/get-children', [ObservationsController::class, 'getChildren_for_filter'])->name('get-children-filter');
         Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
         Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
-        Route::get('/view', [ObservationsController::class, 'index'])->name('view');
+//        Route::get('/view', [ObservationsController::class, 'index'])->name('view');
         Route::get('/print/{id}', [ObservationsController::class, 'print'])->name('print');
         Route::post('/share', [ObservationsController::class, 'shareObservation'])->name('share');
 

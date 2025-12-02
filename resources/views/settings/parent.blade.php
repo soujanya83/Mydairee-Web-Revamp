@@ -1172,19 +1172,16 @@
                 updateSelectedParents();
             }
 
-            // Open email modal for single parent
+            
             function openEmailModal(parentId) {
-                console.log('openEmailModal called with parentId:', parentId);
+
 
                 const card = $(`.parent-card[data-parent-id="${parentId}"]`);
-                console.log('Found card:', card.length);
+
 
                 const parentName = card.data('parent-name');
                 const parentEmail = card.data('parent-email');
 
-                console.log('Parent Name:', parentName, 'Email:', parentEmail);
-
-                // Reset form
                 if ($('#emailForm')[0]) {
                     $('#emailForm')[0].reset();
                 }
@@ -1206,56 +1203,19 @@
                 $('#parentIds').val(parentId);
                 $('#parentEmails').val(parentEmail);
 
-                console.log('About to show modal');
+                //console.log('Aboutmodaal');
 
                 // Show modal
                 $('#emailModal').modal('show');
 
-                console.log('Modal show called');
-
-                // CKEditor disabled for Gmail-style plain textarea
-                // Uncomment below if you want to re-enable rich text editing
-                /*
-                // Initialize CKEditor after modal is shown (only if CKEDITOR is available)
-                if (typeof CKEDITOR !== 'undefined') {
-                    setTimeout(() => {
-                        if (!CKEDITOR.instances['emailMessage']) {
-                            CKEDITOR.replace('emailMessage', {
-                                height: 250,
-                                toolbar: [{
-                                        name: 'basicstyles',
-                                        items: ['Bold', 'Italic', 'Underline']
-                                    },
-                                    {
-                                        name: 'paragraph',
-                                        items: ['NumberedList', 'BulletedList', '-', 'JustifyLeft',
-                                            'JustifyCenter', 'JustifyRight'
-                                        ]
-                                    },
-                                    {
-                                        name: 'links',
-                                        items: ['Link', 'Unlink']
-                                    },
-                                    {
-                                        name: 'styles',
-                                        items: ['Format', 'FontSize']
-                                    }
-                                ]
-                            });
-                        }
-                    }, 300);
                 }
-                */
-            }
-
-            // Open email modal for bulk selection
             function openBulkEmailModal() {
                 if (selectedParents.length === 0) {
                     showToast('error', 'Please select at least one parent');
                     return;
                 }
 
-                console.log('openBulkEmailModal called with', selectedParents.length, 'parents');
+
 
                 // Reset form
                 if ($('#emailForm')[0]) {
@@ -1299,61 +1259,27 @@
                 // Show modal
                 $('#emailModal').modal('show');
 
-                // CKEditor disabled for Gmail-style plain textarea
-                // Uncomment below if you want to re-enable rich text editing
-                /*
-                // Initialize CKEditor if available
-                if (typeof CKEDITOR !== 'undefined') {
-                    setTimeout(() => {
-                        if (!CKEDITOR.instances['emailMessage']) {
-                            CKEDITOR.replace('emailMessage', {
-                                height: 250,
-                                toolbar: [{
-                                        name: 'basicstyles',
-                                        items: ['Bold', 'Italic', 'Underline']
-                                    },
-                                    {
-                                        name: 'paragraph',
-                                        items: ['NumberedList', 'BulletedList', '-', 'JustifyLeft',
-                                            'JustifyCenter', 'JustifyRight'
-                                        ]
-                                    },
-                                    {
-                                        name: 'links',
-                                        items: ['Link', 'Unlink']
-                                    },
-                                    {
-                                        name: 'styles',
-                                        items: ['Format', 'FontSize']
-                                    }
-                                ]
-                            });
-                        }
-                    }, 300);
-                }
-                */
+               
             }
 
-            // Event delegation for remove recipient buttons
+
             $(document).on('click', '.remove-recipient', function(e) {
                 e.stopPropagation();
                 const badge = $(this).closest('.recipient-badge');
                 const parentId = badge.data('parent-id');
 
-                console.log('Removing recipient with ID:', parentId, 'Type:', typeof parentId);
 
-                // Handle both string "undefined" and actual undefined
                 if (parentId === 'undefined' || parentId === undefined || parentId === null || parentId === '') {
                     console.warn('Invalid parent ID detected, removing badge anyway');
                     badge.remove();
-                    // Also clean up selectedParents array from any invalid entries
+
                     selectedParents = selectedParents.filter(p => p && p.id && p.id !== 'undefined');
                     updateSelectedParents();
 
-                    // Update modal title
+                    
                     $('#modalTitle').text(`Send Email to ${selectedParents.length} Parent(s)`);
 
-                    // Update hidden inputs
+                    
                     const parentIds = selectedParents.map(p => p.id).filter(id => id && id !== 'undefined');
                     const parentEmails = selectedParents.map(p => p.email).filter(email => email);
                     $('#parentIds').val(parentIds.join(','));
@@ -1365,9 +1291,7 @@
             });
 
             function removeRecipient(parentId) {
-                console.log('removeRecipient called with:', parentId);
-
-                // Convert to number for comparison if it's a valid number
+ 
                 const numericId = parseInt(parentId);
 
                 // Remove from selectedParents array
@@ -1382,7 +1306,7 @@
                 // Remove the badge from display
                 $(`.recipient-badge[data-parent-id="${parentId}"]`).remove();
 
-                // Update hidden inputs - filter out invalid entries
+                
                 const parentIds = selectedParents.map(p => p.id).filter(id => id && id !== 'undefined');
                 const parentEmails = selectedParents.map(p => p.email).filter(email => email);
                 $('#parentIds').val(parentIds.join(','));
@@ -1398,7 +1322,7 @@
                 }
             }
 
-            // Display selected file attachments as Gmail-style chips, with client-side validation
+
             window.displayAttachments = function(input) {
                 const attachmentsList = $('#attachmentsList');
                 attachmentsList.empty();
@@ -1406,9 +1330,9 @@
                 const allowedExt = ['pdf','doc','docx','jpg','jpeg','png'];
                 const appMaxSize = 25 * 1024 * 1024; // App hard cap
                 const serverMaxSize = window.SERVER_UPLOAD_MAX || (2 * 1024 * 1024); // Fallback 2MB
-                const effectiveMax = appMaxSize; // respect lower of server/app
+                const effectiveMax = appMaxSize; 
 
-                // Rebuild files into a validated list
+               
                 const dt = new DataTransfer();
                 if (input.files && input.files.length > 0) {
                     for (let i = 0; i < input.files.length; i++) {
@@ -1428,10 +1352,10 @@
                     }
                 }
 
-                // Update input with validated files
+                
                 input.files = dt.files;
 
-                // Render chips
+                
                 for (let i = 0; i < input.files.length; i++) {
                     const file = input.files[i];
                     const fileSizeDisp = file.size > 1024 * 1024
@@ -1449,22 +1373,22 @@
                 }
             };
 
-            // Remove file from attachment list
+            
             window.removeFile = function(index) {
                 const input = document.getElementById('emailAttachments');
                 const dt = new DataTransfer();
 
-                // Copy all files except the one being removed
+         
                 for (let i = 0; i < input.files.length; i++) {
                     if (i !== index) {
                         dt.items.add(input.files[i]);
                     }
                 }
 
-                // Update the file input with the new FileList
+                
                 input.files = dt.files;
 
-                // Refresh the display
+                
                 displayAttachments(input);
             };
 

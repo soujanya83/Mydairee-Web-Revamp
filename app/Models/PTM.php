@@ -57,17 +57,29 @@ class PTM extends Model
     {
         $latestReschedule = $this->reschedules()->latest('created_at')->first();
 
-        if ($latestReschedule && $latestReschedule->newslot) {
-            return $latestReschedule->newslot;
+
+        if ($latestReschedule) {
+
+            if (method_exists($latestReschedule, 'rescheduleslot')) {
+                $related = $latestReschedule->rescheduleslot;
+                if ($related && !empty($related->slot)) {
+                    return $related->slot;
+                }
+            }
+
+ 
+            if (!empty($latestReschedule->ptmslotid) && !empty($latestReschedule->ptmslotid->slot ?? null)) {
+                return $latestReschedule->ptmslotid->slot;
+            }
+            if (!empty($latestReschedule->newslot)) {
+                return $latestReschedule->newslot;
+            }
         }
 
         return $this->ptmSlots->isNotEmpty() ? $this->ptmSlots->first()->slot : null;
     }
 
-    /**
-     * Accessor to get the earliest PTM date (from related ptmDates) formatted as Y-m-d.
-     * Usage: $ptm->first_ptm_date
-     */
+    
     public function getFirstPtmDateAttribute()
     {
         $date = $this->ptmDates->min('date');

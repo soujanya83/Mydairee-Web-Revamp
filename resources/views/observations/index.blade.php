@@ -193,7 +193,7 @@
 
 
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -60px;">
+    style="margin-right: 20px;margin-top: -50px;">
 
 
     @if(Auth::user()->userType != 'Parent')

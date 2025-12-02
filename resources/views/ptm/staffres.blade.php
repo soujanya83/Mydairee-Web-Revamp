@@ -442,8 +442,7 @@
         const originalDateId = {{ $currentDateId ?? 'null' }};
         const originalSlotId = {{ $currentSlotId ?? 'null' }};
 
-        console.log('Initial - Date ID:', selectedDateId, 'Slot ID:', selectedSlotId);
-        console.log('All slots:', allSlots);
+        
 
         // Function to check if values have changed and enable/disable submit button
         function checkIfChanged() {
@@ -490,7 +489,7 @@
             document.getElementById('ptmslotid').value = '';
             document.getElementById('selectedSlotInfo').classList.remove('show');
 
-            console.log('Selected date ID:', dateId);
+            
             
             // Check if values changed
             checkIfChanged();
@@ -522,7 +521,7 @@
                 return diff !== 0 ? diff : a.slot.localeCompare(b.slot);
             });
 
-            console.log('Filtered slots for date', dateId, ':', dateSlots);
+            
 
             // Clear existing slots
             slotsGrid.innerHTML = '';
@@ -565,7 +564,7 @@
             document.getElementById('selectedSlotText').textContent = slotText;
             document.getElementById('selectedSlotInfo').classList.add('show');
 
-            console.log('Selected slot ID:', slotId);
+            
             
             // Check if values changed
             checkIfChanged();

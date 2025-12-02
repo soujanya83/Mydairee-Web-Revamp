@@ -268,7 +268,7 @@
                                         <i class="fa fa-sync-alt me-1"></i> Reschedule
                                     </button>
                                 @else
-                                    <a href="{{ route('ptm.details', $ptm->id) }}" target="_blank"
+                                    <a href="{{ route('ptm.details', $ptm->id) }}" 
                                         class="btn btn-outline-primary btn-sm">
                                         <i class="fa fa-eye me-1"></i> Show Details
                                     </a>

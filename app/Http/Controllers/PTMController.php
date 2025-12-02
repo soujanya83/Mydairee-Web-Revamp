@@ -117,7 +117,7 @@ class PTMController extends Controller
             return $ptm;
         });
 
-        // dd($ptms);
+        
 
         // ✅ Separate PTMs by earliest date
         $upcomingptms = $ptms->filter(function ($p) {
@@ -178,7 +178,11 @@ class PTMController extends Controller
         $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
-         return redirect()->back()->withErrors($validator)->withInput();
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         DB::beginTransaction();
@@ -280,11 +284,6 @@ class PTMController extends Controller
                         ]);
                         $createdForThisDate++;
                     }
-                    Log::debug('PTM store: slots saved for date', [
-                        'date' => $dateYMD,
-                        'ptmdate_id' => $dateIdMap[$dateYMD],
-                        'count' => $createdForThisDate,
-                    ]);
                 }
 
                 // Compute earliest date and its earliest slot among non-empty dates only
@@ -326,20 +325,20 @@ class PTMController extends Controller
             $ptm->room()->sync($selectedRooms);
 
             DB::commit();
-              
-            if(strtolower($action) == 'published'){
+
+            if (strtolower($action) == 'published') {
                 $ptm = PTM::withMin('ptmDates', 'date')->find($ptm->id);
                 foreach ($selectedChildren as $childId) {
                     $childId = trim($childId);
-                    // dd($childId);
+                    
                     if ($childId !== '') {
                         // Get all related parent entries for this child
                         $parentRelations = Childparent::where('childid', $childId)->get();
                         foreach ($parentRelations as $relation) {
                             $parentUser = User::find($relation->parentid); // assuming users table stores parent records
-                            // if ($parentUser) {
-                            //     $parentUser->notify(new PTMAdded($ptm));
-                            // }
+                            if ($parentUser) {
+                                $parentUser->notify(new PTMAdded($ptm));
+                            }
                         }
                     }
                 }
@@ -352,18 +351,22 @@ class PTMController extends Controller
                         }
                     }
                 }
-
-
-
             }
             
-          return redirect()
-            ->route('ptm.index')
-            ->with('success', 'PTM ' . ucfirst($action) . ' successfully.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'redirect' => route('ptm.index'),
+                    'message' => 'PTM ' . ucfirst($action) . ' successfully.'
+                ]);
+            }
+
+            return redirect()
+                ->route('ptm.index')
+                ->with('success', 'PTM ' . ucfirst($action) . ' successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('PTM Store/Update Failed: ' . $e->getMessage());
-            dd($e->getMessage());
+          
             return redirect()->back()
                             ->with('error', 'An error occurred: ' . $e->getMessage())
                             ->withInput();
@@ -425,7 +428,7 @@ class PTMController extends Controller
 
             $roomIds = !empty($rooms) ? explode(',', $rooms) : [];
 
-            // dd($rooms);
+            
 
             if ($user->userType === 'Superadmin') {
                 $children = $this->getChildrenForSuperadmin($roomIds);
@@ -594,7 +597,7 @@ class PTMController extends Controller
             $ptm->room()->detach();
             $ptm->ptmDates()->delete();
             $ptm->ptmSlots()->delete();
-            $ptm->reschedules->delete();
+            $ptm->reschedules()->delete();
             
 
             $ptm->delete();
@@ -687,8 +690,6 @@ class PTMController extends Controller
 
     public function getPtmEvents()
     {
-        // Build events from related ptmDates to avoid querying a non-existent
-        // `ptmdate` column on the `ptm` table. Use the earliest associated date.
         $centerId = session('user_center_id');
 
         $ptms = PTM::with('ptmDates')
@@ -828,43 +829,8 @@ class PTMController extends Controller
             'slot' => $staticSlots
         ]);
 
-        // TODO: Future DB implementation
-        // $date = $request->date;
-        // $roomIds = explode(',', $request->rooms);
-        // $slots = Slot::whereIn('room_id', $roomIds)
-        //              ->whereDate('date', $date)
-        //              ->get(['id', 'time']);
-        // return response()->json(['success' => true, 'slot' => $slots]);
+        
     }
-
-    // public function getSlots(Request $request)
-    // {
-    //     //  $roomIds = explode(',', $request->rooms);
-    //      $selectedslot = $request->selectedslot;
-    //     // print_r($selectedslot); die();
-    //     // Example static slot data — you’ll replace with actual DB logic
-    //     //S$slots = 
-    //     $selectedslotid = $request->selectedslotid;
-    //     // print_r($selectedslotid); die();
-    //     $slot = explode(',', $request->selectedslot);
-    //     $slotid = explode(',', $request->selectedslotid);
-    //     $result = [];
-
-    //     for ($i = 0; $i < count($slotid); $i++) {
-    //         $result[] = [
-    //             'id' => $slotid[$i],
-    //             'time' => $slot[$i]
-    //         ];
-    //     }
-    //     // print_r($result);die();
-    //     // Example: if you store slots per room in DB
-    //     // $slots = Slot::whereIn('room_id', $roomIds)->whereDate('date', $date)->get(['id', 'time']);
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'slot' => $result
-    //     ]);
-    // }
 
     public function getPtmDateSlots(Request $request)
     {
@@ -932,17 +898,34 @@ class PTMController extends Controller
         ]);
 
         // ✅ Step 6: Notify related users
-        // Notify the parent (if reschedule done by staff)
-        if ($user->userType !== 'Parent' && $child->parents) {
-            foreach ($child->parents as $parent) {
-                $parent->notify(new PTMRescheduled($ptm, $reschedule,$usertype));
+        // If a Parent performed the reschedule, notify only that parent (so they receive mail + DB)
+        if ($user->userType === 'Parent') {
+            try {
+                $user->notify(new PTMRescheduled($ptm, $reschedule, $usertype));
+            } catch (\Throwable $e) {
+                Log::error('Failed to notify rescheduling parent: ' . $e->getMessage());
+            }
+        } else {
+            // Notify all parents (reschedule done by staff/admin)
+            if ($child->parents) {
+                foreach ($child->parents as $parent) {
+                    try {
+                        $parent->notify(new PTMRescheduled($ptm, $reschedule, $usertype));
+                    } catch (\Throwable $e) {
+                        Log::error('Failed to notify parent: ' . $e->getMessage());
+                    }
+                }
             }
         }
 
-        // Notify all staff
+        
         foreach ($ptm->staff as $staffUser) {
             if ($staffUser instanceof \App\Models\User) {
-                $staffUser->notify(new PTMRescheduled($ptm, $reschedule,$usertype));
+                try {
+                    $staffUser->notify(new PTMRescheduled($ptm, $reschedule, $usertype));
+                } catch (\Throwable $e) {
+                    Log::error('Failed to notify staff user: ' . $e->getMessage());
+                }
             }
         }
 
@@ -958,21 +941,6 @@ class PTMController extends Controller
         return redirect()->back()->with('success', 'PTM successfully rescheduled.');
     }
 
-    //  public function showresheduled($id)
-    // {
-    //     $ptm = PTM::with(['ptmDates', 'ptmSlots', 'rescheduleptm'])
-    //         ->findOrFail($id);
-
-    //     // Get latest reschedule date if available
-    //     $latestReschedule = $ptm->reschedules->sortByDesc('created_at')->first();
-
-    //     // If rescheduled, show that date, otherwise show earliest PTM date
-    //     $finalDate = $latestReschedule
-    //         ? $latestReschedule->ptmdate
-    //         : ($ptm->ptmDates->min('date') ?? null);
-
-    //     return view('ptm.viewptm', compact('ptm', 'finalDate'));
-    // }
 
     public function show($id)
     {
@@ -990,7 +958,7 @@ class PTMController extends Controller
             'reschedules.user',
             'reschedules.rescheduledate',
             'reschedules.rescheduleslot',
-            'reschedules.child', // ✅ ensure we know which child belongs to this reschedule
+            'reschedules.child',
         ])->findOrFail($id);
 
         $defaultDate = $ptm->ptmDates->sortBy('date')->first()->date ?? null;
@@ -1157,12 +1125,12 @@ class PTMController extends Controller
         $ptm = \App\Models\PTM::findOrFail($ptmId);
         $childIds = $request->query('child_ids', []);
 
-        // dd($childIds);
+        
         if (empty($childIds)) {
             return redirect()->route('ptm.details', $ptmId)
                 ->with('error', 'No children selected for reschedule.');
         }
-        // dd($ptm->ptmSlots);
+        
         $children = \App\Models\Child::whereIn('id', $childIds)->get();
 
         return view('ptm.bulk-reschedule-staff', compact('ptm', 'children'));
@@ -1178,7 +1146,7 @@ class PTMController extends Controller
             'child_ids'   => 'required|array',
             'child_ids.*' => 'integer|exists:child,id',
         ]);
-        //  dd($request->child_ids);die();
+        
 
         // ✅ Step 2: Get PTM and logged-in staff (teacher)
         $ptm   = \App\Models\PTM::findOrFail($ptmId);
@@ -1209,23 +1177,44 @@ class PTMController extends Controller
                 }
             }
 
-            // ✅ Step 7: Notify other staff members (optional)
-            if ($ptm->staff && $ptm->staff->count() > 0) {
-                foreach ($ptm->staff as $staffMember) {
-                    $staffMember->notify(new \App\Notifications\PTMRescheduled($ptm, $reschedule));
-                }
-            }
-
             // ✅ Step 8: Store child name for success message
             $rescheduledChildren[] = $child->name;
         }
 
-        // ✅ Step 9: Prepare user feedback
+        // ✅ Step 9: Notify staff once with a bulk summary (include child list)
+        if (count($rescheduledChildren) > 0) {
+            try {
+                $ptmDate = \App\Models\PTMDate::find($validated['ptmdateid']);
+                $ptmSlot = \App\Models\PTMSlot::find($validated['ptmslotid']);
+                $dateValue = $ptmDate->date ?? null;
+                $slotText = $ptmSlot->slot ?? null;
+                $actorName = $staff->name ?? (auth()->user()->name ?? 'Staff');
+
+                $bulkPayload = [
+                    'children' => $rescheduledChildren,
+                    'date' => $dateValue,
+                    'slot' => $slotText,
+                    'actorName' => $actorName,
+                ];
+
+                $uniqueStaff = $ptm->staff->unique('id');
+                foreach ($uniqueStaff as $staffUser) {
+                    try {
+                        $staffUser->notify(new \App\Notifications\PTMRescheduled($ptm, $bulkPayload, 'Staff'));
+                    } catch (\Throwable $e) {
+                        Log::error('Failed to notify staff user (bulk): ' . $e->getMessage());
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::error('Bulk staff notification failed: ' . $e->getMessage());
+            }
+        }
+
+        // ✅ Step 10: Prepare user feedback
         $childNames = count($rescheduledChildren) > 0
             ? implode(', ', $rescheduledChildren)
             : 'no children';
-
-        // ✅ Step 10: Redirect back with a success message
+        // ✅ Step 11: Redirect back with a success message
         return redirect()
             ->route('ptm.details', $ptm->id)
             ->with('success', "PTM successfully rescheduled for: {$childNames} by {$staff->name}");

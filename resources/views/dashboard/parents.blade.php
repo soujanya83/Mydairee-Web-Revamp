@@ -65,9 +65,7 @@
             cursor: pointer;
         }
 
-        .block-header {
-            margin-top: -5px
-        }
+        
 
         .fc-daygrid-event {
             cursor: pointer !important;

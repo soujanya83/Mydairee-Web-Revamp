@@ -13,15 +13,13 @@ class EmailLog extends Model
         'sent_by',
         'subject',
         'message',
-        'attachments',
-        'children',
-        'sent_at'
+        'sent_at',
+       
     ];
 
     protected $casts = [
-        'attachments' => 'array',
-        'children' => 'array',
-        'sent_at' => 'datetime'
+        'sent_at' => 'datetime',
+       
     ];
 
     public function parent()
@@ -32,5 +30,15 @@ class EmailLog extends Model
     public function sender()
     {
         return $this->belongsTo(User::class, 'sent_by');
+    }
+
+    public function attachmentsRelation()
+    {
+        return $this->hasMany(\App\Models\EmailAttachment::class, 'email_id');
+    }
+
+    public function childrenRelation()
+    {
+        return $this->belongsToMany(\App\Models\Child::class, 'email_child', 'email_id', 'child_id')->withTimestamps();
     }
 }

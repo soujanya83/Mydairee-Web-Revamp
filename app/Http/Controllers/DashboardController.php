@@ -58,9 +58,6 @@ class DashboardController extends BaseController
         }
     }
 
-
-
-
     function lending_page()
     {
         return view('lending page.index');
@@ -92,6 +89,7 @@ class DashboardController extends BaseController
             return view('dashboard.university', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes'));
         }
     }
+
     public function getEvents()
     {
         $auth = Auth::user();
@@ -117,10 +115,9 @@ class DashboardController extends BaseController
         } else if (Auth::user()->userType == "Staff" || Auth::user()->userType == "Superadmin") {
             // Not a parent → fetch all announcements
             $announcements = AnnouncementsModel::where('centerid', $centerid)->where('status','sent')->get();
-
             if (Auth::user()->userType == "Staff") {
                 $announcements = AnnouncementsModel::where('centerid', $centerid)
-->where('status','sent')
+                    ->where('status','sent')
                     ->whereIn('audience', ['all', 'staff'])
                     ->get();
             }

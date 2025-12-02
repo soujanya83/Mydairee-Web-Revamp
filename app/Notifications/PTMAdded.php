@@ -44,11 +44,7 @@ class PTMAdded extends Notification
             ? \Carbon\Carbon::parse($earliestDate)->format('d M Y') 
             : 'N/A';
           $slot = $this->ptm->ptmSlots->first()->slot ?? 'N/A';
-        // Optional: log for debugging
-        \Log::info('PTM Earliest Date:', [
-            'earliest_date' => $earliestDate,
-            'all_dates' => $this->ptm->ptmDates()->pluck('date')->toArray(),
-        ]);
+        
 
         // ✅ Return the actual email
         return (new \Illuminate\Notifications\Messages\MailMessage)
@@ -74,7 +70,7 @@ class PTMAdded extends Notification
 
             'ptm_id' => $this->ptm->id,
             'url' => route('ptm.viewptm', $this->ptm->id),
-            // 'title' => $this->ptm->title,
+            
             'title' => 'A new PTM "' . $this->ptm->title . '" has been scheduled.',
         ];
     }

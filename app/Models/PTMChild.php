@@ -17,11 +17,5 @@ class PTMChild extends Model
     ];
 
     public $timestamps = false;
-    // public function ptm() {
-    //     return $this->belongsTo(ptm::class, 'ptmId');
-    // }
-
-    // public function child() {
-    //     return $this->belongsTo(Child::class, 'childId');
-    // }
+    
 }

@@ -4,8 +4,6 @@
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-{{-- Bootstrap 4 & FontAwesome --}}
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.6.2/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
 @section('content')
@@ -225,7 +223,7 @@
                         <i class="fas fa-plus mr-2"></i> Add New PTM
                     </button>
                 @endif
-            </div>
+        </div>
         
 
         {{-- ✅ Flash Messages --}}
@@ -266,7 +264,7 @@
         
 
         {{-- ✅ Upcoming PTMs --}}
-        <hr>
+    
          <h4 class="section-title " style="margin-top: 10px;">Upcoming PTMs</h4>
         <div class="d-flex overflow-auto flex-nowrap horizontal-scroll" style="margin-bottom: -35px;">
             @forelse($upcomingptms as $ptm)
@@ -278,10 +276,22 @@
                             <strong>Date:</strong>
                             @php
                                 $userType = Auth::user()->userType;
-                                $dateToShow = $userType === 'Parent' ? $ptm->originalDate : $ptm->originalDate;
+
+                                $latestReschedule = $ptm->reschedules->sortByDesc('created_at')->first();
+                                $fallbackFinalDate = $ptm->finalDate ?? optional($latestReschedule->rescheduledate)->date ?? $ptm->originalDate ?? ($ptm->ptmDates->min('date') ?? null);
+
+
+                                $fallbackFinalSlot = $ptm->finalSlot ?? optional($latestReschedule->rescheduleslot)->slot ?? $ptm->slot ?? ($ptm->ptmSlots->first()->slot ?? null);
+
+                                $dateToShow = $userType === 'Parent' ? $fallbackFinalDate : $ptm->originalDate;
                             @endphp
 
                             {{ $dateToShow ? \Carbon\Carbon::parse($dateToShow)->format('d M Y') : 'N/A' }}
+
+                            @if ($userType === 'Parent')
+                                <br>
+                                <strong>Time:</strong> {{ $fallbackFinalSlot ?? 'N/A' }}
+                            @endif
                         </p>
 
 
@@ -330,10 +340,18 @@
                             <strong>Date:</strong>
                             @php
                                 $userType = Auth::user()->userType;
-                                $dateToShow = $userType === 'Parent' ? $ptm->originalDate : $ptm->originalDate;
+                                $latestReschedule = $ptm->reschedules->sortByDesc('created_at')->first();
+                                $fallbackFinalDate = $ptm->finalDate ?? optional($latestReschedule->rescheduledate)->date ?? $ptm->originalDate ?? ($ptm->ptmDates->min('date') ?? null);
+                                $fallbackFinalSlot = $ptm->finalSlot ?? optional($latestReschedule->rescheduleslot)->slot ?? $ptm->slot ?? ($ptm->ptmSlots->first()->slot ?? null);
+                                $dateToShow = $userType === 'Parent' ? $fallbackFinalDate : $ptm->originalDate;
                             @endphp
 
                             {{ $dateToShow ? \Carbon\Carbon::parse($dateToShow)->format('d M Y') : 'N/A' }}
+
+                            @if ($userType === 'Parent')
+                                <br>
+                                <small><strong>Time:</strong> {{ $fallbackFinalSlot ?? 'N/A' }}</small>
+                            @endif
                         </p>
                         {{--  <p class="card-text"><strong>Objective:</strong> <span
                                 class="text-truncate-multi">{{ $ptm->objective ?? 'N/A' }}</span></p>  --}}
@@ -401,10 +419,7 @@
                         </h6>
 
                         <ul class="list-unstyled small mb-3 text-secondary">
-                            <li class="mb-1">
-                                <i class="far fa-calendar text-black me-1"></i>
-                                <strong>Date:</strong> <span id="modal-date"></span>
-                            </li>
+                            
                             <li>
                                 <i class="fas fa-toggle-on text-black me-1"></i>
                                 <strong>Status:</strong> <span id="modal-status"></span>
@@ -488,7 +503,7 @@
             // Show PTM details
             $('.ptm-card-click').on('click', function() {
                 const ptm = $(this).data('ptm');
-                console.log('PTM data:', ptm); // Debug log
+                
                 $('#currentPtmId').val(ptm.id);
                 $('#modal-title-text').text(ptm.title || `PTM #${ptm.id}`);
                 $('#modal-date').text(ptm?.ptm_dates[0]?.date ? new Date(ptm.ptm_dates[0].date)
@@ -501,7 +516,7 @@
             // Handle View Details button click
             $('#viewPtmBtn').on('click', function() {
                 const ptmId = $('#currentPtmId').val();
-                console.log('Viewing PTM:', ptmId);
+                
                 if (ptmId) {
                     window.location.href = "{{ url('ptm/view') }}/" + ptmId;
 

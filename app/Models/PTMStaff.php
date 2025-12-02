@@ -19,11 +19,5 @@ class PTMStaff extends Model
     ];
 
   
-    // public function ptm() {
-    //     return $this->belongsTo(PTM::class, 'ptmId');
-    // }
-
-    // public function user() {
-    //     return $this->belongsTo(User::class, 'userid');
-    // }
+    
 }

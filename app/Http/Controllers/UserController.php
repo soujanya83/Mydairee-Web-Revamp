@@ -307,11 +307,7 @@ class UserController extends Controller
                 'holiday_dates' => $request->holiday_dates
             ]);
 
-            Log::info('Re-enrollment submitted successfully', [
-                'id' => $reEnrolment->id,
-                'child_name' => $reEnrolment->child_name,
-                'parent_email' => $reEnrolment->parent_email
-            ]);
+            
 
             return response()->json([
                 'success' => true,
@@ -319,10 +315,7 @@ class UserController extends Controller
                 'data' => $reEnrolment
             ], 201);
         } catch (\Exception $e) {
-            Log::error('Error saving re-enrollment', [
-                'error' => $e->getMessage(),
-                'request_data' => $request->all()
-            ]);
+            
 
             return response()->json([
                 'success' => false,
@@ -416,8 +409,6 @@ class UserController extends Controller
                 'total_count' => $parents->count()
             ]);
         } catch (\Exception $e) {
-            Log::error('Error fetching parents: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
                 'message' => 'Error fetching parents'
@@ -446,10 +437,8 @@ class UserController extends Controller
             try {
                 Mail::to($parent->email)->send(new ReEnrollmentInvitation($parent));
                 $sentCount++;
-                Log::info("Re-enrollment email sent to: {$parent->email}");
             } catch (\Exception $e) {
                 $failedCount++;
-                Log::error("Failed to send re-enrollment email to {$parent->email}: " . $e->getMessage());
             }
         }
 

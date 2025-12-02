@@ -1,6 +1,6 @@
 @extends('layout.master')
 @section('title', 'Store PTM')
-@section('parentPageTitle', 'ptm')
+@section('parentPageTitle', 'PTM')
 
 <!-- CSS -->
 <link rel="stylesheet" href="{{ asset('assets/vendor/summernote/dist/summernote.css') }}" />
@@ -197,6 +197,44 @@
             border-color: #28a745;
         }
     </style>
+      <style>
+        .publish-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 20, 0.55);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .publish-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .publish-progress {
+            text-align: center;
+            color: #fff;
+            font-weight: 700;
+        }
+        .publish-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(#28c76f 0deg, #ffffff33 0deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 10px;
+        }
+        .publish-percent { font-size: 1.1rem; }
+    </style>
 
     @if ($errors->any())
         <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
@@ -211,6 +249,13 @@
             </button>
         </div>
     @endif
+    <!-- AJAX inline errors (hidden by default) -->
+    <div id="ajaxErrors" class="alert alert-danger alert-dismissible d-none shadow-sm mb-4" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <ul id="ajaxErrorsList" class="mb-0 pl-3"></ul>
+    </div>
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12">
             <div class="card">
@@ -501,8 +546,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p> Are you sure you want to <strong>publish</strong> this PTM?
-                        Once published, it will be visible to all linked users. Abd it cannot be reverted back for edit.</p>
+                    <p> Are you sure you want to <strong>Publish</strong> this PTM?
+                        Once published, it will be visible to all linked users. And it cannot be reverted back for edit.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -551,6 +596,17 @@
         </div>
     </div>
 
+    
+    <!-- Publish Progress Overlay -->
+    <div class="publish-overlay" id="publishOverlay" aria-hidden="true">
+        <div class="publish-progress">
+            <div class="publish-circle" id="publishCircle">
+                <div class="publish-percent" id="publishPercent">0%</div>
+            </div>
+            <div>Publishing... Please wait</div>
+        </div>
+    </div>
+
     @include('layout.footer')
     <!-- jQuery first -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -564,10 +620,78 @@
         // Global variable for date-wise slots mapping
         let dateWiseSlots = {};
 
+        // Helper: clear inline validation UI
+        function clearValidationErrors() {
+            const container = document.getElementById('ajaxErrors');
+            const list = document.getElementById('ajaxErrorsList');
+            if (container) container.classList.add('d-none');
+            if (list) list.innerHTML = '';
+
+            // remove is-invalid classes and inline feedback
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('.invalid-feedback.ajax').forEach(el => el.remove());
+        }
+
+        // Helper: show field-level and form-level validation errors
+        function showValidationErrors(errors) {
+            const list = document.getElementById('ajaxErrorsList');
+            const container = document.getElementById('ajaxErrors');
+            if (!list || !container) return;
+
+            container.classList.remove('d-none');
+            list.innerHTML = '';
+
+            // errors is an object: { field: [msg, ...], ... }
+            Object.keys(errors).forEach(field => {
+                const messages = errors[field];
+                messages.forEach(msg => {
+                    const li = document.createElement('li');
+                    li.textContent = msg;
+                    list.appendChild(li);
+                });
+
+                // Try to mark corresponding form control(s)
+                // Handle array names too (e.g., name[])
+                let selector = `[name="${field}"]`;
+                let els = document.querySelectorAll(selector);
+                if (els.length === 0) {
+                    // fallback: try name with []
+                    selector = `[name="${field}[]"]`;
+                    els = document.querySelectorAll(selector);
+                }
+
+                els.forEach(el => {
+                    el.classList.add('is-invalid');
+                    // add small.invalid-feedback if not present
+                    if (!el.nextElementSibling || !el.nextElementSibling.classList || !el.nextElementSibling.classList.contains('invalid-feedback')) {
+                        const fb = document.createElement('div');
+                        fb.className = 'invalid-feedback ajax';
+                        fb.textContent = Array.isArray(messages) ? messages[0] : messages;
+                        // if input is hidden, append feedback after its nearest visible parent
+                        if (el.type === 'hidden') {
+                            el.parentNode.insertBefore(fb, el.nextSibling);
+                        } else {
+                            el.parentNode.insertBefore(fb, el.nextSibling);
+                        }
+                    }
+                });
+            });
+        }
+
+        function showGenericError(message){
+            const list = document.getElementById('ajaxErrorsList');
+            const container = document.getElementById('ajaxErrors');
+            if (!list || !container) return alert(message);
+            container.classList.remove('d-none');
+            list.innerHTML = '';
+            const li = document.createElement('li');
+            li.textContent = message;
+            list.appendChild(li);
+        }
+
         // ✅ Initialize dateWiseSlots with existing data for edit mode (before DOM ready)
         @if (isset($dateSlotMap) && !empty($dateSlotMap))
             dateWiseSlots = @json($dateSlotMap);
-            console.log('Edit mode: Pre-loaded dateWiseSlots', dateWiseSlots);
         @endif
 
         $(document).ready(function() {
@@ -767,20 +891,81 @@
                 $('#publishConfirmModal').modal('show'); // show confirmation modal
             });
             $('#confirmPublishBtn').on('click', function() {
-                // DEBUG: Check slot data before submission
-                console.log('=== PUBLISH BUTTON CLICKED ===');
-                console.log('dateWiseSlots object:', dateWiseSlots);
-                console.log('date_slot_map value:', $('#date_slot_map').val());
-                console.log('selected_dates value:', $('#selected_dates').val());
-
-                // When user confirms, set action value to "Published" and submit form
-                $('<input>').attr({
+                               $('<input>').attr({
                     type: 'hidden',
                     name: 'action',
                     value: 'Published'
                 }).appendTo('#ptmForm');
 
-                $('#ptmForm').submit(); // submit the form
+                // Show overlay and start progress
+                showPublishOverlay();
+
+                // Close the confirmation modal immediately and remove backdrop
+                $('#publishConfirmModal').modal('hide');
+                $('.modal-backdrop').remove();
+
+                // Prepare form data
+                const form = document.getElementById('ptmForm');
+                // Use getAttribute to avoid collision when a form control is named "action"
+                const url = form.getAttribute('action') || form.action;
+                const fd = new FormData(form);
+
+   
+                clearValidationErrors();
+
+                
+                fetch(url, {
+                    method: 'POST',
+                    body: fd,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                }).then(async (resp) => {
+                    if (resp.status >= 400 && resp.status !== 422) {
+                        hidePublishOverlayImmediate();
+                        showGenericError('Publish failed: server returned ' + resp.status + '.');
+                        return;
+                    }
+
+
+                    if (resp.status === 422) {
+                        let json = null;
+                        try { json = await resp.json(); } catch (e) { json = null; }
+                        hidePublishOverlayImmediate();
+                        if (json && json.errors) {
+                            showValidationErrors(json.errors);
+                        } else {
+                            showGenericError('Validation failed. Please check the form.');
+                        }
+                        return;
+                    }
+
+                    // Try JSON first for redirect info
+                    let json = null;
+                    try { json = await resp.json(); } catch (e) { /* not JSON */ }
+
+
+                    clearValidationErrors();
+                    finalizePublishOverlay();
+
+
+                    const fallback = "{{ route('ptm.index') }}";
+                    if (json && json.redirect) {
+                        window.location = json.redirect;
+                    } else if (resp.redirected) {
+                        // If fetch followed redirect, go to final URL
+                        window.location = resp.url;
+                    } else {
+                        // Fallback
+                        window.location = fallback;
+                    }
+                }).catch(err => {
+                    // Hide overlay and alert
+                    alert('Publish failed. Please try again.');
+                    hidePublishOverlayImmediate();
+                });
             });
 
 
@@ -794,6 +979,12 @@
             const previewDiv = document.getElementById('selectedDatePreview');
 
             let preselectedDates = @json($convertedDates); // Y-m-d format only
+            let preselectedDisplayDates = @json($displayDates ?? []); // d-m-Y format for hidden input
+
+            // If editing and there are already saved dates, populate the hidden input
+            if (preselectedDisplayDates && preselectedDisplayDates.length > 0) {
+                hiddenInput.value = preselectedDisplayDates.join(',');
+            }
 
             // Render date-slot badges dynamically (only dates WITH slots)
             function updateDateSlotPreview() {
@@ -833,10 +1024,10 @@
 
             // Fetch available slots for a date and auto-open modal
             function fetchSlotsForDate(date) {
-                console.log('fetchSlotsForDate called with date:', date);
+                
 
                 let selectedRooms = $('#selected_rooms').val();
-                console.log('Selected rooms:', selectedRooms);
+                
 
                 if (!selectedRooms) {
                     alert("Please select rooms first!");
@@ -847,7 +1038,7 @@
                     date: date,
                     rooms: selectedRooms
                 }, function(res) {
-                    console.log('AJAX response:', res);
+                    
 
                     if (!res.success || !res.slot || res.slot.length === 0) {
                         alert("No slots available for this date.");
@@ -856,7 +1047,7 @@
 
                     // Filter out empty slots
                     let validSlots = res.slot.filter(slot => slot.time && slot.time.trim() !== '');
-                    console.log('Valid slots:', validSlots);
+                    
 
                     if (validSlots.length === 0) {
                         alert("No valid slots found for this date. Please create slots first.");
@@ -911,17 +1102,7 @@
                         }
 
                         dateWiseSlots[date] = selected;
-
-                        console.log('=== SLOTS CONFIRMED ===');
-                        console.log('Date:', date);
-                        console.log('Selected slots:', selected);
-                        console.log('Updated dateWiseSlots:', dateWiseSlots);
-
                         updateDateSlotPreview();
-
-                        console.log('After updateDateSlotPreview - date_slot_map value:', $(
-                            '#date_slot_map').val());
-
                         $("#slotModal").modal("hide");
                     });
                 });
@@ -954,13 +1135,8 @@
             }
 
             // ✅ Render existing date-slot badges on page load for edit mode
-            console.log('Checking dateWiseSlots for preview:', dateWiseSlots);
-            console.log('Keys count:', Object.keys(dateWiseSlots).length);
             if (Object.keys(dateWiseSlots).length > 0) {
-                console.log('Calling updateDateSlotPreview...');
                 updateDateSlotPreview();
-            } else {
-                console.log('dateWiseSlots is empty, skipping preview');
             }
 
             const calendar = flatpickr(input, {
@@ -982,17 +1158,17 @@
                 },
 
                 onChange: function(selectedDates, dateStr, instance) {
-                    console.log('Flatpickr onChange triggered', selectedDates);
+                    
 
                     input.value = "";
 
                     // Latest clicked date
                     let clickedDate = selectedDates[selectedDates.length - 1];
-                    console.log('Clicked date:', clickedDate);
+                    
 
                     let dateYMD = instance.formatDate(clickedDate, "Y-m-d");
                     let dateDMY = instance.formatDate(clickedDate, "d-m-Y");
-                    console.log('Date formatted - YMD:', dateYMD, 'DMY:', dateDMY);
+                    
 
                     // Build selected date list (badges)
                     const formatted = selectedDates.map(d =>
@@ -1002,31 +1178,52 @@
                     hiddenInput.value = formatted.join(',');
 
                     // Auto open slot selection for this date
-                    console.log('About to call fetchSlotsForDate');
                     fetchSlotsForDate(dateYMD);
                 }
             });
         });
 
-        // Form submission debug
-        $('#ptmForm').on('submit', function(e) {
-            console.log('=== FORM SUBMISSION DEBUG ===');
-            console.log('dateWiseSlots object:', dateWiseSlots);
-            console.log('date_slot_map hidden input value:', $('#date_slot_map').val());
-            console.log('selected_dates value:', $('#selected_dates').val());
+        
+    </script>
+    <script>
+        
+        function showPublishOverlay() {
+            const overlay = document.getElementById('publishOverlay');
+            const percentText = document.getElementById('publishPercent');
+            const circle = document.getElementById('publishCircle');
 
-            let mapValue = $('#date_slot_map').val();
-            if (mapValue) {
-                try {
-                    let parsed = JSON.parse(mapValue);
-                    console.log('Parsed date_slot_map:', parsed);
-                    console.log('Number of dates with slots:', Object.keys(parsed).length);
-                } catch (e) {
-                    console.error('Error parsing date_slot_map:', e);
-                }
-            } else {
-                console.warn('⚠️ date_slot_map is EMPTY!');
-            }
-        });
+            overlay.classList.add('show');
+
+            let pct = 10; 
+            percentText.textContent = pct + '%';
+            circle.style.background = `conic-gradient(#28c76f ${pct * 3.6}deg, #ffffff33 0deg)`;
+
+            void overlay.offsetWidth;
+
+
+            const tick = setInterval(() => {
+                pct += 6; 
+                if (pct >= 98) pct = 98; 
+                percentText.textContent = pct + '%';
+                circle.style.background = `conic-gradient(#28c76f ${pct * 3.6}deg, #ffffff33 0deg)`;
+            }, 1000);
+
+            window.addEventListener('beforeunload', function cleanup() {
+                clearInterval(tick);
+                window.removeEventListener('beforeunload', cleanup);
+            });
+        }
+
+        function finalizePublishOverlay() {
+            const percentText = document.getElementById('publishPercent');
+            const circle = document.getElementById('publishCircle');
+            percentText.textContent = '100%';
+            circle.style.background = `conic-gradient(#28c76f 360deg, #ffffff33 0deg)`;
+        }
+
+        function hidePublishOverlayImmediate() {
+            const overlay = document.getElementById('publishOverlay');
+            overlay.classList.remove('show');
+        }
     </script>
 @stop

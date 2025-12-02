@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Models\User; // Add this at the top if not already added
-use App\Models\Center; // Add this at the top if not already added
-use App\Models\Usercenter; // Add this at the top if not already added
-use App\Models\Child; // Add this at the top if not already added
-use App\Models\Childparent; // Add this at the top if not already added
+use App\Models\User; 
+use App\Models\Center; 
+use App\Models\Usercenter; 
+use App\Models\Child; 
+use App\Models\Childparent; 
 use App\Models\Permission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -20,7 +20,18 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Permission_Role;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use App\Models\EmailAttachment;
 use Illuminate\Support\Facades\Log;
+use App\Models\PTM;
+use App\Models\Observation;
+use App\Models\ObservationStaff;
+use App\Models\Snapshot;
+use App\Models\AnnouncementsModel;
+use App\Models\PubicHoliday_Model;
+use App\Models\Qip;
+use App\Models\Reflection;
+use App\Models\ReflectionStaff;
+use App\Models\ProgramPlanTemplateDetailsAdd;
 
 class SettingsController extends Controller
 {
@@ -45,10 +56,7 @@ class SettingsController extends Controller
             ->where('id', '!=', $authId)
             ->where('userType', 'Parent');
 
-            // if (!empty($request->parent_name)) {
-            //     $query->where('name', 'like', '%' . $request->parent_name . '%');
-            // }   changed it for child + Parent name search
-
+           
         if (!empty($request->parent_name)) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->parent_name . '%')  // Parent name
@@ -427,7 +435,223 @@ class SettingsController extends Controller
             // ✅ Catch unexpected errors
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
+
+
     }
+
+    /**
+     * Show staff details page with related content.
+     */
+    public function staff_details($id)
+    {
+        // find the user by either id or userid (some tables use different keys)
+        $staff = User::where('id', $id)->orWhere('userid', $id)->first();
+        if (!$staff) {
+            abort(404, 'Staff not found');
+        }
+
+        $staffKey = $staff->userid ?? $staff->id;
+
+        // PTMs: those created by user and those where the user is a staff on the PTM
+        $ptms = PTM::with(['children', 'staff'])
+            ->where(function ($q) use ($staffKey) {
+                $q->where('userId', $staffKey)
+                  ->orWhereHas('staff', function ($sq) use ($staffKey) {
+                      $sq->where('staffid', $staffKey);
+                  });
+            })
+            ->orderBy('id', 'desc')
+            ->limit(200)
+            ->get();
+
+        // Observations authored by user
+        $observationsAuthored = Observation::where('userId', $staffKey)
+            ->orderBy('id', 'desc')
+            ->limit(200)
+            ->get();
+
+        // Observations where the staff was tagged
+        $taggedIds = ObservationStaff::where('userid', $staffKey)->pluck('observationId')->toArray();
+        $observationsTagged = collect();
+        if (!empty($taggedIds)) {
+            $observationsTagged = Observation::whereIn('id', $taggedIds)->orderBy('id', 'desc')->get();
+        }
+
+        // Merge authored and tagged (unique by id)
+        $observations = $observationsAuthored->merge($observationsTagged)->unique('id')->values();
+
+        // Snapshots created by user
+        $snapshots = Snapshot::where('createdBy', $staffKey)->orderBy('id', 'desc')->limit(200)->get();
+
+        // Announcements relevant to this staff: created by them OR targeted to staff/all
+        try {
+            $announcements = AnnouncementsModel::where('centerid', session('user_center_id'))
+                ->where('status', 'sent')
+                ->where(function ($q) use ($staffKey) {
+                    $q->where('createdBy', $staffKey)
+                      ->orWhereIn('audience', ['staff', 'all']);
+                })
+                ->orderBy('id', 'desc')
+                ->limit(200)
+                ->get();
+        } catch (\Exception $e) {
+            $announcements = collect();
+        }
+
+        // (All Events removed) previously built center announcements + holidays
+
+        // QIP items created by this staff
+        try {
+            $qips = Qip::where('created_by', $staffKey)->orderBy('id', 'desc')->limit(200)->get();
+        } catch (\Exception $e) {
+            $qips = collect();
+        }
+
+        // Reflections authored by this staff OR where staff is tagged via pivot
+        try {
+            $taggedReflectionIds = ReflectionStaff::where('staffid', $staffKey)
+                ->pluck('reflectionid')
+                ->toArray();
+
+            $reflections = Reflection::where(function ($q) use ($staffKey, $taggedReflectionIds) {
+                    $q->where('createdBy', $staffKey)
+                      ->orWhereIn('id', $taggedReflectionIds);
+                })
+                ->orderBy('id', 'desc')
+                ->limit(200)
+                ->get();
+        } catch (\Exception $e) {
+            $reflections = collect();
+        }
+
+        // Program plans created by this staff
+        try {
+            $programPlans = ProgramPlanTemplateDetailsAdd::where('created_by', $staffKey)->orderBy('id', 'desc')->limit(200)->get();
+        } catch (\Exception $e) {
+            $programPlans = collect();
+        }
+
+        // Prepare program plan room names (avoid heavy logic in Blade)
+        try {
+            $allRoomIds = [];
+            foreach ($programPlans as $pp) {
+                if (!empty($pp->room_id)) {
+                    $ids = array_filter(array_map('trim', explode(',', $pp->room_id)));
+                    foreach ($ids as $rid) {
+                        if ($rid !== '') $allRoomIds[] = $rid;
+                    }
+                }
+            }
+            $allRoomIds = array_values(array_unique($allRoomIds));
+            $roomsMap = [];
+            if (!empty($allRoomIds)) {
+                $roomsMap = \App\Models\Room::whereIn('id', $allRoomIds)->pluck('name', 'id')->toArray();
+            }
+            foreach ($programPlans as $pp) {
+                $ppRoomNames = [];
+                if (!empty($pp->room_id)) {
+                    $ids = array_filter(array_map('trim', explode(',', $pp->room_id)));
+                    foreach ($ids as $rid) {
+                        if (isset($roomsMap[$rid])) $ppRoomNames[] = $roomsMap[$rid];
+                    }
+                }
+                $pp->room_names = !empty($ppRoomNames) ? implode(', ', $ppRoomNames) : null;
+            }
+        } catch (\Throwable $e) {
+            // best-effort: if lookup fails, leave room_names null
+            foreach ($programPlans as $pp) {
+                $pp->room_names = null;
+            }
+        }
+
+        // Permission record, if any
+        $permissions = Permission::where('userid', $staffKey)->first();
+
+        // Helper: pick first image url from media-like collections
+        $pickPreviewImage = function ($mediaCollection) {
+            $img = null;
+            if (isset($mediaCollection) && is_iterable($mediaCollection)) {
+                foreach ($mediaCollection as $m) {
+                    // support both object and array shapes
+                    $mediaType = null;
+                    $mediaUrl = null;
+                    if (is_object($m)) {
+                        $mediaType = $m->mediaType ?? ($m->type ?? null);
+                        $mediaUrl = $m->mediaUrl ?? ($m->url ?? null);
+                    } elseif (is_array($m)) {
+                        $mediaType = $m['mediaType'] ?? ($m['type'] ?? null);
+                        $mediaUrl = $m['mediaUrl'] ?? ($m['url'] ?? null);
+                    }
+                    if ($mediaType && \Illuminate\Support\Str::startsWith($mediaType, ['image', 'Image'])) {
+                        $img = $mediaUrl;
+                        break;
+                    }
+                    if ($mediaUrl) {
+                        $ext = pathinfo($mediaUrl, PATHINFO_EXTENSION);
+                        if (in_array(strtolower($ext), ['jpg','jpeg','png','gif','webp'])) {
+                            $img = $mediaUrl;
+                            break;
+                        }
+                    }
+                }
+            }
+            return $img;
+        };
+
+        // Attach previewImage to observations
+        try {
+            foreach ($observations as $o) {
+                $o->previewImage = $pickPreviewImage($o->media ?? []);
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        // Snapshots
+        try {
+            foreach ($snapshots as $s) {
+                $s->previewImage = $pickPreviewImage($s->media ?? []);
+            }
+        } catch (\Throwable $e) {}
+
+        // Reflections
+        try {
+            foreach ($reflections as $r) {
+                $r->previewImage = $pickPreviewImage($r->media ?? []);
+            }
+        } catch (\Throwable $e) {}
+
+        // Announcements (announcementMedia is JSON list of file paths)
+        try {
+            foreach ($announcements as $a) {
+                $a->previewImage = null;
+                try {
+                    $mediaArr = @json_decode($a->announcementMedia, true);
+                } catch (\Throwable $e) {
+                    $mediaArr = null;
+                }
+                if (is_array($mediaArr) && count($mediaArr)) {
+                    foreach ($mediaArr as $file) {
+                        $ext = pathinfo($file, PATHINFO_EXTENSION);
+                        if (in_array(strtolower($ext), ['jpg','jpeg','png','gif','webp'])) {
+                            $a->previewImage = $file;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        // Note: activity and email collections are not used in the staff details view and have been removed for clarity.
+
+        return view('settings.staffdetails', compact(
+            'staff', 'ptms', 'observations', 'snapshots', 'permissions',
+            'announcements', 'qips', 'reflections', 'programPlans'
+        ));
+    }
+    
 
 
 
@@ -1445,14 +1669,7 @@ class SettingsController extends Controller
     public function sendEmailToParent(Request $request)
     {
         try {
-            \Log::info('Parent email send: request received', [
-                'has_attachments' => $request->hasFile('attachments'),
-                'attachments_count' => $request->hasFile('attachments') ? count($request->file('attachments')) : 0,
-                'upload_max_filesize' => ini_get('upload_max_filesize'),
-                'post_max_size' => ini_get('post_max_size'),
-                'sys_tmp_dir' => sys_get_temp_dir(),
-            ]);
-            // Validate non-file inputs first to avoid Laravel's uploaded_file rule masking PHP upload errors
+
             $validator = Validator::make($request->all(), [
                 'subject' => 'required|string|max:255',
                 'message' => 'required|string',
@@ -1605,17 +1822,48 @@ class SettingsController extends Controller
                         ];
                     })->toArray();
                     
-                    \App\Models\EmailLog::create([
+                    
+                    $emailLog = \App\Models\EmailLog::create([
                         'parent_id' => $parent->id,
                         'parent_email' => $parent->email,
                         'parent_name' => $parent->name,
                         'sent_by' => Auth::id(),
                         'subject' => $request->subject,
                         'message' => $request->message,
-                        'attachments' => $attachmentPaths,
-                        'children' => $childrenInfo,
                         'sent_at' => now()
                     ]);
+
+     
+                    foreach ($attachments as $att) {
+                        try {
+                            $url = null;
+                            if (!empty($att['disk']) && !empty($att['path'])) {
+                                try {
+                                    $url = Storage::disk($att['disk'])->url($att['path']);
+                                } catch (\Throwable $e) {
+                                    $url = ($att['path'] ?? null);
+                                }
+                            }
+
+                            $created = EmailAttachment::create([
+                                'email_id' => $emailLog->id,
+                                'name' => $att['name'] ?? null,
+                                'path' => $url ?? ($att['path'] ?? null),
+                                'size' => $att['size'] ?? null,
+                                'mime' => $att['mime'] ?? null,
+                            ]);
+                        } catch (\Throwable $e) {
+                            \Log::error('Failed to insert email attachment: ' . $e->getMessage());
+                        }
+                    }
+
+                    // Attach children via pivot using IDs
+                    $childIds = array_map(function($c) { return $c['id'] ?? null; }, $childrenInfo);
+                    $childIds = array_filter($childIds);
+                    if (!empty($childIds)) {
+                        $emailLog->childrenRelation()->syncWithoutDetaching($childIds);
+                    }
+                    // No JSON snapshot written: using normalized tables only
                     
                     $successCount++;
                 } catch (\Exception $e) {
@@ -1670,13 +1918,13 @@ class SettingsController extends Controller
             
             $parentIdsArray = is_array($parentIds) ? $parentIds : explode(',', $parentIds);
             
-            // Get email logs for selected parents
-            $emails = \App\Models\EmailLog::with(['parent', 'sender'])
+            
+            $emails = \App\Models\EmailLog::with(['parent', 'sender', 'attachmentsRelation', 'childrenRelation'])
                 ->whereIn('parent_id', $parentIdsArray)
                 ->orderBy('sent_at', 'desc')
                 ->get();
             
-            // Get parent details
+
             $parents = User::whereIn('id', $parentIdsArray)
                 ->where('userType', 'Parent')
                 ->get();
@@ -1837,4 +2085,18 @@ class SettingsController extends Controller
 
     //     return response()->json(['status' => 'success']);
     // }
+
+    public function StaffFullDetails($id)
+    {
+        $staffs = User::where('userType', 'Staff')->get();
+        return view('settings.staffdetails', compact('staffs'));
+    }
+
+
+
+
+
+
+
+
 }

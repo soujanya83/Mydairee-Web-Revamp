@@ -486,7 +486,7 @@
         }
     </style>
 
-    <h1>adil</h1>
+   
 
     <div class="text-zero top-right-button-container d-flex justify-content-end"
         style="margin-right: 20px;margin-top: -60px;">
