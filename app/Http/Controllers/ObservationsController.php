@@ -118,14 +118,14 @@ class ObservationsController extends Controller
             $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
                 ->where('centerid', $centerid)
                 ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page
+                ->paginate(12); // 12 items per page
 
         } elseif (Auth::user()->userType == "Staff") {
 
             $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
                 ->where('createdBy', $authId)
                 ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page
+                ->paginate(12); // 12 items per page
 
         } else {
 
@@ -2593,21 +2593,32 @@ Observation:
 
 
     public function snapshotstore(Request $request)
+
     {
+        \Log::info('snapshotstore request', [
+            'all' => $request->all(),
+            'title' => $request->input('title'),
+            'about' => $request->input('about'),
+            'publishIntent' => $request->input('publishIntent'),
+        ]);
         $uploadMaxSize = min(
             $this->convertToBytes(ini_get('upload_max_filesize')),
             $this->convertToBytes(ini_get('post_max_size'))
         );
 
+
         $isEdit = $request->filled('id');
+        // Determine status from publishIntent (default to Draft if not set)
+        $status = $request->input('publishIntent', 'Draft');
 
         // Validation rules
+
         $rules = [
             'selected_rooms'    => 'required',
             'title'             => 'required|string',
             'about'             => 'required|string',
             'selected_children' => 'required|string',
-            'selected_staff'    => 'required|string'
+            'selected_staff'    => 'required|string',
         ];
 
         if (!$isEdit) {
@@ -2633,7 +2644,9 @@ Observation:
             ], 422);
         }
 
+
         $validated = $validator->validated();
+
 
         DB::beginTransaction();
 
@@ -2641,15 +2654,19 @@ Observation:
             $authId = Auth::user()->id;
             $centerid = Session('user_center_id');
 
-            $snapshot = $isEdit
-                ? Snapshot::findOrFail($request->id)
-                : Snapshot::create([
+
+            if ($isEdit) {
+                $snapshot = Snapshot::findOrFail($request->id);
+            } else {
+                $snapshot = Snapshot::create([
                     'title'     => $validated['title'],
                     'about'     => $validated['about'],
                     'centerid'  => $centerid,
                     'createdBy' => $authId,
                     'educators' => $validated['selected_staff'],
+                    'status'    => $status,
                 ]);
+            }
 
             // Update roomids after creation if new snapshot
             if (!$isEdit) {
@@ -2662,6 +2679,7 @@ Observation:
                 $snapshot->centerid  = $centerid;
                 $snapshot->createdBy = $authId;
                 $snapshot->educators = $validated['selected_staff'];
+                $snapshot->status    = $status;
                 $snapshot->save();
             }
 
