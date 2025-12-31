@@ -350,7 +350,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::post('/holidays/delete-selected', [PublicHolidayController::class, 'deleteSelected'])
-    ->name('holidays.deleteSelected');
+            ->name('holidays.deleteSelected');
 
 
         Route::delete('/role-permission-delete/{id}', [PermissionController::class, 'delete_role_permission'])->name('role-permission-delete');
@@ -431,6 +431,50 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
     });
 
 
+    // Route::prefix('observation')->name('observation.')->group(function () {
+    //     Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
+    //     Route::post('/ai-assist', [ObservationsController::class, 'AiAssistance'])->name('ai-assist');
+    //     Route::get('/index', [ObservationsController::class, 'index'])->name('index');
+    //     Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
+    //     Route::get('/filter/get-children', [ObservationsController::class, 'getChildren_for_filter'])->name('get-children-filter');
+    //     Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
+    //     Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
+    //     Route::get('/view', [ObservationsController::class, 'index'])->name('view');
+    //     Route::get('/print/{id}', [ObservationsController::class, 'print'])->name('print');
+    //     Route::post('/share', [ObservationsController::class, 'shareObservation'])->name('share');
+
+    //     Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
+    //     Route::get('/addnew/{id}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
+
+
+    //     Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get.children');
+    //     Route::get('/get-rooms', [ObservationsController::class, 'getrooms'])->name('get.rooms');
+    //     Route::post('/store', [ObservationsController::class, 'store'])->name('store');
+    //     Route::post('/autosave-observation', [ObservationsController::class, 'autosaveobservation'])->name('autosave-observation');
+
+    //     Route::post('/storeTitle', [ObservationsController::class, 'storeTitle'])->name('storeTitle');
+    //     Route::post('/refine-text', [ObservationsController::class, 'refine'])->name('refine.text');
+
+    //     Route::delete('/observation-media/{id}', [ObservationsController::class, 'destroyimage']);
+
+    //     Route::post('/montessori/store', [ObservationsController::class, 'storeMontessoriData'])->name('montessori.store');
+    //     Route::post('/eylf/store', [ObservationsController::class, 'storeEylfData'])->name('eylf.store');
+    //     Route::post('/devmilestone/store', [ObservationsController::class, 'storeDevMilestone'])->name('devmilestone.store');
+    //     Route::post('/status/update', [ObservationsController::class, 'updateStatus'])->name('status.update');
+    //     Route::get('/view/{id}', [ObservationsController::class, 'view'])->name('view');
+    //     Route::get('/observationslink', [ObservationsController::class, 'linkobservationdata']);
+    //     Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
+    //     Route::post('/change-created-at', [ObservationsController::class, 'changeCreatedAt'])->name('changeCreatedAt');
+    //     Route::delete('/{id}', [ObservationsController::class, 'destroy'])->name('destroy');
+
+
+    //     Route::get('/reflectionslink', [ObservationsController::class, 'linkreflectiondata']);
+    //     Route::post('/submit-selectedreflink', [ObservationsController::class, 'storelinkreflection']);
+
+    //     Route::get('/programplanslink', [ObservationsController::class, 'linkprogramplandata']);
+    //     Route::post('/submit-selectedpplink', [ObservationsController::class, 'storelinkprogramplan']);
+    // });
+
     Route::prefix('observation')->name('observation.')->group(function () {
         Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
         Route::post('/ai-assist', [ObservationsController::class, 'AiAssistance'])->name('ai-assist');
@@ -439,7 +483,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('/filter/get-children', [ObservationsController::class, 'getChildren_for_filter'])->name('get-children-filter');
         Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
         Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
-        Route::get('/view', [ObservationsController::class, 'index'])->name('view');
+        //     Route::get('/view', [ObservationsController::class, 'index'])->name('view');
         Route::get('/print/{id}', [ObservationsController::class, 'print'])->name('print');
         Route::post('/share', [ObservationsController::class, 'shareObservation'])->name('share');
 
@@ -509,7 +553,6 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('/view/{id}', [ObservationsController::class, 'viewSnapShot'])->name('view');
 
         Route::get('/print/{id?}', [ObservationsController::class, 'print_snapshots'])->name('print');
-
     });
 
 

@@ -1,3 +1,37 @@
+<style>
+/* THEME SYSTEM: Theme .blur-nav .nav-link.active background to theme color */
+body[class*="theme-"] .blur-nav .nav-link.active {
+    background: var(--sd-accent, #4facfe) !important;
+    color: #fff !important;
+    font-weight: bold;
+}
+</style>
+<style>
+
+body[class*="theme-"] .btn-primary.submit-btn {
+    background: var(--sd-accent, #4facfe) !important;
+    border-color: var(--sd-accent, #4facfe) !important;
+    color: #fff !important;
+}
+body[class*="theme-"] .btn-primary.submit-btn:hover {
+    background: #0056b3 !important;
+    border-color: #0056b3 !important;
+}
+</style>
+<style>
+/* THEME SYSTEM: Theme main heading background, keep text/icon white; theme form/select-section border and background */
+body[class*="theme-"] h4,
+body[class*="theme-"] h1.text-center.text-white.mb-5.font-weight-bold {
+    background: var(--sd-accent, #4facfe) !important;
+    color: #fff !important;
+    border-radius: 8px;
+    padding: 8px 16px;
+}
+body[class*="theme-"] h4 .fas,
+body[class*="theme-"] h1.text-center.text-white.mb-5.font-weight-bold .fa-camera-retro {
+    color: #fff !important;
+}
+</style>
 @extends('layout.master')
 @section('title', 'Store')
 @section('parentPageTitle', 'Snapshots')
@@ -404,16 +438,63 @@
 @section('content')
 
 
-@if(isset($reflection) && $reflection->id)
-<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
-    <button type="button" id="publishObservation" class="btn btn-success shadow-lg btn-animated mr-2">
-        <i class="fas fa-upload mr-1"></i> Publish Now
-    </button>
-    <button type="button" id="draftObservation" class="btn btn-warning shadow-lg btn-animated">
-        <i class="fas fa-file-alt mr-1"></i> Make Draft
-    </button>
+
+
+<!-- Loader Overlay -->
+<style>
+#snapshotLoaderOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255,255,255,0.7);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+#snapshotLoaderOverlay .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: var(--sd-accent, #4facfe);
+}
+</style>
+<div id="snapshotLoaderOverlay" style="flex-direction:column; justify-content:center; align-items:center;">
+    <div style="position:relative; width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
+        <svg id="loaderCircle" width="100" height="100">
+            <circle cx="50" cy="50" r="45" stroke="#e0e0e0" stroke-width="10" fill="none" />
+            <circle id="loaderCircleProgress" cx="50" cy="50" r="45" stroke="#4facfe" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="282.743" stroke-dashoffset="282.743"/>
+        </svg>
+        <div id="loaderPercent" style="position:absolute; left:0; top:0; width:100px; height:100px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:bold; color:#333;">0%</div>
+    </div>
 </div>
-@endif
+
+<!-- Modal for Publish/Draft Confirmation -->
+<div class="modal fade" id="publishDraftModal" tabindex="-1" role="dialog" aria-labelledby="publishDraftModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="publishDraftModalLabel">Confirm Action</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Do you want to publish this snapshot now or save as draft?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="modalPublishBtn"><i class="fas fa-upload mr-1"></i> Publish Now</button>
+                <button type="button" class="btn btn-warning" id="modalDraftBtn"><i class="fas fa-file-alt mr-1"></i> Make Draft</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <div class="row clearfix">
@@ -437,11 +518,11 @@
                 <div class="tab-pane show active" id="Home">
                         
                     <form id="observationform" method="POST" enctype="multipart/form-data">
-
-      <div class="row">
+    <input type="hidden" name="id" id="reflection_id" value="{{ isset($reflection) ? $reflection->id : '' }}">
+    <div class="row">
         <!-- Select Rooms -->
 <div class="col-md-6 select-section">
-    <label>Rooms</label><br>
+    <label class="mb-2" style="color: var(--sd-accent, #4facfe); font-weight: bold;">Rooms</label>
     <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#roomsModal">Select Rooms</button>
     <input type="hidden" name="selected_rooms" id="selected_rooms" value="{{ isset($rooms) ? implode(',', collect($rooms)->pluck('id')->toArray()) : '' }}">
     <div id="selectedRoomsPreview" class="mt-3">
@@ -455,7 +536,7 @@
 
      <!-- Select Children -->
 <div class="col-md-6 select-section">
-    <label>Children</label><br>
+    <label class="mb-2" style="color: var(--sd-accent, #4facfe); font-weight: bold;">Children</label>
     <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#childrenModal">Select Children</button>
     <input type="hidden" name="selected_children" id="selected_children" value="{{ isset($childrens) ? implode(',', collect($childrens)->pluck('id')->toArray()) : '' }}">
     <div id="selectedChildrenPreview" class="mt-3">
@@ -487,7 +568,7 @@
 
 <!-- Select educators -->
 <div class="col-md-12 select-section">
-    <label>Educators</label><br>
+    <label class="mb-2" style="color: var(--sd-accent, #4facfe); font-weight: bold;">Educators</label>
     <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#staffModal">Select Educators</button>
     <input type="hidden" name="selected_staff" id="selected_staff" value="{{ isset($educators) ? implode(',', collect($educators)->pluck('userid')->toArray()) : '' }}">
     <div id="selectedStaffPreview" class="mt-3">
@@ -516,24 +597,26 @@
 
 <input type="hidden" name="id" id="reflection_id" value="{{ isset($reflection) ? $reflection->id : '' }}">
         <!-- Add more form elements -->
-        <div class="col-md-6 mt-4 form-section">
-    <label for="editor6">Snapshot Title</label>
-    <textarea id="editor6" name="title" class="form-control ckeditor"  maxlength="50">{!! isset($reflection) ? $reflection->title : '' !!}</textarea>
-      <small id="editor6-count" class="form-text text-muted">0 / 50 characters</small>
-    <div class="refine-container">
-<button type="button" class="btn btn-sm btn-primary mt-2 refine-btn" data-editor="editor6"><i class="fas fa-magic mr-1"></i>Refine with Ai</button>
-</div>
-</div>
 
-<div class="col-md-6 mt-4 form-section">
-    <label for="editor3">Snapshot Details</label>
-    <textarea id="editor3" name="about" class="form-control ckeditor">{!! isset($reflection) ? $reflection->about : '' !!}</textarea>
-       <small id="editor3-count" class="form-text text-muted">0 / 50 characters</small>
-    
-    <div class="refine-container">
- <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn" data-editor="editor3"><i class="fas fa-magic mr-1"></i>Refine with Ai</button>
-</div>
-</div>
+        <!-- Keep only one Snapshot Title section -->
+        <div class="col-md-6 mt-4 form-section">
+            <label class="mb-2" style="color: var(--sd-accent, #4facfe); font-weight: bold;">Snapshot Title</label>
+            <textarea id="editor6" name="title" class="form-control ckeditor" maxlength="50">{!! isset($reflection) ? $reflection->title : '' !!}</textarea>
+            <small id="editor6-count" class="form-text text-muted">0 / 50 characters</small>
+            <div class="refine-container" style="background: rgba(79, 172, 254, 0.10); background: linear-gradient(0deg, var(--sd-accent, #4facfe) 10%, #fff 90%); border-radius: 8px; padding: 8px 0 8px 0;">
+                <button type="button" class="btn btn-sm mt-2 refine-btn" data-editor="editor6" style="background: var(--sd-accent, #4facfe); border-color: var(--sd-accent, #4facfe); color: #fff; font-weight: 600;"><i class="fas fa-magic mr-1"></i>Refine with Ai</button>
+            </div>
+        </div>
+
+        <!-- Keep only one Snapshot Details section -->
+        <div class="col-md-6 mt-4 form-section">
+            <label class="mb-2" style="color: var(--sd-accent, #4facfe); font-weight: bold;">Snapshot Details</label>
+            <textarea id="editor3" name="about" class="form-control ckeditor">{!! isset($reflection) ? $reflection->about : '' !!}</textarea>
+            <small id="editor3-count" class="form-text text-muted">0 / 50 characters</small>
+            <div class="refine-container" style="background: rgba(79, 172, 254, 0.10); background: linear-gradient(0deg, var(--sd-accent, #4facfe) 10%, #fff 90%); border-radius: 8px; padding: 8px 0 8px 0;">
+                <button type="button" class="btn btn-sm mt-2 refine-btn" data-editor="editor3" style="background: var(--sd-accent, #4facfe); border-color: var(--sd-accent, #4facfe); color: #fff; font-weight: 600;"><i class="fas fa-magic mr-1"></i>Refine with Ai</button>
+            </div>
+        </div>
 
 
 
@@ -541,9 +624,9 @@
 
 <div class="col-md-12 mt-4">
     <h4>Media Upload Section</h4>
-    <div class="media-upload-box p-4 border rounded bg-light text-center">
-        <label for="mediaInput" class="btn btn-outline-primary">
-            Select up to 10 Images/Videos
+    <div class="media-upload-box p-4 border rounded text-center bg-light">
+        <label for="mediaInput" class="btn btn-outline-primary" style="color: var(--sd-accent, #4facfe); font-weight: 600; border-color: var(--sd-accent, #4facfe);">
+            <i class="fas fa-upload mr-2"></i> Select up to 10 Images/Videos
         </label>
         <input type="file" id="mediaInput" name="media[]" class="d-none" multiple accept="image/*,video/*">
         <small class="form-text text-muted mt-2">Only images and videos are allowed. Max 10 files.</small>
@@ -763,7 +846,7 @@
 
 <script>
 const maxChars = 50;
-const editors = {};
+window.editors = window.editors || {};
 
 function setupCounter(editorInstance, countId) {
     const countEl = document.getElementById(countId);
@@ -792,7 +875,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         ClassicEditor.create(textarea)
             .then(editor => {
-                editors[id] = editor;
+                window.editors[id] = editor;
                 setupCounter(editor, id + '-count');
             })
             .catch(error => console.error(`CKEditor error on ${id}:`, error));
@@ -1014,23 +1097,10 @@ $('#saveEylfSelections').on('click', function () {
 
 
 <script>
-    const editors = {};
-
-    document.querySelectorAll('.ckeditor').forEach((el) => {
-        ClassicEditor
-            .create(el)
-            .then(editor => {
-                editors[el.id] = editor;
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    });
-
     document.querySelectorAll('.refine-btn').forEach(button => {
         button.addEventListener("click", function () {
             const editorId = this.getAttribute("data-editor");
-            const editor = editors[editorId];
+            const editor = window.editors[editorId];
 
             if (!editor) return alert("Editor not found!");
 
@@ -1065,6 +1135,17 @@ $('#saveEylfSelections').on('click', function () {
                 });
         });
     });
+// Always sync CKEditor data before any form submit
+function syncAllCKEditors() {
+    if (window.editors) {
+        Object.keys(window.editors).forEach(function (id) {
+            const editor = window.editors[id];
+            if (editor && document.getElementById(id)) {
+                document.getElementById(id).value = editor.getData();
+            }
+        });
+    }
+}
 </script>
 
 
@@ -1197,42 +1278,80 @@ function showToast(type, message) {
 
     
 $(document).ready(function () {
+    // Intercept form submit to show modal
     $('#observationform').on('submit', function (e) {
         e.preventDefault();
+        syncAllCKEditors();
+        $('#publishDraftModal').modal('show');
+    });
 
-     
+    // Modal button handlers
+    $('#modalPublishBtn').on('click', function() {
+        submitSnapshot('Published');
+    });
+    $('#modalDraftBtn').on('click', function() {
+        submitSnapshot('Draft');
+    });
 
+    function submitSnapshot(status) {
         const form = $('#observationform')[0];
         const formData = new FormData(form);
+        formData.append('publishIntent', status);
+        // Show loader overlay and start fake percent
+        $('#snapshotLoaderOverlay').css({visibility:'visible', opacity:1});
+        let percent = 10;
+        $('#loaderPercent').text('10%');
+        updateCircleProgress(10);
+        window.fakeLoaderInterval = setInterval(function() {
+            if (percent < 100) {
+                percent += 10;
+                if (percent > 100) percent = 100;
+                $('#loaderPercent').text(percent + '%');
+                updateCircleProgress(percent);
+            }
+            if (percent === 100) {
+                clearInterval(window.fakeLoaderInterval);
+                setTimeout(() => {
+                    window.location.href = '/snapshot/index/';
+                }, 400);
+            }
+        }, 200);
 
-        // Append selected files (including rotated ones)
-        // selectedFiles.forEach((file, index) => {
-        //     formData.append('media[]', file);
-        // });
-
+        function updateCircleProgress(p) {
+            const circle = document.getElementById('loaderCircleProgress');
+            const radius = 45;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (p / 100) * circumference;
+            circle.setAttribute('stroke-dashoffset', offset);
+        }
         $.ajax({
-            url: "{{ route('snapshot.store') }}", // 👈 Your Laravel route
+            url: "{{ route('snapshot.store') }}",
             method: "POST",
             data: formData,
             processData: false,
             contentType: false,
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for Laravel
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             beforeSend: function () {
-                // Optional: show loader or disable button
                 $('button[type=submit]').prop('disabled', true).text('Submitting...');
             },
             success: function(response) {
-    if (response.status === true) {
-        showToast('success', 'Snapshot Added Successfully!');
-        setTimeout(() => {
-            window.location.href = '/snapshot/index/'; // or 'link', or 'observation'
-        }, 1500);
-    } else {
-        showToast('error', response.message || 'Update failed');
-    }
-},
+                if (response.status === true) {
+                    showToast('success', 'Snapshot Added Successfully!');
+                    $('#loaderPercent').text('100%');
+                    updateCircleProgress(100);
+                    clearInterval(window.fakeLoaderInterval);
+                    setTimeout(() => {
+                        window.location.href = '/snapshot/index/';
+                    }, 700);
+                } else {
+                    showToast('error', response.message || 'Update failed');
+                    clearInterval(window.fakeLoaderInterval);
+                    updateCircleProgress(0);
+                    $('#snapshotLoaderOverlay').css({visibility:'hidden', opacity:0});
+                }
+            },
             error: function(xhr) {
                 if (xhr.status === 422) {
                     Object.values(xhr.responseJSON.errors).forEach(error => {
@@ -1241,12 +1360,18 @@ $(document).ready(function () {
                 } else {
                     showToast('error', 'Server error occurred');
                 }
+                clearInterval(window.fakeLoaderInterval);
+                updateCircleProgress(0);
+                $('#snapshotLoaderOverlay').css({visibility:'hidden', opacity:0});
             },
             complete: function () {
                 $('button[type=submit]').prop('disabled', false).text('Submit');
+                $('#publishDraftModal').modal('hide');
+                // Hide loader only if not redirecting
+                // (If success, loader will be hidden after redirect)
             }
         });
-    });
+    }
 });
 
 
@@ -1379,11 +1504,31 @@ function handleObservationStatusChange(status) {
 
 // Bind events
 $('#publishObservation').on('click', function() {
-    handleObservationStatusChange('Published');
+    if ($('#observationform').length) {
+        syncAllCKEditors();
+        if ($('input[name="publishIntent"]').length === 0) {
+            $('<input>').attr({type: 'hidden', name: 'publishIntent', value: 'Published'}).appendTo('#observationform');
+        } else {
+            $('input[name="publishIntent"]').val('Published');
+        }
+        $('#observationform').submit();
+    } else {
+        handleObservationStatusChange('Published');
+    }
 });
 
 $('#draftObservation').on('click', function() {
-    handleObservationStatusChange('Draft');
+    if ($('#observationform').length) {
+        syncAllCKEditors();
+        if ($('input[name="publishIntent"]').length === 0) {
+            $('<input>').attr({type: 'hidden', name: 'publishIntent', value: 'Draft'}).appendTo('#observationform');
+        } else {
+            $('input[name="publishIntent"]').val('Draft');
+        }
+        $('#observationform').submit();
+    } else {
+        handleObservationStatusChange('Draft');
+    }
 });
 </script>
 
