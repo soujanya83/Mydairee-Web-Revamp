@@ -93,7 +93,7 @@
 
 
 <!-- Enhanced Stylized Login Notice -->
-<div class="container-fluid">
+{{-- <div class="container-fluid">
     <div class="row justify-content-center mb-4">
         <div class="col-md-8 col-lg-6">
             <div class="alert alert-dismissible fade show border-0 shadow-lg enhanced-notice" id="loginNotice">
@@ -161,7 +161,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 <style>
 /* Enhanced Notice Styling */

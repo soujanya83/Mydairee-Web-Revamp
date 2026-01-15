@@ -21,6 +21,8 @@ use App\Http\Controllers\API\DailyDiaryController;
 use App\Http\Controllers\API\SettingsController;
 use App\Http\Controllers\API\LnPcontroller;
 use App\Http\Controllers\API\Dashboard;
+use App\Http\Controllers\API\ParentSlideshowController;
+
 
 
 
@@ -49,6 +51,9 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
   Route::get('/dashboard', [Dashboard::class, 'university'])->name('dashboard.university');
      Route::get('users/birthday', [Dashboard::class, 'getUser'])->name('users..birthday');
      Route::get('/api/events', [Dashboard::class, 'getEvents']);
+
+           Route::get('/slideshow', [ParentSlideshowController::class, 'getSlideshowData']);
+
 
         Route::prefix('snapshot')->name('snapshot.')->group(function () {
 

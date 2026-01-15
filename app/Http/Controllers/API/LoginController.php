@@ -89,7 +89,7 @@ class LoginController extends Controller
             if (!$user) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Invalid email or password.',
+                    'message' => 'Invalid email.',
                 ], 401);
             }
 
