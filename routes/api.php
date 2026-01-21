@@ -22,7 +22,13 @@ use App\Http\Controllers\API\SettingsController;
 use App\Http\Controllers\API\LnPcontroller;
 use App\Http\Controllers\API\Dashboard;
 use App\Http\Controllers\API\ParentSlideshowController;
+use App\Http\Controllers\Api\ApiResetPasswordController; 
 
+Route::middleware('auth:sanctum')->post('user/change-password', [ApiResetPasswordController::class, 'changePassword']);
+
+Route::post('password/request-reset', [ApiResetPasswordController::class, 'requestReset']);
+Route::post('password/verify-otp', [ApiResetPasswordController::class, 'verifyOtp']);
+Route::post('password/update', [ApiResetPasswordController::class, 'updatePassword']);
 
 
 
