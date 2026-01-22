@@ -23,6 +23,15 @@ use App\Http\Controllers\API\LnPcontroller;
 use App\Http\Controllers\API\Dashboard;
 use App\Http\Controllers\API\ParentSlideshowController;
 use App\Http\Controllers\API\ApiResetPasswordController; 
+use App\Http\Controllers\API\UserProfileController; 
+
+
+Route::middleware('auth:sanctum')->group(function () {
+	Route::get('user/profile-picture', [UserProfileController::class, 'getProfilePicture']);
+	Route::put('user/profile-picture', [UserProfileController::class, 'updateProfilePicture']);
+	Route::get('user/profile', [UserProfileController::class, 'getProfile']);
+	Route::put('user/profile', [UserProfileController::class, 'updateProfile']);
+});
 
 Route::middleware('auth:sanctum')->post('user/change-password', [ApiResetPasswordController::class, 'changePassword']);
 
