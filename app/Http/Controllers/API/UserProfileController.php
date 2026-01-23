@@ -10,7 +10,6 @@ class UserProfileController extends Controller
     public function getProfilePicture(Request $request)
     {
         $user = $request->user();
-        
         return response()->json([
             'profile_picture' => url($user->imageUrl),
         ]);
@@ -39,7 +38,7 @@ class UserProfileController extends Controller
             'public'
         );
 
-        $user->imageUrl = "storage/".$path;
+        $user->imageUrl = $path;
         $user->save();
 
         return response()->json([
@@ -55,7 +54,7 @@ class UserProfileController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->contactNo,
-            'profile_picture' => url($user->imageUrl),
+            'gender' => $user->gender,
         ]);
     }
 
