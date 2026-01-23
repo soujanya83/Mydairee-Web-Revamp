@@ -10,9 +10,9 @@ class UserProfileController extends Controller
     public function getProfilePicture(Request $request)
     {
         $user = $request->user();
-        return response()->json([
-            'profile_picture' => url($user->imageUrl),
-        ]);
+            return response()->json([
+                'profile_picture' => asset('storage/' . $user->imageUrl),
+            ]);
     }
 
     public function updateProfilePicture(Request $request)
