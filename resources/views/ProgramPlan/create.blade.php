@@ -283,22 +283,122 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
     <label for="mindfulness_experiences">Mindfulness Experiences</label>
     <textarea class="form-control ckeditor" id="mindfulness_experiences" name="mindfulness_experiences"  rows="3"><?= isset($plan_data) ? $plan_data->mindfulness_experiences : '' ?></textarea>
 </div>
+
+<div class="form-group mb-4">
+    <label class="form-label d-block mb-2 fw-semibold">Status</label>
+
+    <div class="status-toggle">
+        <label class="status-option draft">
+            <input type="radio" name="status" value="Draft"
+                <?= (isset($plan_data) && $plan_data->status === 'Draft') ? 'checked' : '' ?>>
+            <span>Draft</span>
+        </label>
+
+        <label class="status-option published">
+            <input type="radio" name="status" value="Published"
+                <?= (isset($plan_data) && $plan_data->status === 'Published') ? 'checked' : '' ?>>
+            <span>Published</span>
+        </label>
+    </div>
+</div>
+
+
+<style>
+   .status-toggle {
+    display: inline-flex;
+    /* background: #ffffff; */
+    border-radius: 50px;
+    padding: 4px;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.status-option {
+    position: relative;
+}
+
+.status-option input {
+    display: none;
+}
+
+.status-option span {
+    min-width: 110px;
+    text-align: center;
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+/* Draft (Red) */
+.status-option.draft span {
+    color: #dc3545;
+    background: #fff5f5;
+    border-color: #f5c2c7;
+}
+
+.status-option.draft input:checked + span {
+    background: #dc3545;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(220,53,69,0.35);
+}
+
+/* Published (Green) */
+.status-option.published span {
+    color: #198754;
+    background: #f0fff8;
+    border-color: #b7dfc8;
+}
+
+.status-option.published input:checked + span {
+    background: #198754;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(25,135,84,0.35);
+}
+
+/* Hover effect */
+.status-option span:hover {
+    transform: translateY(-1px);
+}
+
+
+</style>
+
+
                     </div>
                 </div>
 
                 <?php if(isset($plan_data) && $plan_data): ?>
                    
-                    <div class="form-group">
-        <button type="submit" class="btn btn-info" id="updateBtn">Update</button>
-       &nbsp;&nbsp;&nbsp; <button type="button" class="btn btn-info" style="background-color:#2eefb7;border-color:#2eefb7;color:black;" id="saveAsNewBtn">Save as New Data</button>
-         <button type="button" class="btn btn-default btn-danger" id="cancel-btn">Cancel</button>
-    </div>
+                    <div class="form-group action-buttons">
+    <button type="submit" class="btn btn-pill btn-primary" id="updateBtn">
+        Update
+    </button>
+
+    <button type="button" class="btn btn-pill btn-success" id="saveAsNewBtn">
+        Save as New Data
+    </button>
+
+    <button type="button" class="btn btn-pill btn-danger" id="cancel-btn">
+        Cancel
+    </button>
+</div>
+
 
                 <?php else: ?>
-                    <div class="form-group">
-                    <button type="submit" class="btn btn-info">Submit</button>
-                      <button type="button" class="btn btn-default btn-danger" id="cancel-btn">Cancel</button>
-                </div>
+                <div class="form-group action-buttons">
+    <button type="submit" class="btn btn-pill btn-primary">
+        Submit
+    </button>
+
+    <button type="button" class="btn btn-pill btn-danger" id="cancel-btn">
+        Cancel
+    </button>
+</div>
                 <?php endif; ?>
                 
             </form>
@@ -309,7 +409,66 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
 
 </main>
 
+<style>
+    .action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
 
+.btn-pill {
+    border-radius: 40px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+/* Primary (Submit / Update) */
+.btn-primary {
+    background: linear-gradient(135deg, #0dcaf0, #0b9ed0);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(13,202,240,0.4);
+}
+
+/* Success (Save as New) */
+.btn-success {
+    background: linear-gradient(135deg, #2eefb7, #20c997);
+    color: #063b2d;
+}
+
+.btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(32,201,151,0.4);
+}
+
+/* Danger (Cancel) */
+.btn-danger {
+    background: linear-gradient(135deg, #dc3545, #b02a37);
+    color: #fff;
+}
+
+.btn-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(220,53,69,0.4);
+}
+
+/* Disabled state */
+.btn-pill:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+</style>
 
 
 <!-- EYLF Modal -->

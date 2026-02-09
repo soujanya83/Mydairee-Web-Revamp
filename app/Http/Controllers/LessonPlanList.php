@@ -709,6 +709,7 @@ public function saveProgramPlan(Request $request)
         'years' => $request->input('years'),
         'centerid' => $request->input('centerid'),
         'created_by' => $request->input('user_id'),
+        'status' => $request->input('status', 'Draft'), // default to 'Draft' if not provided
         'educators' => $educators,
         'children' => $children,
         'practical_life' => $request->input('practical_life'),
