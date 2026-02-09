@@ -3,53 +3,113 @@
 @section('parentPageTitle', '')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
+    /* THEME SYSTEM: Card date, pagination, block header, and title */
     .pagination {
         font-size: 0.9rem;
-        /* Slightly larger for better readability */
         justify-content: center;
-        /* Ensure pagination is centered */
         margin-bottom: 80px;
     }
-
     .page-item .page-link {
         padding: 0.5rem 0.75rem;
-        /* Bootstrap 4 default padding for better spacing */
         font-size: 0.9rem;
-        /* Match pagination font size */
         line-height: 1.5;
-        /* Improved line height for readability */
         border-radius: 0.25rem;
-        /* Keep your custom border radius */
         color: #007bff;
-        /* Bootstrap primary color for links */
         background-color: #fff;
-        /* Ensure background matches Bootstrap */
         border: 1px solid #dee2e6;
-        /* Bootstrap default border */
+        transition: color 0.2s, border-color 0.2s, background 0.2s;
     }
-
     .page-item.active .page-link {
         background-color: #007bff;
-        /* Bootstrap primary color for active state */
         border-color: #007bff;
         color: #fff;
     }
-
     .page-item.disabled .page-link {
         color: #6c757d;
-        /* Bootstrap disabled color */
         pointer-events: none;
         background-color: #fff;
         border-color: #dee2e6;
     }
-
-    /* SVG icons for Previous/Next arrows */
     .page-item .page-link svg {
         width: 1em;
-        /* Slightly larger for better visibility */
         height: 1em;
         vertical-align: middle;
     }
+    /* THEME OVERRIDES */
+    body.theme-purple .card,
+    body.theme-blue .card,
+    body.theme-cyan .card,
+    body.theme-green .card,
+    body.theme-orange .card,
+    body.theme-blush .card {
+       
+        color: var(--sd-text);
+        border-radius: var(--sd-radius-md);
+        box-shadow: var(--sd-shadow-soft);
+    }
+    body[class^="theme-"] .table {
+        background: var(--sd-surface);
+        color: var(--sd-text);
+    }
+    body[class^="theme-"] .btn-outline-primary,
+    body[class^="theme-"] .btn-outline-info {
+        border-color: var(--sd-accent, #3eacff) !important;
+        color: var(--sd-accent, #3eacff) !important;
+        background: #fff !important;
+    }
+    body[class^="theme-"] .btn-outline-primary:hover,
+    body[class^="theme-"] .btn-outline-info:hover {
+        background: var(--sd-accent, #3eacff) !important;
+        color: #fff !important;
+    }
+    body[class^="theme-"] .btn-success {
+        background: var(--sd-accent, #50d38a) !important;
+        border-color: var(--sd-accent, #50d38a) !important;
+    }
+    body[class^="theme-"] .btn-danger {
+        background: var(--sd-accent, #e47297) !important;
+        border-color: var(--sd-accent, #e47297) !important;
+    }
+    body[class^="theme-"] .modal-content {
+        background: var(--sd-surface);
+        color: var(--sd-text);
+    }
+    body[class^="theme-"] .form-control {
+        background: var(--sd-bg);
+        color: var(--sd-text);
+        border: 1px solid var(--sd-border);
+    }
+    body[class^="theme-"] .form-control:focus {
+        border-color: var(--sd-accent, #3eacff);
+        box-shadow: 0 0 0 0.2rem var(--sd-accent-soft, #dbeafe);
+    }
+    body[class^="theme-"] .page-item .page-link {
+        color: var(--sd-accent) !important;
+        border-color: var(--sd-accent) !important;
+    }
+    body[class^="theme-"] .page-item.active .page-link {
+        background: var(--sd-accent) !important;
+        border-color: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+    body[class^="theme-"] .obs-card-date {
+        color: var(--sd-accent) !important;
+    }
+    body[class^="theme-"] .block-header,
+    body[class^="theme-"] .block-title,
+    body[class^="theme-"] .list-item-heading {
+        color: var(--sd-accent) !important;
+    }
+    body[class^="theme-"] .dropdown-menu .dropdown-item.active,
+    body[class^="theme-"] .dropdown-menu .dropdown-item:active {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+</style>
+<style>
+body[class*="theme-"] .print-theme-icon {
+    color: var(--sd-accent) !important;
+}
 </style>
 
 
@@ -286,7 +346,7 @@
                             <a href="{{ route('observation.print', $obsId) }}" class="obs-link" target="_blank">
                                 @endif
 
-                                <p class="list-item-heading mb-1">
+                                <p class="list-item-heading block-title mb-1">
                                     @if(!empty($observation->obestitle))
                                     {{ strip_tags($observation->obestitle) }}
                                     @else
@@ -299,11 +359,9 @@
                                 By: {{ $observation->user->name ?? 'Unknown' }}
                             </p>
 
-                            <p class="text-primary text-small font-weight-medium mb-0">
+                            <p class="obs-card-date text-primary text-small font-weight-medium mb-0">
                                 {{ \Carbon\Carbon::parse($observation->created_at)->format('d.m.Y') }}
                             </p>
-
-
 
                             @if(Auth::user()->userType != 'Parent' && $observation->Seen->isNotEmpty())
                                 <div style="margin-top:8px;">
@@ -620,7 +678,7 @@
             <div class="d-flex flex-column align-items-center icon-actions">
                 @if(Auth::user()->userType != 'Parent')
                 <a href="{{ route('observation.print', $obsId) }}" target="_blank" class="mb-2">
-                    <i class="fa-solid fa-print fa-lg" style="color: #74C0FC;"></i>
+                    <i class="fa-solid fa-print fa-lg print-theme-icon"></i>
                 </a>
                 <i class="fa-sharp fa-solid fa-trash fa-lg" style="color: #da0711; cursor: pointer;"
                     onclick="deleteObservation({{ $obsId }})"></i>
@@ -1159,7 +1217,7 @@ if ($('#filter_author_any').is(':checked')) {
                 if (_role !== "Parent") {
                     iconsHtml = `
                         <a href="/observation/print/${val.id}" target="_blank" class="mb-2">
-                            <i class="fa-solid fa-print fa-lg" style="color: #74C0FC;"></i>
+                            <i class="fa-solid fa-print fa-lg print-theme-icon"></i>
                         </a>
                         <i class="fa-sharp fa-solid fa-trash fa-lg" style="color: #da0711;cursor:pointer;" onclick="deleteObservation(${val.id})"></i>
                     `;

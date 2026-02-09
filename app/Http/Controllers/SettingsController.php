@@ -283,6 +283,10 @@ class SettingsController extends Controller
                             ->headline()
                             ->replace('Ptm', 'PTM'); 
                 $label = str_replace('Qip', 'QIP', $label);
+                
+                $label = str_replace('Sendgroupmessage', 'Send Group Message', $label);
+                $label = str_replace('Sendmessage', 'Send Message', $label);
+                $label = str_replace('Viewmessages', 'View Messages', $label);
                 return [
                     'name' => $column,
                     'label' => $label
@@ -313,6 +317,7 @@ class SettingsController extends Controller
         $SnapshotsPermissions   = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'snapshots'))->values();
         $ActivityPermission = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'activity'))->values();
         $PtmPermissions = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'ptm'))->values();
+        $MessagingPermissions = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'message'))->values();
 
 
         // Combine all matched permissions
@@ -336,7 +341,8 @@ class SettingsController extends Controller
             ->merge($AccidentsPermissions)
             ->merge($SnapshotsPermissions)
             ->merge($ActivityPermission)
-            ->merge($PtmPermissions) 
+            ->merge($PtmPermissions)
+            ->merge($MessagingPermissions)
             ->pluck('name')
             ->toArray();
 
@@ -374,7 +380,8 @@ class SettingsController extends Controller
                 'DailyPermissions',
                 'otherPermissions',
                 'ActivityPermission',
-                'PtmPermissions'
+                'PtmPermissions',
+                'MessagingPermissions'
             )
         );
     }

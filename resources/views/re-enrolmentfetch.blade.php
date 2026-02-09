@@ -12,6 +12,17 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!--
+        Theming for user-specified elements is controlled globally by a theme class (e.g., .theme-purple) on <body>.
+        No local theme switcher is present. When no theme class is set, all elements use their default styles.
+        Only the following elements use the theme accent color when a theme is active:
+          - h2.mb-1 (Dashboard heading)
+          - .btn-primary, .btn-outline-primary, .view-toggle .btn.active
+          - .stats-card, .stats-card.success, .stats-card.warning, .stats-card.danger
+          - .table-card .card-header
+          - .pagination .page-item.active .page-link, .pagination .page-link:hover
+        All other styles remain unchanged for the no-theme state.
+    -->
     <style>
         :root {
             --primary-color: #3a7c8c;
@@ -27,12 +38,142 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        /* Theme accent for dashboard heading */
+        .theme-purple h2.mb-1,
+        .theme-blue h2.mb-1,
+        .theme-cyan h2.mb-1,
+        .theme-green h2.mb-1,
+        .theme-orange h2.mb-1,
+        .theme-blush h2.mb-1 {
+            color: var(--sd-accent) !important;
+        }
+
+        /* Theme accent for primary buttons */
+        .theme-purple .btn-primary,
+        .theme-blue .btn-primary,
+        .theme-cyan .btn-primary,
+        .theme-green .btn-primary,
+        .theme-orange .btn-primary,
+        .theme-blush .btn-primary {
+            background: var(--sd-accent) !important;
+            border-color: var(--sd-accent) !important;
+        }
+        .theme-purple .btn-primary:hover,
+        .theme-blue .btn-primary:hover,
+        .theme-cyan .btn-primary:hover,
+        .theme-green .btn-primary:hover,
+        .theme-orange .btn-primary:hover,
+        .theme-blush .btn-primary:hover {
+            background: var(--sd-accent) !important;
+            border-color: var(--sd-accent) !important;
+            opacity: 0.9;
+        }
+
+        /* Theme accent for outline primary buttons */
+        .theme-purple .btn-outline-primary,
+        .theme-blue .btn-outline-primary,
+        .theme-cyan .btn-outline-primary,
+        .theme-green .btn-outline-primary,
+        .theme-orange .btn-outline-primary,
+        .theme-blush .btn-outline-primary {
+            border-color: var(--sd-accent) !important;
+            color: var(--sd-accent) !important;
+        }
+        .theme-purple .btn-outline-primary:hover,
+        .theme-blue .btn-outline-primary:hover,
+        .theme-cyan .btn-outline-primary:hover,
+        .theme-green .btn-outline-primary:hover,
+        .theme-orange .btn-outline-primary:hover,
+        .theme-blush .btn-outline-primary:hover {
+            background: var(--sd-accent) !important;
+            color: #fff !important;
+        }
+
+        /* Theme accent for active view toggle button */
+        .theme-purple .view-toggle .btn.active,
+        .theme-blue .view-toggle .btn.active,
+        .theme-cyan .view-toggle .btn.active,
+        .theme-green .view-toggle .btn.active,
+        .theme-orange .view-toggle .btn.active,
+        .theme-blush .view-toggle .btn.active {
+            background: var(--sd-accent) !important;
+            color: #fff !important;
+        }
+
+        /* Theme accent for stats cards */
+        .theme-purple .stats-card,
+        .theme-blue .stats-card,
+        .theme-cyan .stats-card,
+        .theme-green .stats-card,
+        .theme-orange .stats-card,
+        .theme-blush .stats-card {
+            background: var(--sd-accent) !important;
+            color: #fff !important;
+        }
+        .theme-purple .stats-card.success,
+        .theme-blue .stats-card.success,
+        .theme-cyan .stats-card.success,
+        .theme-green .stats-card.success,
+        .theme-orange .stats-card.success,
+        .theme-blush .stats-card.success {
+            background: linear-gradient(135deg, var(--sd-accent) 0%, #20c997 100%) !important;
+        }
+        .theme-purple .stats-card.warning,
+        .theme-blue .stats-card.warning,
+        .theme-cyan .stats-card.warning,
+        .theme-green .stats-card.warning,
+        .theme-orange .stats-card.warning,
+        .theme-blush .stats-card.warning {
+            background: linear-gradient(135deg, var(--sd-accent) 0%, #fd7e14 100%) !important;
+        }
+        .theme-purple .stats-card.danger,
+        .theme-blue .stats-card.danger,
+        .theme-cyan .stats-card.danger,
+        .theme-green .stats-card.danger,
+        .theme-orange .stats-card.danger,
+        .theme-blush .stats-card.danger {
+            background: linear-gradient(135deg, var(--sd-accent) 0%, #e91e63 100%) !important;
+        }
+
+        /* Theme accent for table card header */
+        .theme-purple .table-card .card-header,
+        .theme-blue .table-card .card-header,
+        .theme-cyan .table-card .card-header,
+        .theme-green .table-card .card-header,
+        .theme-orange .table-card .card-header,
+        .theme-blush .table-card .card-header {
+            background: var(--sd-accent) !important;
+            color: #fff !important;
+        }
+
+        /* Theme accent for pagination */
+        .theme-purple .pagination .page-item.active .page-link,
+        .theme-blue .pagination .page-item.active .page-link,
+        .theme-cyan .pagination .page-item.active .page-link,
+        .theme-green .pagination .page-item.active .page-link,
+        .theme-orange .pagination .page-item.active .page-link,
+        .theme-blush .pagination .page-item.active .page-link {
+            background: var(--sd-accent) !important;
+            border-color: var(--sd-accent) !important;
+            color: #fff !important;
+        }
+        .theme-purple .pagination .page-link:hover,
+        .theme-blue .pagination .page-link:hover,
+        .theme-cyan .pagination .page-link:hover,
+        .theme-green .pagination .page-link:hover,
+        .theme-orange .pagination .page-link:hover,
+        .theme-blush .pagination .page-link:hover {
+            background: var(--sd-accent) !important;
+            color: #fff !important;
+        }
+
+        /* All other styles remain unchanged for no-theme */
+
         .sidebar2 {
             background: linear-gradient(135deg, var(--primary-color) 0%, #2c6371 100%);
             min-height: 100vh;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
-
         .sidebar2 .nav-link {
             color: rgba(255,255,255,0.8);
             padding: 0.75rem 1.5rem;
@@ -40,44 +181,16 @@
             margin: 0.25rem;
             transition: all 0.3s ease;
         }
-
         .sidebar2 .nav-link:hover,
         .sidebar2 .nav-link.active {
             background-color: rgba(255,255,255,0.1);
             color: white;
             transform: translateX(5px);
         }
-
         .main-content {
             background-color: #ffffff;
             min-height: 100vh;
         }
-
-        .stats-card {
-            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
-            border: none;
-            border-radius: 15px;
-            color: white;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .stats-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-
-        .stats-card.success {
-            background: linear-gradient(135deg, var(--success-color) 0%, #20c997 100%);
-        }
-
-        .stats-card.warning {
-            background: linear-gradient(135deg, var(--warning-color) 0%, #fd7e14 100%);
-        }
-
-        .stats-card.danger {
-            background: linear-gradient(135deg, var(--danger-color) 0%, #e91e63 100%);
-        }
-
         .enrollment-card {
             border: none;
             border-radius: 12px;
@@ -85,19 +198,16 @@
             transition: all 0.3s ease;
             margin-bottom: 1.5rem;
         }
-
         .enrollment-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-
         .enrollment-card .card-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, #2c6371 100%);
             color: white;
             border-radius: 12px 12px 0 0 !important;
             border: none;
         }
-
         .badge-days {
             background-color: var(--accent-color);
             color: #333;
@@ -105,52 +215,34 @@
             padding: 0.4em 0.8em;
             border-radius: 20px;
         }
-
         .badge-session {
             background-color: var(--primary-color);
             color: white;
         }
-
         .badge-kinder {
             background-color: var(--success-color);
             color: white;
         }
-
         .view-toggle {
             background-color: white;
             border-radius: 25px;
             padding: 0.5rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
         .view-toggle .btn {
             border-radius: 20px;
             border: none;
             padding: 0.5rem 1rem;
             transition: all 0.3s ease;
         }
-
-        .view-toggle .btn.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
         .table-card {
             border: none;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
-
-        .table-card .card-header {
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 12px 12px 0 0 !important;
-        }
-
         .custom-table {
             border-radius: 0 0 12px 12px;
         }
-
         .custom-table thead th {
             background-color: var(--secondary-color);
             border: none;
@@ -158,24 +250,20 @@
             color: #495057;
             padding: 1rem;
         }
-
         .custom-table tbody td {
             padding: 0.75rem 1rem;
             vertical-align: middle;
             border-color: #e9ecef;
         }
-
         .custom-table tbody tr:hover {
             background-color: rgba(58, 124, 140, 0.05);
         }
-
         .action-buttons .btn {
             border-radius: 20px;
             padding: 0.4rem 0.8rem;
             font-size: 0.875rem;
             margin: 0.1rem;
         }
-
         .search-filter-bar {
             background-color: white;
             border-radius: 12px;
@@ -183,7 +271,6 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             margin-bottom: 2rem;
         }
-
         @media (max-width: 768px) {
             .sidebar2 {
                 position: fixed;
@@ -193,15 +280,12 @@
                 z-index: 1000;
                 transition: left 0.3s ease;
             }
-
             .sidebar2.show {
                 left: 0;
             }
-
             .main-content {
                 margin-left: 0;
             }
-
             .enrollment-card {
                 margin-bottom: 1rem;
             }
@@ -279,6 +363,7 @@
 @section('content')
 
 <body>
+    <h1>zsa</h1>
     <!-- sidebar2 -->
     <div class="container-fluid">
         <div class="row">

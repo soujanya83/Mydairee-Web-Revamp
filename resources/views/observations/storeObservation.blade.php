@@ -481,7 +481,7 @@
         font-size: 13px;
         padding: 6px 14px;
         border-radius: 8px;
-        background: linear-gradient(to right, #007bff, #339af0);
+        background: linear-gradient(to right, #0056b3, #007bff); /* swapped: hover is now default */
         color: white;
         border: none;
         box-shadow: 0 3px 6px rgba(0, 123, 255, 0.25);
@@ -489,7 +489,7 @@
     }
 
     .refine-btn:hover {
-        background: linear-gradient(to right, #0056b3, #007bff);
+        background: linear-gradient(to right, #007bff, #339af0); /* swapped: default is now hover */
         transform: translateY(-1px);
     }
 
@@ -819,27 +819,19 @@
     /* Styling for the submit button */
     .btn-primary.submit-btn {
         padding: 10px 20px;
-        /* Comfortable padding */
         font-size: 16px;
-        /* Readable font size */
         font-weight: 500;
-        /* Medium weight for emphasis */
         border-radius: 6px;
-        /* Softer corners */
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        /* Subtle shadow */
         transition: all 0.3s ease;
-        /* Smooth transitions */
         float: right;
-        /* Retain float:right */
         display: flex;
-        /* Align icon and text */
         align-items: center;
-        /* Center vertically */
         gap: 8px;
-        /* Space between icon and text */
         position: relative;
-        /* For animation positioning */
+        background: linear-gradient(to right, #007bff, #339af0) !important;
+        color: #fff !important;
+        border: none;
     }
 
     /* Icon styling */
@@ -971,6 +963,84 @@
 
 
 
+
+<style>
+/* THEME SYSTEM: Only applies when a theme is active */
+body[class*="theme-"] {
+    --sd-accent: #4f8cff;
+    --sd-accent-soft: #e3f0ff;
+}
+body.theme-blue { --sd-accent: #4f8cff; --sd-accent-soft: #e3f0ff; }
+body.theme-green { --sd-accent: #28a745; --sd-accent-soft: #e6f9ed; }
+body.theme-pink { --sd-accent: #fb249b; --sd-accent-soft: #ffe3f5; }
+body.theme-orange { --sd-accent: #ff9800; --sd-accent-soft: #fff3e0; }
+body.theme-purple { --sd-accent: #7c3aed; --sd-accent-soft: #f3e8ff; }
+body.theme-teal { --sd-accent: #20c997; --sd-accent-soft: #e0fcf6; }
+}
+
+body[class*="theme-"] .assessment-container,
+body[class*="theme-"] .info-card,
+body[class*="theme-"] .tab-content .card,
+body[class*="theme-"] .form-row,
+body[class*="theme-"] .subject-group,
+body[class*="theme-"] .outcome-group,
+body[class*="theme-"] .age-group,
+body[class*="theme-"] .select-section,
+body[class*="theme-"] .form-section {
+    border-left-color: var(--sd-accent) !important;
+    box-shadow: 0 4px 12px var(--sd-accent-soft);
+}
+
+body[class*="theme-"] .nav-tabs-custom .nav-link.active,
+body[class*="theme-"] .blur-nav .nav-link.active {
+    color: var(--sd-accent) !important;
+    border-bottom-color: var(--sd-accent) !important;
+}
+
+body[class*="theme-"] .refine-btn,
+body[class*="theme-"] #saveMontessoriData,
+body[class*="theme-"] #saveEylfData,
+body[class*="theme-"] #saveDevMilestone,
+body[class*="theme-"] .btn-primary.submit-btn {
+    
+      background: linear-gradient(to right, var(--sd-accent), var(--sd-accent));
+    border: none;
+    color: #fff;
+}
+
+body[class*="theme-"] .refine-btn:hover,
+body[class*="theme-"] #saveMontessoriData:hover,
+body[class*="theme-"] #saveEylfData:hover,
+body[class*="theme-"] #saveDevMilestone:hover,
+body[class*="theme-"] .btn-primary.submit-btn:hover {
+  background: linear-gradient(to right, var(--sd-accent), var(--sd-accent-soft));
+}
+
+body[class*="theme-"] .badge-primary,
+body[class*="theme-"] .badge-success,
+body[class*="theme-"] .badge-info,
+body[class*="theme-"] .badge-warning,
+body[class*="theme-"] .badge-danger {
+    background: var(--sd-accent) !important;
+    color: #fff !important;
+}
+
+body[class*="theme-"] .media-upload-box {
+    border-color: var(--sd-accent);
+}
+
+/* EXCLUSIONS: Room, Children, Staff, Draft/Publish buttons always default */
+body[class*="theme-"] #selectedRoomsPreview .badge,
+body[class*="theme-"] #selectedChildrenPreview .badge,
+body[class*="theme-"] #selectedStaffPreview .badge,
+ {
+    background: initial !important;
+    color: initial !important;
+    border: initial !important;
+    box-shadow: initial !important;
+}
+</style>
+
 @section('content')
 
     <style>
@@ -1069,7 +1139,7 @@
     </style>
     @if (isset($observation) && $observation->id)
         <div class="text-zero top-right-button-container d-flex justify-content-end"
-            style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
+            style="margin-right: 20px;margin-top: -45px;margin-bottom:30px;">
 
 
             <div class="child-view "
@@ -1081,8 +1151,7 @@
             padding:5px;
 
             border-left:1px solid #ddd;
-            box-shadow:-2px 0 6px rgba(0,0,0,0.1);
-            z-index:1050;
+            box-shadow:-2px 0 6px rgba(0,0,0,0.1)
             border-radius:5px;
 
             overflow-y:auto;
@@ -1137,6 +1206,12 @@
     @endif
 
     <script>
+                // Clear button for Developmental Milestone radios
+                function clearDevMilestone(subId) {
+                    // Clear radio buttons
+                    const radios = document.getElementsByName(`devsub_${subId}`);
+                    radios.forEach(radio => radio.checked = false);
+                }
         $(function() {
             // Handle subject select within this specific form section
             $('#subjectSelect').on('change', function() {
@@ -1667,7 +1742,7 @@
                                                                                     <div
                                                                                         class="custom-control custom-radio custom-control-inline">
                                                                                         <input type="radio"
-                                                                                            class="custom-control-input"
+                                                                                            class="custom-control-input devmilestone-radio"
                                                                                             id="devsub-{{ $sub->id }}-{{ Str::slug($label) }}"
                                                                                             name="devsub_{{ $sub->id }}"
                                                                                             data-subid="{{ $sub->id }}"
@@ -1677,6 +1752,14 @@
                                                                                             for="devsub-{{ $sub->id }}-{{ Str::slug($label) }}">{{ $label }}</label>
                                                                                     </div>
                                                                                 @endforeach
+                                                                                <!-- Clear Button for Milestone Radios -->
+                                                                                <button type="button"
+                                                                                    class="btn btn-sm btn-outline-danger ml-2 clear-btn"
+                                                                                    onclick="clearDevMilestone('{{ $sub->id }}')"
+                                                                                    title="Clear Selection">
+                                                                                    <i class="fas fa-times"></i>
+                                                                                    Clear
+                                                                                </button>
                                                                             </div>
                                                                         </div>
                                                                     @endforeach

@@ -128,11 +128,15 @@
         }
 
         .page-title {
-            color: var(--primary-color);
+            color: var(--sd-accent, #4e73df);
             font-weight: 700;
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        body[class*="theme-"] .page-title {
+            color: #000;
         }
 
         .breadcrumb-text {
@@ -141,9 +145,13 @@
         }
 
         .breadcrumb-text a {
-            color: var(--primary-color);
+            color: var(--sd-accent, #4e73df);
             text-decoration: none;
             font-weight: 600;
+        }
+
+        body[class*="theme-"] .breadcrumb-text a {
+            color: #000;
         }
 
         .breadcrumb-text a:hover {
@@ -177,7 +185,7 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background: var(--gradient-primary);
+            background: linear-gradient(180deg, var(--sd-accent, #4e73df) 10%, var(--sd-accent, #224abe) 100%);
         }
 
         .headcheck-card:hover {
@@ -208,7 +216,7 @@
         }
 
         .custom-input:focus {
-            border-color: var(--primary-color);
+            border-color: var(--sd-accent, #4e73df);
             box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
             background: #fff;
         }
@@ -228,12 +236,12 @@
 
         .time-separator {
             font-weight: bold;
-            color: var(--primary-color);
+            color: var(--sd-accent, #4e73df);
             font-size: 1.2rem;
         }
 
         .time-icon {
-            color: var(--primary-color);
+            color: var(--sd-accent, #4e73df);
             font-size: 1.2rem;
             margin-left: 0.5rem;
         }
@@ -267,15 +275,23 @@
         }
 
         .btn-save {
-            background: var(--gradient-primary);
+            background: linear-gradient(180deg, var(--sd-accent, #4e73df) 10%, var(--sd-accent, #224abe) 100%);
             color: white;
             box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4);
+        }
+
+        body[class*="theme-"] .btn-save {
+            color: #000;
         }
 
         .btn-save:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(78, 115, 223, 0.6);
             color: white;
+        }
+
+        body[class*="theme-"] .btn-save:hover {
+            color: #000;
         }
 
         .btn-remove {
@@ -335,7 +351,7 @@
             position: absolute;
             top: 15px;
             right: 20px;
-            background: var(--gradient-primary);
+            background: linear-gradient(180deg, var(--sd-accent, #4e73df) 10%, var(--sd-accent, #224abe) 100%);
             color: white;
             width: 30px;
             height: 30px;
@@ -345,6 +361,10 @@
             justify-content: center;
             font-weight: bold;
             font-size: 0.9rem;
+        }
+
+        body[class*="theme-"] .card-number {
+            color: #000;
         }
 
         @media (max-width: 768px) {
@@ -377,7 +397,7 @@
 @endsection
 @section('content')
 
-<div class="d-flex justify-content-end align-items-center" style="margin-right: 20px; margin-top: -60px; gap: 10px; flex-wrap: wrap;">
+<div class="d-flex justify-content-end align-items-center" style="margin-right: 20px; margin-top: -50px; gap: 10px; flex-wrap: wrap;">
 
     {{-- Center Dropdown --}}
     <div class="dropdown mr-2">

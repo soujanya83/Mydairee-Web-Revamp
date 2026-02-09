@@ -326,6 +326,7 @@ public function update_role_permissions(Request $request)
         $SnapshotsPermissions   = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'snapshots'))->values();
         $ActivitiesPermissions  = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'activity'))->values();
         $PTMPermissions         = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'ptm'))->values();
+        $MessagingPermissions   = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'message'))->values();
         // Combine all matched permissions
         $allMatched = $ObservationPermissions
             ->merge($RoomPermissions)
@@ -348,6 +349,7 @@ public function update_role_permissions(Request $request)
             ->merge($AccidentsPermissions)
             ->merge($ActivitiesPermissions)
             ->merge($PTMPermissions)
+            ->merge($MessagingPermissions)
             ->pluck('name')
             ->toArray();
 
@@ -381,7 +383,8 @@ public function update_role_permissions(Request $request)
             'DailyPermissions',
             'otherPermissions',
             'ActivitiesPermissions',
-            'PTMPermissions'
+            'PTMPermissions',
+            'MessagingPermissions'
         ));
     }
 }

@@ -160,11 +160,17 @@
         .page-title {
             font-size: 2.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 0.5rem;
+        }
+
+        body[class*="theme-"] .page-title {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            color: #000;
+            -webkit-text-fill-color: #000;
         }
 
         .breadcrumb-custom {
@@ -193,12 +199,17 @@
         }
 
         .card-header-custom {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 1.5rem 2rem;
             border: none;
             position: relative;
             overflow: hidden;
+        }
+
+        body[class*="theme-"] .card-header-custom {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            color: #000;
         }
 
         .card-header-custom::before {
@@ -261,6 +272,10 @@
             transform: scale(1.01);
         }
 
+        body[class*="theme-"] .table tbody tr:hover {
+            background: var(--sd-accent-soft);
+        }
+
         .table tbody td {
             padding: 1.25rem 1rem;
             vertical-align: middle;
@@ -269,7 +284,7 @@
         }
 
         .id-badge {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 0.375rem 0.75rem;
             border-radius: 0.5rem;
@@ -280,8 +295,13 @@
             text-align: center;
         }
 
+        body[class*="theme-"] .id-badge {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            color: #000;
+        }
+
         .month-badge {
-            background: linear-gradient(135deg, var(--success-color), #059669);
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 0.75rem;
@@ -345,9 +365,14 @@
         }
 
         .btn-print {
-            background: linear-gradient(135deg, var(--info-color), #2563eb);
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: white;
             box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        }
+
+        body[class*="theme-"] .btn-print {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            color: #000;
         }
 
         .btn-print:hover {
@@ -357,10 +382,21 @@
             color: white;
         }
 
+        body[class*="theme-"] .btn-print:hover {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            color: #000;
+            opacity: 0.9;
+        }
+
         .btn-edit {
-            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
             box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+        }
+
+        body[class*="theme-"] .btn-edit {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            color: #000;
         }
 
         .btn-edit:hover {
@@ -368,6 +404,12 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
             color: white;
+        }
+
+        body[class*="theme-"] .btn-edit:hover {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            color: #000;
+            opacity: 0.9;
         }
 
         .btn-delete {
@@ -587,7 +629,7 @@
             padding: 0.5rem 0.75rem;
             margin-left: 0;
             line-height: 1.25;
-            color: var(--primary-color);
+            color: #667eea;
             text-decoration: none;
             background-color: #17a2b8;
             border: 1px solid #dee2e6;
@@ -595,22 +637,38 @@
             transition: all 0.2s ease;
         }
 
+        body[class*="theme-"] .page-link {
+            color: var(--sd-accent);
+        }
+
         .page-link:hover {
             z-index: 2;
             color: white;
             text-decoration: none;
-            background: linear-gradient(135deg, var(--info-color), var(--info-color));
-            border-color: var(--primary-color);
+            background: linear-gradient(135deg, #3b82f6, #3b82f6);
+            border-color: #667eea;
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        body[class*="theme-"] .page-link:hover {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            border-color: var(--sd-accent);
+            color: #000;
         }
 
         .page-item.active .page-link {
             z-index: 1;
             color: white;
-            background: linear-gradient(135deg, var(--info-color), var(--info-color));
-            border-color: var(--primary-color);
+            background: linear-gradient(135deg, #3b82f6, #3b82f6);
+            border-color: #667eea;
             box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+        }
+
+        body[class*="theme-"] .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            border-color: var(--sd-accent);
+            color: #000;
         }
 
         .page-item.disabled .page-link {
@@ -663,6 +721,36 @@
             padding-left: 0 !important;
             padding-right: 0 !important;
         }
+
+        /* Theme-aware button styles - only apply when theme is active */
+        body[class*="theme-"] .btn-info,
+        body[class*="theme-"] .btn-outline-info {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent)) !important;
+            border-color: var(--sd-accent) !important;
+            color: #000 !important;
+        }
+
+        body[class*="theme-"] .btn-info:hover,
+        body[class*="theme-"] .btn-outline-info:hover {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent)) !important;
+            border-color: var(--sd-accent) !important;
+            color: #000 !important;
+            opacity: 0.9;
+        }
+
+        body[class*="theme-"] .filter i.fas.fa-filter {
+            color: var(--sd-accent) !important;
+        }
+
+        body[class*="theme-"] .border-info {
+            border-color: var(--sd-accent) !important;
+        }
+
+        body[class*="theme-"] .border-info:focus {
+            border-color: var(--sd-accent) !important;
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.1) !important;
+        }
+
         @keyframes shimmer {
             0% { background-position: -200px 0; }
             100% { background-position: calc(200px + 100%) 0; }
@@ -731,7 +819,7 @@ padding-inline:0;
 
 
 
-<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;">
+<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -50px;">
 
                 <div class="text-zero top-right-button-container">
 

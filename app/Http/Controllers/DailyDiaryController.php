@@ -83,15 +83,15 @@ class DailyDiaryController extends Controller
 
             $parentId = auth()->user()->id;
 
-$childIds = Childparent::where('parentid', $parentId)->pluck('childid');
+        $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
 
-$children = Child::whereIn('id', $childIds)
-->where('status','Active')
-    ->get()
-    ->filter(function ($child) use ($dayIndex) {
-        return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
-    })
-    ->map(function ($child) use ($selectedDate) {
+        $children = Child::whereIn('id', $childIds)
+        ->where('status','Active')
+            ->get()
+            ->filter(function ($child) use ($dayIndex) {
+                return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
+            })
+            ->map(function ($child) use ($selectedDate) {
         return [
             'child' => $child,
             'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
@@ -170,9 +170,6 @@ $children = Child::whereIn('id', $childIds)
         }
     }
 
-
-
-
     private function getroomsforSuperadmin()
     {
         $authId = Auth::user()->id;
@@ -214,15 +211,6 @@ $children = Child::whereIn('id', $childIds)
     
         return $rooms;
     }
-
-
-
-
-
-
-
-
-
 
     public function getDailyDiary($data)
     {

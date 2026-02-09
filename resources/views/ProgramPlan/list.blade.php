@@ -698,6 +698,69 @@
     }
 </style>
 
+<!-- Theme-scoped overrides: apply only when a theme is active -->
+<style>
+    /* Ensure the default (No Theme) keeps original colors above. */
+    /* Theme-only accents under body[class*="theme-"] */
+
+    body[class*="theme-"] .page-title {
+        color: #000;
+        -webkit-text-fill-color: initial;
+        background: none;
+    }
+
+    body[class*="theme-"] .card-header-custom,
+    body[class*="theme-"] .btn-print,
+    body[class*="theme-"] .btn-edit,
+    body[class*="theme-"] .id-badge {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        color: #000;
+    }
+
+    body[class*="theme-"] .table tbody tr:hover {
+        background: linear-gradient(135deg, var(--sd-accent-soft, rgba(0, 0, 0, 0.06)), var(--sd-accent-soft, rgba(0, 0, 0, 0.06)));
+    }
+
+    body[class*="theme-"] .text-info,
+    body[class*="theme-"] .border-info {
+        color: var(--sd-accent) !important;
+        border-color: var(--sd-accent) !important;
+    }
+
+    body[class*="theme-"] .btn-outline-info {
+        color: var(--sd-accent);
+        border-color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .btn-outline-info:hover {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        color: #000;
+    }
+
+    body[class*="theme-"] .page-link {
+        color: var(--sd-accent);
+        border-color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .page-link:hover {
+        color: #000;
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        border-color: var(--sd-accent);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    body[class*="theme-"] .page-item.active .page-link {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        border-color: var(--sd-accent);
+        color: #000;
+    }
+
+    /* Filter icon accent */
+    body[class*="theme-"] .fa-filter {
+        color: var(--sd-accent) !important;
+    }
+</style>
+
 @section('content')
     <div class="text-zero top-right-button-container d-flex justify-content-end"
         style="margin-right: 20px;margin-top: -50px;">

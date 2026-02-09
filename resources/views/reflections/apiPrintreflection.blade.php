@@ -154,6 +154,22 @@
 
         }
     </style>
+    
+    <!-- Theme-scoped overrides: apply only when a theme is active -->
+    <style>
+        /* Keep the defaults; only highlight with theme when active */
+        body[class*="theme-"] .title {
+            color: var(--sd-accent);
+        }
+
+        body[class*="theme-"] .container {
+            border-color: var(--sd-accent);
+        }
+
+        body[class*="theme-"] .info-block > strong {
+            color: var(--sd-accent);
+        }
+    </style>
 </head>
 
 <body>

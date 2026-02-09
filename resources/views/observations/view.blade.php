@@ -27,6 +27,33 @@
         font-weight: 600;
     }
 
+    /* THEME SYSTEM: Accent color for nav tabs, card header, and highlights */
+    body[class*="theme-"] {
+        --sd-accent: #4f8cff;
+    }
+    body.theme-blue { --sd-accent: #4f8cff; }
+    body.theme-green { --sd-accent: #28a745; }
+    body.theme-pink { --sd-accent: #fb249b; }
+    body.theme-orange { --sd-accent: #ff9800; }
+    body.theme-purple { --sd-accent: #7c3aed; }
+    body.theme-teal { --sd-accent: #20c997; }
+
+    body[class*="theme-"] .nav-tabs-custom .nav-link.active,
+    body[class*="theme-"] .nav-tabs-custom .nav-link {
+        border-bottom-color: var(--sd-accent) !important;
+        color: var(--sd-accent) !important;
+    }
+    body[class*="theme-"] .nav-tabs-custom .nav-link.active {
+        font-weight: 700;
+    }
+    body[class*="theme-"] .card-header,
+    body[class*="theme-"] .card-title {
+        color: var(--sd-accent) !important;
+    }
+    body[class*="theme-"] .info-card {
+        border-left-color: var(--sd-accent) !important;
+    }
+
     .info-card {
         background: #f8f9fa;
         border-radius: 8px;

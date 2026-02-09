@@ -1,3 +1,4 @@
+
 @extends('layout.master')
 @section('title', 'Recipes List')
 
@@ -14,6 +15,51 @@
         height: 180px;
         object-fit: cover;
     }
+/* THEME: card-header text and dropdown */
+body[class*='theme-'] .card-header {
+    color: var(--sd-accent, #176ba6) !important;
+}
+body[class*='theme-'] .card-header .card-title {
+    color: var(--sd-accent, #176ba6) !important;
+}
+body[class*='theme-'] .card-header .dropdown .fa-ellipsis-v {
+    color: var(--sd-accent, #176ba6) !important;
+}
+body[class*='theme-'] .dropdown-menu .dropdown-item.active,
+body[class*='theme-'] .dropdown-menu .dropdown-item:active {
+    background-color: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+
+/* ===================== THEME SUPPORT (GLOBAL) ===================== */
+body.theme-purple h4.border-bottom {
+    border-bottom: 2px solid var(--sd-accent, #a259ec) !important;
+}
+body.theme-blue h4.border-bottom {
+    border-bottom: 2px solid var(--sd-accent, #176ba6) !important;
+}
+body.theme-cyan h4.border-bottom {
+    border-bottom: 2px solid var(--sd-accent, #00b8d9) !important;
+}
+body[class*='theme-'] h4.border-bottom {
+    border-bottom: 2px solid var(--sd-accent, #176ba6) !important;
+}
+
+
+
+body[class*='theme-'] .btn-outline-info {
+    border-color: var(--sd-accent, #176ba6) !important;
+    color: var(--sd-accent, #176ba6) !important;
+}
+body[class*='theme-'] .btn-outline-info:hover, body[class*='theme-'] .btn-outline-info:focus {
+    background-color: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+body[class*='theme-'] .dropdown-menu .active {
+    background-color: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+/* =================== END THEME SUPPORT =================== */
 </style>
 <style>
     .card-header {
@@ -103,7 +149,7 @@
     </button>
 </div>
 @endif
-<div class="d-flex justify-content-end" style="margin-top: -52px;">
+<div class="d-flex justify-content-end" style="margin-top: -45px;">
     <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="centerDropdown" data-toggle="dropdown"
         aria-haspopup="true" aria-expanded="false">
         {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}

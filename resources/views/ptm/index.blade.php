@@ -1,3 +1,48 @@
+<style>
+/* THEME SYSTEM: Theme dropdown, Add New PTM button, and modal headers/buttons */
+body[class^="theme-"] .btn.btn-outline-primary.dropdown-toggle {
+    border-color: var(--sd-accent, #4a6cf7) !important;
+    color: var(--sd-accent, #4a6cf7) !important;
+    background: #fff !important;
+}
+body[class^="theme-"] .btn.btn-outline-primary.dropdown-toggle:hover,
+body[class^="theme-"] .btn.btn-outline-primary.dropdown-toggle:focus {
+    background: var(--sd-accent, #4a6cf7) !important;
+    color: #fff !important;
+}
+body[class^="theme-"] .dropdown-menu .dropdown-item.active,
+body[class^="theme-"] .dropdown-menu .dropdown-item:active {
+    background: var(--sd-accent, #4a6cf7) !important;
+    color: #fff !important;
+}
+body[class^="theme-"] .btn.btn-info {
+    background: var(--sd-accent, #4a6cf7) !important;
+    border-color: var(--sd-accent, #4a6cf7) !important;
+    color: #fff !important;
+}
+body[class^="theme-"] .btn.btn-info:hover,
+body[class^="theme-"] .btn.btn-info:focus {
+    background: #0056b3 !important;
+    border-color: #0056b3 !important;
+    color: #fff !important;
+}
+body[class^="theme-"] .modal-header,
+body[class^="theme-"] .modal-header.text-white {
+    background: var(--sd-accent, #4a6cf7) !important;
+    color: #fff !important;
+}
+body[class^="theme-"] .modal-footer .btn.btn-primary {
+    background: var(--sd-accent, #4a6cf7) !important;
+    border-color: var(--sd-accent, #4a6cf7) !important;
+    color: #fff !important;
+}
+body[class^="theme-"] .modal-footer .btn.btn-primary:hover,
+body[class^="theme-"] .modal-footer .btn.btn-primary:focus {
+    background: #0056b3 !important;
+    border-color: #0056b3 !important;
+    color: #fff !important;
+}
+</style>
 @extends('layout.master')
 @section('title', 'View PTM')
 @section('parentPageTitle', 'PTM')
@@ -85,16 +130,31 @@
                 }
 
                 /* --- Status Border / Background Theme --- */
+                /* Default (no theme): original colors */
                 .ptm-card.published {
-                    border-top: 5px solid #28a745;
+                    border-top: 5px solid #28c76f;
                 }
 
                 .ptm-card.draft {
                     border-top: 5px solid #ffc107;
                 }
+                body[class^="theme-"] .ptm-card.draft {
+                    border-top: 5px solid var(--sd-accent, #4a6cf7) !important;
+                }
 
                 .ptm-card.attended {
-                    border-top: 5px solid #007bff;
+                    border-top: 5px solid #5f77ff;
+                }
+
+                /* Themed override: apply accent when a theme is active */
+                body[class^="theme-"] .ptm-card.published {
+                    border-top: 5px solid var(--sd-accent);
+                }
+                body[class^="theme-"] .ptm-card.draft {
+                    border-top: 5px solid var(--sd-accent);
+                }
+                body[class^="theme-"] .ptm-card.attended {
+                    border-top: 5px solid var(--sd-accent);
                 }
 
                 /* --- Status badge --- */
@@ -111,16 +171,28 @@
                 }
 
                 .ptm-card.published .status-badge {
-                    background-color: #28a745;
+                    background-color: #28c76f;
+                }
+                body[class^="theme-"] .ptm-card.published .status-badge {
+                    background-color: #28c76f !important;
                 }
 
                 .ptm-card.draft .status-badge {
                     background-color: #ffc107;
                     color: #212529;
+                    border: none;
+                }
+                body[class^="theme-"] .ptm-card.draft .status-badge {
+                    background-color: #ffc107 !important;
+                    color: #212529 !important;
+                    border: none !important;
                 }
 
                 .ptm-card.attended .status-badge {
-                    background-color: #007bff;
+                    background-color: #5f77ff;
+                }
+                body[class^="theme-"] .ptm-card.attended .status-badge {
+                    background-color: var(--sd-accent);
                 }
 
                 /* --- Card content --- */
@@ -182,11 +254,14 @@
 
                 /* --- Section title --- */
                 .section-title {
-                    border-left: 4px solid #007bff;
+                    border-left: 4px solid #4a6cf7;
                     padding-left: 10px;
                     font-weight: 600;
                     margin-bottom: 12px;
                     color: #1f2d3d;
+                }
+                body[class^="theme-"] .section-title {
+                    border-left: 4px solid var(--sd-accent);
                 }
 
                 /* --- Responsive --- */
@@ -217,7 +292,7 @@
                     </div>
                 </div>
 
-                @if (auth()->user()->userType !== 'Parent')
+                @if (auth()->user()->userType !== 'Parent' && !empty($permissions['createPtm']) && $permissions['createPtm'])
                     <button class="btn btn-info shadow-sm px-4 py-2 " style="margin-top:-2px;"
                         onclick="window.location.href='{{ route('ptm.addnew') }}'">
                         <i class="fas fa-plus mr-2"></i> Add New PTM
@@ -314,8 +389,10 @@
                                     <a href="{{ route('ptm.editptm', $ptm->id) }}" title="Edit PTM"><i
                                             class="fas fa-pen-square"></i></a>
                                 @endif
+                                @if(!empty($permissions['deletePtm']) && $permissions['deletePtm'])
                                 <a href="#" class="delete-btn" data-ptm-id="{{ $ptm->id }}"
                                     title="Delete PTM"><i class="fas fa-trash"></i></a>
+                                @endif
                             @endif
                         </div>
                     @endif
@@ -361,7 +438,7 @@
                             </p>
                         @endif
                     </div>
-                    @if ($user->userType === 'Superadmin')
+                    @if ($user->userType === 'Superadmin' && !empty($permissions['deletePtm']) && $permissions['deletePtm'])
                         <div class="ptm-card-actions">
                             <a href="#" class="delete-btn text-danger" data-ptm-id="{{ $ptm->id }}"
                                 title="Delete PTM">
@@ -379,7 +456,7 @@
         <div class="modal fade" id="publishConfirmModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
+                    <div class="modal-header text-white" style="background: var(--sd-accent, #4a6cf7);">
                         <h5 class="modal-title">Confirm Publish</h5>
                         <button type="button" class="close text-white"
                             data-dismiss="modal"><span>&times;</span></button>
@@ -389,7 +466,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" id="confirmPublishBtn" class="btn btn-success">Yes, Publish</button>
+                        <button type="button" id="confirmPublishBtn" class="btn btn-primary" style="background: var(--sd-accent, #4a6cf7); border-color: var(--sd-accent, #4a6cf7);">Yes, Publish</button>
                     </div>
                 </div>
             </div>
@@ -510,6 +587,12 @@
                     .toLocaleDateString() : 'N/A');
                 $('#modal-status').text(ptm.status || 'N/A');
                 $('#modal-objective').text(ptm.objective || 'N/A');
+
+                if ((ptm.status || '').toLowerCase() === 'draft') {
+                    $('#viewPtmBtn').hide();
+                } else {
+                    $('#viewPtmBtn').show();
+                }
                 $('#ptmModal').modal('show');
             });
 

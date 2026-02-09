@@ -144,6 +144,43 @@
     .dropdown.show .dropdown-content {
         display: block;
     }
+
+    .theme-edit-btn {
+        background: var(--sd-accent, #17a2b8) !important;
+        color: var(--sd-bg, #fff) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+    .theme-edit-btn:hover, .theme-edit-btn:focus {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+    }
+
+    .theme-input {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+    .theme-input:focus {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    }
+
+    .theme-outline-btn {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+    .theme-outline-btn:hover, .theme-outline-btn:focus {
+        background: var(--sd-accent, #17a2b8) !important;
+        color: var(--sd-bg, #fff) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+    }
 </style>
 
 
@@ -152,27 +189,29 @@
 
 @section('content')
     <div class="text-zero top-right-button-container d-flex justify-content-end g-2"
-        style="margin-right: 20px;margin-top: -60px;">
+        style="margin-right: 20px;margin-top: -48px;">
         <div class="dropdown">
-            <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="centerDropdown"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button class="btn btn-lg dropdown-toggle theme-outline-btn" type="button" id="centerDropdown"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                style="background: var(--sd-bg, #fff); color: var(--sd-accent, #17a2b8); border: 2px solid var(--sd-accent, #17a2b8);">
                 {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
-                style="top:3% !important;left:13px !important;">
+                style="top:3% !important;left:13px !important; background: var(--sd-bg, #fff); border: 1px solid var(--sd-accent, #17a2b8);">
                 @foreach ($centers as $center)
                     <a href="javascript:void(0);"
-                        class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
-                        style="background-color:white;" data-id="{{ $center->id }}">
+                        class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold' : '' }}"
+                        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #17a2b8);"
+                        data-id="{{ $center->id }}">
                         {{ $center->centerName }}
                     </a>
                 @endforeach
             </div>
         </div>
 
-        <div class="header float-end text-zero top-right-button-container d-flex justify-content-end">
+        <div class="header float-end ml-1  text-zero top-right-button-container d-flex justify-content-end">
             <!-- <h2>Staff Settings<small></small> </h2> -->
-            <button class="btn btn-outline-info btn-lg ml-2" style="float:right;margin-bottom:20px;" data-toggle="modal"
+            <button class="btn theme-outline-btn" style="float:right;margin-bottom:20px;" data-toggle="modal"
                 data-target="#addSuperadminModal">
                 <i class="fa fa-plus"></i>&nbsp; Add Staff
             </button>
@@ -204,11 +243,11 @@
         </div>
     @endif
     <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
-        <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
-        <input type="text" id="staffNameFilter" name="filterbyCentername" class="form-control border-info"
-            placeholder="Filter by name">
+        <i class="fas fa-filter mx-2" style="color: var(--sd-accent, #17a2b8);"></i>
+        <input type="text" id="staffNameFilter" name="filterbyCentername" class="form-control theme-input"
+            placeholder="Filter by name"
+            style="background: var(--sd-bg, #fff); color: var(--sd-accent, #17a2b8); border: 2px solid var(--sd-accent, #17a2b8);">
     </div>
-
     <div class="row clearfix" style="margin-top:30px">
 
         <div class="col-lg-12">
@@ -291,7 +330,7 @@
 
                                         {{-- Other Action Buttons --}}
                                         <div class="d-flex justify-content-center gap-3">
-                                            <button class="btn btn-sm btn-info"
+                                            <button class="btn btn-sm theme-edit-btn"
                                                 onclick="openEditSuperadminModal({{ $staffs->id }})">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </button>
@@ -408,7 +447,7 @@
                     <!-- Modal Footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="Submit" class="btn btn-primary" onclick="submitSuperadminForm()">Save</button>
+                        <button type="Submit" class="btn theme-outline-btn" style="background: var(--sd-bg, #fff); color: var(--sd-accent, #17a2b8); border: 2px solid var(--sd-accent, #17a2b8);" onclick="submitSuperadminForm()">Save</button>
                     </div>
                     </form>
                 </div>

@@ -498,6 +498,43 @@
 
 @section('content')
 
+<!-- Theme-scoped overrides: apply only when a theme is active -->
+<style>
+/* Keep defaults intact for No Theme; override only when a theme is active */
+
+/* Keep room/children/staff buttons and status actions at their default colors */
+/* Submit button can still use theme accent */
+body[class*="theme-"] .btn-primary.submit-btn {
+    background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+    border-color: var(--sd-accent);
+    color: #000;
+}
+
+/* Tabs and labels accents */
+body[class*="theme-"] .blur-nav .nav-link.active {
+    border-color: var(--sd-accent);
+}
+
+body[class*="theme-"] .select-section label,
+body[class*="theme-"] .form-section label {
+    color: var(--sd-accent);
+}
+
+/* Form focus and upload box */
+body[class*="theme-"] .form-section .form-control:focus {
+    border-color: var(--sd-accent);
+    box-shadow: 0 0 0 0.2rem var(--sd-accent-soft, rgba(0,0,0,0.06));
+}
+
+body[class*="theme-"] .media-upload-box {
+    border-color: var(--sd-accent);
+}
+
+body[class*="theme-"] .media-upload-box:hover {
+    background-color: var(--sd-accent-soft, rgba(0,0,0,0.06));
+}
+</style>
+
 <div class="child-view"
      style="position:absolute;
             top:16px;
@@ -507,7 +544,6 @@
             border-left:1px solid #ddd;
             box-shadow:-2px 0 6px rgba(0,0,0,0.1);
             border-radius:5px;
-            z-index:1050;
             width:300px;
             max-height:80vh;
             overflow-y:hidden;
@@ -525,7 +561,7 @@
 
 
 @if(isset($reflection) && $reflection->id)
-<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
+<div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -40px;margin-bottom:30px;">
     <button type="button" id="publishObservation" class="btn btn-success shadow-lg btn-animated mr-2">
         <i class="fas fa-upload mr-1"></i> Publish Now
     </button>

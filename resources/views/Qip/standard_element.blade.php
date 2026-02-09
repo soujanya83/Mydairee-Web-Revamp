@@ -1,3 +1,82 @@
+<style>
+    /* Theme accent for Standards & Elements h4 heading */
+    .theme-purple h4.mb-3,
+    .theme-blue h4.mb-3,
+    .theme-cyan h4.mb-3,
+    .theme-green h4.mb-3,
+    .theme-orange h4.mb-3,
+    .theme-blush h4.mb-3 {
+        color: var(--sd-accent) !important;
+    }
+</style>
+<!-- Theme accent color overrides for specific elements when a theme is active -->
+<style>
+    /* Dropdown button accent */
+    .theme-purple .btn-outline-primary,
+    .theme-blue .btn-outline-primary,
+    .theme-cyan .btn-outline-primary,
+    .theme-green .btn-outline-primary,
+    .theme-orange .btn-outline-primary,
+    .theme-blush .btn-outline-primary {
+        border-color: var(--sd-accent) !important;
+        color: var(--sd-accent) !important;
+    }
+    .theme-purple .btn-outline-primary:hover,
+    .theme-blue .btn-outline-primary:hover,
+    .theme-cyan .btn-outline-primary:hover,
+    .theme-green .btn-outline-primary:hover,
+    .theme-orange .btn-outline-primary:hover,
+    .theme-blush .btn-outline-primary:hover {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+    /* Edit button accent */
+    .theme-purple .btn-outline-primary.btn-sm,
+    .theme-blue .btn-outline-primary.btn-sm,
+    .theme-cyan .btn-outline-primary.btn-sm,
+    .theme-green .btn-outline-primary.btn-sm,
+    .theme-orange .btn-outline-primary.btn-sm,
+    .theme-blush .btn-outline-primary.btn-sm {
+        border-color: var(--sd-accent) !important;
+        color: var(--sd-accent) !important;
+    }
+    .theme-purple .btn-outline-primary.btn-sm:hover,
+    .theme-blue .btn-outline-primary.btn-sm:hover,
+    .theme-cyan .btn-outline-primary.btn-sm:hover,
+    .theme-green .btn-outline-primary.btn-sm:hover,
+    .theme-orange .btn-outline-primary.btn-sm:hover,
+    .theme-blush .btn-outline-primary.btn-sm:hover {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+    /* h5 accent (Discussion Board) */
+    .theme-purple h5,
+    .theme-blue h5,
+    .theme-cyan h5,
+    .theme-green h5,
+    .theme-orange h5,
+    .theme-blush h5 {
+        color: var(--sd-accent) !important;
+    }
+    /* Standard title accent */
+    .theme-purple .standard-title,
+    .theme-blue .standard-title,
+    .theme-cyan .standard-title,
+    .theme-green .standard-title,
+    .theme-orange .standard-title,
+    .theme-blush .standard-title {
+        color: var(--sd-accent) !important;
+    }
+    /* Element name accent */
+    .theme-purple .element-name,
+    .theme-blue .element-name,
+    .theme-cyan .element-name,
+    .theme-green .element-name,
+    .theme-orange .element-name,
+    .theme-blush .element-name {
+        color: var(--sd-accent) !important;
+    }
+</style>
 @extends('layout.master')
 @section('title', 'Standard and Element')
 @section('parentPageTitle', '')
@@ -240,7 +319,7 @@
 @section('content')
 
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -60px;">
+    style="margin-right: 20px;margin-top: -47px;">
 
 
     @php

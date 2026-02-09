@@ -140,9 +140,27 @@
 </style>
 @endsection
 
+<!-- Theme-scoped overrides: apply only when a theme is active -->
+<style>
+  /* Defaults above remain; accent overrides only under theme classes */
+  body[class*="theme-"] .top-right-button-container .btn.btn-outline-info {
+    border-color: var(--sd-accent);
+    color: var(--sd-accent);
+  }
+
+  body[class*="theme-"] .top-right-button-container .btn.btn-outline-info:hover {
+    background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+    color: #000;
+  }
+
+  body[class*="theme-"] .modal-header.bg-light {
+    border-bottom: 3px solid var(--sd-accent);
+  }
+</style>
+
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-  style="margin-right: 20px;margin-top: -60px;">
+  style="margin-right: 20px;margin-top: -50px;">
   <div class="top-right-button-container d-flex justify-content-end align-items-center mb-3">
     <div class="btn-group">
       @if(isset($permission) && $permission->addActivity == 1 || Auth::user()->userType == "Superadmin" )

@@ -421,11 +421,58 @@
 }
 
 </style>
+<style>
+/* ===================== THEME SUPPORT (GLOBAL) ===================== */
+body.theme-purple .header-section {
+    background: linear-gradient(135deg, var(--sd-accent, #a259ec) 0%, #d291bc 100%) !important;
+}
+body.theme-blue .header-section {
+    background: linear-gradient(135deg, var(--sd-accent, #176ba6) 0%, #00a8ff 100%) !important;
+}
+body.theme-cyan .header-section {
+    background: linear-gradient(135deg, var(--sd-accent, #00b8d9) 0%, #00e1d9 100%) !important;
+}
+body[class*='theme-'] .header-section {
+    background: linear-gradient(135deg, var(--sd-accent, #176ba6) 0%, #00a8ff 100%) !important;
+}
 
+body.theme-purple .menu-title .fa-utensils {
+    color: var(--sd-accent, #a259ec) !important;
+}
+body.theme-blue .menu-title .fa-utensils {
+    color: var(--sd-accent, #176ba6) !important;
+}
+body.theme-cyan .menu-title .fa-utensils {
+    color: var(--sd-accent, #00b8d9) !important;
+}
+body[class*='theme-'] .menu-title .fa-utensils {
+    color: var(--sd-accent, #176ba6) !important;
+}
 
+body[class*='theme-'] .week-selector {
+    background-color: var(--sd-accent, #176ba6) !important;
+    border-color: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+body[class*='theme-'] .week-selector option {
+    background-color: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+
+body[class*='theme-'] .btn-outline-info {
+    border-color: var(--sd-accent, #176ba6) !important;
+    color: var(--sd-accent, #176ba6) !important;
+}
+body[class*='theme-'] .btn-outline-info:hover, body[class*='theme-'] .btn-outline-info:focus {
+    background-color: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+/* =================== END THEME SUPPORT =================== */
+
+</style>
 
 @section('content')
-<div class="d-flex justify-content-end" style="margin-top: -52px;">
+<div class="d-flex justify-content-end" style="margin-top: -47px;">
     <button class="btn btn-outline-info dropdown-toggle" type="button" id="centerDropdown" data-toggle="dropdown"
         aria-haspopup="true" aria-expanded="false" style="    height: 39px;">
         {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}

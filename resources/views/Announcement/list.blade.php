@@ -4,20 +4,143 @@
 
 @section('page-styles')
 <style>
-    /* Published button: green success */
+    /* Theme accent color variable */
+    :root {
+        --sd-accent: #0dcaf0;
+        --sd-accent-dark: #0995b1;
+        --sd-bg: #f8f9fa;
+        --sd-card-bg: #ffffff;
+        --sd-border: #e3e6ea;
+        --sd-label: #0a89a2ff;
+        --sd-btn: #0a89a2ff;
+        --sd-btn-hover: #0995b1ff;
+        --sd-success: #28a745;
+        --sd-danger: #dc3545;
+        --sd-warning: #ffc107;
+    }
+
+        /* --- THEME OVERRIDES FOR FILTER BAR --- */
+        .top-right-button-container .fa-filter {
+            color: var(--sd-accent, #0dcaf0) !important;
+        }
+        .top-right-button-container select,
+        .top-right-button-container input[type="text"],
+        .top-right-button-container input[type="date"] {
+            color: var(--sd-label, #0a89a2ff) !important;
+            border-color: var(--sd-accent, #0dcaf0) !important;
+            background: var(--sd-bg, #f8f9fa) !important;
+            box-shadow: none !important;
+        }
+        .top-right-button-container select:focus,
+        .top-right-button-container input[type="text"]:focus,
+        .top-right-button-container input[type="date"]:focus {
+            border-color: var(--sd-accent-dark, #0995b1) !important;
+            outline: none !important;
+        }
+        
+        .top-right-button-container label {
+            color: var(--sd-label, #0a89a2ff) !important;
+            font-weight: 600 !important;
+            font-size: 0.95rem !important;
+             line-height: 1;
+        }
+        .top-right-button-container option {
+            color: var(--sd-label, #0a89a2ff) !important;
+            background: var(--sd-bg, #f8f9fa) !important;
+        }
+        .top-right-button-container .form-control::placeholder {
+            color: var(--sd-label, #0a89a2ff) !important;
+            opacity: 1 !important;
+        }
+        .top-right-button-container .form-control,
+        .top-right-button-container .form-control-sm {
+            background: var(--sd-bg, #f8f9fa) !important;
+            color: var(--sd-label, #0a89a2ff) !important;
+            border-color: var(--sd-accent, #0dcaf0) !important;
+        }
+        .top-right-button-container .form-control:focus,
+        .top-right-button-container .form-control-sm:focus {
+            border-color: var(--sd-accent-dark, #0995b1) !important;
+            box-shadow: none !important;
+        }
+        /* --- END THEME OVERRIDES FOR FILTER BAR --- */
+
+    /* Published button: theme accent */
     .published-btn {
-        background-color: #28a745 !important;
-        /* green */
-        color: white !important;
+        background-color: var(--sd-success, #28a745) !important;
+        color: #fff !important;
         border: none;
     }
 
-    /* Draft button: red danger */
+    /* Draft button: theme warning */
     .draft-btn {
-        background-color: #ff9305ff !important;
-        /* red */
-        color: white !important;
+        background-color: var(--sd-warning, #ffc107) !important;
+        color: #856404 !important;
         border: none;
+    }
+
+    /* Info button: theme accent */
+    .btn-outline-info {
+        border-color: var(--sd-accent, #4facfe) !important;
+        color: var(--sd-accent, #4facfe) !important;
+        background: #fff !important;
+    }
+    .btn-outline-info:hover {
+        background: var(--sd-accent, #4facfe) !important;
+        color: #fff !important;
+    }
+
+    /* Success button: theme success */
+    .btn-outline-success {
+        border-color: var(--sd-success, #28a745) !important;
+        color: var(--sd-success, #28a745) !important;
+        background: #fff !important;
+    }
+    .btn-outline-success:hover {
+        background: var(--sd-success, #28a745) !important;
+        color: #fff !important;
+    }
+
+    /* Danger button: theme danger */
+    .btn-outline-danger {
+        border-color: var(--sd-danger, #dc3545) !important;
+        color: var(--sd-danger, #dc3545) !important;
+        background: #fff !important;
+    }
+    .btn-outline-danger:hover {
+        background: var(--sd-danger, #dc3545) !important;
+        color: #fff !important;
+    }
+
+    /* Card header theme */
+    .card-header {
+        background: var(--sd-accent, #4facfe) !important;
+        color: #fff !important;
+        border: none;
+    }
+
+    /* Badge theme */
+    .badge.bg-info {
+        background: var(--sd-accent, #4facfe) !important;
+        color: #fff !important;
+    }
+    .badge.bg-success {
+        background: var(--sd-success, #28a745) !important;
+        color: #fff !important;
+    }
+    .badge.bg-warning {
+        background: var(--sd-warning, #ffc107) !important;
+        color: #856404 !important;
+    }
+    .badge.bg-danger {
+        background: var(--sd-danger, #dc3545) !important;
+        color: #fff !important;
+    }
+
+    /* Highlight theme */
+    .search-highlight {
+        background-color: var(--sd-warning, #fff3cd) !important;
+        color: #856404 !important;
     }
 
 
@@ -56,48 +179,42 @@
 <style>
     .pagination {
         font-size: 0.9rem;
-        /* Slightly larger for better readability */
         justify-content: center;
-        /* Ensure pagination is centered */
         margin-bottom: 80px;
     }
 
     .page-item .page-link {
         padding: 0.5rem 0.75rem;
-        /* Bootstrap 4 default padding for better spacing */
         font-size: 0.9rem;
-        /* Match pagination font size */
         line-height: 1.5;
-        /* Improved line height for readability */
         border-radius: 0.25rem;
-        /* Keep your custom border radius */
-        color: #007bff;
-        /* Bootstrap primary color for links */
+        color: var(--sd-accent, #4facfe);
         background-color: #fff;
-        /* Ensure background matches Bootstrap */
-        border: 1px solid #dee2e6;
-        /* Bootstrap default border */
+        border: 1px solid var(--sd-accent, #4facfe);
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .page-item .page-link:hover {
+        background-color: var(--sd-accent, #4facfe);
+        color: #fff;
+        border-color: var(--sd-accent, #4facfe);
     }
 
     .page-item.active .page-link {
-        background-color: #007bff;
-        /* Bootstrap primary color for active state */
-        border-color: #007bff;
+        background-color: var(--sd-accent, #4facfe);
+        border-color: var(--sd-accent, #4facfe);
         color: #fff;
     }
 
     .page-item.disabled .page-link {
         color: #6c757d;
-        /* Bootstrap disabled color */
         pointer-events: none;
         background-color: #fff;
-        border-color: #dee2e6;
+        border-color: var(--sd-accent, #4facfe);
     }
 
-    /* SVG icons for Previous/Next arrows */
     .page-item .page-link svg {
         width: 1em;
-        /* Slightly larger for better visibility */
         height: 1em;
         vertical-align: middle;
     }
@@ -239,10 +356,6 @@
         margin-inline: 0.5rem;
     }
 
-    /* Make sure labels don't misalign the row */
-    .top-right-button-container label {
-        line-height: 1;
-    }
 </style>
 
 <style>
@@ -439,15 +552,13 @@
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header text-white border-0" style="background-color:#17a2b8
-;">
+                        <div class="card-header text-white border-0" style="background: var(--sd-accent, #4facfe);">
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <h5 class="mb-0">
                                     <i class="fas fa-bullhorn me-2 mx-1"></i>Events
                                 </h5>
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="badge bg-white  fs-6" style="color:#17a2b8
-;">
+                                    <div class="badge bg-white  fs-6" style="color: var(--sd-accent, #4facfe);">
                                         {{ $records->total() ?? count($records) }} Total
                                     </div>
 
@@ -487,13 +598,10 @@
 
 
                                   
-                                        <span class="text-white badge fs-6 status-btn 
-    {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"=======<span class="text-white badge fs-6
-          {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"
-                                        onclick="updateStatus('{{ $announcement->status }}', {{ $announcement->id }})">
-
-                                        <i class="fas {{ $announcement->status == 'Sent' ? 'fa-check' : ($announcement->status == 'Pending' ? 'fa-clock' : 'fa-times') }} me-1"></i>
-                                        {{ ucfirst($announcement->status == 'Sent' ? 'Published' : 'Draft') }}
+                                        <span class="badge fs-6 status-btn {{ $announcement->status == 'Sent' ? 'bg-success' : ($announcement->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}"
+                                            onclick="updateStatus('{{ $announcement->status }}', {{ $announcement->id }})">
+                                            <i class="fas {{ $announcement->status == 'Sent' ? 'fa-check' : ($announcement->status == 'Pending' ? 'fa-clock' : 'fa-times') }} me-1"></i>
+                                            {{ ucfirst($announcement->status == 'Sent' ? 'Published' : 'Draft') }}
                                         </span>
 
                                 </div>
@@ -541,8 +649,7 @@
 
                                 <!-- Created By -->
                                 <div class="d-flex align-items-center mb-3">
-                                    <div class=" rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;background-color:#17a2b8
-;">
+                                    <div class=" rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px; background: var(--sd-accent, #4facfe);">
                                         <small class="text-white fw-bold">{{ strtoupper(substr($announcement->createdBy, 0, 1)) }}</small>
                                     </div>
                                     <div>

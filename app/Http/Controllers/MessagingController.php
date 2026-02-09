@@ -5,12 +5,14 @@ use App\Models\User;
 use App\Models\Usercenter;
 use App\Models\GroupMessage;
 use App\Models\Child;
+use App\Models\Childparent;
 use App\Models\Center;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class MessagingController extends Controller
 {
@@ -18,6 +20,12 @@ class MessagingController extends Controller
     public function index()
     {
         $me = Auth::user();
+        $permissions = app('userPermissions');
+        $isParent = strtolower($me->userType ?? '') === 'parent';
+        if (!$isParent && (empty($permissions['viewMessages']) || !$permissions['viewMessages'])) {
+            abort(403, 'You do not have permission to view messages');
+        }
+
         $centerIds = Usercenter::where('userid', $me->id)->pluck('centerid')->toArray();
         $centers = Center::whereIn('id', $centerIds)->get();
         return view('messaging.index', compact('centers'));
@@ -29,6 +37,10 @@ class MessagingController extends Controller
         $me = Auth::user();
         $centerid = session('user_center_id');
 
+        if ((int)$request->input('receiver_id') === (int)$me->id) {
+            return response()->json(['success' => false, 'message' => 'You cannot message yourself'], 400);
+        }
+
         if (empty($centerid)) {
             return response()->json(['success' => false, 'message' => 'Center not selected'], 400);
         }
@@ -36,13 +48,72 @@ class MessagingController extends Controller
         $userIds = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
 
         if ($me->userType === 'Parent') {
-           
-            $contacts = User::with('rooms')->whereIn('id', $userIds)->where('userType', 'Staff')
-                ->select('id', 'name', 'imageUrl', 'userType')->get();
-        } else {
+
+            $childIds = Childparent::where('parentid', $me->id)->pluck('childid')->toArray();
             
-            $contacts = User::with('rooms')->whereIn('id', $userIds)->where('userType', 'Parent')
-                ->select('id', 'name', 'imageUrl', 'userType')->get();
+            if (empty($childIds)) {
+                $contacts = collect([]);
+            } else {
+
+                $childRoomIds = Child::whereIn('id', $childIds)
+                    ->whereIn('centerid', [$centerid])
+                    ->pluck('room')->toArray();
+                
+                if (empty($childRoomIds)) {
+                    $contacts = collect([]);
+                } else {
+                    $staffIdsFromRooms = DB::table('room_staff')
+                        ->whereIn('roomid', $childRoomIds)
+                        ->pluck('staffid')
+                        ->map(function($id) { return (int) $id; })
+                        ->toArray();
+                    
+                    $contacts = User::where('userType', 'Staff')
+                        ->whereIn('id', $staffIdsFromRooms)
+                        ->whereIn('id', $userIds)
+                        ->select('id', 'name', 'imageUrl', 'userType')
+                        ->get();
+                }
+            }
+        } elseif (in_array(strtolower($me->userType), ['admin', 'superadmin', 'manager'])) {
+            $contacts = User::whereIn('id', $userIds)
+                ->whereIn('userType', ['Parent', 'Staff', 'Admin', 'Superadmin', 'Manager'])
+                ->select('id', 'name', 'imageUrl', 'userType')
+                ->get();
+        } else {
+            $staffRoomIds = DB::table('room_staff')
+                ->where('room_staff.staffid', $me->id)
+                ->join('room', 'room_staff.roomid', '=', 'room.id')
+                ->where('room.centerid', $centerid)
+                ->pluck('room.id')
+                ->toArray();
+            
+            if (empty($staffRoomIds)) {
+                $adminContacts = User::whereIn('id', $userIds)
+                    ->whereIn('userType', ['Admin', 'Superadmin', 'Manager'])
+                    ->select('id', 'name', 'imageUrl', 'userType')
+                    ->get();
+                $contacts = $adminContacts;
+            } else {
+                // Get children in staff's rooms, then their parents
+                $parentIds = Child::whereIn('room', $staffRoomIds)
+                    ->join('childparent', 'child.id', '=', 'childparent.childid')
+                    ->pluck('childparent.parentid')
+                    ->unique()
+                    ->toArray();
+
+                $parentContacts = User::whereIn('id', $parentIds)
+                    ->where('userType', 'Parent')
+                    ->select('id', 'name', 'imageUrl', 'userType')
+                    ->get();
+
+                $adminContacts = User::whereIn('id', $userIds)
+                    ->whereIn('userType', ['Admin', 'Superadmin', 'Manager'])
+                    ->select('id', 'name', 'imageUrl', 'userType')
+                    ->get();
+
+                $contacts = $parentContacts->merge($adminContacts)->unique('id')->values();
+            }
         }
 
         $sentToQ = Message::where('sender_id', $me->id);
@@ -58,18 +129,54 @@ class MessagingController extends Controller
         })->values()->toArray();
 
         if (!empty($partnerIds)) {
-            
-            $partners = User::with('rooms')
-                ->whereIn('id', $partnerIds)
-                ->whereIn('id', $userIds)
-                ->select('id', 'name', 'imageUrl', 'userType')
-                ->get();
-
-           
-            $contacts = $contacts->merge($partners)->unique('id')->values();
+            if ($me->userType === 'Parent') {
+                $childIds = Childparent::where('parentid', $me->id)->pluck('childid')->toArray();
+                
+                if (!empty($childIds)) {
+                    $childRoomIds = Child::whereIn('id', $childIds)
+                        ->whereIn('centerid', [$centerid])
+                        ->pluck('room')->toArray();
+                    
+                    if (!empty($childRoomIds)) {
+                        $staffIdsFromRooms = DB::table('room_staff')
+                            ->whereIn('roomid', $childRoomIds)
+                            ->pluck('staffid')
+                            ->map(function($id) { return (int) $id; })
+                            ->toArray();
+                        
+                            $partners = User::whereIn('id', $partnerIds)
+                                ->whereIn('id', $userIds)
+                                ->where('userType', '!=', 'Parent')
+                                ->select('id', 'name', 'imageUrl', 'userType')
+                                ->get();
+                            $contacts = $contacts->merge($partners)->unique('id')->values();
+                    }
+                }
+            } elseif (in_array(strtolower($me->userType), ['admin', 'superadmin', 'manager'])) {
+                // Admin/Superadmin/Manager: include all parents and staff
+                $partners = User::whereIn('id', $partnerIds)
+                    ->whereIn('id', $userIds)
+                    ->whereIn('userType', ['Parent', 'Staff', 'Admin', 'Superadmin', 'Manager'])
+                    ->select('id', 'name', 'imageUrl', 'userType')
+                    ->get();
+                $contacts = $contacts->merge($partners)->unique('id')->values();
+            } else {
+                // Staff: include parents from their rooms
+                $partners = User::whereIn('id', $partnerIds)
+                    ->whereIn('id', $userIds)
+                    ->where('userType', 'Parent')
+                    ->select('id', 'name', 'imageUrl', 'userType')
+                    ->get();
+                $contacts = $contacts->merge($partners)->unique('id')->values();
+            }
         }
 
         
+        // remove self from contacts list
+        $contacts = $contacts->reject(function ($c) use ($me) {
+            return (int)$c->id === (int)$me->id;
+        })->values();
+
         $contacts = $contacts->map(function ($c) use ($me, $centerid) {
             $last = Message::where(function ($q) use ($me, $c) {
                 $q->where('sender_id', $me->id)->where('receiver_id', $c->id);
@@ -153,6 +260,7 @@ class MessagingController extends Controller
     public function thread($id)
     {
         $me = Auth::user();
+        $centerid = session('user_center_id');
         $other = User::find($id);
         if (!$other) return response()->json(['success' => false, 'message' => 'User not found'], 404);
 
@@ -161,20 +269,26 @@ class MessagingController extends Controller
             $updateQ = Message::where('sender_id', $other->id)
                 ->where('receiver_id', $me->id)
                 ->whereNull('read_at');
+            if (!empty($centerid)) {
+                $updateQ->where('centerid', $centerid);
+            }
             if (Schema::hasColumn('messages', 'is_group')) {
                 $updateQ->where('is_group', 0);
             }
             $updateQ->update(['read_at' => now()]);
         } catch (\Throwable $e) {
-            // ignore update errors
+            
         }
 
-        // fetch 1:1 messages between users, excluding group broadcasts
+
         $q = Message::where(function ($q) use ($me, $other) {
             $q->where('sender_id', $me->id)->where('receiver_id', $other->id);
         })->orWhere(function ($q) use ($me, $other) {
             $q->where('sender_id', $other->id)->where('receiver_id', $me->id);
         });
+        if (!empty($centerid)) {
+            $q->where('centerid', $centerid);
+        }
         if (Schema::hasColumn('messages', 'is_group')) {
             $q->where('is_group', 0);
         }
@@ -308,6 +422,13 @@ class MessagingController extends Controller
 
     public function send(Request $request)
     {
+        $me = Auth::user();
+
+        $permissions = app('userPermissions');
+        $isParent = strtolower($me->userType ?? '') === 'parent';
+        if (!$isParent && (empty($permissions['sendMessage']) || !$permissions['sendMessage'])) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to send messages'], 403);
+        }
       
         $validator = Validator::make($request->all(), [
             'receiver_id' => 'required|integer|exists:users,id',
@@ -318,7 +439,6 @@ class MessagingController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        $me = Auth::user();
         $centerid = session('user_center_id');
 
         // Prevent same-role direct messaging (staff->staff, parent->parent)
@@ -363,6 +483,13 @@ class MessagingController extends Controller
   
     public function broadcastCenter(Request $request)
     {
+        $me = Auth::user();
+
+        $permissions = app('userPermissions');
+        $isParent = strtolower($me->userType ?? '') === 'parent';
+        if (!$isParent && (empty($permissions['sendGroupMessage']) || !$permissions['sendGroupMessage'])) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to send group messages'], 403);
+        }
         
         $validator = Validator::make($request->all(), [
             'body' => 'required|string|max:2000'
@@ -372,7 +499,6 @@ class MessagingController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        $me = Auth::user();
         $centerid = session('user_center_id');
 
         if (empty($centerid)) return response()->json(['success' => false, 'message' => 'Center not selected'], 400);

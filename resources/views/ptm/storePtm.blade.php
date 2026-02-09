@@ -14,6 +14,10 @@
             border: 1.5px solid #e29c33 !important;
             background: transparent;
         }
+        /* Theme labels inside .row to use accent color in theme mode */
+        body[class^="theme-"] .row label {
+            color: var(--sd-accent, #5f77ff) !important;
+        }
 
         #selected_date::placeholder {
             color: #e29c33 !important;
@@ -21,61 +25,20 @@
             /* ensures exact color */
         }
 
-        #selected_date:focus {
-            border-color: #e29c33 !important;
-            box-shadow: 0 0 6px rgba(226, 156, 51, 0.4) !important;
-        }
 
-        /* Page background */
-        body {
-            background: linear-gradient(180deg, #f3f7fb 0%, #ffffff 100%);
-            color: #243447;
-            font-smooth: always;
-        }
-
-        /* Cards */
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(34, 60, 80, 0.06);
-            overflow: hidden;
-        }
-
-        .card .body {
-            padding: 20px;
-        }
-
-        /* Inputs & editors */
-        .form-control {
-            border-radius: 10px;
-            border: 1px solid #e7eef6;
-            transition: box-shadow .15s ease, border-color .15s ease;
-        }
-
-        .form-control:focus {
-            border-color: #6aa8ff;
-            box-shadow: 0 8px 24px rgba(60, 120, 220, 0.07);
-            outline: none;
-        }
-
-        .ck-editor__editable_inline {
-            min-height: 150px;
-            border-radius: 8px;
-        }
-
-        /* Buttons */
-        .btn-primary {
-            background: linear-gradient(90deg, #4b8df8 0%, #2bb7f4 100%);
-            border: none;
-            color: #fff;
-            box-shadow: 0 8px 20px rgba(43, 122, 246, 0.12);
-        }
-
-        .btn-success {
-            background: linear-gradient(90deg, #28b785 0%, #2ec27e 100%);
-            border: none;
-            color: #fff;
-        }
+            /* Ensure 'Select Rooms' button always default (not themed) */
+            body[class^="theme-"] .btn.btn-outline-success[data-target="#roomsModal"] {
+                background: transparent !important;
+                color: #28a745 !important;
+                border-color: #28a745 !important;
+                box-shadow: none !important;
+            }
+            body[class^="theme-"] .btn.btn-outline-success[data-target="#roomsModal"]:hover,
+            body[class^="theme-"] .btn.btn-outline-success[data-target="#roomsModal"]:focus {
+                background: #28a745 !important;
+                color: #fff !important;
+                border-color: #28a745 !important;
+            }
 
 
         .btn-outline-primary,
@@ -182,6 +145,167 @@
             font-weight: 400;
         }
 
+        /* Small margin for date-slot badges */
+        #dateSlotPreview .badge {
+            margin: 2px 2px;
+        }
+
+        /* Dynamic UI for selectors */
+        .modal.modern-modal .modal-content {
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #f7f9fc 0%, #ffffff 35%, #f6f8fb 100%);
+            box-shadow: 0 18px 45px rgba(24, 36, 65, 0.16);
+        }
+
+        .modal.modern-modal .modal-header {
+            border: none;
+            background: linear-gradient(90deg, #2f7cf6, #6bc2ff);
+            color: #fff;
+            padding: 14px 18px;
+        }
+
+        .modal.modern-modal .modal-header h5 {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .modal.modern-modal .modal-body {
+            background: transparent;
+            padding: 16px 18px 6px;
+        }
+
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .selector-card {
+            background: linear-gradient(180deg, #f9fbff 0%, #f4f7fb 100%);
+            border: 1px solid #e4eaf5;
+            border-radius: 12px;
+            padding: 12px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.18s ease;
+            box-shadow: 0 6px 16px rgba(31, 49, 78, 0.08);
+            cursor: pointer;
+        }
+
+        .selector-card:hover {
+            border-color: #5a9bff;
+            box-shadow: 0 10px 22px rgba(47, 124, 246, 0.14);
+            transform: translateY(-1px);
+        }
+
+        .selector-card.selected {
+            border-color: #2f7cf6;
+            background: linear-gradient(180deg, #f0f6ff 0%, #e7f1ff 100%);
+            box-shadow: 0 12px 26px rgba(47, 124, 246, 0.2);
+        }
+
+        .selector-card .form-check-label {
+            margin-left: 10px;
+            font-weight: 600;
+            color: #122033;
+            width: 100%;
+        }
+
+        .selector-card .form-check-input {
+            width: 18px;
+            height: 18px;
+            margin-top: 0;
+        }
+
+        .selector-card .avatar-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2f7cf6, #56c4ff);
+            box-shadow: 0 0 0 6px rgba(47, 124, 246, 0.08);
+        }
+
+        /* Slot modal tweaks */
+        .slot-card .form-check-label {
+            margin-left: 12px;
+        }
+
+        .select-all-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, #eef3ff, #e3edff);
+            border: 1px solid #d6e3ff;
+            border-radius: 999px;
+            padding: 6px 12px;
+            box-shadow: 0 6px 16px rgba(47, 124, 246, 0.12);
+        }
+
+        .select-all-toggle .toggle-checkbox {
+            display: none;
+        }
+
+        .select-all-toggle .toggle-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            position: relative;
+            padding-left: 34px;
+            font-weight: 600;
+            color: #18406f;
+        }
+
+        .select-all-toggle .toggle-label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 28px;
+            height: 16px;
+            border-radius: 999px;
+            background: #cfd9eb;
+            transition: all 0.18s ease;
+        }
+
+        .select-all-toggle .toggle-label::after {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: all 0.18s ease;
+        }
+
+        .select-all-toggle .toggle-checkbox:checked + .toggle-label::before {
+            background: linear-gradient(135deg, #2f7cf6, #5ec4ff);
+        }
+
+        .select-all-toggle .toggle-checkbox:checked + .toggle-label::after {
+            transform: translateX(12px);
+        }
+
+        .modal .modal-header .search-pill,
+        .modal .modal-header input.search-pill {
+            border-radius: 999px;
+            border: 1px solid #d6deeb;
+            background-color: #f9fbff;
+            padding: 8px 14px 8px 14px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+
+        .modal .modal-header .search-pill:focus,
+        .modal .modal-header input.search-pill:focus {
+            border-color: #4b8df8;
+            box-shadow: 0 0 0 3px rgba(75, 141, 248, 0.15);
+        }
+
         .select-section .btn {
             padding: 8px 18px;
             font-size: 14px;
@@ -190,11 +314,138 @@
             transition: all 0.3s ease;
         }
 
-        .btn-outline-success {
-            color: #28a745;
-            background-color: transparent;
-            background-image: none;
-            border-color: #28a745;
+        /* Remove all custom .btn-outline-success styling so it always uses Bootstrap default */
+
+        /* CTA buttons for modal footers */
+        .btn-cta-primary {
+            background: linear-gradient(90deg, #2f7cf6, #5ec4ff);
+            border: none;
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 700;
+            box-shadow: 0 10px 22px rgba(47, 124, 246, 0.2);
+            transition: all 0.18s ease;
+        }
+
+        .btn-cta-primary:hover {
+            box-shadow: 0 12px 26px rgba(47, 124, 246, 0.26);
+            transform: translateY(-1px);
+        }
+
+        .btn-ghost-cancel {
+            background: #f7f9fc;
+            border: 1px solid #dfe7f3;
+            color: #1f2d3d;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 600;
+            box-shadow: 0 6px 14px rgba(24, 36, 65, 0.08);
+            transition: all 0.18s ease;
+        }
+
+        .btn-ghost-cancel:hover {
+            background: #eef3fb;
+            border-color: #cfd9eb;
+            transform: translateY(-1px);
+        }
+
+        /* Themed modals: Rooms (green), Children (blue), Staff (brown), Slots (purple) */
+        /* Header */
+        .modal.modern-modal.theme-rooms .modal-header { background: linear-gradient(90deg, #16a34a, #22c55e); }
+        .modal.modern-modal.theme-children .modal-header { background: linear-gradient(90deg, #0ea5e9, #2563eb); }
+        .modal.modern-modal.theme-staff .modal-header { background: linear-gradient(90deg, #7e2c16, #975543); }
+        .modal.modern-modal.theme-slots .modal-header { background: linear-gradient(90deg, #62b7e9, #62b7e9); }
+
+        /* Selector card accents */
+        .modal.modern-modal.theme-rooms .selector-card { border-color: #d1fae5; background: linear-gradient(180deg, #f0fdf4, #ecfdf5); }
+        .modal.modern-modal.theme-rooms .selector-card.selected { border-color: #22c55e; background: linear-gradient(180deg, #dcfce7, #f0fdf4); box-shadow: 0 12px 26px rgba(34,197,94,.25); }
+        .modal.modern-modal.theme-rooms .selector-card:hover { border-color: #22c55e; }
+        .modal.modern-modal.theme-rooms .avatar-dot { background: linear-gradient(135deg, #16a34a, #22c55e); box-shadow: 0 0 0 6px rgba(34,197,94,.10); }
+
+        .modal.modern-modal.theme-children .selector-card { border-color: #dbeafe; background: linear-gradient(180deg, #eff6ff, #e0f2fe); }
+        .modal.modern-modal.theme-children .selector-card.selected { border-color: #2563eb; background: linear-gradient(180deg, #dbeafe, #e0f2fe); box-shadow: 0 12px 26px rgba(37,99,235,.25); }
+        .modal.modern-modal.theme-children .selector-card:hover { border-color: #2563eb; }
+        .modal.modern-modal.theme-children .avatar-dot { background: linear-gradient(135deg, #0ea5e9, #2563eb); box-shadow: 0 0 0 6px rgba(14,165,233,.10); }
+
+        .modal.modern-modal.theme-staff .selector-card { border-color: #f1d7cf; background: linear-gradient(180deg, #fff7f5, #fdf4f1); }
+        .modal.modern-modal.theme-staff .selector-card.selected { border-color: #975543; background: linear-gradient(180deg, #fde8e2, #fff7f5); box-shadow: 0 12px 26px rgba(151,85,67,.25); }
+        .modal.modern-modal.theme-staff .selector-card:hover { border-color: #975543; }
+        .modal.modern-modal.theme-staff .avatar-dot { background: linear-gradient(135deg, #7e2c16, #975543); box-shadow: 0 0 0 6px rgba(151,85,67,.10); }
+
+        .modal.modern-modal.theme-slots .selector-card { border-color: #eadcff; background: linear-gradient(180deg, #faf5ff, #f3e8ff); }
+        .modal.modern-modal.theme-slots .selector-card.selected { border-color: #62b7e9; background: linear-gradient(180deg, #ede9fe, #faf5ff); box-shadow: 0 12px 26px rgba(124,58,237,.25); }
+        .modal.modern-modal.theme-slots .selector-card:hover { border-color: #62b7e9; }
+        .modal.modern-modal.theme-slots .avatar-dot { background: linear-gradient(135deg, #62b7e9, #62b7e9); box-shadow: 0 0 0 6px rgba(124,58,237,.10); }
+
+        /* Select-all toggles */
+        .modal.modern-modal.theme-rooms .select-all-toggle { background: linear-gradient(90deg, #ecfdf5, #dcfce7); border-color: #bbf7d0; }
+        .modal.modern-modal.theme-rooms .select-all-toggle .toggle-label { color: #14532d; }
+        .modal.modern-modal.theme-rooms .select-all-toggle .toggle-checkbox:checked + .toggle-label::before { background: linear-gradient(135deg, #16a34a, #22c55e); }
+
+        .modal.modern-modal.theme-children .select-all-toggle { background: linear-gradient(90deg, #e0f2fe, #dbeafe); border-color: #bfdbfe; }
+        .modal.modern-modal.theme-children .select-all-toggle .toggle-label { color: #1e3a8a; }
+        .modal.modern-modal.theme-children .select-all-toggle .toggle-checkbox:checked + .toggle-label::before { background: linear-gradient(135deg, #0ea5e9, #2563eb); }
+
+        .modal.modern-modal.theme-staff .select-all-toggle { background: linear-gradient(90deg, #fff1eb, #fde7e1); border-color: #f1d7cf; }
+        .modal.modern-modal.theme-staff .select-all-toggle .toggle-label { color: #5b2b1e; }
+        .modal.modern-modal.theme-staff .select-all-toggle .toggle-checkbox:checked + .toggle-label::before { background: linear-gradient(135deg, #7e2c16, #975543); }
+
+        .modal.modern-modal.theme-slots .select-all-toggle { background: linear-gradient(90deg, #f3e8ff, #ede9fe); border-color: #e9d5ff; }
+        .modal.modern-modal.theme-slots .select-all-toggle .toggle-label { color: #62b7e9; }
+        .modal.modern-modal.theme-slots .select-all-toggle .toggle-checkbox:checked + .toggle-label::before { background: linear-gradient(135deg, #62b7e9, #62b7e9); }
+
+        /* Footer buttons */
+        .modal.modern-modal.theme-rooms .btn-cta-primary { background: linear-gradient(90deg, #16a34a, #22c55e); box-shadow: 0 10px 22px rgba(34,197,94,.25); }
+        .modal.modern-modal.theme-children .btn-cta-primary { background: linear-gradient(90deg, #0ea5e9, #2563eb); box-shadow: 0 10px 22px rgba(37,99,235,.25); }
+        .modal.modern-modal.theme-staff .btn-cta-primary { background: linear-gradient(90deg, #7e2c16, #975543); box-shadow: 0 10px 22px rgba(151,85,67,.25); }
+        .modal.modern-modal.theme-slots .btn-cta-primary { background: linear-gradient(90deg, #62b7e9, #62b7e9); box-shadow: 0 10px 22px rgba(124,58,237,.25); }
+
+        .modal.modern-modal.theme-rooms .btn-ghost-cancel { border-color: #bbf7d0; }
+        .modal.modern-modal.theme-children .btn-ghost-cancel { border-color: #bfdbfe; }
+        .modal.modern-modal.theme-staff .btn-ghost-cancel { border-color: #f1d7cf; }
+        .modal.modern-modal.theme-slots .btn-ghost-cancel { border-color: #e9d5ff; }
+
+        /* Checkbox accent colors per theme */
+        .modal.modern-modal.theme-rooms .form-check-input:checked { background-color: #22c55e; border-color: #22c55e; }
+        .modal.modern-modal.theme-children .form-check-input:checked { background-color: #2563eb; border-color: #2563eb; }
+        .modal.modern-modal.theme-staff .form-check-input:checked { background-color: #975543; border-color: #975543; }
+        .modal.modern-modal.theme-slots .form-check-input:checked { background-color: #a855f7; border-color: #62b7e9; }
+        /* Ensure native checkmark accent matches the modal theme */
+        .modal.modern-modal.theme-rooms .form-check-input { accent-color: #22c55e; }
+        .modal.modern-modal.theme-children .form-check-input { accent-color: #2563eb; }
+        .modal.modern-modal.theme-staff .form-check-input { accent-color: #975543; }
+        .modal.modern-modal.theme-slots .form-check-input { accent-color: #62b7e9; }
+
+        /* Count badges themed per modal */
+        .count-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .modal.modern-modal.theme-rooms .count-badge { background: linear-gradient(90deg, #dcfce7, #bbf7d0); border: 1px solid #86efac; color: #14532d; }
+        .modal.modern-modal.theme-children .count-badge { background: linear-gradient(90deg, #dbeafe, #bfdbfe); border: 1px solid #93c5fd; color: #1e3a8a; }
+        .modal.modern-modal.theme-staff .count-badge { background: linear-gradient(90deg, #fde8e2, #f1d7cf); border: 1px solid #deb8aa; color: #5b2b1e; }
+        .modal.modern-modal.theme-slots .count-badge { background: linear-gradient(90deg, #ede9fe, #e9d5ff); border: 1px solid #d8b4fe; color: #62b7e9; }
+
+        /* Empty state block for filtered lists */
+        .empty-state {
+            text-align: center;
+            padding: 20px 12px;
+            background: #f9fafb;
+            border: 1px dashed #d6dde9;
+            border-radius: 12px;
+            color: #4b5563;
+            font-weight: 600;
+        }
+        .empty-state small {
+            display: block;
+            color: #6b7280;
+            font-weight: 500;
+            margin-top: 4px;
         }
     </style>
       <style>
@@ -234,6 +485,12 @@
             margin: 0 auto 10px;
         }
         .publish-percent { font-size: 1.1rem; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
     </style>
 
     @if ($errors->any())
@@ -369,9 +626,12 @@
                             @endphp
                             <div class="col-md-6 mt-4">
                                 <label class="font-weight-bold">Date</label><br>
-
                                 <input type="text" class="form-control" id="selected_date" {{--  value="{{ implode(',', $displayDates) }}"  --}}
                                     placeholder="Choose Expected Meeting date">
+                                <div id="dateInlineError" class="alert alert-danger mt-2 d-none" style="padding: 8px 12px; font-size: 13px; animation: shake 0.5s;">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <span id="dateInlineErrorText"></span>
+                                </div>
 
                                 <input type="hidden" name="selected_dates" id="selected_dates">
                                 {{--  value="{{ implode(',', $displayDates) }}" --}}
@@ -418,34 +678,37 @@
 
 
     <!-- Rooms Modal -->
-    <div class="modal" id="roomsModal" tabindex="-1">
+    <div class="modal modern-modal theme-rooms" id="roomsModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
 
                 <!-- Header -->
                 <div class="modal-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Select Rooms</h5>
-                    <input type="text" id="roomSearch" class="form-control ml-3" placeholder="Search rooms..."
+                    <input type="text" id="roomSearch" class="form-control ml-3 search-pill" placeholder="Search rooms..."
                         style="max-width: 250px;">
                 </div>
 
                 <!-- Body -->
                 <div class="modal-body" style="max-height:550px; overflow-y:auto;">
-                    <div id="roomsList" class="row"></div>
+                    <div id="roomsList" class="selector-grid"></div>
                 </div>
 
                 <!-- Footer -->
-                <div class="modal-footer d-flex justify-content-end align-items-center">
-                    <div class="form-check mb-0 mr-3 d-flex align-items-center">
-                        <input class="form-check-input" type="checkbox" id="selectAllRooms">
-                        <label class="form-check-label ml-2 mb-0" for="selectAllRooms">Select All</label>
+                <div class="modal-footer d-flex justify-content-between align-items-center">
+                    <span id="roomsCount" class="count-badge">0 selected</span>
+                    <div class="d-flex align-items-center">
+                        <div class="select-all-toggle mb-0 mr-3">
+                            <input class="toggle-checkbox" type="checkbox" id="selectAllRooms">
+                            <label class="toggle-label mb-0" for="selectAllRooms">Select All</label>
+                        </div>
+                        <button type="button" id="confirmRooms" class="btn btn-cta-primary">
+                            <i class="fas fa-check mr-1"></i> Confirm
+                        </button>
+                        <button type="button" class="btn btn-ghost-cancel ml-2" data-dismiss="modal">
+                            <i class="fas fa-times mr-1"></i> Cancel
+                        </button>
                     </div>
-                    <button type="button" id="confirmRooms" class="btn btn-success">
-                        <i class="fas fa-check mr-1"></i> Confirm
-                    </button>
-                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">
-                        <i class="fas fa-times mr-1"></i> Cancel
-                    </button>
                 </div>
 
 
@@ -455,7 +718,7 @@
 
 
     <!-- Staff Modal -->
-    <div class="modal" id="staffModal" tabindex="-1">
+    <div class="modal modern-modal theme-staff" id="staffModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
 
@@ -463,7 +726,7 @@
                 <div class="modal-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Select Staff</h5>
                     <div class="d-flex align-items-center">
-                        <input type="text" id="staffSearch" class="form-control" placeholder="Search staff..."
+                        <input type="text" id="staffSearch" class="form-control search-pill" placeholder="Search staff..."
                             style="max-width: 250px;">
                         <button type="button" class="close ml-2" data-dismiss="modal">&times;</button>
                     </div>
@@ -471,22 +734,25 @@
 
                 <!-- Body -->
                 <div class="modal-body" style="max-height:550px; overflow-y:auto;">
-                    <div id="staffList" class="row"></div>
+                    <div id="staffInlineError" class="text-danger small mb-2 d-none"></div>
+                    <div id="staffList" class="selector-grid"></div>
                 </div>
 
                 <!-- Footer -->
-                <div class="modal-footer d-flex justify-content-end align-items-center">
-                    <div class="form-check mb-0 mr-3 d-flex align-items-center">
-                        <input class="form-check-input" type="checkbox" id="selectAllStaff">
-                        <label class="form-check-label ml-2 mb-0" for="selectAllStaff">Select All</label>
+                <div class="modal-footer d-flex justify-content-between align-items-center">
+                    <span id="staffCount" class="count-badge">0 selected</span>
+                    <div class="d-flex align-items-center">
+                        <div class="select-all-toggle mb-0 mr-3">
+                            <input class="toggle-checkbox" type="checkbox" id="selectAllStaff">
+                            <label class="toggle-label mb-0" for="selectAllStaff">Select All</label>
+                        </div>
+                        <button type="button" id="confirmStaff" class="btn btn-cta-primary">
+                            <i class="fas fa-check mr-1"></i> Confirm
+                        </button>
+                        <button type="button" class="btn btn-ghost-cancel ml-2" data-dismiss="modal">
+                            <i class="fas fa-times mr-1"></i> Cancel
+                        </button>
                     </div>
-                    <button type="button" id="confirmStaff" class="btn btn-success">
-                        <i class="fas fa-check mr-1"></i> Confirm
-                    </button>
-                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">
-                        <i class="fas fa-times mr-1"></i> Cancel
-                    </button>
-
                 </div>
 
             </div>
@@ -495,7 +761,7 @@
 
 
     <!-- Children Modal -->
-    <div class="modal" id="childrenModal" tabindex="-1">
+    <div class="modal modern-modal theme-children" id="childrenModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
 
@@ -503,7 +769,7 @@
                 <div class="modal-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Select Children</h5>
                     <div class="d-flex align-items-center">
-                        <input type="text" id="childSearch" class="form-control" placeholder="Search children..."
+                        <input type="text" id="childSearch" class="form-control search-pill" placeholder="Search children..."
                             style="max-width: 250px;">
                         <button type="button" class="close ml-2" data-dismiss="modal">&times;</button>
                     </div>
@@ -511,22 +777,25 @@
 
                 <!-- Body -->
                 <div class="modal-body" style="max-height:550px; overflow-y:auto;">
-                    <div id="childrenList" class="row"></div>
+                    <div id="childrenInlineError" class="text-danger small mb-2 d-none"></div>
+                    <div id="childrenList" class="selector-grid"></div>
                 </div>
 
                 <!-- Footer -->
-                <div class="modal-footer d-flex justify-content-end align-items-center">
-                    <div class="form-check mb-0 mr-3 d-flex align-items-center">
-                        <input class="form-check-input" type="checkbox" id="selectAllChildren">
-                        <label class="form-check-label ml-2 mb-0" for="selectAllChildren">Select All</label>
+                <div class="modal-footer d-flex justify-content-between align-items-center">
+                    <span id="childrenCount" class="count-badge">0 selected</span>
+                    <div class="d-flex align-items-center">
+                        <div class="select-all-toggle mb-0 mr-3">
+                            <input class="toggle-checkbox" type="checkbox" id="selectAllChildren">
+                            <label class="toggle-label mb-0" for="selectAllChildren">Select All</label>
+                        </div>
+                        <button type="button" id="confirmChildren" class="btn btn-cta-primary">
+                            <i class="fas fa-check mr-1"></i> Confirm
+                        </button>
+                        <button type="button" class="btn btn-ghost-cancel ml-2" data-dismiss="modal">
+                            <i class="fas fa-times mr-1"></i> Cancel
+                        </button>
                     </div>
-                    <button type="button" id="confirmChildren" class="btn btn-success">
-                        <i class="fas fa-check mr-1"></i> Confirm
-                    </button>
-                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">
-                        <i class="fas fa-times mr-1"></i> Cancel
-                    </button>
-
                 </div>
 
             </div>
@@ -558,7 +827,7 @@
     </div>
 
     <!-- Slot Selection Modal -->
-    <div class="modal" id="slotModal" tabindex="-1">
+    <div class="modal modern-modal theme-slots" id="slotModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
 
@@ -566,7 +835,7 @@
                 <div class="modal-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Select Slots for <span id="currentDateLabel"></span></h5>
                     <div class="d-flex align-items-center">
-                        <input type="text" id="slotSearch" class="form-control" placeholder="Search Slot..."
+                        <input type="text" id="slotSearch" class="form-control search-pill" placeholder="Search Slot..."
                             style="max-width: 250px;">
                         <button type="button" class="close ml-2" data-dismiss="modal">&times;</button>
                     </div>
@@ -574,22 +843,93 @@
 
                 <!-- Body -->
                 <div class="modal-body" style="max-height:550px; overflow-y:auto;">
-                    <div id="slotList" class="row"></div>
+                    <div id="slotInlineError" class="text-danger small mb-2 d-none"></div>
+                    
+                    <div id="slotLoading" style="display:none; min-height:120px; align-items:center; justify-content:center; text-align:center;">
+                        <div style="width:36px; height:36px; border:4px solid #eef2ff; border-top:4px solid #4a6cf7; border-radius:50%; margin:0 auto; animation: slotSpin 0.8s linear infinite;"></div>
+                        
+                    </div>
+                    <div id="slotList" class="selector-grid"></div>
+                    <div style="margin-top:12px;padding:8px 12px;background:#f6f5ff;border:1px solid #e5ddff;border-radius:12px;">
+                        <!-- Info message -->
+                        <div style="font-size:11px;color:#6b5b95;font-weight:500;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #e5ddff;">
+                            <i class="fas fa-info-circle" style="color:#a78bda;margin-right:4px;"></i>
+                            Slots can be created between <strong>7:00 AM - 7:00 PM</strong>
+                        </div>
+                        <!-- Time range inputs -->
+                        <div class="d-flex align-items-center" style="gap:10px; flex-wrap:nowrap;">
+                            <!-- FROM Section -->
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <div style="text-align:center;">
+                                    <label style="font-size:11px;font-weight:600;color:#4c1d95;display:block;margin-bottom:2px;">Hour</label>
+                                    <input type="number" id="slotHour" class="form-control" min="1" max="12" placeholder="7" style="width:60px;padding:4px 6px;font-size:13px;">
+                                </div>
+                                <div style="text-align:center;">
+                                    <label style="font-size:11px;font-weight:600;color:#4c1d95;display:block;margin-bottom:2px;">Min</label>
+                                    <select id="slotMinutes" class="form-control" style="width:60px;padding:4px 6px;font-size:13px;">
+                                        <option value="00">00</option>
+                                        <option value="15">15</option>
+                                        <option value="30">30</option>
+                                        <option value="45">45</option>
+                                    </select>
+                                </div>
+                                <div style="text-align:center;">
+                                    <label style="font-size:11px;font-weight:600;color:#4c1d95;display:block;margin-bottom:2px;">Period</label>
+                                    <div class="d-flex" style="gap:3px;">
+                                        <button type="button" class="slot-ampm-btn" data-period="AM" style="padding:4px 8px;border:1px solid #d8b4fe;background:#fff;color:#4c1d95;border-radius:4px;font-weight:600;cursor:pointer;font-size:11px;width:40px;">AM</button>
+                                        <button type="button" class="slot-ampm-btn" data-period="PM" style="padding:4px 8px;border:1px solid #d8b4fe;background:#fff;color:#4c1d95;border-radius:4px;font-weight:600;cursor:pointer;font-size:11px;width:40px;">PM</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Separator -->
+                            <div style="font-size:16px;font-weight:700;color:#62b7e9;">-</div>
+
+                            <!-- TO Section -->
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <div style="text-align:center;">
+                                    <label style="font-size:11px;font-weight:600;color:#4c1d95;display:block;margin-bottom:2px;">Hour</label>
+                                    <input type="number" id="slotHourEnd" class="form-control" min="1" max="12" placeholder="10" style="width:60px;padding:4px 6px;font-size:13px;">
+                                </div>
+                                <div style="text-align:center;">
+                                    <label style="font-size:11px;font-weight:600;color:#4c1d95;display:block;margin-bottom:2px;">Min</label>
+                                    <select id="slotMinutesEnd" class="form-control" style="width:60px;padding:4px 6px;font-size:13px;">
+                                        <option value="00">00</option>
+                                        <option value="15">15</option>
+                                        <option value="30">30</option>
+                                        <option value="45">45</option>
+                                    </select>
+                                </div>
+                                <div style="text-align:center;">
+                                    <label style="font-size:11px;font-weight:600;color:#4c1d95;display:block;margin-bottom:2px;">Period</label>
+                                    <div class="d-flex" style="gap:3px;">
+                                        <button type="button" class="slot-ampm-btn-end" data-period="AM" style="padding:4px 8px;border:1px solid #d8b4fe;background:#fff;color:#4c1d95;border-radius:4px;font-weight:600;cursor:pointer;font-size:11px;width:40px;">AM</button>
+                                        <button type="button" class="slot-ampm-btn-end" data-period="PM" style="padding:4px 8px;border:1px solid #d8b4fe;background:#fff;color:#4c1d95;border-radius:4px;font-weight:600;cursor:pointer;font-size:11px;width:40px;">PM</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Add Button -->
+                            <button type="button" id="addCustomSlot" class="btn btn-cta-primary btn-sm" style="padding:7px 14px;margin-left:auto;white-space:nowrap;font-size:12px;">Add slots</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="modal-footer d-flex justify-content-end align-items-center">
-                    <div class="form-check mb-0 mr-3 d-flex align-items-center">
-                        <input class="form-check-input" type="checkbox" id="selectAllSlots">
-                        <label class="form-check-label ml-2 mb-0" for="selectAllSlots">Select All</label>
+                <div class="modal-footer d-flex justify-content-between align-items-center">
+                    <span id="slotsCount" class="count-badge">0 selected</span>
+                    <div class="d-flex align-items-center">
+                        <div class="select-all-toggle mb-0 mr-3">
+                            <input class="toggle-checkbox" type="checkbox" id="selectAllSlots">
+                            <label class="toggle-label mb-0" for="selectAllSlots">Select All</label>
+                        </div>
+                        <button type="button" id="confirmslot" class="btn btn-cta-primary">
+                            <i class="fas fa-check mr-1"></i> Confirm
+                        </button>
+                        <button type="button" class="btn btn-ghost-cancel ml-2" data-dismiss="modal">
+                            <i class="fas fa-times mr-1"></i> Cancel
+                        </button>
                     </div>
-
-                    <button type="button" id="confirmslot" class="btn btn-success">
-                        <i class="fas fa-check mr-1"></i> Confirm
-                    </button>
-                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">
-                        <i class="fas fa-times mr-1"></i> Cancel
-                    </button>
                 </div>
 
             </div>
@@ -619,6 +959,10 @@
     <script>
         // Global variable for date-wise slots mapping
         let dateWiseSlots = {};
+        // Spinner keyframes for slot loader
+        const styleEl = document.createElement('style');
+        styleEl.innerHTML = '@keyframes slotSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}';
+        document.head.appendChild(styleEl);
 
         // Helper: clear inline validation UI
         function clearValidationErrors() {
@@ -696,6 +1040,57 @@
 
         $(document).ready(function() {
 
+            // Sync visual state of selector cards with their checkboxes
+            window.syncCardSelection = function(selector) {
+                $(selector).each(function() {
+                    const card = $(this).closest('.selector-card');
+                    if (!card.length) return;
+                    card.toggleClass('selected', $(this).is(':checked'));
+                });
+            }
+
+            // Allow clicking anywhere on selector cards to toggle the checkbox
+            $(document).on('click', '.selector-card', function(e) {
+                // Skip if actual checkbox or label was clicked
+                if ($(e.target).is('input, label')) return;
+                const cb = $(this).find('input[type="checkbox"]');
+                cb.prop('checked', !cb.prop('checked')).trigger('change');
+            });
+
+            // Count update helpers
+            window.updateRoomsCount = function() {
+                $('#roomsCount').text($('.room-checkbox:checked').length + ' selected');
+            }
+            window.updateChildrenCount = function() {
+                $('#childrenCount').text($('.child-checkbox:checked').length + ' selected');
+            }
+            window.updateStaffCount = function() {
+                $('#staffCount').text($('.staff-checkbox:checked').length + ' selected');
+            }
+            window.updateSlotsCount = function() {
+                $('#slotsCount').text($('.slot-checkbox:checked').length + ' selected');
+            }
+
+            // Empty state helper for filtered lists
+            window.ensureEmptyState = function(listSelector, emptyId, message, subtext) {
+                const $list = $(listSelector);
+                if (!$list.length) return null;
+                let $empty = $('#' + emptyId);
+                if (!$empty.length) {
+                    const sub = subtext ? `<small>${subtext}</small>` : '';
+                    $list.after(`<div id="${emptyId}" class="empty-state" style="display:none;">${message}${sub}</div>`);
+                    $empty = $('#' + emptyId);
+                }
+                return $empty;
+            }
+
+            window.updateEmptyState = function(listSelector, emptyId, message, subtext) {
+                const $empty = window.ensureEmptyState(listSelector, emptyId, message, subtext);
+                if (!$empty) return;
+                const visible = $(listSelector).children(':visible').length;
+                $empty.toggle(visible === 0);
+            }
+
             // Rooms
             let selectedRooms = new Set($('#selected_rooms').val().split(',').filter(id => id));
             $('#roomsModal').on('show.bs.modal', function() {
@@ -706,14 +1101,16 @@
                         res.rooms.forEach(room => {
                             const checked = selectedRooms.has(room.id.toString()) ?
                                 'checked' : '';
-                            html += `<div class="col-md-4 mb-2 room-item">
-                        <div class="form-check">
-                            <input class="form-check-input room-checkbox" type="checkbox" value="${room.id}" id="room-${room.id}" ${checked}>
-                            <label class="form-check-label" for="room-${room.id}">${room.name}</label>
-                        </div>
+                            html += `<div class="selector-card room-item">
+                        <span class="avatar-dot"></span>
+                        <input class="form-check-input room-checkbox" type="checkbox" value="${room.id}" id="room-${room.id}" ${checked}>
+                        <label class="form-check-label" for="room-${room.id}">${room.name}</label>
                     </div>`;
                         });
                         $('#roomsList').html(html);
+                        syncCardSelection('.room-checkbox');
+                        updateRoomsCount();
+                        window.updateEmptyState('#roomsList', 'roomsEmpty', 'No rooms found', 'Try adjusting your search.');
                     }
                 });
             });
@@ -724,6 +1121,7 @@
                     const name = $(this).find('label').text().toLowerCase();
                     $(this).toggle(name.includes(val));
                 });
+                window.updateEmptyState('#roomsList', 'roomsEmpty', 'No rooms found', 'Try adjusting your search.');
             });
 
             $('#confirmRooms').on('click', function() {
@@ -744,6 +1142,8 @@
             $(document).on('change', '#selectAllRooms', function() {
                 const isChecked = $(this).is(':checked');
                 $('.room-checkbox').prop('checked', isChecked);
+                syncCardSelection('.room-checkbox');
+                updateRoomsCount();
             });
 
             // When rooms are loaded, reset Select All checkbox if not all selected
@@ -751,6 +1151,7 @@
                 const total = $('.room-checkbox').length;
                 const checked = $('.room-checkbox:checked').length;
                 $('#selectAllRooms').prop('checked', total > 0 && total === checked);
+                syncCardSelection('.room-checkbox');
             });
 
             // Update "Select All" checkbox if user manually unchecks one
@@ -758,6 +1159,8 @@
                 const total = $('.room-checkbox').length;
                 const checked = $('.room-checkbox:checked').length;
                 $('#selectAllRooms').prop('checked', total > 0 && total === checked);
+                syncCardSelection('.room-checkbox');
+                updateRoomsCount();
             });
 
 
@@ -765,24 +1168,36 @@
             let selectedChildren = new Set($('#selected_children').val().split(',').filter(id => id));
             $('#childrenModal').on('show.bs.modal', function() {
                 let selectedrooms = $('#selected_rooms').val();
+                $('#childrenInlineError').addClass('d-none').text('');
+                
+                if (!selectedrooms) {
+                    $('#childrenInlineError').removeClass('d-none').text('Please select at least one room first.');
+                    $('#childrenList').empty();
+                    $('#childrenCount').text('0 selected');
+                    return;
+                }
+
                 $.get('{{ route('ptm.get.children') }}', {
                     rooms: selectedrooms
                 }, function(response) {
                     if (response.success) {
+                        $('#childrenInlineError').addClass('d-none').text('');
                         let html = '';
                         response.children.sort((a, b) => a.name.localeCompare(b.name));
                         response.children.forEach(child => {
 
                             const checked = selectedChildren.has(child.id.toString()) ?
                                 'checked' : '';
-                            html += `<div class="col-md-4 mb-2 child-item">
-                        <div class="form-check">
-                            <input class="form-check-input child-checkbox" type="checkbox" value="${child.id}" id="child-${child.id}" ${checked}>
-                            <label class="form-check-label" for="child-${child.id}">${child.name} ${child.lastname}</label>
-                        </div>
+                            html += `<div class="selector-card child-item">
+                        <span class="avatar-dot"></span>
+                        <input class="form-check-input child-checkbox" type="checkbox" value="${child.id}" id="child-${child.id}" ${checked}>
+                        <label class="form-check-label" for="child-${child.id}">${child.name} ${child.lastname}</label>
                     </div>`;
                         });
                         $('#childrenList').html(html);
+                        syncCardSelection('.child-checkbox');
+                        updateChildrenCount();
+                        window.updateEmptyState('#childrenList', 'childrenEmpty', 'No records found', 'Try a different name or room.');
                     }
                 });
             });
@@ -792,6 +1207,7 @@
                     const name = $(this).find('.form-check-label').text().toLowerCase();
                     $(this).toggle(name.includes(search));
                 });
+                window.updateEmptyState('#childrenList', 'childrenEmpty', 'No records found', 'Try a different name or room.');
             });
             $('#confirmChildren').on('click', function() {
                 selectedChildren = new Set();
@@ -811,18 +1227,23 @@
             $(document).on('change', '#selectAllChildren', function() {
                 const isChecked = $(this).is(':checked');
                 $('.child-checkbox').prop('checked', isChecked);
+                syncCardSelection('.child-checkbox');
+                updateChildrenCount();
             });
             // When children are loaded via AJAX, reset Select All checkbox
             $('#childrenModal').on('shown.bs.modal', function() {
                 const total = $('.child-checkbox').length;
                 const checked = $('.child-checkbox:checked').length;
                 $('#selectAllChildren').prop('checked', total > 0 && total === checked);
+                syncCardSelection('.child-checkbox');
             });
             // Update "Select All" checkbox if user manually toggles one
             $(document).on('change', '.child-checkbox', function() {
                 const total = $('.child-checkbox').length;
                 const checked = $('.child-checkbox:checked').length;
                 $('#selectAllChildren').prop('checked', total > 0 && total === checked);
+                syncCardSelection('.child-checkbox');
+                updateChildrenCount();
             });
 
 
@@ -830,9 +1251,12 @@
             let selectedStaff = new Set($('#selected_staff').val().split(',').filter(id => id));
             $('#staffModal').on('show.bs.modal', function() {
                 const selectedRooms = $('#selected_rooms').val(); // get room IDs
+                $('#staffInlineError').addClass('d-none').text('');
+                
                 if (!selectedRooms) {
-                    alert('Please select at least one room first.');
-                    $('#staffModal').modal('hide');
+                    $('#staffInlineError').removeClass('d-none').text('Please select at least one room first.');
+                    $('#staffList').empty();
+                    $('#staffCount').text('0 selected');
                     return;
                 }
 
@@ -840,22 +1264,32 @@
                     rooms: selectedRooms
                 }, function(response) {
                     if (response.success) {
+                        $('#staffInlineError').addClass('d-none').text('');
                         let html = '';
                         response.staff.sort((a, b) => a.name.localeCompare(b.name));
                         response.staff.forEach(staff => {
 
                             const checked = selectedStaff.has(staff.id.toString()) ?
                                 'checked' : '';
-                            html += `<div class="col-md-4 mb-2 staff-item">
-                    <div class="form-check">
-                        <input class="form-check-input staff-checkbox" type="checkbox" value="${staff.id}" id="staff-${staff.id}" ${checked}>
-                        <label class="form-check-label" for="staff-${staff.id}">${staff.name}</label>
-                    </div>
+                            html += `<div class="selector-card staff-item">
+                    <span class="avatar-dot"></span>
+                    <input class="form-check-input staff-checkbox" type="checkbox" value="${staff.id}" id="staff-${staff.id}" ${checked}>
+                    <label class="form-check-label" for="staff-${staff.id}">${staff.name}</label>
                 </div>`;
                         });
                         $('#staffList').html(html);
+                        syncCardSelection('.staff-checkbox');
+                        updateStaffCount();
+                        window.updateEmptyState('#staffList', 'staffEmpty', 'No staff found', 'Try adjusting the search or rooms.');
                     }
                 });
+            });
+
+            $('#staffModal').on('shown.bs.modal', function() {
+                const total = $('.staff-checkbox').length;
+                const checked = $('.staff-checkbox:checked').length;
+                $('#selectAllStaff').prop('checked', total > 0 && total === checked);
+                syncCardSelection('.staff-checkbox');
             });
             // Staff Search
             $('#staffSearch').on('keyup', function() {
@@ -864,6 +1298,7 @@
                     const name = $(this).find('.form-check-label').text().toLowerCase();
                     $(this).toggle(name.includes(search));
                 });
+                window.updateEmptyState('#staffList', 'staffEmpty', 'No staff found', 'Try adjusting the search or rooms.');
             });
             $('#confirmStaff').on('click', function() {
                 selectedStaff = new Set();
@@ -882,6 +1317,16 @@
             $('#selectAllStaff').on('change', function() {
                 const checked = $(this).is(':checked');
                 $('#staffList .staff-checkbox').prop('checked', checked);
+                syncCardSelection('.staff-checkbox');
+                updateStaffCount();
+            });
+
+            $(document).on('change', '.staff-checkbox', function() {
+                const total = $('.staff-checkbox').length;
+                const checked = $('.staff-checkbox:checked').length;
+                $('#selectAllStaff').prop('checked', total > 0 && total === checked);
+                syncCardSelection('.staff-checkbox');
+                updateStaffCount();
             });
 
 
@@ -977,6 +1422,7 @@
             const input = document.getElementById('selected_date');
             const hiddenInput = document.getElementById('selected_dates');
             const previewDiv = document.getElementById('selectedDatePreview');
+            let pendingDate = null;
 
             let preselectedDates = @json($convertedDates); // Y-m-d format only
             let preselectedDisplayDates = @json($displayDates ?? []); // d-m-Y format for hidden input
@@ -1007,7 +1453,7 @@
                     let slots = dateWiseSlots[date];
 
                     let slotBadges = slots.map(s =>
-                        `<span class="badge badge-primary mr-1">${s}</span>`
+                        `<span class="badge mr-1" style="background:#62b7e9;color:#fff;border:1px solid #c084fc;">${s}</span>`
                     ).join("");
 
                     html += `
@@ -1022,26 +1468,61 @@
                 $("#date_slot_map").val(JSON.stringify(dateWiseSlots)); // Update hidden input
             }
 
+            // Remove a date selection if no slots are confirmed
+            function removeDateSelection(dateYMD) {
+                if (!calendar) return;
+                calendar.selectedDates = calendar.selectedDates.filter(d => calendar.formatDate(d, "Y-m-d") !== dateYMD);
+                calendar.setDate(calendar.selectedDates, false, "Y-m-d");
+                const formatted = calendar.selectedDates.map(d => calendar.formatDate(d, "d-m-Y"));
+                hiddenInput.value = formatted.join(',');
+                if (dateWiseSlots[dateYMD]) delete dateWiseSlots[dateYMD];
+                updateDateSlotPreview();
+            }
+
             // Fetch available slots for a date and auto-open modal
             function fetchSlotsForDate(date) {
-                
-
+                pendingDate = date;
                 let selectedRooms = $('#selected_rooms').val();
-                
 
                 if (!selectedRooms) {
-                    alert("Please select rooms first!");
+                    // Close the calendar
+                    if (calendar) calendar.close();
+                    
+                    // Show interactive error
+                    $('#dateInlineErrorText').text('Please select rooms first.');
+                    $('#dateInlineError').removeClass('d-none');
+                    
+                    // Auto-hide after 4 seconds
+                    setTimeout(function() {
+                        $('#dateInlineError').addClass('d-none');
+                    }, 4000);
+                    
+                    removeDateSelection(date);
                     return;
                 }
+
+                // Clear any previous errors
+                $('#dateInlineError').addClass('d-none');
+                $('#dateInlineErrorText').text('');
+                $('#slotInlineError').addClass('d-none').text('');
+
+                // Show modal immediately with loader, then fetch
+                $("#currentDateLabel").text(date.split("-").reverse().join("-"));
+                $("#slotList").empty();
+                $("#slotLoading").css('display','flex');
+                $("#slotModal").modal("show");
 
                 $.get('{{ route('ptm.get-slots') }}', {
                     date: date,
                     rooms: selectedRooms
                 }, function(res) {
-                    
+                    // Hide loader once response arrives
+                    $("#slotLoading").hide();
 
                     if (!res.success || !res.slot || res.slot.length === 0) {
-                        alert("No slots available for this date.");
+                        $('#slotInlineError').removeClass('d-none').text('No slots available for this date.');
+                        $("#slotList").empty();
+                        removeDateSelection(date);
                         return;
                     }
 
@@ -1050,25 +1531,29 @@
                     
 
                     if (validSlots.length === 0) {
-                        alert("No valid slots found for this date. Please create slots first.");
+                        $('#slotInlineError').removeClass('d-none').text('No valid slots found for this date. Please create slots first.');
+                        $("#slotList").empty();
+                        removeDateSelection(date);
                         return;
                     }
+
+                    // Clear error if slots loaded successfully
+                    $('#slotInlineError').addClass('d-none').text('');
 
                     let html = "";
                     let dateDMY = date.split("-").reverse().join("-"); // Y-m-d → d-m-Y
 
                     validSlots.forEach((slot, i) => {
                         html += `
-                            <div class="col-md-4 mb-2 slot-item">
-                                <div class="form-check">
-                                    <input class="form-check-input slot-checkbox"
-                                           type="checkbox"
-                                           value="${slot.time}"
-                                           id="slot-${date}-${i}">
-                                    <label class="form-check-label" for="slot-${date}-${i}">
-                                        ${slot.time}
-                                    </label>
-                                </div>
+                            <div class="selector-card slot-card slot-item">
+                                <span class="avatar-dot"></span>
+                                <input class="form-check-input slot-checkbox"
+                                       type="checkbox"
+                                       value="${slot.time}"
+                                       id="slot-${date}-${i}">
+                                <label class="form-check-label" for="slot-${date}-${i}">
+                                    ${slot.time}
+                                </label>
                             </div>`;
                     });
 
@@ -1082,11 +1567,13 @@
                         });
                     }
 
-                    // Update Select All checkbox state
-                    updateSelectAllCheckbox();
+                    // Sync card selection states and update UI
+                    window.syncCardSelection('.slot-checkbox');
+                    window.updateSelectAllCheckbox();
+                    window.updateEmptyState('#slotList', 'slotsEmpty', 'No slots found', 'Try another Slot or Create one.');
 
-                    // Auto-open slot modal
-                    $("#slotModal").modal("show");
+                    // Modal already open; ensure loader hidden
+                    $("#slotLoading").hide();
 
                     // Confirm slots
                     $("#confirmslot").off("click").on("click", function() {
@@ -1097,14 +1584,21 @@
                         });
 
                         if (selected.length === 0) {
-                            alert("Please select at least one slot!");
+                            $('#slotInlineError').removeClass('d-none').text('Please select at least one slot.');
                             return;
                         }
 
+                        $('#slotInlineError').addClass('d-none').text('');
                         dateWiseSlots[date] = selected;
                         updateDateSlotPreview();
                         $("#slotModal").modal("hide");
+                        pendingDate = null;
                     });
+                }).fail(function() {
+                    $("#slotLoading").hide();
+                    $('#slotInlineError').removeClass('d-none').text('Failed to load slots. Please try again.');
+                    $("#slotList").empty();
+                    removeDateSelection(date);
                 });
             }
 
@@ -1115,31 +1609,176 @@
                     const name = $(this).find('.form-check-label').text().toLowerCase();
                     $(this).toggle(name.includes(search));
                 });
+                window.updateEmptyState('#slotList', 'slotsEmpty', 'No slots found', 'Try another Slot or Create One.');
+            });
+
+            // Add custom slot(s) in range
+            $('#addCustomSlot').on('click', function() {
+                const hourStart = parseInt($('#slotHour').val(), 10);
+                const minutesStart = $('#slotMinutes').val();
+                const periodStart = $('.slot-ampm-btn.active').data('period') || 'AM';
+
+                const hourEnd = parseInt($('#slotHourEnd').val(), 10);
+                const minutesEnd = $('#slotMinutesEnd').val();
+                const periodEnd = $('.slot-ampm-btn-end.active').data('period') || 'AM';
+
+                // Validate inputs
+                if (isNaN(hourStart) || hourStart < 1 || hourStart > 12) {
+                    alert('Please enter a valid start hour (1-12)');
+                    return;
+                }
+                if (isNaN(hourEnd) || hourEnd < 1 || hourEnd > 12) {
+                    alert('Please enter a valid end hour (1-12)');
+                    return;
+                }
+
+                // Convert to 24-hour format
+                let h24Start = hourStart;
+                if (periodStart === 'PM' && hourStart !== 12) h24Start += 12;
+                else if (periodStart === 'AM' && hourStart === 12) h24Start = 0;
+
+                let h24End = hourEnd;
+                if (periodEnd === 'PM' && hourEnd !== 12) h24End += 12;
+                else if (periodEnd === 'AM' && hourEnd === 12) h24End = 0;
+
+                // Restrict to 7 AM - 7 PM (7:00 - 19:00)
+                if (h24Start < 7 || h24End > 19 || (h24End === 19 && parseInt(minutesEnd) > 0)) {
+                    alert('Slots can only be created between 7:00 AM and 7:00 PM');
+                    return;
+                }
+
+                // Validate end time is after start time
+                if (h24End < h24Start || (h24End === h24Start && parseInt(minutesEnd) < parseInt(minutesStart))) {
+                    alert('End time must be after start time');
+                    return;
+                }
+
+                // Format times for display (12-hour format with AM/PM and zero-padded)
+                const h12Start = hourStart;
+                const h12End = hourEnd;
+                const value = `${String(h12Start).padStart(2, '0')}:${minutesStart} ${periodStart} - ${String(h12End).padStart(2, '0')}:${minutesEnd} ${periodEnd}`;
+
+                // Prevent duplicates
+                const exists = $(`.slot-checkbox[value="${value}"]`).length > 0;
+                if (exists) {
+                    // Ensure it is selected if already exists
+                    $(`.slot-checkbox[value="${value}"]`).prop('checked', true).trigger('change');
+                    $('#slotHour').val('');
+                    $('#slotMinutes').val('00');
+                    $('#slotHourEnd').val('');
+                    $('#slotMinutesEnd').val('00');
+                    return;
+                }
+
+                // Create single slot card for the range
+                const newId = `slot-custom-${Date.now()}`;
+                const card = `
+                    <div class="selector-card slot-card slot-item">
+                        <span class="avatar-dot"></span>
+                        <input class="form-check-input slot-checkbox" type="checkbox" value="${value}" id="${newId}" checked>
+                        <label class="form-check-label" for="${newId}">${value}</label>
+                    </div>`;
+
+                $('#slotList').prepend(card);
+
+                // Update UI
+                window.syncCardSelection('.slot-checkbox');
+                window.updateSelectAllCheckbox();
+                window.updateSlotsCount();
+                window.updateEmptyState('#slotList', 'slotsEmpty', 'No slots found', 'Try another Slot or Create One.');
+
+                // Reset inputs
+                $('#slotHour').val('');
+                $('#slotMinutes').val('00');
+                $('#slotHourEnd').val('');
+                $('#slotMinutesEnd').val('00');
+                $('.slot-ampm-btn').removeClass('active').css('background', '#fff').css('color', '#4c1d95');
+                $('.slot-ampm-btn-end').removeClass('active').css('background', '#fff').css('color', '#4c1d95');
+                $('.slot-ampm-btn[data-period="AM"]').addClass('active').css('background', '#a855f7').css('color', '#fff');
+                $('.slot-ampm-btn-end[data-period="AM"]').addClass('active').css('background', '#a855f7').css('color', '#fff');
+                $('#slotHour').focus();
+            });
+            $(document).on('click', '.slot-ampm-btn', function() {
+                $('.slot-ampm-btn').removeClass('active').css('background', '#fff').css('color', '#4c1d95');
+                $(this).addClass('active').css('background', '#a855f7').css('color', '#fff');
+            });
+
+            // Handle end AM/PM button clicks
+            $(document).on('click', '.slot-ampm-btn-end', function() {
+                $('.slot-ampm-btn-end').removeClass('active').css('background', '#fff').css('color', '#4c1d95');
+                $(this).addClass('active').css('background', '#a855f7').css('color', '#fff');
+            });
+
+            // Set default AM on load for both start and end
+            $('.slot-ampm-btn[data-period="AM"]').addClass('active').css('background', '#a855f7').css('color', '#fff');
+            $('.slot-ampm-btn-end[data-period="AM"]').addClass('active').css('background', '#a855f7').css('color', '#fff');
+
+            // Auto-move to minutes when hour is entered
+            $('#slotHour').on('keyup', function(e) {
+                const val = $(this).val();
+                if (val && (e.key === 'Tab' || e.key === 'Enter' || val.length >= 2)) {
+                    $('#slotMinutes').focus();
+                }
+            });
+
+            // Auto-move to end hour when start time minutes are selected
+            $('#slotMinutes').on('change', function() {
+                $('#slotHourEnd').focus();
+            });
+
+            // Auto-move to end minutes when end hour is entered
+            $('#slotHourEnd').on('keyup', function(e) {
+                const val = $(this).val();
+                if (val && (e.key === 'Tab' || e.key === 'Enter' || val.length >= 2)) {
+                    $('#slotMinutesEnd').focus();
+                }
             });
 
             // Select All Slots checkbox
             $('#selectAllSlots').on('change', function() {
                 const isChecked = $(this).is(':checked');
                 $('.slot-checkbox:visible').prop('checked', isChecked);
+                window.syncCardSelection('.slot-checkbox');
+                window.updateSlotsCount();
             });
 
             // Update Select All checkbox when individual checkboxes change
             $(document).on('change', '.slot-checkbox', function() {
-                updateSelectAllCheckbox();
+                window.updateSelectAllCheckbox();
+                window.syncCardSelection('.slot-checkbox');
+                window.updateSlotsCount();
             });
 
-            function updateSelectAllCheckbox() {
+            window.updateSelectAllCheckbox = function() {
                 const total = $('.slot-checkbox:visible').length;
                 const checked = $('.slot-checkbox:visible:checked').length;
                 $('#selectAllSlots').prop('checked', total > 0 && total === checked);
+                window.syncCardSelection('.slot-checkbox');
+                window.updateSlotsCount();
             }
+
+            // If modal closes without confirming slots, remove the pending date selection
+            $('#slotModal').on('hidden.bs.modal', function() {
+                if (pendingDate) {
+                    const hasSlots = Array.isArray(dateWiseSlots[pendingDate]) && dateWiseSlots[pendingDate].length > 0;
+                    if (!hasSlots) {
+                        removeDateSelection(pendingDate);
+                    }
+                    pendingDate = null;
+                }
+                $("#slotLoading").hide();
+                $("#slotList").empty();
+            });
 
             // ✅ Render existing date-slot badges on page load for edit mode
             if (Object.keys(dateWiseSlots).length > 0) {
                 updateDateSlotPreview();
             }
 
-            const calendar = flatpickr(input, {
+            // Track previously selected dates to detect add/remove actions
+            let prevSelectedYMD = new Set(preselectedDates || []);
+
+            let calendar = flatpickr(input, {
                 mode: "multiple",
                 dateFormat: "d-m-Y",
                 minDate: "today",
@@ -1150,6 +1789,11 @@
                         instance.setDate(preselectedDates, false, "Y-m-d");
                     }
                     input.value = ""; // always empty
+
+                    // Initialize prev set from actual selectedDates rendered by flatpickr
+                    prevSelectedYMD = new Set(
+                        instance.selectedDates.map(d => instance.formatDate(d, "Y-m-d"))
+                    );
                 },
 
                 // Keep input empty always
@@ -1158,27 +1802,37 @@
                 },
 
                 onChange: function(selectedDates, dateStr, instance) {
-                    
-
+                    // Always keep input visually empty
                     input.value = "";
 
-                    // Latest clicked date
-                    let clickedDate = selectedDates[selectedDates.length - 1];
-                    
-
-                    let dateYMD = instance.formatDate(clickedDate, "Y-m-d");
-                    let dateDMY = instance.formatDate(clickedDate, "d-m-Y");
-                    
-
-                    // Build selected date list (badges)
-                    const formatted = selectedDates.map(d =>
-                        instance.formatDate(d, "d-m-Y")
+                    // Current selection set in Y-m-d
+                    const curSelectedYMD = new Set(
+                        selectedDates.map(d => instance.formatDate(d, "Y-m-d"))
                     );
 
-                    hiddenInput.value = formatted.join(',');
+                    // Compute added and removed dates
+                    const added = [...curSelectedYMD].filter(d => !prevSelectedYMD.has(d));
+                    const removed = [...prevSelectedYMD].filter(d => !curSelectedYMD.has(d));
 
-                    // Auto open slot selection for this date
-                    fetchSlotsForDate(dateYMD);
+                    // Update hidden input with current selected dates in d-m-Y format
+                    const formattedDMY = selectedDates.map(d => instance.formatDate(d, "d-m-Y"));
+                    hiddenInput.value = formattedDMY.join(',');
+
+                    // Handle removed dates: delete their slots and refresh preview
+                    if (removed.length > 0) {
+                        removed.forEach(d => {
+                            if (dateWiseSlots[d]) delete dateWiseSlots[d];
+                        });
+                        updateDateSlotPreview();
+                    }
+
+                    // Handle newly added date: open slot picker for the first added date
+                    if (added.length > 0) {
+                        fetchSlotsForDate(added[0]);
+                    }
+
+                    // Persist this selection as previous for next change
+                    prevSelectedYMD = curSelectedYMD;
                 }
             });
         });

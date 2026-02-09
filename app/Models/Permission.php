@@ -93,8 +93,11 @@ class Permission extends Model
         'addsubActivity',
         'deletesubActivity',
         'editsubActivity',
-        'createptm',
-        'rescheduleptm',
-        'deleteptm'
+        'createPtm',
+        'reschedulePtm',
+        'deletePtm',
+        'sendMessage',
+        'viewMessages',
+        'sendGroupMessage'
     ];
 }

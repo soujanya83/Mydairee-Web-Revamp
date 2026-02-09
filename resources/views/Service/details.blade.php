@@ -4,6 +4,51 @@
 
 @section('page-styles')
    <style>
+        /* ===================== THEME SUPPORT (GLOBAL) ===================== */
+        body[class*='theme-'] .top-right-button-container .btn-outline-info {
+            border-color: var(--sd-accent, #176ba6) !important;
+            color: var(--sd-accent, #176ba6) !important;
+        }
+        body[class*='theme-'] .top-right-button-container .btn-outline-info:hover,
+        body[class*='theme-'] .top-right-button-container .btn-outline-info:focus {
+            background-color: var(--sd-accent, #176ba6) !important;
+            color: #fff !important;
+        }
+        body[class*='theme-'] .top-right-button-container .dropdown-menu .active,
+        body[class*='theme-'] .top-right-button-container .dropdown-menu .active.font-weight-bold.text-info {
+            background-color: var(--sd-accent, #176ba6) !important;
+            color: #fff !important;
+        }
+        body[class*='theme-'] .btn-save {
+            background: linear-gradient(135deg, var(--sd-accent, #176ba6) 0%, #764ba2 100%) !important;
+            border: none !important;
+            color: #fff !important;
+        }
+        body[class*='theme-'] .btn-save:hover,
+        body[class*='theme-'] .btn-save:focus {
+            background: var(--sd-accent, #176ba6) !important;
+            color: #fff !important;
+        }
+        body[class*='theme-'] .section-header h4 {
+            color: var(--sd-accent, #176ba6) !important;
+        }
+        body[class*='theme-'] .section-header h4 i {
+            color: var(--sd-accent, #176ba6) !important;
+        }
+        body[class*='theme-'] .section-header::after {
+            background: linear-gradient(90deg, var(--sd-accent, #176ba6), var(--sd-accent, #176ba6));
+        }
+        body[class*='theme-'] .form-label {
+            color: var(--sd-accent, #176ba6) !important;
+        }
+        body[class*='theme-'] .philosophy-section {
+            background: linear-gradient(135deg, var(--sd-accent, #176ba6) 0%, #00f2fe 100%) !important;
+            color: #fff !important;
+        }
+        body[class*='theme-'] .philosophy-section .form-label {
+            color: #fff !important;
+        }
+        /* =================== END THEME SUPPORT =================== */
         body {
             /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
             min-height: 100vh;
@@ -199,7 +244,7 @@
                      .top-right-button-container{
     /* margin-top:50px; */
     margin-right: 20px;
-    margin-top: -60px;
+    margin-top: -48px;
     display: flex;
     justify-content: end;
     /* d-lg-flex justify-content-end */
@@ -599,11 +644,11 @@ padding-inline:0;
                             <!-- Service Philosophy -->
                             <div class="philosophy-section card">
                                 <div class="section-header">
-                                    <h4><i class="fas fa-lightbulb"></i> Service Statement of Philosophy</h4>
+                                    <h4 style="color:#fff !important;"><i class="fas fa-lightbulb" style="color:#fff !important;"></i> Service Statement of Philosophy</h4>
                                 </div>
                                 <div class="form-group">
-                                    <label for="philosophyStatement" class="form-label text-dark">Insert your service's statement of philosophy here</label>
-                                    <textarea class="form-control" id="philosophyStatement" rows="6" name="philosophyStatement" placeholder="Enter your service's philosophy statement...">{{old('philosophyStatement', $serviceDetails->philosophyStatement ?? '')}}</textarea>
+                                    <label for="philosophyStatement" class="form-label text-dark" style="color:#fff !important;">Insert your service's statement of philosophy here</label>
+                                    <textarea class="form-control" id="philosophyStatement" rows="6" name="philosophyStatement" placeholder="Enter your service's philosophy statement...">{{ old('philosophyStatement', $serviceDetails->philosophyStatement ?? '') ? old('philosophyStatement', $serviceDetails->philosophyStatement ?? '') : '' }}</textarea>
                                     <span class="text-danger">{{ $errors->first('philosophyStatement') }}</span>
                                 </div>
                             </div>

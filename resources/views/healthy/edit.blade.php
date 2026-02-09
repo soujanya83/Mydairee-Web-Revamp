@@ -1,3 +1,4 @@
+
 @extends('layout.master')
 @section('title', 'Recipes Update')
 @section('parentPageTitle', 'Children')
@@ -9,7 +10,31 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 @section('content')
-
+<style>
+body[class*='theme-'] label {
+    color: var(--sd-accent, #176ba6) !important;
+}
+</style>
+<style>
+/* ===================== THEME SUPPORT (GLOBAL) ===================== */
+body[class*='theme-'] .btn-outline-info {
+    border-color: var(--sd-accent, #176ba6) !important;
+    color: var(--sd-accent, #176ba6) !important;
+}
+body[class*='theme-'] .btn-outline-info:hover, body[class*='theme-'] .btn-outline-info:focus {
+    background-color: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+body[class*='theme-'] .btn-info {
+    background-color: var(--sd-accent, #176ba6) !important;
+    border-color: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+body[class*='theme-'] .card {
+    border-color: var(--sd-accent, #176ba6) !important;
+}
+/* =================== END THEME SUPPORT =================== */
+</style>
 <div>
 
     @if ($errors->any())

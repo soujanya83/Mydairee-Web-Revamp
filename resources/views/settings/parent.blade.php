@@ -433,13 +433,13 @@
     </script>
 
     <!-- Single Row: Filter (left) + Center Dropdown + Add Parent (right) -->
-    <div class="row align-items-center">
+    <div class="row align-items-center" style="margin-top: -10px;">
         <!-- Left: Filter -->
         <div class="col-md-6 d-flex align-items-center">
-            <i class="fas fa-filter mx-2" style="color:#17a2b8; "></i>
-            <input type="text" name="filterbyCentername" class="form-control border-info"
+            <i class="fas fa-filter mx-2" style="color: var(--sd-accent, #17a2b8); "></i>
+            <input type="text" name="filterbyCentername" class="form-control theme-input"
                 placeholder="Filter by Parent or Child"
-                style="width: 340px;  height: 35px; border-radius: 50px; padding-left: 18px;"
+                style="width: 340px; height: 35px; border-radius: 50px; padding-left: 18px; border: 2px solid var(--sd-accent, #17a2b8); background: var(--sd-bg, #fff); color: var(--sd-accent, #17a2b8);"
                 onkeyup="filterbyParentsName(this.value)">
 
         </div>
@@ -447,15 +447,18 @@
         <!-- Right: Center Dropdown + Add Parent Button -->
         <div class="col-md-6 d-flex justify-content-end align-items-center" style="gap: 10px;">
             <div class="dropdown">
-                <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="centerDropdown"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-lg dropdown-toggle theme-outline-btn" type="button" id="centerDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    style="background: var(--sd-bg, #fff); color: var(--sd-accent, #17a2b8); border: 2px solid var(--sd-accent, #17a2b8);">
                     {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
                 </button>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown">
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
+                    style="background: var(--sd-bg, #fff); border: 1px solid var(--sd-accent, #17a2b8);">
                     @foreach ($centers as $center)
                         <a href="javascript:void(0);"
-                            class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
-                            style="background-color:white;" data-id="{{ $center->id }}">
+                            class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold' : '' }}"
+                            style="background: var(--sd-bg, #fff); color: var(--sd-accent, #17a2b8);"
+                            data-id="{{ $center->id }}">
                             {{ $center->centerName }}
                         </a>
                     @endforeach
@@ -463,49 +466,49 @@
             </div>
 
             @if (!empty($permissions['addParent']) && $permissions['addParent'])
-                <button class="btn btn-outline-info btn-lg" data-toggle="modal" data-target="#addParentModal">
+                <button class="btn btn-outline-info btn-lg theme-outline-btn" style="background: var(--sd-bg, #fff); color: var(--sd-accent, #17a2b8); border: 2px solid var(--sd-accent, #17a2b8);" data-toggle="modal" data-target="#addParentModal">
                     <i class="fa fa-plus"></i>&nbsp; Add Parent
                 </button>
             @endif
         </div>
     </div>
     <hr>
-    <!-- Bulk Action Toolbar -->
-    <div id="bulkActionToolbar" class="col-12 mt-3" style="display: none;">
-        <div class="alert alert-info d-flex align-items-center justify-content-between mb-0">
+<!-- Bulk Action Toolbar -->
+{{--  <div id="bulkActionToolbar" class="col-12 mt-3" style="display: none;">
+    <div class="alert alert-info d-flex align-items-center justify-content-between mb-0">
 
-            <!-- LEFT SIDE: Selected Count -->
-            <div class="d-flex align-items-center">
-                <strong><span id="selectedCount">0</span> parent(s) selected</strong>
-            </div>
-
-            <!-- RIGHT SIDE: All action buttons in order -->
-            <div class="d-flex align-items-center" style="gap: 10px;">
-
-                <!-- Track Mails -->
-                <button class="btn btn-info btn-sm" onclick="openTrackMailsModal()">
-                    <i class="fa-solid fa-envelope-open-text"></i> Track Mails
-                </button>
-
-                <!-- Select All -->
-                <div class="d-flex align-items-center" style="gap:5px;" title="Select / Deselect All Parents">
-                    <input type="checkbox" id="selectAllParents" class="parent-checkbox">
-                    <label for="selectAllParents" class="m-0" style="cursor:pointer;">Select All</label>
-                </div>
-
-                <!-- Send Email -->
-                <button class="btn btn-primary btn-sm" onclick="openBulkEmailModal()">
-                    <i class="fa-solid fa-envelope"></i> Send Email
-                </button>
-
-                <!-- Clear Selection -->
-                <button class="btn btn-secondary btn-sm" onclick="clearSelection()">
-                    <i class="fa-solid fa-times"></i> Clear Selection
-                </button>
-            </div>
-
+        <!-- LEFT SIDE: Selected Count -->
+        <div class="d-flex align-items-center">
+            <strong><span id="selectedCount">0</span> parent(s) selected</strong>
         </div>
+
+        <!-- RIGHT SIDE: All action buttons in order -->
+        <div class="d-flex align-items-center" style="gap: 10px;">
+
+            <!-- Track Mails -->
+            <button class="btn btn-info btn-sm" onclick="openTrackMailsModal()">
+                <i class="fa-solid fa-envelope-open-text"></i> Track Mails
+            </button>
+
+            <!-- Select All -->
+            <div class="d-flex align-items-center" style="gap:5px;" title="Select / Deselect All Parents">
+                <input type="checkbox" id="selectAllParents" class="parent-checkbox">
+                <label for="selectAllParents" class="m-0" style="cursor:pointer;">Select All</label>
+            </div>
+
+            <!-- Send Email -->
+            <button class="btn btn-primary btn-sm" onclick="openBulkEmailModal()">
+                <i class="fa-solid fa-envelope"></i> Send Email
+            </button>
+
+            <!-- Clear Selection -->
+            <button class="btn btn-secondary btn-sm" onclick="clearSelection()">
+                <i class="fa-solid fa-times"></i> Clear Selection
+            </button>
+        </div>
+
     </div>
+</div>  --}}
 
 
     <div class="row clearfix" style="margin-top:30px">
@@ -542,34 +545,35 @@
                                     data-parent-id="{{ $parent->id }}" data-parent-email="{{ $parent->email }}"
                                     data-parent-name="{{ $parent->name }}">
                                     <div class="card-body text-center position-relative">
-                                        <!-- Checkbox - Top Left -->
-                                        <div class="position-absolute" style="top: 10px; left: 10px; z-index: 10;">
-                                            <input type="checkbox" class="parent-checkbox" value="{{ $parent->id }}"
-                                                data-email="{{ $parent->email }}" data-name="{{ $parent->name }}"
-                                                title="Select {{ $parent->name }}">
-                                        </div>
+            <!-- Checkbox - Top Left -->
 
-                                        <!-- Ellipsis Dropdown - Top Right -->
-                                        <div class="position-absolute dropdown"
-                                            style="top: 10px; right: 10px; z-index: 10;">
-                                            <a href="#" class="text-info" id="parentDropdown{{ $parent->id }}"
-                                                role="button" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false" style="font-size: 22px; cursor: pointer;">
-                                                <i class="fa-solid fa-ellipsis-v"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-right"
-                                                aria-labelledby="parentDropdown{{ $parent->id }}"
-                                                style="min-width: 120px;">
-                                                <a class="dropdown-item" href="#"
-                                                    onclick="event.preventDefault(); openEmailModal({{ $parent->id }})">
-                                                    <i class="fa fa-envelope"></i> Send Mail
-                                                </a>
-                                                <a class="dropdown-item" href="#"
-                                                    onclick="event.preventDefault(); trackMail({{ $parent->id }})">
-                                                    <i class="fa fa-envelope-open-text"></i> Track Mail
-                                                </a>
-                                            </div>
-                                        </div>
+            {{--  <div class="position-absolute" style="top: 10px; left: 10px; z-index: 10;">
+                <input type="checkbox" class="parent-checkbox" value="{{ $parent->id }}"
+                    data-email="{{ $parent->email }}" data-name="{{ $parent->name }}"
+                    title="Select {{ $parent->name }}">
+            </div>  --}}
+
+            <!-- Ellipsis Dropdown - Top Right -->
+            {{--  <div class="position-absolute dropdown"
+                style="top: 10px; right: 10px; z-index: 10;">
+                <a href="#" class="text-info" id="parentDropdown{{ $parent->id }}"
+                    role="button" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" style="font-size: 22px; cursor: pointer;">
+                    <i class="fa-solid fa-ellipsis-v"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right"
+                    aria-labelledby="parentDropdown{{ $parent->id }}"
+                    style="min-width: 120px;">
+                    <a class="dropdown-item" href="#"
+                        onclick="event.preventDefault(); openEmailModal({{ $parent->id }})">
+                        <i class="fa fa-envelope"></i> Send Mail
+                    </a>
+                    <a class="dropdown-item" href="#"
+                        onclick="event.preventDefault(); trackMail({{ $parent->id }})">
+                        <i class="fa fa-envelope-open-text"></i> Track Mail
+                    </a>
+                </div>
+            </div>  --}}
 
                                         <img src="{{ $avatar }}" class="rounded-circle mb-3" width="80"
                                             height="80" alt="Parent Avatar">
@@ -587,7 +591,8 @@
 
                                         <div class="d-flex justify-content-center mt-3">
                                             @if (!empty($permissions['updateParent']) && $permissions['updateParent'])
-                                                <button class="btn btn-sm btn-info mr-2"
+                                                <button class="btn btn-sm theme-edit-btn mr-2"
+                                                    style="background: var(--sd-accent, #17a2b8); color: var(--sd-bg, #fff); border: 2px solid var(--sd-accent, #17a2b8);"
                                                     onclick="openEditParentModal({{ $parent->id }})">
                                                     <i class="fa-solid fa-pen-to-square"></i> Edit
                                                 </button>
@@ -714,7 +719,7 @@
                     <!-- Modal Footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="Submit" class="btn btn-primary" onclick="submitparentform()">Save</button>
+                        <button type="Submit" class="btn theme-outline-btn" onclick="submitparentform()">Save</button>
                     </div>
                     </form>
                 </div>
@@ -777,7 +782,7 @@
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" onclick="submitEditParent()" class="btn btn-primary">Update</button>
+                            <button type="button" onclick="submitEditParent()" class="btn theme-outline-btn">Update</button>
                         </div>
                     </div>
                 </form>
@@ -1625,7 +1630,7 @@
                                 <ul class="list-unstyled">${childrenList}</ul>
                                 <div class="d-flex justify-content-center mt-3">
                                     
-                                        <button class="btn btn-sm btn-info mr-2" onclick="openEditParentModal(${parent.id})">
+                                        <button class="btn btn-sm theme-edit-btn mr-2" style="background: var(--sd-accent, #17a2b8); color: var(--sd-bg, #fff); border: 2px solid var(--sd-accent, #17a2b8);" onclick="openEditParentModal(${parent.id})">
                                             <i class="fa-solid fa-pen-to-square"></i> Edit
                                         </button>
                                     <button class="btn btn-sm btn-danger" onclick="deleteSuperadmin(${parent.id})">

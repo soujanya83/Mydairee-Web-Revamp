@@ -12,7 +12,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
         }
 
         :root {
@@ -486,14 +486,13 @@
         }
     </style>
 
-   
 
     <div class="text-zero top-right-button-container d-flex justify-content-end"
         style="margin-right: 20px;margin-top: -60px;">
 
         <div class="text-zero top-right-button-container">
 
-            <a href="{{ route('settings.manage-permission-role') }}" class="btn btn-outline-info" style="margin-left:5px;">
+            <a href="{{ route('settings.manage-permission-role') }}" class="btn theme-outline-btn" style="margin-left:5px; margin-top: 10px; background: var(--sd-bg, #fff); color: var(--sd-accent, #49c5b6); border: 2px solid var(--sd-accent, #49c5b6); border-radius: var(--border-radius);">
                 Manage Role
             </a>
 
@@ -1263,7 +1262,7 @@
                                     <div class="card-header">
                                         <div class="header-content">
                                             <i class=" icon-users"></i>
-                                            <h3>PTM Management</h3>
+                                            <h3> PTM Management</h3>
                                         </div>
 
                                         <button type="button" class="select-all-btn" data-category="ptm">
@@ -1290,6 +1289,34 @@
                                     </div>
                                 </div>
 
+                                <!-- Messaging Management -->
+                                 <div class="permission-card">
+                                    <div class="card-header">
+                                        <div class="header-content">
+                                            <i class="fa fa-comments"></i>
+                                            <h3>Messaging Management</h3>
+                                        </div>
+                                        <button class="select-all-btn" type="button" data-category="message">
+                                            <i class="fas fa-check-circle"></i> All
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        @foreach ($MessagingPermissions as $perm)
+                                            <div class="permission-item">
+                                                <label>
+                                                    <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                                    {{ $perm['label'] }}
+                                                </label>
+                                                <label class="switch">
+                                                    <input type="checkbox" class="permission-check"
+                                                        name="permissions[{{ $perm['name'] }}]" data-category="message"
+                                                        {{ !empty($userPermissions) && $userPermissions->{$perm['name']} ? 'checked' : '' }}>
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
 
                             </div>
 

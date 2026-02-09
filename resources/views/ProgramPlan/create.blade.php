@@ -8,6 +8,36 @@
 
 @section('content')
 
+    <!-- Theme-scoped overrides: apply only when a theme is active -->
+    <style>
+        /* Defaults stay intact; theme accents only when a theme class is present */
+        body[class*="theme-"] .btn-info {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            border-color: var(--sd-accent);
+            color: #000;
+        }
+
+        body[class*="theme-"] .btn-outline-info {
+            border-color: var(--sd-accent);
+            color: var(--sd-accent);
+        }
+
+        body[class*="theme-"] .btn-outline-info:hover {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            color: #000;
+        }
+
+        body[class*="theme-"] .form-control:focus {
+            border-color: var(--sd-accent);
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.06);
+        }
+
+        /* Optional subtle accent for labels */
+        body[class*="theme-"] label {
+            color: var(--sd-accent);
+        }
+    </style>
+
     <main data-centerid="<?= isset($centerId)?$centerId:null; ?>" style="padding-block:5em;padding-inline:2em;">
   
 

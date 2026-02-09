@@ -204,7 +204,7 @@
 
 
 @section('content')
-
+<h1>dsjjsjf</h1>
 <div class="assessment-details">
     @php
         $groupedBySubject = $progessPlanData->groupBy(function($item) {
@@ -361,6 +361,28 @@
     margin-bottom: 15px;
     padding-bottom: 10px;
     border-bottom: 2px solid #007bff;
+}
+
+/* THEME: subject-title border and icon (all subjects, including Maths and Practical Life) */
+body.theme-purple .subject-title,
+body.theme-purple .subject-title .fa-book {
+    border-bottom: 2px solid var(--sd-accent, #a259ec) !important;
+    color: var(--sd-accent, #a259ec) !important;
+}
+body.theme-blue .subject-title,
+body.theme-blue .subject-title .fa-book {
+    border-bottom: 2px solid var(--sd-accent, #176ba6) !important;
+    color: var(--sd-accent, #176ba6) !important;
+}
+body.theme-cyan .subject-title,
+body.theme-cyan .subject-title .fa-book {
+    border-bottom: 2px solid var(--sd-accent, #00b8d9) !important;
+    color: var(--sd-accent, #00b8d9) !important;
+}
+body[class*='theme-'] .subject-title,
+body[class*='theme-'] .subject-title .fa-book {
+    border-bottom: 2px solid var(--sd-accent, #176ba6) !important;
+    color: var(--sd-accent, #176ba6) !important;
 }
 
 .assessment-item-wrapper {

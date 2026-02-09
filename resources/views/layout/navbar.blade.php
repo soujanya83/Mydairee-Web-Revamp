@@ -56,8 +56,23 @@
     }
 </style>
 <style>
+    /* Theme accent for search button and magnifier */
+    .navbar-form.search-form .btn.btn-default {
+        border-color: var(--sd-accent, #6c757d);
+        color: var(--sd-accent, #6c757d);
+    }
+    .navbar-form.search-form .btn.btn-default i.icon-magnifier {
+        color: var(--sd-accent, #6c757d) !important;
+    }
+    .navbar-form.search-form .btn.btn-default:hover,
+    .navbar-form.search-form .btn.btn-default:focus {
+        background: var(--sd-accent, #0dcaf0);
+        color: #fff;
+        border-color: var(--sd-accent, #0dcaf0);
+    }
+
     .notification-bell {
-        background-color: #0dcaf0;
+        background-color: var(--sd-accent, #0dcaf0);
         border-radius: 6px;
         /* square look with slight rounding */
         color: white;
@@ -113,6 +128,8 @@
     .notification-bell:hover {
         transform: scale(1.1);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        background-color: var(--sd-accent, #0dcaf0) !important;
+        filter: brightness(0.85);
     }
 
 
@@ -158,7 +175,8 @@
     .notification-bell.navbar-interactive {
         transform: translateY(-2px) scale(1.06);
         box-shadow: 0 12px 32px rgba(0,0,0,0.14);
-        background-color: #0bbadf;
+        background-color: var(--sd-accent);
+        filter: brightness(0.92);
         border-radius: 10px; /* slightly rounder on hover */
     }
 
@@ -201,6 +219,10 @@
             box-shadow: 0 8px 22px rgba(0,0,0,0.10);
             background: rgba(255,255,255,0.98);
             border-radius: 10px;
+        }
+        /* Theme accent for icons inside user dropdown options */
+        #userDropdownMenu .dropdown-item i {
+            color: var(--sd-accent) !important;
         }
 </style>
 <style>
@@ -309,7 +331,7 @@
 
                                     <div class="media-left">
                                         <i class="{{ $notification->data['icon'] ?? 'fa fa-bell' }} fa-2x"
-                                            style="color:green;font-size:25px "> </i>
+                                            style="color: var(--sd-accent, #0dcaf0); font-size:25px;"> </i>
                                     </div>
 
                                     <div class="media-body">
@@ -407,12 +429,16 @@
         <div class="blush"></div>
         <span>Blush</span>
     </li>
+    <li data-theme="none" class="{{ Auth::user()->theme === 'none' ? 'active' : '' }}">
+        <div class="none"></div>
+        <span>No Theme</span>
+    </li>
 </ul>
 
                                 <hr>
                             </div>
                             <button onclick="closeThemeModal()"
-                                style="display: block; margin: 20px auto 0; padding: 10px 20px; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+                                style="display: block; margin: 0px auto 0; padding: 10px 20px; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Close</button>
                         </div>
                     </div>
 
@@ -541,7 +567,12 @@
         .then(data => {
             if (data.success) {
                 // 🔹 Instantly apply new theme to body
-                document.body.className = 'theme-' + theme;
+                if (theme === 'none') {
+                    // Remove all theme classes to show original design
+                    document.body.className = document.body.className.replace(/theme-\S+/g, '').trim();
+                } else {
+                    document.body.className = 'theme-' + theme;
+                }
                 closeThemeModal();
             }
         });

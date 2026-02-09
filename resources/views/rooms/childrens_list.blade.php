@@ -10,6 +10,98 @@
     }
 </style>
 <style>
+    /* Theme accent for filter icon and filter dropdown/input */
+    .theme-purple .fas.fa-filter,
+    .theme-blue .fas.fa-filter,
+    .theme-cyan .fas.fa-filter,
+    .theme-green .fas.fa-filter,
+    .theme-orange .fas.fa-filter,
+    .theme-blush .fas.fa-filter {
+        color: var(--sd-accent) !important;
+    }
+    .theme-purple select.uniform-input,
+    .theme-blue select.uniform-input,
+    .theme-cyan select.uniform-input,
+    .theme-green select.uniform-input,
+    .theme-orange select.uniform-input,
+    .theme-blush select.uniform-input,
+    .theme-purple input.uniform-input,
+    .theme-blue input.uniform-input,
+    .theme-cyan input.uniform-input,
+    .theme-green input.uniform-input,
+    .theme-orange input.uniform-input,
+    .theme-blush input.uniform-input {
+        border-color: var(--sd-accent) !important;
+        color: var(--sd-accent) !important;
+    }
+    .theme-purple select.uniform-input:focus,
+    .theme-blue select.uniform-input:focus,
+    .theme-cyan select.uniform-input:focus,
+    .theme-green select.uniform-input:focus,
+    .theme-orange select.uniform-input:focus,
+    .theme-blush select.uniform-input:focus,
+    .theme-purple input.uniform-input:focus,
+    .theme-blue input.uniform-input:focus,
+    .theme-cyan input.uniform-input:focus,
+    .theme-green input.uniform-input:focus,
+    .theme-orange input.uniform-input:focus,
+    .theme-blush input.uniform-input:focus {
+        box-shadow: 0 0 0 2px var(--sd-accent-soft) !important;
+        border-color: var(--sd-accent) !important;
+    }
+</style>
+
+<!-- Theme accent color overrides for specific elements when a theme is active -->
+<style>
+    /* Theme accent for Add New Child and Manage Educators buttons */
+    .theme-purple .btn-outline-info,
+    .theme-blue .btn-outline-info,
+    .theme-cyan .btn-outline-info,
+    .theme-green .btn-outline-info,
+    .theme-orange .btn-outline-info,
+    .theme-blush .btn-outline-info {
+        border-color: var(--sd-accent) !important;
+        color: var(--sd-accent) !important;
+    }
+    .theme-purple .btn-outline-info:hover,
+    .theme-blue .btn-outline-info:hover,
+    .theme-cyan .btn-outline-info:hover,
+    .theme-green .btn-outline-info:hover,
+    .theme-orange .btn-outline-info:hover,
+    .theme-blush .btn-outline-info:hover {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+    /* Card name (child name) in card-title */
+    .theme-purple .row .card .card-title,
+    .theme-blue .row .card .card-title,
+    .theme-cyan .row .card .card-title,
+    .theme-green .row .card .card-title,
+    .theme-orange .row .card .card-title,
+    .theme-blush .row .card .card-title {
+        color: var(--sd-accent) !important;
+    }
+    /* Tab switch background for active tab */
+    .theme-purple .nav-tabs .nav-link.active,
+    .theme-blue .nav-tabs .nav-link.active,
+    .theme-cyan .nav-tabs .nav-link.active,
+    .theme-green .nav-tabs .nav-link.active,
+    .theme-orange .nav-tabs .nav-link.active,
+    .theme-blush .nav-tabs .nav-link.active {
+        background-color: var(--sd-accent) !important;
+        color: #fff !important;
+        border-color: var(--sd-accent) !important;
+    }
+    .theme-purple .nav-tabs .nav-link,
+    .theme-blue .nav-tabs .nav-link,
+    .theme-cyan .nav-tabs .nav-link,
+    .theme-green .nav-tabs .nav-link,
+    .theme-orange .nav-tabs .nav-link,
+    .theme-blush .nav-tabs .nav-link {
+        border-color: var(--sd-accent) !important;
+    }
+</style>
+<style>
     .card-header {
         position: relative;
         z-index: 1;
@@ -151,7 +243,6 @@
 </style>
 
 @section('content')
-
 <div class="col-12 d-flex align-items-center flex-nowrap gap-3 top-right-button-container mb-3 justify-content-end">
     <!-- ✅ scroll if overflow -->
     <div style="margin-right:485px">
@@ -191,8 +282,8 @@
         <select id="statusFilter" name="status" class="form-control form-control-sm border-info uniform-input"
             onchange="filterProgramPlan()">
             <option value="">All</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">IN-Active</option>
+            <option value="Active" selected>Active</option>
+            <option value="Inactive">Inactive</option>
         </select>
     </div>
 
@@ -317,11 +408,7 @@
                         @endif
                     </span>
 
-                    <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#statusModal{{ $child->childId }}" style="height: 23px;"
-                        title="View Status History">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    
 
                 </div>
 
@@ -333,8 +420,12 @@
                     M Y') ?? 'N/A' }}
                 </p>
 
-                <div class="d-flex justify-content-end" style="margin-top:-43px">
-
+                <div class="d-flex justify-content-end" style="margin-top:-17px">
+                    <button type="button" class="btn btn-outline-info btn-sm " data-bs-toggle="modal"
+                        data-bs-target="#statusModal{{ $child->childId }}" style="height: 23px; margin-right:6px;"
+                        title="View Status History">
+                        <i class="fas fa-eye"></i>
+                    </button>
                     <a href="{{ route('children.edit', $child->childId) }}" class="btn btn-outline-primary btn-sm"
                         style="height: 24px;" title="Child Edit">
                         <i class="fas fa-edit"></i>
@@ -345,6 +436,7 @@
                     <form action="{{ route('children.destroy', $child->childId) }}" method="POST"
                         onsubmit="return confirm('Are you sure?')" class="me-2">
                         @csrf
+                        
                         @method('DELETE')
                         <button class="btn btn-outline-danger btn-sm" title="Child Delete"><i
                                 class="fas fa-trash-alt"></i></button>
@@ -417,6 +509,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        filterProgramPlan();
     const sortBtn = document.getElementById("sortBtn");
     const genderBtn = document.getElementById("genderBtn");
     const wrapper = document.getElementById("childrenWrapper");
@@ -515,7 +608,7 @@
 function filterProgramPlan() {
     // Get filter values
     var name       = $('#FilterbyName').val().toLowerCase();
-    var status     = $('#statusFilter').val().toLowerCase();
+    var status     = $('#statusFilter').val().toLowerCase().trim();
     var birthMonth = $('#birthmonthFilter').val().toLowerCase().slice(0,3); // trim to 3 letters
     var gender     = $('#genderFilter').val().toLowerCase();
 
@@ -523,7 +616,7 @@ function filterProgramPlan() {
     $('.row.mb-5 > .col-md-3').each(function() {
         var card        = $(this);
         var childName   = card.find('.card-title').text().toLowerCase();
-        var childStatus = card.find('form button[type="submit"]').text().toLowerCase();
+        var childStatus = card.find('form button[type="submit"]').text().toLowerCase().trim();
         var childGender = card.find('.badge i').hasClass('fa-mars') ? 'male' : 'female';
 
         // Extract DOB from badge
@@ -536,8 +629,12 @@ function filterProgramPlan() {
 
         // Check if card matches all active filters
         var show = true;
+
+        // Debugging: log status values
+        // console.log('Dropdown status:', status, '| Card status:', childStatus);
+
         if (name && !childName.includes(name)) show = false;
-        if (status && !childStatus.includes(status)) show = false;
+        if (status && status !== '' && childStatus !== status) show = false;
         if (birthMonth && dobMonth !== birthMonth) show = false;
         if (gender && childGender !== gender) show = false;
 

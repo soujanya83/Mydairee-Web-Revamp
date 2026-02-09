@@ -1,3 +1,48 @@
+<style>
+    /* Theme the background of the Snapshot Gallery heading, keep text and icon white */
+    body[class*="theme-"] h1.text-center.text-white.mb-5.font-weight-bold {
+        background: var(--sd-accent, #4facfe) !important;
+        color: #fff !important;
+    }
+    body[class*="theme-"] h1.text-center.text-white.mb-5.font-weight-bold .fa-camera-retro {
+        color: #fff !important;
+    }
+</style>
+<style>
+    /* Theme system for snapshot index: card header, title, status badge, row background, Add New, and dropdown */
+    body[class*="theme-"] .card-header,
+    body[class*="theme-"] .snapshot-title,
+    body[class*="theme-"] .status-badge {
+        background: var(--sd-accent, #4facfe) !important;
+        color: #fff !important;
+        border-color: var(--sd-accent, #4facfe) !important;
+    }
+    body[class*="theme-"] .btn-outline-info,
+    body[class*="theme-"] .btn-outline-primary {
+        border-color: var(--sd-accent, #4facfe) !important;
+        color: var(--sd-accent, #4facfe) !important;
+        background: #fff !important;
+    }
+    body[class*="theme-"] .btn-outline-info:hover,
+    body[class*="theme-"] .btn-outline-primary:hover {
+        background: var(--sd-accent, #4facfe) !important;
+        color: #fff !important;
+    }
+    body[class*="theme-"] .dropdown-menu .dropdown-item.active,
+    body[class*="theme-"] .dropdown-menu .dropdown-item:active {
+        background: var(--sd-accent, #4facfe) !important;
+        color: #fff !important;
+    }
+</style>
+<style>
+    /* Theme system for snapshot index: only card header, title, and status badge */
+    body[class*="theme-"] .card-header,
+    body[class*="theme-"] .snapshot-title{
+        background: var(--sd-accent, #4facfe) !important;
+        color: #fff !important;
+        border-color: var(--sd-accent, #4facfe) !important;
+    }
+</style>
 @extends('layout.master')
 @section('title', 'Snapshots')
 @section('parentPageTitle', '')
@@ -71,6 +116,9 @@
         border: 1px solid rgba(255, 255, 255, 0.2);
         margin-bottom: 30px;
         position: relative;
+        height: 420px;
+        display: flex;
+        flex-direction: column;
     }
 
     .snapshot-card:hover {
@@ -81,10 +129,11 @@
     .card-header {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         color: white;
-        padding: 20px;
+        padding: 12px 16px;
         border: none;
         position: relative;
         overflow: hidden;
+        min-height: 60px;
     }
 
     .card-header::before {
@@ -109,23 +158,36 @@
     }
 
     .snapshot-title {
-        font-size: 1.4rem;
+        font-size: 1.05rem;
         font-weight: 600;
         margin: 0;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .status-badge {
         position: absolute;
-        top: 15px;
-        right: 20px;
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-size: 0.8rem;
+        top: 10px;
+        right: 12px;
+        padding: 3px 10px;
+        border-radius: 16px;
+        font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
+    
+        body .status-badge.status-published {
+            background: rgba(40, 167, 69, 0.9) !important;
+            color: #fff !important;
+        }
+    
+        body .status-badge.status-draft {
+            background: rgba(255, 193, 7, 0.9) !important;
+            color: #856404 !important;
+        }
 
     .status-published {
         background: rgba(40, 167, 69, 0.9);
@@ -139,7 +201,7 @@
 
     .image-gallery {
         position: relative;
-        height: 250px;
+        height: 120px;
         overflow: hidden;
         background: #f8f9fa;
     }
@@ -149,6 +211,7 @@
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
+        border-radius: 0;
     }
 
     .image-gallery:hover .main-image {
@@ -157,13 +220,13 @@
 
     .image-count {
         position: absolute;
-        bottom: 10px;
-        right: 10px;
+        bottom: 6px;
+        right: 8px;
         background: rgba(0, 0, 0, 0.7);
         color: white;
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 0.8rem;
+        padding: 2px 7px;
+        border-radius: 12px;
+        font-size: 0.7rem;
         font-weight: 600;
     }
 
@@ -174,13 +237,17 @@
         background: rgba(0, 0, 0, 0.5);
         color: white;
         border: none;
-        width: 35px;
-        height: 35px;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
-        font-size: 14px;
+        font-size: 11px;
         cursor: pointer;
         transition: all 0.3s ease;
         opacity: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .image-gallery:hover .image-nav {
@@ -201,14 +268,43 @@
     }
 
     .card-body {
-        padding: 25px;
+        padding: 12px 16px 10px 16px;
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card-body-scroll {
+        max-height: 220px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        scrollbar-width: thin;
+        scrollbar-color: #e0e7ef #f8f9fa;
+    }
+
+    /* Chrome, Edge, Safari */
+    .card-body-scroll::-webkit-scrollbar {
+        width: 8px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    .card-body-scroll::-webkit-scrollbar-thumb {
+        background: #e0e7ef;
+        border-radius: 8px;
+    }
+    .card-body-scroll::-webkit-scrollbar-thumb:hover {
+        background: #d2dae6;
     }
 
     .snapshot-details {
         color: #6c757d;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin-bottom: 20px;
+        font-size: 0.85rem;
+        line-height: 1.3;
+        margin-bottom: 10px;
+        max-height: 48px;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .children-section,
@@ -217,32 +313,32 @@
     }
 
     .section-title {
-        font-size: 1rem;
+        font-size: 0.85rem;
         font-weight: 600;
         color: #495057;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
     }
 
     .children-list {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 15px;
+        gap: 6px;
+        margin-bottom: 8px;
     }
 
     .child-item {
         background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
         color: #333;
-        padding: 8px 12px;
-        border-radius: 25px;
-        font-size: 0.85rem;
+        padding: 4px 8px;
+        border-radius: 18px;
+        font-size: 0.75rem;
         font-weight: 500;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 5px;
         transition: all 0.3s ease;
         box-shadow: 0 2px 10px rgba(255, 154, 158, 0.3);
     }
@@ -253,25 +349,25 @@
     }
 
     .child-avatar {
-        width: 25px;
-        height: 25px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
         object-fit: cover;
-        border: 2px solid rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.8);
     }
 
     .rooms-list {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 5px;
     }
 
     .room-item {
         background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
         color: #333;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
+        padding: 3px 8px;
+        border-radius: 14px;
+        font-size: 0.7rem;
         font-weight: 500;
         transition: all 0.3s ease;
         box-shadow: 0 2px 8px rgba(168, 237, 234, 0.3);
@@ -284,21 +380,33 @@
 
     .action-buttons {
         display: flex;
-        gap: 10px;
-        margin-top: 20px;
+        gap: 6px;
+        margin-top: 8px;
     }
 
     .btn-action {
         flex: 1;
-        padding: 12px;
+        padding: 6px 0;
         border: none;
-        border-radius: 25px;
+        border-radius: 16px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
+        font-size: 0.8rem;
+        min-width: 28px;
+        max-width: 36px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-action i {
+        font-size: 13px !important;
+        color: #fff;
     }
 
     .btn-edit {
@@ -456,11 +564,50 @@
         /* slightly outside the image */
     }
 </style>
-
+<style>
+         
+        .pagination-sm .page-link {
+            min-width: 34px;
+            height: 34px;
+            padding: 4px 12px;
+            font-size: 1.15rem;
+            border-radius: 8px;
+            line-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pagination-sm .page-item.active .page-link {
+            background: var(--sd-accent, #4facfe);
+            color: #fff;
+            border-color: var(--sd-accent, #4facfe);
+        }
+        .pagination-sm .page-link {
+            color: var(--sd-accent, #4facfe);
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            transition: background 0.2s, color 0.2s;
+        }
+        .pagination-sm .page-link:hover {
+            background: var(--sd-accent, #4facfe);
+            color: #fff;
+        }
+        .pagination-sm .page-link i {
+            font-size: 1.25em;
+            vertical-align: middle;
+        }
+        .pagination-row-align {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: -90px;
+            margin-bottom: 50px;
+        }
+</style>
 @section('content')
 
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -60px;">
+    style="margin-right: 20px;margin-top: -64px;">
 
 
     @if(Auth::user()->userType != 'Parent')
@@ -520,7 +667,7 @@
         @endphp
 
 
-        <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="col-lg-3 col-md-6 col-sm-12">
             <div class="snapshot-card fade-in" data-images='@json($images)' data-id="{{ $snapshot->id }}">
                 <div class="card-header">
                     <h3 class="snapshot-title">{!! $snapshot->title !!}</h3>
@@ -541,73 +688,59 @@
                 </div>
 
                 <div class="card-body">
-                    <div class="snapshot-details">
-                        {!! $snapshot->about !!}
-                    </div>
-
-                    <div class="children-section">
-                        <div class="section-title">
-                            <i class="fas fa-child"></i> Children
+                    <div class="card-body-scroll">
+                        <div class="snapshot-details">
+                            {!! $snapshot->about !!}
                         </div>
-                        <div class="children-list">
-                            @foreach($children as $child)
-                            @php
-                            $childImage = $child->imageUrl ? asset('public/' . $child->imageUrl) :
-                            asset('default/child-avatar.png');
-                            $childName = trim("{$child->name} {$child->lastname}");
-                            @endphp
-                            <div class="child-item">
-                                <img src="{{ $childImage }}" alt="Child" class="child-avatar">
-                                {{ $childName }}
+
+                        <div class="children-section">
+                            <div class="section-title">
+                                <i class="fas fa-child"></i> Children
                             </div>
-                            @endforeach
+                            <div class="children-list">
+                                @foreach($children as $child)
+                                @php
+                                $childImage = $child->imageUrl ? asset('public/' . $child->imageUrl) : asset('default/child-avatar.png');
+                                $childName = trim("{$child->name} {$child->lastname}");
+                                @endphp
+                                <div class="child-item">
+                                    <img src="{{ $childImage }}" alt="Child" class="child-avatar">
+                                    {{ $childName }}
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="rooms-section">
+                            <div class="section-title">
+                                <i class="fas fa-door-open"></i> Rooms
+                            </div>
+                            <div class="rooms-list">
+                                @foreach($snapshot->rooms as $room)
+                                <span class="room-item">{{ $room->name }}</span>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
-
-                    <div class="rooms-section">
-                        <div class="section-title">
-                            <i class="fas fa-door-open"></i> Rooms
-                        </div>
-                        <div class="rooms-list">
-                            @foreach($snapshot->rooms as $room)
-                            <span class="room-item">{{ $room->name }}</span>
-                            @endforeach
-                        </div>
-                    </div>
-
                     <div class="action-buttons d-flex justify-content-center gap-2">
-
                         <button type="button" class="btn-action btn-success"
                             onclick="window.open('{{ route('snapshot.print', ['id' => $snapshot->id]) }}', '_blank')"
                             title="Print Snapshot">
                             <i class="fas fa-print"></i>
                         </button>
-
-
-
-                        @if(!empty($permissions['viewSnapshots']) && $permissions['viewSnapshots'] ||
-                        Auth::user()->userType == "Superadmin")
-
+                        @if(!empty($permissions['viewSnapshots']) && $permissions['viewSnapshots'] || Auth::user()->userType == "Superadmin")
                         <button class="btn-action btn-view"
                             onclick='openSnapshotModal(@json($images), {!! json_encode(strip_tags($snapshot->title)) !!})'
                             title="View">
                             <i class="fas fa-eye"></i>
                         </button>
                         @endif
-
-                        @if(!empty($permissions['editSnapshots']) && $permissions['editSnapshots'] ||
-                        Auth::user()->userType == "Superadmin")
-
-
+                        @if(!empty($permissions['editSnapshots']) && $permissions['editSnapshots'] || Auth::user()->userType == "Superadmin")
                         <button class="btn-action btn-edit" onclick="editSnapshot({{ $snapshot->id }})" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
                         @endif
-
-
-                        @if(!empty($permissions['deleteSnapshots']) && $permissions['deleteSnapshots'] ||
-                        Auth::user()->userType == "Superadmin")
-
+                        @if(!empty($permissions['deleteSnapshots']) && $permissions['deleteSnapshots'] || Auth::user()->userType == "Superadmin")
                         <button class="btn-action btn-delete" onclick="deleteSnapshot({{ $snapshot->id }})"
                             title="Delete">
                             <i class="fas fa-trash-alt"></i>
@@ -769,6 +902,39 @@
 
     </div>
 </div>
+@if ($snapshots->hasPages())
+   
+    <div class="pagination-row-align">
+        <nav aria-label="Snapshots pagination">
+            <ul class="pagination pagination-sm" style="gap:6px;">
+                {{-- Previous Icon --}}
+                <li class="page-item {{ $snapshots->onFirstPage() ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ $snapshots->previousPageUrl() ?: '#' }}" tabindex="-1" aria-label="Previous">
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                    </a>
+                </li>
+                {{-- Page Digits --}}
+                @foreach ($snapshots->getUrlRange(1, $snapshots->lastPage()) as $page => $url)
+                    @if ($page == $snapshots->currentPage())
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">{{ $page }}</span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                        </li>
+                    @endif
+                @endforeach
+                {{-- Next Icon --}}
+                <li class="page-item {{ $snapshots->currentPage() == $snapshots->lastPage() ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ $snapshots->nextPageUrl() ?: '#' }}" aria-label="Next">
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+@endif
 
 <div class="modal" id="snapshotModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true"
     data-backdrop="static" data-keyboard="false">
@@ -969,8 +1135,5 @@ function prevSnapshot() {
         });
     }
 </script>
-
-
-
 @include('layout.footer')
 @stop

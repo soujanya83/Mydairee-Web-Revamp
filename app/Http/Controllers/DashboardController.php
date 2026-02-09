@@ -8,6 +8,12 @@ use App\Models\RecipeModel;
 use App\Models\User;
 use App\Models\Room;
 use App\Models\Usercenter;
+use App\Models\PTM;
+use App\Models\PTMDate;
+use App\Models\Observation;
+use App\Models\ObservationChild;
+use App\Models\Reflection;
+use App\Models\ReflectionChild;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AnnouncementChildModel;
@@ -83,8 +89,68 @@ class DashboardController extends BaseController
         $totalCenter = Usercenter::where('centerid', $centerid)->where('userid', $userid)->count();
         $totalRooms = Room::where('centerid', $centerid)->where('status', 'Active')->count();
         $totalRecipes = RecipeModel::where('centerid', $centerid)->count();
+
+        $parentChildIds = collect();
+        if ($usertype === 'Parent') {
+            $parentChildIds = Childparent::where('parentid', $userid)->pluck('childid');
+        }
+
+        // Query PTMs directly, not PTMDates, to get the latest created PTMs
+        $recentPtmsQuery = PTM::with(['children', 'ptmDates', 'ptmSlots'])
+            ->where('centerid', $centerid);
+        
+        if ($usertype === 'Parent') {
+            $recentPtmsQuery->where('status', 'Published');
+            
+            if ($parentChildIds->isNotEmpty()) {
+                $recentPtmsQuery->whereHas('children', function ($childQuery) use ($parentChildIds) {
+                    $childQuery->whereIn('child.id', $parentChildIds);
+                });
+            }
+        }
+
+        $recentPtms = ($usertype === 'Parent' && $parentChildIds->isEmpty())
+            ? collect()
+            : $recentPtmsQuery->orderBy('id', 'desc')->take(5)->get();
+
+        // Add ptm_date to each PTM (first date from ptmDates)
+        $recentPtms = $recentPtms->map(function ($ptm) {
+            if ($ptm->ptmDates && $ptm->ptmDates->count() > 0) {
+                $ptm->ptm_date = $ptm->ptmDates->first()->date;
+            }
+            return $ptm;
+        });
+
+        // observations: for parents show only observations for their children
+        if ($usertype === 'Parent') {
+            if ($parentChildIds->isEmpty()) {
+                $recentObservations = collect();
+            } else {
+                $obsIds = ObservationChild::whereIn('childId', $parentChildIds)->pluck('observationId')->unique();
+                $recentObservations = Observation::with('media')->whereIn('id', $obsIds)->orderBy('created_at', 'desc')->take(5)->get();
+            }
+        } else {
+            $recentObservations = Observation::with('media')->where('centerid', $centerid)->orderBy('created_at', 'desc')->take(5)->get();
+        }
+
+        // reflections: recent reflections for the center (only Published for parents)
+        $recentReflectionsQuery = Reflection::with('media')->where('centerid', $centerid)->orderBy('id', 'desc')->take(5);
+        if ($usertype === 'Parent') {
+            $recentReflectionsQuery->where('status', 'Published');
+            if ($parentChildIds->isEmpty()) {
+                $recentReflections = collect();
+            } else {
+                $reflectionIds = ReflectionChild::whereIn('childId', $parentChildIds)->pluck('reflectionid');
+                $recentReflections = $recentReflectionsQuery->whereIn('id', $reflectionIds)->get();
+            }
+        } else {
+            $recentReflections = $recentReflectionsQuery->get();
+        }
         if ($usertype == 'Parent') {
-            return view('dashboard.parents', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes'));
+            return view('dashboard.parents', compact(
+                'totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes',
+                'recentPtms', 'recentObservations', 'recentReflections'
+            ));
         } else {
             return view('dashboard.university', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes'));
         }

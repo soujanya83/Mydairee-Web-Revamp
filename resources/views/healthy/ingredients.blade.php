@@ -13,7 +13,7 @@
 
 
 
-<div class="d-flex justify-content-end" style="margin-top: -52px;">
+<div class="d-flex justify-content-end" style="margin-top: -47px;">
     <button class="btn btn-outline-info" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal">
         Add Ingredient
     </button>
@@ -21,6 +21,28 @@
 
 </div>
 <hr>
+
+<style>
+/* ===================== THEME SUPPORT (GLOBAL) ===================== */
+body[class*='theme-'] .btn-outline-info {
+    border-color: var(--sd-accent, #176ba6) !important;
+    color: var(--sd-accent, #176ba6) !important;
+}
+body[class*='theme-'] .btn-outline-info:hover, body[class*='theme-'] .btn-outline-info:focus {
+    background-color: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+body[class*='theme-'] .btn-info {
+    background-color: var(--sd-accent, #176ba6) !important;
+    border-color: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+body[class*='theme-'] .modal-header {
+    background: var(--sd-accent, #176ba6) !important;
+    color: #fff !important;
+}
+/* =================== END THEME SUPPORT =================== */
+</style>
 
 @if ($errors->any())
 <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:-22px">

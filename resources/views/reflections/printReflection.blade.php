@@ -155,6 +155,33 @@
     }
     </style>
 
+    <!-- Theme-scoped overrides: apply only when a theme is active -->
+    <style>
+    /* Preserve defaults for No Theme; override under theme classes */
+    body[class*="theme-"] .print-button {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        border-color: var(--sd-accent);
+        color: #000;
+    }
+
+    body[class*="theme-"] .title {
+        color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .container {
+        border-color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .info-label,
+    body[class*="theme-"] .info-block > strong {
+        color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .header hr {
+        border-top: 2px solid var(--sd-accent);
+    }
+    </style>
+
 
     <style>
     /* Gallery grid */

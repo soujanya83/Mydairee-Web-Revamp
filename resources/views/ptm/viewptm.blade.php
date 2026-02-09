@@ -33,7 +33,7 @@
 
     /* === Header === */
     .ptm-header {
-        background: linear-gradient(90deg, #4a6cf7, #7699f8);
+        background: linear-gradient(90deg, var(--sd-accent, #4a6cf7), var(--sd-accent-soft, #7699f8));
         color: #fff;
         padding: 1.2rem 1.5rem;
         border-radius: 16px 16px 0 0;
@@ -89,24 +89,32 @@
     }
 
     .btn-outline-primary {
-        border: 1px solid #4a6cf7;
-        color: #4a6cf7;
+        border: 1px solid var(--sd-accent, #4a6cf7);
+        color: var(--sd-accent, #4a6cf7);
     }
 
     .btn-outline-primary:hover {
-        background-color: #4a6cf7;
+        background-color: var(--sd-accent, #4a6cf7);
         color: #fff;
         box-shadow: 0 4px 12px rgba(74, 108, 247, 0.2);
     }
 
+    /* Themed hover: keep Back border/text black, no fill */
+    body[class*="theme-"] .btn-outline-primary:hover {
+        background-color: transparent !important;
+        border-color: black !important;
+        color: black !important;
+        box-shadow: none !important;
+    }
+
     .btn-primary {
-        background: linear-gradient(90deg, #4a6cf7, #7699f8);
+        background: linear-gradient(90deg, var(--sd-accent, #4a6cf7), var(--sd-accent-soft, #7699f8));
         border: none;
         color: #fff;
     }
 
     .btn-primary:hover {
-        background: linear-gradient(90deg, #3857d6, #5b82f1);
+        background: linear-gradient(90deg, var(--sd-accent, #3857d6), var(--sd-accent-soft, #5b82f1));
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(74, 108, 247, 0.3);
     }
@@ -129,7 +137,7 @@
     }
 
     .modal-header {
-        background: linear-gradient(90deg, #4a6cf7, #7699f8);
+        background: linear-gradient(90deg, var(--sd-accent, #4a6cf7), var(--sd-accent-soft, #7699f8));
         color: #fff;
         border-bottom: none;
         border-radius: 16px 16px 0 0;
@@ -155,11 +163,11 @@
 
     select.form-control:hover {
         background-color: #fff;
-        border-color: #4a6cf7;
+        border-color: var(--sd-accent, #4a6cf7);
     }
 
     select.form-control:focus {
-        border-color: #4a6cf7;
+        border-color: var(--sd-accent, #4a6cf7);
         box-shadow: 0 0 0 0.2rem rgba(74, 108, 247, 0.15);
     }
 
@@ -179,7 +187,7 @@
     }
 
     textarea.form-control:focus {
-        border-color: #4a6cf7;
+        border-color: var(--sd-accent, #4a6cf7);
         box-shadow: 0 0 0 0.2rem rgba(74, 108, 247, 0.15);
     }
 
@@ -197,11 +205,42 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(10, 10, 20, 0.55);
+        backdrop-filter: blur(4px);
         display: none;
         justify-content: center;
         align-items: center;
         z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease-in-out;
+    }
+
+    .loading-overlay.show {
+        display: flex !important;
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .progress-wrapper {
+        text-align: center;
+    }
+
+    .progress-circle {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: conic-gradient(var(--sd-accent, #5f77ff) 0deg, #ffffff33 0deg);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+    }
+
+    .progress-percent {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
     }
 
     .spinner {
@@ -232,8 +271,7 @@
     }
 
     .icon {
-        color: #4a6cf7;
-        font-size: 1.1rem;
+            color: var(--sd-accent, #4a6cf7);
         margin-right: 6px;
     }
 
@@ -242,6 +280,28 @@
         font-size: 0.7rem;
         font-weight: 500;
         padding: 0.35rem 0.6rem;
+    }
+
+    /* Theme conditional text colors */
+    body[class*="theme-"] .ptm-section {
+        color: black !important;
+    }
+
+    body[class*="theme-"] .btn-primary {
+        color: black !important;
+    }
+
+    /* Show Details button becomes solid with theme */
+    body[class*="theme-"] .show-details-btn {
+        background: linear-gradient(90deg, var(--sd-accent), var(--sd-accent-soft)) !important;
+        border: none !important;
+        color: black !important;
+    }
+    
+    /* Back button text black when themed */
+    body[class*="theme-"] .btn-outline-primary {
+          background: linear-gradient(90deg, var(--sd-accent), var(--sd-accent-soft)) !important;
+        color: black !important;
     }
 </style>
 
@@ -269,7 +329,7 @@
                                     </button>
                                 @else
                                     <a href="{{ route('ptm.details', $ptm->id) }}" 
-                                        class="btn btn-outline-primary btn-sm">
+                                        class="btn btn-outline-primary btn-sm show-details-btn">
                                         <i class="fa fa-eye me-1"></i> Show Details
                                     </a>
                                 @endif
@@ -284,7 +344,7 @@
                             <div class="col-md-12">
                                 <h6 class="mb-3"><i class="fa fa-calendar icon me-2"></i> Date & Time</h6>
                                 @if(auth()->user()->userType === 'Parent')
-                                    <div class="ptm-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 25px; color: white; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);">
+                                    <div class="ptm-section" style="background: linear-gradient(135deg, var(--sd-accent, #667eea) 0%, var(--sd-accent-soft, #764ba2) 100%); border-radius: 15px; padding: 25px; color: white; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);">
                                         <div class="d-flex align-items-start justify-content-between mb-3">
                                             <div class="flex-grow-1">
                                                 <div class="d-flex align-items-center mb-2">
@@ -333,7 +393,7 @@
                                         @endif
                                     </div>
                                 @else
-                                    <div class="ptm-section" style="background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%); border-radius: 15px; padding: 30px; color: white; box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3); text-align: center;">
+                                    <div class="ptm-section" style="background: linear-gradient(135deg, var(--sd-accent, #1a73e8) 0%, var(--sd-accent-soft, #1557b0) 100%); border-radius: 15px; padding: 30px; color: white; box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3); text-align: center;">
                                         <div class="mb-3">
                                             <i class="fa fa-calendar-alt" style="font-size: 2.5rem; opacity: 0.9;"></i>
                                         </div>
@@ -453,7 +513,12 @@
 
 <!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
+    <div class="progress-wrapper">
+        <div class="progress-circle">
+            <span class="progress-percent">⏳</span>
+        </div>
+        <p style="color: #fff; margin-top: 20px; font-weight: 500;">Processing...</p>
+    </div>
 </div>
 
 @include('layout.footer')
@@ -667,7 +732,7 @@
             e.preventDefault();
             
             // Show loading overlay
-            $('#loadingOverlay').css('display', 'flex');
+            $('#loadingOverlay').addClass('show');
             
             // Disable form submission button
             $('#reschedulePtm').prop('disabled', true);
@@ -681,16 +746,10 @@
                         $('#rescheduleModal').modal('hide');
                         $('#reschedulePtmForm')[0].reset();
                         
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Rescheduled',
-                            text: res.message,
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            // Always refresh the current page after success
+                        // Refresh the page after success
+                        setTimeout(() => {
                             window.location.reload();
-                        });
+                        }, 500);
                     }
                 },
                 error: function(xhr) {
@@ -715,7 +774,7 @@
                 },
                 complete: function() {
                     // Hide loading overlay
-                    $('#loadingOverlay').css('display', 'none');
+                    $('#loadingOverlay').removeClass('show');
                     // Re-enable form submission button
                     $('#reschedulePtm').prop('disabled', false);
                 }

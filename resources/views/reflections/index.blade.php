@@ -403,6 +403,73 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
 
+<!-- Theme-scoped overrides: apply only when a theme is active -->
+<style>
+    /* Keep defaults above intact for No Theme. */
+    /* Theme-only accents under body[class*="theme-"] */
+
+    body[class*="theme-"] .card-header,
+    body[class*="theme-"] .image-carousel,
+    body[class*="theme-"] .no-image-placeholder {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent)) !important;
+        color: #000;
+    }
+
+    body[class*="theme-"] .section-title i {
+        color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .child-avatar,
+    body[class*="theme-"] .educator-avatar {
+        border-color: var(--sd-accent);
+    }
+
+    /* Outline buttons pick up theme accent */
+    body[class*="theme-"] .btn-outline-primary,
+    body[class*="theme-"] .btn-outline-info {
+        border-color: var(--sd-accent);
+        color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .btn-outline-primary:hover,
+    body[class*="theme-"] .btn-outline-info:hover {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        color: #000;
+    }
+
+    /* Action buttons use accent */
+    body[class*="theme-"] .btn-edit,
+    body[class*="theme-"] .btn-print {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        color: #000;
+    }
+
+    body[class*="theme-"] .btn-edit:hover,
+    body[class*="theme-"] .btn-print:hover {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        color: #000;
+    }
+
+    /* Pagination accent */
+    body[class*="theme-"] .page-item .page-link {
+        color: var(--sd-accent);
+        border-color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .page-item.active .page-link,
+    body[class*="theme-"] .page-item .page-link:hover {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        color: #000;
+        border-color: var(--sd-accent);
+    }
+
+    /* Center dropdown active item */
+    body[class*="theme-"] .dropdown-item.active,
+    body[class*="theme-"] .dropdown-item.text-primary {
+        color: var(--sd-accent) !important;
+    }
+</style>
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
     style="margin-right: 20px;margin-top: -50px;">

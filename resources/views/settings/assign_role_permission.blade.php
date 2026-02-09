@@ -493,7 +493,7 @@
 
         <a href="{{ route('settings.manage-permission-role')}}" class="btn btn-outline-info"
             style="margin-left:5px;">
-            Manage Role
+            Manage Rolessssssssss
         </a>
 
     </div>
@@ -526,8 +526,6 @@
 @endif
 
 <div class="row clearfix" style="margin-top:30px">
-
-
     <div class="col-lg-12">
         <div class="card">
 

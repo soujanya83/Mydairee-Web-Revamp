@@ -452,14 +452,11 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('/filter/get-children', [ObservationsController::class, 'getChildren_for_filter'])->name('get-children-filter');
         Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
         Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
-//        Route::get('/view', [ObservationsController::class, 'index'])->name('view');
+        //Route::get('/view', [ObservationsController::class, 'index'])->name('view');
         Route::get('/print/{id}', [ObservationsController::class, 'print'])->name('print');
         Route::post('/share', [ObservationsController::class, 'shareObservation'])->name('share');
-
         Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
         Route::get('/addnew/{id}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
-
-
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get.children');
         Route::get('/get-rooms', [ObservationsController::class, 'getrooms'])->name('get.rooms');
         Route::post('/store', [ObservationsController::class, 'store'])->name('store');

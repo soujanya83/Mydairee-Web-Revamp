@@ -4,8 +4,94 @@
 
 @section('content')
 <style>
+    :root {
+        --sd-bg: #f3f4f6;
+        --sd-surface: #ffffff;
+        --sd-border: #e5e7eb;
+        --sd-text: #111827;
+        --sd-muted: #6b7280;
+        --sd-radius-lg: 14px;
+        --sd-radius-md: 10px;
+        --sd-shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .theme-purple {
+        --sd-accent: #a27ce6;
+        --sd-accent-soft: #f3e8ff;
+    }
+
+    .theme-blue {
+        --sd-accent: #3eacff;
+        --sd-accent-soft: #dbeafe;
+    }
+
+    .theme-cyan {
+        --sd-accent: #49c5b6;
+        --sd-accent-soft: #ccfbf1;
+    }
+
+    .theme-green {
+        --sd-accent: #50d38a;
+        --sd-accent-soft: #d1fae5;
+    }
+
+    .theme-orange {
+        --sd-accent: #ffce4b;
+        --sd-accent-soft: #fef3c7;
+    }
+
+    .theme-blush {
+        --sd-accent: #e47297;
+        --sd-accent-soft: #fce7f3;
+    }
+
+    .ptm-wrapper {
+        background: var(--sd-bg);
+        padding: 10px;
+    }
+
+    .ptm-wrapper .card {
+        background: var(--sd-surface);
+        border: 1px solid var(--sd-border);
+        box-shadow: var(--sd-shadow-soft);
+        border-radius: var(--sd-radius-lg);
+    }
+
+    .ptm-wrapper .text-primary {
+        color: var(--sd-accent, #20c997) !important;
+    }
+
+    .ptm-wrapper .btn-primary {
+        background: var(--sd-accent, #20c997);
+        border-color: var(--sd-accent, #20c997);
+        transition: all 0.2s ease;
+    }
+
+    .ptm-wrapper .btn-primary:hover {
+        background: var(--sd-accent, #20c997);
+        border-color: var(--sd-accent, #20c997);
+        filter: brightness(0.92);
+    }
+
+    .ptm-wrapper .btn-outline-primary {
+        color: var(--sd-accent, #20c997);
+        border-color: var(--sd-accent, #20c997);
+    }
+
+    .ptm-wrapper .btn-outline-primary:hover,
+    .ptm-wrapper .btn-outline-primary:focus {
+        background: var(--sd-accent, #20c997);
+        color: #ffffff;
+    }
+
+    .ptm-wrapper .badge-info {
+        background: var(--sd-accent-soft, #d4f1f4);
+        color: var(--sd-text) !important;
+        border: 1px solid var(--sd-accent, #20c997);
+    }
+
     .hover-row.selected {
-        background-color: #e8f2ff !important;
+        background-color: var(--sd-accent-soft, #d4f1f4) !important;
     }
 
     .hover-row {
@@ -13,7 +99,7 @@
     }
 
     .hover-row:hover {
-        background-color: #f8fbff !important;
+        background-color: var(--sd-accent-soft, #d4f1f4) !important;
         transform: scale(1.01);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
@@ -23,7 +109,7 @@
     }
 
     .hover-btn:hover {
-        background-color: #0d6efd;
+        background-color: var(--sd-accent, #20c997);
         color: white !important;
         transform: scale(1.05);
     }
@@ -33,8 +119,8 @@
     }
 
     #globalFilter:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 6px rgba(13, 110, 253, 0.3);
+        border-color: var(--sd-accent, #20c997);
+        box-shadow: 0 0 6px rgba(32, 201, 151, 0.3);
     }
 
     .status-badge {
@@ -50,12 +136,13 @@
     }
 
     .status-badge.default {
-        background: linear-gradient(135deg, #28a745, #5dd39e);
+        background: linear-gradient(135deg, var(--sd-accent, #20c997), var(--sd-accent-soft, #a8e6d8));
     }
 
     .status-badge.rescheduled {
-        background: linear-gradient(135deg, #ffc107, #ff8c00);
-        color: #222;
+        background: linear-gradient(135deg, var(--sd-accent-soft, #d4f1f4), #ffffff);
+        color: var(--sd-text);
+        border: 1px solid var(--sd-accent, #20c997);
     }
 
     .status-badge:hover {
@@ -69,7 +156,7 @@
     }
 
     .history-icon:hover {
-        color: #0d6efd;
+        color: var(--sd-accent, #20c997);
     }
 
     /* Ensure date badges inside the PTM table are rendered with black text for readability */
@@ -86,7 +173,7 @@
         -moz-appearance: none;
         width: 15px;
         height: 15px;
-        border: 1px solid #0d6efd;
+        border: 1px solid var(--sd-accent, #20c997);
         border-radius: 6px;
         display: inline-block;
         position: relative;
@@ -97,8 +184,8 @@
     /* ✅ Checked State */
     .childCheckbox:checked,
     #selectAll:checked {
-        background-color: #4d92fa;
-        border-color: #4d92fa;
+        background-color: var(--sd-accent);
+        border-color: var(--sd-accent);
     }
 
     /* ✨ Checkmark */
@@ -175,7 +262,6 @@
                     </button>
                 </div>
 
-                {{-- 🔹 Inline red error bar (hidden by default) --}}
                 <div id="inlineError" class="text-center text-white bg-danger py-2 rounded d-none shadow-sm"
                     style="font-weight: 600;"> Please select at least one child to reschedule.
                 </div>
@@ -190,11 +276,13 @@
                                 <th>Date</th>
                                 <th>Slot</th>
                                 <th>Status</th>
+                @if(!empty($permissions['reschedulePtm']) && $permissions['reschedulePtm'])
                                 <th>
                                     <input type="checkbox" id="selectAll" class="mr-3 align-middle" title="Select All"
                                         style="transform: scale(1.2); cursor: pointer;">
                                     Action
                                 </th>
+                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -232,17 +320,17 @@
                                         title="View History"></i>
                                     @endif
                                 </td>
-                                <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <!-- Checkbox next to the reschedule button -->
+                                @if(!empty($permissions['reschedulePtm']) && $permissions['reschedulePtm']) 
+                                <td class="d-flex justify-content-center align-items-center gap-2">                                   
                                     <input type="checkbox" class="childCheckbox mr-2" value="{{ $child['id'] }}">
 
-                                    <!-- Single Reschedule Button -->
                                     <a href="{{ route('ptm.reschedule-fstaff', ['ptm' => $ptm->id, 'child_id' => $child['id']]) }}"
                                         class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 hover-btn"
                                         style="border-radius: 50px">
                                         <i class="fa fa-sync-alt mr-1"></i> Reschedule
-                                    </a>
+                                    </a>                      
                                 </td>
+                                 @endif
                             </tr>
                             @endforeach
                         </tbody>

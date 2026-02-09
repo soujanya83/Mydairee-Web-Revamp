@@ -12,7 +12,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          
         }
 
         :root {
@@ -449,7 +449,6 @@
 
         }
     </style>
-
     <div class="row clearfix" style="margin-top:30px">
         <div class="col-lg-12">
             <div class="card">
@@ -1310,6 +1309,41 @@
                                         </div>
                                     @endif
 
+                                    <!-- Messaging Permissions -->
+                                    @if ($MessagingPermissions->count() > 0)
+                                        <div class="permission-card">
+                                            <div class="card-header">
+                                                <div class="header-content">
+                                                    <i class="fa fa-comments"></i>
+                                                    <h3>Messaging Permissions</h3>
+                                                </div>
+                                                <div class="permission-count">
+                                                    <i class="fas fa-check"></i>
+                                                    {{ $MessagingPermissions->filter(fn($perm) => $userPermissions->{$perm['name']} ?? false)->count() }}
+                                                    / {{ $MessagingPermissions->count() }}
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                @foreach ($MessagingPermissions as $perm)
+                                                    <div class="permission-item">
+                                                        <label>
+                                                            <i class="{{ getPermissionIcon($perm['label']) }}"></i>
+                                                            {{ $perm['label'] }}
+                                                        </label>
+                                                        <label class="switch">
+                                                            <input type="checkbox" class="permission-toggle"
+                                                                name="{{ $perm['name'] }}"
+                                                                value="{{ $userPermissions->{$perm['name']} ?? 0 }}"
+                                                                data-permission="{{ $perm['name'] }}"
+                                                                {{ $userPermissions->{$perm['name']} ?? false ? 'checked' : '' }}>
+
+                                                            <span class="slider"></span>
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
 
                                     <!-- Other Permissions Manage -->
                                     @if ($otherPermissions->count() > 0)

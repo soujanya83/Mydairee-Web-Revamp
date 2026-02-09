@@ -54,10 +54,10 @@ class PTMController extends Controller
                 ->get();
         }
 
-        // 🔹 Staff view
         elseif ($user->userType === 'Staff') {
-            $centers = Center::where('id', $centerId)->get();
-
+            
+            $centerIds = Usercenter::where('userid', $authId)->pluck('centerid');
+            $centers = Center::whereIn('id', $centerIds)->get();
             $ptms = PTM::with(['staff', 'center', 'children', 'ptmDates','ptmSlots',
                 'reschedules.rescheduledate',
                 'reschedules.rescheduleslot'])
@@ -764,8 +764,8 @@ class PTMController extends Controller
         foreach ($ptms as $ptm) {
             $firstDate = $ptm->ptmDates->min('date');
             $originalDate = $firstDate ? \Carbon\Carbon::parse($firstDate)->format('Y-m-d') : null;
+            $originalSlot = $ptm->ptmSlots->first()->slot ?? null;
 
-            // If logged in user is a Parent, return one event per child of that parent (respecting per-child reschedule)
             if ($user && $user->userType === 'Parent') {
                 $parentChildIds = $user->children->pluck('id')->toArray();
                 $ptmChildIds = $ptm->children->pluck('id')->toArray();
@@ -777,8 +777,11 @@ class PTMController extends Controller
                     $reschedule = $ptm->reschedules->where('childid', $childId)->sortByDesc('created_at')->first();
 
                     $dateForChild = $originalDate;
+                    $slotForChild = $originalSlot;
+                    
                     if ($reschedule && optional($reschedule->rescheduledate)->date) {
                         $dateForChild = \Carbon\Carbon::parse($reschedule->rescheduledate->date)->format('Y-m-d');
+                        $slotForChild = optional($reschedule->rescheduleslot)->slot ?? $originalSlot;
                     }
 
                     $child = $ptm->children->where('id', $childId)->first();
@@ -788,18 +791,20 @@ class PTMController extends Controller
                         'title' => $ptm->title,
                         'ptmdate' => $originalDate,
                         'date' => $dateForChild,
+                        'slot' => $slotForChild,
                         'objective' => $ptm->objective ?? null,
                         'childid' => $childId,
                         'childname' => $child ? ($child->name ?? null) : null,
                     ]);
                 }
             } else {
-                // Non-parent users: keep single event per PTM (uses earliest date)
+                
                 $events->push([
                     'id' => $ptm->id,
                     'title' => $ptm->title,
                     'ptmdate' => $originalDate,
                     'date' => $originalDate,
+                    'slot' => $originalSlot,
                     'objective' => $ptm->objective ?? null,
                 ]);
             }
@@ -813,7 +818,6 @@ class PTMController extends Controller
 
     public function getSlots(Request $request)
     {
-        // Static slots for testing - will be replaced with DB logic later
         $staticSlots = [
             ['id' => 1, 'time' => '09:00 AM - 10:00 AM'],
             ['id' => 2, 'time' => '10:00 AM - 11:00 AM'],

@@ -85,15 +85,68 @@
     .female {
         color: red;
     }
+
+    .theme-purple .btn-outline-info,
+    .theme-blue .btn-outline-info,
+    .theme-cyan .btn-outline-info,
+    .theme-green .btn-outline-info,
+    .theme-orange .btn-outline-info,
+    .theme-blush .btn-outline-info {
+        border-color: var(--sd-accent) !important;
+        color: var(--sd-accent) !important;
+    }
+    .theme-purple .btn-outline-info:hover,
+    .theme-blue .btn-outline-info:hover,
+    .theme-cyan .btn-outline-info:hover,
+    .theme-green .btn-outline-info:hover,
+    .theme-orange .btn-outline-info:hover,
+    .theme-blush .btn-outline-info:hover {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+    .theme-purple .row .card .text,
+    .theme-blue .row .card .text,
+    .theme-cyan .row .card .text,
+    .theme-green .row .card .text,
+    .theme-orange .row .card .text,
+    .theme-blush .row .card .text,
+    .theme-purple .row .card h5.mb-1,
+    .theme-blue .row .card h5.mb-1,
+    .theme-cyan .row .card h5.mb-1,
+    .theme-green .row .card h5.mb-1,
+    .theme-orange .row .card h5.mb-1,
+    .theme-blush .row .card h5.mb-1,
+    .theme-purple .row .card h5.mb-1 a,
+    .theme-blue .row .card h5.mb-1 a,
+    .theme-cyan .row .card h5.mb-1 a,
+    .theme-green .row .card h5.mb-1 a,
+    .theme-orange .row .card h5.mb-1 a,
+    .theme-blush .row .card h5.mb-1 a {
+        color: var(--sd-accent) !important;
+    }
+    .theme-purple .nav-tabs .nav-link.active,
+    .theme-blue .nav-tabs .nav-link.active,
+    .theme-cyan .nav-tabs .nav-link.active,
+    .theme-green .nav-tabs .nav-link.active,
+    .theme-orange .nav-tabs .nav-link.active,
+    .theme-blush .nav-tabs .nav-link.active {
+        background-color: var(--sd-accent) !important;
+        color: #fff !important;
+        border-color: var(--sd-accent) !important;
+    }
+    .theme-purple .nav-tabs .nav-link,
+    .theme-blue .nav-tabs .nav-link,
+    .theme-cyan .nav-tabs .nav-link,
+    .theme-green .nav-tabs .nav-link,
+    .theme-orange .nav-tabs .nav-link,
+    .theme-blush .nav-tabs .nav-link {
+        border-color: var(--sd-accent) !important;
+    }
 </style>
 
 @section('content')
 
-
 <div class="container mt-4" style="margin-bottom: 30px">
-
-
-
     <div class="text-zero top-right-button-container mt-3" style="margin-right:40px">
         <div class="btn-group">
             <button data-toggle="modal" data-target="#newChildModal" class="btn btn-outline-info"> + Add
@@ -629,3 +682,7 @@
 
 @include('layout.footer')
 @stop
+
+<style>
+
+</style>

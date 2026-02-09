@@ -1,3 +1,42 @@
+<style>
+/* THEME SYSTEM: Theme icons, selected date/slot cards */
+body[class^="theme-"] .section-title .fa-users,
+body[class^="theme-"] .section-title .fa-calendar,
+body[class^="theme-"] .section-title .fa-comment-alt {
+    color: var(--sd-accent, #5f77ff) !important;
+}
+body[class^="theme-"] .date-card.selected {
+    border-color: var(--sd-accent, #5f77ff) !important;
+    background: rgba(95, 119, 255, 0.08) !important;
+    box-shadow: 0 5px 15px rgba(95, 119, 255, 0.15);
+}
+body[class^="theme-"] .slot-item.selected {
+    border-color: var(--sd-accent, #5f77ff) !important;
+    background: rgba(95, 119, 255, 0.08) !important;
+    box-shadow: 0 5px 15px rgba(95, 119, 255, 0.15);
+}
+body[class^="theme-"] .slot-item.selected .slot-icon {
+    color: var(--sd-accent, #5f77ff) !important;
+}
+</style>
+<style>
+/* THEME SYSTEM: Theme reschedule header, selected-info border, and submit button */
+body[class^="theme-"] .reschedule-header {
+    background: var(--sd-accent, #5f77ff) !important;
+    color: #fff !important;
+}
+body[class^="theme-"] .selected-info {
+    border-left: 4px solid var(--sd-accent, #5f77ff) !important;
+}
+body[class^="theme-"] .submit-btn {
+    background: var(--sd-accent, #28c76f) !important;
+    border: none !important;
+    color: #fff !important;
+}
+body[class^="theme-"] .submit-btn:hover:not(:disabled) {
+    background: #0056b3 !important;
+}
+</style>
 @extends('layout.master')
 
 @section('title', 'Bulk Reschedule PTM')

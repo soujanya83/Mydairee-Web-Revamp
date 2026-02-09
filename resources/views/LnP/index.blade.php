@@ -1,8 +1,82 @@
+
 @extends('layout.master')
 @section('title', 'L & P')
 @section('parentPageTitle', '')
 
+
 <style>
+        /* Theme accent for dropdowns in top-right-button-container */
+    .theme-purple .top-right-button-container .btn-outline-primary,
+    .theme-blue .top-right-button-container .btn-outline-primary,
+    .theme-cyan .top-right-button-container .btn-outline-primary,
+    .theme-green .top-right-button-container .btn-outline-primary,
+    .theme-orange .top-right-button-container .btn-outline-primary,
+    .theme-blush .top-right-button-container .btn-outline-primary {
+        border-color: var(--sd-accent) !important;
+        color: var(--sd-accent) !important;
+    }
+    .theme-purple .top-right-button-container .btn-outline-primary:hover,
+    .theme-blue .top-right-button-container .btn-outline-primary:hover,
+    .theme-cyan .top-right-button-container .btn-outline-primary:hover,
+    .theme-green .top-right-button-container .btn-outline-primary:hover,
+    .theme-orange .top-right-button-container .btn-outline-primary:hover,
+    .theme-blush .top-right-button-container .btn-outline-primary:hover {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+    .theme-purple .top-right-button-container .dropdown-menu .active,
+    .theme-blue .top-right-button-container .dropdown-menu .active,
+    .theme-cyan .top-right-button-container .dropdown-menu .active,
+    .theme-green .top-right-button-container .dropdown-menu .active,
+    .theme-orange .top-right-button-container .dropdown-menu .active,
+    .theme-blush .top-right-button-container .dropdown-menu .active {
+        color: var(--sd-accent) !important;
+        font-weight: bold;
+    }
+    /* Theme accent for page title */
+    .theme-purple .page-title,
+    .theme-blue .page-title,
+    .theme-cyan .page-title,
+    .theme-green .page-title,
+    .theme-orange .page-title,
+    .theme-blush .page-title {
+        color: var(--sd-accent) !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+    }
+
+    /* Theme accent for View Progress button */
+    .theme-purple .btn-lnp,
+    .theme-blue .btn-lnp,
+    .theme-cyan .btn-lnp,
+    .theme-green .btn-lnp,
+    .theme-orange .btn-lnp,
+    .theme-blush .btn-lnp {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+    .theme-purple .btn-lnp:hover,
+    .theme-blue .btn-lnp:hover,
+    .theme-cyan .btn-lnp:hover,
+    .theme-green .btn-lnp:hover,
+    .theme-orange .btn-lnp:hover,
+    .theme-blush .btn-lnp:hover {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+        opacity: 0.9;
+    }
+
+    /* Theme accent for age badge */
+    .theme-purple .age-badge,
+    .theme-blue .age-badge,
+    .theme-cyan .age-badge,
+    .theme-green .age-badge,
+    .theme-orange .age-badge,
+    .theme-blush .age-badge {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+
+    /* All other styles remain unchanged for no-theme */
     /* Enhanced Modern UI Styles */
     .children-container {
         /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
@@ -335,7 +409,7 @@
 
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -60px;">
+    style="margin-right: 20px;margin-top: -47px;">
 
 
 

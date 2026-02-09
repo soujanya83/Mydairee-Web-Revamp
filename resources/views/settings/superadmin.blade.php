@@ -8,14 +8,12 @@
     .is-invalid {
         border-color: #dc3545 !important;
     }
-
     .toast-container {
         position: fixed;
         bottom: 20px;
         right: 20px;
         z-index: 1050;
     }
-
     .toast {
         display: flex;
         align-items: center;
@@ -23,17 +21,12 @@
         border-radius: 4px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
-
     .toast-success {
         background-color: #28a745;
-        /* Green for success */
     }
-
     .toast-error {
         background-color: #dc3545;
-        /* Red for error */
     }
-
     .toast-close-button {
         background: none;
         border: none;
@@ -42,28 +35,62 @@
         color: white;
         margin-left: 10px;
     }
-
     .toast-message {
         flex: 1;
-
     }
-
     .c_list .avatar {
         height: 45px;
         width: 50px;
     }
+    /* Theme-aware input */
+    .theme-input {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+    .theme-input:focus {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    }
+    /* Theme-aware outline button */
+    .theme-outline-btn {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+    .theme-outline-btn:hover, .theme-outline-btn:focus {
+        background: var(--sd-accent, #17a2b8) !important;
+        color: var(--sd-bg, #fff) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+    }
+    /* Theme-aware edit button */
+    .theme-edit-btn {
+        background: var(--sd-accent, #17a2b8) !important;
+        color: var(--sd-bg, #fff) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+    .theme-edit-btn:hover, .theme-edit-btn:focus {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+    }
 </style>
 <div class="header float-end text-zero top-right-button-container d-flex justify-content-between">
-    <h2>Super-Admin Settings<small></small> </h2>
-    <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
-        data-target="#addSuperadminModal">
+    <h2 style="color: var(--sd-accent, #17a2b8); font-weight: 700;">Super-Admin Settings<small></small> </h2>
+    <button class="btn theme-outline-btn" style="float:right;margin-bottom:20px;"
+        data-toggle="modal" data-target="#addSuperadminModal">
         <i class="fa fa-plus"></i>&nbsp; Add Superadmin
     </button>
 </div>
 
 <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
-    <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
-    <input type="text" name="filterbyCentername" class="form-control border-info" placeholder="Filter by name"
+    <i class="fas fa-filter mx-2" style="color: var(--sd-accent, #17a2b8);"></i>
+    <input type="text" name="filterbyCentername" class="form-control theme-input" placeholder="Filter by name"
         onkeyup="filterbyAdminName(this.value)">
 </div>
 @if ($errors->any())
@@ -127,7 +154,7 @@
                                     @endif
                                 </form>
                                 &nbsp; &nbsp; --}}
-                                <button class="btn btn-sm btn-info" onclick="openEditSuperadminModal({{ $admin->id }})">
+                                <button class="btn btn-sm theme-edit-btn" onclick="openEditSuperadminModal({{ $admin->id }})">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
                                 <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $admin->id }})">
@@ -549,7 +576,7 @@ function deleteSuperadmin(id) {
                       <p class="card-text mb-1"><strong>Email:</strong> ${admin.email}</p>
                       <p class="card-text mb-2"><strong>Contact:</strong> ${admin.contactNo}</p>
                       <div class="d-flex justify-content-center gap-2">
-                        <button class="btn btn-sm btn-info mr-2" onclick="openEditSuperadminModal(${admin.id})">
+                        <button class="btn btn-sm theme-edit-btn mr-2" onclick="openEditSuperadminModal(${admin.id})">
                           <i class="fa-solid fa-pen-to-square"></i> Edit
                         </button>
                         <button class="btn btn-sm btn-danger" onclick="deleteSuperadmin(${admin.id})">

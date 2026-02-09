@@ -29,6 +29,27 @@
 
 
     <style>
+        :root {
+            --sd-bg: #f3f4f6;
+            --sd-surface: #ffffff;
+            --sd-border: #e5e7eb;
+            --sd-text: #111827;
+            --sd-muted: #6b7280;
+            /* note: accent variables are only provided when a theme is active */
+            --sd-radius-lg: 14px;
+            --sd-radius-md: 10px;
+            --sd-shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .theme-purple { --sd-accent: #a27ce6; --sd-accent-soft: #f3e8ff; }
+        .theme-blue   { --sd-accent: #3eacff; --sd-accent-soft: #dbeafe; }
+        .theme-cyan   { --sd-accent: #49c5b6; --sd-accent-soft: #ccfbf1; }
+        .theme-green  { --sd-accent: #50d38a; --sd-accent-soft: #d1fae5; }
+        .theme-orange { --sd-accent: #ffce4b; --sd-accent-soft: #fef3c7; }
+        .theme-blush  { --sd-accent: #e47297; --sd-accent-soft: #fce7f3; }
+
+        .breadcrumb .icon-home { color: var(--sd-accent); }
+
         /* Initial setup */
         .sidebar {
             width: 250px;
@@ -316,7 +337,8 @@
 </head>
 
 @php
-    $theme = Auth::check() ? 'theme-' . (Auth::user()->theme ?? 'cyan') : 'theme-cyan';
+    $userTheme = Auth::check() ? Auth::user()->theme : 'cyan';
+    $theme = ($userTheme === 'none') ? '' : 'theme-' . $userTheme;
 @endphp
 
 <body class="{{ $theme }}">

@@ -145,11 +145,16 @@
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 25px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--sd-accent, #667eea), var(--sd-accent, #764ba2));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             position: relative;
+        }
+
+        body[class*="theme-"] .child-header {
+            color: #000;
+            -webkit-text-fill-color: #000;
         }
 
         .child-header::after {
@@ -159,7 +164,7 @@
             left: 0;
             width: 60px;
             height: 4px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--sd-accent, #667eea), var(--sd-accent, #764ba2));
             border-radius: 2px;
         }
 
@@ -217,7 +222,7 @@
         select:focus,
         textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--sd-accent, #667eea);
             box-shadow: 
                 0 0 0 3px rgba(102, 126, 234, 0.1),
                 0 4px 12px rgba(102, 126, 234, 0.15);
@@ -233,7 +238,7 @@
         .add-row-btn,
         .save-row-btn,
         .update-row-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--sd-accent, #667eea), var(--sd-accent, #764ba2));
             color: white;
             border: none;
             padding: 12px 24px;
@@ -247,6 +252,12 @@
             overflow: hidden;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+
+        body[class*="theme-"] .add-row-btn,
+        body[class*="theme-"] .save-row-btn,
+        body[class*="theme-"] .update-row-btn {
+            color: #000;
         }
 
         .add-row-btn::before,
@@ -267,6 +278,12 @@
         .update-row-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        body[class*="theme-"] .add-row-btn:hover,
+        body[class*="theme-"] .save-row-btn:hover,
+        body[class*="theme-"] .update-row-btn:hover {
+            color: #000;
         }
 
         .add-row-btn:hover::before,
@@ -434,7 +451,7 @@
     </style>
 @endsection
 @section('content')
-<div class="d-flex justify-content-end align-items-center" style="margin-right: 20px; margin-top: -60px; gap: 10px; flex-wrap: wrap;">
+<div class="d-flex justify-content-end align-items-center" style="margin-right: 20px; margin-top: -50px; gap: 10px; flex-wrap: wrap;">
 
     {{-- Center Dropdown --}}
     <div class="dropdown mr-2">
