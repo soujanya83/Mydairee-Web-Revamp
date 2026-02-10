@@ -279,6 +279,22 @@
         max-height: 220px;
         overflow-y: auto;
         margin-bottom: 10px;
+        scrollbar-width: thin;
+        scrollbar-color: #e0e7ef #f8f9fa;
+    }
+
+    /* Chrome, Edge, Safari */
+    .card-body-scroll::-webkit-scrollbar {
+        width: 8px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    .card-body-scroll::-webkit-scrollbar-thumb {
+        background: #e0e7ef;
+        border-radius: 8px;
+    }
+    .card-body-scroll::-webkit-scrollbar-thumb:hover {
+        background: #d2dae6;
     }
 
     .snapshot-details {
