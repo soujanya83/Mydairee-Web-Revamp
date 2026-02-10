@@ -481,8 +481,7 @@
         font-size: 13px;
         padding: 6px 14px;
         border-radius: 8px;
-        background: linear-gradient(to right, #0056b3, #007bff);
-        /* swapped: hover is now default */
+        background: linear-gradient(to right, #0056b3, #007bff); /* swapped: hover is now default */
         color: white;
         border: none;
         box-shadow: 0 3px 6px rgba(0, 123, 255, 0.25);
@@ -490,8 +489,7 @@
     }
 
     .refine-btn:hover {
-        background: linear-gradient(to right, #007bff, #339af0);
-        /* swapped: default is now hover */
+        background: linear-gradient(to right, #007bff, #339af0); /* swapped: default is now hover */
         transform: translateY(-1px);
     }
 
@@ -967,209 +965,185 @@
 
 
 <style>
-    /* THEME SYSTEM: Only applies when a theme is active */
-    body[class*="theme-"] {
-        --sd-accent: #4f8cff;
-        --sd-accent-soft: #e3f0ff;
-    }
+/* THEME SYSTEM: Only applies when a theme is active */
+body[class*="theme-"] {
+    --sd-accent: #4f8cff;
+    --sd-accent-soft: #e3f0ff;
+}
+body.theme-blue { --sd-accent: #4f8cff; --sd-accent-soft: #e3f0ff; }
+body.theme-green { --sd-accent: #28a745; --sd-accent-soft: #e6f9ed; }
+body.theme-pink { --sd-accent: #fb249b; --sd-accent-soft: #ffe3f5; }
+body.theme-orange { --sd-accent: #ff9800; --sd-accent-soft: #fff3e0; }
+body.theme-purple { --sd-accent: #7c3aed; --sd-accent-soft: #f3e8ff; }
+body.theme-teal { --sd-accent: #20c997; --sd-accent-soft: #e0fcf6; }
+}
 
-    body.theme-blue {
-        --sd-accent: #4f8cff;
-        --sd-accent-soft: #e3f0ff;
-    }
+body[class*="theme-"] .assessment-container,
+body[class*="theme-"] .info-card,
+body[class*="theme-"] .tab-content .card,
+body[class*="theme-"] .form-row,
+body[class*="theme-"] .subject-group,
+body[class*="theme-"] .outcome-group,
+body[class*="theme-"] .age-group,
+body[class*="theme-"] .select-section,
+body[class*="theme-"] .form-section {
+    border-left-color: var(--sd-accent) !important;
+    box-shadow: 0 4px 12px var(--sd-accent-soft);
+}
 
-    body.theme-green {
-        --sd-accent: #28a745;
-        --sd-accent-soft: #e6f9ed;
-    }
+body[class*="theme-"] .nav-tabs-custom .nav-link.active,
+body[class*="theme-"] .blur-nav .nav-link.active {
+    color: var(--sd-accent) !important;
+    border-bottom-color: var(--sd-accent) !important;
+}
 
-    body.theme-pink {
-        --sd-accent: #fb249b;
-        --sd-accent-soft: #ffe3f5;
-    }
+body[class*="theme-"] .refine-btn,
+body[class*="theme-"] #saveMontessoriData,
+body[class*="theme-"] #saveEylfData,
+body[class*="theme-"] #saveDevMilestone,
+body[class*="theme-"] .btn-primary.submit-btn {
+    
+      background: linear-gradient(to right, var(--sd-accent), var(--sd-accent));
+    border: none;
+    color: #fff;
+}
 
-    body.theme-orange {
-        --sd-accent: #ff9800;
-        --sd-accent-soft: #fff3e0;
-    }
+body[class*="theme-"] .refine-btn:hover,
+body[class*="theme-"] #saveMontessoriData:hover,
+body[class*="theme-"] #saveEylfData:hover,
+body[class*="theme-"] #saveDevMilestone:hover,
+body[class*="theme-"] .btn-primary.submit-btn:hover {
+  background: linear-gradient(to right, var(--sd-accent), var(--sd-accent-soft));
+}
 
-    body.theme-purple {
-        --sd-accent: #7c3aed;
-        --sd-accent-soft: #f3e8ff;
-    }
+body[class*="theme-"] .badge-primary,
+body[class*="theme-"] .badge-success,
+body[class*="theme-"] .badge-info,
+body[class*="theme-"] .badge-warning,
+body[class*="theme-"] .badge-danger {
+    background: var(--sd-accent) !important;
+    color: #fff !important;
+}
 
-    body.theme-teal {
-        --sd-accent: #20c997;
-        --sd-accent-soft: #e0fcf6;
-    }
-    }
+body[class*="theme-"] .media-upload-box {
+    border-color: var(--sd-accent);
+}
 
-    body[class*="theme-"] .assessment-container,
-    body[class*="theme-"] .info-card,
-    body[class*="theme-"] .tab-content .card,
-    body[class*="theme-"] .form-row,
-    body[class*="theme-"] .subject-group,
-    body[class*="theme-"] .outcome-group,
-    body[class*="theme-"] .age-group,
-    body[class*="theme-"] .select-section,
-    body[class*="theme-"] .form-section {
-        border-left-color: var(--sd-accent) !important;
-        box-shadow: 0 4px 12px var(--sd-accent-soft);
-    }
-
-    body[class*="theme-"] .nav-tabs-custom .nav-link.active,
-    body[class*="theme-"] .blur-nav .nav-link.active {
-        color: var(--sd-accent) !important;
-        border-bottom-color: var(--sd-accent) !important;
-    }
-
-    body[class*="theme-"] .refine-btn,
-    body[class*="theme-"] #saveMontessoriData,
-    body[class*="theme-"] #saveEylfData,
-    body[class*="theme-"] #saveDevMilestone,
-    body[class*="theme-"] .btn-primary.submit-btn {
-
-        background: linear-gradient(to right, var(--sd-accent), var(--sd-accent));
-        border: none;
-        color: #fff;
-    }
-
-    body[class*="theme-"] .refine-btn:hover,
-    body[class*="theme-"] #saveMontessoriData:hover,
-    body[class*="theme-"] #saveEylfData:hover,
-    body[class*="theme-"] #saveDevMilestone:hover,
-    body[class*="theme-"] .btn-primary.submit-btn:hover {
-        background: linear-gradient(to right, var(--sd-accent), var(--sd-accent-soft));
-    }
-
-    body[class*="theme-"] .badge-primary,
-    body[class*="theme-"] .badge-success,
-    body[class*="theme-"] .badge-info,
-    body[class*="theme-"] .badge-warning,
-    body[class*="theme-"] .badge-danger {
-        background: var(--sd-accent) !important;
-        color: #fff !important;
-    }
-
-    body[class*="theme-"] .media-upload-box {
-        border-color: var(--sd-accent);
-    }
-
-    /* EXCLUSIONS: Room, Children, Staff, Draft/Publish buttons always default */
-    body[class*="theme-"] #selectedRoomsPreview .badge,
-    body[class*="theme-"] #selectedChildrenPreview .badge,
-    body[class*="theme-"] #selectedStaffPreview .badge,
-    {
+/* EXCLUSIONS: Room, Children, Staff, Draft/Publish buttons always default */
+body[class*="theme-"] #selectedRoomsPreview .badge,
+body[class*="theme-"] #selectedChildrenPreview .badge,
+body[class*="theme-"] #selectedStaffPreview .badge,
+ {
     background: initial !important;
     color: initial !important;
     border: initial !important;
     box-shadow: initial !important;
-    }
+}
 </style>
 
 @section('content')
 
-<style>
-    /* Only apply to accordions with rdp-accordion class */
-    .rdp-accordion .collapse {
-        display: none !important;
-    }
+    <style>
+        /* Only apply to accordions with rdp-accordion class */
+        .rdp-accordion .collapse {
+            display: none !important;
+        }
 
-    .rdp-accordion .collapse.show {
-        display: block !important;
-    }
+        .rdp-accordion .collapse.show {
+            display: block !important;
+        }
 
-    .rdp-accordion .collapse:not(.show) {
-        display: none !important;
-        height: auto !important;
-    }
+        .rdp-accordion .collapse:not(.show) {
+            display: none !important;
+            height: auto !important;
+        }
 
-    .rdp-accordion .collapse.show {
-        display: block !important;
-        height: auto !important;
-    }
+        .rdp-accordion .collapse.show {
+            display: block !important;
+            height: auto !important;
+        }
 
-    .rdp-accordion .collapse,
-    .rdp-accordion .collapsing {
-        transition: none !important;
-        -webkit-transition: none !important;
-        animation: none !important;
-    }
-</style>
+        .rdp-accordion .collapse,
+        .rdp-accordion .collapsing {
+            transition: none !important;
+            -webkit-transition: none !important;
+            animation: none !important;
+        }
+    </style>
 
-<style>
-    /* Animated button pulse */
-    #AiAssistance {
-        transition: all 0.3s ease-in-out;
-    }
+    <style>
+        /* Animated button pulse */
+        #AiAssistance {
+            transition: all 0.3s ease-in-out;
+        }
 
-    #AiAssistance:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(0, 188, 212, 0.6);
-    }
+        #AiAssistance:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 188, 212, 0.6);
+        }
 
-    /* Sparkle effect */
-    .sparkle-icon {
-        position: relative;
-    }
+        /* Sparkle effect */
+        .sparkle-icon {
+            position: relative;
+        }
 
-    .sparkle-icon::after {
-        content: "✨";
-        position: absolute;
-        top: -12px;
-        right: -12px;
-        font-size: 14px;
-        opacity: 0;
-        animation: sparkle 2s infinite;
-    }
-
-    @keyframes sparkle {
-        0% {
+        .sparkle-icon::after {
+            content: "✨";
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            font-size: 14px;
             opacity: 0;
-            transform: scale(0.5) rotate(0deg);
+            animation: sparkle 2s infinite;
         }
 
-        30% {
-            opacity: 1;
-            transform: scale(1.2) rotate(20deg);
+        @keyframes sparkle {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) rotate(0deg);
+            }
+
+            30% {
+                opacity: 1;
+                transform: scale(1.2) rotate(20deg);
+            }
+
+            60% {
+                opacity: 0.8;
+                transform: scale(1) rotate(-20deg);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(0.5) rotate(0deg);
+            }
+        }
+    </style>
+
+    <style>
+        /* Custom background */
+        #AiAssistance {
+            background: linear-gradient(135deg, #4facfe, #2ec1c9ff);
+            /* blue gradient */
+            border: none;
+            transition: all 0.3s ease-in-out;
         }
 
-        60% {
-            opacity: 0.8;
-            transform: scale(1) rotate(-20deg);
+        /* Hover effect */
+        #AiAssistance:hover {
+            background: linear-gradient(135deg, #c330c1ff, #ebcef5ff);
+            /* greenish gradient */
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(220, 207, 223, 0.6);
         }
-
-        100% {
-            opacity: 0;
-            transform: scale(0.5) rotate(0deg);
-        }
-    }
-</style>
-
-<style>
-    /* Custom background */
-    #AiAssistance {
-        background: linear-gradient(135deg, #4facfe, #2ec1c9ff);
-        /* blue gradient */
-        border: none;
-        transition: all 0.3s ease-in-out;
-    }
-
-    /* Hover effect */
-    #AiAssistance:hover {
-        background: linear-gradient(135deg, #c330c1ff, #ebcef5ff);
-        /* greenish gradient */
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(220, 207, 223, 0.6);
-    }
-</style>
-@if (isset($observation) && $observation->id)
-<div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -45px;margin-bottom:30px;">
+    </style>
+    @if (isset($observation) && $observation->id)
+        <div class="text-zero top-right-button-container d-flex justify-content-end"
+            style="margin-right: 20px;margin-top: -45px;margin-bottom:30px;">
 
 
-    <div class="child-view "
-        style="position:absolute;
+            <div class="child-view "
+                style="position:absolute;
             top:16px;   /* adjust distance from top */
             right:685px;
 
@@ -1183,1251 +1157,1250 @@
             overflow-y:auto;
             overflow-x:hidden;">
 
-        @if (isset($childrens))
+                @if (isset($childrens))
 
-        <div class="d-flex flex-row text-center" style="justify-content:center;">
-            <p style="margin-bottom:5px;margin-right:2px;">Child Name:</p>
-            @foreach ($childrens as $child)
-            <span class="mb-1 badge badge-success">{{ $child->name }}</span>
-            @endforeach
-        </div>
-        @endif
-    </div>
+                    <div class="d-flex flex-row text-center" style="justify-content:center;">
+                        <p style="margin-bottom:5px;margin-right:2px;">Child Name:</p>
+                        @foreach ($childrens as $child)
+                            <span class="mb-1 badge badge-success">{{ $child->name }}</span>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
 
-    <a href="javascript:void(0)" onclick="AiAssistance()" id="AiAssistance"
-        class="btn shadow-lg btn-animated mr-2 text-white position-relative" data-toggle="tooltip"
-        data-placement="top">
-        Ai<i class="sparkle-icon"></i> Assistance
-    </a>
+            <a href="javascript:void(0)" onclick="AiAssistance()" id="AiAssistance"
+                class="btn shadow-lg btn-animated mr-2 text-white position-relative" data-toggle="tooltip"
+                data-placement="top">
+                Ai<i class="sparkle-icon"></i> Assistance
+            </a>
 
 
-    {{-- Date Display and Picker --}}
-    <div id="createdAtContainer" class="mr-2" style="cursor:pointer;">
-        <span id="createdAtDisplay" class="badge badge-info" style="font-size:16px; padding:8px;">
-            <i class="far fa-calendar-alt mr-1"></i>
-            {{ \Carbon\Carbon::parse($observation->created_at)->format('d M Y') }}
-        </span>
-        <input type="text" id="editCreatedAt" class="form-control" style="display:none; min-width:170px;"
-            value="{{ \Carbon\Carbon::parse($observation->created_at)->format('d M Y') }}">
-    </div>
-    <!-- <button type="button" id="ObservationChildren" class="btn btn-secondary shadow-lg btn-animated mr-2">
+            {{-- Date Display and Picker --}}
+            <div id="createdAtContainer" class="mr-2" style="cursor:pointer;">
+                <span id="createdAtDisplay" class="badge badge-info" style="font-size:16px; padding:8px;">
+                    <i class="far fa-calendar-alt mr-1"></i>
+                    {{ \Carbon\Carbon::parse($observation->created_at)->format('d M Y') }}
+                </span>
+                <input type="text" id="editCreatedAt" class="form-control" style="display:none; min-width:170px;"
+                    value="{{ \Carbon\Carbon::parse($observation->created_at)->format('d M Y') }}">
+            </div>
+            <!-- <button type="button" id="ObservationChildren" class="btn btn-secondary shadow-lg btn-animated mr-2">
             <i class="fas fa-child mr-1"></i> child
         </button> -->
 
 
 
 
-    <a href="{{ route('observation.print', $observation->id) }}" target="_blank"
-        class="btn btn-info shadow-lg btn-animated mr-2 text-white">
-        <i class="fas fa-eye mr-1"></i> Preview
-    </a>
-    <button type="button" id="publishObservation" class="btn btn-success shadow-lg btn-animated mr-2">
-        <i class="fas fa-upload mr-1"></i> Publish Now
-    </button>
-    <button type="button" id="draftObservation" class="btn btn-warning shadow-lg btn-animated">
-        <i class="fas fa-file-alt mr-1"></i> Make Draft
-    </button>
+            <a href="{{ route('observation.print', $observation->id) }}" target="_blank"
+                class="btn btn-info shadow-lg btn-animated mr-2 text-white">
+                <i class="fas fa-eye mr-1"></i> Preview
+            </a>
+            <button type="button" id="publishObservation" class="btn btn-success shadow-lg btn-animated mr-2">
+                <i class="fas fa-upload mr-1"></i> Publish Now
+            </button>
+            <button type="button" id="draftObservation" class="btn btn-warning shadow-lg btn-animated">
+                <i class="fas fa-file-alt mr-1"></i> Make Draft
+            </button>
 
-</div>
-@endif
+        </div>
+    @endif
 
-<script>
-    // Clear button for Developmental Milestone radios
-    function clearDevMilestone(subId) {
-        // Clear radio buttons
-        const radios = document.getElementsByName(`devsub_${subId}`);
-        radios.forEach(radio => radio.checked = false);
-    }
-    $(function() {
-        // Handle subject select within this specific form section
-        $('#subjectSelect').on('change', function() {
-            var subId = $(this).val();
-            $('#learning-tabs .tab-pane.active').removeClass('active show');
-            if (subId) {
-                $('#' + subId).addClass('active show');
-            }
+    <script>
+                // Clear button for Developmental Milestone radios
+                function clearDevMilestone(subId) {
+                    // Clear radio buttons
+                    const radios = document.getElementsByName(`devsub_${subId}`);
+                    radios.forEach(radio => radio.checked = false);
+                }
+        $(function() {
+            // Handle subject select within this specific form section
+            $('#subjectSelect').on('change', function() {
+                var subId = $(this).val();
+                $('#learning-tabs .tab-pane.active').removeClass('active show');
+                if (subId) {
+                    $('#' + subId).addClass('active show');
+                }
+            });
+
+            // Prevent global collapse targeting by scoping the ID to learning-accordion
+            // No need to add custom logic here because data-parent is already scoped per subject
         });
-
-        // Prevent global collapse targeting by scoping the ID to learning-accordion
-        // No need to add custom logic here because data-parent is already scoped per subject
-    });
-</script>
+    </script>
 
 
-<div class="row clearfix">
+    <div class="row clearfix">
 
-    <div class="col-lg-12 col-md-12">
-        <div class="card">
-            <div class="body">
-                <ul class="nav nav-tabs-new2 blur-nav">
-                    <li class="nav-item">
-                        <a class="nav-link {{ $activeTab == 'observation' ? 'active show' : '' }}" data-toggle="tab"
-                            href="#Home">
-                            <i class="fas fa-eye"></i> <span>OBSERVATIONS</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ $activeTab == 'assessment' ? 'active show' : '' }}" data-toggle="tab"
-                            href="#Profile">
-                            <i class="fas fa-tasks"></i> <span>ASSESSMENT</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ $activeTab == 'link' ? 'active show' : '' }}" data-toggle="tab"
-                            href="#Contact">
-                            <i class="fas fa-link"></i> <span>LINK</span>
-                        </a>
-                    </li>
-                </ul>
+        <div class="col-lg-12 col-md-12">
+            <div class="card">
+                <div class="body">
+                    <ul class="nav nav-tabs-new2 blur-nav">
+                        <li class="nav-item">
+                            <a class="nav-link {{ $activeTab == 'observation' ? 'active show' : '' }}" data-toggle="tab"
+                                href="#Home">
+                                <i class="fas fa-eye"></i> <span>OBSERVATIONS</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ $activeTab == 'assessment' ? 'active show' : '' }}" data-toggle="tab"
+                                href="#Profile">
+                                <i class="fas fa-tasks"></i> <span>ASSESSMENT</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ $activeTab == 'link' ? 'active show' : '' }}" data-toggle="tab"
+                                href="#Contact">
+                                <i class="fas fa-link"></i> <span>LINK</span>
+                            </a>
+                        </li>
+                    </ul>
 
-                <hr>
-                <div class="tab-content">
+                    <hr>
+                    <div class="tab-content">
 
-                    <!-- OBSERVATIONS Tabs -->
-                    <div class="tab-pane {{ $activeTab == 'observation' ? 'show active' : '' }}" id="Home">
+                        <!-- OBSERVATIONS Tabs -->
+                        <div class="tab-pane {{ $activeTab == 'observation' ? 'show active' : '' }}" id="Home">
 
-                        <form id="observationform" method="POST" enctype="multipart/form-data">
+                            <form id="observationform" method="POST" enctype="multipart/form-data">
 
-                            <div class="row">
+                                <div class="row">
 
-                                <!-- Select Rooms -->
-                                <div class="col-md-6 select-section">
-                                    <label>Rooms</label><br>
-                                    <button type="button" class="btn btn-outline-success" data-toggle="modal"
-                                        data-target="#roomsModal">Select Rooms</button>
-                                    <input type="hidden" name="selected_rooms" id="selected_rooms"
-                                        value="{{ isset($rooms) ? implode(',', collect($rooms)->pluck('id')->toArray()) : '' }}">
-                                    <div id="selectedRoomsPreview" class="mt-3">
-                                        @if (isset($rooms))
-                                        @foreach ($rooms as $room)
-                                        <span class="badge badge-success mr-1">{{ $room['name'] }}</span>
-                                        @endforeach
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <!-- Select Children -->
-                                <div class="col-md-6 select-section">
-                                    <label>Children</label><br>
-                                    <button type="button" class="btn btn-outline-primary" data-toggle="modal"
-                                        data-target="#childrenModal">Select Children</button>
-                                    <input type="hidden" name="selected_children" id="selected_children"
-                                        value="{{ isset($childrens) ? implode(',', collect($childrens)->pluck('id')->toArray()) : '' }}">
-                                    <div id="selectedChildrenPreview" class="mt-3">
-                                        @if (isset($childrens))
-                                        @foreach ($childrens as $child)
-                                        <span class="badge badge-info mr-1">{{ $child->name }}</span>
-                                        @endforeach
-                                        @endif
-                                    </div>
-                                </div>
-
-
-
-                                <!-- Select educators -->
-                                <div class="col-md-12 select-section">
-                                    <label>Tag Educators</label><br>
-                                    <button type="button" class="btn btn-outline-danger" data-toggle="modal"
-                                        data-target="#staffModal">Select Educators</button>
-                                    <input type="hidden" name="selected_staff" id="selected_staff"
-                                        value="{{ isset($educators) ? implode(',', collect($educators)->pluck('userid')->toArray()) : '' }}">
-                                    <div id="selectedStaffPreview" class="mt-3">
-                                        @if (isset($educators))
-                                        @foreach ($educators as $educator)
-                                        <span class="badge badge-danger mr-1">{{ $educator->name }}</span>
-                                        @endforeach
-                                        @endif
-                                    </div>
-                                </div>
-
-
-
-                                <input type="hidden" name="id"
-                                    value="{{ isset($observation) ? $observation->id : '' }}">
-                                <!-- Add more form elements -->
-                                <div class="col-md-6 mt-4 form-section">
-                                    <label for="editor6">Title</label>
-                                    <textarea id="editor6" name="obestitle" class="form-control ckeditor">{!! isset($observation) ? $observation->obestitle : '' !!}</textarea>
-                                    <div class="refine-container">
-                                        <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                            data-editor="editor6"><i class="fas fa-magic mr-1"></i>Refine with
-                                            Ai</button>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 mt-4 form-section">
-                                    <label for="editor1">Observation</label>
-                                    <textarea id="editor1" name="title" class="form-control ckeditor">{!! isset($observation) ? $observation->title : '' !!}</textarea>
-                                    <div class="refine-container">
-                                        <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                            data-editor="editor1"><i class="fas fa-magic mr-1"></i>Refine with
-                                            Ai</button>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 mt-4 form-section">
-                                    <label for="editor2">Analysis/Evaluation</label>
-                                    <textarea id="editor2" name="notes" class="form-control ckeditor">{!! isset($observation) ? $observation->notes : '' !!}</textarea>
-                                    <div class="refine-container">
-                                        <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                            data-editor="editor2"><i class="fas fa-magic mr-1"></i>Refine with
-                                            Ai</button>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 mt-4 form-section">
-                                    <label for="editor3">Reflection</label>
-                                    <textarea id="editor3" name="reflection" class="form-control ckeditor">{!! isset($observation) ? $observation->reflection : '' !!}</textarea>
-                                    <div class="refine-container">
-                                        <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                            data-editor="editor3"><i class="fas fa-magic mr-1"></i>Refine with
-                                            Ai</button>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 mt-4 form-section">
-                                    <label for="editor4">Child's Voice</label>
-                                    <textarea id="editor4" name="child_voice" class="form-control ckeditor">{!! isset($observation) ? $observation->child_voice : '' !!}</textarea>
-                                    <div class="refine-container">
-                                        <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                            data-editor="editor4"><i class="fas fa-magic mr-1"></i>Refine with
-                                            Ai</button>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 mt-4 form-section">
-                                    <label for="editor5">Future Plan/Extension</label>
-                                    <textarea id="editor5" name="future_plan" class="form-control ckeditor">{!! isset($observation) ? $observation->future_plan : '' !!}</textarea>
-                                    <div class="refine-container">
-                                        <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                            data-editor="editor5"><i class="fas fa-magic mr-1"></i>Refine with
-                                            Ai</button>
-                                    </div>
-                                </div>
-
-
-
-                                <div class="col-md-12 mt-4">
-                                    <h4>Media Upload Section</h4>
-                                    <div class="media-upload-box p-4 border rounded bg-light text-center">
-                                        <label for="mediaInput" class="btn btn-outline-primary">
-                                            Select up to 10 Images/Videos
-                                        </label>
-                                        <input type="file" id="mediaInput" name="media[]" class="d-none" multiple
-                                            accept="image/*,video/*">
-                                        <small class="form-text text-muted mt-2">Only images and videos are allowed.
-                                            Max 10 files.</small>
-                                    </div>
-
-                                    <div id="mediaPreview" class="row mt-4"></div>
-
-
-                                    @if (isset($observation) && $observation->media->isNotEmpty())
-                                    <span>Uploaded Images/Videos</span>
-                                    <div id="uploadedMedia" class="row mt-4">
-                                        @foreach ($observation->media as $media)
-                                        <div class="col-md-3 position-relative mb-3"
-                                            id="media-{{ $media->id }}">
-                                            @if (Str::startsWith($media->mediaType, ['image', 'Image']))
-                                            <img src="{{ asset($media->mediaUrl) }}"
-                                                class="media-thumb img-fluid rounded">
-                                            @elseif(Str::startsWith($media->mediaType, 'video'))
-                                            <video controls class="media-thumb rounded">
-                                                <source src="{{ asset($media->mediaUrl) }}"
-                                                    type="{{ $media->mediaType }}">
-                                                Your browser does not support the video tag.
-                                            </video>
+                                    <!-- Select Rooms -->
+                                    <div class="col-md-6 select-section">
+                                        <label>Rooms</label><br>
+                                        <button type="button" class="btn btn-outline-success" data-toggle="modal"
+                                            data-target="#roomsModal">Select Rooms</button>
+                                        <input type="hidden" name="selected_rooms" id="selected_rooms"
+                                            value="{{ isset($rooms) ? implode(',', collect($rooms)->pluck('id')->toArray()) : '' }}">
+                                        <div id="selectedRoomsPreview" class="mt-3">
+                                            @if (isset($rooms))
+                                                @foreach ($rooms as $room)
+                                                    <span class="badge badge-success mr-1">{{ $room['name'] }}</span>
+                                                @endforeach
                                             @endif
-                                            <button type="button" class="btn btn-sm btn-danger remove-btn"
-                                                onclick="deleteMedia({{ $media->id }}, '{{ asset($media->mediaUrl) }}')">Remove</button>
                                         </div>
-                                        @endforeach
                                     </div>
-                                    @endif
 
+                                    <!-- Select Children -->
+                                    <div class="col-md-6 select-section">
+                                        <label>Children</label><br>
+                                        <button type="button" class="btn btn-outline-primary" data-toggle="modal"
+                                            data-target="#childrenModal">Select Children</button>
+                                        <input type="hidden" name="selected_children" id="selected_children"
+                                            value="{{ isset($childrens) ? implode(',', collect($childrens)->pluck('id')->toArray()) : '' }}">
+                                        <div id="selectedChildrenPreview" class="mt-3">
+                                            @if (isset($childrens))
+                                                @foreach ($childrens as $child)
+                                                    <span class="badge badge-info mr-1">{{ $child->name }}</span>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                    </div>
+
+
+
+                                    <!-- Select educators -->
+                                    <div class="col-md-12 select-section">
+                                        <label>Tag Educators</label><br>
+                                        <button type="button" class="btn btn-outline-danger" data-toggle="modal"
+                                            data-target="#staffModal">Select Educators</button>
+                                        <input type="hidden" name="selected_staff" id="selected_staff"
+                                            value="{{ isset($educators) ? implode(',', collect($educators)->pluck('userid')->toArray()) : '' }}">
+                                        <div id="selectedStaffPreview" class="mt-3">
+                                            @if (isset($educators))
+                                                @foreach ($educators as $educator)
+                                                    <span class="badge badge-danger mr-1">{{ $educator->name }}</span>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                    </div>
+
+
+
+                                    <input type="hidden" name="id"
+                                        value="{{ isset($observation) ? $observation->id : '' }}">
+                                    <!-- Add more form elements -->
+                                    <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor6">Title</label>
+                                        <textarea id="editor6" name="obestitle" class="form-control ckeditor">{!! isset($observation) ? $observation->obestitle : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor6"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor1">Observation</label>
+                                        <textarea id="editor1" name="title" class="form-control ckeditor">{!! isset($observation) ? $observation->title : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor1"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor2">Analysis/Evaluation</label>
+                                        <textarea id="editor2" name="notes" class="form-control ckeditor">{!! isset($observation) ? $observation->notes : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor2"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor3">Reflection</label>
+                                        <textarea id="editor3" name="reflection" class="form-control ckeditor">{!! isset($observation) ? $observation->reflection : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor3"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor4">Child's Voice</label>
+                                        <textarea id="editor4" name="child_voice" class="form-control ckeditor">{!! isset($observation) ? $observation->child_voice : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor4"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor5">Future Plan/Extension</label>
+                                        <textarea id="editor5" name="future_plan" class="form-control ckeditor">{!! isset($observation) ? $observation->future_plan : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor5"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-md-12 mt-4">
+                                        <h4>Media Upload Section</h4>
+                                        <div class="media-upload-box p-4 border rounded bg-light text-center">
+                                            <label for="mediaInput" class="btn btn-outline-primary">
+                                                Select up to 10 Images/Videos
+                                            </label>
+                                            <input type="file" id="mediaInput" name="media[]" class="d-none" multiple
+                                                accept="image/*,video/*">
+                                            <small class="form-text text-muted mt-2">Only images and videos are allowed.
+                                                Max 10 files.</small>
+                                        </div>
+
+                                        <div id="mediaPreview" class="row mt-4"></div>
+
+
+                                        @if (isset($observation) && $observation->media->isNotEmpty())
+                                            <span>Uploaded Images/Videos</span>
+                                            <div id="uploadedMedia" class="row mt-4">
+                                                @foreach ($observation->media as $media)
+                                                    <div class="col-md-3 position-relative mb-3"
+                                                        id="media-{{ $media->id }}">
+                                                        @if (Str::startsWith($media->mediaType, ['image', 'Image']))
+                                                            <img src="{{ asset($media->mediaUrl) }}"
+                                                                class="media-thumb img-fluid rounded">
+                                                        @elseif(Str::startsWith($media->mediaType, 'video'))
+                                                            <video controls class="media-thumb rounded">
+                                                                <source src="{{ asset($media->mediaUrl) }}"
+                                                                    type="{{ $media->mediaType }}">
+                                                                Your browser does not support the video tag.
+                                                            </video>
+                                                        @endif
+                                                        <button type="button" class="btn btn-sm btn-danger remove-btn"
+                                                            onclick="deleteMedia({{ $media->id }}, '{{ asset($media->mediaUrl) }}')">Remove</button>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+
+                                    </div>
+
+
+                                    <!-- Submit -->
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" style="float:right" class="btn btn-primary submit-btn"><i
+                                                class="fas fa-arrow-right"></i>Submit</button>
+                                    </div>
 
                                 </div>
-
-
-                                <!-- Submit -->
-                                <div class="col-12 mt-4">
-                                    <button type="submit" style="float:right" class="btn btn-primary submit-btn"><i
-                                            class="fas fa-arrow-right"></i>Submit</button>
-                                </div>
-
-                            </div>
-                        </form>
+                            </form>
 
 
 
 
 
 
-                    </div>
-                    <!-- end OBSERVATIONS -->
+                        </div>
+                        <!-- end OBSERVATIONS -->
 
 
 
 
-                    <!-- ASSESSMENT Tabs -->
-                    <div class="tab-pane {{ $activeTab == 'assessment' ? 'show active' : '' }}" id="Profile">
+                        <!-- ASSESSMENT Tabs -->
+                        <div class="tab-pane {{ $activeTab == 'assessment' ? 'show active' : '' }}" id="Profile">
 
-                        <ul class="nav nav-tabs-new">
-                            <li class="nav-item">
-                                <a class="nav-link {{ $activesubTab == 'MONTESSORI' ? 'active show' : '' }}"
-                                    data-toggle="tab" href="#MONTESSORI"><i
-                                        class="fa-regular fa-clipboard fa-beat-fade"></i>&nbsp;&nbsp;MONTESSORI</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ $activesubTab == 'EYLF' ? 'active show' : '' }}"
-                                    data-toggle="tab" href="#EYLF"><i
-                                        class="fa-solid fa-list fa-beat-fade"></i>&nbsp;&nbsp;EYLF</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ $activesubTab == 'MILESTONE' ? 'active show' : '' }}"
-                                    data-toggle="tab" href="#MILESTONE"><i
-                                        class="fa-solid fa-layer-group fa-beat"></i>&nbsp;&nbsp;DEVELOPMENTAL
-                                    MILESTONE</a>
-                            </li>
-                        </ul>
-
-
-                        <div class="tab-content">
+                            <ul class="nav nav-tabs-new">
+                                <li class="nav-item">
+                                    <a class="nav-link {{ $activesubTab == 'MONTESSORI' ? 'active show' : '' }}"
+                                        data-toggle="tab" href="#MONTESSORI"><i
+                                            class="fa-regular fa-clipboard fa-beat-fade"></i>&nbsp;&nbsp;MONTESSORI</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ $activesubTab == 'EYLF' ? 'active show' : '' }}"
+                                        data-toggle="tab" href="#EYLF"><i
+                                            class="fa-solid fa-list fa-beat-fade"></i>&nbsp;&nbsp;EYLF</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ $activesubTab == 'MILESTONE' ? 'active show' : '' }}"
+                                        data-toggle="tab" href="#MILESTONE"><i
+                                            class="fa-solid fa-layer-group fa-beat"></i>&nbsp;&nbsp;DEVELOPMENTAL
+                                        MILESTONE</a>
+                                </li>
+                            </ul>
 
 
-                            <div class="tab-pane {{ $activesubTab == 'MONTESSORI' ? 'show active' : '' }}"
-                                id="MONTESSORI">
+                            <div class="tab-content">
+
+
+                                <div class="tab-pane {{ $activesubTab == 'MONTESSORI' ? 'show active' : '' }}"
+                                    id="MONTESSORI">
 
 
 
-                                <div class="form-group">
-                                    <label><strong>Select Subject</strong></label>
-                                    <select id="subjectSelect" class="form-control">
-                                        <option value="">-- Choose Subject --</option>
+                                    <div class="form-group">
+                                        <label><strong>Select Subject</strong></label>
+                                        <select id="subjectSelect" class="form-control">
+                                            <option value="">-- Choose Subject --</option>
+                                            @foreach ($subjects as $subject)
+                                                <option value="subject-{{ $subject->idSubject }}">{{ $subject->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <input type="hidden" name="id" id="observation_id"
+                                        value="{{ isset($observation) ? $observation->id : '' }}">
+
+
+                                    {{-- Tab panes for each subject --}}
+                                    <div class="tab-content mt-3" id="learning-tabs">
                                         @foreach ($subjects as $subject)
-                                        <option value="subject-{{ $subject->idSubject }}">{{ $subject->name }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <input type="hidden" name="id" id="observation_id"
-                                    value="{{ isset($observation) ? $observation->id : '' }}">
-
-
-                                {{-- Tab panes for each subject --}}
-                                <div class="tab-content mt-3" id="learning-tabs">
-                                    @foreach ($subjects as $subject)
-                                    <div class="tab-pane" id="subject-{{ $subject->idSubject }}"
-                                        role="tabpanel">
-                                        <div class="accordion rdp-accordion"
-                                            id="learning-accordion-{{ $subject->idSubject }}">
-                                            @foreach ($subject->activities as $act)
-                                            <div class="card mb-2">
-                                                <div class="card-header"
-                                                    id="learning-heading-{{ $act->idActivity }}">
-                                                    <h5 class="mb-0">
-                                                        <button class="btn btn-link collapsed"
-                                                            data-toggle="collapse"
-                                                            data-target="#learning-collapse-{{ $act->idActivity }}"
-                                                            aria-expanded="false"
-                                                            aria-controls="learning-collapse-{{ $act->idActivity }}">
-                                                            <i class="fas fa-tasks mr-2 text-primary"></i>
-                                                            {{ $act->title }}
-                                                        </button>
-                                                    </h5>
-                                                </div>
-                                                <div id="learning-collapse-{{ $act->idActivity }}"
-                                                    class="collapse"
-                                                    aria-labelledby="learning-heading-{{ $act->idActivity }}"
-                                                    data-parent="#learning-accordion-{{ $subject->idSubject }}">
-                                                    <div class="card-body">
-                                                        {{-- Subactivities with radio options --}}
-                                                        @foreach ($act->subActivities as $sub)
-                                                        <div class="form-row align-items-center mb-2">
-                                                            <div class="col-md-4">{{ $sub->title }}
+                                            <div class="tab-pane" id="subject-{{ $subject->idSubject }}"
+                                                role="tabpanel">
+                                                <div class="accordion rdp-accordion"
+                                                    id="learning-accordion-{{ $subject->idSubject }}">
+                                                    @foreach ($subject->activities as $act)
+                                                        <div class="card mb-2">
+                                                            <div class="card-header"
+                                                                id="learning-heading-{{ $act->idActivity }}">
+                                                                <h5 class="mb-0">
+                                                                    <button class="btn btn-link collapsed"
+                                                                        data-toggle="collapse"
+                                                                        data-target="#learning-collapse-{{ $act->idActivity }}"
+                                                                        aria-expanded="false"
+                                                                        aria-controls="learning-collapse-{{ $act->idActivity }}">
+                                                                        <i class="fas fa-tasks mr-2 text-primary"></i>
+                                                                        {{ $act->title }}
+                                                                    </button>
+                                                                </h5>
                                                             </div>
-                                                            <div class="col-md-8">
-                                                                @php
-                                                                $opts = [
-                                                                'introduced' => 'Introduced',
-                                                                'working' => 'Working',
-                                                                'completed' => 'Completed',
-                                                                ];
-                                                                $selectedAssessment =
-                                                                $observation &&
-                                                                $observation->montessoriLinks
-                                                                ? $observation->montessoriLinks->firstWhere(
-                                                                'idSubActivity',
-                                                                $sub->idSubActivity,
-                                                                )->assesment ?? ''
-                                                                : '';
-                                                                @endphp
+                                                            <div id="learning-collapse-{{ $act->idActivity }}"
+                                                                class="collapse"
+                                                                aria-labelledby="learning-heading-{{ $act->idActivity }}"
+                                                                data-parent="#learning-accordion-{{ $subject->idSubject }}">
+                                                                <div class="card-body">
+                                                                    {{-- Subactivities with radio options --}}
+                                                                    @foreach ($act->subActivities as $sub)
+                                                                        <div class="form-row align-items-center mb-2">
+                                                                            <div class="col-md-4">{{ $sub->title }}
+                                                                            </div>
+                                                                            <div class="col-md-8">
+                                                                                @php
+                                                                                    $opts = [
+                                                                                        'introduced' => 'Introduced',
+                                                                                        'working' => 'Working',
+                                                                                        'completed' => 'Completed',
+                                                                                    ];
+                                                                                    $selectedAssessment =
+                                                                                        $observation &&
+                                                                                        $observation->montessoriLinks
+                                                                                            ? $observation->montessoriLinks->firstWhere(
+                                                                                                    'idSubActivity',
+                                                                                                    $sub->idSubActivity,
+                                                                                                )->assesment ?? ''
+                                                                                            : '';
+                                                                                @endphp
 
-                                                                <div
-                                                                    class="assessment-container d-flex align-items-center">
-                                                                    <!-- Triangle Visual Indicator -->
-                                                                    <div class="triangle-indicator mr-3"
-                                                                        id="triangle-{{ $sub->idSubActivity }}">
-                                                                        <div class="triangle-wrapper">
-                                                                            <div class="triangle-side side-1"
-                                                                                data-level="1"></div>
-                                                                            <div class="triangle-side side-2"
-                                                                                data-level="2"></div>
-                                                                            <div class="triangle-side side-3"
-                                                                                data-level="3"></div>
+                                                                                <div
+                                                                                    class="assessment-container d-flex align-items-center">
+                                                                                    <!-- Triangle Visual Indicator -->
+                                                                                    <div class="triangle-indicator mr-3"
+                                                                                        id="triangle-{{ $sub->idSubActivity }}">
+                                                                                        <div class="triangle-wrapper">
+                                                                                            <div class="triangle-side side-1"
+                                                                                                data-level="1"></div>
+                                                                                            <div class="triangle-side side-2"
+                                                                                                data-level="2"></div>
+                                                                                            <div class="triangle-side side-3"
+                                                                                                data-level="3"></div>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <!-- Radio Button Options -->
+                                                                                    <div class="options-container">
+                                                                                        @foreach ($opts as $val => $label)
+                                                                                            @php
+                                                                                                $displayLabel =
+                                                                                                    $label === 'Working'
+                                                                                                        ? 'Practicing'
+                                                                                                        : $label;
+                                                                                            @endphp
+                                                                                            <div
+                                                                                                class="custom-control custom-radio custom-control-inline">
+                                                                                                <input type="radio"
+                                                                                                    class="custom-control-input assessment-radio"
+                                                                                                    id="sa-{{ $sub->idSubActivity }}-{{ $val }}"
+                                                                                                    name="subactivity[{{ $sub->idSubActivity }}]"
+                                                                                                    value="{{ $label }}"
+                                                                                                    data-sub-id="{{ $sub->idSubActivity }}"
+                                                                                                    data-level="{{ $loop->iteration }}"
+                                                                                                    {{ $selectedAssessment == $label ? 'checked' : '' }}>
+                                                                                                <label
+                                                                                                    class="custom-control-label assessment-label"
+                                                                                                    style="margin-right:14px !important;"
+                                                                                                    for="sa-{{ $sub->idSubActivity }}-{{ $val }}">
+                                                                                                    {{ $displayLabel }}
+                                                                                                </label>
+                                                                                            </div>
+                                                                                        @endforeach
+
+                                                                                        <!-- Clear Button -->
+                                                                                        <button type="button"
+                                                                                            class="btn btn-sm btn-outline-danger ml-2 clear-btn"
+                                                                                            onclick="clearAssessment('{{ $sub->idSubActivity }}')"
+                                                                                            title="Clear Selection">
+                                                                                            <i class="fas fa-times"></i>
+                                                                                            Clear
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-
-                                                                    <!-- Radio Button Options -->
-                                                                    <div class="options-container">
-                                                                        @foreach ($opts as $val => $label)
-                                                                        @php
-                                                                        $displayLabel =
-                                                                        $label === 'Working'
-                                                                        ? 'Practicing'
-                                                                        : $label;
-                                                                        @endphp
-                                                                        <div
-                                                                            class="custom-control custom-radio custom-control-inline">
-                                                                            <input type="radio"
-                                                                                class="custom-control-input assessment-radio"
-                                                                                id="sa-{{ $sub->idSubActivity }}-{{ $val }}"
-                                                                                name="subactivity[{{ $sub->idSubActivity }}]"
-                                                                                value="{{ $label }}"
-                                                                                data-sub-id="{{ $sub->idSubActivity }}"
-                                                                                data-level="{{ $loop->iteration }}"
-                                                                                {{ $selectedAssessment == $label ? 'checked' : '' }}>
-                                                                            <label
-                                                                                class="custom-control-label assessment-label"
-                                                                                style="margin-right:14px !important;"
-                                                                                for="sa-{{ $sub->idSubActivity }}-{{ $val }}">
-                                                                                {{ $displayLabel }}
-                                                                            </label>
-                                                                        </div>
-                                                                        @endforeach
-
-                                                                        <!-- Clear Button -->
-                                                                        <button type="button"
-                                                                            class="btn btn-sm btn-outline-danger ml-2 clear-btn"
-                                                                            onclick="clearAssessment('{{ $sub->idSubActivity }}')"
-                                                                            title="Clear Selection">
-                                                                            <i class="fas fa-times"></i>
-                                                                            Clear
-                                                                        </button>
-                                                                    </div>
+                                                                    @endforeach
                                                                 </div>
-
                                                             </div>
                                                         </div>
-                                                        @endforeach
-                                                    </div>
+                                                    @endforeach
                                                 </div>
                                             </div>
-                                            @endforeach
-                                        </div>
+                                        @endforeach
                                     </div>
-                                    @endforeach
+
+
+                                    <button type="button" id="saveMontessoriData" class="btn btn-primary">Save
+                                        Montessori Assessment</button>
+
+
                                 </div>
 
 
-                                <button type="button" id="saveMontessoriData" class="btn btn-primary">Save
-                                    Montessori Assessment</button>
+                                <div class="tab-pane {{ $activesubTab == 'EYLF' ? 'show active' : '' }}" id="EYLF"
+                                    role="tabpanel">
 
 
-                            </div>
+                                    <div class="form-group">
+                                        <label><strong>Select Outcome</strong></label>
+                                        <select id="eylfOutcomeSelect" class="form-control">
+                                            <option value="">-- Choose Outcome --</option>
+                                            @foreach ($outcomes as $o)
+                                                <option value="eylf-outcome-{{ $o->id }}">{{ $o->title }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
-
-                            <div class="tab-pane {{ $activesubTab == 'EYLF' ? 'show active' : '' }}" id="EYLF"
-                                role="tabpanel">
-
-
-                                <div class="form-group">
-                                    <label><strong>Select Outcome</strong></label>
-                                    <select id="eylfOutcomeSelect" class="form-control">
-                                        <option value="">-- Choose Outcome --</option>
+                                    <div class="tab-content" id="eylf-tabs">
                                         @foreach ($outcomes as $o)
-                                        <option value="eylf-outcome-{{ $o->id }}">{{ $o->title }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="tab-content" id="eylf-tabs">
-                                    @foreach ($outcomes as $o)
-                                    <div class="tab-pane" id="eylf-outcome-{{ $o->id }}">
-                                        <div class="accordion rdp-accordion"
-                                            id="eylf-accordion-{{ $o->id }}">
-                                            @foreach ($o->activities as $act)
-                                            <div class="card mb-2">
-                                                <div class="card-header"
-                                                    id="eylf-heading-{{ $act->id }}">
-                                                    <h5 class="mb-0">
-                                                        <button class="btn btn-link collapsed"
-                                                            data-toggle="collapse"
-                                                            data-target="#eylf-collapse-{{ $act->id }}">
-                                                            {{ $act->title }}
-                                                        </button>
-                                                    </h5>
-                                                </div>
-                                                <div id="eylf-collapse-{{ $act->id }}" class="collapse"
-                                                    data-parent="#eylf-accordion-{{ $o->id }}">
-                                                    <div class="card-body">
-                                                        @foreach ($act->subActivities as $sub)
-                                                        @php
-                                                        $checked =
-                                                        $observation && $observation->eylfLinks
-                                                        ? $observation->eylfLinks
-                                                        ->where(
-                                                        'eylfSubactivityId',
-                                                        $sub->id,
-                                                        )
-                                                        ->first() !== null
-                                                        : false;
-                                                        @endphp
-                                                        <div class="custom-control custom-checkbox mb-2">
-                                                            <input type="checkbox"
-                                                                class="custom-control-input"
-                                                                id="eylf-sa-{{ $sub->id }}"
-                                                                name="eylf_subactivity[]"
-                                                                value="{{ $sub->id }}"
-                                                                {{ $checked ? 'checked' : '' }}>
-                                                            <label class="custom-control-label"
-                                                                for="eylf-sa-{{ $sub->id }}">{{ $sub->title }}</label>
+                                            <div class="tab-pane" id="eylf-outcome-{{ $o->id }}">
+                                                <div class="accordion rdp-accordion"
+                                                    id="eylf-accordion-{{ $o->id }}">
+                                                    @foreach ($o->activities as $act)
+                                                        <div class="card mb-2">
+                                                            <div class="card-header"
+                                                                id="eylf-heading-{{ $act->id }}">
+                                                                <h5 class="mb-0">
+                                                                    <button class="btn btn-link collapsed"
+                                                                        data-toggle="collapse"
+                                                                        data-target="#eylf-collapse-{{ $act->id }}">
+                                                                        {{ $act->title }}
+                                                                    </button>
+                                                                </h5>
+                                                            </div>
+                                                            <div id="eylf-collapse-{{ $act->id }}" class="collapse"
+                                                                data-parent="#eylf-accordion-{{ $o->id }}">
+                                                                <div class="card-body">
+                                                                    @foreach ($act->subActivities as $sub)
+                                                                        @php
+                                                                            $checked =
+                                                                                $observation && $observation->eylfLinks
+                                                                                    ? $observation->eylfLinks
+                                                                                            ->where(
+                                                                                                'eylfSubactivityId',
+                                                                                                $sub->id,
+                                                                                            )
+                                                                                            ->first() !== null
+                                                                                    : false;
+                                                                        @endphp
+                                                                        <div class="custom-control custom-checkbox mb-2">
+                                                                            <input type="checkbox"
+                                                                                class="custom-control-input"
+                                                                                id="eylf-sa-{{ $sub->id }}"
+                                                                                name="eylf_subactivity[]"
+                                                                                value="{{ $sub->id }}"
+                                                                                {{ $checked ? 'checked' : '' }}>
+                                                                            <label class="custom-control-label"
+                                                                                for="eylf-sa-{{ $sub->id }}">{{ $sub->title }}</label>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        @endforeach
-                                                    </div>
+                                                    @endforeach
                                                 </div>
                                             </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                    @endforeach
-                                </div>
-
-                                <button type="button" id="saveEylfData" class="btn btn-success">Save EYLF
-                                    Selection</button>
-
-
-
-                            </div>
-
-
-                            <div class="tab-pane {{ $activesubTab == 'MILESTONE' ? 'show active' : '' }}"
-                                id="MILESTONE">
-
-
-                                <div class="form-group">
-                                    <label><strong>Select Age Group</strong></label>
-                                    <select id="devAgeSelect" class="form-control">
-                                        <option value="">-- Choose Age Group --</option>
-                                        @foreach ($milestones as $ms)
-                                        <option value="dev-age-{{ $ms->id }}">{{ $ms->ageGroup }}</option>
                                         @endforeach
-                                    </select>
+                                    </div>
+
+                                    <button type="button" id="saveEylfData" class="btn btn-success">Save EYLF
+                                        Selection</button>
+
+
+
                                 </div>
 
-                                <div class="tab-content" id="devmilestone-tabs">
-                                    @foreach ($milestones as $ms)
-                                    <div class="tab-pane" id="dev-age-{{ $ms->id }}">
-                                        <div class="accordion rdp-accordion"
-                                            id="devmilestone-accordion-{{ $ms->id }}">
-                                            @foreach ($ms->mains as $main)
-                                            <!-- Accordion Card -->
-                                            <div class="card mb-2">
-                                                <div class="card-header"
-                                                    id="dev-heading-{{ $main->id }}">
-                                                    <button class="btn btn-link collapsed"
-                                                        data-toggle="collapse"
-                                                        data-target="#dev-collapse-{{ $main->id }}">
-                                                        {{ $main->name }}
-                                                    </button>
-                                                </div>
-                                                <div id="dev-collapse-{{ $main->id }}" class="collapse"
-                                                    data-parent="#devmilestone-accordion-{{ $ms->id }}">
-                                                    <div class="card-body">
-                                                        @foreach ($main->subs as $sub)
-                                                        @php
-                                                        $sel =
-                                                        $observation &&
-                                                        $observation->devMilestoneSubs
-                                                        ? $observation->devMilestoneSubs
-                                                        ->where(
-                                                        'devMilestoneId',
-                                                        $sub->id,
-                                                        )
-                                                        ->first()->assessment ??
-                                                        null
-                                                        : null;
-                                                        @endphp
-                                                        <div class="form-row align-items-center mb-2">
-                                                            <div class="col-md-4">{{ $sub->name }}
-                                                            </div>
-                                                            <div class="col-md-8">
-                                                                @foreach (['Introduced', 'Working towards', 'Achieved'] as $label)
-                                                                <div
-                                                                    class="custom-control custom-radio custom-control-inline">
-                                                                    <input type="radio"
-                                                                        class="custom-control-input devmilestone-radio"
-                                                                        id="devsub-{{ $sub->id }}-{{ Str::slug($label) }}"
-                                                                        name="devsub_{{ $sub->id }}"
-                                                                        data-subid="{{ $sub->id }}"
-                                                                        value="{{ $label }}"
-                                                                        {{ $sel === $label ? 'checked' : '' }}>
-                                                                    <label class="custom-control-label"
-                                                                        for="devsub-{{ $sub->id }}-{{ Str::slug($label) }}">{{ $label }}</label>
-                                                                </div>
-                                                                @endforeach
-                                                                <!-- Clear Button for Milestone Radios -->
-                                                                <button type="button"
-                                                                    class="btn btn-sm btn-outline-danger ml-2 clear-btn"
-                                                                    onclick="clearDevMilestone('{{ $sub->id }}')"
-                                                                    title="Clear Selection">
-                                                                    <i class="fas fa-times"></i>
-                                                                    Clear
+
+                                <div class="tab-pane {{ $activesubTab == 'MILESTONE' ? 'show active' : '' }}"
+                                    id="MILESTONE">
+
+
+                                    <div class="form-group">
+                                        <label><strong>Select Age Group</strong></label>
+                                        <select id="devAgeSelect" class="form-control">
+                                            <option value="">-- Choose Age Group --</option>
+                                            @foreach ($milestones as $ms)
+                                                <option value="dev-age-{{ $ms->id }}">{{ $ms->ageGroup }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="tab-content" id="devmilestone-tabs">
+                                        @foreach ($milestones as $ms)
+                                            <div class="tab-pane" id="dev-age-{{ $ms->id }}">
+                                                <div class="accordion rdp-accordion"
+                                                    id="devmilestone-accordion-{{ $ms->id }}">
+                                                    @foreach ($ms->mains as $main)
+                                                        <!-- Accordion Card -->
+                                                        <div class="card mb-2">
+                                                            <div class="card-header"
+                                                                id="dev-heading-{{ $main->id }}">
+                                                                <button class="btn btn-link collapsed"
+                                                                    data-toggle="collapse"
+                                                                    data-target="#dev-collapse-{{ $main->id }}">
+                                                                    {{ $main->name }}
                                                                 </button>
                                                             </div>
+                                                            <div id="dev-collapse-{{ $main->id }}" class="collapse"
+                                                                data-parent="#devmilestone-accordion-{{ $ms->id }}">
+                                                                <div class="card-body">
+                                                                    @foreach ($main->subs as $sub)
+                                                                        @php
+                                                                            $sel =
+                                                                                $observation &&
+                                                                                $observation->devMilestoneSubs
+                                                                                    ? $observation->devMilestoneSubs
+                                                                                            ->where(
+                                                                                                'devMilestoneId',
+                                                                                                $sub->id,
+                                                                                            )
+                                                                                            ->first()->assessment ??
+                                                                                        null
+                                                                                    : null;
+                                                                        @endphp
+                                                                        <div class="form-row align-items-center mb-2">
+                                                                            <div class="col-md-4">{{ $sub->name }}
+                                                                            </div>
+                                                                            <div class="col-md-8">
+                                                                                @foreach (['Introduced', 'Working towards', 'Achieved'] as $label)
+                                                                                    <div
+                                                                                        class="custom-control custom-radio custom-control-inline">
+                                                                                        <input type="radio"
+                                                                                            class="custom-control-input devmilestone-radio"
+                                                                                            id="devsub-{{ $sub->id }}-{{ Str::slug($label) }}"
+                                                                                            name="devsub_{{ $sub->id }}"
+                                                                                            data-subid="{{ $sub->id }}"
+                                                                                            value="{{ $label }}"
+                                                                                            {{ $sel === $label ? 'checked' : '' }}>
+                                                                                        <label class="custom-control-label"
+                                                                                            for="devsub-{{ $sub->id }}-{{ Str::slug($label) }}">{{ $label }}</label>
+                                                                                    </div>
+                                                                                @endforeach
+                                                                                <!-- Clear Button for Milestone Radios -->
+                                                                                <button type="button"
+                                                                                    class="btn btn-sm btn-outline-danger ml-2 clear-btn"
+                                                                                    onclick="clearDevMilestone('{{ $sub->id }}')"
+                                                                                    title="Clear Selection">
+                                                                                    <i class="fas fa-times"></i>
+                                                                                    Clear
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        @endforeach
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+
+                                    <button type="button" id="saveDevMilestone" class="btn btn-warning">Save Development
+                                        Milestone</button>
+
+
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                        <!-- end ASSESSMENT -->
+
+
+
+
+
+
+                        <!-- Link Tabs -->
+                        <style>
+                            .obs-card {
+                                display: flex;
+                                flex-direction: column;
+                                height: 100%;
+                            }
+
+                            .obs-img {
+                                height: 200px;
+                                object-fit: cover;
+                            }
+                        </style>
+
+
+                        <!-- Buttons -->
+                        <div class="tab-pane {{ $activeTab == 'link' ? 'show active' : '' }}" id="Contact">
+                            <button type="button" class="btn btn-primary mb-3" id="btnLinkObservation">+ Link
+                                Observation</button>
+                            <button type="button" class="btn btn-secondary mb-3 ml-2" id="btnLinkReflection">+ Link
+                                Reflection</button>
+                            <button type="button" class="btn btn-info mb-3 ml-2" id="btnLinkProgramPlan">+ Link Program
+                                Plan</button>
+
+                            @if (isset($observation) && $observation->links->where('linktype', 'OBSERVATION')->count())
+                                <p>Linked Observations</p>
+                                <div class="row mt-4">
+                                    @foreach ($observation->links->where('linktype', 'OBSERVATION') as $link)
+                                        @php
+                                            $linked = \App\Models\Observation::with(['media', 'user'])->find(
+                                                $link->linkid,
+                                            );
+                                        @endphp
+
+                                        @if ($linked)
+                                            <div class="col-md-4 mb-3">
+
+                                                <div class="card h-100 shadow-sm obs-card">
+                                                    @php
+                                                        $media = $linked->media->first();
+                                                        $imageUrl =
+                                                            $media && $media->mediaUrl
+                                                                ? asset($media->mediaUrl)
+                                                                : 'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
+                                                    @endphp
+
+                                                    <img src="{{ $imageUrl }}" class="card-img-top obs-img"
+                                                        alt="{{ $linked->obestitle ?? 'Untitled' }}">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">{!! $linked->obestitle ?? 'Untitled' !!}</h5>
+                                                        <p class="card-text"><small class="text-muted">Created by:
+                                                                {{ $linked->user->name ?? 'Unknown' }}</small></p>
                                                     </div>
                                                 </div>
                                             </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
+                                        @endif
                                     @endforeach
                                 </div>
-
-                                <button type="button" id="saveDevMilestone" class="btn btn-warning">Save Development
-                                    Milestone</button>
-
-
-
-                            </div>
-
-
-                        </div>
-
-                    </div>
-                    <!-- end ASSESSMENT -->
+                            @endif
 
 
 
 
 
+                            @if (isset($observation) && $observation->links->where('linktype', 'REFLECTION')->count())
+                                <p>Linked Reflections</p>
+                                <div class="row mt-4">
+                                    @foreach ($observation->links->where('linktype', 'REFLECTION') as $link)
+                                        @php
+                                            $linked = \App\Models\Reflection::with(['media', 'creator'])->find(
+                                                $link->linkid,
+                                            );
+                                        @endphp
 
-                    <!-- Link Tabs -->
-                    <style>
-                        .obs-card {
-                            display: flex;
-                            flex-direction: column;
-                            height: 100%;
-                        }
+                                        @if ($linked)
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card h-100 shadow-sm obs-card">
+                                                    @php
+                                                        $media = $linked->media->first();
+                                                        $imageUrl =
+                                                            $media && $media->mediaUrl
+                                                                ? asset($media->mediaUrl)
+                                                                : 'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
+                                                    @endphp
 
-                        .obs-img {
-                            height: 200px;
-                            object-fit: cover;
-                        }
-                    </style>
+                                                    <img src="{{ $imageUrl }}" class="card-img-top obs-img"
+                                                        alt="{{ $linked->title ?? 'Untitled' }}">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">{!! $linked->title ?? 'Untitled' !!}</h5>
+                                                        <p class="card-text"><small class="text-muted">Created by:
+                                                                {{ $linked->creator->name ?? 'Unknown' }}</small></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
 
 
-                    <!-- Buttons -->
-                    <div class="tab-pane {{ $activeTab == 'link' ? 'show active' : '' }}" id="Contact">
-                        <button type="button" class="btn btn-primary mb-3" id="btnLinkObservation">+ Link
-                            Observation</button>
-                        <button type="button" class="btn btn-secondary mb-3 ml-2" id="btnLinkReflection">+ Link
-                            Reflection</button>
-                        <button type="button" class="btn btn-info mb-3 ml-2" id="btnLinkProgramPlan">+ Link Program
-                            Plan</button>
 
-                        @if (isset($observation) && $observation->links->where('linktype', 'OBSERVATION')->count())
-                        <p>Linked Observations</p>
-                        <div class="row mt-4">
-                            @foreach ($observation->links->where('linktype', 'OBSERVATION') as $link)
-                            @php
-                            $linked = \App\Models\Observation::with(['media', 'user'])->find(
-                            $link->linkid,
-                            );
-                            @endphp
+                            @if (isset($observation) && $observation->links->where('linktype', 'PROGRAMPLAN')->count())
+                                <p>Linked Program Plans</p>
+                                <div class="row mt-4">
+                                    @foreach ($observation->links->where('linktype', 'PROGRAMPLAN') as $link)
+                                        @php
+                                            $linked = \App\Models\ProgramPlanTemplateDetailsAdd::with([
+                                                'room',
+                                                'creator',
+                                            ])->find($link->linkid);
+                                        @endphp
 
-                            @if ($linked)
-                            <div class="col-md-4 mb-3">
+                                        @if ($linked)
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card h-100 shadow-sm obs-card">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">
+                                                            @php
+                                                                $monthNames = [
+                                                                    1 => 'January',
+                                                                    2 => 'February',
+                                                                    3 => 'March',
+                                                                    4 => 'April',
+                                                                    5 => 'May',
+                                                                    6 => 'June',
+                                                                    7 => 'July',
+                                                                    8 => 'August',
+                                                                    9 => 'September',
+                                                                    10 => 'October',
+                                                                    11 => 'November',
+                                                                    12 => 'December',
+                                                                ];
+                                                                $monthName =
+                                                                    $monthNames[$linked->months] ?? 'Unknown Month';
+                                                            @endphp
+                                                            {{ $monthName }} {{ $linked->year }}
+                                                        </h5>
+                                                        <p class="card-text"><strong>Room:</strong>
+                                                            {{ $linked->room->name ?? 'Unknown Room' }}</p>
+                                                        <p class="card-text"><small class="text-muted">Created by:
+                                                                {{ $linked->creator->name ?? 'Unknown' }}</small></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
 
-                                <div class="card h-100 shadow-sm obs-card">
-                                    @php
-                                    $media = $linked->media->first();
-                                    $imageUrl =
-                                    $media && $media->mediaUrl
-                                    ? asset($media->mediaUrl)
-                                    : 'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
-                                    @endphp
 
-                                    <img src="{{ $imageUrl }}" class="card-img-top obs-img"
-                                        alt="{{ $linked->obestitle ?? 'Untitled' }}">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{!! $linked->obestitle ?? 'Untitled' !!}</h5>
-                                        <p class="card-text"><small class="text-muted">Created by:
-                                                {{ $linked->user->name ?? 'Unknown' }}</small></p>
+
+
+                            <!-- Modal -->
+                            <div class="modal" id="observationModal" tabindex="-1" role="dialog"
+                                aria-labelledby="obsModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Select Observations</h5>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                aria-label="Close"><span>&times;</span></button>
+                                        </div>
+                                        <div class="modal-body" style="overflow-y:auto;max-height:550px;">
+                                            <input type="text" id="searchObservation" class="form-control mb-3"
+                                                placeholder="Search by title...">
+
+                                            <div id="observationList" class="row mb-3"></div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button id="submitSelectedObs" class="btn btn-success">Submit Selected
+                                                Observations</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            @endif
-                            @endforeach
                         </div>
-                        @endif
 
 
-
-
-
-                        @if (isset($observation) && $observation->links->where('linktype', 'REFLECTION')->count())
-                        <p>Linked Reflections</p>
-                        <div class="row mt-4">
-                            @foreach ($observation->links->where('linktype', 'REFLECTION') as $link)
-                            @php
-                            $linked = \App\Models\Reflection::with(['media', 'creator'])->find(
-                            $link->linkid,
-                            );
-                            @endphp
-
-                            @if ($linked)
-                            <div class="col-md-4 mb-3">
-                                <div class="card h-100 shadow-sm obs-card">
-                                    @php
-                                    $media = $linked->media->first();
-                                    $imageUrl =
-                                    $media && $media->mediaUrl
-                                    ? asset($media->mediaUrl)
-                                    : 'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
-                                    @endphp
-
-                                    <img src="{{ $imageUrl }}" class="card-img-top obs-img"
-                                        alt="{{ $linked->title ?? 'Untitled' }}">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{!! $linked->title ?? 'Untitled' !!}</h5>
-                                        <p class="card-text"><small class="text-muted">Created by:
-                                                {{ $linked->creator->name ?? 'Unknown' }}</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
-                            @endforeach
-                        </div>
-                        @endif
-
-
-
-                        @if (isset($observation) && $observation->links->where('linktype', 'PROGRAMPLAN')->count())
-                        <p>Linked Program Plans</p>
-                        <div class="row mt-4">
-                            @foreach ($observation->links->where('linktype', 'PROGRAMPLAN') as $link)
-                            @php
-                            $linked = \App\Models\ProgramPlanTemplateDetailsAdd::with([
-                            'room',
-                            'creator',
-                            ])->find($link->linkid);
-                            @endphp
-
-                            @if ($linked)
-                            <div class="col-md-4 mb-3">
-                                <div class="card h-100 shadow-sm obs-card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            @php
-                                            $monthNames = [
-                                            1 => 'January',
-                                            2 => 'February',
-                                            3 => 'March',
-                                            4 => 'April',
-                                            5 => 'May',
-                                            6 => 'June',
-                                            7 => 'July',
-                                            8 => 'August',
-                                            9 => 'September',
-                                            10 => 'October',
-                                            11 => 'November',
-                                            12 => 'December',
-                                            ];
-                                            $monthName =
-                                            $monthNames[$linked->months] ?? 'Unknown Month';
-                                            @endphp
-                                            {{ $monthName }} {{ $linked->year }}
-                                        </h5>
-                                        <p class="card-text"><strong>Room:</strong>
-                                            {{ $linked->room->name ?? 'Unknown Room' }}
-                                        </p>
-                                        <p class="card-text"><small class="text-muted">Created by:
-                                                {{ $linked->creator->name ?? 'Unknown' }}</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
-                            @endforeach
-                        </div>
-                        @endif
-
-
-
-
-                        <!-- Modal -->
-                        <div class="modal" id="observationModal" tabindex="-1" role="dialog"
-                            aria-labelledby="obsModalLabel" aria-hidden="true">
+                        <!-- Reflection Modal -->
+                        <div class="modal" id="reflectionModal" tabindex="-1" role="dialog"
+                            aria-labelledby="refModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-lg" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">Select Observations</h5>
+                                        <h5 class="modal-title">Select Reflections</h5>
                                         <button type="button" class="close" data-dismiss="modal"
                                             aria-label="Close"><span>&times;</span></button>
                                     </div>
                                     <div class="modal-body" style="overflow-y:auto;max-height:550px;">
-                                        <input type="text" id="searchObservation" class="form-control mb-3"
+                                        <input type="text" id="searchReflection" class="form-control mb-3"
                                             placeholder="Search by title...">
-
-                                        <div id="observationList" class="row mb-3"></div>
+                                        <div id="reflectionList" class="row mb-3"></div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button id="submitSelectedObs" class="btn btn-success">Submit Selected
-                                            Observations</button>
+                                        <button id="submitSelectedRef" class="btn btn-success">Submit Selected
+                                            Reflections</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-
-                    <!-- Reflection Modal -->
-                    <div class="modal" id="reflectionModal" tabindex="-1" role="dialog"
-                        aria-labelledby="refModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Select Reflections</h5>
-                                    <button type="button" class="close" data-dismiss="modal"
-                                        aria-label="Close"><span>&times;</span></button>
-                                </div>
-                                <div class="modal-body" style="overflow-y:auto;max-height:550px;">
-                                    <input type="text" id="searchReflection" class="form-control mb-3"
-                                        placeholder="Search by title...">
-                                    <div id="reflectionList" class="row mb-3"></div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button id="submitSelectedRef" class="btn btn-success">Submit Selected
-                                        Reflections</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
 
 
-                    <!-- Program Plan Modal -->
-                    <div class="modal" id="programPlanModal" tabindex="-1" role="dialog"
-                        aria-labelledby="ppModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Select Program Plans</h5>
-                                    <button type="button" class="close" data-dismiss="modal"
-                                        aria-label="Close"><span>&times;</span></button>
-                                </div>
-                                <div class="modal-body" style="overflow-y:auto;max-height:550px;">
-                                    <input type="text" id="searchProgramPlan" class="form-control mb-3"
-                                        placeholder="Search by month name...">
-                                    <div id="programPlanList" class="row mb-3"></div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button id="submitSelectedPP" class="btn btn-success">Submit Selected Program
-                                        Plans</button>
+                        <!-- Program Plan Modal -->
+                        <div class="modal" id="programPlanModal" tabindex="-1" role="dialog"
+                            aria-labelledby="ppModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Select Program Plans</h5>
+                                        <button type="button" class="close" data-dismiss="modal"
+                                            aria-label="Close"><span>&times;</span></button>
+                                    </div>
+                                    <div class="modal-body" style="overflow-y:auto;max-height:550px;">
+                                        <input type="text" id="searchProgramPlan" class="form-control mb-3"
+                                            placeholder="Search by month name...">
+                                        <div id="programPlanList" class="row mb-3"></div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button id="submitSelectedPP" class="btn btn-success">Submit Selected Program
+                                            Plans</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- end ASSESSMENT -->
+
+
+
+
+
                     </div>
-
-                    <!-- end ASSESSMENT -->
-
-
-
-
-
                 </div>
             </div>
         </div>
+
+
     </div>
 
 
-</div>
 
 
 
-
-
-<!-- Modal -->
-<div class="modal" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header d-flex align-items-center justify-content-between">
-                <h5 class="modal-title" id="childrenModalLabel">Select Children</h5>
-                <input type="text" id="childSearch" class="form-control ml-3" placeholder="Search children..."
-                    style="max-width: 250px;">
-                <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" style="max-height:550px;overflow-y:auto;">
-                <div id="childrenList" class="row"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="confirmChildren" class="btn btn-success">Confirm Selection</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<div class="modal" id="roomsModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header d-flex justify-content-between">
-                <h5>Select Rooms</h5>
-                <input type="text" id="roomSearch" class="form-control ml-3" placeholder="Search rooms..."
-                    style="max-width: 250px;">
-            </div>
-            <div class="modal-body" style="max-height:550px;overflow-y:auto;">
-                <div id="roomsList" class="row"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="confirmRooms" class="btn btn-success">Confirm</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- title modal -->
-<div class="modal" id="TitleModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel"
-    aria-hidden="true" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header d-flex align-items-center justify-content-center">
-
-                <h4 class="">New Observation</h4>
-            </div>
-            <form action="{{ route('observation.storeTitle') }}" method="post">
-                @csrf
+    <!-- Modal -->
+    <div class="modal" id="childrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between">
+                    <h5 class="modal-title" id="childrenModalLabel">Select Children</h5>
+                    <input type="text" id="childSearch" class="form-control ml-3" placeholder="Search children..."
+                        style="max-width: 250px;">
+                    <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
                 <div class="modal-body" style="max-height:550px;overflow-y:auto;">
-                    <div class="col-md-12 mt-4 form-section">
-                        <label for="editor">Title</label>
-                        <textarea id="editor" name="obestitle" class="form-control ckeditor" rows="5"></textarea>
-                        <div class="refine-container">
-                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                data-editor="editor"><i class="fas fa-magic mr-1"></i>Refine with Ai</button>
-                        </div>
-                    </div>
+                    <div id="childrenList" class="row"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" id="" class="btn btn-success">Submit</button>
-                    <button type="button" class="btn btn-secondary" onclick="window.history.back()">
-                        <i class="fas fa-times mr-1"></i> Cancel
-                    </button>
-
+                    <button type="button" id="confirmChildren" class="btn btn-success">Confirm Selection</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
-<!-- Staff Modal -->
-<div class="modal" id="staffModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header d-flex align-items-center justify-content-between">
-                <h5 class="modal-title" id="staffModalLabel">Select Staff</h5>
-                <input type="text" id="staffSearch" class="form-control ml-3" placeholder="Search staff..."
-                    style="max-width: 250px;">
-                <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="staffList" class="row"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="confirmStaff" class="btn btn-success">Confirm Selection</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
-</div>
 
 
-<!-- show childrens for preview -->
-<div class="modal" id="PreviewchildrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-md" role="document">
-        <div class="modal-content">
-            <div class="modal-header d-flex align-items-center justify-content-between">
-                <h5 class="modal-title" id="childrenModalLabel">Selected</h5>
-                <!-- <input type="text" id="childSearch" class="form-control ml-3" placeholder="Search children..." style="max-width: 250px;"> -->
-                <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+
+    <div class="modal" id="roomsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-between">
+                    <h5>Select Rooms</h5>
+                    <input type="text" id="roomSearch" class="form-control ml-3" placeholder="Search rooms..."
+                        style="max-width: 250px;">
+                </div>
+                <div class="modal-body" style="max-height:550px;overflow-y:auto;">
+                    <div id="roomsList" class="row"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="confirmRooms" class="btn btn-success">Confirm</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
             </div>
-            <div class="modal-body" style="max-height:550px;overflow-y:auto;">
-                <div id="childrenList" class="row"></div>
-                @if (isset($childrens))
-                <h5 class="modal-title" id="childrenModalLabel"> Children</h5>
-                <div id="selectedChildrenPreview" class="mt-3">
+        </div>
+    </div>
 
-                    @foreach ($childrens as $child)
-                    <span class="badge badge-info mr-1">{{ $child->name }}</span>
-                    @endforeach
+
+    <!-- title modal -->
+    <div class="modal" id="TitleModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel"
+        aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-center">
+
+                    <h4 class="">New Observation</h4>
+                </div>
+                <form action="{{ route('observation.storeTitle') }}" method="post">
+                    @csrf
+                    <div class="modal-body" style="max-height:550px;overflow-y:auto;">
+                        <div class="col-md-12 mt-4 form-section">
+                            <label for="editor">Title</label>
+                            <textarea id="editor" name="obestitle" class="form-control ckeditor" rows="5"></textarea>
+                            <div class="refine-container">
+                                <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                    data-editor="editor"><i class="fas fa-magic mr-1"></i>Refine with Ai</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="" class="btn btn-success">Submit</button>
+                        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                            <i class="fas fa-times mr-1"></i> Cancel
+                        </button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Staff Modal -->
+    <div class="modal" id="staffModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between">
+                    <h5 class="modal-title" id="staffModalLabel">Select Staff</h5>
+                    <input type="text" id="staffSearch" class="form-control ml-3" placeholder="Search staff..."
+                        style="max-width: 250px;">
+                    <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="staffList" class="row"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="confirmStaff" class="btn btn-success">Confirm Selection</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- show childrens for preview -->
+    <div class="modal" id="PreviewchildrenModal" tabindex="-1" role="dialog" aria-labelledby="childrenModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between">
+                    <h5 class="modal-title" id="childrenModalLabel">Selected</h5>
+                    <!-- <input type="text" id="childSearch" class="form-control ml-3" placeholder="Search children..." style="max-width: 250px;"> -->
+                    <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="max-height:550px;overflow-y:auto;">
+                    <div id="childrenList" class="row"></div>
+                    @if (isset($childrens))
+                        <h5 class="modal-title" id="childrenModalLabel"> Children</h5>
+                        <div id="selectedChildrenPreview" class="mt-3">
+
+                            @foreach ($childrens as $child)
+                                <span class="badge badge-info mr-1">{{ $child->name }}</span>
+                            @endforeach
                     @endif
                 </div>
 
 
                 @if (isset($rooms))
-                <h5 class="modal-title" id="childrenModalLabel"> Rooms</h5>
-                <div id="selectedChildrenPreview" class="mt-3">
+                    <h5 class="modal-title" id="childrenModalLabel"> Rooms</h5>
+                    <div id="selectedChildrenPreview" class="mt-3">
 
-                    @foreach ($rooms as $room)
-                    <span class="badge badge-success mr-1">{{ $room['name'] }}</span>
-                    @endforeach
-                    @endif
-                </div>
+                        @foreach ($rooms as $room)
+                            <span class="badge badge-success mr-1">{{ $room['name'] }}</span>
+                        @endforeach
+                @endif
+            </div>
 
-                @if (isset($educators))
+            @if (isset($educators))
                 <h5 class="modal-title" id="childrenModalLabel">Tagged Educators</h5>
                 <div id="selectedChildrenPreview" class="mt-3">
 
                     @foreach ($educators as $educator)
-                    <span class="badge badge-danger mr-1">{{ $educator->name }}</span>
+                        <span class="badge badge-danger mr-1">{{ $educator->name }}</span>
                     @endforeach
-                    @endif
-                </div>
+            @endif
+        </div>
 
 
 
-            </div>
-            <!-- <div class="modal-footer">
+    </div>
+    <!-- <div class="modal-footer">
             <button type="button" id="confirmChildren" class="btn btn-success" >Confirm Selection</button>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           </div> -->
+    </div>
+    </div>
+    </div>
+
+
+
+    <!-- Ai Assistance modal -->
+    <div class="modal" id="AiAssistanceModal" tabindex="-1" role="dialog" aria-labelledby="AiAssistanceModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between">
+                    <h5 class="modal-title" id="childrenModalLabel">Ai Assistance</h5>
+                    <!-- <input type="text" id="childSearch" class="form-control ml-3" placeholder="Search children..." style="max-width: 250px;"> -->
+                    <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="max-height:550px;overflow-y:auto;">
+
+
+                    <h5 class="modal-title" id="AnalysisPreviewLabel"> Analysis/Evaluation</h5>
+                    <div id="AnalysisPreview" class="mt-3"></div>
+
+                    <h5 class="modal-title" id="ReflectionPreviewLabel"> Reflection</h5>
+                    <div id="ReflectionPreview" class="mt-3"></div>
+
+                    <h5 class="modal-title" id="childrenModalLabel"> Future Plans</h5>
+                    <div id="futureplanPreview" class="mt-3"></div>
+
+                    <h5 class="modal-title" id="">child Voice</h5>
+                    <div id="childvoicePreview" class="mt-3"></div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="" onclick="AiAssistance()" class="btn btn-success">Try
+                        Again</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
 
 
-<!-- Ai Assistance modal -->
-<div class="modal" id="AiAssistanceModal" tabindex="-1" role="dialog" aria-labelledby="AiAssistanceModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-md" role="document">
-        <div class="modal-content">
-            <div class="modal-header d-flex align-items-center justify-content-between">
-                <h5 class="modal-title" id="childrenModalLabel">Ai Assistance</h5>
-                <!-- <input type="text" id="childSearch" class="form-control ml-3" placeholder="Search children..." style="max-width: 250px;"> -->
-                <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" style="max-height:550px;overflow-y:auto;">
+
+    <div id="toast-container" class="toast-bottom-right"
+        style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
 
 
-                <h5 class="modal-title" id="AnalysisPreviewLabel"> Analysis/Evaluation</h5>
-                <div id="AnalysisPreview" class="mt-3"></div>
-
-                <h5 class="modal-title" id="ReflectionPreviewLabel"> Reflection</h5>
-                <div id="ReflectionPreview" class="mt-3"></div>
-
-                <h5 class="modal-title" id="childrenModalLabel"> Future Plans</h5>
-                <div id="futureplanPreview" class="mt-3"></div>
-
-                <h5 class="modal-title" id="">child Voice</h5>
-                <div id="childvoicePreview" class="mt-3"></div>
-
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="" onclick="AiAssistance()" class="btn btn-success">Try
-                    Again</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            </div>
-        </div>
+    <!-- processsing loader -->
+    <div id="aiAssistLoader" style="display:none; text-align:center;">
+        <i class="fas fa-spinner fa-spin fa-2x text-info"></i> Processing...
     </div>
-</div>
 
 
-
-
-<div id="toast-container" class="toast-bottom-right"
-    style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;"></div>
-
-
-<!-- processsing loader -->
-<div id="aiAssistLoader" style="display:none; text-align:center;">
-    <i class="fas fa-spinner fa-spin fa-2x text-info"></i> Processing...
-</div>
-
-
-<script>
-    $(document).ready(function() {
-        $('#ObservationChildren').on('click', function() {
-            $('#PreviewchildrenModal').modal('show');
-        });
-    });
-
-
-    $(document).ready(function() {
-        let reflection = @json($observation);
-
-        if (!reflection) {
-            $('#TitleModal').modal('show');
-        }
-    });
-</script>
-
-<script>
-    let editors = {}; // store all CKEditor instances
-
-    document.addEventListener("DOMContentLoaded", function() {
-        // Get all textareas with .ckeditor class and initialize them
-        document.querySelectorAll(".ckeditor").forEach((textarea) => {
-            let id = textarea.getAttribute("id");
-
-            ClassicEditor.create(textarea)
-                .then(editor => {
-                    editors[id] = editor;
-                    console.log(id + " ready ✅");
-
-                    // Attach change listener for autosave
-                    editor.model.document.on("change:data", () => {
-                        AutoSave();
-                    });
-                })
-                .catch(error => console.error(id + " error ❌", error));
-        });
-    });
-
-    // AutoSave function
-    function AutoSave() {
-        // Collect data from all editors
-        let dataToSave = {
-            obestitle: editors["editor6"] ? editors["editor6"].getData() : "",
-            title: editors["editor1"] ? editors["editor1"].getData() : "",
-            notes: editors["editor2"] ? editors["editor2"].getData() : "",
-            reflection: editors["editor3"] ? editors["editor3"].getData() : "",
-            child_voice: editors["editor4"] ? editors["editor4"].getData() : "",
-            future_plan: editors["editor5"] ? editors["editor5"].getData() : "",
-            observation_id: document.querySelector('#observation_id') ? document.querySelector('#observation_id')
-                .value : null
-        };
-
-        console.log("AutoSaving...", dataToSave);
-
-        fetch("{{ route('observation.autosave-observation') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-                },
-                body: JSON.stringify(dataToSave)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("AutoSave response ✅", data);
-
-                if (data.status === 'success') {
-                    // Optional success toast
-                    // Swal.fire({
-                    //     icon: 'success',
-                    //     title: 'Saved!',
-                    //     text: data.message,
-                    //     timer: 1500,
-                    //     showConfirmButton: false
-                    // });
-
-                    // Update hidden observation_id if returned
-                    if (data.observation_id) {
-                        let hiddenIdField = document.querySelector('#observation_id');
-                        if (hiddenIdField) {
-                            hiddenIdField.value = data.observation_id;
-                        }
-                    }
-                } else if (data.status === 'error') {
-                    // Show general error
-                    // Swal.fire({
-                    //     icon: 'error',
-                    //     title: 'Error',
-                    //     text: data.message || 'Something went wrong.',
-                    // });
-
-                    // If there are validation errors, log or display them
-                    if (data.errors) {
-                        const friendlyNames = {
-                            obestitle: "Title",
-                            title: "Observation",
-                            notes: "Notes",
-                            reflection: "Reflection",
-                            child_voice: "Child Voice",
-                            future_plan: "Future Plan",
-                        };
-
-                        console.log("Validation errors:", data.errors);
-
-                        Object.keys(data.errors).forEach(key => {
-                            let fieldName = friendlyNames[key] || key;
-                            // Show simple "Field is required" message
-                            // showToast('toast-error', `${fieldName} is required`);
-                        });
-
-
-                    }
-                } else {
-                    // Fallback for unexpected response
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Unexpected response',
-                        text: 'Autosave returned an unknown status.',
-                    });
-                }
-            })
-            .catch(error => {
-                // Fallback for network/server errors
-                console.error("AutoSave failed ❌", error);
-
+    <script>
+        $(document).ready(function() {
+            $('#ObservationChildren').on('click', function() {
+                $('#PreviewchildrenModal').modal('show');
             });
-    }
-</script>
-
-<script>
-    $(document).ready(function() {
-        let selectedChildren = new Set($('#selected_children').val().split(',').filter(id => id));
+        });
 
 
-        // Load children on modal open
-        $('#childrenModal').on('show.bs.modal', function() {
-            let selectedrooms = $('#selected_rooms').val();
-            console.log('selected rooms ', selectedrooms);
+        $(document).ready(function() {
+            let reflection = @json($observation);
 
-            $.ajax({
-                url: '{{ route('observation.get.children') }}',
-                method: 'GET',
-                data: {
-                    rooms: selectedrooms
-                },
-                success: function(response) {
-                    if (response.success) {
-                        let html = '';
-                        response.children.forEach(child => {
-                            const checked = selectedChildren.has(child.id
+            if (!reflection) {
+                $('#TitleModal').modal('show');
+            }
+        });
+    </script>
+
+    <script>
+        let editors = {}; // store all CKEditor instances
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get all textareas with .ckeditor class and initialize them
+            document.querySelectorAll(".ckeditor").forEach((textarea) => {
+                let id = textarea.getAttribute("id");
+
+                ClassicEditor.create(textarea)
+                    .then(editor => {
+                        editors[id] = editor;
+                        console.log(id + " ready ✅");
+
+                        // Attach change listener for autosave
+                        editor.model.document.on("change:data", () => {
+                            AutoSave();
+                        });
+                    })
+                    .catch(error => console.error(id + " error ❌", error));
+            });
+        });
+
+        // AutoSave function
+        function AutoSave() {
+            // Collect data from all editors
+            let dataToSave = {
+                obestitle: editors["editor6"] ? editors["editor6"].getData() : "",
+                title: editors["editor1"] ? editors["editor1"].getData() : "",
+                notes: editors["editor2"] ? editors["editor2"].getData() : "",
+                reflection: editors["editor3"] ? editors["editor3"].getData() : "",
+                child_voice: editors["editor4"] ? editors["editor4"].getData() : "",
+                future_plan: editors["editor5"] ? editors["editor5"].getData() : "",
+                observation_id: document.querySelector('#observation_id') ? document.querySelector('#observation_id')
+                    .value : null
+            };
+
+            console.log("AutoSaving...", dataToSave);
+
+            fetch("{{ route('observation.autosave-observation') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                    },
+                    body: JSON.stringify(dataToSave)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("AutoSave response ✅", data);
+
+                    if (data.status === 'success') {
+                        // Optional success toast
+                        // Swal.fire({
+                        //     icon: 'success',
+                        //     title: 'Saved!',
+                        //     text: data.message,
+                        //     timer: 1500,
+                        //     showConfirmButton: false
+                        // });
+
+                        // Update hidden observation_id if returned
+                        if (data.observation_id) {
+                            let hiddenIdField = document.querySelector('#observation_id');
+                            if (hiddenIdField) {
+                                hiddenIdField.value = data.observation_id;
+                            }
+                        }
+                    } else if (data.status === 'error') {
+                        // Show general error
+                        // Swal.fire({
+                        //     icon: 'error',
+                        //     title: 'Error',
+                        //     text: data.message || 'Something went wrong.',
+                        // });
+
+                        // If there are validation errors, log or display them
+                        if (data.errors) {
+                            const friendlyNames = {
+                                obestitle: "Title",
+                                title: "Observation",
+                                notes: "Notes",
+                                reflection: "Reflection",
+                                child_voice: "Child Voice",
+                                future_plan: "Future Plan",
+                            };
+
+                            console.log("Validation errors:", data.errors);
+
+                            Object.keys(data.errors).forEach(key => {
+                                let fieldName = friendlyNames[key] || key;
+                                // Show simple "Field is required" message
+                                // showToast('toast-error', `${fieldName} is required`);
+                            });
+
+
+                        }
+                    } else {
+                        // Fallback for unexpected response
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Unexpected response',
+                            text: 'Autosave returned an unknown status.',
+                        });
+                    }
+                })
+                .catch(error => {
+                    // Fallback for network/server errors
+                    console.error("AutoSave failed ❌", error);
+
+                });
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            let selectedChildren = new Set($('#selected_children').val().split(',').filter(id => id));
+
+
+            // Load children on modal open
+            $('#childrenModal').on('show.bs.modal', function() {
+                let selectedrooms = $('#selected_rooms').val();
+                console.log('selected rooms ', selectedrooms);
+
+                $.ajax({
+                    url: '{{ route('observation.get.children') }}',
+                    method: 'GET',
+                    data: {
+                        rooms: selectedrooms
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            let html = '';
+                            response.children.forEach(child => {
+                                const checked = selectedChildren.has(child.id
                                 .toString()) ? 'checked' : '';
-                            html += `
+                                html += `
                             <div class="col-md-4 mb-2 child-item">
                                 <div class="form-check">
                                     <input class="form-check-input child-checkbox" type="checkbox" value="${child.id}" id="child-${child.id}" ${checked}>
@@ -2437,46 +2410,45 @@
                                 </div>
                             </div>
                         `;
-                        });
-                        $('#childrenList').html(html);
+                            });
+                            $('#childrenList').html(html);
+                        }
                     }
-                }
-            });
-        });
-
-        // Filter children
-        $('#childSearch').on('keyup', function() {
-            const search = $(this).val().toLowerCase();
-            $('.child-item').each(function() {
-                const name = $(this).find('.form-check-label').text().toLowerCase();
-                $(this).toggle(name.includes(search));
-            });
-        });
-
-        // Confirm selection
-        $('#confirmChildren').on('click', function() {
-            selectedChildren = new Set();
-            let nameHtml = '';
-            $('.child-checkbox:checked').each(function() {
-                selectedChildren.add($(this).val());
-                nameHtml +=
-                    `<span class="badge badge-info mr-1">${$(this).next('label').text()}</span>`;
+                });
             });
 
-            $('#selected_children').val([...selectedChildren].join(','));
-            $('#selectedChildrenPreview').html(nameHtml);
+            // Filter children
+            $('#childSearch').on('keyup', function() {
+                const search = $(this).val().toLowerCase();
+                $('.child-item').each(function() {
+                    const name = $(this).find('.form-check-label').text().toLowerCase();
+                    $(this).toggle(name.includes(search));
+                });
+            });
 
-            $('#childrenModal').modal('hide');
-        });
+            // Confirm selection
+            $('#confirmChildren').on('click', function() {
+                selectedChildren = new Set();
+                let nameHtml = '';
+                $('.child-checkbox:checked').each(function() {
+                    selectedChildren.add($(this).val());
+                    nameHtml +=
+                        `<span class="badge badge-info mr-1">${$(this).next('label').text()}</span>`;
+                });
+
+                $('#selected_children').val([...selectedChildren].join(','));
+                $('#selectedChildrenPreview').html(nameHtml);
+
+                $('#childrenModal').modal('hide');
+            });
 
 
 
 
-        let selectedRooms = new Set($('#selected_rooms').val().split(',').filter(id => id));
+            let selectedRooms = new Set($('#selected_rooms').val().split(',').filter(id => id));
 
-        $('#roomsModal').on('show.bs.modal', function() {
-            $.get('{{ route('observation.get.rooms') }}',
-                function(res) {
+            $('#roomsModal').on('show.bs.modal', function() {
+                $.get('{{ route('observation.get.rooms') }}', function(res) {
                     if (res.success) {
                         let html = '';
                         res.rooms.forEach(room => {
@@ -2492,46 +2464,46 @@
                         $('#roomsList').html(html);
                     }
                 });
-        });
-
-        $('#roomSearch').on('keyup', function() {
-            const val = $(this).val().toLowerCase();
-            $('.room-item').each(function() {
-                const name = $(this).find('label').text().toLowerCase();
-                $(this).toggle(name.includes(val));
             });
-        });
 
-        $('#confirmRooms').on('click', function() {
-            selectedRooms = new Set();
-            let nameHtml = '';
-            $('.room-checkbox:checked').each(function() {
-                selectedRooms.add($(this).val());
-                nameHtml +=
-                    `<span class="badge badge-success mr-1">${$(this).next('label').text()}</span>`;
+            $('#roomSearch').on('keyup', function() {
+                const val = $(this).val().toLowerCase();
+                $('.room-item').each(function() {
+                    const name = $(this).find('label').text().toLowerCase();
+                    $(this).toggle(name.includes(val));
+                });
             });
-            $('#selected_rooms').val([...selectedRooms].join(','));
-            $('#selectedRoomsPreview').html(nameHtml);
-            $('#roomsModal').modal('hide');
-        });
+
+            $('#confirmRooms').on('click', function() {
+                selectedRooms = new Set();
+                let nameHtml = '';
+                $('.room-checkbox:checked').each(function() {
+                    selectedRooms.add($(this).val());
+                    nameHtml +=
+                        `<span class="badge badge-success mr-1">${$(this).next('label').text()}</span>`;
+                });
+                $('#selected_rooms').val([...selectedRooms].join(','));
+                $('#selectedRoomsPreview').html(nameHtml);
+                $('#roomsModal').modal('hide');
+            });
 
 
-        // tag staffs
-        let selectedStaff = new Set($('#selected_staff').val().split(',').filter(id => id));
+            // tag staffs
+            let selectedStaff = new Set($('#selected_staff').val().split(',').filter(id => id));
 
-        // Load staff on modal open
-        $('#staffModal').on('show.bs.modal', function() {
-            console.log("Modal event triggered");
-            $.ajax({
-                url: '{{ route('observation.get-staff') }}',
-                method: 'GET',
-                success: function(response) {
-                    if (response.success) {
-                        let html = '';
-                        response.staff.forEach(staff => {
-                            const checked = selectedStaff.has(staff.id.toString()) ?
-                                'checked' : '';
-                            html += `
+            // Load staff on modal open
+            $('#staffModal').on('show.bs.modal', function() {
+                console.log("Modal event triggered");
+                $.ajax({
+                    url: '{{ route('observation.get-staff') }}',
+                    method: 'GET',
+                    success: function(response) {
+                        if (response.success) {
+                            let html = '';
+                            response.staff.forEach(staff => {
+                                const checked = selectedStaff.has(staff.id.toString()) ?
+                                    'checked' : '';
+                                html += `
                         <div class="col-md-4 mb-2 staff-item">
                             <div class="form-check">
                                 <input class="form-check-input staff-checkbox" type="checkbox" value="${staff.id}" id="staff-${staff.id}" ${checked}>
@@ -2541,48 +2513,48 @@
                             </div>
                         </div>
                     `;
-                        });
-                        $('#staffList').html(html);
+                            });
+                            $('#staffList').html(html);
+                        }
                     }
-                }
-            });
-        });
-
-        // Filter staff
-        $('#staffSearch').on('keyup', function() {
-            const search = $(this).val().toLowerCase();
-            $('.staff-item').each(function() {
-                const name = $(this).find('.form-check-label').text().toLowerCase();
-                $(this).toggle(name.includes(search));
-            });
-        });
-
-        // Confirm selection
-        $('#confirmStaff').on('click', function() {
-            selectedStaff = new Set();
-            let nameHtml = '';
-            $('.staff-checkbox:checked').each(function() {
-                selectedStaff.add($(this).val());
-                nameHtml +=
-                    `<span class="badge badge-info mr-1">${$(this).next('label').text()}</span>`;
+                });
             });
 
-            $('#selected_staff').val([...selectedStaff].join(','));
-            $('#selectedStaffPreview').html(nameHtml);
-            $('#staffModal').modal('hide');
+            // Filter staff
+            $('#staffSearch').on('keyup', function() {
+                const search = $(this).val().toLowerCase();
+                $('.staff-item').each(function() {
+                    const name = $(this).find('.form-check-label').text().toLowerCase();
+                    $(this).toggle(name.includes(search));
+                });
+            });
+
+            // Confirm selection
+            $('#confirmStaff').on('click', function() {
+                selectedStaff = new Set();
+                let nameHtml = '';
+                $('.staff-checkbox:checked').each(function() {
+                    selectedStaff.add($(this).val());
+                    nameHtml +=
+                        `<span class="badge badge-info mr-1">${$(this).next('label').text()}</span>`;
+                });
+
+                $('#selected_staff').val([...selectedStaff].join(','));
+                $('#selectedStaffPreview').html(nameHtml);
+                $('#staffModal').modal('hide');
+            });
+
+
+
+
+
+
+
+
         });
+    </script>
 
-
-
-
-
-
-
-
-    });
-</script>
-
-<!-- <script>
+    <!-- <script>
         ClassicEditor
             .create(document.querySelector('#editor1'))
             .catch(error => {
@@ -2616,439 +2588,328 @@
             });
     </script> -->
 
-<script>
-    const editors = {};
+    <script>
+        const editors = {};
 
-    document.querySelectorAll('.ckeditor').forEach((el) => {
-        ClassicEditor
-            .create(el)
-            .then(editor => {
-                editors[el.id] = editor;
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    });
-
-    document.querySelectorAll('.refine-btn').forEach(button => {
-        button.addEventListener("click", function() {
-            const editorId = this.getAttribute("data-editor");
-            const editor = editors[editorId];
-
-            if (!editor) return alert("Editor not found!");
-
-            const content = editor.getData();
-            const originalText = this.innerText;
-            this.innerText = "Refining...";
-            this.disabled = true;
-
-            fetch("{{ route('observation.refine.text') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({
-                        text: content
-                    })
+        document.querySelectorAll('.ckeditor').forEach((el) => {
+            ClassicEditor
+                .create(el)
+                .then(editor => {
+                    editors[el.id] = editor;
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        editor.setData(data.refined_text);
-                    } else {
-                        alert("Error: " + data.message);
-                    }
-                })
-                .catch(err => {
-                    console.error("Refine Error:", err);
-                    alert("Something went wrong!");
-                })
-                .finally(() => {
-                    this.innerText = originalText;
-                    this.disabled = false;
+                .catch(error => {
+                    console.error(error);
                 });
         });
-    });
-</script>
 
-<script>
-    let selectedFiles = [];
+        document.querySelectorAll('.refine-btn').forEach(button => {
+            button.addEventListener("click", function() {
+                const editorId = this.getAttribute("data-editor");
+                const editor = editors[editorId];
 
-    document.getElementById('mediaInput').addEventListener('change', function(event) {
-        const previewContainer = document.getElementById('mediaPreview');
-        const newFiles = Array.from(event.target.files);
-        const totalFiles = selectedFiles.length + newFiles.length;
+                if (!editor) return alert("Editor not found!");
 
-        if (totalFiles > 10) {
-            alert("You can upload a maximum of 10 files.");
-            this.value = '';
-            return;
-        }
+                const content = editor.getData();
+                const originalText = this.innerText;
+                this.innerText = "Refining...";
+                this.disabled = true;
 
-        newFiles.forEach((file, index) => {
-            const reader = new FileReader();
-            const fileIndex = selectedFiles.length;
+                fetch("{{ route('observation.refine.text') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify({
+                            text: content
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            editor.setData(data.refined_text);
+                        } else {
+                            alert("Error: " + data.message);
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Refine Error:", err);
+                        alert("Something went wrong!");
+                    })
+                    .finally(() => {
+                        this.innerText = originalText;
+                        this.disabled = false;
+                    });
+            });
+        });
+    </script>
 
-            reader.onload = function(e) {
-                const col = document.createElement('div');
-                col.className = 'col-md-3 position-relative mb-3';
+    <script>
+        let selectedFiles = [];
 
-                let mediaContent = '';
+        document.getElementById('mediaInput').addEventListener('change', function(event) {
+            const previewContainer = document.getElementById('mediaPreview');
+            const newFiles = Array.from(event.target.files);
+            const totalFiles = selectedFiles.length + newFiles.length;
 
-                if (file.type.startsWith('image/')) {
-                    mediaContent = `<img src="${e.target.result}" class="media-thumb rounded">`;
-                } else if (file.type.startsWith('video/')) {
-                    mediaContent =
-                        `<video src="${e.target.result}" class="media-thumb rounded" controls></video>`;
-                }
+            if (totalFiles > 10) {
+                alert("You can upload a maximum of 10 files.");
+                this.value = '';
+                return;
+            }
 
-                col.innerHTML = `
+            newFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                const fileIndex = selectedFiles.length;
+
+                reader.onload = function(e) {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-3 position-relative mb-3';
+
+                    let mediaContent = '';
+
+                    if (file.type.startsWith('image/')) {
+                        mediaContent = `<img src="${e.target.result}" class="media-thumb rounded">`;
+                    } else if (file.type.startsWith('video/')) {
+                        mediaContent =
+                            `<video src="${e.target.result}" class="media-thumb rounded" controls></video>`;
+                    }
+
+                    col.innerHTML = `
                 <div class="position-relative">
                     ${mediaContent}
                     <button type="button" class="btn btn-danger btn-sm remove-btn" data-index="${fileIndex}">✕</button>
                 </div>
             `;
 
-                previewContainer.appendChild(col);
-            };
+                    previewContainer.appendChild(col);
+                };
 
-            reader.readAsDataURL(file);
-            selectedFiles.push(file);
+                reader.readAsDataURL(file);
+                selectedFiles.push(file);
+            });
+
+            updateFileInput();
         });
 
-        updateFileInput();
-    });
+        // Remove handler
+        document.getElementById('mediaPreview').addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-btn')) {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                selectedFiles.splice(index, 1);
+                updateFileInput();
+                renderPreview();
+            }
+        });
 
-    // Remove handler
-    document.getElementById('mediaPreview').addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-btn')) {
-            const index = parseInt(e.target.getAttribute('data-index'));
-            selectedFiles.splice(index, 1);
-            updateFileInput();
-            renderPreview();
-        }
-    });
+        // Re-render preview
+        function renderPreview() {
+            const previewContainer = document.getElementById('mediaPreview');
+            previewContainer.innerHTML = '';
 
-    // Re-render preview
-    function renderPreview() {
-        const previewContainer = document.getElementById('mediaPreview');
-        previewContainer.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
 
-        selectedFiles.forEach((file, index) => {
-            const reader = new FileReader();
+                reader.onload = function(e) {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-3 position-relative mb-3';
 
-            reader.onload = function(e) {
-                const col = document.createElement('div');
-                col.className = 'col-md-3 position-relative mb-3';
+                    let mediaContent = '';
 
-                let mediaContent = '';
+                    if (file.type.startsWith('image/')) {
+                        mediaContent = `<img src="${e.target.result}" class="media-thumb rounded">`;
+                    } else if (file.type.startsWith('video/')) {
+                        mediaContent =
+                            `<video src="${e.target.result}" class="media-thumb rounded" controls></video>`;
+                    }
 
-                if (file.type.startsWith('image/')) {
-                    mediaContent = `<img src="${e.target.result}" class="media-thumb rounded">`;
-                } else if (file.type.startsWith('video/')) {
-                    mediaContent =
-                        `<video src="${e.target.result}" class="media-thumb rounded" controls></video>`;
-                }
-
-                col.innerHTML = `
+                    col.innerHTML = `
                 <div class="position-relative">
                     ${mediaContent}
                     <button type="button" class="btn btn-danger btn-sm remove-btn" data-index="${index}">✕</button>
                 </div>
             `;
 
-                previewContainer.appendChild(col);
-            };
+                    previewContainer.appendChild(col);
+                };
 
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // Update file input value from selectedFiles
-    function updateFileInput() {
-        const input = document.getElementById('mediaInput');
-        const dataTransfer = new DataTransfer();
-
-        selectedFiles.forEach(file => dataTransfer.items.add(file));
-        input.files = dataTransfer.files;
-    }
-
-
-    function showToast(type, message) {
-        const isSuccess = type === 'success';
-        const toastType = isSuccess ? 'toast-success' : 'toast-error';
-        const ariaLive = isSuccess ? 'polite' : 'assertive';
-
-        const toast = `
-        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
-            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
-            <div class="toast-message" style="color: white;">${message}</div>
-        </div>
-    `;
-
-        // Append the toast to the container
-        $('#toast-container').append(toast);
-
-        // Automatically fade out and remove this specific toast after 3 seconds
-        setTimeout(() => {
-            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
-                $(this).remove();
+                reader.readAsDataURL(file);
             });
-        }, 3000);
-    }
-
-
-
-    $(document).ready(function() {
-        $('#observationform').on('submit', function(e) {
-            e.preventDefault();
-
-
-
-            const form = $('#observationform')[0];
-            const formData = new FormData(form);
-
-            // Append selected files (including rotated ones)
-            // selectedFiles.forEach((file, index) => {
-            //     formData.append('media[]', file);
-            // });
-
-            $.ajax({
-                url: "{{ route('observation.store') }}", // 👈 Your Laravel route
-                method: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for Laravel
-                },
-                beforeSend: function() {
-                    // Optional: show loader or disable button
-                    $('button[type=submit]').prop('disabled', true).text('Submitting...');
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        showToast('success', 'Observation Added Successfully!');
-                        setTimeout(() => {
-                            window.location.href = '/observation/addnew/' + response
-                                .id + '/assessment'; // or 'link', or 'observation'
-                        }, 1500);
-                    } else {
-                        showToast('error', response.message || 'Update failed');
-                    }
-                },
-                error: function(xhr) {
-                    if (xhr.status === 422) {
-                        Object.values(xhr.responseJSON.errors).forEach(error => {
-                            showToast('error', error[0]);
-                        });
-                    } else {
-                        showToast('error', 'Server error occurred');
-                    }
-                },
-                complete: function() {
-                    $('button[type=submit]').prop('disabled', false).text('Submit');
-                }
-            });
-        });
-    });
-</script>
-
-<script>
-    function deleteMedia(id, fileUrl) {
-        Swal.fire({
-            title: 'What do you want to do?',
-            icon: 'question',
-            showCancelButton: true,
-            showDenyButton: true,
-            confirmButtonText: 'Download & Delete',
-            denyButtonText: 'Delete Only',
-            cancelButtonText: 'Cancel',
-            confirmButtonColor: '#0d6efd',
-            denyButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Download first
-                const link = document.createElement('a');
-                link.href = fileUrl;
-                link.download = '';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                // Then delete
-                performDelete(id);
-            } else if (result.isDenied) {
-                // Delete without download
-                performDelete(id);
-            }
-        });
-    }
-
-    function performDelete(id) {
-        fetch(`/observation/observation-media/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    document.getElementById(`media-${id}`).remove();
-                    Swal.fire('Deleted!', 'The media has been removed.', 'success');
-                } else {
-                    throw new Error('Delete failed');
-                }
-            })
-            .catch(() => {
-                Swal.fire('Error!', 'Something went wrong.', 'error');
-            });
-    }
-</script>
-
-
-<script>
-    function showToast(type, message) {
-        const isSuccess = type === 'success';
-        const toastType = isSuccess ? 'toast-success' : 'toast-error';
-        const ariaLive = isSuccess ? 'polite' : 'assertive';
-
-        const toast = `
-        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
-            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
-            <div class="toast-message" style="color: white;">${message}</div>
-        </div>
-    `;
-
-        // Append the toast to the container
-        $('#toast-container').append(toast);
-
-        // Automatically fade out and remove this specific toast after 3 seconds
-        setTimeout(() => {
-            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
-                $(this).remove();
-            });
-        }, 3000);
-    }
-
-
-
-    $('#saveMontessoriData').on('click', function(e) {
-        e.preventDefault();
-
-        let $button = $(this);
-        let originalText = $button.html();
-
-        // Change button text and disable it
-        $button.html('Saving...').prop('disabled', true);
-
-        let observationId = $('#observation_id').val();
-
-        if (!observationId) {
-            showToast('error', 'Please Create Observation First');
-            $button.html(originalText).prop('disabled', false);
-            return;
         }
 
-        let data = {
-            observationId: observationId,
-            subactivities: []
-        };
+        // Update file input value from selectedFiles
+        function updateFileInput() {
+            const input = document.getElementById('mediaInput');
+            const dataTransfer = new DataTransfer();
 
-        // FIX: Only select radio buttons within the MONTESSORI tab
-        $('#MONTESSORI input[type=radio]:checked').each(function() {
-            // Also ensure we're only getting Montessori subactivity radio buttons
-            let name = $(this).attr('name');
-            if (name && name.startsWith('subactivity[')) {
-                let subId = name.match(/\d+/)[0];
-                let value = $(this).val();
-                if (value !== 'Not Assessed') {
-                    data.subactivities.push({
-                        idSubActivity: subId,
-                        assesment: value
-                    });
-                }
-            }
-        });
-
-        $.ajax({
-            url: "{{ route('observation.montessori.store') }}",
-            method: 'POST',
-            data: {
-                _token: "{{ csrf_token() }}",
-                ...data
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    showToast('success', 'Montessori Added Successfully');
-                    $button.html('Saved!');
-                    setTimeout(() => {
-                        window.location.href = '/observation/addnew/' + response.id +
-                            '/assessment' + '/EYLF';
-                    }, 100);
-                } else {
-                    showToast('error', response.message || 'Update failed');
-                }
-            },
-            error: function(xhr) {
-                $button.html(originalText).prop('disabled', false);
-                if (xhr.status === 422) {
-                    Object.values(xhr.responseJSON.errors).forEach(error => {
-                        showToast('error', error[0]);
-                    });
-                } else {
-                    showToast('error', 'Server error occurred');
-                }
-            }
-        });
-    });
-</script>
+            selectedFiles.forEach(file => dataTransfer.items.add(file));
+            input.files = dataTransfer.files;
+        }
 
 
+        function showToast(type, message) {
+            const isSuccess = type === 'success';
+            const toastType = isSuccess ? 'toast-success' : 'toast-error';
+            const ariaLive = isSuccess ? 'polite' : 'assertive';
 
-<script>
-    function showToast(type, message) {
-        const isSuccess = type === 'success';
-        const toastType = isSuccess ? 'toast-success' : 'toast-error';
-        const ariaLive = isSuccess ? 'polite' : 'assertive';
-
-        const toast = `
+            const toast = `
         <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
             <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
             <div class="toast-message" style="color: white;">${message}</div>
         </div>
     `;
 
-        // Append the toast to the container
-        $('#toast-container').append(toast);
+            // Append the toast to the container
+            $('#toast-container').append(toast);
 
-        // Automatically fade out and remove this specific toast after 3 seconds
-        setTimeout(() => {
-            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
-                $(this).remove();
+            // Automatically fade out and remove this specific toast after 3 seconds
+            setTimeout(() => {
+                $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+
+
+
+        $(document).ready(function() {
+            $('#observationform').on('submit', function(e) {
+                e.preventDefault();
+
+
+
+                const form = $('#observationform')[0];
+                const formData = new FormData(form);
+
+                // Append selected files (including rotated ones)
+                // selectedFiles.forEach((file, index) => {
+                //     formData.append('media[]', file);
+                // });
+
+                $.ajax({
+                    url: "{{ route('observation.store') }}", // 👈 Your Laravel route
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for Laravel
+                    },
+                    beforeSend: function() {
+                        // Optional: show loader or disable button
+                        $('button[type=submit]').prop('disabled', true).text('Submitting...');
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showToast('success', 'Observation Added Successfully!');
+                            setTimeout(() => {
+                                window.location.href = '/observation/addnew/' + response
+                                    .id + '/assessment'; // or 'link', or 'observation'
+                            }, 1500);
+                        } else {
+                            showToast('error', response.message || 'Update failed');
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            Object.values(xhr.responseJSON.errors).forEach(error => {
+                                showToast('error', error[0]);
+                            });
+                        } else {
+                            showToast('error', 'Server error occurred');
+                        }
+                    },
+                    complete: function() {
+                        $('button[type=submit]').prop('disabled', false).text('Submit');
+                    }
+                });
             });
-        }, 3000);
-    }
-
-
-
-
-    $(function() {
-        // EYLF: Show outcome's tab
-        $('#eylfOutcomeSelect').on('change', function() {
-            var selected = $(this).val();
-            $('#eylf-tabs .tab-pane').removeClass('active show');
-            if (selected) {
-                $('#' + selected).addClass('active show');
-            }
         });
+    </script>
 
-        // Save EYLF Subactivities
-        $('#saveEylfData').on('click', function(e) {
+    <script>
+        function deleteMedia(id, fileUrl) {
+            Swal.fire({
+                title: 'What do you want to do?',
+                icon: 'question',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'Download & Delete',
+                denyButtonText: 'Delete Only',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#0d6efd',
+                denyButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Download first
+                    const link = document.createElement('a');
+                    link.href = fileUrl;
+                    link.download = '';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // Then delete
+                    performDelete(id);
+                } else if (result.isDenied) {
+                    // Delete without download
+                    performDelete(id);
+                }
+            });
+        }
+
+        function performDelete(id) {
+            fetch(`/observation/observation-media/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById(`media-${id}`).remove();
+                        Swal.fire('Deleted!', 'The media has been removed.', 'success');
+                    } else {
+                        throw new Error('Delete failed');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('Error!', 'Something went wrong.', 'error');
+                });
+        }
+    </script>
+
+
+    <script>
+        function showToast(type, message) {
+            const isSuccess = type === 'success';
+            const toastType = isSuccess ? 'toast-success' : 'toast-error';
+            const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+            const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+            // Append the toast to the container
+            $('#toast-container').append(toast);
+
+            // Automatically fade out and remove this specific toast after 3 seconds
+            setTimeout(() => {
+                $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+
+
+
+        $('#saveMontessoriData').on('click', function(e) {
             e.preventDefault();
 
             let $button = $(this);
@@ -3064,26 +2925,41 @@
                 return;
             }
 
-            let selectedSubactivities = [];
-            $('input[name="eylf_subactivity[]"]:checked').each(function() {
-                selectedSubactivities.push($(this).val());
+            let data = {
+                observationId: observationId,
+                subactivities: []
+            };
+
+            // FIX: Only select radio buttons within the MONTESSORI tab
+            $('#MONTESSORI input[type=radio]:checked').each(function() {
+                // Also ensure we're only getting Montessori subactivity radio buttons
+                let name = $(this).attr('name');
+                if (name && name.startsWith('subactivity[')) {
+                    let subId = name.match(/\d+/)[0];
+                    let value = $(this).val();
+                    if (value !== 'Not Assessed') {
+                        data.subactivities.push({
+                            idSubActivity: subId,
+                            assesment: value
+                        });
+                    }
+                }
             });
 
             $.ajax({
-                url: "{{ route('observation.eylf.store') }}",
+                url: "{{ route('observation.montessori.store') }}",
                 method: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
-                    observationId: observationId,
-                    subactivityIds: selectedSubactivities
+                    ...data
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        showToast('success', 'EYLF Activities Added Successfully');
+                        showToast('success', 'Montessori Added Successfully');
                         $button.html('Saved!');
                         setTimeout(() => {
-                            window.location.href = '/observation/addnew/' + response
-                                .id + '/assessment' + '/MILESTONE';
+                            window.location.href = '/observation/addnew/' + response.id +
+                                '/assessment' + '/EYLF';
                         }, 100);
                     } else {
                         showToast('error', response.message || 'Update failed');
@@ -3101,55 +2977,225 @@
                 }
             });
         });
-    });
-</script>
+    </script>
 
 
-<script>
-    function showToast(type, message) {
-        const isSuccess = type === 'success';
-        const toastType = isSuccess ? 'toast-success' : 'toast-error';
-        const ariaLive = isSuccess ? 'polite' : 'assertive';
 
-        const toast = `
+    <script>
+        function showToast(type, message) {
+            const isSuccess = type === 'success';
+            const toastType = isSuccess ? 'toast-success' : 'toast-error';
+            const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+            const toast = `
         <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
             <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
             <div class="toast-message" style="color: white;">${message}</div>
         </div>
     `;
 
-        // Append the toast to the container
-        $('#toast-container').append(toast);
+            // Append the toast to the container
+            $('#toast-container').append(toast);
 
-        // Automatically fade out and remove this specific toast after 3 seconds
-        setTimeout(() => {
-            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
-                $(this).remove();
+            // Automatically fade out and remove this specific toast after 3 seconds
+            setTimeout(() => {
+                $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+
+
+
+
+        $(function() {
+            // EYLF: Show outcome's tab
+            $('#eylfOutcomeSelect').on('change', function() {
+                var selected = $(this).val();
+                $('#eylf-tabs .tab-pane').removeClass('active show');
+                if (selected) {
+                    $('#' + selected).addClass('active show');
+                }
             });
-        }, 3000);
-    }
 
+            // Save EYLF Subactivities
+            $('#saveEylfData').on('click', function(e) {
+                e.preventDefault();
 
+                let $button = $(this);
+                let originalText = $button.html();
 
+                // Change button text and disable it
+                $button.html('Saving...').prop('disabled', true);
 
-    $(function() {
-        // Handle age group selection
-        $('#devAgeSelect').on('change', function() {
-            const sel = $(this).val();
-            $('#devmilestone-tabs .tab-pane').removeClass('active show');
-            if (sel) $('#' + sel).addClass('active show');
+                let observationId = $('#observation_id').val();
+                if (!observationId) {
+                    showToast('error', 'Please Create Observation First');
+                    $button.html(originalText).prop('disabled', false);
+                    return;
+                }
+
+                let selectedSubactivities = [];
+                $('input[name="eylf_subactivity[]"]:checked').each(function() {
+                    selectedSubactivities.push($(this).val());
+                });
+
+                $.ajax({
+                    url: "{{ route('observation.eylf.store') }}",
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        observationId: observationId,
+                        subactivityIds: selectedSubactivities
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showToast('success', 'EYLF Activities Added Successfully');
+                            $button.html('Saved!');
+                            setTimeout(() => {
+                                window.location.href = '/observation/addnew/' + response
+                                    .id + '/assessment' + '/MILESTONE';
+                            }, 100);
+                        } else {
+                            showToast('error', response.message || 'Update failed');
+                        }
+                    },
+                    error: function(xhr) {
+                        $button.html(originalText).prop('disabled', false);
+                        if (xhr.status === 422) {
+                            Object.values(xhr.responseJSON.errors).forEach(error => {
+                                showToast('error', error[0]);
+                            });
+                        } else {
+                            showToast('error', 'Server error occurred');
+                        }
+                    }
+                });
+            });
         });
+    </script>
 
-        // Save milestone form
-        $('#saveDevMilestone').on('click', function(e) {
 
-            let $button = $(this);
-            let originalText = $button.html();
+    <script>
+        function showToast(type, message) {
+            const isSuccess = type === 'success';
+            const toastType = isSuccess ? 'toast-success' : 'toast-error';
+            const ariaLive = isSuccess ? 'polite' : 'assertive';
 
-            // Change button text and disable it
-            $button.html('Saving...').prop('disabled', true);
+            const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
 
-            e.preventDefault();
+            // Append the toast to the container
+            $('#toast-container').append(toast);
+
+            // Automatically fade out and remove this specific toast after 3 seconds
+            setTimeout(() => {
+                $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+
+
+
+
+        $(function() {
+            // Handle age group selection
+            $('#devAgeSelect').on('change', function() {
+                const sel = $(this).val();
+                $('#devmilestone-tabs .tab-pane').removeClass('active show');
+                if (sel) $('#' + sel).addClass('active show');
+            });
+
+            // Save milestone form
+            $('#saveDevMilestone').on('click', function(e) {
+
+                let $button = $(this);
+                let originalText = $button.html();
+
+                // Change button text and disable it
+                $button.html('Saving...').prop('disabled', true);
+
+                e.preventDefault();
+                const obsId = $('#observation_id').val();
+                if (!obsId) {
+                    showToast('error', 'Please create the observation first');
+                    $button.html(originalText).prop('disabled', false);
+                    return;
+                }
+
+                const selections = [];
+                $('input[name^="devsub_"]:checked').each(function() {
+                    selections.push({
+                        idSub: $(this).data('subid'),
+                        assessment: $(this).val()
+                    });
+                });
+
+                $.ajax({
+                    url: "{{ route('observation.devmilestone.store') }}",
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        observationId: obsId,
+                        selections: selections
+                    },
+                    success: function(res) {
+                        showToast('success', 'Development milestones saved!');
+                        $button.html('Saved!');
+                        setTimeout(() => {
+                            window.location.href = '/observation/addnew/' + res.id +
+                                '/link';
+                        }, 100);
+                    },
+                    error: function(xhr) {
+                        $button.html(originalText).prop('disabled', false);
+                        if (xhr.status === 422) {
+                            Object.values(xhr.responseJSON.errors).forEach(err => showToast(
+                                'error', err[0]));
+                        } else showToast('error', 'Server error occurred');
+
+
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        function showToast(type, message) {
+            const isSuccess = type === 'success';
+            const toastType = isSuccess ? 'toast-success' : 'toast-error';
+            const ariaLive = isSuccess ? 'polite' : 'assertive';
+
+            const toast = `
+        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
+            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
+            <div class="toast-message" style="color: white;">${message}</div>
+        </div>
+    `;
+
+            // Append the toast to the container
+            $('#toast-container').append(toast);
+
+            // Automatically fade out and remove this specific toast after 3 seconds
+            setTimeout(() => {
+                $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+
+
+        function handleObservationStatusChange(status) {
+            const $button = status === 'Published' ? $('#publishObservation') : $('#draftObservation');
+            const originalText = $button.html();
+            $button.html('Processing...').prop('disabled', true);
+
             const obsId = $('#observation_id').val();
             if (!obsId) {
                 showToast('error', 'Please create the observation first');
@@ -3157,192 +3203,117 @@
                 return;
             }
 
-            const selections = [];
-            $('input[name^="devsub_"]:checked').each(function() {
-                selections.push({
-                    idSub: $(this).data('subid'),
-                    assessment: $(this).val()
-                });
-            });
-
             $.ajax({
-                url: "{{ route('observation.devmilestone.store') }}",
+                url: "{{ route('observation.status.update') }}",
                 method: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
                     observationId: obsId,
-                    selections: selections
+                    status: status
                 },
                 success: function(res) {
-                    showToast('success', 'Development milestones saved!');
-                    $button.html('Saved!');
-                    setTimeout(() => {
-                        window.location.href = '/observation/addnew/' + res.id +
-                            '/link';
-                    }, 100);
+                    if (res.status === 'success') {
+                        showToast('success', `Observation marked as ${status}`);
+                        $button.html('Saved!');
+                        setTimeout(() => {
+                            window.location.href = "{{ route('observation.index') }}";
+                        }, 1500);
+                    } else {
+                        showToast('error', res.message || 'Something went wrong');
+                        $button.html(originalText).prop('disabled', false);
+                    }
                 },
                 error: function(xhr) {
                     $button.html(originalText).prop('disabled', false);
                     if (xhr.status === 422) {
-                        Object.values(xhr.responseJSON.errors).forEach(err => showToast(
-                            'error', err[0]));
+                        Object.values(xhr.responseJSON.errors).forEach(err => showToast('error', err[0]));
                     } else showToast('error', 'Server error occurred');
-
-
                 }
             });
-        });
-    });
-</script>
-
-<script>
-    function showToast(type, message) {
-        const isSuccess = type === 'success';
-        const toastType = isSuccess ? 'toast-success' : 'toast-error';
-        const ariaLive = isSuccess ? 'polite' : 'assertive';
-
-        const toast = `
-        <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
-            <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
-            <div class="toast-message" style="color: white;">${message}</div>
-        </div>
-    `;
-
-        // Append the toast to the container
-        $('#toast-container').append(toast);
-
-        // Automatically fade out and remove this specific toast after 3 seconds
-        setTimeout(() => {
-            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
-                $(this).remove();
-            });
-        }, 3000);
-    }
-
-
-    function handleObservationStatusChange(status) {
-        const $button = status === 'Published' ? $('#publishObservation') : $('#draftObservation');
-        const originalText = $button.html();
-        $button.html('Processing...').prop('disabled', true);
-
-        const obsId = $('#observation_id').val();
-        if (!obsId) {
-            showToast('error', 'Please create the observation first');
-            $button.html(originalText).prop('disabled', false);
-            return;
         }
 
-        $.ajax({
-            url: "{{ route('observation.status.update') }}",
-            method: 'POST',
-            data: {
-                _token: "{{ csrf_token() }}",
-                observationId: obsId,
-                status: status
-            },
-            success: function(res) {
-                if (res.status === 'success') {
-                    showToast('success', `Observation marked as ${status}`);
-                    $button.html('Saved!');
-                    setTimeout(() => {
-                        window.location.href = "{{ route('observation.index') }}";
-                    }, 1500);
-                } else {
-                    showToast('error', res.message || 'Something went wrong');
-                    $button.html(originalText).prop('disabled', false);
-                }
-            },
-            error: function(xhr) {
-                $button.html(originalText).prop('disabled', false);
-                if (xhr.status === 422) {
-                    Object.values(xhr.responseJSON.errors).forEach(err => showToast('error', err[0]));
-                } else showToast('error', 'Server error occurred');
-            }
+        // Bind events
+        $('#publishObservation').on('click', function() {
+            handleObservationStatusChange('Published');
         });
-    }
 
-    // Bind events
-    $('#publishObservation').on('click', function() {
-        handleObservationStatusChange('Published');
-    });
-
-    $('#draftObservation').on('click', function() {
-        handleObservationStatusChange('Draft');
-    });
-</script>
+        $('#draftObservation').on('click', function() {
+            handleObservationStatusChange('Draft');
+        });
+    </script>
 
 
-<script>
-    function showToast(type, message) {
-        const isSuccess = type === 'success';
-        const toastType = isSuccess ? 'toast-success' : 'toast-error';
-        const ariaLive = isSuccess ? 'polite' : 'assertive';
+    <script>
+        function showToast(type, message) {
+            const isSuccess = type === 'success';
+            const toastType = isSuccess ? 'toast-success' : 'toast-error';
+            const ariaLive = isSuccess ? 'polite' : 'assertive';
 
-        const toast = `
+            const toast = `
         <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
             <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
             <div class="toast-message" style="color: white;">${message}</div>
         </div>
     `;
 
-        // Append the toast to the container
-        $('#toast-container').append(toast);
+            // Append the toast to the container
+            $('#toast-container').append(toast);
 
-        // Automatically fade out and remove this specific toast after 3 seconds
-        setTimeout(() => {
-            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
-                $(this).remove();
-            });
-        }, 3000);
-    }
-
-
-
-    let selectedObservationIds = [];
-
-
-    document.getElementById('btnLinkObservation').addEventListener('click', function() {
-        $('#observationModal').modal('show');
-        fetchObservations('');
-    });
-
-    document.getElementById('searchObservation').addEventListener('keyup', function() {
-        let query = this.value;
-        fetchObservations(query);
-    });
-
-    function fetchObservations(query) {
-        const obsId = $('#observation_id').val();
-
-        fetch(`/observation/observationslink?search=${encodeURIComponent(query)}&obsId=${obsId}`)
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('observationList');
-                container.innerHTML = '';
-
-                const observations = data.observations;
-                const linkedIds = data.linked_ids.map(id => id.toString());
-
-                // Merge initially fetched linked IDs into selectedObservationIds
-                linkedIds.forEach(id => {
-                    if (!selectedObservationIds.includes(id)) selectedObservationIds.push(id);
+            // Automatically fade out and remove this specific toast after 3 seconds
+            setTimeout(() => {
+                $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                    $(this).remove();
                 });
+            }, 3000);
+        }
 
-                if (observations.length === 0) {
-                    container.innerHTML = '<p class="text-center col-12">No observations found.</p>';
-                    return;
-                }
 
-                observations.forEach(obs => {
-                    const imageUrl = obs.media?.[0]?.mediaUrl ?
-                        `/${obs.media[0].mediaUrl}` :
-                        'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
 
-                    const title = obs.obestitle ?? 'Untitled';
-                    const createdBy = obs.user?.name ?? 'Unknown';
-                    const isChecked = selectedObservationIds.includes(obs.id.toString()) ? 'checked' : '';
+        let selectedObservationIds = [];
 
-                    const card = `
+
+        document.getElementById('btnLinkObservation').addEventListener('click', function() {
+            $('#observationModal').modal('show');
+            fetchObservations('');
+        });
+
+        document.getElementById('searchObservation').addEventListener('keyup', function() {
+            let query = this.value;
+            fetchObservations(query);
+        });
+
+        function fetchObservations(query) {
+            const obsId = $('#observation_id').val();
+
+            fetch(`/observation/observationslink?search=${encodeURIComponent(query)}&obsId=${obsId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('observationList');
+                    container.innerHTML = '';
+
+                    const observations = data.observations;
+                    const linkedIds = data.linked_ids.map(id => id.toString());
+
+                    // Merge initially fetched linked IDs into selectedObservationIds
+                    linkedIds.forEach(id => {
+                        if (!selectedObservationIds.includes(id)) selectedObservationIds.push(id);
+                    });
+
+                    if (observations.length === 0) {
+                        container.innerHTML = '<p class="text-center col-12">No observations found.</p>';
+                        return;
+                    }
+
+                    observations.forEach(obs => {
+                        const imageUrl = obs.media?.[0]?.mediaUrl ?
+                            `/${obs.media[0].mediaUrl}` :
+                            'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
+
+                        const title = obs.obestitle ?? 'Untitled';
+                        const createdBy = obs.user?.name ?? 'Unknown';
+                        const isChecked = selectedObservationIds.includes(obs.id.toString()) ? 'checked' : '';
+
+                        const card = `
                     <div class="col-md-4 mb-3">
                         <div class="card h-100 shadow-sm obs-card">
                             <img src="${imageUrl}" class="card-img-top obs-img" alt="${title}">
@@ -3356,130 +3327,130 @@
                         </div>
                     </div>
                 `;
-                    container.innerHTML += card;
-                });
+                        container.innerHTML += card;
+                    });
 
-                // Rebind checkbox events
-                document.querySelectorAll('.obs-checkbox').forEach(cb => {
-                    cb.addEventListener('change', function() {
-                        const id = this.value;
-                        if (this.checked) {
-                            if (!selectedObservationIds.includes(id)) selectedObservationIds.push(
-                                id);
-                        } else {
-                            selectedObservationIds = selectedObservationIds.filter(item => item !==
-                                id);
-                        }
+                    // Rebind checkbox events
+                    document.querySelectorAll('.obs-checkbox').forEach(cb => {
+                        cb.addEventListener('change', function() {
+                            const id = this.value;
+                            if (this.checked) {
+                                if (!selectedObservationIds.includes(id)) selectedObservationIds.push(
+                                    id);
+                            } else {
+                                selectedObservationIds = selectedObservationIds.filter(item => item !==
+                                    id);
+                            }
+                        });
                     });
                 });
-            });
-    }
-
-
-    document.getElementById('submitSelectedObs').addEventListener('click', function() {
-        const obsId = $('#observation_id').val();
-        let $button = $(this);
-        let originalText = $button.html();
-
-        if (!obsId) {
-            showToast('error', 'Please create the observation first');
-            $button.html(originalText).prop('disabled', false);
-            return;
         }
 
-        if (selectedObservationIds.length === 0) {
-            showToast('error', 'Please select at least one observation.');
-            return;
-        }
 
-        $button.html('Saving...').prop('disabled', true);
+        document.getElementById('submitSelectedObs').addEventListener('click', function() {
+            const obsId = $('#observation_id').val();
+            let $button = $(this);
+            let originalText = $button.html();
 
-        fetch('/observation/submit-selectedoblink', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                        'content')
-                },
-                body: JSON.stringify({
-                    observation_ids: selectedObservationIds,
-                    obsId: obsId
-                })
-            })
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) throw {
-                    status: response.status,
-                    data
-                };
-
-                showToast('success', 'Observations linked successfully!');
-                $button.html('Saved!');
-                setTimeout(() => {
-                    window.location.href = `/observation/addnew/${data.id}/link`;
-                }, 100);
-            })
-            .catch(err => {
+            if (!obsId) {
+                showToast('error', 'Please create the observation first');
                 $button.html(originalText).prop('disabled', false);
+                return;
+            }
 
-                if (err.status === 422 && err.data.errors) {
-                    Object.values(err.data.errors).forEach(error => showToast('error', error[0]));
-                } else {
-                    showToast('error', 'Server error occurred');
-                }
-            });
-    });
+            if (selectedObservationIds.length === 0) {
+                showToast('error', 'Please select at least one observation.');
+                return;
+            }
 
+            $button.html('Saving...').prop('disabled', true);
 
+            fetch('/observation/submit-selectedoblink', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
+                    },
+                    body: JSON.stringify({
+                        observation_ids: selectedObservationIds,
+                        obsId: obsId
+                    })
+                })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) throw {
+                        status: response.status,
+                        data
+                    };
 
+                    showToast('success', 'Observations linked successfully!');
+                    $button.html('Saved!');
+                    setTimeout(() => {
+                        window.location.href = `/observation/addnew/${data.id}/link`;
+                    }, 100);
+                })
+                .catch(err => {
+                    $button.html(originalText).prop('disabled', false);
 
-    let selectedReflectionIds = [];
-
-    // Existing observation code remains the same...
-
-    // Reflection functionality
-    document.getElementById('btnLinkReflection').addEventListener('click', function() {
-        $('#reflectionModal').modal('show');
-        fetchReflections('');
-    });
-
-    document.getElementById('searchReflection').addEventListener('keyup', function() {
-        let query = this.value;
-        fetchReflections(query);
-    });
-
-    function fetchReflections(query) {
-        const obsId = $('#observation_id').val();
-
-        fetch(`/observation/reflectionslink?search=${encodeURIComponent(query)}&obsId=${obsId}`)
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('reflectionList');
-                container.innerHTML = '';
-
-                const reflections = data.reflections;
-                const linkedIds = data.linked_ids.map(id => id.toString());
-
-                // Merge initially fetched linked IDs into selectedReflectionIds
-                linkedIds.forEach(id => {
-                    if (!selectedReflectionIds.includes(id)) selectedReflectionIds.push(id);
+                    if (err.status === 422 && err.data.errors) {
+                        Object.values(err.data.errors).forEach(error => showToast('error', error[0]));
+                    } else {
+                        showToast('error', 'Server error occurred');
+                    }
                 });
+        });
 
-                if (reflections.length === 0) {
-                    container.innerHTML = '<p class="text-center col-12">No reflections found.</p>';
-                    return;
-                }
 
-                reflections.forEach(ref => {
-                    const imageUrl = ref.media?.[0]?.mediaUrl ?
-                        `/${ref.media[0].mediaUrl}` :
-                        'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
 
-                    const title = ref.title ?? 'Untitled';
-                    const createdBy = ref.creator?.name ?? 'Unknown';
-                    const isChecked = selectedReflectionIds.includes(ref.id.toString()) ? 'checked' : '';
 
-                    const card = `
+        let selectedReflectionIds = [];
+
+        // Existing observation code remains the same...
+
+        // Reflection functionality
+        document.getElementById('btnLinkReflection').addEventListener('click', function() {
+            $('#reflectionModal').modal('show');
+            fetchReflections('');
+        });
+
+        document.getElementById('searchReflection').addEventListener('keyup', function() {
+            let query = this.value;
+            fetchReflections(query);
+        });
+
+        function fetchReflections(query) {
+            const obsId = $('#observation_id').val();
+
+            fetch(`/observation/reflectionslink?search=${encodeURIComponent(query)}&obsId=${obsId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('reflectionList');
+                    container.innerHTML = '';
+
+                    const reflections = data.reflections;
+                    const linkedIds = data.linked_ids.map(id => id.toString());
+
+                    // Merge initially fetched linked IDs into selectedReflectionIds
+                    linkedIds.forEach(id => {
+                        if (!selectedReflectionIds.includes(id)) selectedReflectionIds.push(id);
+                    });
+
+                    if (reflections.length === 0) {
+                        container.innerHTML = '<p class="text-center col-12">No reflections found.</p>';
+                        return;
+                    }
+
+                    reflections.forEach(ref => {
+                        const imageUrl = ref.media?.[0]?.mediaUrl ?
+                            `/${ref.media[0].mediaUrl}` :
+                            'https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg';
+
+                        const title = ref.title ?? 'Untitled';
+                        const createdBy = ref.creator?.name ?? 'Unknown';
+                        const isChecked = selectedReflectionIds.includes(ref.id.toString()) ? 'checked' : '';
+
+                        const card = `
                     <div class="col-md-4 mb-3">
                         <div class="card h-100 shadow-sm obs-card">
                             <img src="${imageUrl}" class="card-img-top obs-img" alt="${title}">
@@ -3493,141 +3464,141 @@
                         </div>
                     </div>
                 `;
-                    container.innerHTML += card;
-                });
+                        container.innerHTML += card;
+                    });
 
-                // Rebind checkbox events
-                document.querySelectorAll('.ref-checkbox').forEach(cb => {
-                    cb.addEventListener('change', function() {
-                        const id = this.value;
-                        if (this.checked) {
-                            if (!selectedReflectionIds.includes(id)) selectedReflectionIds.push(id);
-                        } else {
-                            selectedReflectionIds = selectedReflectionIds.filter(item => item !==
-                                id);
-                        }
+                    // Rebind checkbox events
+                    document.querySelectorAll('.ref-checkbox').forEach(cb => {
+                        cb.addEventListener('change', function() {
+                            const id = this.value;
+                            if (this.checked) {
+                                if (!selectedReflectionIds.includes(id)) selectedReflectionIds.push(id);
+                            } else {
+                                selectedReflectionIds = selectedReflectionIds.filter(item => item !==
+                                    id);
+                            }
+                        });
                     });
                 });
-            });
-    }
-
-    document.getElementById('submitSelectedRef').addEventListener('click', function() {
-        const obsId = $('#observation_id').val();
-        let $button = $(this);
-        let originalText = $button.html();
-
-        if (!obsId) {
-            showToast('error', 'Please create the observation first');
-            $button.html(originalText).prop('disabled', false);
-            return;
         }
 
-        if (selectedReflectionIds.length === 0) {
-            showToast('error', 'Please select at least one reflection.');
-            return;
-        }
+        document.getElementById('submitSelectedRef').addEventListener('click', function() {
+            const obsId = $('#observation_id').val();
+            let $button = $(this);
+            let originalText = $button.html();
 
-        $button.html('Saving...').prop('disabled', true);
-
-        fetch('/observation/submit-selectedreflink', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                        'content')
-                },
-                body: JSON.stringify({
-                    reflection_ids: selectedReflectionIds,
-                    obsId: obsId
-                })
-            })
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) throw {
-                    status: response.status,
-                    data
-                };
-
-                showToast('success', 'Reflections linked successfully!');
-                $button.html('Saved!');
-                setTimeout(() => {
-                    window.location.href = `/observation/addnew/${data.id}/link`;
-                }, 100);
-            })
-            .catch(err => {
+            if (!obsId) {
+                showToast('error', 'Please create the observation first');
                 $button.html(originalText).prop('disabled', false);
+                return;
+            }
 
-                if (err.status === 422 && err.data.errors) {
-                    Object.values(err.data.errors).forEach(error => showToast('error', error[0]));
-                } else {
-                    showToast('error', 'Server error occurred');
-                }
-            });
-    });
+            if (selectedReflectionIds.length === 0) {
+                showToast('error', 'Please select at least one reflection.');
+                return;
+            }
 
+            $button.html('Saving...').prop('disabled', true);
 
+            fetch('/observation/submit-selectedreflink', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
+                    },
+                    body: JSON.stringify({
+                        reflection_ids: selectedReflectionIds,
+                        obsId: obsId
+                    })
+                })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) throw {
+                        status: response.status,
+                        data
+                    };
 
-    let selectedProgramPlanIds = [];
+                    showToast('success', 'Reflections linked successfully!');
+                    $button.html('Saved!');
+                    setTimeout(() => {
+                        window.location.href = `/observation/addnew/${data.id}/link`;
+                    }, 100);
+                })
+                .catch(err => {
+                    $button.html(originalText).prop('disabled', false);
 
-    // Month names mapping for search
-    const monthNames = {
-        1: 'January',
-        2: 'February',
-        3: 'March',
-        4: 'April',
-        5: 'May',
-        6: 'June',
-        7: 'July',
-        8: 'August',
-        9: 'September',
-        10: 'October',
-        11: 'November',
-        12: 'December'
-    };
-
-    // Existing observation and reflection code remains the same...
-
-    // Program Plan functionality
-    document.getElementById('btnLinkProgramPlan').addEventListener('click', function() {
-        $('#programPlanModal').modal('show');
-        fetchProgramPlans('');
-    });
-
-    document.getElementById('searchProgramPlan').addEventListener('keyup', function() {
-        let query = this.value;
-        fetchProgramPlans(query);
-    });
-
-    function fetchProgramPlans(query) {
-        const obsId = $('#observation_id').val();
-
-        fetch(`/observation/programplanslink?search=${encodeURIComponent(query)}&obsId=${obsId}`)
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('programPlanList');
-                container.innerHTML = '';
-
-                const programPlans = data.program_plans;
-                const linkedIds = data.linked_ids.map(id => id.toString());
-
-                // Merge initially fetched linked IDs into selectedProgramPlanIds
-                linkedIds.forEach(id => {
-                    if (!selectedProgramPlanIds.includes(id)) selectedProgramPlanIds.push(id);
+                    if (err.status === 422 && err.data.errors) {
+                        Object.values(err.data.errors).forEach(error => showToast('error', error[0]));
+                    } else {
+                        showToast('error', 'Server error occurred');
+                    }
                 });
+        });
 
-                if (programPlans.length === 0) {
-                    container.innerHTML = '<p class="text-center col-12">No program plans found.</p>';
-                    return;
-                }
 
-                programPlans.forEach(pp => {
-                    const monthName = monthNames[pp.months] || 'Unknown Month';
-                    const title = `${monthName} ${pp.years}`;
-                    const roomName = pp.room?.name ?? 'Unknown Room';
-                    const createdBy = pp.creator?.name ?? 'Unknown';
-                    const isChecked = selectedProgramPlanIds.includes(pp.id.toString()) ? 'checked' : '';
 
-                    const card = `
+        let selectedProgramPlanIds = [];
+
+        // Month names mapping for search
+        const monthNames = {
+            1: 'January',
+            2: 'February',
+            3: 'March',
+            4: 'April',
+            5: 'May',
+            6: 'June',
+            7: 'July',
+            8: 'August',
+            9: 'September',
+            10: 'October',
+            11: 'November',
+            12: 'December'
+        };
+
+        // Existing observation and reflection code remains the same...
+
+        // Program Plan functionality
+        document.getElementById('btnLinkProgramPlan').addEventListener('click', function() {
+            $('#programPlanModal').modal('show');
+            fetchProgramPlans('');
+        });
+
+        document.getElementById('searchProgramPlan').addEventListener('keyup', function() {
+            let query = this.value;
+            fetchProgramPlans(query);
+        });
+
+        function fetchProgramPlans(query) {
+            const obsId = $('#observation_id').val();
+
+            fetch(`/observation/programplanslink?search=${encodeURIComponent(query)}&obsId=${obsId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('programPlanList');
+                    container.innerHTML = '';
+
+                    const programPlans = data.program_plans;
+                    const linkedIds = data.linked_ids.map(id => id.toString());
+
+                    // Merge initially fetched linked IDs into selectedProgramPlanIds
+                    linkedIds.forEach(id => {
+                        if (!selectedProgramPlanIds.includes(id)) selectedProgramPlanIds.push(id);
+                    });
+
+                    if (programPlans.length === 0) {
+                        container.innerHTML = '<p class="text-center col-12">No program plans found.</p>';
+                        return;
+                    }
+
+                    programPlans.forEach(pp => {
+                        const monthName = monthNames[pp.months] || 'Unknown Month';
+                        const title = `${monthName} ${pp.years}`;
+                        const roomName = pp.room?.name ?? 'Unknown Room';
+                        const createdBy = pp.creator?.name ?? 'Unknown';
+                        const isChecked = selectedProgramPlanIds.includes(pp.id.toString()) ? 'checked' : '';
+
+                        const card = `
                     <div class="col-md-4 mb-3">
                         <div class="card h-100 shadow-sm obs-card">
                             <div class="card-body">
@@ -3641,545 +3612,541 @@
                         </div>
                     </div>
                 `;
-                    container.innerHTML += card;
-                });
+                        container.innerHTML += card;
+                    });
 
-                // Rebind checkbox events
-                document.querySelectorAll('.pp-checkbox').forEach(cb => {
-                    cb.addEventListener('change', function() {
-                        const id = this.value;
-                        if (this.checked) {
-                            if (!selectedProgramPlanIds.includes(id)) selectedProgramPlanIds.push(
-                                id);
-                        } else {
-                            selectedProgramPlanIds = selectedProgramPlanIds.filter(item => item !==
-                                id);
-                        }
+                    // Rebind checkbox events
+                    document.querySelectorAll('.pp-checkbox').forEach(cb => {
+                        cb.addEventListener('change', function() {
+                            const id = this.value;
+                            if (this.checked) {
+                                if (!selectedProgramPlanIds.includes(id)) selectedProgramPlanIds.push(
+                                    id);
+                            } else {
+                                selectedProgramPlanIds = selectedProgramPlanIds.filter(item => item !==
+                                    id);
+                            }
+                        });
                     });
                 });
-            });
-    }
-
-    document.getElementById('submitSelectedPP').addEventListener('click', function() {
-        const obsId = $('#observation_id').val();
-        let $button = $(this);
-        let originalText = $button.html();
-
-        if (!obsId) {
-            showToast('error', 'Please create the observation first');
-            $button.html(originalText).prop('disabled', false);
-            return;
         }
 
-        if (selectedProgramPlanIds.length === 0) {
-            showToast('error', 'Please select at least one program plan.');
-            return;
-        }
+        document.getElementById('submitSelectedPP').addEventListener('click', function() {
+            const obsId = $('#observation_id').val();
+            let $button = $(this);
+            let originalText = $button.html();
 
-        $button.html('Saving...').prop('disabled', true);
-
-        fetch('/observation/submit-selectedpplink', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                        'content')
-                },
-                body: JSON.stringify({
-                    program_plan_ids: selectedProgramPlanIds,
-                    obsId: obsId
-                })
-            })
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) throw {
-                    status: response.status,
-                    data
-                };
-
-                showToast('success', 'Program Plans linked successfully!');
-                $button.html('Saved!');
-                setTimeout(() => {
-                    window.location.href = `/observation/addnew/${data.id}/link`;
-                }, 100);
-            })
-            .catch(err => {
+            if (!obsId) {
+                showToast('error', 'Please create the observation first');
                 $button.html(originalText).prop('disabled', false);
-
-                if (err.status === 422 && err.data.errors) {
-                    Object.values(err.data.errors).forEach(error => showToast('error', error[0]));
-                } else {
-                    showToast('error', 'Server error occurred');
-                }
-            });
-    });
-</script>
-
-
-<script>
-    // Initialize triangle states on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize all triangles based on checked radio buttons
-        const radios = document.querySelectorAll('.assessment-radio');
-        radios.forEach(radio => {
-            if (radio.checked) {
-                updateTriangle(radio.dataset.subId, radio.dataset.level);
+                return;
             }
-        });
 
-        // Add event listeners to all radio buttons
-        radios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.checked) {
-                    updateTriangle(this.dataset.subId, this.dataset.level);
+            if (selectedProgramPlanIds.length === 0) {
+                showToast('error', 'Please select at least one program plan.');
+                return;
+            }
+
+            $button.html('Saving...').prop('disabled', true);
+
+            fetch('/observation/submit-selectedpplink', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
+                    },
+                    body: JSON.stringify({
+                        program_plan_ids: selectedProgramPlanIds,
+                        obsId: obsId
+                    })
+                })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) throw {
+                        status: response.status,
+                        data
+                    };
+
+                    showToast('success', 'Program Plans linked successfully!');
+                    $button.html('Saved!');
+                    setTimeout(() => {
+                        window.location.href = `/observation/addnew/${data.id}/link`;
+                    }, 100);
+                })
+                .catch(err => {
+                    $button.html(originalText).prop('disabled', false);
+
+                    if (err.status === 422 && err.data.errors) {
+                        Object.values(err.data.errors).forEach(error => showToast('error', error[0]));
+                    } else {
+                        showToast('error', 'Server error occurred');
+                    }
+                });
+        });
+    </script>
+
+
+    <script>
+        // Initialize triangle states on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all triangles based on checked radio buttons
+            const radios = document.querySelectorAll('.assessment-radio');
+            radios.forEach(radio => {
+                if (radio.checked) {
+                    updateTriangle(radio.dataset.subId, radio.dataset.level);
                 }
             });
+
+            // Add event listeners to all radio buttons
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        updateTriangle(this.dataset.subId, this.dataset.level);
+                    }
+                });
+            });
         });
-    });
 
-    function updateTriangle(subId, level) {
-        const triangle = document.getElementById(`triangle-${subId}`);
-        if (!triangle) return;
-
-        // Remove all existing level classes
-        triangle.classList.remove('level-1', 'level-2', 'level-3');
-
-        // Add animation class
-        triangle.classList.add('animate');
-
-        // Add new level class
-        if (level) {
-            triangle.classList.add(`level-${level}`);
-        }
-
-        // Remove animation class after animation completes
-        setTimeout(() => {
-            triangle.classList.remove('animate');
-        }, 600);
-    }
-
-    function clearAssessment(subId) {
-        // Clear radio buttons
-        const radios = document.getElementsByName(`subactivity[${subId}]`);
-        radios.forEach(radio => radio.checked = false);
-
-        // Clear triangle visualization
-        updateTriangle(subId, null);
-
-        // Add a subtle feedback animation
-        const triangle = document.getElementById(`triangle-${subId}`);
-        if (triangle) {
-            triangle.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                triangle.style.transform = 'scale(1)';
-            }, 150);
-        }
-    }
-
-    // Add smooth transitions when hovering over options
-    document.querySelectorAll('.assessment-label').forEach(label => {
-        label.addEventListener('mouseenter', function() {
-            const radio = this.previousElementSibling;
-            const subId = radio.dataset.subId;
-            const level = radio.dataset.level;
+        function updateTriangle(subId, level) {
             const triangle = document.getElementById(`triangle-${subId}`);
+            if (!triangle) return;
 
-            // Only show hover effect if no option is currently selected
-            const allRadios = document.getElementsByName(`subactivity[${subId}]`);
-            const hasSelection = Array.from(allRadios).some(r => r.checked);
+            // Remove all existing level classes
+            triangle.classList.remove('level-1', 'level-2', 'level-3');
 
-            if (triangle && !hasSelection) {
-                triangle.style.opacity = '0.6';
+            // Add animation class
+            triangle.classList.add('animate');
+
+            // Add new level class
+            if (level) {
                 triangle.classList.add(`level-${level}`);
             }
-        });
 
-        label.addEventListener('mouseleave', function() {
-            const radio = this.previousElementSibling;
-            const subId = radio.dataset.subId;
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                triangle.classList.remove('animate');
+            }, 600);
+        }
+
+        function clearAssessment(subId) {
+            // Clear radio buttons
+            const radios = document.getElementsByName(`subactivity[${subId}]`);
+            radios.forEach(radio => radio.checked = false);
+
+            // Clear triangle visualization
+            updateTriangle(subId, null);
+
+            // Add a subtle feedback animation
             const triangle = document.getElementById(`triangle-${subId}`);
-
-            // Only clear hover effect if no option is currently selected
-            const allRadios = document.getElementsByName(`subactivity[${subId}]`);
-            const hasSelection = Array.from(allRadios).some(r => r.checked);
-
-            if (triangle && !hasSelection) {
-                triangle.style.opacity = '1';
-                triangle.classList.remove('level-1', 'level-2', 'level-3');
+            if (triangle) {
+                triangle.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    triangle.style.transform = 'scale(1)';
+                }, 150);
             }
+        }
+
+        // Add smooth transitions when hovering over options
+        document.querySelectorAll('.assessment-label').forEach(label => {
+            label.addEventListener('mouseenter', function() {
+                const radio = this.previousElementSibling;
+                const subId = radio.dataset.subId;
+                const level = radio.dataset.level;
+                const triangle = document.getElementById(`triangle-${subId}`);
+
+                // Only show hover effect if no option is currently selected
+                const allRadios = document.getElementsByName(`subactivity[${subId}]`);
+                const hasSelection = Array.from(allRadios).some(r => r.checked);
+
+                if (triangle && !hasSelection) {
+                    triangle.style.opacity = '0.6';
+                    triangle.classList.add(`level-${level}`);
+                }
+            });
+
+            label.addEventListener('mouseleave', function() {
+                const radio = this.previousElementSibling;
+                const subId = radio.dataset.subId;
+                const triangle = document.getElementById(`triangle-${subId}`);
+
+                // Only clear hover effect if no option is currently selected
+                const allRadios = document.getElementsByName(`subactivity[${subId}]`);
+                const hasSelection = Array.from(allRadios).some(r => r.checked);
+
+                if (triangle && !hasSelection) {
+                    triangle.style.opacity = '1';
+                    triangle.classList.remove('level-1', 'level-2', 'level-3');
+                }
+            });
         });
-    });
-</script>
+    </script>
 
 
-<script>
-    function showToast(type, message) {
-        const isSuccess = type === 'success';
-        const toastType = isSuccess ? 'toast-success' : 'toast-error';
-        const ariaLive = isSuccess ? 'polite' : 'assertive';
+    <script>
+        function showToast(type, message) {
+            const isSuccess = type === 'success';
+            const toastType = isSuccess ? 'toast-success' : 'toast-error';
+            const ariaLive = isSuccess ? 'polite' : 'assertive';
 
-        const toast = `
+            const toast = `
         <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
             <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
             <div class="toast-message" style="color: white;">${message}</div>
         </div>
     `;
 
-        // Append the toast to the container
-        $('#toast-container').append(toast);
+            // Append the toast to the container
+            $('#toast-container').append(toast);
 
-        // Automatically fade out and remove this specific toast after 3 seconds
-        setTimeout(() => {
-            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
-                $(this).remove();
-            });
-        }, 3000);
-    }
-
-
+            // Automatically fade out and remove this specific toast after 3 seconds
+            setTimeout(() => {
+                $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
 
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const display = document.getElementById('createdAtDisplay');
-        const input = document.getElementById('editCreatedAt');
 
-        // Initialize Flatpickr on the input
-        const fp = flatpickr(input, {
-            dateFormat: "d M Y",
-            defaultDate: input.value,
-            onChange: function(selectedDates, dateStr, instance) {
-                // Send AJAX only if a date is selected
-                if (selectedDates.length) {
-                    const formatted = selectedDates[0].toISOString().split('T')[0];
-                    fetch('{{ route('observation.changeCreatedAt') }}', {
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const display = document.getElementById('createdAtDisplay');
+            const input = document.getElementById('editCreatedAt');
+
+            // Initialize Flatpickr on the input
+            const fp = flatpickr(input, {
+                dateFormat: "d M Y",
+                defaultDate: input.value,
+                onChange: function(selectedDates, dateStr, instance) {
+                    // Send AJAX only if a date is selected
+                    if (selectedDates.length) {
+                        const formatted = selectedDates[0].toISOString().split('T')[0];
+                        fetch('{{ route('observation.changeCreatedAt') }}', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                                 },
                                 body: JSON.stringify({
-                                    id: {
-                                        {
-                                            $observation - > id ?? 'null'
-                                        }
-                                    },
+                                    id: {{ $observation->id ?? 'null' }},
                                     created_at: formatted
                                 })
                             })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Update display with new formatted date
-                                display.innerHTML = '<i class="far fa-calendar-alt mr-1"></i>' +
-                                    dateStr;
-                                showToast('success', 'Date Changed Successfully');
-                            } else {
-                                showToast('error', data.message ?? 'Could not update');
-                            }
-                            input.style.display = "none";
-                            display.style.display = "inline-block";
-                        })
-                        .catch(err => {
-                            showToast('error', 'Error: ' + err.message);
-                            input.style.display = "none";
-                            display.style.display = "inline-block";
-                        });
-                }
-            },
-            allowInput: true,
-            clickOpens: true
-        });
-
-        // Show flatpickr input when span clicked
-        display.addEventListener('click', function() {
-            display.style.display = "none";
-            input.style.display = "inline-block";
-            fp.open();
-        });
-
-        // Hide input on blur (after a short delay to allow date selection)
-        input.addEventListener('blur', function() {
-            setTimeout(function() {
-                input.style.display = "none";
-                display.style.display = "inline-block";
-            }, 200);
-        });
-    });
-</script>
-<script>
-    $(document).ready(function() {
-        // First, initialize all collapse states properly
-        $('.collapse').each(function() {
-            const $collapse = $(this);
-            const $button = $('[data-target="#' + $collapse.attr('id') + '"]');
-
-            // Force initial closed state
-            if (!$collapse.hasClass('show')) {
-                $collapse.hide().removeClass('show');
-                $button.addClass('collapsed').attr('aria-expanded', 'false');
-            } else {
-                $collapse.show().addClass('show');
-                $button.removeClass('collapsed').attr('aria-expanded', 'true');
-            }
-        });
-
-        // Remove bootstrap collapse behavior
-        $(document).off('click.bs.collapse.data-api');
-
-        $(document).on('click', '[data-toggle="collapse"]', function(e) {
-            e.preventDefault();
-
-            const $button = $(this);
-            const target = $button.attr('data-target');
-            const $target = $(target);
-            const parent = $button.attr('data-parent');
-
-            // Clean up any stuck states
-            $('.collapsing').removeClass('collapsing').removeAttr('style');
-
-            console.log('=== CLICK DEBUG ===');
-            console.log('Target is visible:', $target.is(':visible'));
-            console.log('Target display:', $target.css('display'));
-            console.log('Button aria-expanded:', $button.attr('aria-expanded'));
-
-            // Use aria-expanded as the source of truth instead of visibility
-            const isCurrentlyOpen = $button.attr('aria-expanded') === 'true';
-
-            if (isCurrentlyOpen) {
-                // CLOSE IT
-                $target.hide().removeClass('show');
-                $button.addClass('collapsed').attr('aria-expanded', 'false');
-                console.log('CLOSING element');
-            } else {
-                // OPEN IT (and close others in accordion)
-                if (parent) {
-                    $(parent).find('.collapse').hide().removeClass('show');
-                    $(parent).find('[data-toggle="collapse"]').addClass('collapsed').attr(
-                        'aria-expanded', 'false');
-                }
-
-                $target.show().addClass('show');
-                $button.removeClass('collapsed').attr('aria-expanded', 'true');
-                console.log('OPENING element');
-            }
-
-            console.log('Final aria-expanded:', $button.attr('aria-expanded'));
-            console.log('Final visible:', $target.is(':visible'));
-            console.log('==================');
-        });
-
-
-        // $(document).click('#AiAssistance',function(){
-        // // let editorData = CKEDITOR.instances['editor1'].getData();
-        //     let title =  editors["editor1"] ? editors["editor1"].getData() : "";
-        //     console.log(title); // this will print the content
-        // });
-
-    });
-
-
-    function AiAssistance() {
-        // get editor instance
-        let title = editors["editor1"] ? editors["editor1"].getData() : "";
-
-        $.ajax({
-            url: "{{ route('observation.ai-assist') }}",
-            type: "POST",
-            data: {
-                observation: title,
-                _token: "{{ csrf_token() }}"
-            },
-            dataType: "json",
-
-            beforeSend: function() {
-                console.log("Sending data to AI Assistance...");
-                $("#aiAssistLoader").show();
-            },
-
-            success: function(res) {
-                console.log("Full Response:", res);
-                console.log("Analysis:", res.data.analysis);
-                console.log("Reflection:", res.data.reflection);
-                console.log("Future Plan:", res.data.future_plan); // ← Fixed key name
-
-                // Convert arrays to formatted strings for CKEditor
-                if (res.data.analysis && Array.isArray(res.data.analysis)) {
-                    const analysisHtml = convertArrayToHtml(res.data.analysis);
-                    if (editors["editor2"]) {
-                        editors["editor2"].setData(analysisHtml);
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Update display with new formatted date
+                                    display.innerHTML = '<i class="far fa-calendar-alt mr-1"></i>' +
+                                        dateStr;
+                                    showToast('success', 'Date Changed Successfully');
+                                } else {
+                                    showToast('error', data.message ?? 'Could not update');
+                                }
+                                input.style.display = "none";
+                                display.style.display = "inline-block";
+                            })
+                            .catch(err => {
+                                showToast('error', 'Error: ' + err.message);
+                                input.style.display = "none";
+                                display.style.display = "inline-block";
+                            });
                     }
-                }
-
-                if (res.data.reflection && Array.isArray(res.data.reflection)) {
-                    const reflectionHtml = convertArrayToHtml(res.data.reflection);
-                    if (editors["editor3"]) {
-                        editors["editor3"].setData(reflectionHtml);
-                    }
-                }
-
-
-
-                if (editors["editor2"]) editors["editor2"].setData(res.data.analysis || "");
-                if (editors["editor3"]) editors["editor3"].setData(res.data.reflection || "");
-                if (editors["editor4"]) editors["editor4"].setData(res.data.childVoice || "");
-                if (editors["editor5"]) editors["editor5"].setData(res.data.futurePlan || "");
-
-
-                //   $('#AiAssistanceModal').modal('show');
-
-
-                // hide loader
-
-                if (res.data.future_plan && Array.isArray(res.data.future_plan)) { // ← Fixed key name
-                    const futurePlanHtml = convertArrayToHtml(res.data.future_plan);
-                    if (editors["editor5"]) {
-                        editors["editor5"].setData(futurePlanHtml);
-                    }
-                }
-
-
-                $("#aiAssistLoader").hide();
-            },
-
-            error: function(xhr, status, error) {
-                console.error("Error:", error);
-                console.log("Response Text:", xhr.responseText);
-
-                // Try to parse error response
-                try {
-                    const errorResponse = JSON.parse(xhr.responseText);
-                    console.log("Error Response:", errorResponse);
-                    alert("Error: " + (errorResponse.message || "Something went wrong!"));
-                } catch (e) {
-                    alert("Something went wrong!");
-                }
-
-                $("#aiAssistLoader").hide();
-            }
-        });
-    }
-
-    // Smart formatter that handles both bullet points and paragraphs
-    function convertArrayToFormattedHtml(dataArray) {
-        if (!Array.isArray(dataArray) || dataArray.length === 0) {
-            return "";
-        }
-
-
-        let html = "";
-
-        dataArray.forEach(function(item, index) {
-            // Check if item starts with bullet point
-            if (item.trim().startsWith('•')) {
-                // It's already formatted as bullet point, wrap in paragraph with line break
-                html += "<p>" + escapeHtml(item) + "</p>";
-            } else {
-                // Regular paragraph
-                html += "<p>" + escapeHtml(item) + "</p>";
-            }
-
-            // Add extra spacing between items (except for last item)
-            if (index < dataArray.length - 1) {
-                html += "<br>";
-            }
-        });
-
-        return html;
-    }
-
-    // Alternative: Create proper HTML lists for bullet points
-    function convertArrayToSmartHtml(dataArray) {
-        if (!Array.isArray(dataArray) || dataArray.length === 0) {
-            return "";
-        }
-
-        // Check if most items are bullet points
-        let bulletCount = 0;
-        dataArray.forEach(function(item) {
-            if (item.trim().startsWith('•')) {
-                bulletCount++;
-            }
-        });
-
-        // If more than half are bullet points, format as HTML list
-        if (bulletCount > dataArray.length / 2) {
-            let html = "<ul>";
-            dataArray.forEach(function(item) {
-                let cleanItem = item.trim().startsWith('•') ? item.trim().substring(1).trim() : item.trim();
-                html += "<li>" + escapeHtml(cleanItem) + "</li>";
+                },
+                allowInput: true,
+                clickOpens: true
             });
-            html += "</ul>";
-            return html;
-        } else {
-            // Format as paragraphs with line breaks
+
+            // Show flatpickr input when span clicked
+            display.addEventListener('click', function() {
+                display.style.display = "none";
+                input.style.display = "inline-block";
+                fp.open();
+            });
+
+            // Hide input on blur (after a short delay to allow date selection)
+            input.addEventListener('blur', function() {
+                setTimeout(function() {
+                    input.style.display = "none";
+                    display.style.display = "inline-block";
+                }, 200);
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // First, initialize all collapse states properly
+            $('.collapse').each(function() {
+                const $collapse = $(this);
+                const $button = $('[data-target="#' + $collapse.attr('id') + '"]');
+
+                // Force initial closed state
+                if (!$collapse.hasClass('show')) {
+                    $collapse.hide().removeClass('show');
+                    $button.addClass('collapsed').attr('aria-expanded', 'false');
+                } else {
+                    $collapse.show().addClass('show');
+                    $button.removeClass('collapsed').attr('aria-expanded', 'true');
+                }
+            });
+
+            // Remove bootstrap collapse behavior
+            $(document).off('click.bs.collapse.data-api');
+
+            $(document).on('click', '[data-toggle="collapse"]', function(e) {
+                e.preventDefault();
+
+                const $button = $(this);
+                const target = $button.attr('data-target');
+                const $target = $(target);
+                const parent = $button.attr('data-parent');
+
+                // Clean up any stuck states
+                $('.collapsing').removeClass('collapsing').removeAttr('style');
+
+                console.log('=== CLICK DEBUG ===');
+                console.log('Target is visible:', $target.is(':visible'));
+                console.log('Target display:', $target.css('display'));
+                console.log('Button aria-expanded:', $button.attr('aria-expanded'));
+
+                // Use aria-expanded as the source of truth instead of visibility
+                const isCurrentlyOpen = $button.attr('aria-expanded') === 'true';
+
+                if (isCurrentlyOpen) {
+                    // CLOSE IT
+                    $target.hide().removeClass('show');
+                    $button.addClass('collapsed').attr('aria-expanded', 'false');
+                    console.log('CLOSING element');
+                } else {
+                    // OPEN IT (and close others in accordion)
+                    if (parent) {
+                        $(parent).find('.collapse').hide().removeClass('show');
+                        $(parent).find('[data-toggle="collapse"]').addClass('collapsed').attr(
+                            'aria-expanded', 'false');
+                    }
+
+                    $target.show().addClass('show');
+                    $button.removeClass('collapsed').attr('aria-expanded', 'true');
+                    console.log('OPENING element');
+                }
+
+                console.log('Final aria-expanded:', $button.attr('aria-expanded'));
+                console.log('Final visible:', $target.is(':visible'));
+                console.log('==================');
+            });
+
+
+            // $(document).click('#AiAssistance',function(){
+            // // let editorData = CKEDITOR.instances['editor1'].getData();
+            //     let title =  editors["editor1"] ? editors["editor1"].getData() : "";
+            //     console.log(title); // this will print the content
+            // });
+
+        });
+
+
+        function AiAssistance() {
+            // get editor instance
+            let title = editors["editor1"] ? editors["editor1"].getData() : "";
+
+            $.ajax({
+                url: "{{ route('observation.ai-assist') }}",
+                type: "POST",
+                data: {
+                    observation: title,
+                    _token: "{{ csrf_token() }}"
+                },
+                dataType: "json",
+
+                beforeSend: function() {
+                    console.log("Sending data to AI Assistance...");
+                    $("#aiAssistLoader").show();
+                },
+
+                success: function(res) {
+                    console.log("Full Response:", res);
+                    console.log("Analysis:", res.data.analysis);
+                    console.log("Reflection:", res.data.reflection);
+                    console.log("Future Plan:", res.data.future_plan); // ← Fixed key name
+
+                    // Convert arrays to formatted strings for CKEditor
+                    if (res.data.analysis && Array.isArray(res.data.analysis)) {
+                        const analysisHtml = convertArrayToHtml(res.data.analysis);
+                        if (editors["editor2"]) {
+                            editors["editor2"].setData(analysisHtml);
+                        }
+                    }
+
+                    if (res.data.reflection && Array.isArray(res.data.reflection)) {
+                        const reflectionHtml = convertArrayToHtml(res.data.reflection);
+                        if (editors["editor3"]) {
+                            editors["editor3"].setData(reflectionHtml);
+                        }
+                    }
+
+
+
+                    if (editors["editor2"]) editors["editor2"].setData(res.data.analysis || "");
+                    if (editors["editor3"]) editors["editor3"].setData(res.data.reflection || "");
+                    if (editors["editor4"]) editors["editor4"].setData(res.data.childVoice || "");
+                    if (editors["editor5"]) editors["editor5"].setData(res.data.futurePlan || "");
+
+
+                    //   $('#AiAssistanceModal').modal('show');
+
+
+                    // hide loader
+
+                    if (res.data.future_plan && Array.isArray(res.data.future_plan)) { // ← Fixed key name
+                        const futurePlanHtml = convertArrayToHtml(res.data.future_plan);
+                        if (editors["editor5"]) {
+                            editors["editor5"].setData(futurePlanHtml);
+                        }
+                    }
+
+
+                    $("#aiAssistLoader").hide();
+                },
+
+                error: function(xhr, status, error) {
+                    console.error("Error:", error);
+                    console.log("Response Text:", xhr.responseText);
+
+                    // Try to parse error response
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        console.log("Error Response:", errorResponse);
+                        alert("Error: " + (errorResponse.message || "Something went wrong!"));
+                    } catch (e) {
+                        alert("Something went wrong!");
+                    }
+
+                    $("#aiAssistLoader").hide();
+                }
+            });
+        }
+
+        // Smart formatter that handles both bullet points and paragraphs
+        function convertArrayToFormattedHtml(dataArray) {
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                return "";
+            }
+
+
             let html = "";
+
             dataArray.forEach(function(item, index) {
-                html += "<p>" + escapeHtml(item) + "</p>";
+                // Check if item starts with bullet point
+                if (item.trim().startsWith('•')) {
+                    // It's already formatted as bullet point, wrap in paragraph with line break
+                    html += "<p>" + escapeHtml(item) + "</p>";
+                } else {
+                    // Regular paragraph
+                    html += "<p>" + escapeHtml(item) + "</p>";
+                }
+
+                // Add extra spacing between items (except for last item)
                 if (index < dataArray.length - 1) {
                     html += "<br>";
                 }
             });
+
             return html;
         }
-    }
 
-    // Helper function to convert array to HTML list
-    function convertArrayToHtml(dataArray) {
-        if (!Array.isArray(dataArray) || dataArray.length === 0) {
-            return "";
+        // Alternative: Create proper HTML lists for bullet points
+        function convertArrayToSmartHtml(dataArray) {
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                return "";
+            }
+
+            // Check if most items are bullet points
+            let bulletCount = 0;
+            dataArray.forEach(function(item) {
+                if (item.trim().startsWith('•')) {
+                    bulletCount++;
+                }
+            });
+
+            // If more than half are bullet points, format as HTML list
+            if (bulletCount > dataArray.length / 2) {
+                let html = "<ul>";
+                dataArray.forEach(function(item) {
+                    let cleanItem = item.trim().startsWith('•') ? item.trim().substring(1).trim() : item.trim();
+                    html += "<li>" + escapeHtml(cleanItem) + "</li>";
+                });
+                html += "</ul>";
+                return html;
+            } else {
+                // Format as paragraphs with line breaks
+                let html = "";
+                dataArray.forEach(function(item, index) {
+                    html += "<p>" + escapeHtml(item) + "</p>";
+                    if (index < dataArray.length - 1) {
+                        html += "<br>";
+                    }
+                });
+                return html;
+            }
         }
 
-        // Create numbered list
-        let html = "<ol>";
-        dataArray.forEach(function(item) {
-            html += "<li>" + escapeHtml(item) + "</li>";
-        });
-        html += "</ol>";
+        // Helper function to convert array to HTML list
+        function convertArrayToHtml(dataArray) {
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                return "";
+            }
 
-        return html;
-    }
+            // Create numbered list
+            let html = "<ol>";
+            dataArray.forEach(function(item) {
+                html += "<li>" + escapeHtml(item) + "</li>";
+            });
+            html += "</ol>";
 
-    // Alternative: Convert to bullet points
-    function convertArrayToBulletPoints(dataArray) {
-        if (!Array.isArray(dataArray) || dataArray.length === 0) {
-            return "";
+            return html;
         }
 
-        let html = "<ul>";
-        dataArray.forEach(function(item) {
-            html += "<li>" + escapeHtml(item) + "</li>";
-        });
-        html += "</ul>";
+        // Alternative: Convert to bullet points
+        function convertArrayToBulletPoints(dataArray) {
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                return "";
+            }
 
-        return html;
-    }
+            let html = "<ul>";
+            dataArray.forEach(function(item) {
+                html += "<li>" + escapeHtml(item) + "</li>";
+            });
+            html += "</ul>";
 
-    // Alternative: Convert to paragraphs
-    function convertArrayToParagraphs(dataArray) {
-        if (!Array.isArray(dataArray) || dataArray.length === 0) {
-            return "";
+            return html;
         }
 
-        let html = "";
-        dataArray.forEach(function(item) {
-            html += "<p>" + escapeHtml(item) + "</p>";
-        });
+        // Alternative: Convert to paragraphs
+        function convertArrayToParagraphs(dataArray) {
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                return "";
+            }
 
-        return html;
-    }
+            let html = "";
+            dataArray.forEach(function(item) {
+                html += "<p>" + escapeHtml(item) + "</p>";
+            });
 
-    // Helper function to escape HTML characters
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-</script>
+            return html;
+        }
+
+        // Helper function to escape HTML characters
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
 
 
 
-@include('layout.footer')
+    @include('layout.footer')
 @stop
