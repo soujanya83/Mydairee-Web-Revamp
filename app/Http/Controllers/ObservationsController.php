@@ -2617,6 +2617,54 @@ Observation:
         'snapshot_id' => $request->id
     ]);
 
+    if ($request->hasFile('media')) {
+
+    foreach ($request->file('media') as $index => $file) {
+
+        if (!$file->isValid()) {
+
+            $errorCode = $file->getError();
+            $errorMsg = $file->getErrorMessage();
+
+            Log::error('FILE UPLOAD ERROR BEFORE VALIDATION', [
+                'index' => $index,
+                'error_code' => $errorCode,
+                'error_message' => $errorMsg,
+                'original_name' => $file->getClientOriginalName()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'File upload failed',
+                'error' => 'Image "' . $file->getClientOriginalName() . '" failed to upload.',
+                'reason' => $errorMsg
+            ], 422);
+        }
+
+        // Extra dimension validation (optional but pro)
+        if (Str::startsWith($file->getMimeType(), 'image')) {
+
+            [$width, $height] = getimagesize($file);
+
+            if ($width > 8000 || $height > 8000) {
+
+                Log::error('IMAGE DIMENSION TOO LARGE', [
+                    'file' => $file->getClientOriginalName(),
+                    'width' => $width,
+                    'height' => $height
+                ]);
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Image too large',
+                    'error' => 'Image resolution too high',
+                    'reason' => 'Max allowed 8000x8000 px'
+                ], 422);
+            }
+        }
+    }
+}
+
     // Validation
     $rules = [
         'selected_rooms'    => 'required',
@@ -2632,7 +2680,7 @@ Observation:
         $rules['media'] = 'nullable|array';
     }
 
-    $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
+$rules['media.*'] = "file|mimetypes:image/jpeg,image/png,image/jpg,image/webp,video/mp4|max:" . intval($uploadMaxSize / 1024);
 
     Log::info('STEP 5: Validation rules ready');
 
