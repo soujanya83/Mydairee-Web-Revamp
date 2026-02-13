@@ -698,291 +698,257 @@
     }
 </style>
 
-<!-- Theme-scoped overrides: apply only when a theme is active -->
-<style>
-    /* Ensure the default (No Theme) keeps original colors above. */
-    /* Theme-only accents under body[class*="theme-"] */
-
-    body[class*="theme-"] .page-title {
-        color: #000;
-        -webkit-text-fill-color: initial;
-        background: none;
-    }
-
-    body[class*="theme-"] .card-header-custom,
-    body[class*="theme-"] .btn-print,
-    body[class*="theme-"] .btn-edit,
-    body[class*="theme-"] .id-badge {
-        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
-        color: #000;
-    }
-
-    body[class*="theme-"] .table tbody tr:hover {
-        background: linear-gradient(135deg, var(--sd-accent-soft, rgba(0, 0, 0, 0.06)), var(--sd-accent-soft, rgba(0, 0, 0, 0.06)));
-    }
-
-    body[class*="theme-"] .text-info,
-    body[class*="theme-"] .border-info {
-        color: var(--sd-accent) !important;
-        border-color: var(--sd-accent) !important;
-    }
-
-    body[class*="theme-"] .btn-outline-info {
-        color: var(--sd-accent);
-        border-color: var(--sd-accent);
-    }
-
-    body[class*="theme-"] .btn-outline-info:hover {
-        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
-        color: #000;
-    }
-
-    body[class*="theme-"] .page-link {
-        color: var(--sd-accent);
-        border-color: var(--sd-accent);
-    }
-
-    body[class*="theme-"] .page-link:hover {
-        color: #000;
-        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
-        border-color: var(--sd-accent);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-    }
-
-    body[class*="theme-"] .page-item.active .page-link {
-        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
-        border-color: var(--sd-accent);
-        color: #000;
-    }
-
-    /* Filter icon accent */
-    body[class*="theme-"] .fa-filter {
-        color: var(--sd-accent) !important;
-    }
-</style>
-
 @section('content')
-    <div class="text-zero top-right-button-container d-flex justify-content-end"
-        style="margin-right: 20px;margin-top: -50px;">
+<div class="text-zero top-right-button-container d-flex justify-content-end"
+    style="margin-right: 20px;margin-top: -49px;">
 
-        <div class="text-zero top-right-button-container">
+    <div class="text-zero top-right-button-container">
 
-            <div class="btn-group mr-1">
-                <div class="dropdown">
-                    <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="centerDropdown"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
-                        style="top:3% !important;left:13px !important;">
-                        @foreach ($centers as $center)
-                            <a href="javascript:void(0);"
-                                class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
-                                style="background-color:white;" data-id="{{ $center->id }}">
-                                {{ $center->centerName }}
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-
-            </div>
-
-            @if (
-                (isset($permission) && $permission->addActivity == 1) ||
-                    Auth::user()->userType == 'Superadmin' ||
-                    Auth::user()->admin == 1)
-                <a href="{{ route('observation.activity-list') }}"
-                    class="btn btn-outline-info btn-lg top-right-button">Activities</a>
-            @endif
-
-            @if ($userType != 'Parent')
-                @if (!empty($permissions['addProgramPlan']) && $permissions['addProgramPlan'])
-                    <a href="{{ route('create.programplan', ['centerid' => $centerId]) }}" class="btn btn-outline-info"
-                        style="margin-left:5px;">
-                        Add ProgramPlan
+        <div class="btn-group mr-1">
+            <div class="dropdown">
+                <button class="btn theme-outline-btn btn-lg dropdown-toggle" type="button" id="centerDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
+                    {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
+                    style="top:3% !important;left:13px !important; background: var(--sd-bg, #fff); border: 1px solid var(--sd-accent, #007bff);">
+                    @foreach($centers as $center)
+                    <a href="javascript:void(0);"
+                        class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold' : '' }}"
+                        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); {{ session('user_center_id') == $center->id ? 'font-weight: bold; background: var(--sd-accent, #007bff); color: var(--sd-bg, #fff);' : '' }}"
+                        data-id="{{ $center->id }}">
+                        {{ $center->centerName }}
                     </a>
-                @endif
-            @endif
-        </div>
-
-    </div>
-
-    <hr class="mt-3">
-    <!-- filter  -->
-    @if (Auth::user()->userType != 'Parent')
-        <div class="col-6 d-flex justify-content-start align-items-center top-right-button-container">
-            <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
-            <select name="filter" onchange="showfilter(this.value)"
-                class="form-control form-control-sm border-info uniform-input col-3 ">
-                <option value="">Choose</option>
-                <option value="roomname">Room Name</option>
-                <option value="createdby">Created By</option>
-                <option value="status">Status</option>
-            </select>
-            <input type="text" name="filterbyCentername" class="form-control border-info ml-2" id="FilterbyRoomName"
-                placeholder="Filter by Room name" onkeyup="filterProgramPlan()">
-
-            <input type="text" name="filterbyCentername" class="form-control border-info mx-2" id="FilterbyCreatedBy"
-                placeholder="Filter by Created by" onkeyup="filterProgramPlan()">
-
-            <input type="text" name="filterbyCentername" class="form-control border-info mx-2" id="FilterbyStatus"
-                placeholder="Filter by Status" onkeyup="filterProgramPlan()">
-
-
-
-
-        </div>
-    @endif
-    <!-- filter ends here  -->
-    <!-- resources/views/program_plan_list.blade.php -->
-
-    <div class="main-container">
-        <!-- Page Header -->
-        <!-- <div class="page-header">
-                <h1 class="page-title">
-                    <i class="fas fa-clipboard-list"></i>
-                    Program Plan Management
-                </h1>
-                <div class="breadcrumb-custom">
-                    <i class="fas fa-home"></i>
-                    Dashboard
-                    <span class="separator">|</span>
-                    <span>Program Plan</span>
-                </div>
-            </div> -->
-
-        <!-- Main Content -->
-        <div class="container-fluid px-0">
-            <div class="program-plan-container">
-                <!-- @if (Auth::user()->userType != 'Parent')
-    -->
-                <div class="card-header-custom mb-3">
-                    <h5 class="card-header-title">
-                        <i class="fas fa-table"></i> Program Plans
-                    </h5>
-                </div>
-                <!--
-    @endif -->
-                <div class="program-plan">
-
-
-                    <div class="row">
-                        @forelse ($programPlans as $index => $plan)
-                            <div class="col-md-6 col-lg-3 mb-4">
-                                <div class="card h-100 shadow-sm rounded-3">
-                                    <div class="card-body d-flex flex-column">
-                                        <div class="d-flex justify-content-between">
-                                            <h5 class="card-title mb-2">
-                                                {{ $getMonthName($plan->months) }} {{ $plan->years ?? '' }}
-                                            </h5>
-                                            @if (Auth::user()->userType != 'Parent')
-                                                <p class="text-xs mb-2">
-                                                    @if ($plan->status == 'Draft')
-                                                        <span
-                                                            class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
-                                                            style="transition: 0.2s; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"
-                                                            onclick="updatestatus('{{ $plan->status ?? `` }}', '{{ $plan->id }}')"
-                                                            onmouseover="this.style.opacity='0.8';"
-                                                            onmouseout="this.style.opacity='1';">
-                                                            {{ ucfirst($plan->status ?? 'Draft') }}
-                                                        </span>
-                                                    @else
-                                                        <span
-                                                            class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
-                                                            style="transition: 0.2s; background: linear-gradient(135deg, var(--danger-color), var(--secondary-color));"
-                                                            onclick="updatestatus('{{ $plan->status ?? '--' }}', '{{ $plan->id }}')"
-                                                            onmouseover="this.style.opacity='0.8';"
-                                                            onmouseout="this.style.opacity='1';">
-                                                            {{ ucfirst($plan->status ?? 'Draft') }}
-                                                        </span>
-                                                    @endif
-                                                </p>
-                                            @endif
-
-
-                                        </div>
-
-
-                                        <ul class="list-unstyled mb-3">
-                                            <!-- <li><strong>S No:</strong> {{ ($programPlans->currentPage() - 1) * $programPlans->perPage() + $loop->iteration }}</li> -->
-                                            @php
-                                                $roomIds = explode(',', $plan->room_id); // convert CSV to array
-                                                $rooms = \App\Models\Room::whereIn('id', $roomIds)
-                                                    ->pluck('name')
-                                                    ->toArray();
-                                            @endphp
-
-                                            <li><strong>Room(s):</strong> {{ implode(', ', $rooms) }}</li>
-
-
-                                            <li><strong>Created By:</strong> {{ $plan->creator->name ?? '' }}</li>
-                                            <!-- <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li> -->
-                                            <li><strong>Published on :</strong>
-                                                {{ \Carbon\Carbon::parse($plan->updated_at)->format('d M Y') }}</li>
-
-                                        </ul>
-
-                                        <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
-                                            <a href="{{ route('print.programplan', $plan->id) }}"
-                                                class="btn btn-outline-primary btn-sm" title="View">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-
-                                            @if (Auth::user()->userType != 'Parent')
-                                                @if (
-                                                    (!empty($permissions['editProgramPlan']) && $permissions['editProgramPlan']) ||
-                                                        Auth::user()->userType == 'Superadmin' ||
-                                                        Auth::user()->admin == 1)
-                                                    <a href="{{ route('create.programplan', ['centerId' => $centerId, 'planId' => $plan->id]) }}"
-                                                        class="btn btn-outline-info btn-sm" title="Edit">
-                                                        <i class="fas fa-pen-to-square"></i>
-                                                    </a>
-                                                @endif
-
-                                                @if (
-                                                    (!empty($permissions['deleteProgramPlan']) && $permissions['deleteProgramPlan']) ||
-                                                        Auth::user()->userType == 'Superadmin' ||
-                                                        Auth::user()->admin == 1)
-                                                    <button type="button"
-                                                        class="btn btn-outline-danger btn-sm delete-program"
-                                                        data-id="{{ $plan->id }}" title="Delete">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </button>
-                                                @endif
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="col-12 text-center">
-                                <div class="alert alert-info">
-                                    <i class="fas fa-clipboard-list me-1"></i> No program plans found.
-                                </div>
-                            </div>
-                        @endforelse
-                    </div>
-
-
-
-                    @if (!$programPlans->isEmpty())
-                        <div class="col-12 d-flex justify-content-center mt-4 mb-5">
-                            {{ $programPlans->links('vendor.pagination.bootstrap-4') }}
-                        </div>
-                    @endif
-
+                    @endforeach
                 </div>
             </div>
         </div>
 
+        @if(isset($permission) && $permission->addActivity == 1 || Auth::user()->userType == "Superadmin"
+        ||Auth::user()->admin == 1 )
+        <a href="{{ route('observation.activity-list') }}" class="btn theme-outline-btn btn-lg top-right-button"
+            style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">Activities</a>
+        @endif
+
+        @if($userType != 'Parent')
+        @if(!empty($permissions['addProgramPlan']) && $permissions['addProgramPlan']  || Auth::user()->userType == "Superadmin")
+
+        <a href="{{ route('create.programplan', ['centerid' => $centerId]) }}" class="btn theme-outline-btn"
+            style="margin-left:5px; background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
+            Add ProgramPlan
+        </a>
+
+        @endif
+        @endif
     </div>
 
+</div>
 
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.1.1/js/bootstrap.min.js"></script> -->
-    <script>
-        // Add smooth animations and interactions
+<hr class="mt-3">
+<!-- filter  -->
+@if(Auth::user()->userType != 'Parent')
+<div class="col-6 d-flex justify-content-start align-items-center top-right-button-container">
+    <i class="fas fa-filter mx-2" style="color: var(--sd-accent, #17a2b8);"></i>
+    <select name="filter" onchange="showfilter(this.value)"
+        class="form-control form-control-sm theme-input uniform-input col-3"
+        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
+        <option value="">Choose</option>
+        <option value="roomname">Room Name</option>
+        <option value="createdby">Created By</option>
+        <option value="status">Status</option>
+    </select>
+    <input
+        type="text"
+        name="filterbyCentername"
+        class="form-control theme-input ml-2"
+        id="FilterbyRoomName"
+        placeholder="Filter by Room name"
+        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);"
+        onkeyup="filterProgramPlan()">
+
+    <input
+        type="text"
+        name="filterbyCentername"
+        class="form-control theme-input mx-2"
+        id="FilterbyCreatedBy"
+        placeholder="Filter by Created by"
+        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);"
+        onkeyup="filterProgramPlan()">
+
+    <input
+        type="text"
+        name="filterbyCentername"
+        class="form-control theme-input mx-2"
+        id="FilterbyStatus"
+        placeholder="Filter by Status"
+        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);"
+        onkeyup="filterProgramPlan()">
+</div>
+@endif
+<!-- filter ends here  -->
+<!-- resources/views/program_plan_list.blade.php -->
+
+<div class="main-container">
+    <!-- Page Header -->
+    <!-- <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-clipboard-list"></i>
+                Program Plan Management
+            </h1>
+            <div class="breadcrumb-custom">
+                <i class="fas fa-home"></i>
+                Dashboard
+                <span class="separator">|</span>
+                <span>Program Plan</span>
+            </div>
+        </div> -->
+
+    <!-- Main Content -->
+    <div class="container-fluid px-0">
+        <div class="program-plan-container">
+            <!-- @if(Auth::user()->userType != 'Parent') -->
+            <div class="card-header-custom mb-3" style="background: linear-gradient(135deg, var(--sd-accent, #667eea), var(--sd-secondary, #764ba2)); transition: background 0.3s;">
+                <h5 class="card-header-title">
+                    <i class="fas fa-table"></i> Program Plans
+                </h5>
+            </div>
+            <!-- @endif -->
+            <div class="program-plan">
+
+
+                <div class="row">
+                    @forelse ($programPlans as $index => $plan)
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card h-100 shadow-sm rounded-3">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title mb-2">
+                                        {{ $getMonthName($plan->months) }} {{ $plan->years ?? '' }}
+                                    </h5>
+                                    @if(Auth::user()->userType != "Parent")
+                                    <p class="text-xs mb-2">
+                                        @if($plan->status == 'Draft')
+                                        <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
+                                            style="transition: 0.2s; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"
+                                            onclick="updatestatus('{{ $plan->status ?? `` }}', '{{ $plan->id }}')"
+                                            onmouseover="this.style.opacity='0.8';"
+                                            onmouseout="this.style.opacity='1';">
+                                            {{ ucfirst($plan->status ?? 'Draft') }}
+                                        </span>
+                                        @else
+                                        <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
+                                            style="transition: 0.2s; background: linear-gradient(135deg, var(--danger-color), var(--secondary-color));"
+                                            onclick="updatestatus('{{ $plan->status ?? '--' }}', '{{ $plan->id }}')"
+                                            onmouseover="this.style.opacity='0.8';"
+                                            onmouseout="this.style.opacity='1';">
+                                            {{ ucfirst($plan->status ?? 'Draft') }}
+                                        </span>
+                                        @endif
+                                    </p>
+                                    @endif
+
+
+                                </div>
+
+
+                                <ul class="list-unstyled mb-3">
+                                    <!-- <li><strong>S No:</strong> {{ ($programPlans->currentPage() - 1) * $programPlans->perPage() + $loop->iteration }}</li> -->
+                                    @php
+                                    $roomIds = explode(',', $plan->room_id); // convert CSV to array
+                                    $rooms = \App\Models\Room::whereIn('id', $roomIds)->pluck('name')->toArray();
+                                    @endphp
+
+                                    <li><strong>Room(s):</strong> {{ implode(', ', $rooms) }}</li>
+
+
+                                    <li><strong>Created By:</strong> {{ $plan->creator->name ?? '' }}</li>
+                                    <!-- <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li> -->
+                                    <li><strong>Published on :</strong> {{
+                                        \Carbon\Carbon::parse($plan->updated_at)->format('d M Y') }}</li>
+
+                                </ul>
+
+                                <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
+                                    <a href="{{ route('print.programplan', $plan->id) }}"
+                                        class="btn theme-outline-btn btn-sm" title="View"
+                                        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    @if(Auth::user()->userType != 'Parent')
+                                    @if(!empty($permissions['editProgramPlan']) && $permissions['editProgramPlan'] ||
+                                    Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
+                                    <a href="{{ route('create.programplan', ['centerId' => $centerId, 'planId' => $plan->id]) }}"
+                                        class="btn btn-outline-info btn-sm" title="Edit">
+                                        <i class="fas fa-pen-to-square"></i>
+                                    </a>
+                                    @endif
+
+                                    @if(!empty($permissions['deleteProgramPlan']) && $permissions['deleteProgramPlan']
+                                    || Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
+                                    <button type="button" class="btn btn-outline-danger btn-sm delete-program"
+                                        data-id="{{ $plan->id }}" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    @endif
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-clipboard-list me-1"></i> No program plans found.
+                        </div>
+                    </div>
+                    @endforelse
+                </div>
+
+
+
+                @if(!$programPlans->isEmpty())
+                <div class="col-12 d-flex justify-content-center mt-4 mb-5" style="background: var(--sd-bg, #fff); border-radius: 0.75rem; box-shadow: var(--shadow); padding: 1.5rem 0; transition: background 0.3s;">
+                    <style>
+                        .pagination .page-link {
+                            background: var(--sd-bg, #fff) !important;
+                            color: var(--sd-accent, #007bff) !important;
+                            border: 2px solid var(--sd-accent, #007bff) !important;
+                            transition: background 0.3s, color 0.3s;
+                        }
+                        .pagination .page-item.active .page-link {
+                            background: var(--sd-accent, #007bff) !important;
+                            color: var(--sd-bg, #fff) !important;
+                            border-color: var(--sd-accent, #007bff) !important;
+                        }
+                        .pagination .page-link:hover {
+                            background: var(--sd-accent, #007bff) !important;
+                            color: var(--sd-bg, #fff) !important;
+                        }
+                        .pagination .page-item.disabled .page-link {
+                            color: #6c757d !important;
+                            background: var(--sd-bg, #fff) !important;
+                            border-color: var(--sd-accent, #007bff) !important;
+                            opacity: 0.5;
+                        }
+                    </style>
+                    {{ $programPlans->links('vendor.pagination.bootstrap-4') }}
+                </div>
+                @endif
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.1.1/js/bootstrap.min.js"></script> -->
+<script>
+    // Add smooth animations and interactions
         document.addEventListener('DOMContentLoaded', function() {
             // Add hover effects to table rows
             const tableRows = document.querySelectorAll('.table tbody tr');
@@ -1065,9 +1031,9 @@
         // Re-initialize on window resize
         window.addEventListener('resize', makeTableResponsive);
 
-        function filterProgramPlan() {
-            // Show loading indicator
-            $('.program-plan').html(`
+  function filterProgramPlan() {
+    // Show loading indicator
+    $('.program-plan').html(`
         <div class="col-12 text-center">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -1076,56 +1042,56 @@
         </div>
     `);
 
-            // ✅ Get filter input values
-            var room = $('#FilterbyRoomName').val() || '';
-            var createdBy = $('#FilterbyCreatedBy').val() || '';
-            var month = $('#FilterbyMonth').val() || '';
-            var status = $('#FilterbyStatus').val() || '';
+    // ✅ Get filter input values
+    var room = $('#FilterbyRoomName').val() || '';
+    var createdBy = $('#FilterbyCreatedBy').val() || '';
+    var month = $('#FilterbyMonth').val() || '';
+    var status = $('#FilterbyStatus').val() || '';
 
-            // ✅ Pass centerId from blade if needed
-            var centerId = "{{ $centerId ?? '' }}";
+    // ✅ Pass centerId from blade if needed
+    var centerId = "{{ $centerId ?? '' }}";
 
-            console.log('Filters:', room, createdBy, month);
+    console.log('Filters:', room, createdBy,month);
 
-            $.ajax({
-                url: 'LessonPlanList/filter-program-plans', // Your route
-                type: 'GET',
-                data: {
-                    room: room,
-                    created_by: createdBy,
-                    center_id: centerId,
-                    month: month, // ✅ filter by center,
-                    status: status
-                },
-                dataType: 'json',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    console.log('Response:', response);
+    $.ajax({
+        url: 'LessonPlanList/filter-program-plans', // Your route
+        type: 'GET',
+        data: {
+            room: room,
+            created_by: createdBy,
+            center_id: centerId,
+            month:month ,// ✅ filter by center,
+            status:status
+        },
+        dataType: 'json',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            console.log('Response:', response);
 
-                    // ✅ Check status
-                    if (response.status === true) {
-                        $('.program-plan').empty();
+            // ✅ Check status
+            if (response.status === true) {
+                $('.program-plan').empty();
 
-                        // ✅ Check if data exists
-                        if (Array.isArray(response.data) && response.data.length > 0) {
-                            let html = '<div class="row">';
+                // ✅ Check if data exists
+                if (Array.isArray(response.data) && response.data.length > 0) {
+                    let html = '<div class="row">';
 
-                            response.data.forEach(function(plan) {
-                                // ✅ Safe fallback values
-                                let monthName = plan.month_name || '';
-                                let year = plan.years || '';
-                                let roomName = plan.room_name || '';
-                                let creator = plan.creator_name || '';
-                                let createdAt = plan.created_at_formatted || '';
-                                let updatedAt = plan.updated_at_formatted || '';
-                                let canEdit = plan.can_edit || false;
-                                let canDelete = plan.can_delete || false;
-                                let status = plan.status || '';
-                                let planid = plan.id;
+                    response.data.forEach(function(plan) {
+                        // ✅ Safe fallback values
+                        let monthName = plan.month_name || '';
+                        let year = plan.years || '';
+                        let roomName = plan.room_name || '';
+                        let creator = plan.creator_name || '';
+                        let createdAt = plan.created_at_formatted || '';
+                        let updatedAt = plan.updated_at_formatted || '';
+                        let canEdit = plan.can_edit || false;
+                        let canDelete = plan.can_delete || false;
+                        let status = plan.status || '';
+                        let planid = plan.id;
 
-                                html += `
+                        html += `
                             <div class="col-md-6 col-lg-3 mb-4">
                                 <div class="card h-100 shadow-sm rounded-3">
                                     <div class="card-body d-flex flex-column">
@@ -1137,15 +1103,15 @@
     ${monthName} ${year}
     </h5>
     ${canEdit ? `
-    <p class="text-xs mb-2">
-     <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-pointer"
-          style="transition: 0.2s; background: linear-gradient(135deg, ${status === 'Draft' ? 'var(--primary-color)' : 'var(--danger-color)'}, var(--secondary-color));"
-          onclick="updatestatus('${status}', '${planid}')"
-          onmouseover="this.style.opacity='0.8';"
-          onmouseout="this.style.opacity='1';">
-        ${status}
-    </span>
-    </p>` : ''}
+<p class="text-xs mb-2">
+ <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-pointer"
+      style="transition: 0.2s; background: linear-gradient(135deg, ${status === 'Draft' ? 'var(--primary-color)' : 'var(--danger-color)'}, var(--secondary-color));"
+      onclick="updatestatus('${status}', '${planid}')"
+      onmouseover="this.style.opacity='0.8';"
+      onmouseout="this.style.opacity='1';">
+    ${status}
+</span>
+</p>` : ''}
 
 
 
@@ -1170,30 +1136,30 @@
                                             </a>
 
                                             ${canEdit ? `
-                                                    <a href="programPlan/create?centerId=${centerId}&planId=${plan.id}"
-                                                       class="btn btn-outline-info btn-sm" title="Edit">
-                                                        <i class="fas fa-pen-to-square"></i>
-                                                    </a>` : ''}
+                                                <a href="programPlan/create?centerId=${centerId}&planId=${plan.id}"
+                                                   class="btn btn-outline-info btn-sm" title="Edit">
+                                                    <i class="fas fa-pen-to-square"></i>
+                                                </a>` : ''}
 
                                             ${canDelete ? `
-                                                    <button type="button"
-                                                            class="btn btn-outline-danger btn-sm delete-program"
-                                                            data-id="${plan.id}" title="Delete">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </button>` : ''}
+                                                <button type="button"
+                                                        class="btn btn-outline-danger btn-sm delete-program"
+                                                        data-id="${plan.id}" title="Delete">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>` : ''}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         `;
-                            });
+                    });
 
-                            html += '</div>';
-                            $('.program-plan').html(html);
+                    html += '</div>';
+                    $('.program-plan').html(html);
 
-                        } else {
-                            // ✅ No results
-                            $('.program-plan').html(`
+                } else {
+                    // ✅ No results
+                    $('.program-plan').html(`
                         <div class="row">
                             <div class="col-12 text-center">
                                 <div class="alert alert-info">
@@ -1202,10 +1168,10 @@
                             </div>
                         </div>
                     `);
-                        }
-                    } else {
-                        // ✅ API returned error
-                        $('.program-plan').html(`
+                }
+            } else {
+                // ✅ API returned error
+                $('.program-plan').html(`
                     <div class="row">
                         <div class="col-12 text-center">
                             <div class="alert alert-danger">
@@ -1215,11 +1181,11 @@
                         </div>
                     </div>
                 `);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error:', error);
-                    $('.program-plan').html(`
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', error);
+            $('.program-plan').html(`
                 <div class="row">
                     <div class="col-12 text-center">
                         <div class="alert alert-danger">
@@ -1229,194 +1195,197 @@
                     </div>
                 </div>
             `);
-                }
-            });
         }
-    </script>
+    });
+}
 
-    <script>
-        $(document).ready(function() {
-            // Delete program plan
-            $(document).on('click', '.delete-program', function() {
-                var programId = $(this).data('id');
-                var row = $(this).closest('tr');
+</script>
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#6DAFE0',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const csrfToken = $('meta[name="csrf-token"]').attr('content');
-                        $.ajax({
-                            url: "{{ route('LessonPlanList.deletedataofprogramplan') }}",
-                            type: 'POST',
-                            data: {
-                                program_id: programId,
+<script>
+    $(document).ready(function() {
+    // Delete program plan
+    $(document).on('click', '.delete-program', function() {
+        var programId = $(this).data('id');
+        var row = $(this).closest('tr');
 
-                            },
-                            headers: {
-                                'X-CSRF-TOKEN': csrfToken
-                            },
-                            dataType: 'json',
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    Swal.fire(
-                                        'Deleted!',
-                                        response.message,
-                                        'success'
-                                    ).then(() => {
-                                        location.reload();
-                                    });
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6DAFE0',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                  const csrfToken = $('meta[name="csrf-token"]').attr('content');
+                $.ajax({
+                    url: "{{route('LessonPlanList.deletedataofprogramplan') }}",
+                    type: 'POST',
+                    data: {
+                        program_id: programId,
 
-                                    // Remove the row from the table
-                                    row.fadeOut(400, function() {
-                                        $(this).remove();
-                                    });
-                                } else {
-                                    Swal.fire(
-                                        'Error!',
-                                        response.message,
-                                        'error'
-                                    );
-                                }
-                            },
-                            error: function() {
-                                Swal.fire(
-                                    'Error!',
-                                    'Something went wrong with the server. Please try again.',
-                                    'error'
-                                );
-                            }
-                        });
+                    },
+                     headers: {
+            'X-CSRF-TOKEN': csrfToken
+        },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                          Swal.fire(
+    'Deleted!',
+    response.message,
+    'success'
+).then(() => {
+    location.reload();
+});
+
+                            // Remove the row from the table
+                            row.fadeOut(400, function() {
+                                $(this).remove();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                response.message,
+                                'error'
+                            );
+                        }
+                    },
+                    error: function() {
+                        Swal.fire(
+                            'Error!',
+                            'Something went wrong with the server. Please try again.',
+                            'error'
+                        );
                     }
                 });
-            });
+            }
         });
+    });
+});
 
 
-        function updateMonthDisplay() {
-            const monthInput = document.getElementById('FilterbyMonth');
-            const value = monthInput.value.trim();
+function updateMonthDisplay() {
+    const monthInput = document.getElementById('FilterbyMonth');
+    const value = monthInput.value.trim();
 
-            const months = [
-                'January', 'February', 'March', 'April',
-                'May', 'June', 'July', 'August',
-                'September', 'October', 'November', 'December'
-            ];
+    const months = [
+        'January', 'February', 'March', 'April',
+        'May', 'June', 'July', 'August',
+        'September', 'October', 'November', 'December'
+    ];
 
-            // If input is empty, just leave it empty (do nothing)
-            if (value === '') {
-                return;
-            }
+    // If input is empty, just leave it empty (do nothing)
+    if (value === '') {
+        return;
+    }
 
-            // Only convert if it's a valid number
-            if (!isNaN(value) && value >= 0 && value <= 11) {
-                monthInput.value = months[parseInt(value)];
-            }
+    // Only convert if it's a valid number
+    if (!isNaN(value) && value >= 0 && value <= 11) {
+        monthInput.value = months[parseInt(value)];
+    }
+}
+
+function updatestatus(currentStatus, planid) {
+    Swal.fire({
+        title: "Change Plan Status",
+        text: "Select the new status for the plan:",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Published",
+        cancelButtonText: "Draft",
+        reverseButtons: true,
+            customClass: {
+        confirmButton: 'published-btn',
+        cancelButton: 'draft-btn'
+    }
+    }).then((result) => {
+        let newStatus = null;
+
+        if (result.isConfirmed) {
+            newStatus = 'Published';
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            newStatus = 'Draft';
         }
 
-        function updatestatus(currentStatus, planid) {
-            Swal.fire({
-                title: "Change Plan Status",
-                text: "Select the new status for the plan:",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: "Published",
-                cancelButtonText: "Draft",
-                reverseButtons: true,
-                customClass: {
-                    confirmButton: 'published-btn',
-                    cancelButton: 'draft-btn'
-                }
-            }).then((result) => {
-                let newStatus = null;
-
-                if (result.isConfirmed) {
-                    newStatus = 'Published';
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    newStatus = 'Draft';
-                }
-
-                if (newStatus) {
-                    // Send AJAX with selected status
-                    $.ajax({
-                        url: '/update-program-plan-status',
-                        dataType: 'json',
-                        type: 'post',
-                        data: {
-                            status: newStatus,
-                            planid: planid
-                        },
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        beforeSend: function() {
-                            Swal.fire({
-                                title: "Updating...",
-                                text: "Please wait",
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-                        },
-                        success: function(response) {
-                            Swal.close();
-
-                            if (response.status === true) {
-                                Swal.fire({
-                                    title: "Updated!",
-                                    text: "Program plan status updated to " + newStatus + ".",
-                                    icon: "success",
-                                    timer: 1200,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire("Error!", response.message || "Failed to update status.",
-                                    "error");
-                            }
-                        },
-                        error: function(xhr, error, status) {
-                            Swal.close();
-                            Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+        if (newStatus) {
+            // Send AJAX with selected status
+            $.ajax({
+                url: '/update-program-plan-status',
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    status: newStatus,
+                    planid: planid
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function () {
+                    Swal.fire({
+                        title: "Updating...",
+                        text: "Please wait",
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
                         }
                     });
+                },
+                success: function (response) {
+                    Swal.close();
+
+                    if (response.status === true) {
+                        Swal.fire({
+                            title: "Updated!",
+                            text: "Program plan status updated to " + newStatus + ".",
+                            icon: "success",
+                            timer: 1200,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire("Error!", response.message || "Failed to update status.", "error");
+                    }
+                },
+                error: function (xhr, error, status) {
+                    Swal.close();
+                    Swal.fire("Error!", "Something went wrong. Please try again.", "error");
                 }
             });
         }
+    });
+}
 
 
-        function showfilter(val) {
-            // Clear and hide all filter fields
-            $('#FilterbyRoomName, #FilterbyCreatedBy, #FilterbyStatus')
-                .val('') // clear values
-                .hide(); // hide fields
+function showfilter(val) {
+    // Clear and hide all filter fields
+    $('#FilterbyRoomName, #FilterbyCreatedBy, #FilterbyStatus')
+        .val('') // clear values
+        .hide(); // hide fields
 
-            // Show the selected filter field
-            if (val === 'roomname') {
-                $('#FilterbyRoomName').show();
-            } else if (val === 'createdby') {
-                $('#FilterbyCreatedBy').show();
-            } else if (val === 'status') {
-                $('#FilterbyStatus').show();
-            }
-        }
+    // Show the selected filter field
+    if (val === 'roomname') {
+        $('#FilterbyRoomName').show();
+    }
+    else if (val === 'createdby') {
+        $('#FilterbyCreatedBy').show();
+    }
+    else if (val === 'status') {
+        $('#FilterbyStatus').show();
+    }
+}
 
 
-        document.addEventListener("DOMContentLoaded", function() {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-        });
-    </script>
+document.addEventListener("DOMContentLoaded", function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
 
-    @include('layout.footer')
+</script>
+
+@include('layout.footer')
 @stop

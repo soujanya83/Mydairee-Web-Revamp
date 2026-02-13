@@ -72,7 +72,6 @@
         height: 45px;
         width: 50px;
     }
-
     .inline-options {
         display: flex;
         flex-wrap: wrap;
@@ -503,77 +502,130 @@
                                     <option value="FEMALE">Female</option>
                                     <option value="OTHERS">Other</option>
                                 </select>
+                            </div> 
+                            <!-- <div class="form-group col-md-6">
+                            <label>Title</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div> -->
+                            <div class="form-group col-12">
+                                <label>Profile Image</label>
+                                <input type="file" class="form-control" name="imageUrl" accept="image/*">
                             </div>
                         </div>
 
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" onclick="updateSuperadmin()" class="btn btn-primary">Update</button>
-                        </div>
-                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="Submit" class="btn btn-primary" onclick="submitSuperadminForm()">Save</button>
+                </div>
                 </form>
             </div>
         </div>
+    </div>
 
 
-        <!-- spinner  -->
-        <div id="loader"
-            style="display:none;
+    <div class="modal" id="editSuperadminModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <form id="editSuperadminForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Superadmin</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body row">
+                        <input type="hidden" name="id" id="editId">
+
+                        <div class="form-group col-md-6">
+                            <label>Name</label>
+                            <input type="text" class="form-control" name="name" id="editName" required>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Email ID</label>
+                            <input type="email" class="form-control" name="email" id="editEmail" required>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Password <span style="color:green;">(Optional- Leave blank if not
+                                    changing)</span></label>
+                            <input type="password" class="form-control" name="password" id="editPassword">
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Contact No</label>
+                            <input type="tel" class="form-control" name="contactNo" id="editContactNo" required>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label>Change Image <span style="color:green;">(Optional)</span></label>
+                            <input type="file" class="form-control" id="imageUrl" name="imageUrl" accept="image/*">
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Gender</label>
+                            <select class="form-control" name="gender" id="editGender" required>
+                                <option value="">Select Gender</option>
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHERS">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" onclick="updateSuperadmin()" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- spinner  -->
+    <div id="loader" style="display:none;
      position: fixed;
      top: 50%; left: 50%;
      transform: translate(-50%, -50%);
      z-index: 9999;">
-            <div class="spinner-border text-info" role="status" style="width: 3rem; height: 3rem;">
-                <span class="visually-hidden">Loading...</span>
-            </div>
+        <div class="spinner-border text-info" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
         </div>
+    </div>
 
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-            $(document).ready(function() {
-                // Filter staff list on input change
-                $('#staffNameFilter').on('input', function() {
-                    var filterValue = $(this).val().toLowerCase().trim();
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+        // Filter staff list on input change
+        $('#staffNameFilter').on('input', function() {
+            var filterValue = $(this).val().toLowerCase().trim();
 
-                    $('.staff-card').each(function() {
-                        var staffName = $(this).data('staff-name');
-                        if (staffName.includes(filterValue)) {
-                            $(this).show();
-                        } else {
-                            $(this).hide();
-                        }
-                    });
-                });
-
-                $(document).on('click', '.staff-card', function(e) {
-                    if ($(e.target).closest('a, button, form, input, select, .dropbtn, .dropdown-content, .inline-options').length) {
-                        return;
-                    }
-
-                    var href = $(this).data('href');
-                    if (!href || href === '/settings/staff/' + $(this).data('id')) {
-                        var id = $(this).data('id');
-                        if (id) {
-                            href = '/settings/staff/' + id + '/details';
-                        }
-                    }
-
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
+            $('.staff-card').each(function() {
+                var staffName = $(this).data('staff-name');
+                if (staffName.includes(filterValue)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
             });
+        });
+    });
 
-            // Placeholder for other functions (ensure they are defined if used)
-            function confirmRemoveAccess(event) {
-                return confirm("Are you sure you want to remove WiFi access?");
-            }
-        </script>
-        <script>
-            function UpdateStatusSuperadmin(id) {
-                Swal.fire({
-                    title: '<h3 style="color:#17a2b8;">🔄 Update Status</h3>',
-                    html: `
+    // Placeholder for other functions (ensure they are defined if used)
+    function confirmRemoveAccess(event) {
+        return confirm("Are you sure you want to remove WiFi access?");
+    }
+
+    </script>
+    <script>
+        function UpdateStatusSuperadmin(id) {
+    Swal.fire({
+        title: '<h3 style="color:#17a2b8;">🔄 Update Status</h3>',
+        html: `
             <p class="mb-3"></p>
             <div class="d-flex flex-row gap-2">
                 <button id="btn-active" class="swal2-confirm swal2-styled status-btn" style="background-color:white;color:#198754
@@ -594,320 +646,321 @@
                 </button>
             </div>
         `,
-                    showConfirmButton: false,
-                    showCancelButton: false,
-                    didOpen: () => {
-                        // Click events for buttons
-                        document.getElementById('btn-active').addEventListener('click', function() {
-                            sendStatusUpdate(id, 'ACTIVE');
-                        });
-                        document.getElementById('btn-inactive').addEventListener('click', function() {
-                            sendStatusUpdate(id, 'IN-ACTIVE');
-                        });
-                        document.getElementById('btn-pending').addEventListener('click', function() {
-                            sendStatusUpdate(id, 'PENDING');
-                        });
-                        document.getElementById('btn-cancel').addEventListener('click', function() {
-                            Swal.close();
-                        });
-                    },
-                    customClass: {
-                        popup: 'swal2-popup-custom'
-                    }
+        showConfirmButton: false,
+        showCancelButton: false,
+        didOpen: () => {
+            // Click events for buttons
+            document.getElementById('btn-active').addEventListener('click', function () {
+                sendStatusUpdate(id, 'ACTIVE');
+            });
+            document.getElementById('btn-inactive').addEventListener('click', function () {
+                sendStatusUpdate(id, 'IN-ACTIVE');
+            });
+            document.getElementById('btn-pending').addEventListener('click', function () {
+                sendStatusUpdate(id, 'PENDING');
+            });
+            document.getElementById('btn-cancel').addEventListener('click', function () {
+                Swal.close();
+            });
+        },
+        customClass: {
+            popup: 'swal2-popup-custom'
+        }
+    });
+}
+
+
+function sendStatusUpdate(id, status) {
+    $.ajax({
+        url: "{{ route('settings.updateStatusSuperadmin') }}",
+        type: "POST",
+        data: {
+            id: id,
+            status: status,
+            _token: "{{ csrf_token() }}"
+        },
+        beforeSend: function () {
+            Swal.fire({
+                title: 'Updating...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+        },
+        success: function (res) {
+            if (res.status) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Status updated to ' + status,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: res.message || 'Failed to update status.'
                 });
             }
+        },
+        error: function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong. Please try again.'
+            });
+        }
+    });
+}
 
 
-            function sendStatusUpdate(id, status) {
-                $.ajax({
-                    url: "{{ route('settings.updateStatusSuperadmin') }}",
-                    type: "POST",
-                    data: {
-                        id: id,
-                        status: status,
-                        _token: "{{ csrf_token() }}"
-                    },
-                    beforeSend: function() {
-                        Swal.fire({
-                            title: 'Updating...',
-                            text: 'Please wait',
-                            allowOutsideClick: false,
-                            didOpen: () => Swal.showLoading()
-                        });
-                    },
-                    success: function(res) {
-                        if (res.status) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: 'Status updated to ' + status,
-                                timer: 2000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: res.message || 'Failed to update status.'
-                            });
-                        }
-                    },
-                    error: function() {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Something went wrong. Please try again.'
-                        });
-                    }
-                });
-            }
+function showLoaderFor2Sec() {
+    $("#loader").show(); // show loader
 
-
-            function showLoaderFor2Sec() {
-                $("#loader").show(); // show loader
-
-                setTimeout(function() {
-                    $("#loader").hide(); // hide loader after 2 sec
-                }, 2000);
-            }
+    setTimeout(function () {
+        $("#loader").hide(); // hide loader after 2 sec
+    }, 2000);
+}
 
 
 
-            function showToast(type, message) {
-                const isSuccess = type === 'success';
-                const toastType = isSuccess ? 'toast-success' : 'toast-error';
-                const ariaLive = isSuccess ? 'polite' : 'assertive';
+    function showToast(type, message) {
+        const isSuccess = type === 'success';
+        const toastType = isSuccess ? 'toast-success' : 'toast-error';
+        const ariaLive = isSuccess ? 'polite' : 'assertive';
 
-                const toast = `
+        const toast = `
         <div class="toast ${toastType}" aria-live="${ariaLive}" style="min-width: 250px; margin-bottom: 10px;">
             <button type="button" class="toast-close-button" role="button" onclick="this.parentElement.remove()">×</button>
             <div class="toast-message" style="color: white;">${message}</div>
         </div>
     `;
 
-                // Append the toast to the container
-                $('#toast-container').append(toast);
+        // Append the toast to the container
+        $('#toast-container').append(toast);
 
-                // Automatically fade out and remove this specific toast after 3 seconds
-                setTimeout(() => {
-                    $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
-                        $(this).remove();
-                    });
-                }, 3000);
+        // Automatically fade out and remove this specific toast after 3 seconds
+        setTimeout(() => {
+            $(`#toast-container .toast:contains('${message}')`).fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+    function submitSuperadminForm() {
+        const form = document.getElementById('superadminForm');
+        const formData = new FormData(form);
+        formData.append('userType', 'Staff');
+
+        const submitBtn = document.querySelector('[onclick="submitSuperadminForm()"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Saving...';
+
+        // Clear any previous validation states and toasts
+        $('#superadminForm .form-control, #superadminForm .form-select').removeClass('is-invalid');
+        $('#toast-container').html('');
+
+        let valid = true;
+        let firstInvalid = null;
+
+        // Manual validation for required fields
+        $('#superadminForm [required]').each(function() {
+            if (!$(this).val().trim()) {
+                $(this).addClass('is-invalid');
+                const label = $(this).closest('.form-group').find('label').text().trim();
+                showToast('error', `Please fill the ${label}`);
+
+                if (!firstInvalid) firstInvalid = this;
+                valid = false;
             }
+        });
 
-            function submitSuperadminForm() {
-                const form = document.getElementById('superadminForm');
-                const formData = new FormData(form);
-                formData.append('userType', 'Staff');
+        if (!valid) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Save';
+            if (firstInvalid) firstInvalid.focus();
+            return;
+        }
 
-                const submitBtn = document.querySelector('[onclick="submitSuperadminForm()"]');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = 'Saving...';
-
-                // Clear any previous validation states and toasts
-                $('#superadminForm .form-control, #superadminForm .form-select').removeClass('is-invalid');
-                $('#toast-container').html('');
-
-                let valid = true;
-                let firstInvalid = null;
-
-                // Manual validation for required fields
-                $('#superadminForm [required]').each(function() {
-                    if (!$(this).val().trim()) {
-                        $(this).addClass('is-invalid');
-                        const label = $(this).closest('.form-group').find('label').text().trim();
-                        showToast('error', `Please fill the ${label}`);
-
-                        if (!firstInvalid) firstInvalid = this;
-                        valid = false;
-                    }
-                });
-
-                if (!valid) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Save';
-                    if (firstInvalid) firstInvalid.focus();
-                    return;
+        // Proceed with AJAX if all required fields are filled
+        $.ajax({
+            url: "{{ route('settings.staff.store') }}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    showToast('success', 'Staff added successfully!');
+                    setTimeout(() => {
+                        $('#addSuperadminModal').modal('hide');
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast('error', response.message || 'Something went wrong');
                 }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = xhr.responseJSON.errors;
+                    Object.keys(errors).forEach(key => {
+                        showToast('error', errors[key][0]);
+                    });
+                } else {
+                    showToast('error', 'Server error. Please try again.');
+                }
+            },
+            complete: function() {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Save';
+            }
+        });
+    }
 
-                // Proceed with AJAX if all required fields are filled
+    function openEditSuperadminModal(id) {
+        $.ajax({
+            url: `/settings/staff/${id}/edit`, // This route must return JSON
+            type: 'GET',
+            success: function(data) {
+                $('#editId').val(data.id);
+                $('#editName').val(data.name);
+                $('#editEmail').val(data.email);
+                $('#editContactNo').val(data.contactNo);
+                $('#editGender').val(data.gender);
+                $('#editPassword').val(''); // Clear password field
+
+                $('#editSuperadminModal').modal('show');
+            },
+            error: function() {
+                showToast('error', 'Failed to fetch user data.');
+            }
+        });
+    }
+
+    function updateSuperadmin() {
+        const form = document.getElementById('editSuperadminForm');
+        const formData = new FormData(form);
+        const id = $('#editId').val();
+
+        $.ajax({
+            url: `/settings/staff/${id}`,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    showToast('success', 'Superadmin updated successfully!');
+                    setTimeout(() => {
+                        $('#editSuperadminModal').modal('hide');
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast('error', response.message || 'Update failed');
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    Object.values(xhr.responseJSON.errors).forEach(error => {
+                        showToast('error', error[0]);
+                    });
+                } else {
+                    showToast('error', 'Server error occurred');
+                }
+            }
+        });
+    }
+
+
+    function deleteSuperadmin(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to recover this Staff!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e3342f',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('settings.staff.store') }}",
-                    type: "POST",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    url: `/settings/superadmin/${id}`,
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        _method: 'DELETE'
                     },
                     success: function(response) {
                         if (response.status === 'success') {
-                            showToast('success', 'Staff added successfully!');
+                            showToast('success', 'Staff deleted successfully!');
                             setTimeout(() => {
-                                $('#addSuperadminModal').modal('hide');
                                 location.reload();
                             }, 1500);
                         } else {
-                            showToast('error', response.message || 'Something went wrong');
+                            showToast('error', response.message || 'Delete failed');
                         }
-                    },
-                    error: function(xhr) {
-                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                            const errors = xhr.responseJSON.errors;
-                            Object.keys(errors).forEach(key => {
-                                showToast('error', errors[key][0]);
-                            });
-                        } else {
-                            showToast('error', 'Server error. Please try again.');
-                        }
-                    },
-                    complete: function() {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = 'Save';
-                    }
-                });
-            }
-
-            function openEditSuperadminModal(id) {
-                $.ajax({
-                    url: `/settings/staff/${id}/edit`, // This route must return JSON
-                    type: 'GET',
-                    success: function(data) {
-                        $('#editId').val(data.id);
-                        $('#editName').val(data.name);
-                        $('#editEmail').val(data.email);
-                        $('#editContactNo').val(data.contactNo);
-                        $('#editGender').val(data.gender);
-                        $('#editPassword').val(''); // Clear password field
-
-                        $('#editSuperadminModal').modal('show');
                     },
                     error: function() {
-                        showToast('error', 'Failed to fetch user data.');
+                        showToast('error', 'Server error occurred');
                     }
                 });
             }
+        });
+    }
 
-            function updateSuperadmin() {
-                const form = document.getElementById('editSuperadminForm');
-                const formData = new FormData(form);
-                const id = $('#editId').val();
-
-                $.ajax({
-                    url: `/settings/staff/${id}`,
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            showToast('success', 'Superadmin updated successfully!');
-                            setTimeout(() => {
-                                $('#editSuperadminModal').modal('hide');
-                                location.reload();
-                            }, 1500);
-                        } else {
-                            showToast('error', response.message || 'Update failed');
-                        }
-                    },
-                    error: function(xhr) {
-                        if (xhr.status === 422) {
-                            Object.values(xhr.responseJSON.errors).forEach(error => {
-                                showToast('error', error[0]);
-                            });
-                        } else {
-                            showToast('error', 'Server error occurred');
-                        }
-                    }
-                });
-            }
-
-
-            function deleteSuperadmin(id) {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'You will not be able to recover this Staff!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#e3342f',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: `/settings/superadmin/${id}`,
-                            type: 'POST',
-                            data: {
-                                _token: '{{ csrf_token() }}',
-                                _method: 'DELETE'
-                            },
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    showToast('success', 'Staff deleted successfully!');
-                                    setTimeout(() => {
-                                        location.reload();
-                                    }, 1500);
-                                } else {
-                                    showToast('error', response.message || 'Delete failed');
-                                }
-                            },
-                            error: function() {
-                                showToast('error', 'Server error occurred');
-                            }
-                        });
-                    }
-                });
-            }
-        </script>
+    </script>
 
 
 
 
 
-        <script>
-            // Toggle dropdown open/close
-            document.querySelectorAll(".dropbtn").forEach(btn => {
-                btn.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    this.parentElement.classList.toggle("show");
-                });
+    <script>
+        // Toggle dropdown open/close
+        document.querySelectorAll(".dropbtn").forEach(btn => {
+            btn.addEventListener("click", function(e) {
+                e.preventDefault();
+                this.parentElement.classList.toggle("show");
             });
+        });
 
-            // Auto-submit on selecting hour
-            document.querySelectorAll(".dropdown-content a").forEach(item => {
-                item.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    let hour = this.getAttribute("data-hour");
-                    let form = this.closest("form");
-                    form.querySelector(".selected-hour").value = hour;
-                    form.submit();
-                });
+        // Auto-submit on selecting hour
+        document.querySelectorAll(".dropdown-content a").forEach(item => {
+            item.addEventListener("click", function(e) {
+                e.preventDefault();
+                let hour = this.getAttribute("data-hour");
+                let form = this.closest("form");
+                form.querySelector(".selected-hour").value = hour;
+                form.submit();
             });
+        });
 
-            // Close dropdown when clicking outside
-            window.addEventListener("click", function(e) {
-                document.querySelectorAll(".dropdown").forEach(drop => {
-                    if (!drop.contains(e.target)) {
-                        drop.classList.remove("show");
-                    }
-                });
-            });
-        </script>
-        <script>
-            function confirmRemoveAccess(event) {
-                // Only confirm when button has "Access" (meaning removing access)
-                const btn = event.target.querySelector("button[type='submit']");
-                if (btn && btn.textContent.includes("Access")) {
-                    return confirm("Are you sure you want to remove this user's Login access?");
+        // Close dropdown when clicking outside
+        window.addEventListener("click", function(e) {
+            document.querySelectorAll(".dropdown").forEach(drop => {
+                if (!drop.contains(e.target)) {
+                    drop.classList.remove("show");
                 }
-                return true;
-            }
-        </script>
-        @include('layout.footer')
+            });
+        });
+    </script>
+    <script>
+        function confirmRemoveAccess(event) {
+    // Only confirm when button has "Access" (meaning removing access)
+    const btn = event.target.querySelector("button[type='submit']");
+    if (btn && btn.textContent.includes("Access")) {
+        return confirm("Are you sure you want to remove this user's Login access?");
+    }
+    return true;
+    }
+    </script>
+    @include('layout.footer')
     @stop

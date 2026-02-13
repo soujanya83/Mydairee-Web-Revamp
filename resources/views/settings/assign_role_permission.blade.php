@@ -493,7 +493,7 @@
 
         <a href="{{ route('settings.manage-permission-role')}}" class="btn btn-outline-info"
             style="margin-left:5px;">
-            Manage Rolessssssssss
+            Manage Role
         </a>
 
     </div>

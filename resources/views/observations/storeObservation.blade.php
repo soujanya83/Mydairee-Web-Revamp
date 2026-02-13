@@ -2919,7 +2919,6 @@ body[class*="theme-"] #selectedStaffPreview .badge,
             $button.html('Saving...').prop('disabled', true);
 
             let observationId = $('#observation_id').val();
-
             if (!observationId) {
                 showToast('error', 'Please Create Observation First');
                 $button.html(originalText).prop('disabled', false);

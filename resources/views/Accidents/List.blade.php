@@ -5,36 +5,36 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
         /* Floating Button Style */
-/* Floating Button Style */
-.floating-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: transparent;
-    color: #71d9e9ff;
-    border: none;
-    border-radius: 50%;
-    width: 55px;
-    height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* box-shadow: 0 4px 10px rgba(193, 123, 123, 0.2); */
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    z-index: 1000;
-    font-size: 20px;
-}
+    /* Floating Button Style */
+    .floating-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: transparent;
+        color: #71d9e9ff;
+        border: none;
+        border-radius: 50%;
+        width: 55px;
+        height: 55px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* box-shadow: 0 4px 10px rgba(193, 123, 123, 0.2); */
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        z-index: 1000;
+        font-size: 20px;
+    }
 
-.floating-btn:focus,
-.floating-btn:active {
-    outline: none !important;
-    box-shadow: none !important;
-    border: none !important;
-}
+    .floating-btn:focus,
+    .floating-btn:active {
+        outline: none !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
 
-/* floating button */
+    /* floating button */
 </style>
 <style>
     #filterchildname{
@@ -889,7 +889,7 @@ class="btn btn-info btn-lg">
       <!-- filter  -->
          @if(Auth::user()->userType != 'Parent')
     <div class="col-6 d-flex align-items-center gap-2 top-right-button-container mb-4">
-    <i class="fas fa-filter" style="color:#17a2b8;"></i>
+    <i class="fas fa-filter" style="color: var(--sd-accent, #17a2b8);"></i>
 
     <select name="filter" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input ">
         <option value="">Choose</option>
@@ -957,10 +957,10 @@ class="btn btn-info btn-lg">
      <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
     <!-- View -->
     <a href="{{ route('Accidents.details') }}?id={{ $accident->id }}&centerid={{ $centerid }}&roomid={{ $roomid }}"
-       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
-       style="min-width: 30px; height: 30px;"
-       title="View">
-        <i class="fas fa-eye"></i>
+    class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center theme-eye-btn"
+    style="min-width: 30px; height: 30px; background: var(--sd-bg, #fff); border: 2px solid var(--sd-accent, #17a2b8); border-radius: 6px;"
+    title="View">
+     <i class="fas fa-eye" style="color: var(--sd-accent, #17a2b8);"></i>
     </a>
 
     <!-- Edit -->
@@ -1238,10 +1238,10 @@ function filterbyChildname(childname) {
                <div class="mt-auto d-flex justify-content-start flex-wrap align-items-stretch">
     <!-- View -->
     <a href="${detailUrl}"
-       class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center"
-       style="min-width: 30px; height: 30px;"
-       title="View">
-        <i class="fas fa-eye"></i>
+    class="btn btn-outline-success btn-sm mr-2 mb-2 d-flex align-items-center justify-content-center theme-eye-btn"
+    style="min-width: 30px; height: 30px; background: var(--sd-bg, #fff); border: 2px solid var(--sd-accent, #17a2b8); border-radius: 6px;"
+    title="View">
+     <i class="fas fa-eye" style="color: var(--sd-accent, #17a2b8);"></i>
     </a>
 
     <!-- Edit (only if permission exists and is allowed) -->

@@ -25,21 +25,25 @@
 }
 
 /* Input styling */
+/* Theme-aware input */
 .custom-input {
     width: 100%;
     padding: 10px 14px;
-    border: 1px solid #ced4da;
+    border: 2px solid var(--sd-accent, #4e73df);
     border-radius: 8px;
-    background-color: #fff;
+    background-color: var(--sd-bg, #fff);
+    color: var(--sd-accent, #4e73df);
     font-size: 14px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: border-color 0.3s, box-shadow 0.3s;
+    transition: border-color 0.3s, box-shadow 0.3s, background 0.3s, color 0.3s;
 }
 
 .custom-input:focus {
-    border-color: #007bff;
+    border-color: var(--sd-accent, #4e73df);
     outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 0 5px rgba(78, 115, 223, 0.25);
+    background: var(--sd-bg, #fff);
+    color: var(--sd-accent, #4e73df);
 }
 
 
@@ -168,8 +172,8 @@
         } */
 
         .headcheck-card {
-            background: linear-gradient(145deg, #ffffff, #f8f9fc);
-            border: none;
+            background: var(--sd-bg, #fff);
+            border: 2px solid var(--sd-accent, #4e73df);
             border-radius: 15px;
             margin-bottom: 1.5rem;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
@@ -401,16 +405,18 @@
 
     {{-- Center Dropdown --}}
     <div class="dropdown mr-2">
-        <button class="btn btn-outline-info btn-lg dropdown-toggle"
+        <button class="btn theme-outline-btn btn-lg dropdown-toggle"
                 type="button" id="centerDropdown" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
+                aria-haspopup="true" aria-expanded="false"
+                style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
         </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important; left:13px !important;">
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important; left:13px !important; background: var(--sd-bg, #fff); border: 1px solid var(--sd-accent, #36b9cc);">
             @foreach($centers as $center)
                 <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
-                   style="background-color:white;" data-id="{{ $center->id }}">
+                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold' : '' }}"
+                   style="{{ session('user_center_id') == $center->id ? 'background: var(--sd-accent, #36b9cc); color: var(--sd-bg, #fff); font-weight: bold;' : 'background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc);' }}"
+                   data-id="{{ $center->id }}">
                     {{ $center->centerName }}
                 </a>
             @endforeach
@@ -420,14 +426,17 @@
     {{-- Room Dropdown --}}
     <div class="dropdown mr-2">
         @if(empty($rooms))
-            <div class="btn btn-outline-info btn-lg dropdown-toggle">NO ROOMS AVAILABLE</div>
+            <div class="btn theme-outline-btn btn-lg dropdown-toggle" style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">NO ROOMS AVAILABLE</div>
         @else
-            <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="roomDropdown" data-toggle="dropdown">
+            <button class="btn theme-outline-btn btn-lg dropdown-toggle" type="button" id="roomDropdown" data-toggle="dropdown"
+                style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
                 {{ strtoupper($rooms->firstWhere('id', request('roomid', $roomid))->name ?? 'Select Room') }}
             </button>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="roomDropdown">
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="roomDropdown" style="background: var(--sd-bg, #fff); border: 1px solid var(--sd-accent, #36b9cc);">
                 @foreach($rooms as $room)
-                    <a class="dropdown-item" href="{{ url()->current() }}?centerid={{ $centerid }}&roomid={{ $room->id }}">
+                    <a class="dropdown-item{{ request('roomid', $roomid) == $room->id ? ' active font-weight-bold' : '' }}"
+                        href="{{ url()->current() }}?centerid={{ $centerid }}&roomid={{ $room->id }}"
+                        style="{{ request('roomid', $roomid) == $room->id ? 'background: var(--sd-accent, #36b9cc); color: var(--sd-bg, #fff); font-weight: bold;' : 'background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc);' }}">
                         {{ strtoupper($room->name) }}
                     </a>
                 @endforeach
@@ -443,7 +452,8 @@
     @endphp
     <div class="form-group mb-0">
         <div class="input-group date">
-            <input type="text" class="form-control drop-down btn btn-outline-info btn-lg" id="txtCalendar" name="start_date" value="{{ $calDate }}">
+            <input type="text" class="form-control theme-input btn-lg" id="txtCalendar" name="start_date" value="{{ $calDate }}"
+                style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
             <span class="">
                 <i class="simple-icon-calendar"></i>
             </span>

@@ -88,7 +88,7 @@ Route::get('/api/events', [DashboardController::class, 'getEvents']);
 // Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.profile1');
 
 Route::post('create-superadmin', [UserController::class, 'store'])->name('create_superadmin');
-Route::post('login-submit', [UserController::class, 'login'])->name('user_login');
+Route::post('login-submit', [UserController::class, 'login'])->name('user_login'); 
 Route::get('create-center', [UserController::class, 'create_center'])->name('create_center');
 
 Route::post('store-center', [UserController::class, 'store_center'])->name('center_store');
@@ -542,7 +542,6 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('/view/{id}', [ObservationsController::class, 'viewSnapShot'])->name('view');
 
         Route::get('/print/{id?}', [ObservationsController::class, 'print_snapshots'])->name('print');
-
     });
 
 

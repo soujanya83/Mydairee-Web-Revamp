@@ -238,7 +238,7 @@
         }
 
         .permission-item i {
-            color: #49c5b6;
+            color: var(--sd-accent, #49c5b6);
             font-size: 1.1rem;
             min-width: 20px;
         }
@@ -263,7 +263,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
+            background-color: var(--sd-bg, #ccc);
             transition: var(--transition);
             border-radius: 34px;
         }
@@ -281,7 +281,7 @@
         }
 
         input:checked+.slider {
-            background-color: #49c5b6
+            background-color: var(--sd-accent, #49c5b6);
         }
 
         input:checked+.slider:before {
@@ -486,7 +486,6 @@
         }
     </style>
 
-
     <div class="text-zero top-right-button-container d-flex justify-content-end"
         style="margin-right: 20px;margin-top: -60px;">
 
@@ -495,9 +494,7 @@
             <a href="{{ route('settings.manage-permission-role') }}" class="btn theme-outline-btn" style="margin-left:5px; margin-top: 10px; background: var(--sd-bg, #fff); color: var(--sd-accent, #49c5b6); border: 2px solid var(--sd-accent, #49c5b6); border-radius: var(--border-radius);">
                 Manage Role
             </a>
-
         </div>
-
     </div>
 
     <hr class="mt-3">
@@ -525,7 +522,7 @@
         </div>
     @endif
 
-    <div class="row clearfix" style="margin-top:30px">
+    <div class="row clearfix" >
 
 
         <div class="col-lg-12">
@@ -544,35 +541,35 @@
                             <input type="hidden" name="admin" value="" id="is_admin">
 
                             <div class="d-flex align-items-center gap-10 mb-5">
-                                <div class="col-md-7"> <select name="user_ids[]" id="user_ids" class="form-control"
-                                        multiple required style="flex: 1;">
+                                <div class="col-md-7"> <select name="user_ids[]" id="user_ids" class="form-control theme-input"
+                                        multiple required style="flex: 1; background: var(--sd-bg, #fff); color: var(--sd-accent, #49c5b6); border: 2px solid var(--sd-accent, #49c5b6); border-radius: var(--border-radius);">
                                         @foreach ($users as $user)
                                             <option value="{{ $user->userid }}">{{ $user->name }}</option>
                                         @endforeach
                                     </select></div>
 
 
-                                <button type="button" class="select-all-btn btn-outline mb-0" data-category="">
+                                <button type="button" class="select-all-btn btn-outline mb-0 theme-outline-btn" data-category="" style="background: var(--sd-accent, #49c5b6); color: #fff; border: 2px solid var(--sd-accent, #49c5b6); border-radius: var(--border-radius);">
                                     <i class="far fa-check-circle"></i> Select All Permissions
                                 </button>
 
 
 
-                                <a class="btn-outline mb-0" href="{{ route('settings.assigned_permissions') }}"
-                                    style="color:#ffffff;margin-left:12px">
+                                <a class="btn-outline mb-0 theme-outline-btn" href="{{ route('settings.assigned_permissions') }}"
+                                    style="background: var(--sd-accent, #49c5b6); color: #fff; border: 2px solid var(--sd-accent, #49c5b6); border-radius: var(--border-radius); margin-left:12px">
                                     <i class="fa fa-users"></i> Assigned Users List
                                 </a>
                                 @if (Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
                                     <div class="dropdown d-inline-block ml-2">
-                                        <button class="btn btn-info btn-sm dropdown-toggle shadow-sm rounded-pill px-3 py-2"
+                                        <button class="btn btn-info btn-sm dropdown-toggle shadow-sm rounded-pill px-3 py-2 theme-outline-btn"
                                             type="button" id="roleDropdown" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
+                                            aria-expanded="false" style="background: var(--sd-bg, #fff); color: var(--sd-accent, #49c5b6); border: 2px solid var(--sd-accent, #49c5b6); border-radius: var(--border-radius);">
                                             <i class="far fa-check-circle mr-1"></i> Select Role
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right shadow-lg border-0 rounded-lg mt-2"
-                                            aria-labelledby="roleDropdown" style="min-width: 220px;">
+                                            aria-labelledby="roleDropdown" style="min-width: 220px; background: var(--sd-bg, #fff); color: var(--sd-accent, #49c5b6);">
 
-                                            <h6 class="dropdown-header text-primary font-weight-bold">Available Roles</h6>
+                                            <h6 class="dropdown-header text-primary font-weight-bold" style="color: var(--sd-accent, #49c5b6);">Available Roles</h6>
 
                                             @php
                                                 $allowedColumns = array_diff(
@@ -640,6 +637,11 @@
                                         <button type="button" class="select-all-btn" data-category="observation">
                                             <i class="fas fa-check-circle"></i> All
                                         </button>
+                                        <style>
+                                            .card-header {
+                                                background: var(--sd-accent, #49c5b6) !important;
+                                            }
+                                        </style>
                                     </div>
 
                                     <div class="card-body">

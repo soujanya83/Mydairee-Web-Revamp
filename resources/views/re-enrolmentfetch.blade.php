@@ -11,18 +11,6 @@
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!--
-        Theming for user-specified elements is controlled globally by a theme class (e.g., .theme-purple) on <body>.
-        No local theme switcher is present. When no theme class is set, all elements use their default styles.
-        Only the following elements use the theme accent color when a theme is active:
-          - h2.mb-1 (Dashboard heading)
-          - .btn-primary, .btn-outline-primary, .view-toggle .btn.active
-          - .stats-card, .stats-card.success, .stats-card.warning, .stats-card.danger
-          - .table-card .card-header
-          - .pagination .page-item.active .page-link, .pagination .page-link:hover
-        All other styles remain unchanged for the no-theme state.
-    -->
     <style>
         :root {
             --primary-color: #3a7c8c;
@@ -191,6 +179,32 @@
             background-color: #ffffff;
             min-height: 100vh;
         }
+
+        .stats-card {
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+            border: none;
+            border-radius: 15px;
+            color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .stats-card.success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #20c997 100%);
+        }
+
+        .stats-card.warning {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #fd7e14 100%);
+        }
+
+        .stats-card.danger {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #e91e63 100%);
+        }
+
         .enrollment-card {
             border: none;
             border-radius: 12px;
@@ -235,14 +249,28 @@
             padding: 0.5rem 1rem;
             transition: all 0.3s ease;
         }
+
+        .view-toggle .btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
         .table-card {
             border: none;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
+
+        .table-card .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+        }
+
         .custom-table {
             border-radius: 0 0 12px 12px;
         }
+
         .custom-table thead th {
             background-color: var(--secondary-color);
             border: none;
@@ -255,9 +283,11 @@
             vertical-align: middle;
             border-color: #e9ecef;
         }
+
         .custom-table tbody tr:hover {
             background-color: rgba(58, 124, 140, 0.05);
         }
+
         .action-buttons .btn {
             border-radius: 20px;
             padding: 0.4rem 0.8rem;
@@ -363,7 +393,6 @@
 @section('content')
 
 <body>
-    <h1>zsa</h1>
     <!-- sidebar2 -->
     <div class="container-fluid">
         <div class="row">

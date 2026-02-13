@@ -1,4 +1,3 @@
-
 @extends('layout.master')
 @section('title', 'Recipes List')
 
@@ -166,7 +165,7 @@ body[class*='theme-'] .dropdown-menu .active {
     </div>
 
     &nbsp;&nbsp;&nbsp;&nbsp;
-    @if(!empty($permissions['addRecipe']) && $permissions['addRecipe'])
+    @if(!empty($permissions['addRecipe']) && $permissions['addRecipe']  || Auth::user()->userType == "Superadmin")
 
     <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#roomModal"
         style="height: 36px;">
@@ -183,9 +182,14 @@ body[class*='theme-'] .dropdown-menu .active {
         @foreach($recipes as $type => $recipeGroup)
 
         <!-- Recipe Type Heading -->
-        <h4 class="mt-4 mb-3 fw-bold text-capitalize text-primary border-bottom border-2 pb-2">
+        <h4 class="mt-4 mb-3 fw-bold text-capitalize border-bottom border-2 pb-2" style="color: var(--sd-accent, #176ba6);">
             <i class="fas fa-utensils me-2"></i> {{ ucfirst(strtolower($type)) }}
         </h4>
+        @if(isset($recipeGroup[0]) && isset($recipeGroup[0]->groupName))
+            <div class="mb-2 fw-semibold text-secondary" style="color: var(--sd-accent, #176ba6);">
+                Group: {{ $recipeGroup[0]->groupName }}
+            </div>
+        @endif
 
         <div class="row">
             @foreach($recipeGroup as $recipe)

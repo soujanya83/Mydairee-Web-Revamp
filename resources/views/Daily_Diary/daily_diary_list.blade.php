@@ -70,6 +70,7 @@ body {
     margin-bottom: 30px;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid var(--sd-accent, #007bff);
 }
 
 .child-card:hover {
@@ -820,6 +821,9 @@ body[class*="theme-"] .page-header .btn-primary {
     }
 }
 
+.card {
+    margin-top: -25px !important;
+}
 
 </style>
 
@@ -830,16 +834,18 @@ body[class*="theme-"] .page-header .btn-primary {
         <div class="text-zero top-right-button-container d-flex justify-content-end responsive-top-margin">
 
             <div class="dropdown">
-                <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn theme-outline-btn btn-lg dropdown-toggle" type="button" id="centerDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
                     {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
-                    style="top:3% !important;left:13px !important;">
+                    style="top:3% !important;left:13px !important; background: var(--sd-bg, #fff); border: 1px solid var(--sd-accent, #007bff);">
                     @foreach($centers as $center)
                     <a href="javascript:void(0);"
-                        class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-primary' : '' }}"
-                        style="background-color:white;" data-id="{{ $center->id }}">
+                        class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold' : '' }}"
+                        style="{{ session('user_center_id') == $center->id ? 'background: var(--sd-accent, #007bff); color: var(--sd-bg, #fff); font-weight: bold;' : 'background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff);' }}"
+                        data-id="{{ $center->id }}">
                         {{ $center->centerName }}
                     </a>
                     @endforeach
@@ -850,22 +856,23 @@ body[class*="theme-"] .page-header .btn-primary {
             &nbsp;&nbsp;&nbsp;&nbsp;
 
             <div class="dropdown">
-                <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn theme-outline-btn btn-lg dropdown-toggle" type="button" id="roomDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
                     {{ $selectedroom->name ?? 'Select Room' }}
                 </button>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
-                    style="top:3% !important;left:13px !important;">
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="roomDropdown"
+                    style="top:3% !important;left:13px !important; background: var(--sd-bg, #fff); border: 1px solid var(--sd-accent, #007bff);">
                     @foreach($room as $rooms)
                     <a href="#"
-                    class="dropdown-item room-selector {{ optional($selectedroom)->id == $rooms->id ? 'active font-weight-bold text-primary' : '' }}"
-                    data-url="{{ url('DailyDiary/list') }}?room_id={{ $rooms->id }}&center_id={{ session('user_center_id') }}"
-                    style="background-color:white;">
-                    {{ $rooms->name }}
+                        class="dropdown-item room-selector {{ optional($selectedroom)->id == $rooms->id ? 'active font-weight-bold' : '' }}"
+                        data-url="{{ url('DailyDiary/list') }}?room_id={{ $rooms->id }}&center_id={{ session('user_center_id') }}"
+                        style="{{ optional($selectedroom)->id == $rooms->id ? 'background: var(--sd-accent, #007bff); color: var(--sd-bg, #fff); font-weight: bold;' : 'background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff);' }}">
+                        {{ $rooms->name }}
                     </a>
-                                @endforeach
-                            </div>
-                        </div>
+                    @endforeach
+                </div>
+            </div>
                         &nbsp;&nbsp;&nbsp;&nbsp;
 
 
@@ -876,10 +883,11 @@ body[class*="theme-"] .page-header .btn-primary {
 
                             <div class="form-group">
                                 <input type="date"
-                                    class="form-control custom-datepicker btn-outline-primary btn-lg"
+                                    class="form-control theme-input btn-lg"
                                     id="datePicker"
                                     name="selected_date"
                                     value="{{ $selectedDate ? $selectedDate->format('Y-m-d') : '' }}"
+                                    style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);"
                                     onclick="this.showPicker()"
                                     onchange="document.getElementById('dateRoomForm').submit();">
                             </div>
@@ -910,9 +918,10 @@ body[class*="theme-"] .page-header .btn-primary {
                 <div class="col-md-4 text-right">
                     <div class="btn-group">
                     @if(auth()->user()->userType !== 'Parent')
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#addEntryModal">
-    <i class="fas fa-plus mr-2"></i>Add Entry
-</button>
+                    <button class="btn theme-outline-btn" data-toggle="modal" data-target="#addEntryModal"
+                        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
+                        <i class="fas fa-plus mr-2"></i>Add Entry
+                    </button>
 @endif
                         <!-- <button class="btn btn-outline-primary"><i class="fas fa-download mr-2"></i>Export</button> -->
                     </div>

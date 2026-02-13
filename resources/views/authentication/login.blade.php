@@ -77,10 +77,10 @@
                                 <i class="fa fa-lock"></i>
                                 <a href="{{ route('authentication.forgot-password') }}">Forgot password?</a>
                             </span>
-                            <span>
+                            {{-- <span>
                                 Don't have an account?
                                 <a href="{{ route('authentication.register') }}">Register</a>
-                            </span>
+                            </span> --}}
                         </div>
                     </form>
 
@@ -93,7 +93,7 @@
 
 
 <!-- Enhanced Stylized Login Notice -->
-<div class="container-fluid">
+{{-- <div class="container-fluid">
     <div class="row justify-content-center mb-4">
         <div class="col-md-8 col-lg-6">
             <div class="alert alert-dismissible fade show border-0 shadow-lg enhanced-notice" id="loginNotice">
@@ -115,7 +115,7 @@
                             <div class="icon-glow"></div>
                         </div>
                     </div>
-                    <div class="notice-content flex-grow-1">
+                    <div class="notice-content sgrow">
                         <div class="header-section mb-3">
                             <h5 class="font-weight-bold mb-2 text-white notice-title">
                                 <i class="fas fa-heart mr-2 beating-heart" style="color: #ff6b6b;"></i>
@@ -161,7 +161,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 <style>
 /* Enhanced Notice Styling */

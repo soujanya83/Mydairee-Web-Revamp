@@ -204,7 +204,6 @@
 
 
 @section('content')
-<h1>dsjjsjf</h1>
 <div class="assessment-details">
     @php
         $groupedBySubject = $progessPlanData->groupBy(function($item) {

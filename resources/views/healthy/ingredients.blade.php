@@ -113,7 +113,7 @@ body[class*='theme-'] .modal-header {
 <!-- Modal -->
 <div class="modal" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form id="ingredientForm" method="POST">
+        <form id="ingredientForm" method="POST" action="{{ route('ingredients.store') }}">
             @csrf
             <input type="hidden" name="_method" value="POST" id="formMethod">
 
@@ -138,6 +138,7 @@ body[class*='theme-'] .modal-header {
 </div>
 <script>
     $(document).ready(function () {
+
         $('.edit-ingredient-btn').click(function () {
             const id = $(this).data('id');
             const name = $(this).data('name');

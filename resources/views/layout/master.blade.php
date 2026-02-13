@@ -89,6 +89,11 @@
             padding-left: 10px !important;
             padding-right: 10px !important;
         }
+
+        #main-content {
+            margin-top: 47px !important; 
+        }
+        
     </style>
 
 

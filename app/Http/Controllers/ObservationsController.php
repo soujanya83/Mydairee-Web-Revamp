@@ -2593,14 +2593,14 @@ Observation:
 
 
     public function snapshotstore(Request $request)
-           
+
     {
-         \Log::info('snapshotstore request', [
-                'all' => $request->all(),
-                'title' => $request->input('title'),
-                'about' => $request->input('about'),
-                'publishIntent' => $request->input('publishIntent'),
-            ]);
+        Log::info('snapshotstore request', [
+            'all' => $request->all(),
+            'title' => $request->input('title'),
+            'about' => $request->input('about'),
+            'publishIntent' => $request->input('publishIntent'),
+        ]);
         $uploadMaxSize = min(
             $this->convertToBytes(ini_get('upload_max_filesize')),
             $this->convertToBytes(ini_get('post_max_size'))

@@ -682,7 +682,3 @@
 
 @include('layout.footer')
 @stop
-
-<style>
-
-</style>

@@ -78,8 +78,8 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'childparent', 'childid', 'parentid', 'childid', 'userid');
     }
 
-    public function permissions()
-    {
-        return $this->hasMany(Permission::class, 'userid', 'userid');
-    }
+ public function permissions()
+{
+    return $this->hasMany(Permission::class, 'userid', 'userid');
+}
 }

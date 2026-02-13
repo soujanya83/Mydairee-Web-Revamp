@@ -273,7 +273,10 @@
         font-weight: bold;
     }
 </style>
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 <nav class="navbar navbar-fixed-top" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
     <div class="container-fluid">
         <div class="navbar-btn">

@@ -1447,7 +1447,6 @@
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
             const particleCount = 30;
-
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
@@ -1462,7 +1461,6 @@
         function createConfetti() {
             const container = document.getElementById('confettiContainer');
             const confettiCount = 50;
-
             for (let i = 0; i < confettiCount; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
@@ -1470,7 +1468,6 @@
                 confetti.style.animationDelay = Math.random() * 3 + 's';
                 confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
                 container.appendChild(confetti);
-
                 // Remove after animation
                 setTimeout(() => {
                     if (confetti.parentNode) {
@@ -1517,7 +1514,6 @@
             // Create multiple confetti bursts
             setTimeout(() => createConfetti(), 500);
             setTimeout(() => createConfetti(), 1000);
-
             // Change age counter text temporarily
             const counter = document.getElementById('ageCounter');
             const originalText = counter.innerHTML;

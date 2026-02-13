@@ -26,6 +26,16 @@ class AppServiceProvider extends ServiceProvider
 
         if (Auth::check()) {
             $user = Auth::user();
+        }
+    }
+
+    public function boot(): void
+    {
+        View::composer('*', function ($view) {
+            $permissions = [];
+
+            if (Auth::check()) {
+                $user = Auth::user();
 
                 // Grant all permissions if user is Superadmin or room_leader == 1
                 if ($user->userType === 'Superadmin' || $user->room_leader == 1) {
@@ -211,14 +221,18 @@ class AppServiceProvider extends ServiceProvider
             }
 
         return $permissions;
-    }
-
-    public function boot(): void
-    {
-        // Share permissions with all views
-        View::composer('*', function ($view) {
-            $permissions = $this->getPermissions();
-            View::share('permissions', $permissions);
         });
+
+    // public function boot(): void
+    // {
+    //     // Share permissions with all views
+    //     View::composer('*', function ($view) {
+    //         $permissions = $this->getPermissions();
+    //         View::share('permissions', $permissions);
+    //         // Share globally
+    //         View::share('permissions', $permissions);
+    //         app()->singleton('userPermissions', fn() => $permissions);
+    //     });
+    // }
     }
 }

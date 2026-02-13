@@ -5,7 +5,6 @@
             top: 100% !important;
             left: 0px !important;
         }
-
         .dropdown-arrow {
             transition: transform 0.3s ease;
         }
@@ -85,8 +84,8 @@
                 <nav id="left-sidebar-nav" class="sidebar-nav" style="margin-bottom: 60px;">
                     <ul id="main-menu" class="metismenu">
                         <li class="{{ Request::is('/dashboard') ? 'active' : null }}">
-                            <a href="/dashboard" data-toggle="tooltip" data-placement="right"><i class="icon-home"
-                                    style="font-size: 25px;"></i>&nbsp;<span style="font-size: 18px; margin-left:-1px">Dashboard</span>
+                            <a href="/dashboard" data-toggle="tooltip" data-placement="right"><i class="icon-home" style="font-size: 25px;"></i>&nbsp;<span
+                                    style="font-size: 18px;">Dashboard</span>
                             </a>
 
                         </li>
@@ -120,7 +119,7 @@
                                 @if(auth()->user()->userType != 'Parent')
 
                                 <li class="{{ Route::is('headChecks') ? 'active' : '' }}">
-                                    <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right">Head Checks</a>
+                                    <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right" >   &nbsp;Head Checks</a>
                                 </li>
 
                                 @endif

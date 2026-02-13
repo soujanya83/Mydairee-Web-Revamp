@@ -1,4 +1,3 @@
-
 @extends('layout.master')
 @section('title', 'Recipes Update')
 @section('parentPageTitle', 'Children')

@@ -64,6 +64,9 @@ class DashboardController extends BaseController
         }
     }
 
+
+
+
     function lending_page()
     {
         return view('lending page.index');
@@ -155,7 +158,6 @@ class DashboardController extends BaseController
             return view('dashboard.university', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes'));
         }
     }
-
     public function getEvents()
     {
         $auth = Auth::user();
@@ -245,9 +247,6 @@ class DashboardController extends BaseController
         // 5. Final trim
         return trim($cleanText);
     }
-
-
-    
 
 
     public function getUser()

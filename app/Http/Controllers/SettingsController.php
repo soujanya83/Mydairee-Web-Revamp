@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Models\User; 
-use App\Models\Center; 
-use App\Models\Usercenter; 
-use App\Models\Child; 
-use App\Models\Childparent; 
+use App\Models\User; // Add this at the top if not already added
+use App\Models\Center; // Add this at the top if not already added
+use App\Models\Usercenter; // Add this at the top if not already added
+use App\Models\Child; // Add this at the top if not already added
+use App\Models\Childparent; // Add this at the top if not already added
 use App\Models\Permission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -92,7 +92,6 @@ class SettingsController extends Controller
         ]);
     }
 
-    
     public function filterStaffByName(Request $request)
     {
         $request->validate([
