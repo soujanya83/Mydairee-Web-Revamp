@@ -157,9 +157,9 @@
                                 <button class="btn btn-sm theme-edit-btn" onclick="openEditSuperadminModal({{ $admin->id }})">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $admin->id }})">
+                                {{-- <button class="btn btn-sm btn-danger ml-2" onclick="deleteSuperadmin({{ $admin->id }})">
                                     <i class="fa-solid fa-trash"></i>
-                                </button>
+                                </button> --}}
                             </div>
                         </div>
                     </div>

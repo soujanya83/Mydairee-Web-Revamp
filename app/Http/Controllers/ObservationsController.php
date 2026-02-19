@@ -2592,157 +2592,259 @@ Observation:
 
 
 
-    public function snapshotstore(Request $request)
+  public function snapshotstore(Request $request)
+{
+    Log::info('STEP 1: snapshotstore API HIT');
 
-    {
-        Log::info('snapshotstore request', [
-            'all' => $request->all(),
-            'title' => $request->input('title'),
-            'about' => $request->input('about'),
-            'publishIntent' => $request->input('publishIntent'),
-        ]);
-        $uploadMaxSize = min(
-            $this->convertToBytes(ini_get('upload_max_filesize')),
-            $this->convertToBytes(ini_get('post_max_size'))
-        );
+    Log::info('STEP 2: Request Data', [
+        'all' => $request->all(),
+        'files' => $request->file('media'),
+    ]);
 
+    $uploadMaxSize = min(
+        $this->convertToBytes(ini_get('upload_max_filesize')),
+        $this->convertToBytes(ini_get('post_max_size'))
+    );
 
-        $isEdit = $request->filled('id');
-        // Determine status from publishIntent (default to Draft if not set)
-        $status = $request->input('publishIntent', 'Draft');
+    Log::info('STEP 3: Upload Max Size', ['size_bytes' => $uploadMaxSize]);
 
-        // Validation rules
+    $isEdit = $request->filled('id');
+    $status = $request->input('publishIntent', 'Draft');
 
-        $rules = [
-            'selected_rooms'    => 'required',
-            'title'             => 'required|string',
-            'about'             => 'required|string',
-            'selected_children' => 'required|string',
-            'selected_staff'    => 'required|string',
-        ];
+    Log::info('STEP 4: Mode Check', [
+        'is_edit' => $isEdit,
+        'status' => $status,
+        'snapshot_id' => $request->id
+    ]);
 
-        if (!$isEdit) {
-            $rules['media'] = 'required|array|min:1';
-        } else {
-            $rules['media'] = 'nullable|array';
-        }
+    if ($request->hasFile('media')) {
 
-        $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
+    foreach ($request->file('media') as $index => $file) {
 
-        $messages = [
-            'media.required' => 'At least one media file is required.',
-            'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
-        ];
+        if (!$file->isValid()) {
 
-        $validator = Validator::make($request->all(), $rules, $messages);
+            $errorCode = $file->getError();
+            $errorMsg = $file->getErrorMessage();
 
-        if ($validator->fails()) {
+            Log::error('FILE UPLOAD ERROR BEFORE VALIDATION', [
+                'index' => $index,
+                'error_code' => $errorCode,
+                'error_message' => $errorMsg,
+                'original_name' => $file->getClientOriginalName()
+            ]);
+
             return response()->json([
-                'status'  => false,
-                'message' => 'Validation failed',
-                'errors'  => $validator->errors(),
+                'status' => false,
+                'message' => 'File upload failed',
+                'error' => 'Image "' . $file->getClientOriginalName() . '" failed to upload.',
+                'reason' => $errorMsg
             ], 422);
         }
 
+        // Extra dimension validation (optional but pro)
+        if (Str::startsWith($file->getMimeType(), 'image')) {
 
-        $validated = $validator->validated();
+            [$width, $height] = getimagesize($file);
 
+            if ($width > 8000 || $height > 8000) {
 
-        DB::beginTransaction();
+                Log::error('IMAGE DIMENSION TOO LARGE', [
+                    'file' => $file->getClientOriginalName(),
+                    'width' => $width,
+                    'height' => $height
+                ]);
 
-        try {
-            $authId = Auth::user()->id;
-            $centerid = Session('user_center_id');
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Image too large',
+                    'error' => 'Image resolution too high',
+                    'reason' => 'Max allowed 8000x8000 px'
+                ], 422);
+            }
+        }
+    }
+}
 
+    // Validation
+    $rules = [
+        'selected_rooms'    => 'required',
+        'title'             => 'required|string',
+        'about'             => 'required|string',
+        'selected_children' => 'required|string',
+        'selected_staff'    => 'required|string',
+    ];
 
-            if ($isEdit) {
-                $snapshot = Snapshot::findOrFail($request->id);
-            } else {
-                $snapshot = Snapshot::create([
-                    'title'     => $validated['title'],
-                    'about'     => $validated['about'],
-                    'centerid'  => $centerid,
-                    'createdBy' => $authId,
-                    'educators' => $validated['selected_staff'],
-                    'status'    => $status,
+    if (!$isEdit) {
+        $rules['media'] = 'required|array|min:1';
+    } else {
+        $rules['media'] = 'nullable|array';
+    }
+
+$rules['media.*'] = "file|mimetypes:image/jpeg,image/png,image/jpg,image/webp,video/mp4|max:" . intval($uploadMaxSize / 1024);
+
+    Log::info('STEP 5: Validation rules ready');
+
+    $validator = Validator::make($request->all(), $rules);
+
+    if ($validator->fails()) {
+        Log::error('STEP 6: Validation Failed', [
+            'errors' => $validator->errors()
+        ]);
+
+        return response()->json([
+            'status'  => false,
+            'message' => 'Validation failed',
+            'errors'  => $validator->errors(),
+        ], 422);
+    }
+
+    Log::info('STEP 7: Validation Passed');
+
+    $validated = $validator->validated();
+
+    DB::beginTransaction();
+    Log::info('STEP 8: DB Transaction Started');
+
+    try {
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+        Log::info('STEP 9: Auth + Center', [
+            'auth_id' => $authId,
+            'center_id' => $centerid
+        ]);
+
+        if ($isEdit) {
+            Log::info('STEP 10: Edit Mode - fetching snapshot');
+            $snapshot = Snapshot::findOrFail($request->id);
+        } else {
+            Log::info('STEP 10: Create Mode - creating snapshot');
+
+            $snapshot = Snapshot::create([
+                'title'     => $validated['title'],
+                'about'     => $validated['about'],
+                'centerid'  => $centerid,
+                'createdBy' => $authId,
+                'educators' => $validated['selected_staff'],
+                'status'    => $status,
+            ]);
+        }
+
+        Log::info('STEP 11: Snapshot Created/Found', [
+            'snapshot_id' => $snapshot->id
+        ]);
+
+        // update snapshot
+        $snapshot->roomids   = $validated['selected_rooms'];
+        $snapshot->title     = $validated['title'];
+        $snapshot->about     = $validated['about'];
+        $snapshot->centerid  = $centerid;
+        $snapshot->createdBy = $authId;
+        $snapshot->educators = $validated['selected_staff'];
+        $snapshot->status    = $status;
+        $snapshot->save();
+
+        Log::info('STEP 12: Snapshot Updated');
+
+        $snapshotId = $snapshot->id;
+
+        // children replace
+        Log::info('STEP 13: Deleting old children');
+        SnapshotChild::where('snapshotid', $snapshotId)->delete();
+
+        $selectedChildren = explode(',', $validated['selected_children']);
+        Log::info('STEP 14: Adding children', ['children' => $selectedChildren]);
+
+        foreach ($selectedChildren as $childId) {
+            if (trim($childId) !== '') {
+                SnapshotChild::create([
+                    'snapshotid' => $snapshotId,
+                    'childid'    => trim($childId),
                 ]);
             }
+        }
 
-            // Update roomids after creation if new snapshot
-            if (!$isEdit) {
-                $snapshot->roomids = $validated['selected_rooms'];
-                $snapshot->save();
-            } else {
-                $snapshot->roomids   = $validated['selected_rooms'];
-                $snapshot->title     = $validated['title'];
-                $snapshot->about     = $validated['about'];
-                $snapshot->centerid  = $centerid;
-                $snapshot->createdBy = $authId;
-                $snapshot->educators = $validated['selected_staff'];
-                $snapshot->status    = $status;
-                $snapshot->save();
+        Log::info('STEP 15: Children inserted');
+
+        // media upload
+        if ($request->hasFile('media')) {
+
+            Log::info('STEP 16: Media upload started');
+
+            $manager = new ImageManager(new GdDriver());
+            $destinationPath = public_path('uploads/Snapshots');
+
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+                Log::info('STEP 17: Folder created', ['path' => $destinationPath]);
             }
 
-            $snapshotId = $snapshot->id;
+            foreach ($request->file('media') as $file) {
 
-            // Replace children
-            SnapshotChild::where('snapshotid', $snapshotId)->delete();
-            $selectedChildren = explode(',', $validated['selected_children']);
-            foreach ($selectedChildren as $childId) {
-                if (trim($childId) !== '') {
-                    SnapshotChild::create([
+                Log::info('STEP 18: Processing file', [
+                    'name' => $file->getClientOriginalName(),
+                    'size' => $file->getSize(),
+                    'mime' => $file->getMimeType()
+                ]);
+
+                if ($file->isValid()) {
+
+                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+                    if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
+                        Log::info('STEP 19: Compressing image');
+
+                        $image = $manager->read($file->getPathname());
+                        $image->scale(1920);
+                        $image->save($destinationPath . '/' . $filename, 75);
+                    } else {
+                        Log::info('STEP 19: Moving file without compression');
+                        $file->move($destinationPath, $filename);
+                    }
+
+                    SnapshotMedia::create([
                         'snapshotid' => $snapshotId,
-                        'childid'    => trim($childId),
+                        'mediaUrl'   => 'uploads/Snapshots/' . $filename,
+                        'mediaType'  => $file->getClientMimeType(),
+                    ]);
+
+                    Log::info('STEP 20: Media saved in DB', [
+                        'file' => $filename
                     ]);
                 }
             }
-
-            // Handle media
-            if ($request->hasFile('media')) {
-                $manager = new ImageManager(new GdDriver());
-                $destinationPath = public_path('uploads/Snapshots');
-
-                if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0777, true);
-                }
-
-                foreach ($request->file('media') as $file) {
-                    if ($file->isValid()) {
-                        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
-                        if (Str::startsWith($file->getMimeType(), 'image') && $file->getSize() > 1024 * 1024) {
-                            $image = $manager->read($file->getPathname());
-                            $image->scale(1920);
-                            $image->save($destinationPath . '/' . $filename, 75);
-                        } else {
-                            $file->move($destinationPath, $filename);
-                        }
-
-                        SnapshotMedia::create([
-                            'snapshotid' => $snapshotId,
-                            'mediaUrl'   => 'uploads/Snapshots/' . $filename,
-                            'mediaType'  => $file->getClientMimeType(),
-                        ]);
-                    }
-                }
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'status'  => true,
-                'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
-                'id'      => $snapshotId
-            ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status'  => false,
-                'message' => 'Something went wrong. Please try again later.',
-                'error'   => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+        } else {
+            Log::info('STEP 16: No media found in request');
         }
+
+        DB::commit();
+        Log::info('STEP 21: DB Commit Success');
+
+        return response()->json([
+            'status'  => true,
+            'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
+            'id'      => $snapshotId
+        ], 200);
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        Log::error('STEP ERROR: Exception occurred', [
+            'message' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => $e->getFile(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong.',
+            'error'   => config('app.debug') ? $e->getMessage() : null
+        ], 500);
     }
+}
+
 
 
     public function viewSnapShot($id)

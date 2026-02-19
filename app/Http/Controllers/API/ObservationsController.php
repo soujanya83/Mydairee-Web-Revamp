@@ -1742,6 +1742,7 @@ class ObservationsController extends Controller
                 if (!empty($snapshotid)) {
                     $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
                         ->whereIn('id', $snapshotid)
+                        ->where('status', "Published")
                         ->orderBy('id', 'desc')
                         ->get();
                 }
