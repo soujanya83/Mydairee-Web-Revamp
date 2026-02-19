@@ -43,3 +43,9 @@ horizon.log
 /storage/*
 !/storage/.gitkeep
 /routes/oldapi.php
+
+# Firebase credentials
+storage/app/firebase_credentials.json
+
+/public/uploads/*
+/storage/app/firebase_credentials.json

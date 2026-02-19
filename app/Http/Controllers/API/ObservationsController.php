@@ -1511,7 +1511,21 @@ class ObservationsController extends Controller
                 }
             }
 
+
             DB::commit();
+
+            // Send notification to all parents of the attached children ONLY if published
+            if (!empty($selectedChildren) && ($observation->status ?? null) === 'Published') {
+                $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                    $selectedChildren,
+                    'observation',
+                    $observationId,
+                    $authId,
+                    $service
+                );
+            }
+
 
             return response()->json([
                 'status' => true,
@@ -1882,7 +1896,7 @@ class ObservationsController extends Controller
       
 
         $validator = Validator::make($request->all(), $rules, $messages);
-  dd($validator);
+        dd($validator);
         if ($validator->fails()) {
             return response()->json([
                 'status'  => false,
@@ -1988,6 +2002,18 @@ class ObservationsController extends Controller
         }
 
         DB::commit();
+
+        // Send notification to all parents of the attached children ONLY if published
+        if (!empty($selectedChildren) && ($snapshot->status ?? null) === 'Published') {
+            $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+            \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                $selectedChildren,
+                'snapshot',
+                $snapshotId,
+                $authId,
+                $service
+            );
+        }
 
         return response()->json([
             'status'  => true,

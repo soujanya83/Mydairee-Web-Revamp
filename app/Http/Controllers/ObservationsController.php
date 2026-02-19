@@ -2445,9 +2445,9 @@ Observation:
             }
 
             return response()->json([
-                'status' => 'success',
+                'status'  => true,
                 'message' => $isEdit ? 'Observation updated successfully.' : 'Observation saved successfully.',
-                'id' => $observationId
+                'id'      => $observationId
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

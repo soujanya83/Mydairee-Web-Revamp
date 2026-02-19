@@ -385,13 +385,13 @@ public function print(Request $request)
                     }
 
                     $mime = $file->getClientMimeType();
-$type = 'File'; // default fallback
+                $type = 'File'; // default fallback
 
-if (Str::startsWith($mime, 'image/')) {
-    $type = 'Image';
-} elseif (Str::startsWith($mime, 'video/')) {
-    $type = 'Video';
-}
+                if (Str::startsWith($mime, 'image/')) {
+                    $type = 'Image';
+                } elseif (Str::startsWith($mime, 'video/')) {
+                    $type = 'Video';
+                }
 
 
                     ReflectionMedia::create([
@@ -404,6 +404,18 @@ if (Str::startsWith($mime, 'image/')) {
         }
 
         DB::commit();
+
+        // Send notification to all parents of the attached children ONLY if published
+        if (!empty($childIds) && ($reflection->status ?? null) === 'Published') {
+            $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+            \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                $childIds,
+                'reflection',
+                $reflectionId,
+                $authId,
+                $service
+            );
+        }
 
         return response()->json([
             'status'  => 'success',
