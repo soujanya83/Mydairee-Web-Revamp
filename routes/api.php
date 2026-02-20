@@ -329,19 +329,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
-// Route::get('/test-parent-notification', function () {
-//     $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
-//     $childIds = [230]; // Replace with real test child IDs
-//     $moduleType = 'observation'; // or 'reflection', 'diary', etc.
-//     $moduleId = 123; // Replace with a real module record ID
-//     $createdBy = 1; // Replace with the user id who created the record
-//     $results = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
-//         $childIds,
-//         $moduleType,
-//         $moduleId,
-//         $createdBy,
-//         $service
-//     );
-//     return $results;
-// });
+Route::get('/test-parent-notification', function () {
+    $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+    $childIds = [230]; // Replace with real test child IDs
+    $moduleType = 'observation'; // or 'reflection', 'diary', etc.
+    $moduleId = 1381; // Replace with a real module record ID
+    $createdBy = 1; // Replace with the user id who created the record
+    $results = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+        $childIds,
+        $moduleType,
+        $moduleId,
+        $createdBy,
+        $service
+    );
+    return $results;
+});
 });
