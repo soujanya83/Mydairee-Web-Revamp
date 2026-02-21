@@ -920,6 +920,33 @@ class ObservationsController extends Controller
         $observation->status = $validated['status'];
         $observation->save();
 
+        // Only send notification if status is set to Published (case-insensitive)
+        if (strtolower($observation->status) === 'published') {
+            // Get all children attached to this observation
+            $selectedChildren = \App\Models\ObservationChild::where('observationId', $observation->id)->pluck('childId')->toArray();
+            $authId = $observation->userId;
+            // Push notification (deep linking)
+            $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+            \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                $selectedChildren,
+                'observation',
+                $observation->id,
+                $authId,
+                $service
+            );
+            // Laravel notification (database/email)
+            foreach ($selectedChildren as $childId) {
+                $parentRelations = \App\Models\Childparent::where('childid', $childId)->get();
+                foreach ($parentRelations as $relation) {
+                    $parentUser = \App\Models\User::find($relation->parentid);
+                    if ($parentUser) {
+                        $parentUser->notify(new \App\Notifications\ObservationAdded($observation));
+                    }
+                }
+            }
+        }
+
+
         return response()->json([
             'status'  => true,
             'message' => 'Observation status updated successfully.',
@@ -1514,17 +1541,31 @@ class ObservationsController extends Controller
 
             DB::commit();
 
+            // Debug log for notification trigger
+            // Log::info('[Observation Store] Notification check', [
+            //     'observation_id' => $observationId,
+            //     'status' => $observation->status,
+            //     'request_status' => $request->input('status'),
+            //     'selectedChildren' => $selectedChildren,
+            //     'authId' => $authId,
+            // ]);
+
             // Send notification to all parents of the attached children ONLY if published
-            if (!empty($selectedChildren) && ($observation->status ?? null) === 'Published') {
-                $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
-                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
-                    $selectedChildren,
-                    'observation',
-                    $observationId,
-                    $authId,
-                    $service
-                );
-            }
+            // if (!empty($selectedChildren) && ($observation->status ?? null) === 'Published') {
+            //     Log::info('[Observation Store] Sending notification to parents', [
+            //         'observation_id' => $observationId,
+            //         'status' => $observation->status,
+            //         'selectedChildren' => $selectedChildren,
+            //     ]);
+            //     $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+            //     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+            //         $selectedChildren,
+            //         'observation',
+            //         $observationId,
+            //         $authId,
+            //         $service
+            //     );
+            // }
 
 
             return response()->json([

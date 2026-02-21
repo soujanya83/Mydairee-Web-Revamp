@@ -270,9 +270,9 @@
 </style>
 @section('content')
 
-@if(!empty($permissions['updateObservation']) && $permissions['updateObservation'])
+@if(!empty($permissions['updateObservation']) && $permissions['updateObservation'] || auth()->user()->userType === 'Superadmin')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
+    style="margin-right: 20px;margin-top: -50px;margin-bottom:30px;">
     <button type="button" class="btn btn-success shadow-lg btn-animated mr-2"
         onclick="window.location.href='{{ route('observation.addnew.optional', ['id' => $observation->id]) }}'">
         <i class="fas fa-edit mr-1"></i> Edit

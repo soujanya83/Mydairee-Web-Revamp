@@ -406,7 +406,7 @@ public function print(Request $request)
         DB::commit();
 
         // Send notification to all parents of the attached children ONLY if published
-        if (!empty($childIds) && ($reflection->status ?? null) === 'Published') {
+        if (!empty($selectedChildren) && $reflection->status === 'PUBLISHED')  {
             $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
             \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                 $childIds,

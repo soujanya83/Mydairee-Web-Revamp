@@ -245,8 +245,8 @@ public function autosavereflection(Request $request)
 }
 
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
+    
         // dd('here');
         //    dd($request->all());
 
@@ -387,7 +387,42 @@ public function autosavereflection(Request $request)
             DB::commit();
             // $user = User::find(1); // You can loop over multiple users too
             // $user->notify(new ReflectionAdded($reflection));
+ 
+               // Debug log for notification trigger
+            // Log::info('[Reflection Store] Notification check', [
+            //     'reflection_id' => $reflectionId,
+            //     'status' => $reflection->status,
+            //     'request_status' => $request->input('status'),
+            //     'selectedChildren' => $selectedChildren,
+            //     'authId' => $authId,
+            // ]);
 
+                            // Log the actual status value for debugging
+                // Log::info('[Reflection Store] Reflection status value', [
+                    
+                //     'status' => $reflection->status,
+                //     'request_status' => $request->input('status'),
+                // ]);
+
+
+            // Only send notifications if status is Published
+            if (!empty($selectedChildren) && $reflection->status === 'PUBLISHED') {
+                // Log::info('[Reflection Store] Sending notification to parents', [
+                //     'reflection_id' => $reflectionId,
+                //     'status' => $reflection->status,
+                //     'selectedChildren' => $selectedChildren,
+                // ]);
+                // Push notification to parents (FCM)
+                $childIds = array_map('trim', $selectedChildren);
+                $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                    $childIds,
+                    'reflection',
+                    $reflectionId,
+                    $authId,
+                    $service
+                );
+            }
 
             $selectedChildren = explode(',', $request->input('selected_children'));
 

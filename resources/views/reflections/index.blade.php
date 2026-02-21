@@ -715,7 +715,7 @@
 
                     {{-- Action Buttons --}}
                     <div class="card-actions">
-                        @if(!empty($permissions['updateReflection']) && $permissions['updateReflection'])
+                        @if(!empty($permissions['updateReflection']) && $permissions['updateReflection'] || Auth::user()->userType == 'Superadmin')
 
                         <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}"
                             class="btn btn-edit btn-action">

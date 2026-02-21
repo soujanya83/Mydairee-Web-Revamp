@@ -23,6 +23,9 @@ class DeviceController extends Controller
      * @param string $title
      * @param string $body
      * @param array $data
+     * @param string $moduleType (e.g., 'observation', 'reflection', 'snapshot', 'diary')
+     * @param int $moduleId (ID of the created module record)
+     * @param int|null $createdBy (optional, user ID who created the record)
      * @param \App\Services\Firebase\FirebaseNotificationService $service
      * @return array
      */
@@ -178,16 +181,7 @@ class DeviceController extends Controller
         return $notified;
     }
 
-    /**
-     * Send module-specific notification to all parents of given children.
-     *
-     * @param array $childIds
-     * @param string $moduleType (e.g., 'observation', 'reflection', 'snapshot', 'diary')
-     * @param int $moduleId (ID of the created module record)
-     * @param int|null $createdBy (optional, user ID who created the record)
-     * @param \App\Services\Firebase\FirebaseNotificationService $service
-     * @return array
-     */
+
     public static function notifyParentsModuleCreated(array $childIds, string $moduleType, int $moduleId, $createdBy, \App\Services\Firebase\FirebaseNotificationService $service, $section = null)
     {
         // Module-specific titles and bodies
