@@ -878,14 +878,14 @@ $children = Child::whereIn('id', $childIds)
                 foreach ($request->child_ids as $childId) {
                     $moduleId = $diaryIds[$childId] ?? 0;
                     $data = [
-                        'date' => $request->date
-                    ];
-                    \Log::info('[PushNotificationPayload] DailyDiaryBreakfast', [
-                        'child_id' => $childId,
+                        'type' => 'diary',
                         'module_id' => $moduleId,
-                        'date' => $request->date,
-                        'payload' => $data
-                    ]);
+                        'child_ids' => [$childId],
+                        'module_date' => $request->date,
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryBreakfast'
+                    ];
+                    \Log::info('[PushNotificationPayload] DailyDiaryBreakfast', $data);
                     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -979,14 +979,14 @@ $children = Child::whereIn('id', $childIds)
                 foreach ($request->child_ids as $childId) {
                     $moduleId = $diaryIds[$childId] ?? 0;
                     $data = [
-                        'date' => $request->date
-                    ];
-                    \Log::info('[PushNotificationPayload] DailyDiaryLunch', [
-                        'child_id' => $childId,
+                        'type' => 'diary',
                         'module_id' => $moduleId,
-                        'date' => $request->date,
-                        'payload' => $data
-                    ]);
+                        'child_ids' => [$childId],
+                        'module_date' => $request->date,
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryLunch'
+                    ];
+                    \Log::info('[PushNotificationPayload] DailyDiaryLunch', $data);
                     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -1076,14 +1076,14 @@ $children = Child::whereIn('id', $childIds)
                 foreach ($request->child_ids as $childId) {
                     $moduleId = $diaryIds[$childId] ?? 0;
                     $data = [
-                        'date' => $request->date
-                    ];
-                    \Log::info('[PushNotificationPayload] DailyDiaryMorningTea', [
-                        'child_id' => $childId,
+                        'type' => 'diary',
                         'module_id' => $moduleId,
-                        'date' => $request->date,
-                        'payload' => $data
-                    ]);
+                        'child_ids' => [$childId],
+                        'module_date' => $request->date,
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryMorningTea'
+                    ];
+                    \Log::info('[PushNotificationPayload] DailyDiaryMorningTea', $data);
                     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -1181,14 +1181,14 @@ $children = Child::whereIn('id', $childIds)
                 foreach ($request->child_ids as $childId) {
                     $moduleId = $diaryIds[$childId] ?? 0;
                     $data = [
-                        'date' => $request->date
-                    ];
-                    \Log::info('[PushNotificationPayload] DailyDiarySleep', [
-                        'child_id' => $childId,
+                        'type' => 'diary',
                         'module_id' => $moduleId,
-                        'date' => $request->date,
-                        'payload' => $data
-                    ]);
+                        'child_ids' => [$childId],
+                        'module_date' => $request->date,
+                        'created_by' => $authId,
+                        'section' => 'DailyDiarySleep'
+                    ];
+                    \Log::info('[PushNotificationPayload] DailyDiarySleep', $data);
                     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -1277,8 +1277,13 @@ $children = Child::whereIn('id', $childIds)
                 foreach ($request->child_ids as $childId) {
                     $moduleId = $diaryIds[$childId] ?? 0;
                     $data = [
-                        'date' => $request->date
-                    ]; // extra data for deep link
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => $request->date,
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryAfternoonTea'
+                    ];
                     $notified[] = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -1371,8 +1376,13 @@ $children = Child::whereIn('id', $childIds)
                 foreach ($request->child_ids as $childId) {
                     $moduleId = $diaryIds[$childId] ?? 0;
                     $data = [
-                        'date' => $request->date
-                    ]; // extra data for deep link
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => $request->date,
+                        'created_by' => $authId,
+                        'section' => 'DailyDiarySnacks'
+                    ];
                     $notified[] = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -1464,8 +1474,13 @@ $children = Child::whereIn('id', $childIds)
                 foreach ($request->child_ids as $childId) {
                     $moduleId = $diaryIds[$childId] ?? 0;
                     $data = [
-                        'date' => $request->date
-                    ]; // extra data for deep link
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => $request->date,
+                        'created_by' => $authId,
+                        'section' => 'DailyDiarySunscreen'
+                    ];
                     $notified[] = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -1559,8 +1574,13 @@ $children = Child::whereIn('id', $childIds)
                 foreach ($request->child_ids as $childId) {
                     $moduleId = $diaryIds[$childId] ?? 0;
                     $data = [
-                        'date' => $request->date
-                    ]; // extra data for deep link
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => $request->date,
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryToileting'
+                    ];
                     $notified[] = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -1648,8 +1668,13 @@ $children = Child::whereIn('id', $childIds)
                 foreach ($request->child_ids as $childId) {
                     $moduleId = $diaryIds[$childId] ?? 0;
                     $data = [
-                        'date' => $request->date
-                    ]; // extra data for deep link
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => $request->date,
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryBottle'
+                    ];
                     $notified[] = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
