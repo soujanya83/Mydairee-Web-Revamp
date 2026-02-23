@@ -175,10 +175,10 @@
                 </div>
             </div>
         </div>
-        @if(!empty($permissions['addRoom']) && $permissions['addRoom'])
+        @if(!empty($permissions['addRoom']) && $permissions['addRoom'] || Auth::user()->userType == 'Superadmin')
 
         <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#roomModal"
-            style="height: 36px;">
+            style="height: 36px; margin-right">
             Create Room
         </button>
         @endif
@@ -189,7 +189,7 @@
     <form method="POST" action="{{ route('rooms.bulk_delete') }}" id="deleteRoomsForm">
         @csrf
         @method('DELETE')
-        @if(!empty($permissions['deleteRoom']) && $permissions['deleteRoom'])
+        @if(!empty($permissions['deleteRoom']) && $permissions['deleteRoom'] || Auth::user()->userType == 'Superadmin')
 
         <div class="d-flex flex-row d-flex justify-content-end mb-3">
 <div class="d-flex justify-content-end mb-3 mx-2">

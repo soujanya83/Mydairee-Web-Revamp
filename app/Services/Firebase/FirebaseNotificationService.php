@@ -54,7 +54,7 @@ class FirebaseNotificationService
                         'title' => $title,
                         'body' => $body,
                     ],
-                    'data' => $data,
+                    'data' => $this->stringifyData($data),
                 ],
             ];
 
@@ -67,6 +67,7 @@ class FirebaseNotificationService
             // 3. Compose FCM endpoint URL
             $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
 
+        Log::info('Final FCM Payload', $payload);
             // 6. Send POST request to FCM
             $response = Http::withHeaders($headers)->post($url, $payload);
 
@@ -99,5 +100,17 @@ class FirebaseNotificationService
                 'message' => 'Exception: ' . $e->getMessage(),
             ], 500);
         }
+    }
+    private function stringifyData(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value) || is_object($value)) {
+                $data[$key] = json_encode($value);
+            } else {
+                $data[$key] = (string) $value;
+            }
+        }
+
+        return $data;
     }
 }

@@ -736,7 +736,7 @@
                         @endif
 
 
-                        @if(!empty($permissions['deleteReflection']) && $permissions['deleteReflection'])
+                        @if(!empty($permissions['deleteReflection']) && $permissions['deleteReflection'] || Auth::user()->userType == 'Superadmin')
 
                         <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
                             <i class="fas fa-trash-alt"></i> Delete

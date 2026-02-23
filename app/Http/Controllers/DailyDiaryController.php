@@ -881,11 +881,10 @@ $children = Child::whereIn('id', $childIds)
                         'type' => 'diary',
                         'module_id' => $moduleId,
                         'child_ids' => [$childId],
-                        'module_date' => $request->date,
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
                         'created_by' => $authId,
                         'section' => 'DailyDiaryBreakfast'
                     ];
-                    \Log::info('[PushNotificationPayload] DailyDiaryBreakfast', $data);
                     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -982,11 +981,10 @@ $children = Child::whereIn('id', $childIds)
                         'type' => 'diary',
                         'module_id' => $moduleId,
                         'child_ids' => [$childId],
-                        'module_date' => $request->date,
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
                         'created_by' => $authId,
                         'section' => 'DailyDiaryLunch'
                     ];
-                    \Log::info('[PushNotificationPayload] DailyDiaryLunch', $data);
                     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -1079,11 +1077,10 @@ $children = Child::whereIn('id', $childIds)
                         'type' => 'diary',
                         'module_id' => $moduleId,
                         'child_ids' => [$childId],
-                        'module_date' => $request->date,
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
                         'created_by' => $authId,
                         'section' => 'DailyDiaryMorningTea'
                     ];
-                    \Log::info('[PushNotificationPayload] DailyDiaryMorningTea', $data);
                     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -1184,11 +1181,10 @@ $children = Child::whereIn('id', $childIds)
                         'type' => 'diary',
                         'module_id' => $moduleId,
                         'child_ids' => [$childId],
-                        'module_date' => $request->date,
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
                         'created_by' => $authId,
                         'section' => 'DailyDiarySleep'
                     ];
-                    \Log::info('[PushNotificationPayload] DailyDiarySleep', $data);
                     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                         [$childId],
                         'diary',
@@ -1218,6 +1214,7 @@ $children = Child::whereIn('id', $childIds)
 
 
     public function storeAfternoonTea(Request $request)
+  
     {
         // Validate the request
         $validated = $request->validate([
@@ -1280,7 +1277,7 @@ $children = Child::whereIn('id', $childIds)
                         'type' => 'diary',
                         'module_id' => $moduleId,
                         'child_ids' => [$childId],
-                        'module_date' => $request->date,
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
                         'created_by' => $authId,
                         'section' => 'DailyDiaryAfternoonTea'
                     ];
@@ -1294,12 +1291,6 @@ $children = Child::whereIn('id', $childIds)
                         $data
                     );
                 }
-                \Log::info('[PushNotification] DailyDiaryAfternoonTea', [
-                    'child_ids' => $request->child_ids,
-                    'authId' => $authId,
-                    'notified' => $notified,
-                    'request' => $request->all(),
-                ]);
             }
 
             return response()->json([
@@ -1321,6 +1312,7 @@ $children = Child::whereIn('id', $childIds)
 
 
     public function storeSnacks(Request $request)
+        
     {
         $validated = $request->validate([
             'date' => 'required|date',
@@ -1379,7 +1371,7 @@ $children = Child::whereIn('id', $childIds)
                         'type' => 'diary',
                         'module_id' => $moduleId,
                         'child_ids' => [$childId],
-                        'module_date' => $request->date,
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
                         'created_by' => $authId,
                         'section' => 'DailyDiarySnacks'
                     ];
@@ -1393,12 +1385,6 @@ $children = Child::whereIn('id', $childIds)
                         $data
                     );
                 }
-                \Log::info('[PushNotification] DailyDiarySnacks', [
-                    'child_ids' => $request->child_ids,
-                    'authId' => $authId,
-                    'notified' => $notified,
-                    'request' => $request->all(),
-                ]);
             }
             return response()->json([
                 'status' => 'success',
@@ -1419,6 +1405,7 @@ $children = Child::whereIn('id', $childIds)
 
 
     public function storeSunscreen(Request $request)
+
     {
         $validated = $request->validate([
             'date' => 'required|date',
@@ -1477,7 +1464,7 @@ $children = Child::whereIn('id', $childIds)
                         'type' => 'diary',
                         'module_id' => $moduleId,
                         'child_ids' => [$childId],
-                        'module_date' => $request->date,
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
                         'created_by' => $authId,
                         'section' => 'DailyDiarySunscreen'
                     ];
@@ -1491,12 +1478,6 @@ $children = Child::whereIn('id', $childIds)
                         $data
                     );
                 }
-                \Log::info('[PushNotification] DailyDiarySunscreen', [
-                    'child_ids' => $request->child_ids,
-                    'authId' => $authId,
-                    'notified' => $notified,
-                    'request' => $request->all(),
-                ]);
             }
             return response()->json([
                 'status' => 'success',
@@ -1516,6 +1497,7 @@ $children = Child::whereIn('id', $childIds)
 
 
     public function storeToileting(Request $request)
+
     {
         $validated = $request->validate([
             'date' => 'required|date',
@@ -1577,7 +1559,7 @@ $children = Child::whereIn('id', $childIds)
                         'type' => 'diary',
                         'module_id' => $moduleId,
                         'child_ids' => [$childId],
-                        'module_date' => $request->date,
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
                         'created_by' => $authId,
                         'section' => 'DailyDiaryToileting'
                     ];
@@ -1591,12 +1573,6 @@ $children = Child::whereIn('id', $childIds)
                         $data
                     );
                 }
-                \Log::info('[PushNotification] DailyDiaryToileting', [
-                    'child_ids' => $request->child_ids,
-                    'authId' => $authId,
-                    'notified' => $notified,
-                    'request' => $request->all(),
-                ]);
             }
             return response()->json([
                 'status' => 'success',
@@ -1615,6 +1591,7 @@ $children = Child::whereIn('id', $childIds)
 
 
     public function storeBottle(Request $request)
+
     {
         $validated = $request->validate([
             'date' => 'required|date',
@@ -1671,7 +1648,7 @@ $children = Child::whereIn('id', $childIds)
                         'type' => 'diary',
                         'module_id' => $moduleId,
                         'child_ids' => [$childId],
-                        'module_date' => $request->date,
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
                         'created_by' => $authId,
                         'section' => 'DailyDiaryBottle'
                     ];
@@ -1685,12 +1662,6 @@ $children = Child::whereIn('id', $childIds)
                         $data
                     );
                 }
-                \Log::info('[PushNotification] DailyDiaryBottle', [
-                    'child_ids' => $request->child_ids,
-                    'authId' => $authId,
-                    'notified' => $notified,
-                    'request' => $request->all(),
-                ]);
             }
             return response()->json([
                 'status' => 'success',

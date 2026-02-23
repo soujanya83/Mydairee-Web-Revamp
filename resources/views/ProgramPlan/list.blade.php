@@ -730,61 +730,78 @@
         <a href="{{ route('observation.activity-list') }}" class="btn theme-outline-btn btn-lg top-right-button"
             style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">Activities</a>
         @endif
-
-        @if($userType != 'Parent')
-        @if(!empty($permissions['addProgramPlan']) && $permissions['addProgramPlan']  || Auth::user()->userType == "Superadmin")
-
-        <a href="{{ route('create.programplan', ['centerid' => $centerId]) }}" class="btn theme-outline-btn"
-            style="margin-left:5px; background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
-            Add ProgramPlan
-        </a>
-
-        @endif
-        @endif
     </div>
 
 </div>
 
-<hr class="mt-3">
+<hr class="mt-2">
 <!-- filter  -->
 @if(Auth::user()->userType != 'Parent')
-<div class="col-6 d-flex justify-content-start align-items-center top-right-button-container">
-    <i class="fas fa-filter mx-2" style="color: var(--sd-accent, #17a2b8);"></i>
-    <select name="filter" onchange="showfilter(this.value)"
-        class="form-control form-control-sm theme-input uniform-input col-3"
-        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
-        <option value="">Choose</option>
-        <option value="roomname">Room Name</option>
-        <option value="createdby">Created By</option>
-        <option value="status">Status</option>
-    </select>
-    <input
-        type="text"
-        name="filterbyCentername"
-        class="form-control theme-input ml-2"
-        id="FilterbyRoomName"
-        placeholder="Filter by Room name"
-        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);"
-        onkeyup="filterProgramPlan()">
 
-    <input
-        type="text"
-        name="filterbyCentername"
-        class="form-control theme-input mx-2"
-        id="FilterbyCreatedBy"
-        placeholder="Filter by Created by"
-        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);"
-        onkeyup="filterProgramPlan()">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
 
-    <input
-        type="text"
-        name="filterbyCentername"
-        class="form-control theme-input mx-2"
-        id="FilterbyStatus"
-        placeholder="Filter by Status"
-        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);"
-        onkeyup="filterProgramPlan()">
-</div>
+        <!-- LEFT SIDE (Filters) -->
+        <div class="d-flex align-items-center">
+
+            <i class="fas fa-filter mx-2"
+                style="color: var(--sd-accent, #17a2b8);"></i>
+
+            <select name="filter" onchange="showfilter(this.value)"
+                class="form-control form-control-sm theme-input uniform-input mx-2"
+                style="width:150px; background: var(--sd-bg, #fff); 
+                    color: var(--sd-accent, #007bff); 
+                    border: 2px solid var(--sd-accent, #007bff);">
+                <option value="">Choose</option>
+                <option value="roomname">Room Name</option>
+                <option value="createdby">Created By</option>
+                <option value="status">Status</option>
+            </select>
+
+            <input type="text"
+                id="FilterbyRoomName"
+                class="form-control mx-2"
+                placeholder="Filter by Room name"
+                style="width:180px; background: var(--sd-bg, #fff); 
+                    color: var(--sd-accent, #007bff); 
+                    border: 2px solid var(--sd-accent, #007bff);"
+                onkeyup="filterProgramPlan()">
+
+            <input type="text"
+                id="FilterbyCreatedBy"
+                class="form-control mx-2"
+                placeholder="Filter by Created by"
+                style="width:180px; background: var(--sd-bg, #fff); 
+                    color: var(--sd-accent, #007bff); 
+                    border: 2px solid var(--sd-accent, #007bff);"
+                onkeyup="filterProgramPlan()">
+
+            <input type="text"
+                id="FilterbyStatus"
+                class="form-control mx-2"
+                placeholder="Filter by Status"
+                style="width:180px; background: var(--sd-bg, #fff); 
+                    color: var(--sd-accent, #007bff); 
+                    border: 2px solid var(--sd-accent, #007bff);"
+                onkeyup="filterProgramPlan()">
+
+        </div>
+
+        <!-- RIGHT SIDE (Button) -->
+        @if(!empty($permissions['addProgramPlan']) && $permissions['addProgramPlan'] || Auth::user()->userType == "Superadmin")
+
+            <a href="{{ route('create.programplan', ['centerid' => $centerId]) }}"
+            class="btn theme-outline-btn"
+            style="background: var(--sd-bg, #fff); 
+                    color: var(--sd-accent, #007bff); 
+                    border: 2px solid var(--sd-accent, #007bff);
+                    margin-right: 50px;">
+                Add ProgramPlan
+            </a>
+
+        @endif
+
+    </div>
+
 @endif
 <!-- filter ends here  -->
 <!-- resources/views/program_plan_list.blade.php -->
