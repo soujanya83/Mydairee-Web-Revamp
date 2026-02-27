@@ -788,7 +788,9 @@
                     <span><i class="fas fa-calendar-alt"></i> Event</span>
                     <span><i class="fas fa-birthday-cake"></i> Birthday</span>
                     <span><i class="fas fa-umbrella-beach"></i> Holiday</span>
-                    <span><i class="fas fa-chalkboard-teacher"></i> PTM</span>
+              <!--      <span><i class="fas fa-chalkboard-teacher"></i> PTM</span> -->
+
+
                 </div>
             </div>
         </div>
@@ -830,9 +832,9 @@
                             <span>Daily Diary</span>
                         </a>
 
-                        <a href="{{ route('ptm.index') }}" class="sd-quick-link sd-quick-link-wide">
-                            <i class="fas fa-chalkboard-teacher"></i>
-                            <span>PTM</span>
+                        <a href="{{ route('snapshot.index') }}" class="sd-quick-link sd-quick-link-wide">
+                            <i class="icon-camera"></i>
+                            <span>Snapshots</span>
                         </a>
                     </div>
                 </div>
