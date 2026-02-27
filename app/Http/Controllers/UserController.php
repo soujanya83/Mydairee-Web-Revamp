@@ -24,7 +24,18 @@ class UserController extends Controller
 {
 
 
+    public function updateTheme(Request $request)
+    {
+        $request->validate([
+            'theme' => 'required|string'
+        ]);
 
+        $user = Auth::user();
+        $user->theme = $request->theme;
+        $user->save();
+
+        return response()->json(['success' => true]);
+    }
 
     public function store_center(Request $request)
     {
@@ -119,6 +130,7 @@ class UserController extends Controller
                 // If Superadmin
                 if ($user->userType === 'Superadmin') {
                     $centerstatus = $user->center_status == 1;
+                    
                     if ($centerstatus) {
                         $center = Usercenter::where('userid', $user->id)->first();
                         session(['user_center_id' => $center->centerid ?? null]);

@@ -56,8 +56,23 @@
     }
 </style>
 <style>
+    /* Theme accent for search button and magnifier */
+    .navbar-form.search-form .btn.btn-default {
+        border-color: var(--sd-accent, #6c757d);
+        color: var(--sd-accent, #6c757d);
+    }
+    .navbar-form.search-form .btn.btn-default i.icon-magnifier {
+        color: var(--sd-accent, #6c757d) !important;
+    }
+    .navbar-form.search-form .btn.btn-default:hover,
+    .navbar-form.search-form .btn.btn-default:focus {
+        background: var(--sd-accent, #0dcaf0);
+        color: #fff;
+        border-color: var(--sd-accent, #0dcaf0);
+    }
+
     .notification-bell {
-        background-color: #0dcaf0;
+        background-color: var(--sd-accent, #0dcaf0);
         border-radius: 6px;
         /* square look with slight rounding */
         color: white;
@@ -113,6 +128,8 @@
     .notification-bell:hover {
         transform: scale(1.1);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        background-color: var(--sd-accent, #0dcaf0) !important;
+        filter: brightness(0.85);
     }
 
 
@@ -131,7 +148,83 @@
         font-size: 22px !important;
     }
 </style>
+<style>
+    /* Hover/interactive effects for search and notification to imitate sidebar highlight */
+    .navbar-form.search-form {
+        transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-radius .18s ease;
+        border-radius: 8px;
+        padding: 6px;
+        background: transparent;
+    }
 
+    /* stronger rounded look on hover */
+    .navbar-form.search-form:hover,
+    .navbar-form.search-form.navbar-interactive {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        background: rgba(255,255,255,0.94);
+        border-radius: 12px; /* increased radius on hover */
+    }
+
+    .notification-bell {
+        transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-radius .18s ease;
+        border-radius: 6px; /* starting radius */
+    }
+
+    .notification-bell:hover,
+    .notification-bell.navbar-interactive {
+        transform: translateY(-2px) scale(1.06);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.14);
+        background-color: var(--sd-accent);
+        filter: brightness(0.92);
+        border-radius: 10px; /* slightly rounder on hover */
+    }
+
+    /* When hovered, give the left sidebar a subtle highlight so it feels connected, rounded and slightly slides inward */
+    #left-sidebar.sidebar-highlight {
+        box-shadow: 0 28px 80px rgba(15, 23, 42, 0.14);
+        transform: translateX(6px); /* slight slide/widen illusion */
+        transition: box-shadow .18s ease, transform .18s ease, border-radius .18s ease;
+        border-radius: 12px; /* visible rounded corners */
+        overflow: hidden; /* ensures children follow rounded corners */
+    }
+
+    /* small tweak for notification dropdown animation */
+    .notifications { transition: transform .18s ease, box-shadow .18s ease, border-radius .18s ease; }
+    .notifications.navbar-interactive { transform: translateY(6px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); border-radius: 10px; }
+
+        /* Profile link hover (user area) */
+        #userDropdown {
+            transition: transform .18s ease, box-shadow .18s ease, border-radius .18s ease;
+            border-radius: 8px;
+            padding: 4px 6px;
+        }
+        #userDropdown.navbar-interactive,
+        #userDropdown:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.96);
+        }
+        /* Profile dropdown item hover (options inside the dropdown) */
+        #userDropdownMenu .dropdown-item {
+            transition: transform .14s ease, box-shadow .14s ease, background-color .14s ease, border-radius .14s ease;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 4px;
+        }
+        #userDropdownMenu .dropdown-item:hover,
+        #userDropdownMenu .dropdown-item.navbar-interactive {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 22px rgba(0,0,0,0.10);
+            background: rgba(255,255,255,0.98);
+            border-radius: 10px;
+        }
+        /* Theme accent for icons inside user dropdown options */
+        #userDropdownMenu .dropdown-item i {
+            color: var(--sd-accent) !important;
+        }
+</style>
 <style>
     .theme-swatch {
         width: 15px;
@@ -180,6 +273,10 @@
         font-weight: bold;
     }
 </style>
+<<<<<<< HEAD
+
+=======
+>>>>>>> origin/main
 <nav class="navbar navbar-fixed-top" style="background-image: url('{{ asset('assets/img/doodleold.jpg') }}')">
     <div class="container-fluid">
         <div class="navbar-btn">
@@ -220,29 +317,29 @@
                         </a>
 
 
-                        <ul class="dropdown-menu notifications" style="background-color: aliceblue">
+                        <ul class="dropdown-menu notifications" style="background-color: aliceblue; min-height: 170px; max-height: 400px; overflow: auto; width: 400px;">
                             <li class="mb-2"><strong>You have {{ $notifications->count() }} new Notifications</strong>
                                 <a href="{{ route('notifications.markAllRead') }}"
                                     class="d-flex justify-content-between align-items-center"
-                                    style="margin-left:78%;color: rgb(67, 133, 204);margin-top:-36px">Mark as all read
+                                    style="margin-left:71%;color: rgb(67, 133, 204);margin-top:-36px">Mark as all read
                                 </a>
                             </li>
 
 
                             @forelse($notifications as $notification)
                             <a href="{{ $notification->data['url'] ?? '#' }}" class="notification-item"
-                                data-id="{{ $notification->id }}"
+                                data-id="{{ $notification->id }}" 
                                 onclick="markAsRead(event, '{{ $notification->id }}')">
                                 <div class="media">
 
                                     <div class="media-left">
                                         <i class="{{ $notification->data['icon'] ?? 'fa fa-bell' }} fa-2x"
-                                            style="color:green;font-size:25px "> </i>
+                                            style="color: var(--sd-accent, #0dcaf0); font-size:25px;"> </i>
                                     </div>
 
                                     <div class="media-body">
                                         <h6> &nbsp; {{ $notification->data['title'] ?? 'Notification' }}</h6>
-                                        {{-- <p class="text">{{ strip_tags($notification->data['message']) }}</p> --}}
+                                        {{--  <p class="text">{{ strip_tags($notification->data['objective']) }}</p>  --}}
 
                                         <span class="float-end text-muted">
                                             &nbsp; {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans()
@@ -263,7 +360,7 @@
                             @endforelse
 
                             <li class="footer"><a href="{{ route('notifications.all') }}" class="more"
-                                    style="margin-left:67%;">See all
+                                    style="margin-left:63%; margin-top:-5%;" >See all
                                     notifications</a></li>
                         </ul>
 
@@ -276,6 +373,7 @@
                                 class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
                             <span class="font-weight-bold" style="font-size: 15px;">
                                 &nbsp;&nbsp;{{ Str::limit(Auth::user()->name, 20) }}
+                                
                             </span>
                         </a>
 
@@ -310,35 +408,40 @@
                             <div class="tab-pane p-l-15 p-r-15" id="setting">
 
                                 <ul class="choose-skin list-unstyled">
-                                    <li data-theme="purple">
-                                        <div class="purple"></div>
-                                        <span>Purple</span>
-                                    </li>
-                                    <li data-theme="blue">
-                                        <div class="blue"></div>
-                                        <span>Blue</span>
-                                    </li>
-                                    <li data-theme="cyan" class="active">
-                                        <div class="cyan"></div>
-                                        <span>Cyan</span>
-                                    </li>
-                                    <li data-theme="green">
-                                        <div class="green"></div>
-                                        <span>Green</span>
-                                    </li>
-                                    <li data-theme="orange">
-                                        <div class="orange"></div>
-                                        <span>Orange</span>
-                                    </li>
-                                    <li data-theme="blush">
-                                        <div class="blush"></div>
-                                        <span>Blush</span>
-                                    </li>
-                                </ul>
+    <li data-theme="purple" class="{{ Auth::user()->theme === 'purple' ? 'active' : '' }}">
+        <div class="purple"></div>
+        <span>Purple</span>
+    </li>
+    <li data-theme="blue" class="{{ Auth::user()->theme === 'blue' ? 'active' : '' }}">
+        <div class="blue"></div>
+        <span>Blue</span>
+    </li>
+    <li data-theme="cyan" class="{{ Auth::user()->theme === 'cyan' ? 'active' : '' }}">
+        <div class="cyan"></div>
+        <span>Cyan</span>
+    </li>
+    <li data-theme="green" class="{{ Auth::user()->theme === 'green' ? 'active' : '' }}">
+        <div class="green"></div>
+        <span>Green</span>
+    </li>
+    <li data-theme="orange" class="{{ Auth::user()->theme === 'orange' ? 'active' : '' }}">
+        <div class="orange"></div>
+        <span>Orange</span>
+    </li>
+    <li data-theme="blush" class="{{ Auth::user()->theme === 'blush' ? 'active' : '' }}">
+        <div class="blush"></div>
+        <span>Blush</span>
+    </li>
+    <li data-theme="none" class="{{ Auth::user()->theme === 'none' ? 'active' : '' }}">
+        <div class="none"></div>
+        <span>No Theme</span>
+    </li>
+</ul>
+
                                 <hr>
                             </div>
                             <button onclick="closeThemeModal()"
-                                style="display: block; margin: 20px auto 0; padding: 10px 20px; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+                                style="display: block; margin: 0px auto 0; padding: 10px 20px; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Close</button>
                         </div>
                     </div>
 
@@ -449,14 +552,83 @@
         }
     });
 
-    // Handle theme selection (no background color logic here, assume existing code handles it)
     document.querySelectorAll('.choose-skin li').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const theme = this.getAttribute('data-theme'); // e.g. "blue"
 
-
-            closeThemeModal();
-
+        // 🔹 Save to database
+        fetch('{{ route("update.theme") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ theme })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // 🔹 Instantly apply new theme to body
+                if (theme === 'none') {
+                    // Remove all theme classes to show original design
+                    document.body.className = document.body.className.replace(/theme-\S+/g, '').trim();
+                } else {
+                    document.body.className = 'theme-' + theme;
+                }
+                closeThemeModal();
+            }
         });
     });
+});
+
+</script>
+<script>
+    // Attach hover handlers to create a sidebar-like visual effect when hovering search or notification
+    (function() {
+        try {
+            const leftSidebar = document.getElementById('left-sidebar');
+            const searchForm = document.getElementById('navbar-search');
+            const notifBell = document.querySelector('.notification-bell');
+            const notifDropdown = document.querySelector('.notifications');
+            const profileLink = document.getElementById('userDropdown');
+
+            function addInteractive(elem) {
+                if (!elem) return;
+                elem.addEventListener('mouseenter', function() {
+                    elem.classList.add('navbar-interactive');
+                    if (leftSidebar) leftSidebar.classList.add('sidebar-highlight');
+                    if (notifDropdown) notifDropdown.classList.add('navbar-interactive');
+                });
+                elem.addEventListener('mouseleave', function() {
+                    elem.classList.remove('navbar-interactive');
+                    if (leftSidebar) leftSidebar.classList.remove('sidebar-highlight');
+                    if (notifDropdown) notifDropdown.classList.remove('navbar-interactive');
+                });
+            }
+
+            addInteractive(searchForm);
+            addInteractive(notifBell);
+            // also add hover effect for user profile area
+            addInteractive(profileLink);
+            // add hover handlers for each option in the profile dropdown menu
+            const userMenu = document.getElementById('userDropdownMenu');
+            if (userMenu) {
+                const menuItems = userMenu.querySelectorAll('.dropdown-item');
+                menuItems.forEach(item => {
+                    item.addEventListener('mouseenter', function() {
+                        this.classList.add('navbar-interactive');
+                        if (leftSidebar) leftSidebar.classList.add('sidebar-highlight');
+                    });
+                    item.addEventListener('mouseleave', function() {
+                        this.classList.remove('navbar-interactive');
+                        if (leftSidebar) leftSidebar.classList.remove('sidebar-highlight');
+                    });
+                });
+            }
+        } catch (e) {
+            // fail silently to avoid breaking the page if elements are not present
+            console.warn('Navbar interactive hover script failed', e);
+        }
+    })();
 </script>

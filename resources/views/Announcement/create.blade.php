@@ -192,6 +192,50 @@
         display: none;
     }
 </style>
+<style>
+    :root {
+        --sd-accent: #0dcaf0;
+        --sd-accent-dark: #0995b1;
+        --sd-bg: #f8f9fa;
+        --sd-card-bg: #ffffff;
+        --sd-border: #e3e6ea;
+        --sd-label: #0a89a2ff;
+        --sd-btn: #0a89a2ff;
+        --sd-btn-hover: #0995b1ff;
+        --sd-success: #28a745;
+        --sd-danger: #dc3545;
+        --sd-warning: #ffc107;
+    }
+    .form-label, label, h4 {
+        color: var(--sd-label) !important;
+        font-weight: bold;
+    }
+    .form-control, .form-select {
+        border-color: var(--sd-accent) !important;
+        color: var(--sd-label) !important;
+        background: var(--sd-bg) !important;
+        font-weight: bold;
+    }
+    .input-group-text {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+    .media-upload-box {
+        border: 2px dashed var(--sd-accent) !important;
+        background-color: var(--sd-bg) !important;
+    }
+    .media-upload-box label {
+        border-color: var(--sd-accent) !important;
+        color: var(--sd-accent) !important;
+        font-weight: bold;
+    }
+    .announcement-card, .events-card, .public-holiday-card {
+        background: var(--sd-card-bg) !important;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        border: 1px solid var(--sd-border) !important;
+    }
+</style>
 @endsection
 
 @section('content')
@@ -1626,6 +1670,47 @@ $edit = 1;
 
 </script>
 
+<style>
+    /* Add theme background to Add Children button */
+    .btn-info[data-target="#selectChildrenModal"] {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+        border: 1px solid var(--sd-accent-dark) !important;
+        font-weight: bold;
+    }
+    /* Save and Cancel buttons */
+    .btn-save {
+        background-color: var(--sd-btn) !important;
+        color: #fff !important;
+        border: 2px solid var(--sd-accent) !important;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+        padding-inline: 5px;
+        font-weight: bold;
+    }
+    .btn-save:hover {
+        background-color: var(--sd-btn-hover) !important;
+        color: #fff !important;
+        border: 2px solid var(--sd-accent-dark) !important;
+    }
+    .btn-save-disabled {
+        background-color: #6c757d !important;
+        color: #fff !important;
+        border: 2px solid #6c757d !important;
+        font-size: 1.1rem;
+        border-radius: 0.5rem;
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+    /* Cancel button (styled same as Save) */
+    .btn-save[href], .btn-save[type="button"] {
+        background-color: var(--sd-btn) !important;
+        color: #fff !important;
+        border: 2px solid var(--sd-accent) !important;
+        border-radius: 0.5rem;
+        font-weight: bold;
+    }
+</style>
 @endpush
 @include('layout.footer')
 @stop

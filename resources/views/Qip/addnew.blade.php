@@ -1,3 +1,25 @@
+<style>
+    /* Theme accent for QIP name display */
+    .theme-purple #qipNameDisplay,
+    .theme-blue #qipNameDisplay,
+    .theme-cyan #qipNameDisplay,
+    .theme-green #qipNameDisplay,
+    .theme-orange #qipNameDisplay,
+    .theme-blush #qipNameDisplay {
+        color: var(--sd-accent) !important;
+    }
+</style>
+<style>
+    /* Theme accent for h5 in .card-body (quality area cards) */
+    .theme-purple .card-body h5,
+    .theme-blue .card-body h5,
+    .theme-cyan .card-body h5,
+    .theme-green .card-body h5,
+    .theme-orange .card-body h5,
+    .theme-blush .card-body h5 {
+        color: var(--sd-accent) !important;
+    }
+</style>
 @extends('layout.master')
 @section('title', 'Qip / Add or Edit')
 @section('parentPageTitle', '')

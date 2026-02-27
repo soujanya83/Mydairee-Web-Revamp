@@ -4,8 +4,56 @@
 <!-- Bootstrap 5 CSS -->
 {{--
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
+
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+    body.theme-purple .card,
+    body.theme-blue .card,
+    body.theme-cyan .card,
+    body.theme-green .card,
+    body.theme-orange .card,
+    body.theme-blush .card {
+        background: var(--sd-surface);
+        color: var(--sd-text);
+        border-radius: var(--sd-radius-md);
+        box-shadow: var(--sd-shadow-soft);
+    }
+    body[class^="theme-"] .table {
+        background: var(--sd-surface);
+        color: var(--sd-text);
+    }
+    body[class^="theme-"] .btn-outline-info {
+        border-color: var(--sd-accent, #3eacff);
+        color: var(--sd-accent, #3eacff);
+    }
+    body[class^="theme-"] .btn-outline-info:hover {
+        background: var(--sd-accent, #3eacff);
+        color: #fff;
+    }
+    body[class^="theme-"] .btn-success {
+        background: var(--sd-accent, #50d38a);
+        border-color: var(--sd-accent, #50d38a);
+    }
+    body[class^="theme-"] .btn-danger {
+        background: var(--sd-accent, #e47297);
+        border-color: var(--sd-accent, #e47297);
+    }
+    body[class^="theme-"] .modal-content {
+        background: var(--sd-surface);
+        color: var(--sd-text);
+    }
+    body[class^="theme-"] .form-control {
+        background: var(--sd-bg);
+        color: var(--sd-text);
+        border: 1px solid var(--sd-border);
+    }
+    body[class^="theme-"] .form-control:focus {
+        border-color: var(--sd-accent, #3eacff);
+        box-shadow: 0 0 0 0.2rem var(--sd-accent-soft, #dbeafe);
+    }
+</style>
 
 
 @section('content')
@@ -13,7 +61,7 @@
 
 
 
-<div class="d-flex justify-content-end" style="margin-top: -52px;margin-right:50px">
+<div class="d-flex justify-content-end" style="margin-top: -40px;margin-right:50px">
     <button class="btn btn-outline-info" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal">
         Add New IP
     </button>

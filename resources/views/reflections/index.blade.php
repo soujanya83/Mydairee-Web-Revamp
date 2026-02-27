@@ -403,9 +403,76 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
 
+<!-- Theme-scoped overrides: apply only when a theme is active -->
+<style>
+    /* Keep defaults above intact for No Theme. */
+    /* Theme-only accents under body[class*="theme-"] */
+
+    body[class*="theme-"] .card-header,
+    body[class*="theme-"] .image-carousel,
+    body[class*="theme-"] .no-image-placeholder {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent)) !important;
+        color: #000;
+    }
+
+    body[class*="theme-"] .section-title i {
+        color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .child-avatar,
+    body[class*="theme-"] .educator-avatar {
+        border-color: var(--sd-accent);
+    }
+
+    /* Outline buttons pick up theme accent */
+    body[class*="theme-"] .btn-outline-primary,
+    body[class*="theme-"] .btn-outline-info {
+        border-color: var(--sd-accent);
+        color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .btn-outline-primary:hover,
+    body[class*="theme-"] .btn-outline-info:hover {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        color: #000;
+    }
+
+    /* Action buttons use accent */
+    body[class*="theme-"] .btn-edit,
+    body[class*="theme-"] .btn-print {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        color: #000;
+    }
+
+    body[class*="theme-"] .btn-edit:hover,
+    body[class*="theme-"] .btn-print:hover {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        color: #000;
+    }
+
+    /* Pagination accent */
+    body[class*="theme-"] .page-item .page-link {
+        color: var(--sd-accent);
+        border-color: var(--sd-accent);
+    }
+
+    body[class*="theme-"] .page-item.active .page-link,
+    body[class*="theme-"] .page-item .page-link:hover {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        color: #000;
+        border-color: var(--sd-accent);
+    }
+
+    /* Center dropdown active item */
+    body[class*="theme-"] .dropdown-item.active,
+    body[class*="theme-"] .dropdown-item.text-primary {
+        color: var(--sd-accent) !important;
+    }
+</style>
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -60px;">
+    style="margin-right: 20px;margin-top: -50px;">
 
 
 
@@ -456,7 +523,9 @@
         @endphp
 
         <div class="col-lg-6 col-md-12">
+        @if(Auth::user()->userType != 'Parent')
         <span class="status-badge {{ $statusClass }}">{{ $reflectionItem->status }}</span>
+        @endif
             <div class="card reflection-card">
                 {{-- Image Carousel --}}
                 <div class="image-carousel">
@@ -549,22 +618,14 @@
   ">
                         @foreach($reflectionItem->staff as $staffRelation)
 
-                      @php
-    $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
-    $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
-
-    $gender = strtoupper($staffRelation->staff->gender ?? '');
-
-    if ($gender === 'MALE') {
-        $avatars = $maleAvatars;
-    } elseif ($gender === 'FEMALE') {
-        $avatars = $femaleAvatars;
-    } else {
-        $avatars = []; // empty if gender is null or unknown
-    }
-
-    $defaultAvatar = !empty($avatars) ? $avatars[array_rand($avatars)] : ''; // empty if gender not found
-@endphp
+                        @php
+                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
+                        'avatar10.jpg'];
+                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
+                        'avatar7.jpg'];
+                        $avatars = ($staffRelation->staff->gender ?? 'FEMALE') === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+                        $defaultAvatar = $avatars[array_rand($avatars)];
+                        @endphp
 
 
                         @if($staffRelation->staff)
@@ -576,16 +637,8 @@
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
-                      <img 
-    src="{{ 
-        $staffRelation->staff->imageUrl 
-            ? asset($staffRelation->staff->imageUrl) 
-            : ($defaultAvatar 
-                ? asset('assets/img/xs/' . $defaultAvatar) 
-                : asset('assets/img/xs/default-avatar.png')) 
-    }}" 
-    alt="{{ $staffRelation->staff->name ?? 'No Name' }}" 
-    class="educator-avatar">
+                            <img src="{{ $staffRelation->staff->imageUrl ? asset($staffRelation->staff->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
+                                alt="{{ $staffRelation->staff->name }}" class="educator-avatar">
                             <div class="educator-name">{{ $staffRelation->staff->name }}</div>
                         </div>
                         @endif
@@ -617,22 +670,14 @@
   ">
                         @forelse($reflectionItem->Seen as $seen)
 
-                     @php
-    $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
-    $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
-
-    $gender = strtoupper($seen->user->gender ?? '');
-
-    if ($gender === 'MALE') {
-        $avatars = $maleAvatars;
-    } elseif ($gender === 'FEMALE') {
-        $avatars = $femaleAvatars;
-    } else {
-        $avatars = []; // No avatar when gender is null or invalid
-    }
-
-    $defaultAvatar = !empty($avatars) ? $avatars[array_rand($avatars)] : '';
-@endphp
+                        @php
+                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg',
+                        'avatar10.jpg'];
+                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg',
+                        'avatar7.jpg'];
+                        $avatars = $seen->user->gender === 'FEMALE' ? $femaleAvatars : $maleAvatars;
+                        $defaultAvatar = $avatars[array_rand($avatars)];
+                        @endphp
 
                         @if($seen->user && $seen->user->userType === 'Parent')
 
@@ -650,12 +695,8 @@
           box-shadow: 0px 2px 6px rgba(0,0,0,0.07);
           padding: 12px 6px;
         ">
-                          <img src="{{ $seen->user->imageUrl 
-    ? asset($seen->user->imageUrl) 
-    : ($defaultAvatar ? asset('assets/img/xs/' . $defaultAvatar) : '') }}"
-    alt="{{ $seen->user->name }}" 
-    class="educator-avatar">
-
+                            <img src="{{ $seen->user->imageUrl ? asset($seen->user->imageUrl) : asset('assets/img/xs/' . $defaultAvatar) }}"
+                                alt="{{ $seen->user->name }}" class="educator-avatar">
                             <div class="educator-name">{{ $seen->user->name }}</div>
                         </div>
 
@@ -676,7 +717,7 @@
 
                     {{-- Action Buttons --}}
                     <div class="card-actions">
-                        @if(!empty($permissions['updateReflection']) && $permissions['updateReflection'])
+                        @if(!empty($permissions['updateReflection']) && $permissions['updateReflection'] || Auth::user()->userType == 'Superadmin')
 
                         <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}"
                             class="btn btn-edit btn-action">
@@ -697,7 +738,7 @@
                         @endif
 
 
-                        @if(!empty($permissions['deleteReflection']) && $permissions['deleteReflection'])
+                        @if(!empty($permissions['deleteReflection']) && $permissions['deleteReflection'] || Auth::user()->userType == 'Superadmin')
 
                         <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
                             <i class="fas fa-trash-alt"></i> Delete

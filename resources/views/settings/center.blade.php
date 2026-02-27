@@ -50,32 +50,67 @@
         height: 45px;
         width: 50px;
     }
+
+    .theme-outline-btn {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+    .theme-outline-btn:hover, .theme-outline-btn:focus {
+        background: var(--sd-accent, #17a2b8) !important;
+        color: var(--sd-bg, #fff) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+    }
+    .theme-edit-btn {
+        background: var(--sd-accent, #17a2b8) !important;
+        color: var(--sd-bg, #fff) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+    .theme-edit-btn:hover, .theme-edit-btn:focus {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+    }
+    .theme-input {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+    .theme-input:focus {
+        background: var(--sd-bg, #fff) !important;
+        color: var(--sd-accent, #17a2b8) !important;
+        border: 2px solid var(--sd-accent, #17a2b8) !important;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    }
 </style>
 
 @section('content')
 
 
-       <div class="header float-end text-zero top-right-button-container d-flex justify-content-between" >
-                <h2>Centers Settings<small></small> </h2>
+        <div class="header float-end text-zero top-right-button-container d-flex justify-content-between" >
+                <h2 style="color: var(--sd-accent, #17a2b8); font-weight: 700;">Centers Settings<small></small> </h2>
                 @if(!empty($permissions['addCenters']) && $permissions['addCenters'])
 
-                <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
+                <button class="btn theme-outline-btn" style="float:right;margin-bottom:20px;" data-toggle="modal"
                     data-target="#addCenterModal">
                     <i class="fa fa-plus"></i>&nbsp; Add Center
                 </button>
                 @endif
 
-            </div>
- <hr class="mt-3">
+        </div>
+        <hr class="mt-3">
             <!-- filter  -->
-             <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
-     <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
-    <input 
-        type="text" 
-        name="filterbyCentername" 
-        class="form-control border-info" 
-        placeholder="Filter by center name" onkeyup="filterbycentername(this.value)">
-</div>
+        <div class="col-4 d-flex justify-content-end align-items-center top-right-button-container">
+            <i class="fas fa-filter mx-2" style="color: var(--sd-accent, #17a2b8);"></i>
+            <input 
+                type="text" 
+                name="filterbyCentername" 
+                class="form-control theme-input" 
+                placeholder="Filter by center name" onkeyup="filterbycentername(this.value)">
+        </div>
              <!-- filter ends here  -->
  
 <div class="row clearfix" style="margin-top:30px">
@@ -98,7 +133,7 @@
 
                     <div class="d-flex justify-content-start gap-2 mt-3">
                         @if(!empty($permissions['updateCenters']) && $permissions['updateCenters'])
-                            <button class="btn btn-sm btn-info mr-2" onclick="openEditcenterModal({{ $center->id }})">
+                            <button class="btn btn-sm theme-edit-btn mr-2" onclick="openEditcenterModal({{ $center->id }})">
                                 <i class="fa-solid fa-pen-to-square"></i> Edit
                             </button>
                         @endif
@@ -260,7 +295,7 @@
                                 <p class="mb-2"><strong>Zip:</strong> ${center.addressZip}</p>
 
                                 <div class="d-flex justify-content-start gap-2 mt-3">
-                                    <button class="btn btn-sm btn-info mr-2" onclick="openEditcenterModal(${center.id})">
+                                    <button class="btn btn-sm theme-edit-btn mr-2" onclick="openEditcenterModal(${center.id})">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
                                     <button class="btn btn-sm btn-danger" onclick="deletecenter(${center.id})">

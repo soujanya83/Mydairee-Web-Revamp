@@ -179,9 +179,18 @@
     .service-title {
         font-size: 1.4rem;
         margin-bottom: 1rem;
-        color: #0056b3;
-        border-bottom: 2px solid #dee2e6;
-        padding-bottom: 5px;
+        color: var(--sd-bg, #fff);
+        background: var(--sd-accent, #0056b3);
+        border-bottom: 2px solid var(--sd-accent, #0056b3);
+        padding: 8px 16px 5px 16px;
+        border-radius: 6px 6px 0 0;
+    }
+    .section-heading {
+        color: var(--sd-bg, #fff);
+        background: var(--sd-accent, #0056b3);
+        border-radius: 6px 6px 0 0;
+        padding: 8px 16px;
+        margin-bottom: 0;
     }
 
     .editbtn {
@@ -299,7 +308,7 @@
 
 
         <div class="row">
-            <h3 class="service-title text-primary">INCIDENT, INJURY, TRAUMA, & ILLNESS RECORD</h3>
+            <h3 class="service-title">INCIDENT, INJURY, TRAUMA, & ILLNESS RECORD</h3>
 
             <div class="col-12 mb-5 card pt-2">
                 <form action="{{ route('Accidents.saveAccident') }}" class="flexDirColoumn" method="post" id="acc-form"
@@ -308,10 +317,9 @@
                     <input type="hidden" name="centerid" value="{{ $centerid }}">
                     <input type="hidden" name="roomid" value="{{ $roomid }}">
 
-                    <div class="row" style="background-color: #0056b3;color:#fff">
-                        <div class="col-sm-12 mt-1" style="background-color: #0056b3;color:#fff">
-                            <h5 style="background-color: #0056b3;color:#fff">Details of person completing this record
-                            </h5>
+                    <div class="row">
+                        <div class="col-sm-12 mt-1">
+                            <h5 class="section-heading">Details of person completing this record</h5>
                         </div>
                     </div>
                     <div class="form-row mt-3">
@@ -381,9 +389,9 @@
 
 
 
-                    <div class="row mt-1" style="background-color: #0056b3;color:#fff">
-                        <div class="col-sm-12 mt-1" style="background-color: #0056b3;color:#fff">
-                            <h5 style="background-color: #0056b3;color:#fff">Child Details</h5>
+                    <div class="row mt-1">
+                        <div class="col-sm-12 mt-1">
+                            <h5 class="section-heading">Child Details</h5>
                         </div>
                     </div>
                     <div class="form-row mt-3">
@@ -436,9 +444,9 @@
                     </div>
 
 
-                    <div class="row mt-1" style="background-color: #0056b3;color:#fff">
-                        <div class="col-sm-12 mt-1" style="background-color: #0056b3;color:#fff">
-                            <h5 style="background-color: #0056b3;color:#fff">Incident/injury/trauma/illness Details</h5>
+                    <div class="row mt-1">
+                        <div class="col-sm-12 mt-1">
+                            <h5 class="section-heading">Incident/injury/trauma/illness Details</h5>
                         </div>
                     </div>
 
@@ -564,9 +572,9 @@
 
 
 
-                    <div class="row mt-1" style="background-color: #0056b3;color:#fff">
-                        <div class="col-sm-12 mt-1" style="background-color: #0056b3;color:#fff">
-                            <h5 style="background-color: #0056b3;color:#fff">Nature of Injury/ Trauma/ Illness:</h5>
+                    <div class="row mt-1">
+                        <div class="col-sm-12 mt-1">
+                            <h5 class="section-heading">Nature of Injury/ Trauma/ Illness:</h5>
                         </div>
                     </div>
                     <div class="form-row mt-3">
@@ -789,9 +797,9 @@
                         </div>
                     </div>
 
-                    <div class="row mt-1" style="background-color: #0056b3;color:#fff">
-                        <div class="col-sm-12 mt-1" style="background-color: #0056b3;color:#fff">
-                            <h5 style="background-color: #0056b3;color:#fff">Action Taken</h5>
+                    <div class="row mt-1">
+                        <div class="col-sm-12 mt-1">
+                            <h5 class="section-heading">Action Taken</h5>
                         </div>
                     </div>
                     <div class="form-row mt-3">
@@ -905,9 +913,9 @@
                         </div>
                     </div> --}}
 
-                    <div class="row mt-1" style="background-color: #0056b3;color:#fff">
-                        <div class="col-sm-12 mt-1" style="background-color: #0056b3;color:#fff">
-                            <h5 style="background-color: #0056b3;color:#fff">Parent/Guardian Notifications (including
+                    <div class="row mt-1">
+                        <div class="col-sm-12 mt-1">
+                            <h5 class="section-heading">Parent/Guardian Notifications (including
                                 attempted notifications)
                             </h5>
                         </div>
@@ -1003,9 +1011,9 @@
                         </div>
                     </div>
                     {{-- @if (isset($id)) --}}
-                    <div class="row mt-1" style="background-color: #0056b3;color:#fff">
-                        <div class="col-sm-12 mt-1" style="background-color: #0056b3;color:#fff">
-                            <h5 style="background-color: #0056b3;color:#fff">Parental acknowledgement</h5>
+                    <div class="row mt-1">
+                        <div class="col-sm-12 mt-1">
+                            <h5 class="section-heading">Parental acknowledgement</h5>
 
                         </div>
                     </div>
@@ -1086,9 +1094,9 @@
                         </div>
                     </div>
                     {{-- @endif --}}
-                    <div class="row mt-1" style="background-color: #0056b3;color:#fff">
-                        <div class="col-sm-12 mt-1" style="background-color: #0056b3;color:#fff">
-                            <h5 style="background-color: #0056b3;color:#fff">Additional notes</h5>
+                    <div class="row mt-1">
+                        <div class="col-sm-12 mt-1">
+                            <h5 class="section-heading">Additional notes</h5>
                         </div>
                     </div>
                     <div class="form-row mt-3">

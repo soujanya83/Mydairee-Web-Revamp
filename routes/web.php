@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\AccidentsController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthenticationController;
@@ -14,6 +13,7 @@ use App\Http\Controllers\LessonPlanList;
 use App\Http\Controllers\HealthyController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ObservationsController;
+use App\Http\Controllers\PTMController;
 use App\Http\Controllers\LnPcontroller;
 use App\Http\Controllers\Qipcontroller;
 use App\Http\Controllers\ResetPassword;
@@ -51,7 +51,6 @@ Route::post('/re-enrolment/store', [UserController::class, 'storeform'])->name('
 
 // Admin dashboard routes
 
-
 Route::get('/', [DashboardController::class, 'lending_page']);
 Route::get('/contact-us', [DashboardController::class, 'contact_us'])->name('contact-us');
 Route::post('/contact-us', [DashboardController::class, 'storeContactUs'])->name('contact-us');
@@ -62,6 +61,19 @@ Route::get('/logout', function () {
     session()->regenerateToken();
     return redirect('login');
 })->name('logout');
+
+// Messaging routes (auth-protected)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/messaging', [App\Http\Controllers\MessagingController::class, 'index'])->name('messaging.index');
+    Route::get('/messaging/contacts', [App\Http\Controllers\MessagingController::class, 'contacts']);
+    Route::get('/messaging/thread/{id}', [App\Http\Controllers\MessagingController::class, 'thread']);
+    Route::get('/messaging/group-thread', [App\Http\Controllers\MessagingController::class, 'groupThread']);
+    //Route::post('/messaging/group-read', [App\Http\Controllers\MessagingController::class, 'markGroupRead']);
+    Route::post('/messaging/send', [App\Http\Controllers\MessagingController::class, 'send']);
+    Route::post('/messaging/broadcast-center', [App\Http\Controllers\MessagingController::class, 'broadcastCenter']);
+    Route::get('/messaging/unread-count', [App\Http\Controllers\MessagingController::class, 'unreadCount']);
+});
+
 
 Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
 Route::get('/', [DashboardController::class, 'lending_page']);
@@ -76,7 +88,7 @@ Route::get('/api/events', [DashboardController::class, 'getEvents']);
 // Route::get('pages/profile1', [PagesController::class, 'profile1'])->name('pages.profile1');
 
 Route::post('create-superadmin', [UserController::class, 'store'])->name('create_superadmin');
-Route::post('login-submit', [UserController::class, 'login'])->name('user_login');
+Route::post('login-submit', [UserController::class, 'login'])->name('user_login'); 
 Route::get('create-center', [UserController::class, 'create_center'])->name('create_center');
 
 Route::post('store-center', [UserController::class, 'store_center'])->name('center_store');
@@ -102,8 +114,6 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
     Route::get('/enrolment/dashboard', [UserController::class, 'dashboard'])->name('enrolment.dashboard');
     Route::get('/re-enrolments/{reEnrolment}/details', [UserController::class, 'getDetails'])->name('re-enrolment.details');
-
-
     Route::get('users/birthday', [DashboardController::class, 'getUser'])->name('users..birthday');
     Route::get('/api/events', [DashboardController::class, 'getEvents']);
     // service details
@@ -285,7 +295,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
     Route::get('/backup-now', [DBBackupController::class, 'runBackup']);
 
 
-
+   Route::post('/update-theme', [UserController::class, 'updateTheme'])->name('update.theme');
 
     Route::post('/logout', function () {
         Auth::logout(); // Logs out the user
@@ -350,7 +360,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::post('/holidays/delete-selected', [PublicHolidayController::class, 'deleteSelected'])
-            ->name('holidays.deleteSelected');
+        ->name('holidays.deleteSelected');
 
 
         Route::delete('/role-permission-delete/{id}', [PermissionController::class, 'delete_role_permission'])->name('role-permission-delete');
@@ -359,7 +369,6 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('/manage-permission-role', [PermissionController::class, 'manage_role'])->name('manage-permission-role');
         Route::post('/add-permission-role', [PermissionController::class, 'store_role'])->name('add-permission-role');
         Route::post('/update-permission', [PermissionController::class, 'updatepermission'])->name('update-permission');
-
 
         Route::post('/updateStatusSuperadmin', [SettingsController::class, 'updateStatusSuperadmin'])->name('updateStatusSuperadmin');
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
@@ -386,7 +395,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
         Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
         Route::put('/settings/update-permissions/{user}', [SettingsController::class, 'updateUserPermissions'])->name('update_user_permissions');
-
+        // Route::get('/staff/{id}', [SettingsController::class, 'StaffFullDetails'])->name('StaffDetails');
         Route::get('/show/assigned_permissions/{userId}', [PermissionController::class, 'show'])
             ->name('show.assigned_permissions');
 
@@ -394,6 +403,8 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
 
         Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
+        Route::get('/staff/{id}/details', [SettingsController::class, 'staff_details'])->name('staff.details');
+        Route::get('/staff/{id}', [SettingsController::class, 'staff_details'])->name('staff.show');
         Route::get('/filter-parents', [SettingsController::class, 'filterByParentName']);
 
         Route::get('/manage_permissions', [SettingsController::class, 'manage_permissions'])->name('manage_permissions');
@@ -406,6 +417,8 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
         Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
         Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');
+        Route::post('/parent/send-email', [SettingsController::class, 'sendEmailToParent'])->name('parent.sendEmail');
+        Route::get('/parent/track-mails', [SettingsController::class, 'trackMails'])->name('parent.trackMails');
 
 
         Route::get('/profile', [SettingsController::class, 'getprofile_page'])->name('profile');
@@ -431,50 +444,6 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
     });
 
 
-    // Route::prefix('observation')->name('observation.')->group(function () {
-    //     Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
-    //     Route::post('/ai-assist', [ObservationsController::class, 'AiAssistance'])->name('ai-assist');
-    //     Route::get('/index', [ObservationsController::class, 'index'])->name('index');
-    //     Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
-    //     Route::get('/filter/get-children', [ObservationsController::class, 'getChildren_for_filter'])->name('get-children-filter');
-    //     Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
-    //     Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
-    //     Route::get('/view', [ObservationsController::class, 'index'])->name('view');
-    //     Route::get('/print/{id}', [ObservationsController::class, 'print'])->name('print');
-    //     Route::post('/share', [ObservationsController::class, 'shareObservation'])->name('share');
-
-    //     Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
-    //     Route::get('/addnew/{id}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
-
-
-    //     Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get.children');
-    //     Route::get('/get-rooms', [ObservationsController::class, 'getrooms'])->name('get.rooms');
-    //     Route::post('/store', [ObservationsController::class, 'store'])->name('store');
-    //     Route::post('/autosave-observation', [ObservationsController::class, 'autosaveobservation'])->name('autosave-observation');
-
-    //     Route::post('/storeTitle', [ObservationsController::class, 'storeTitle'])->name('storeTitle');
-    //     Route::post('/refine-text', [ObservationsController::class, 'refine'])->name('refine.text');
-
-    //     Route::delete('/observation-media/{id}', [ObservationsController::class, 'destroyimage']);
-
-    //     Route::post('/montessori/store', [ObservationsController::class, 'storeMontessoriData'])->name('montessori.store');
-    //     Route::post('/eylf/store', [ObservationsController::class, 'storeEylfData'])->name('eylf.store');
-    //     Route::post('/devmilestone/store', [ObservationsController::class, 'storeDevMilestone'])->name('devmilestone.store');
-    //     Route::post('/status/update', [ObservationsController::class, 'updateStatus'])->name('status.update');
-    //     Route::get('/view/{id}', [ObservationsController::class, 'view'])->name('view');
-    //     Route::get('/observationslink', [ObservationsController::class, 'linkobservationdata']);
-    //     Route::post('/submit-selectedoblink', [ObservationsController::class, 'storelinkobservation']);
-    //     Route::post('/change-created-at', [ObservationsController::class, 'changeCreatedAt'])->name('changeCreatedAt');
-    //     Route::delete('/{id}', [ObservationsController::class, 'destroy'])->name('destroy');
-
-
-    //     Route::get('/reflectionslink', [ObservationsController::class, 'linkreflectiondata']);
-    //     Route::post('/submit-selectedreflink', [ObservationsController::class, 'storelinkreflection']);
-
-    //     Route::get('/programplanslink', [ObservationsController::class, 'linkprogramplandata']);
-    //     Route::post('/submit-selectedpplink', [ObservationsController::class, 'storelinkprogramplan']);
-    // });
-
     Route::prefix('observation')->name('observation.')->group(function () {
         Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
         Route::post('/ai-assist', [ObservationsController::class, 'AiAssistance'])->name('ai-assist');
@@ -483,14 +452,11 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::get('/filter/get-children', [ObservationsController::class, 'getChildren_for_filter'])->name('get-children-filter');
         Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
         Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
-        //     Route::get('/view', [ObservationsController::class, 'index'])->name('view');
+        //Route::get('/view', [ObservationsController::class, 'index'])->name('view');
         Route::get('/print/{id}', [ObservationsController::class, 'print'])->name('print');
         Route::post('/share', [ObservationsController::class, 'shareObservation'])->name('share');
-
         Route::get('/addnew', [ObservationsController::class, 'storepage'])->name('addnew');
         Route::get('/addnew/{id}/{tab?}/{tab2?}', [ObservationsController::class, 'storepage'])->name('addnew.optional');
-
-
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get.children');
         Route::get('/get-rooms', [ObservationsController::class, 'getrooms'])->name('get.rooms');
         Route::post('/store', [ObservationsController::class, 'store'])->name('store');
@@ -519,9 +485,32 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
         Route::post('/submit-selectedpplink', [ObservationsController::class, 'storelinkprogramplan']);
     });
 
+    Route::prefix('ptm')->name('ptm.')->group(function ()
+    {
+        Route::get('/index', [PTMController::class, 'index'])->name('index');
+        Route::get('/addnew', [PTMController::class, 'storepage'])->name('addnew');
+        Route::post('/store', [PTMController::class, 'store'])->name('store');
+        Route::get('/get-rooms', [PTMController::class, 'getrooms'])->name('get.rooms');
+        Route::get('/get-children', [PTMController::class, 'getChildren'])->name('get.children');
+        Route::get('/get-staff', [PTMController::class, 'getStaff'])->name('get-staff');
+        Route::get('/edit/{ptm}', [PTMController::class, 'edit'])->name('editptm');
+        Route::delete('/delete/{ptm}', [PTMController::class, 'delete'])->name('deleteptm');
+        Route::get('/view/{ptm}', [PTMController::class, 'view'])->name('viewptm');
+        Route::get('/events', [PTMController::class, 'getPtmEvents']);
+        Route::get('/directpublish/{ptm}', [PTMController::class, 'directPublish'])->name('directpublish');
+        Route::get('/events', [PTMController::class, 'events']);
+        Route::get('/get-slots', [PTMController::class, 'getSlots'])->name('get-slots');
+        Route::get('/get-date-slots', [PTMController::class, 'getPtmDateSlots'])->name('get-date-slots');
+        Route::post('/reschedule-ptm', [PTMController::class, 'reschedulePtm'])->name('reschedule-ptm');
+        Route::get('/details/{id}', [PTMController::class, 'ptmDetails'])->name('details');
+        Route::get('/{ptm}/reschedule/{child_id}', [PTMController::class, 'rescheduleFromStaff'])->name('reschedule-fstaff');
+        Route::put('/{ptm}/reschedule/{child}', [PTMController::class, 'resupdateFromStaff'])->name('resupdate-fstaff');
+        Route::get('/{ptm}/bulk-reschedule', [PTMController::class, 'bulkReschedulePage'])->name('bulk-reschedule');
+        Route::post('/{ptm}/bulk-reschedule-fstaff', [PTMController::class, 'bulkResupdate'])->name('resupdateFromStaffBulk');
+
+    });
 
     Route::prefix('reflection')->name('reflection.')->group(function () {
-
         Route::get('/index', [ReflectionController::class, 'index'])->name('index');
         Route::get('/addnew/{id}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
         Route::get('/addnew', [ReflectionController::class, 'storepage'])->name('addnew');

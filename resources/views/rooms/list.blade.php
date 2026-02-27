@@ -48,6 +48,61 @@
         padding: 2px 5px;
         border-radius: 3px;
     }
+
+    /* Theme-specific styles */
+    .theme-purple .checkbox-item input[type="checkbox"]:checked+label,
+    .theme-blue .checkbox-item input[type="checkbox"]:checked+label,
+    .theme-cyan .checkbox-item input[type="checkbox"]:checked+label,
+    .theme-green .checkbox-item input[type="checkbox"]:checked+label,
+    .theme-orange .checkbox-item input[type="checkbox"]:checked+label,
+    .theme-blush .checkbox-item input[type="checkbox"]:checked+label {
+        background-color: var(--sd-accent) !important;
+        color: #fff !important;
+    }
+    .theme-purple .fa-children,
+    .theme-blue .fa-children,
+    .theme-cyan .fa-children,
+    .theme-green .fa-children,
+    .theme-orange .fa-children,
+    .theme-blush .fa-children,
+    .theme-purple .fa-chalkboard-teacher,
+    .theme-blue .fa-chalkboard-teacher,
+    .theme-cyan .fa-chalkboard-teacher,
+    .theme-green .fa-chalkboard-teacher,
+    .theme-orange .fa-chalkboard-teacher,
+    .theme-blush .fa-chalkboard-teacher {
+        color: var(--sd-accent) !important;
+    }
+    .theme-purple .btn-outline-info,
+    .theme-blue .btn-outline-info,
+    .theme-cyan .btn-outline-info,
+    .theme-green .btn-outline-info,
+    .theme-orange .btn-outline-info,
+    .theme-blush .btn-outline-info,
+    .theme-purple .btn-outline-primary,
+    .theme-blue .btn-outline-primary,
+    .theme-cyan .btn-outline-primary,
+    .theme-green .btn-outline-primary,
+    .theme-orange .btn-outline-primary,
+    .theme-blush .btn-outline-primary {
+        border-color: var(--sd-accent) !important;
+        color: var(--sd-accent) !important;
+    }
+    .theme-purple .btn-outline-info:hover,
+    .theme-blue .btn-outline-info:hover,
+    .theme-cyan .btn-outline-info:hover,
+    .theme-green .btn-outline-info:hover,
+    .theme-orange .btn-outline-info:hover,
+    .theme-blush .btn-outline-info:hover,
+    .theme-purple .btn-outline-primary:hover,
+    .theme-blue .btn-outline-primary:hover,
+    .theme-cyan .btn-outline-primary:hover,
+    .theme-green .btn-outline-primary:hover,
+    .theme-orange .btn-outline-primary:hover,
+    .theme-blush .btn-outline-primary:hover {
+        background: var(--sd-accent) !important;
+        color: #fff !important;
+    }
 </style>
 
 
@@ -76,7 +131,6 @@
     </div>
     @endif
     <!-- <h5>Rooms List</h5> -->
-
 
 
 
@@ -121,10 +175,10 @@
                 </div>
             </div>
         </div>
-        @if(!empty($permissions['addRoom']) && $permissions['addRoom'])
+        @if(!empty($permissions['addRoom']) && $permissions['addRoom'] || Auth::user()->userType == 'Superadmin')
 
         <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#roomModal"
-            style="height: 36px;">
+            style="height: 36px; margin-right">
             Create Room
         </button>
         @endif
@@ -135,7 +189,7 @@
     <form method="POST" action="{{ route('rooms.bulk_delete') }}" id="deleteRoomsForm">
         @csrf
         @method('DELETE')
-        @if(!empty($permissions['deleteRoom']) && $permissions['deleteRoom'])
+        @if(!empty($permissions['deleteRoom']) && $permissions['deleteRoom'] || Auth::user()->userType == 'Superadmin')
 
         <div class="d-flex flex-row d-flex justify-content-end mb-3">
 <div class="d-flex justify-content-end mb-3 mx-2">

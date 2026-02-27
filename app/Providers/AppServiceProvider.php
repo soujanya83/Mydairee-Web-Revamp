@@ -15,7 +15,18 @@ class AppServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        //
+        $this->app->singleton('userPermissions', function ($app) {
+            return $this->getPermissions();
+        });
+    }
+
+    protected function getPermissions()
+    {
+        $permissions = [];
+
+        if (Auth::check()) {
+            $user = Auth::user();
+        }
     }
 
     public function boot(): void
@@ -184,6 +195,12 @@ class AppServiceProvider extends ServiceProvider
                         'editSelfAssessment',
                         'deleteSelfAssessment',
                         'viewSelfAssessment',
+                        'createPtm',
+                        'reschedulePtm',
+                        'deletePtm',
+                        'sendMessage',
+                        'viewMessages',
+                        'sendGroupMessage',
 
 
                     ], 1);
@@ -203,9 +220,19 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
 
-            // Share globally
-            View::share('permissions', $permissions);
-            app()->singleton('userPermissions', fn() => $permissions);
+        return $permissions;
         });
+
+    // public function boot(): void
+    // {
+    //     // Share permissions with all views
+    //     View::composer('*', function ($view) {
+    //         $permissions = $this->getPermissions();
+    //         View::share('permissions', $permissions);
+    //         // Share globally
+    //         View::share('permissions', $permissions);
+    //         app()->singleton('userPermissions', fn() => $permissions);
+    //     });
+    // }
     }
 }

@@ -2,11 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Children Head Checks</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
 
     <style>
+        :root {
+            --sd-accent: #4e73df;
+            --sd-accent-soft: #dbeafe;
+        }
+
+        .theme-purple { --sd-accent: #a27ce6; --sd-accent-soft: #f3e8ff; }
+        .theme-blue   { --sd-accent: #3eacff; --sd-accent-soft: #dbeafe; }
+        .theme-cyan   { --sd-accent: #49c5b6; --sd-accent-soft: #ccfbf1; }
+        .theme-green  { --sd-accent: #50d38a; --sd-accent-soft: #d1fae5; }
+        .theme-orange { --sd-accent: #ffce4b; --sd-accent-soft: #fef3c7; }
+        .theme-blush  { --sd-accent: #e47297; --sd-accent-soft: #fce7f3; }
+
         table {
             font-size: 14px;
              border-collapse: collapse !important;
@@ -22,12 +35,47 @@
         }
         .print-btn{
             float: right;
-        
+            background: linear-gradient(180deg, var(--sd-accent, #4e73df) 10%, var(--sd-accent, #224abe) 100%);
+            border-color: var(--sd-accent, #4e73df);
+            color: white;
+        }
+
+        body[class*="theme-"] .print-btn {
+            color: #000;
+        }
+
+        .print-btn:hover {
+            color: white;
+        }
+
+        body[class*="theme-"] .print-btn:hover {
+            color: #000;
+        }
+
+        h4 {
+            color: var(--sd-accent, #4e73df);
+        }
+
+        body[class*="theme-"] h4 {
+            color: #000;
+        }
+
+        .table thead {
+            background-color: var(--sd-accent-soft, #dbeafe);
+            color: var(--sd-accent, #4e73df);
+        }
+
+        body[class*="theme-"] .table thead {
+            color: #000;
         }
  
     </style>
 </head>
-<body class="p-4">
+@php
+    $userTheme = Auth::user()->theme ?? 'none';
+    $theme = ($userTheme === 'none') ? '' : 'theme-' . $userTheme;
+@endphp
+<body class="{{ $theme }} p-4">
 <a href="javascript:void(0)" onclick="printPage()" class="btn btn-primary shadow-sm px-4 py-2 rounded-pill print-btn">
     🖨 Print
 </a>

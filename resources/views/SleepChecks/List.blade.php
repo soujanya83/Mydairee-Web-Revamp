@@ -145,11 +145,16 @@
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 25px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--sd-accent, #667eea), var(--sd-accent, #764ba2));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             position: relative;
+        }
+
+        body[class*="theme-"] .child-header {
+            color: #000;
+            -webkit-text-fill-color: #000;
         }
 
         .child-header::after {
@@ -159,7 +164,7 @@
             left: 0;
             width: 60px;
             height: 4px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--sd-accent, #667eea), var(--sd-accent, #764ba2));
             border-radius: 2px;
         }
 
@@ -217,7 +222,7 @@
         select:focus,
         textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--sd-accent, #667eea);
             box-shadow: 
                 0 0 0 3px rgba(102, 126, 234, 0.1),
                 0 4px 12px rgba(102, 126, 234, 0.15);
@@ -233,7 +238,7 @@
         .add-row-btn,
         .save-row-btn,
         .update-row-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--sd-accent, #667eea), var(--sd-accent, #764ba2));
             color: white;
             border: none;
             padding: 12px 24px;
@@ -247,6 +252,12 @@
             overflow: hidden;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+
+        body[class*="theme-"] .add-row-btn,
+        body[class*="theme-"] .save-row-btn,
+        body[class*="theme-"] .update-row-btn {
+            color: #000;
         }
 
         .add-row-btn::before,
@@ -267,6 +278,12 @@
         .update-row-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        body[class*="theme-"] .add-row-btn:hover,
+        body[class*="theme-"] .save-row-btn:hover,
+        body[class*="theme-"] .update-row-btn:hover {
+            color: #000;
         }
 
         .add-row-btn:hover::before,
@@ -434,20 +451,22 @@
     </style>
 @endsection
 @section('content')
-<div class="d-flex justify-content-end align-items-center" style="margin-right: 20px; margin-top: -60px; gap: 10px; flex-wrap: wrap;">
+<div class="d-flex justify-content-end align-items-center" style="margin-right: 20px; margin-top: -50px; gap: 10px; flex-wrap: wrap;">
 
     {{-- Center Dropdown --}}
     <div class="dropdown mr-2">
-        <button class="btn btn-outline-info btn-lg dropdown-toggle"
+        <button class="btn theme-outline-btn btn-lg dropdown-toggle"
                 type="button" id="centerDropdown" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
+                aria-haspopup="true" aria-expanded="false"
+                style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
             {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
         </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important; left:13px !important;">
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown" style="top:3% !important; left:13px !important; background: var(--sd-bg, #fff); border: 1px solid var(--sd-accent, #36b9cc);">
             @foreach($centers as $center)
                 <a href="javascript:void(0);"
-                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
-                   style="background-color:white;" data-id="{{ $center->id }}">
+                   class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold' : '' }}"
+                   style="{{ session('user_center_id') == $center->id ? 'background: var(--sd-accent, #36b9cc); color: var(--sd-bg, #fff); font-weight: bold;' : 'background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc);' }}"
+                   data-id="{{ $center->id }}">
                     {{ $center->centerName }}
                 </a>
             @endforeach
@@ -457,14 +476,17 @@
     {{-- Room Dropdown --}}
     <div class="dropdown mr-2">
         @if(empty($rooms))
-            <div class="btn btn-outline-info btn-lg dropdown-toggle">NO ROOMS AVAILABLE</div>
+            <div class="btn theme-outline-btn btn-lg dropdown-toggle" style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">NO ROOMS AVAILABLE</div>
         @else
-            <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="roomDropdown" data-toggle="dropdown" data-selected-room="{{ request('roomid', $roomid) }}">
+            <button class="btn theme-outline-btn btn-lg dropdown-toggle" type="button" id="roomDropdown" data-toggle="dropdown" data-selected-room="{{ request('roomid', $roomid) }}"
+                style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
                  {{ $selectedroom->name ?? 'Select Room' }}
             </button>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="roomDropdown">
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="roomDropdown" style="background: var(--sd-bg, #fff); border: 1px solid var(--sd-accent, #36b9cc);">
                 @foreach($rooms as $room)
-                    <a class="dropdown-item" href="{{ url()->current() }}?centerid={{ $centerid }}&roomid={{ $room->id }}">
+                    <a class="dropdown-item{{ request('roomid', $roomid) == $room->id ? ' active font-weight-bold' : '' }}"
+                        href="{{ url()->current() }}?centerid={{ $centerid }}&roomid={{ $room->id }}"
+                        style="{{ request('roomid', $roomid) == $room->id ? 'background: var(--sd-accent, #36b9cc); color: var(--sd-bg, #fff); font-weight: bold;' : 'background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc);' }}">
                         {{ strtoupper($room->name) }}
                     </a>
                 @endforeach
@@ -480,8 +502,9 @@
     @endphp
     <div class="form-group mb-0">
         <div class="input-group date">
-            <input type="text" class="form-control drop-down" id="txtCalendar" name="start_date" value="{{ $calDate }}">
-            <span class="input-group-text input-group-append custom-cal btn-outline-info">
+            <input type="text" class="form-control theme-input" id="txtCalendar" name="start_date" value="{{ $calDate }}"
+                style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
+            <span class="input-group-text input-group-append custom-cal" style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
                 <i class="simple-icon-calendar"></i>
             </span>
         </div>
@@ -497,20 +520,21 @@
 <main class="default-transition" style="padding-block:1em;padding-inline:2em;">
     @if(Auth::user()->userType != 'Parent')
            <div class="col-5 d-flex justify-content-start align-items-center top-right-button-container mb-4">
-    <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
+    <i class="fas fa-filter mx-2" style="color: var(--sd-accent, #17a2b8);"></i>
 
-       <select name="filter" id="" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input col-3">
+    <select name="filter" id="" onchange="showfilter(this.value)" class="form-control form-control-sm theme-input uniform-input col-3"
+        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
         <option value="">Choose</option>
         <option value="childname">Child Name</option>
-      
     </select>
 
     <input 
         type="text" 
         name="filterbychildname" 
         id="filterbychildname"
-        class="form-control border-info ml-2" 
-        placeholder="Filter by Child name" onkeyup="filterbyChildname(this.value)">
+        class="form-control theme-input ml-2"
+        placeholder="Filter by Child name" onkeyup="filterbyChildname(this.value)"
+        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
 </div>
 @endif
 

@@ -10,10 +10,6 @@
 <div>
     <hr>
     <h5>Edit Children</h5>
-
-
-
-
     <div class="row clearfix" style="margin-bottom: 43px;">
         <div class="col-lg-12 col-md-12 mb-1">
             <div class="card shadow-sm border-0 rounded p-3 hover-shadow">
@@ -64,11 +60,6 @@
                                     @endforeach
                                 </select>
                             </div>
-
-
-
-
-
 
                             <div class="form-group col-md-6">
                                 <label for="uploadImg">Choose Image</label><br>

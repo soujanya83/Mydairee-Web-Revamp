@@ -18,6 +18,20 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Permission_Role;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use App\Models\EmailAttachment;
+use Illuminate\Support\Facades\Log;
+use App\Models\PTM;
+use App\Models\Observation;
+use App\Models\ObservationStaff;
+use App\Models\Snapshot;
+use App\Models\AnnouncementsModel;
+use App\Models\PubicHoliday_Model;
+use App\Models\Qip;
+use App\Models\Reflection;
+use App\Models\ReflectionStaff;
+use App\Models\ProgramPlanTemplateDetailsAdd;
 
 class SettingsController extends Controller
 {
@@ -42,9 +56,17 @@ class SettingsController extends Controller
             ->where('id', '!=', $authId)
             ->where('userType', 'Parent');
 
+           
         if (!empty($request->parent_name)) {
-            $query->where('name', 'like', '%' . $request->parent_name . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->parent_name . '%')  // Parent name
+                ->orWhereHas('children', function ($child) use ($request) { // Child name
+                    $child->where('name', 'like', '%' . $request->parent_name . '%')
+                            ->orWhere('lastname', 'like', '%' . $request->parent_name . '%');
+                });
+            });
         }
+
 
         $parents = $query->get();
 
@@ -69,7 +91,6 @@ class SettingsController extends Controller
             })
         ]);
     }
-
 
     public function filterStaffByName(Request $request)
     {
@@ -256,8 +277,15 @@ class SettingsController extends Controller
                 return !in_array($column, ['id', 'userid', 'centerid']); // exclude default columns
             })
             ->map(function ($column) {
-                $label = Str::headline($column);
+                 $label = Str::of($column)
+                            ->replace('ptm', ' PTM ')  
+                            ->headline()
+                            ->replace('Ptm', 'PTM'); 
                 $label = str_replace('Qip', 'QIP', $label);
+                
+                $label = str_replace('Sendgroupmessage', 'Send Group Message', $label);
+                $label = str_replace('Sendmessage', 'Send Message', $label);
+                $label = str_replace('Viewmessages', 'View Messages', $label);
                 return [
                     'name' => $column,
                     'label' => $label
@@ -287,6 +315,9 @@ class SettingsController extends Controller
         $AccidentsPermissions   = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'accidents'))->values();
         $SnapshotsPermissions   = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'snapshots'))->values();
         $ActivityPermission = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'activity'))->values();
+        $PtmPermissions = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'ptm'))->values();
+        $MessagingPermissions = $permissionColumns->filter(fn($item) => Str::contains(strtolower($item['name']), 'message'))->values();
+
 
         // Combine all matched permissions
         $allMatched = $ObservationPermissions
@@ -309,6 +340,8 @@ class SettingsController extends Controller
             ->merge($AccidentsPermissions)
             ->merge($SnapshotsPermissions)
             ->merge($ActivityPermission)
+            ->merge($PtmPermissions)
+            ->merge($MessagingPermissions)
             ->pluck('name')
             ->toArray();
 
@@ -345,7 +378,9 @@ class SettingsController extends Controller
                 'ReflectionPermissions',
                 'DailyPermissions',
                 'otherPermissions',
-                'ActivityPermission'
+                'ActivityPermission',
+                'PtmPermissions',
+                'MessagingPermissions'
             )
         );
     }
@@ -406,7 +441,223 @@ class SettingsController extends Controller
             // ✅ Catch unexpected errors
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
+
+
     }
+
+    /**
+     * Show staff details page with related content.
+     */
+    public function staff_details($id)
+    {
+        // find the user by either id or userid (some tables use different keys)
+        $staff = User::where('id', $id)->orWhere('userid', $id)->first();
+        if (!$staff) {
+            abort(404, 'Staff not found');
+        }
+
+        $staffKey = $staff->userid ?? $staff->id;
+
+        // PTMs: those created by user and those where the user is a staff on the PTM
+        $ptms = PTM::with(['children', 'staff'])
+            ->where(function ($q) use ($staffKey) {
+                $q->where('userId', $staffKey)
+                  ->orWhereHas('staff', function ($sq) use ($staffKey) {
+                      $sq->where('staffid', $staffKey);
+                  });
+            })
+            ->orderBy('id', 'desc')
+            ->limit(200)
+            ->get();
+
+        // Observations authored by user
+        $observationsAuthored = Observation::where('userId', $staffKey)
+            ->orderBy('id', 'desc')
+            ->limit(200)
+            ->get();
+
+        // Observations where the staff was tagged
+        $taggedIds = ObservationStaff::where('userid', $staffKey)->pluck('observationId')->toArray();
+        $observationsTagged = collect();
+        if (!empty($taggedIds)) {
+            $observationsTagged = Observation::whereIn('id', $taggedIds)->orderBy('id', 'desc')->get();
+        }
+
+        // Merge authored and tagged (unique by id)
+        $observations = $observationsAuthored->merge($observationsTagged)->unique('id')->values();
+
+        // Snapshots created by user
+        $snapshots = Snapshot::where('createdBy', $staffKey)->orderBy('id', 'desc')->limit(200)->get();
+
+        // Announcements relevant to this staff: created by them OR targeted to staff/all
+        try {
+            $announcements = AnnouncementsModel::where('centerid', session('user_center_id'))
+                ->where('status', 'sent')
+                ->where(function ($q) use ($staffKey) {
+                    $q->where('createdBy', $staffKey)
+                      ->orWhereIn('audience', ['staff', 'all']);
+                })
+                ->orderBy('id', 'desc')
+                ->limit(200)
+                ->get();
+        } catch (\Exception $e) {
+            $announcements = collect();
+        }
+
+        // (All Events removed) previously built center announcements + holidays
+
+        // QIP items created by this staff
+        try {
+            $qips = Qip::where('created_by', $staffKey)->orderBy('id', 'desc')->limit(200)->get();
+        } catch (\Exception $e) {
+            $qips = collect();
+        }
+
+        // Reflections authored by this staff OR where staff is tagged via pivot
+        try {
+            $taggedReflectionIds = ReflectionStaff::where('staffid', $staffKey)
+                ->pluck('reflectionid')
+                ->toArray();
+
+            $reflections = Reflection::where(function ($q) use ($staffKey, $taggedReflectionIds) {
+                    $q->where('createdBy', $staffKey)
+                      ->orWhereIn('id', $taggedReflectionIds);
+                })
+                ->orderBy('id', 'desc')
+                ->limit(200)
+                ->get();
+        } catch (\Exception $e) {
+            $reflections = collect();
+        }
+
+        // Program plans created by this staff
+        try {
+            $programPlans = ProgramPlanTemplateDetailsAdd::where('created_by', $staffKey)->orderBy('id', 'desc')->limit(200)->get();
+        } catch (\Exception $e) {
+            $programPlans = collect();
+        }
+
+        // Prepare program plan room names (avoid heavy logic in Blade)
+        try {
+            $allRoomIds = [];
+            foreach ($programPlans as $pp) {
+                if (!empty($pp->room_id)) {
+                    $ids = array_filter(array_map('trim', explode(',', $pp->room_id)));
+                    foreach ($ids as $rid) {
+                        if ($rid !== '') $allRoomIds[] = $rid;
+                    }
+                }
+            }
+            $allRoomIds = array_values(array_unique($allRoomIds));
+            $roomsMap = [];
+            if (!empty($allRoomIds)) {
+                $roomsMap = \App\Models\Room::whereIn('id', $allRoomIds)->pluck('name', 'id')->toArray();
+            }
+            foreach ($programPlans as $pp) {
+                $ppRoomNames = [];
+                if (!empty($pp->room_id)) {
+                    $ids = array_filter(array_map('trim', explode(',', $pp->room_id)));
+                    foreach ($ids as $rid) {
+                        if (isset($roomsMap[$rid])) $ppRoomNames[] = $roomsMap[$rid];
+                    }
+                }
+                $pp->room_names = !empty($ppRoomNames) ? implode(', ', $ppRoomNames) : null;
+            }
+        } catch (\Throwable $e) {
+            // best-effort: if lookup fails, leave room_names null
+            foreach ($programPlans as $pp) {
+                $pp->room_names = null;
+            }
+        }
+
+        // Permission record, if any
+        $permissions = Permission::where('userid', $staffKey)->first();
+
+        // Helper: pick first image url from media-like collections
+        $pickPreviewImage = function ($mediaCollection) {
+            $img = null;
+            if (isset($mediaCollection) && is_iterable($mediaCollection)) {
+                foreach ($mediaCollection as $m) {
+                    // support both object and array shapes
+                    $mediaType = null;
+                    $mediaUrl = null;
+                    if (is_object($m)) {
+                        $mediaType = $m->mediaType ?? ($m->type ?? null);
+                        $mediaUrl = $m->mediaUrl ?? ($m->url ?? null);
+                    } elseif (is_array($m)) {
+                        $mediaType = $m['mediaType'] ?? ($m['type'] ?? null);
+                        $mediaUrl = $m['mediaUrl'] ?? ($m['url'] ?? null);
+                    }
+                    if ($mediaType && \Illuminate\Support\Str::startsWith($mediaType, ['image', 'Image'])) {
+                        $img = $mediaUrl;
+                        break;
+                    }
+                    if ($mediaUrl) {
+                        $ext = pathinfo($mediaUrl, PATHINFO_EXTENSION);
+                        if (in_array(strtolower($ext), ['jpg','jpeg','png','gif','webp'])) {
+                            $img = $mediaUrl;
+                            break;
+                        }
+                    }
+                }
+            }
+            return $img;
+        };
+
+        // Attach previewImage to observations
+        try {
+            foreach ($observations as $o) {
+                $o->previewImage = $pickPreviewImage($o->media ?? []);
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        // Snapshots
+        try {
+            foreach ($snapshots as $s) {
+                $s->previewImage = $pickPreviewImage($s->media ?? []);
+            }
+        } catch (\Throwable $e) {}
+
+        // Reflections
+        try {
+            foreach ($reflections as $r) {
+                $r->previewImage = $pickPreviewImage($r->media ?? []);
+            }
+        } catch (\Throwable $e) {}
+
+        // Announcements (announcementMedia is JSON list of file paths)
+        try {
+            foreach ($announcements as $a) {
+                $a->previewImage = null;
+                try {
+                    $mediaArr = @json_decode($a->announcementMedia, true);
+                } catch (\Throwable $e) {
+                    $mediaArr = null;
+                }
+                if (is_array($mediaArr) && count($mediaArr)) {
+                    foreach ($mediaArr as $file) {
+                        $ext = pathinfo($file, PATHINFO_EXTENSION);
+                        if (in_array(strtolower($ext), ['jpg','jpeg','png','gif','webp'])) {
+                            $a->previewImage = $file;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        // Note: activity and email collections are not used in the staff details view and have been removed for clarity.
+
+        return view('settings.staffdetails', compact(
+            'staff', 'ptms', 'observations', 'snapshots', 'permissions',
+            'announcements', 'qips', 'reflections', 'programPlans'
+        ));
+    }
+    
 
 
 
@@ -1421,6 +1672,277 @@ class SettingsController extends Controller
         return response()->json(['status' => 'success']);
     }
 
+    public function sendEmailToParent(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                'subject' => 'required|string|max:255',
+                'message' => 'required|string',
+                'parent_ids' => 'required|string',
+                'parent_emails' => 'required|string',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $parentIds = explode(',', $request->parent_ids);
+            $parentEmails = explode(',', $request->parent_emails);
+
+            // Get parent details
+            $parents = User::whereIn('id', $parentIds)
+                ->where('userType', 'Parent')
+                ->get();
+
+            if ($parents->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Parent not found'
+                ], 404);
+            }
+
+            // Handle attachments if any (store on public disk and record meta)
+            $attachments = [];
+            $attachmentPaths = [];
+            if ($request->hasFile('attachments')) {
+                $allowedExt = ['pdf','jpg','jpeg','png','doc','docx'];
+                $maxSize = 25 * 1024 * 1024; // 25MB
+                foreach ($request->file('attachments') as $idx => $file) {
+                    if (!$file) { continue; }
+                    // Validate actual upload status to produce clearer error if PHP rejected it (size, tmp, etc.)
+                    if (!$file->isValid()) {
+                        $code = $file->getError();
+                        $reason = match ($code) {
+                            UPLOAD_ERR_INI_SIZE => 'File exceeds server upload_max_filesize limit.',
+                            UPLOAD_ERR_FORM_SIZE => 'File exceeds form max size limit.',
+                            UPLOAD_ERR_PARTIAL => 'File was only partially uploaded.',
+                            UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
+                            UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder on server.',
+                            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+                            UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.',
+                            default => 'Unknown upload error.',
+                        };
+                        Log::error('Email attachment upload invalid', [
+                            'name' => $file->getClientOriginalName(),
+                            'error_code' => $code,
+                            'reason' => $reason,
+                            'index' => $idx,
+                        ]);
+                        return response()->json([
+                            'status' => 'error',
+                            'errors' => ['attachments' => ['Attachment upload failed: ' . $reason . ' If this is a size issue, increase upload_max_filesize and post_max_size in php.ini or use a smaller file.']],
+                        ], 422);
+                    }
+                    $ext = strtolower($file->getClientOriginalExtension());
+                    if (!in_array($ext, $allowedExt, true)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'errors' => ['attachments' => ['Unsupported file type: .' . $ext]],
+                        ], 422);
+                    }
+                    if ($file->getSize() > $maxSize) {
+                        return response()->json([
+                            'status' => 'error',
+                            'errors' => ['attachments' => ['File is too large. Max allowed is 25MB.']],
+                        ], 422);
+                    }
+
+                    $originalName = $file->getClientOriginalName();
+                    $safeName = time() . '_' . preg_replace('/[^A-Za-z0-9_\.\-]/', '_', $originalName);
+                    $storedPath = Storage::disk('public')->putFileAs('email_attachments', $file, $safeName);
+
+                    // Keep both disk-relative path and meta for attaching and logging
+                    $attachments[] = [
+                        'disk' => 'public',
+                        'path' => $storedPath, // e.g. email_attachments/123_name.pdf
+                        'name' => $originalName,
+                        'mime' => $file->getMimeType(),
+                        'size' => $file->getSize(),
+                    ];
+
+                    $attachmentPaths[] = [
+                        'name' => $originalName,
+                        'size' => $file->getSize(),
+                        'type' => $file->getMimeType(),
+                        'path' => Storage::disk('public')->url($storedPath),
+                    ];
+                }
+            }
+
+            $emailData = [
+                'subject' => $request->subject,
+                'message' => $request->message,
+                'from_name' => Auth::user()->name ?? 'MyDairee System',
+                'from_email' => config('mail.from.address'),
+            ];
+
+            $successCount = 0;
+            $failedEmails = [];
+
+            // Send email to each parent
+            foreach ($parents as $parent) {
+                try {
+                    \Mail::send([], [], function ($message) use ($parent, $emailData, $attachments) {
+                        $message->to($parent->email, $parent->name)
+                            ->subject($emailData['subject'])
+                            ->from($emailData['from_email'], $emailData['from_name'])
+                            ->html($emailData['message']);
+
+                        // Attach files if any (works for images + pdf together)
+                        foreach ($attachments as $att) {
+                            try {
+                                if (!empty($att['disk']) && !empty($att['path'])) {
+                                    // Resolve absolute path on disk (works with local 'public' disk)
+                                    try {
+                                        $absolute = Storage::disk($att['disk'])->path($att['path']);
+                                    } catch (\Throwable $e) {
+                                        // Fallback: build path for default public disk layout
+                                        $absolute = storage_path('app/' . ($att['disk'] === 'public' ? 'public/' : '') . $att['path']);
+                                    }
+
+                                    if (file_exists($absolute)) {
+                                        $message->attach($absolute, [
+                                            'as' => $att['name'] ?? basename($att['path']),
+                                            'mime' => $att['mime'] ?? null,
+                                        ]);
+                                    } else {
+                                        \Log::warning('Attachment file not found on disk', ['path' => $absolute]);
+                                    }
+                                }
+                            } catch (\Throwable $e) {
+                                \Log::error('Attachment failed: ' . ($att['path'] ?? 'unknown') . ' => ' . $e->getMessage());
+                            }
+                        }
+                    });
+                    
+                    // Get children info for this parent
+                    $childrenInfo = $parent->children->map(function($child) {
+                        return [
+                            'id' => $child->id,
+                            'name' => $child->name . ' ' . $child->lastname,
+                            'relation' => $child->pivot->relation ?? 'N/A'
+                        ];
+                    })->toArray();
+                    
+                    
+                    $emailLog = \App\Models\EmailLog::create([
+                        'parent_id' => $parent->id,
+                        'parent_email' => $parent->email,
+                        'parent_name' => $parent->name,
+                        'sent_by' => Auth::id(),
+                        'subject' => $request->subject,
+                        'message' => $request->message,
+                        'sent_at' => now()
+                    ]);
+
+     
+                    foreach ($attachments as $att) {
+                        try {
+                            $url = null;
+                            if (!empty($att['disk']) && !empty($att['path'])) {
+                                try {
+                                    $url = Storage::disk($att['disk'])->url($att['path']);
+                                } catch (\Throwable $e) {
+                                    $url = ($att['path'] ?? null);
+                                }
+                            }
+
+                            $created = EmailAttachment::create([
+                                'email_id' => $emailLog->id,
+                                'name' => $att['name'] ?? null,
+                                'path' => $url ?? ($att['path'] ?? null),
+                                'size' => $att['size'] ?? null,
+                                'mime' => $att['mime'] ?? null,
+                            ]);
+                        } catch (\Throwable $e) {
+                            \Log::error('Failed to insert email attachment: ' . $e->getMessage());
+                        }
+                    }
+
+                    // Attach children via pivot using IDs
+                    $childIds = array_map(function($c) { return $c['id'] ?? null; }, $childrenInfo);
+                    $childIds = array_filter($childIds);
+                    if (!empty($childIds)) {
+                        $emailLog->childrenRelation()->syncWithoutDetaching($childIds);
+                    }
+                    // No JSON snapshot written: using normalized tables only
+                    
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $failedEmails[] = $parent->email;
+                    \Log::error('Failed to send email to ' . $parent->email . ': ' . $e->getMessage());
+                }
+            }
+
+            // Keep attachments in storage for email history tracking
+            // Do NOT delete them so they can be viewed in Track Mails page
+
+            if ($successCount > 0) {
+                $message = $successCount === 1 
+                    ? "Email sent successfully to {$parents->first()->name}"
+                    : "Email sent successfully to {$successCount} parent(s)";
+                    
+                if (!empty($failedEmails)) {
+                    $message .= ". Failed: " . implode(', ', $failedEmails);
+                }
+                
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $message
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to send emails to all recipients'
+                ], 500);
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Email sending error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send email: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function trackMails(Request $request)
+    {
+        try {
+            $parentIds = $request->input('parent_ids');
+            
+            if (!$parentIds) {
+                return view('settings.track-mails', [
+                    'emails' => collect([]),
+                    'parents' => collect([])
+                ]);
+            }
+            
+            $parentIdsArray = is_array($parentIds) ? $parentIds : explode(',', $parentIds);
+            
+            
+            $emails = \App\Models\EmailLog::with(['parent', 'sender', 'attachmentsRelation', 'childrenRelation'])
+                ->whereIn('parent_id', $parentIdsArray)
+                ->orderBy('sent_at', 'desc')
+                ->get();
+            
+
+            $parents = User::whereIn('id', $parentIdsArray)
+                ->where('userType', 'Parent')
+                ->get();
+            
+            return view('settings.track-mails', compact('emails', 'parents'));
+            
+        } catch (\Exception $e) {
+            \Log::error('Track mails error: ' . $e->getMessage());
+            return back()->with('error', 'Failed to load email history');
+        }
+    }
+
 
     public function getprofile_page()
     {
@@ -1569,4 +2091,18 @@ class SettingsController extends Controller
 
     //     return response()->json(['status' => 'success']);
     // }
+
+    public function StaffFullDetails($id)
+    {
+        $staffs = User::where('userType', 'Staff')->get();
+        return view('settings.staffdetails', compact('staffs'));
+    }
+
+
+
+
+
+
+
+
 }

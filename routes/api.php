@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\API\LoginController;
 use App\Http\Controllers\API\RagisterController;
 use App\Http\Controllers\API\ApiResetPassword;
@@ -24,7 +23,14 @@ use App\Http\Controllers\API\Dashboard;
 use App\Http\Controllers\API\ParentSlideshowController;
 use App\Http\Controllers\API\ApiResetPasswordController; 
 use App\Http\Controllers\API\UserProfileController; 
+use App\Http\Controllers\API\DeviceController;
 
+Route::prefix('v1')->name('v1.')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/save-fcm-token', [DeviceController::class, 'saveToken']);
+    Route::post('/test-fcm', [DeviceController::class, 'testNotification']);
+    Route::patch('/user/notification-preference', [DeviceController::class, 'updateNotificationPreference']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
 	Route::get('user/profile-picture', [UserProfileController::class, 'getProfilePicture']);
@@ -59,11 +65,12 @@ Route::post('/store', [RagisterController::class, 'store']);
 Route::middleware('auth:sanctum')->group(function () {
 
             Route::get('announcements/events', [Dashboard::class, 'getEvents'])->name('announcements.events');
-//             Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
+// Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
 // Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
 Route::get('dashboard/analytical', [Dashboard::class, 'analytical'])->name('dashboard.analytical');
 Route::get('/api/events', [Dashboard::class, 'getEvents']);
-  Route::get('/dashboard', [Dashboard::class, 'university'])->name('dashboard.university');
+  Route::get('/dashboard', [Dashboard::class, 'university']);
+//  Route::get('/dashboard', [Dashboard::class, 'university'])->name('dashboard.university');
      Route::get('users/birthday', [Dashboard::class, 'getUser'])->name('users..birthday');
      Route::get('/api/events', [Dashboard::class, 'getEvents']);
 
@@ -282,7 +289,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // Daily Journel here
-    Route::get('DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.list');
+    Route::get('DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.apilist');
     Route::post('dailyDiary/storeBottle', [DailyDiaryController::class, 'storeBottle'])->name('dailyDiary.storeBottle');
     Route::post('dailyDiary/storeFood', [DailyDiaryController::class, 'storeFood'])->name('dailyDiary.storeFood');
     Route::post('dailyDiary/storeSleep', [DailyDiaryController::class, 'storeSleep'])->name('dailyDiary.storeSleep');
@@ -320,4 +327,21 @@ Route::middleware('auth:sanctum')->group(function () {
     // Daily Journel Ends here
 
 
+});
+
+Route::get('/test-parent-notification', function () {
+    $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+    $childIds = [230]; // Replace with real test child IDs
+    $moduleType = 'observation'; // or 'reflection', 'diary', etc.
+    $moduleId = 1381; // Replace with a real module record ID
+    $createdBy = 1; // Replace with the user id who created the record
+    $results = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+        $childIds,
+        $moduleType,
+        $moduleId,
+        $createdBy,
+        $service
+    );
+    return $results;
+});
 });

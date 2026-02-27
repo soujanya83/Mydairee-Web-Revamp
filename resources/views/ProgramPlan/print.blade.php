@@ -229,6 +229,33 @@
 
 
     </style>
+    
+    <!-- Theme-scoped overrides: apply only when a theme is active -->
+    <style>
+        /* Keep defaults intact for No Theme; only override under theme classes */
+        body[class*="theme-"] .program-title span {
+            color: var(--sd-accent);
+        }
+
+        body[class*="theme-"] .header {
+            border-top: 6px solid var(--sd-accent);
+        }
+
+        body[class*="theme-"] th {
+            background: var(--sd-accent-soft, rgba(0, 0, 0, 0.06));
+        }
+
+        body[class*="theme-"] .section-label {
+            color: var(--sd-accent);
+        }
+
+        body[class*="theme-"] .print-button,
+        body[class*="theme-"] .back-button {
+            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+            border-color: var(--sd-accent);
+            color: #000;
+        }
+    </style>
 </head>
 <body>
 

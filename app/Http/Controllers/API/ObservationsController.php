@@ -284,27 +284,23 @@ class ObservationsController extends Controller
             // Date filter
             if ($request->has('added') && !empty($request->added)) {
                 $dateFilters = $request->added;
-
                 foreach ($dateFilters as $dateFilter) {
                     switch ($dateFilter) {
                         case 'Today':
                             $query->whereDate('created_at', Carbon::today());
                             break;
-
                         case 'This Week':
                             $query->whereBetween('created_at', [
                                 Carbon::now()->startOfWeek(),
                                 Carbon::now()->endOfWeek()
                             ]);
                             break;
-
                         case 'This Month':
                             $query->whereBetween('created_at', [
                                 Carbon::now()->startOfMonth(),
                                 Carbon::now()->endOfMonth()
                             ]);
                             break;
-
                         case 'Custom':
                             if ($request->fromDate && $request->toDate) {
                                 $fromDate = Carbon::parse($request->fromDate)->startOfDay();
@@ -325,7 +321,6 @@ class ObservationsController extends Controller
                     ->pluck('observationId')
                     ->unique()
                     ->toArray();
-
                 if (!empty($observationIds)) {
                     $query->whereIn('id', $observationIds);
                 } else {
@@ -345,7 +340,6 @@ class ObservationsController extends Controller
                     if (in_array('Me', $authorFilters)) {
                         $query->where('userId', Auth::id());
                     }
-
                     // ✅ If specific staff IDs are selected (as string IDs)
                     else {
                         $query->whereIn('userId', $authorFilters);
@@ -358,7 +352,6 @@ class ObservationsController extends Controller
             if ($user->userType === 'Staff') {
                 $query->where('userId', Auth::id());
             }
-
             // Apply user-specific filters based on role
             // $user = Auth::user();
             // if ($user->userType === 'Parent') {
@@ -369,7 +362,6 @@ class ObservationsController extends Controller
             //             ->pluck('observationId')
             //             ->unique()
             //             ->toArray();
-
             //         if (!empty($parentObservationIds)) {
             //             $query->whereIn('id', $parentObservationIds);
             //         } else {
@@ -385,7 +377,6 @@ class ObservationsController extends Controller
             //             ->pluck('observationId')
             //             ->unique()
             //             ->toArray();
-
             //         if (!empty($teacherObservationIds)) {
             //             $query->whereIn('id', $teacherObservationIds);
             //         } else {
@@ -424,7 +415,6 @@ class ObservationsController extends Controller
                     })->filter(),
                 ];
             });
-
             return response()->json([
                 'status' => 'success',
                 'message' => 'Filters applied successfully',
@@ -929,6 +919,33 @@ class ObservationsController extends Controller
         $observation = Observation::find($validated['observationId']);
         $observation->status = $validated['status'];
         $observation->save();
+
+        // Only send notification if status is set to Published (case-insensitive)
+        if (strtolower($observation->status) === 'published') {
+            // Get all children attached to this observation
+            $selectedChildren = \App\Models\ObservationChild::where('observationId', $observation->id)->pluck('childId')->toArray();
+            $authId = $observation->userId;
+            // Push notification (deep linking)
+            $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+            \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                $selectedChildren,
+                'observation',
+                $observation->id,
+                $authId,
+                $service
+            );
+            // Laravel notification (database/email)
+            foreach ($selectedChildren as $childId) {
+                $parentRelations = \App\Models\Childparent::where('childid', $childId)->get();
+                foreach ($parentRelations as $relation) {
+                    $parentUser = \App\Models\User::find($relation->parentid);
+                    if ($parentUser) {
+                        $parentUser->notify(new \App\Notifications\ObservationAdded($observation));
+                    }
+                }
+            }
+        }
+
 
         return response()->json([
             'status'  => true,
@@ -1521,7 +1538,35 @@ class ObservationsController extends Controller
                 }
             }
 
+
             DB::commit();
+
+            // Debug log for notification trigger
+            // Log::info('[Observation Store] Notification check', [
+            //     'observation_id' => $observationId,
+            //     'status' => $observation->status,
+            //     'request_status' => $request->input('status'),
+            //     'selectedChildren' => $selectedChildren,
+            //     'authId' => $authId,
+            // ]);
+
+            // Send notification to all parents of the attached children ONLY if published
+            // if (!empty($selectedChildren) && ($observation->status ?? null) === 'Published') {
+            //     Log::info('[Observation Store] Sending notification to parents', [
+            //         'observation_id' => $observationId,
+            //         'status' => $observation->status,
+            //         'selectedChildren' => $selectedChildren,
+            //     ]);
+            //     $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+            //     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+            //         $selectedChildren,
+            //         'observation',
+            //         $observationId,
+            //         $authId,
+            //         $service
+            //     );
+            // }
+
 
             return response()->json([
                 'status' => true,
@@ -1893,7 +1938,7 @@ class ObservationsController extends Controller
       
 
         $validator = Validator::make($request->all(), $rules, $messages);
-  dd($validator);
+        dd($validator);
         if ($validator->fails()) {
             return response()->json([
                 'status'  => false,
@@ -1999,6 +2044,18 @@ class ObservationsController extends Controller
         }
 
         DB::commit();
+
+        // Send notification to all parents of the attached children ONLY if published
+        if (!empty($selectedChildren) && ($snapshot->status ?? null) === 'Published') {
+            $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+            \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                $selectedChildren,
+                'snapshot',
+                $snapshotId,
+                $authId,
+                $service
+            );
+        }
 
         return response()->json([
             'status'  => true,

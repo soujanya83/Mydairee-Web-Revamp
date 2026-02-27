@@ -836,6 +836,7 @@ $children = Child::whereIn('id', $childIds)
 
             $count = 0;
 
+            $diaryIds = [];
             foreach ($request->child_ids as $childId) {
                 // Check if entry exists
                 $existingEntry = DailyDiaryBreakfast::where('childid', $childId)
@@ -848,7 +849,7 @@ $children = Child::whereIn('id', $childIds)
                         'item' => $request->item,
                         'comments' => $request->comments
                     ]);
-                    $count++;
+                    $diary = $existingEntry;
                 } else {
                     $diary = DailyDiaryBreakfast::create([
                         'childid' => $childId,
@@ -857,23 +858,44 @@ $children = Child::whereIn('id', $childIds)
                         'item' => $request->item,
                         'comments' => $request->comments,
                         'createdBy' => $authId,
-
-
                     ]);
-                    $count++;
+                }
+                $count++;
+                $diaryIds[$childId] = $diary->id;
 
-                    // Notify all parents of this child
-                    $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
-
-                    $parentUsers = User::whereIn('id', $parentIds)->get();
-
-                    foreach ($parentUsers as $parent) {
-                        $parent->notify(new DailyDiaryAdded($diary));
-                    }
+                // Notify all parents of this child
+                $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+                $parentUsers = User::whereIn('id', $parentIds)->get();
+                foreach ($parentUsers as $parent) {
+                    $parent->notify(new DailyDiaryAdded($diary));
                 }
             }
 
             DB::commit();
+            // Push notification to parents (after commit)
+            if (!empty($request->child_ids)) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                foreach ($request->child_ids as $childId) {
+                    $moduleId = $diaryIds[$childId] ?? 0;
+                    $data = [
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryBreakfast'
+                    ];
+                    \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                        [$childId],
+                        'diary',
+                        $moduleId,
+                        $authId,
+                        $firebaseService,
+                        'DailyDiaryBreakfast',
+                        $data
+                    );
+                }
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -912,6 +934,7 @@ $children = Child::whereIn('id', $childIds)
             $count = 0;
             $errors = [];
 
+            $diaryIds = [];
             foreach ($request->child_ids as $childId) {
                 // Check if entry already exists for this child and date
                 $existingEntry = DailyDiaryLunch::where('childid', $childId)
@@ -926,7 +949,7 @@ $children = Child::whereIn('id', $childIds)
                         'comments' => $request->comments,
                         'updated_at' => now()
                     ]);
-                    $count++;
+                    $diary = $existingEntry;
                 } else {
                     // Create new entry
                     $diary = DailyDiaryLunch::create([
@@ -936,21 +959,43 @@ $children = Child::whereIn('id', $childIds)
                         'item' => $request->item,
                         'comments' => $request->comments,
                         'createdBy' => $authId
-
                     ]);
-                    $count++;
+                }
+                $count++;
+                $diaryIds[$childId] = $diary->id;
 
-                    $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
-
-                    $parentUsers = User::whereIn('id', $parentIds)->get();
-
-                    foreach ($parentUsers as $parent) {
-                        $parent->notify(new DailyDiaryAdded($diary));
-                    }
+                $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+                $parentUsers = User::whereIn('id', $parentIds)->get();
+                foreach ($parentUsers as $parent) {
+                    $parent->notify(new DailyDiaryAdded($diary));
                 }
             }
 
             DB::commit();
+            // Push notification to parents (after commit)
+            if (!empty($request->child_ids)) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                foreach ($request->child_ids as $childId) {
+                    $moduleId = $diaryIds[$childId] ?? 0;
+                    $data = [
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryLunch'
+                    ];
+                    \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                        [$childId],
+                        'diary',
+                        $moduleId,
+                        $authId,
+                        $firebaseService,
+                        'DailyDiaryLunch',
+                        $data
+                    );
+                }
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -988,6 +1033,7 @@ $children = Child::whereIn('id', $childIds)
             $count = 0;
             $errors = [];
 
+            $diaryIds = [];
             foreach ($request->child_ids as $childId) {
                 // Check if entry already exists for this child and date
                 $existingEntry = DailyDiaryMorningTea::where('childid', $childId)
@@ -1001,7 +1047,7 @@ $children = Child::whereIn('id', $childIds)
                         'comments' => $request->comments,
                         'updated_at' => now()
                     ]);
-                    $count++;
+                    $diary = $existingEntry;
                 } else {
                     // Create new entry
                     $diary = DailyDiaryMorningTea::create([
@@ -1011,18 +1057,41 @@ $children = Child::whereIn('id', $childIds)
                         'comments' => $request->comments,
                         'createdBy' => $authId
                     ]);
-                    $count++;
-                    $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
-
-                    $parentUsers = User::whereIn('id', $parentIds)->get();
-
-                    foreach ($parentUsers as $parent) {
-                        $parent->notify(new DailyDiaryAdded($diary));
-                    }
+                }
+                $count++;
+                $diaryIds[$childId] = $diary->id;
+                $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+                $parentUsers = User::whereIn('id', $parentIds)->get();
+                foreach ($parentUsers as $parent) {
+                    $parent->notify(new DailyDiaryAdded($diary));
                 }
             }
 
             DB::commit();
+            // Push notification to parents (after commit)
+            if (!empty($request->child_ids)) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                foreach ($request->child_ids as $childId) {
+                    $moduleId = $diaryIds[$childId] ?? 0;
+                    $data = [
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryMorningTea'
+                    ];
+                    \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                        [$childId],
+                        'diary',
+                        $moduleId,
+                        $authId,
+                        $firebaseService,
+                        'DailyDiaryMorningTea',
+                        $data
+                    );
+                }
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -1059,6 +1128,7 @@ $children = Child::whereIn('id', $childIds)
             $count = 0;
             $errors = [];
 
+            $diaryIds = [];
             foreach ($request->child_ids as $childId) {
                 // Check if entry already exists for this child and date
                 $existingEntry = DailyDiarySleep::where('childid', $childId)
@@ -1080,6 +1150,7 @@ $children = Child::whereIn('id', $childIds)
                     }
 
                     $existingEntry->update($updateData);
+                    $diary = $existingEntry;
                 } else {
                     // Create new entry
                     $diary = DailyDiarySleep::create([
@@ -1090,19 +1161,41 @@ $children = Child::whereIn('id', $childIds)
                         'comments' => $request->comments,
                         'createdBy' => $authId
                     ]);
-                    $count++;
-
-                    $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
-
-                    $parentUsers = User::whereIn('id', $parentIds)->get();
-
-                    foreach ($parentUsers as $parent) {
-                        $parent->notify(new DailyDiaryAdded($diary));
-                    }
+                }
+                $count++;
+                $diaryIds[$childId] = $diary->id;
+                $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
+                $parentUsers = User::whereIn('id', $parentIds)->get();
+                foreach ($parentUsers as $parent) {
+                    $parent->notify(new DailyDiaryAdded($diary));
                 }
             }
 
             DB::commit();
+            // Push notification to parents (after commit)
+            if (!empty($request->child_ids)) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                foreach ($request->child_ids as $childId) {
+                    $moduleId = $diaryIds[$childId] ?? 0;
+                    $data = [
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
+                        'created_by' => $authId,
+                        'section' => 'DailyDiarySleep'
+                    ];
+                    \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                        [$childId],
+                        'diary',
+                        $moduleId,
+                        $authId,
+                        $firebaseService,
+                        'DailyDiarySleep',
+                        $data
+                    );
+                }
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -1121,6 +1214,7 @@ $children = Child::whereIn('id', $childIds)
 
 
     public function storeAfternoonTea(Request $request)
+  
     {
         // Validate the request
         $validated = $request->validate([
@@ -1138,6 +1232,7 @@ $children = Child::whereIn('id', $childIds)
 
             $count = 0;
 
+            $diaryIds = [];
             foreach ($request->child_ids as $childId) {
                 // Check if entry exists for child+date
                 $existingEntry = DailyDiaryAfternoonTea::where('childid', $childId)
@@ -1151,6 +1246,7 @@ $children = Child::whereIn('id', $childIds)
                         'comments' => $request->comments,
                         'updated_at' => now()
                     ]);
+                    $diary = $existingEntry;
                 } else {
                     // Create new
                     $diary = DailyDiaryAfternoonTea::create([
@@ -1162,16 +1258,40 @@ $children = Child::whereIn('id', $childIds)
                     ]);
                 }
                 $count++;
+                $diaryIds[$childId] = $diary->id;
                 $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
-
                 $parentUsers = User::whereIn('id', $parentIds)->get();
-
                 foreach ($parentUsers as $parent) {
                     $parent->notify(new DailyDiaryAdded($diary));
                 }
             }
 
             DB::commit();
+            // Push notification to parents (after commit)
+            if (!empty($request->child_ids)) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                $notified = [];
+                foreach ($request->child_ids as $childId) {
+                    $moduleId = $diaryIds[$childId] ?? 0;
+                    $data = [
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryAfternoonTea'
+                    ];
+                    $notified[] = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                        [$childId],
+                        'diary',
+                        $moduleId,
+                        $authId,
+                        $firebaseService,
+                        'DailyDiaryAfternoonTea',
+                        $data
+                    );
+                }
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -1192,6 +1312,7 @@ $children = Child::whereIn('id', $childIds)
 
 
     public function storeSnacks(Request $request)
+        
     {
         $validated = $request->validate([
             'date' => 'required|date',
@@ -1207,6 +1328,7 @@ $children = Child::whereIn('id', $childIds)
             $authId = Auth::user()->id;
             $count = 0;
 
+            $diaryIds = [];
             foreach ($request->child_ids as $childId) {
                 $existingEntry = DailyDiarySnacks::where('childid', $childId)
                     ->whereDate('diarydate', $request->date)
@@ -1218,6 +1340,7 @@ $children = Child::whereIn('id', $childIds)
                         'item' => $request->item,
                         'comments' => $request->comments
                     ]);
+                    $diary = $existingEntry;
                 } else {
                     $diary =  DailyDiarySnacks::create([
                         'childid' => $childId,
@@ -1229,16 +1352,40 @@ $children = Child::whereIn('id', $childIds)
                     ]);
                 }
                 $count++;
+                $diaryIds[$childId] = $diary->id;
                 $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
-
                 $parentUsers = User::whereIn('id', $parentIds)->get();
-
                 foreach ($parentUsers as $parent) {
                     $parent->notify(new DailyDiaryAdded($diary));
                 }
             }
 
             DB::commit();
+            // Push notification to parents (after commit)
+            if (!empty($request->child_ids)) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                $notified = [];
+                foreach ($request->child_ids as $childId) {
+                    $moduleId = $diaryIds[$childId] ?? 0;
+                    $data = [
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
+                        'created_by' => $authId,
+                        'section' => 'DailyDiarySnacks'
+                    ];
+                    $notified[] = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                        [$childId],
+                        'diary',
+                        $moduleId,
+                        $authId,
+                        $firebaseService,
+                        'DailyDiarySnacks',
+                        $data
+                    );
+                }
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => $count > 1
@@ -1258,6 +1405,7 @@ $children = Child::whereIn('id', $childIds)
 
 
     public function storeSunscreen(Request $request)
+
     {
         $validated = $request->validate([
             'date' => 'required|date',
@@ -1273,20 +1421,19 @@ $children = Child::whereIn('id', $childIds)
             $authId = Auth::user()->id;
             $count = 0;
 
+            $diaryIds = [];
             foreach ($request->child_ids as $childId) {
                 $existingEntry = DailyDiarySunscreen::where('childid', $childId)
                     ->whereDate('diarydate', $request->date)
                     ->first();
 
                 if ($existingEntry) {
-                   
                     $existingEntry->update([
                         'startTime' => $request->time,
                         'comments' => $request->comments,
                         'signature' => $request->signature
                     ]);
-
-                      $diary = $existingEntry;
+                    $diary = $existingEntry;
                 } else {
                     $diary = DailyDiarySunscreen::create([
                         'childid' => $childId,
@@ -1296,19 +1443,42 @@ $children = Child::whereIn('id', $childIds)
                         'signature' => $request->signature,
                         'createdBy' => $authId
                     ]);
-                  
                 }
                 $count++;
+                $diaryIds[$childId] = $diary->id;
                 $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
-
                 $parentUsers = User::whereIn('id', $parentIds)->get();
-
                 foreach ($parentUsers as $parent) {
                     $parent->notify(new DailyDiaryAdded($diary));
                 }
             }
 
             DB::commit();
+            // Push notification to parents (after commit)
+            if (!empty($request->child_ids)) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                $notified = [];
+                foreach ($request->child_ids as $childId) {
+                    $moduleId = $diaryIds[$childId] ?? 0;
+                    $data = [
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
+                        'created_by' => $authId,
+                        'section' => 'DailyDiarySunscreen'
+                    ];
+                    $notified[] = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                        [$childId],
+                        'diary',
+                        $moduleId,
+                        $authId,
+                        $firebaseService,
+                        'DailyDiarySunscreen',
+                        $data
+                    );
+                }
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => $count > 1
@@ -1327,6 +1497,7 @@ $children = Child::whereIn('id', $childIds)
 
 
     public function storeToileting(Request $request)
+
     {
         $validated = $request->validate([
             'date' => 'required|date',
@@ -1343,6 +1514,7 @@ $children = Child::whereIn('id', $childIds)
             $authId = Auth::user()->id;
             $count = 0;
 
+            $diaryIds = [];
             foreach ($request->child_ids as $childId) {
                 $existingEntry = DailyDiaryToileting::where('childid', $childId)
                     ->whereDate('diarydate', $request->date)
@@ -1355,6 +1527,7 @@ $children = Child::whereIn('id', $childIds)
                         'comments' => $request->comments,
                         'signature' => $request->signature
                     ]);
+                    $diary = $existingEntry;
                 } else {
                     $diary = DailyDiaryToileting::create([
                         'childid' => $childId,
@@ -1367,17 +1540,40 @@ $children = Child::whereIn('id', $childIds)
                     ]);
                 }
                 $count++;
-
+                $diaryIds[$childId] = $diary->id;
                 $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
-
                 $parentUsers = User::whereIn('id', $parentIds)->get();
-
                 foreach ($parentUsers as $parent) {
                     $parent->notify(new DailyDiaryAdded($diary));
                 }
             }
 
             DB::commit();
+            // Push notification to parents (after commit)
+            if (!empty($request->child_ids)) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                $notified = [];
+                foreach ($request->child_ids as $childId) {
+                    $moduleId = $diaryIds[$childId] ?? 0;
+                    $data = [
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryToileting'
+                    ];
+                    $notified[] = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                        [$childId],
+                        'diary',
+                        $moduleId,
+                        $authId,
+                        $firebaseService,
+                        'DailyDiaryToileting',
+                        $data
+                    );
+                }
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => $count > 1
@@ -1395,6 +1591,7 @@ $children = Child::whereIn('id', $childIds)
 
 
     public function storeBottle(Request $request)
+
     {
         $validated = $request->validate([
             'date' => 'required|date',
@@ -1409,6 +1606,7 @@ $children = Child::whereIn('id', $childIds)
             $authId = Auth::user()->id;
             $count = 0;
 
+            $diaryIds = [];
             foreach ($request->child_ids as $childId) {
                 $existingEntry = DailyDiaryBottle::where('childid', $childId)
                     ->whereDate('diarydate', $request->date)
@@ -1420,6 +1618,7 @@ $children = Child::whereIn('id', $childIds)
                         'comments' => $request->comments,
                         'updated_at' => now()
                     ]);
+                    $diary = $existingEntry;
                 } else {
                     $diary = DailyDiaryBottle::create([
                         'childid' => $childId,
@@ -1430,17 +1629,40 @@ $children = Child::whereIn('id', $childIds)
                     ]);
                 }
                 $count++;
-
+                $diaryIds[$childId] = $diary->id;
                 $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
-
                 $parentUsers = User::whereIn('id', $parentIds)->get();
-
                 foreach ($parentUsers as $parent) {
                     $parent->notify(new DailyDiaryAdded($diary));
                 }
             }
 
             DB::commit();
+            // Push notification to parents (after commit)
+            if (!empty($request->child_ids)) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                $notified = [];
+                foreach ($request->child_ids as $childId) {
+                    $moduleId = $diaryIds[$childId] ?? 0;
+                    $data = [
+                        'type' => 'diary',
+                        'module_id' => $moduleId,
+                        'child_ids' => [$childId],
+                        'module_date' => date('Y-m-d', strtotime($request->date)),
+                        'created_by' => $authId,
+                        'section' => 'DailyDiaryBottle'
+                    ];
+                    $notified[] = \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                        [$childId],
+                        'diary',
+                        $moduleId,
+                        $authId,
+                        $firebaseService,
+                        'DailyDiaryBottle',
+                        $data
+                    );
+                }
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => $count > 1

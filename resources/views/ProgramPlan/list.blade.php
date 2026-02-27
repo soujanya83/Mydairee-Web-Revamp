@@ -4,26 +4,29 @@
 
 
 <style>
-    #FilterbyCreatedBy{
+    #FilterbyCreatedBy {
         display: none;
     }
-     #FilterbyStatus{
-        display: none;
-    }
-       #FilterbyRoomName{
-        display: none;
-    }
-    .swal2-confirm.published-btn {
-    background: linear-gradient(135deg, var(--danger-color), var(--secondary-color)) !important;
-    color: #fff !important;
-    border: none;
-}
 
-.swal2-cancel.draft-btn {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
-    color: #fff !important;
-    border: none;
-}
+    #FilterbyStatus {
+        display: none;
+    }
+
+    #FilterbyRoomName {
+        display: none;
+    }
+
+    .swal2-confirm.published-btn {
+        background: linear-gradient(135deg, var(--danger-color), var(--secondary-color)) !important;
+        color: #fff !important;
+        border: none;
+    }
+
+    .swal2-cancel.draft-btn {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        color: #fff !important;
+        border: none;
+    }
 
     .pagination {
         font-size: 0.9rem;
@@ -668,112 +671,139 @@
         }
     }
 
-.tooltip-inner {
-    background-color: #17a2b8 !important; /* bg-info */
-    color: #fff !important;              /* text color */
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 6px;
-}
+    .tooltip-inner {
+        background-color: #17a2b8 !important;
+        /* bg-info */
+        color: #fff !important;
+        /* text color */
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 6px;
+    }
 
-.bs-tooltip-top .tooltip-arrow::before {
-    border-top-color: #17a2b8 !important;
-}
-.bs-tooltip-bottom .tooltip-arrow::before {
-    border-bottom-color: #17a2b8 !important;
-}
-.bs-tooltip-start .tooltip-arrow::before {
-    border-left-color: #17a2b8 !important;
-}
-.bs-tooltip-end .tooltip-arrow::before {
-    border-right-color: #17a2b8 !important;
-}
+    .bs-tooltip-top .tooltip-arrow::before {
+        border-top-color: #17a2b8 !important;
+    }
 
+    .bs-tooltip-bottom .tooltip-arrow::before {
+        border-bottom-color: #17a2b8 !important;
+    }
 
+    .bs-tooltip-start .tooltip-arrow::before {
+        border-left-color: #17a2b8 !important;
+    }
+
+    .bs-tooltip-end .tooltip-arrow::before {
+        border-right-color: #17a2b8 !important;
+    }
 </style>
 
 @section('content')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -60px;">
+    style="margin-right: 20px;margin-top: -49px;">
 
     <div class="text-zero top-right-button-container">
 
         <div class="btn-group mr-1">
             <div class="dropdown">
-                <button class="btn btn-outline-info btn-lg dropdown-toggle" type="button" id="centerDropdown"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn theme-outline-btn btn-lg dropdown-toggle" type="button" id="centerDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
                     {{ $centers->firstWhere('id', session('user_center_id'))?->centerName ?? 'Select Center' }}
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="centerDropdown"
-                    style="top:3% !important;left:13px !important;">
+                    style="top:3% !important;left:13px !important; background: var(--sd-bg, #fff); border: 1px solid var(--sd-accent, #007bff);">
                     @foreach($centers as $center)
                     <a href="javascript:void(0);"
-                        class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold text-info' : '' }}"
-                        style="background-color:white;" data-id="{{ $center->id }}">
+                        class="dropdown-item center-option {{ session('user_center_id') == $center->id ? 'active font-weight-bold' : '' }}"
+                        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); {{ session('user_center_id') == $center->id ? 'font-weight: bold; background: var(--sd-accent, #007bff); color: var(--sd-bg, #fff);' : '' }}"
+                        data-id="{{ $center->id }}">
                         {{ $center->centerName }}
                     </a>
                     @endforeach
                 </div>
             </div>
-
         </div>
 
-        @if(isset($permission) && $permission->addActivity == 1 || Auth::user()->userType == "Superadmin" ||Auth::user()->admin == 1 )
-        <a href="{{ route('observation.activity-list') }}" class="btn btn-outline-info btn-lg top-right-button" >Activities</a>
-        @endif
-
-        @if($userType != 'Parent')
-        @if(!empty($permissions['addProgramPlan']) && $permissions['addProgramPlan'])
-
-        <a href="{{ route('create.programplan', ['centerid' => $centerId]) }}" class="btn btn-outline-info"
-            style="margin-left:5px;">
-            Add ProgramPlan
-        </a>
-
-        @endif
+        @if(isset($permission) && $permission->addActivity == 1 || Auth::user()->userType == "Superadmin"
+        ||Auth::user()->admin == 1 )
+        <a href="{{ route('observation.activity-list') }}" class="btn theme-outline-btn btn-lg top-right-button"
+            style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">Activities</a>
         @endif
     </div>
 
 </div>
 
- <hr class="mt-3">
-  <!-- filter  -->
-   @if(Auth::user()->userType != 'Parent')
-             <div class="col-6 d-flex justify-content-start align-items-center top-right-button-container">
-     <i class="fas fa-filter mx-2" style="color:#17a2b8;"></i>
-     <select name="filter" onchange="showfilter(this.value)" class="form-control form-control-sm border-info uniform-input col-3 ">
-        <option value="">Choose</option>
-        <option value="roomname">Room Name</option>
-         <option value="createdby">Created By</option>
-          <option value="status">Status</option>
-    </select>
-    <input
-        type="text"
-        name="filterbyCentername"
-        class="form-control border-info ml-2"
-        id="FilterbyRoomName"
-        placeholder="Filter by Room name" onkeyup="filterProgramPlan()">
+<hr class="mt-2">
+<!-- filter  -->
+@if(Auth::user()->userType != 'Parent')
 
-          <input
-        type="text"
-        name="filterbyCentername"
-        class="form-control border-info mx-2"
-        id="FilterbyCreatedBy"
-        placeholder="Filter by Created by" onkeyup="filterProgramPlan()">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
 
-          <input
-        type="text"
-        name="filterbyCentername"
-        class="form-control border-info mx-2"
-        id="FilterbyStatus"
-        placeholder="Filter by Status" onkeyup="filterProgramPlan()">
+        <!-- LEFT SIDE (Filters) -->
+        <div class="d-flex align-items-center">
 
+            <i class="fas fa-filter mx-2"
+                style="color: var(--sd-accent, #17a2b8);"></i>
 
+            <select name="filter" onchange="showfilter(this.value)"
+                class="form-control form-control-sm theme-input uniform-input mx-2"
+                style="width:150px; background: var(--sd-bg, #fff); 
+                    color: var(--sd-accent, #007bff); 
+                    border: 2px solid var(--sd-accent, #007bff);">
+                <option value="">Choose</option>
+                <option value="roomname">Room Name</option>
+                <option value="createdby">Created By</option>
+                <option value="status">Status</option>
+            </select>
 
+            <input type="text"
+                id="FilterbyRoomName"
+                class="form-control mx-2"
+                placeholder="Filter by Room name"
+                style="width:180px; background: var(--sd-bg, #fff); 
+                    color: var(--sd-accent, #007bff); 
+                    border: 2px solid var(--sd-accent, #007bff);"
+                onkeyup="filterProgramPlan()">
 
-</div>
+            <input type="text"
+                id="FilterbyCreatedBy"
+                class="form-control mx-2"
+                placeholder="Filter by Created by"
+                style="width:180px; background: var(--sd-bg, #fff); 
+                    color: var(--sd-accent, #007bff); 
+                    border: 2px solid var(--sd-accent, #007bff);"
+                onkeyup="filterProgramPlan()">
+
+            <input type="text"
+                id="FilterbyStatus"
+                class="form-control mx-2"
+                placeholder="Filter by Status"
+                style="width:180px; background: var(--sd-bg, #fff); 
+                    color: var(--sd-accent, #007bff); 
+                    border: 2px solid var(--sd-accent, #007bff);"
+                onkeyup="filterProgramPlan()">
+
+        </div>
+
+        <!-- RIGHT SIDE (Button) -->
+        @if(!empty($permissions['addProgramPlan']) && $permissions['addProgramPlan'] || Auth::user()->userType == "Superadmin")
+
+            <a href="{{ route('create.programplan', ['centerid' => $centerId]) }}"
+            class="btn theme-outline-btn"
+            style="background: var(--sd-bg, #fff); 
+                    color: var(--sd-accent, #007bff); 
+                    border: 2px solid var(--sd-accent, #007bff);
+                    margin-right: 50px;">
+                Add ProgramPlan
+            </a>
+
+        @endif
+
+    </div>
+
 @endif
-             <!-- filter ends here  -->
+<!-- filter ends here  -->
 <!-- resources/views/program_plan_list.blade.php -->
 
 <div class="main-container">
@@ -792,115 +822,141 @@
         </div> -->
 
     <!-- Main Content -->
- <div class="container-fluid px-0">
-    <div class="program-plan-container">
-          <!-- @if(Auth::user()->userType != 'Parent') -->
-        <div class="card-header-custom mb-3">
-            <h5 class="card-header-title">
-                <i class="fas fa-table"></i> Program Plans
-            </h5>
-        </div>
-        <!-- @endif -->
-<div class="program-plan">
+    <div class="container-fluid px-0">
+        <div class="program-plan-container">
+            <!-- @if(Auth::user()->userType != 'Parent') -->
+            <div class="card-header-custom mb-3" style="background: linear-gradient(135deg, var(--sd-accent, #667eea), var(--sd-secondary, #764ba2)); transition: background 0.3s;">
+                <h5 class="card-header-title">
+                    <i class="fas fa-table"></i> Program Plans
+                </h5>
+            </div>
+            <!-- @endif -->
+            <div class="program-plan">
 
 
-        <div class="row">
-            @forelse ($programPlans as $index => $plan)
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card h-100 shadow-sm rounded-3">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between">
-  <h5 class="card-title mb-2">
-                                {{ $getMonthName($plan->months) }} {{ $plan->years ?? '' }}
-                            </h5>
-                           @if(Auth::user()->userType != "Parent")
-<p class="text-xs mb-2">
-    @if($plan->status == 'Draft')
-    <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
-          style="transition: 0.2s; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"
-          onclick="updatestatus('{{ $plan->status ?? `` }}', '{{ $plan->id }}')"
-          onmouseover="this.style.opacity='0.8';"
-          onmouseout="this.style.opacity='1';">
-        {{ ucfirst($plan->status ?? 'Draft') }}
-    </span>
-    @else
-  <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
-          style="transition: 0.2s; background: linear-gradient(135deg, var(--danger-color), var(--secondary-color));"
-          onclick="updatestatus('{{ $plan->status ?? '--' }}', '{{ $plan->id }}')"
-          onmouseover="this.style.opacity='0.8';"
-          onmouseout="this.style.opacity='1';">
-        {{ ucfirst($plan->status ?? 'Draft') }}
-    </span>
-    @endif
-</p>
-@endif
-
-
-                            </div>
-
-
-                            <ul class="list-unstyled mb-3">
-                                <!-- <li><strong>S No:</strong> {{ ($programPlans->currentPage() - 1) * $programPlans->perPage() + $loop->iteration }}</li> -->
-                               @php
-    $roomIds = explode(',', $plan->room_id); // convert CSV to array
-    $rooms = \App\Models\Room::whereIn('id', $roomIds)->pluck('name')->toArray();
-@endphp
-
-<li><strong>Room(s):</strong> {{ implode(', ', $rooms) }}</li>
-
-
-                                <li><strong>Created By:</strong> {{ $plan->creator->name ?? '' }}</li>
-                                <!-- <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li> -->
-                                <li><strong>Published on :</strong> {{ \Carbon\Carbon::parse($plan->updated_at)->format('d M Y') }}</li>
-
-                            </ul>
-
-                            <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
-                                <a href="{{ route('print.programplan', $plan->id) }}"
-                                   class="btn btn-outline-primary btn-sm" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-
-                                @if(Auth::user()->userType != 'Parent')
-                                    @if(!empty($permissions['editProgramPlan']) && $permissions['editProgramPlan'] || Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
-                                        <a href="{{ route('create.programplan', ['centerId' => $centerId, 'planId' => $plan->id]) }}"
-                                           class="btn btn-outline-info btn-sm" title="Edit">
-                                            <i class="fas fa-pen-to-square"></i>
-                                        </a>
+                <div class="row">
+                    @forelse ($programPlans as $index => $plan)
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card h-100 shadow-sm rounded-3">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title mb-2">
+                                        {{ $getMonthName($plan->months) }} {{ $plan->years ?? '' }}
+                                    </h5>
+                                    @if(Auth::user()->userType != "Parent")
+                                    <p class="text-xs mb-2">
+                                        @if($plan->status == 'Draft')
+                                        <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
+                                            style="transition: 0.2s; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"
+                                            onclick="updatestatus('{{ $plan->status ?? `` }}', '{{ $plan->id }}')"
+                                            onmouseover="this.style.opacity='0.8';"
+                                            onmouseout="this.style.opacity='1';">
+                                            {{ ucfirst($plan->status ?? 'Draft') }}
+                                        </span>
+                                        @else
+                                        <span class="badge text-light rounded-pill px-3 py-2 shadow-sm cursor-auto"
+                                            style="transition: 0.2s; background: linear-gradient(135deg, var(--danger-color), var(--secondary-color));"
+                                            onclick="updatestatus('{{ $plan->status ?? '--' }}', '{{ $plan->id }}')"
+                                            onmouseover="this.style.opacity='0.8';"
+                                            onmouseout="this.style.opacity='1';">
+                                            {{ ucfirst($plan->status ?? 'Draft') }}
+                                        </span>
+                                        @endif
+                                    </p>
                                     @endif
 
-                                    @if(!empty($permissions['deleteProgramPlan']) && $permissions['deleteProgramPlan'] || Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
-                                        <button type="button"
-                                                class="btn btn-outline-danger btn-sm delete-program"
-                                                data-id="{{ $plan->id }}" title="Delete">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
+
+                                </div>
+
+
+                                <ul class="list-unstyled mb-3">
+                                    <!-- <li><strong>S No:</strong> {{ ($programPlans->currentPage() - 1) * $programPlans->perPage() + $loop->iteration }}</li> -->
+                                    @php
+                                    $roomIds = explode(',', $plan->room_id); // convert CSV to array
+                                    $rooms = \App\Models\Room::whereIn('id', $roomIds)->pluck('name')->toArray();
+                                    @endphp
+
+                                    <li><strong>Room(s):</strong> {{ implode(', ', $rooms) }}</li>
+
+
+                                    <li><strong>Created By:</strong> {{ $plan->creator->name ?? '' }}</li>
+                                    <!-- <li><strong>Created:</strong> {{ \Carbon\Carbon::parse($plan->created_at)->format('d M Y / H:i') }}</li> -->
+                                    <li><strong>Published on :</strong> {{
+                                        \Carbon\Carbon::parse($plan->updated_at)->format('d M Y') }}</li>
+
+                                </ul>
+
+                                <div class="mt-auto d-flex justify-content-start gap-2 flex-wrap">
+                                    <a href="{{ route('print.programplan', $plan->id) }}"
+                                        class="btn theme-outline-btn btn-sm" title="View"
+                                        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    @if(Auth::user()->userType != 'Parent')
+                                    @if(!empty($permissions['editProgramPlan']) && $permissions['editProgramPlan'] ||
+                                    Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
+                                    <a href="{{ route('create.programplan', ['centerId' => $centerId, 'planId' => $plan->id]) }}"
+                                        class="btn btn-outline-info btn-sm" title="Edit">
+                                        <i class="fas fa-pen-to-square"></i>
+                                    </a>
                                     @endif
-                                @endif
+
+                                    @if(!empty($permissions['deleteProgramPlan']) && $permissions['deleteProgramPlan']
+                                    || Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
+                                    <button type="button" class="btn btn-outline-danger btn-sm delete-program"
+                                        data-id="{{ $plan->id }}" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    @endif
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @empty
-                <div class="col-12 text-center">
-                    <div class="alert alert-info">
-                        <i class="fas fa-clipboard-list me-1"></i> No program plans found.
+                    @empty
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-clipboard-list me-1"></i> No program plans found.
+                        </div>
                     </div>
+                    @endforelse
                 </div>
-            @endforelse
+
+
+
+                @if(!$programPlans->isEmpty())
+                <div class="col-12 d-flex justify-content-center mt-4 mb-5" style="background: var(--sd-bg, #fff); border-radius: 0.75rem; box-shadow: var(--shadow); padding: 1.5rem 0; transition: background 0.3s;">
+                    <style>
+                        .pagination .page-link {
+                            background: var(--sd-bg, #fff) !important;
+                            color: var(--sd-accent, #007bff) !important;
+                            border: 2px solid var(--sd-accent, #007bff) !important;
+                            transition: background 0.3s, color 0.3s;
+                        }
+                        .pagination .page-item.active .page-link {
+                            background: var(--sd-accent, #007bff) !important;
+                            color: var(--sd-bg, #fff) !important;
+                            border-color: var(--sd-accent, #007bff) !important;
+                        }
+                        .pagination .page-link:hover {
+                            background: var(--sd-accent, #007bff) !important;
+                            color: var(--sd-bg, #fff) !important;
+                        }
+                        .pagination .page-item.disabled .page-link {
+                            color: #6c757d !important;
+                            background: var(--sd-bg, #fff) !important;
+                            border-color: var(--sd-accent, #007bff) !important;
+                            opacity: 0.5;
+                        }
+                    </style>
+                    {{ $programPlans->links('vendor.pagination.bootstrap-4') }}
+                </div>
+                @endif
+
+            </div>
         </div>
-
-
-
-              @if(!$programPlans->isEmpty())
-    <div class="col-12 d-flex justify-content-center mt-4 mb-5">
-        {{ $programPlans->links('vendor.pagination.bootstrap-4') }}
     </div>
-    @endif
-
-</div>
-    </div>
-</div>
 
 </div>
 
@@ -1350,4 +1406,3 @@ document.addEventListener("DOMContentLoaded", function() {
 
 @include('layout.footer')
 @stop
-

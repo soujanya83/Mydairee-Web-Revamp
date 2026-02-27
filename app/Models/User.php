@@ -37,7 +37,8 @@ class User extends Authenticatable
         'created_by',
         'email_verified_at',
         'has_seen_login_notice',
-        'admin'
+        'admin',
+        'allow_notifications'
     ];
 
 
@@ -54,6 +55,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'dob' => 'date',
+            'allow_notifications' => 'boolean',
         ];
     }
 
@@ -78,8 +80,13 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'childparent', 'childid', 'parentid', 'childid', 'userid');
     }
 
- public function permissions()
-{
-    return $this->hasMany(Permission::class, 'userid', 'userid');
-}
+    public function permissions()
+    {
+        return $this->hasMany(Permission::class, 'userid', 'userid');
+    }
+
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
 }

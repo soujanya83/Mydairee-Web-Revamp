@@ -25,7 +25,9 @@ use App\Models\DailyDiaryBottle;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use App\Services\AuthTokenService; // Custom service to verify token
+use App\Services\AuthTokenService;
+use App\Http\Controllers\API\DeviceController;
+use App\Services\Firebase\FirebaseNotificationService;
 use App\Models\DailyDiaryModel;
 use App\Models\Permission;
 use Illuminate\Support\Carbon;   
@@ -41,18 +43,18 @@ class DailyDiaryController extends Controller
 
           $validator = Validator::make($request->all(), [
         'center_id' => 'required|integer|exists:centers,id',
-    ]);
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'status'  => false,
-            'message' => 'Validation failed.',
-            'errors'  => $validator->errors(),
-        ], 422);
-    }
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
 
-    $authId = Auth::user()->id;
-    $centerid = $validator->validated()['center_id'];
+        $authId = Auth::user()->id;
+        $centerid = $validator->validated()['center_id'];
 
     
         if(Auth::user()->userType == "Superadmin"){
@@ -109,7 +111,7 @@ class DailyDiaryController extends Controller
                 })
                 ->values();
         }
-else{
+        else{
             $parentId = auth()->user()->id;
         $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
         $children = Child::where('room', $selectedroom->id)
@@ -133,7 +135,7 @@ else{
                     ];
                 })
                 ->values();
-}
+            }
 
         
         }
@@ -155,7 +157,7 @@ else{
             'permission' => $permissions,
             'children' => $children,
         ]
-    ]);
+        ]);
     }
 
 //     public function list(Request $request)
@@ -257,7 +259,7 @@ else{
                 }else{
                      $rooms = $this->getroomsforParent($center_id);
                 }
-        // dd( $rooms);
+                // dd( $rooms);
                 return $rooms;
             
             } catch (\Exception $e) {
@@ -271,7 +273,7 @@ else{
             }
         }
 
-           private function getroomsforParent($center_id)
+     private function getroomsforParent($center_id)
     {
         $authId = Auth::user()->id;
         // dd($authId);
@@ -753,11 +755,11 @@ public function addBottle(Request $request)
     'childid.*'    => 'required|exists:child,id',
     'diarydate'    => 'required|date',
     'startTime'    => 'required|date_format:H:i'
-], [
-    'childid.required'     => 'Please select at least one child.',
-    'childid.*.exists'     => 'One or more selected children are invalid.',
-    'startTime.date_format'=> 'Start time must be in HH:MM format.'
-]);
+    ], [
+        'childid.required'     => 'Please select at least one child.',
+        'childid.*.exists'     => 'One or more selected children are invalid.',
+        'startTime.date_format'=> 'Start time must be in HH:MM format.'
+    ]);
 
 
     if ($validator->fails()) {
@@ -862,10 +864,10 @@ public function viewChildDiary1($data)
     ->where('id', $payload->childid)
     ->first();
 
-// if ($child) {
-//     $roomName = $child->room->name;
-//     $roomColor = $child->room->color;
-// }
+    // if ($child) {
+    //     $roomName = $child->room->name;
+    //     $roomColor = $child->room->color;
+    // }
 
 
    if ($child) {
@@ -877,7 +879,7 @@ public function viewChildDiary1($data)
     $child->snack         = $this->getSnacks($child->id, $payload->date);
     $child->sunscreen     = $this->getSunscreen($child->id, $payload->date);
     $child->toileting     = $this->getToileting($child->id, $payload->date);
-}
+    }
 
     return Response::json([
         'Status'    => 'SUCCESS',
@@ -890,7 +892,7 @@ public function viewChildDiary1($data)
 }
 
 
-public function storeBreakfast(Request $request)
+    public function storeBreakfast(Request $request, FirebaseNotificationService $firebaseService)
 {
     $validator = Validator::make($request->all(), [
         'date'        => 'required|date',
@@ -917,7 +919,8 @@ public function storeBreakfast(Request $request)
         $authId = Auth::user()->id; 
         $count = 0;
 
-        foreach ($request->child_ids as $childId) {
+        $childIds = $request->child_ids;
+        foreach ($childIds as $childId) {
             $existingEntry = DailyDiaryBreakfast::where('childid', $childId)
                 ->whereDate('diarydate', $request->date)
                 ->first();
@@ -942,7 +945,20 @@ public function storeBreakfast(Request $request)
             $count++;
         }
 
+
         DB::commit();
+        // Send notification to parents (after commit)
+        if (!empty($childIds)) {
+            $section = 'DailyDiaryBreakfast';
+            DeviceController::notifyParentsModuleCreated(
+                $childIds,
+                'diary',
+                0, // No single diary id, so 0
+                $authId,
+                $firebaseService,
+                $section
+            );
+        }
 
         return response()->json([
             'status' => true,
@@ -960,7 +976,7 @@ public function storeBreakfast(Request $request)
 }
 
 
-public function storeLunch(Request $request)
+    public function storeLunch(Request $request, FirebaseNotificationService $firebaseService)
 {
     // Custom validation rules
     $validator = Validator::make($request->all(), [
@@ -988,7 +1004,8 @@ public function storeLunch(Request $request)
         $count = 0;
         $skipped = [];
 
-        foreach ($request->child_ids as $childId) {
+        $childIds = $request->child_ids;
+        foreach ($childIds as $childId) {
             try {
                 // Check if entry already exists for this child and date
                 $existingEntry = DailyDiaryLunch::where('childid', $childId)
@@ -1026,7 +1043,20 @@ public function storeLunch(Request $request)
             }
         }
 
+
         DB::commit();
+        // Send notification to parents (after commit)
+        if (!empty($childIds)) {
+            $section = 'DailyDiaryLunch';
+            DeviceController::notifyParentsModuleCreated(
+                $childIds,
+                'diary',
+                0,
+                $authId,
+                $firebaseService,
+                $section
+            );
+        }
 
         return response()->json([
             'status' => 'success',
@@ -1048,7 +1078,7 @@ public function storeLunch(Request $request)
 
 
 
-public function storeMorningTea(Request $request)
+    public function storeMorningTea(Request $request, FirebaseNotificationService $firebaseService)
 {
     
     $validator = Validator::make($request->all(), [
@@ -1075,7 +1105,8 @@ public function storeMorningTea(Request $request)
         $authId = Auth::user()->id;
         $count = 0;
 
-        foreach ($request->child_ids as $childId) {
+        $childIds = $request->child_ids;
+        foreach ($childIds as $childId) {
             $existingEntry = DailyDiaryMorningTea::where('childid', $childId)
                 ->whereDate('diarydate', $request->date)
                 ->first();
@@ -1099,7 +1130,20 @@ public function storeMorningTea(Request $request)
             $count++;
         }
 
+
         DB::commit();
+        // Send notification to parents (after commit)
+        if (!empty($childIds)) {
+            $section = 'DailyDiaryMorningTea';
+            DeviceController::notifyParentsModuleCreated(
+                $childIds,
+                'diary',
+                0,
+                $authId,
+                $firebaseService,
+                $section
+            );
+        }
 
         return response()->json([
             'status' => true,
@@ -1117,7 +1161,7 @@ public function storeMorningTea(Request $request)
 }
 
 
-public function storeSleep(Request $request)
+    public function storeSleep(Request $request, FirebaseNotificationService $firebaseService)
 {
     // ✅ Validate request
     $validator = Validator::make($request->all(), [
@@ -1174,7 +1218,8 @@ public function storeSleep(Request $request)
         }
 
         // ✅ Otherwise, insert for each child
-        foreach ($validated['child_ids'] as $childId) {
+        $childIds = $validated['child_ids'];
+        foreach ($childIds as $childId) {
             $entry = DailyDiarySleep::create([
                 'childid'   => $childId,
                 'diarydate' => $validated['date'],
@@ -1187,7 +1232,20 @@ public function storeSleep(Request $request)
             $count++;
         }
 
+
         DB::commit();
+        // Send notification to parents (after commit)
+        if (!empty($childIds)) {
+            $section = 'DailyDiarySleep';
+            DeviceController::notifyParentsModuleCreated(
+                $childIds,
+                'diary',
+                0,
+                $authId,
+                $firebaseService,
+                $section
+            );
+        }
 
         return response()->json([
             'status'  => true,
@@ -1208,7 +1266,7 @@ public function storeSleep(Request $request)
 
 
 
-public function storeAfternoonTea(Request $request)
+    public function storeAfternoonTea(Request $request, FirebaseNotificationService $firebaseService)
 {
     // Validate the request
     $validated = $request->validate([
@@ -1226,7 +1284,8 @@ public function storeAfternoonTea(Request $request)
         
         $count = 0;
 
-        foreach ($request->child_ids as $childId) {
+        $childIds = $request->child_ids;
+        foreach ($childIds as $childId) {
             // Check if entry exists for child+date
             $existingEntry = DailyDiaryAfternoonTea::where('childid', $childId)
                                     ->whereDate('diarydate', $request->date)
@@ -1252,7 +1311,20 @@ public function storeAfternoonTea(Request $request)
             $count++;
         }
 
+
         DB::commit();
+        // Send notification to parents (after commit)
+        if (!empty($childIds)) {
+            $section = 'DailyDiaryAfternoonTea';
+            DeviceController::notifyParentsModuleCreated(
+                $childIds,
+                'diary',
+                0,
+                $authId,
+                $firebaseService,
+                $section
+            );
+        }
 
         return response()->json([
             'status' => 'success',
@@ -1274,7 +1346,7 @@ public function storeAfternoonTea(Request $request)
 
 
   
-public function storeSnacks(Request $request)
+    public function storeSnacks(Request $request, FirebaseNotificationService $firebaseService)
 {
     $validated = $request->validate([
         'date' => 'required|date',
@@ -1290,7 +1362,8 @@ public function storeSnacks(Request $request)
         $authId = Auth::user()->id;
         $count = 0;
 
-        foreach ($request->child_ids as $childId) {
+        $childIds = $request->child_ids;
+        foreach ($childIds as $childId) {
             $existingEntry = DailyDiarySnacks::where('childid', $childId)
                                 ->whereDate('diarydate', $request->date)
                                 ->first();
@@ -1314,7 +1387,20 @@ public function storeSnacks(Request $request)
             $count++;
         }
 
+
         DB::commit();
+        // Send notification to parents (after commit)
+        if (!empty($childIds)) {
+            $section = 'DailyDiarySnacks';
+            DeviceController::notifyParentsModuleCreated(
+                $childIds,
+                'diary',
+                0,
+                $authId,
+                $firebaseService,
+                $section
+            );
+        }
         return response()->json([
             'status' => 'success',
             'message' => $count > 1 
@@ -1333,7 +1419,7 @@ public function storeSnacks(Request $request)
 
 
 
-public function storeSunscreen(Request $request)
+    public function storeSunscreen(Request $request, FirebaseNotificationService $firebaseService)
 {
     // Validate input
     $validator = Validator::make($request->all(), [
@@ -1396,7 +1482,8 @@ public function storeSunscreen(Request $request)
         }
 
         // Loop through children and insert new records
-        foreach ($request->child_ids as $childId) {
+        $childIds = $request->child_ids;
+        foreach ($childIds as $childId) {
             $entry = DailyDiarySunscreen::create([
                 'childid'   => $childId,
                 'diarydate' => $date,
@@ -1409,7 +1496,20 @@ public function storeSunscreen(Request $request)
             $createdCount++;
         }
 
+
         DB::commit();
+        // Send notification to parents (after commit)
+        if (!empty($childIds)) {
+            $section = 'DailyDiarySunscreen';
+            DeviceController::notifyParentsModuleCreated(
+                $childIds,
+                'diary',
+                0,
+                $authId,
+                $firebaseService,
+                $section
+            );
+        }
 
         return response()->json([
             'status'  => 'success',
@@ -1428,7 +1528,7 @@ public function storeSunscreen(Request $request)
 
 
 
-public function storeToileting(Request $request)
+    public function storeToileting(Request $request, FirebaseNotificationService $firebaseService)
 {
     $validator = Validator::make($request->all(), [
         'date'       => 'required|date',
@@ -1492,7 +1592,8 @@ public function storeToileting(Request $request)
         }
 
         // ✅ Create new entries for multiple children
-        foreach ($request->child_ids as $childId) {
+        $childIds = $request->child_ids;
+        foreach ($childIds as $childId) {
             DailyDiaryToileting::create([
                 'childid'   => $childId,
                 'diarydate' => $request->date,
@@ -1505,7 +1606,20 @@ public function storeToileting(Request $request)
             $count++;
         }
 
+
         DB::commit();
+        // Send notification to parents (after commit)
+        if (!empty($childIds)) {
+            $section = 'DailyDiaryToileting';
+            DeviceController::notifyParentsModuleCreated(
+                $childIds,
+                'diary',
+                0,
+                $authId,
+                $firebaseService,
+                $section
+            );
+        }
 
         return response()->json([
             'status'  => true,
@@ -1526,7 +1640,7 @@ public function storeToileting(Request $request)
 
 
 
-public function storeBottle(Request $request)
+    public function storeBottle(Request $request, FirebaseNotificationService $firebaseService)
 {
     // ✅ Validate input
     $validator = Validator::make($request->all(), [
@@ -1573,7 +1687,8 @@ public function storeBottle(Request $request)
 
 
         // ✅ Create/update multiple children entries
-        foreach ($validated['child_ids'] as $childId) {
+        $childIds = $validated['child_ids'];
+        foreach ($childIds as $childId) {
             // $existingEntry = DailyDiaryBottle::where('childid', $childId)
             //     ->whereDate('diarydate', $validated['date'])
             //     ->first();
@@ -1597,7 +1712,20 @@ public function storeBottle(Request $request)
             $count++;
         }
 
+
         DB::commit();
+        // Send notification to parents (after commit)
+        if (!empty($childIds)) {
+            $section = 'DailyDiaryBottle';
+            DeviceController::notifyParentsModuleCreated(
+                $childIds,
+                'diary',
+                0,
+                $authId,
+                $firebaseService,
+                $section
+            );
+        }
 
         return response()->json([
             'status'  => true,

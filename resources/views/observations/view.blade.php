@@ -27,6 +27,33 @@
         font-weight: 600;
     }
 
+    /* THEME SYSTEM: Accent color for nav tabs, card header, and highlights */
+    body[class*="theme-"] {
+        --sd-accent: #4f8cff;
+    }
+    body.theme-blue { --sd-accent: #4f8cff; }
+    body.theme-green { --sd-accent: #28a745; }
+    body.theme-pink { --sd-accent: #fb249b; }
+    body.theme-orange { --sd-accent: #ff9800; }
+    body.theme-purple { --sd-accent: #7c3aed; }
+    body.theme-teal { --sd-accent: #20c997; }
+
+    body[class*="theme-"] .nav-tabs-custom .nav-link.active,
+    body[class*="theme-"] .nav-tabs-custom .nav-link {
+        border-bottom-color: var(--sd-accent) !important;
+        color: var(--sd-accent) !important;
+    }
+    body[class*="theme-"] .nav-tabs-custom .nav-link.active {
+        font-weight: 700;
+    }
+    body[class*="theme-"] .card-header,
+    body[class*="theme-"] .card-title {
+        color: var(--sd-accent) !important;
+    }
+    body[class*="theme-"] .info-card {
+        border-left-color: var(--sd-accent) !important;
+    }
+
     .info-card {
         background: #f8f9fa;
         border-radius: 8px;
@@ -243,9 +270,9 @@
 </style>
 @section('content')
 
-@if(!empty($permissions['updateObservation']) && $permissions['updateObservation'])
+@if(!empty($permissions['updateObservation']) && $permissions['updateObservation'] || auth()->user()->userType === 'Superadmin')
 <div class="text-zero top-right-button-container d-flex justify-content-end"
-    style="margin-right: 20px;margin-top: -60px;margin-bottom:30px;">
+    style="margin-right: 20px;margin-top: -50px;margin-bottom:30px;">
     <button type="button" class="btn btn-success shadow-lg btn-animated mr-2"
         onclick="window.location.href='{{ route('observation.addnew.optional', ['id' => $observation->id]) }}'">
         <i class="fas fa-edit mr-1"></i> Edit
