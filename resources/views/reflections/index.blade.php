@@ -523,7 +523,9 @@
         @endphp
 
         <div class="col-lg-6 col-md-12">
+        @if(Auth::user()->userType != 'Parent')
         <span class="status-badge {{ $statusClass }}">{{ $reflectionItem->status }}</span>
+        @endif
             <div class="card reflection-card">
                 {{-- Image Carousel --}}
                 <div class="image-carousel">

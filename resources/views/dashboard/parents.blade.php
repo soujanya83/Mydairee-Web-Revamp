@@ -1463,7 +1463,7 @@
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
         
-        #ptmCard .icon {
+            #snapshotCard .icon {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         }
     </style>
@@ -1783,33 +1783,71 @@
             </div>
         </div>
 
-        <div class="top-card" id="ptmCard">
+        <div class="top-card" id="snapshotCard">
             @php
-                $ptmLatest = !empty($recentPtms) && $recentPtms->count() ? $recentPtms->first() : null;
+                $snapshotLatest = !empty($recentSnapshots) && $recentSnapshots->count() ? $recentSnapshots->first() : null;
             @endphp
-            <div class="card card-link" data-detail-href="{{ $ptmLatest ? route('ptm.viewptm', $ptmLatest->id) : route('ptm.index') }}" tabindex="0">
+            <div class="card card-link" data-detail-href="{{ $snapshotLatest ? route('snapshot.view', $snapshotLatest->id) : route('snapshot.index') }}" tabindex="0">
                 <div class="head">
-                    <div class="icon" title="PTM"><i class="icon-users " aria-hidden="true"></i></div>
-                    <div class="title"><a href="{{ route('ptm.index') }}" class="title-link">PTM's</a></div>
+                    <div class="icon" title="Snapshot"><i class="icon-camera " aria-hidden="true"></i></div>
+                    <div class="title"><a href="{{ route('snapshot.index') }}" class="title-link">Snapshots</a></div>
                 </div>
-                <div class="rotator" id="ptmRotator">
-                    @if(!empty($recentPtms) && $recentPtms->count())
-                        @foreach($recentPtms->take(3) as $p)
-                            <a class="item item-link {{ $loop->first ? 'active' : '' }}" href="{{ route('ptm.viewptm', $p->id) }}">
-                                <div class="ptm-content">
-                                    <div class="ptm-title">
-                                        {{ strip_tags($p->title ?? 'PTM') }}
-                                        @if($loop->first)
-                                            <span class="new-badge">NEW</span>
-                                        @endif
+                <div class="rotator" id="snapshotRotator">
+                    @if(!empty($recentSnapshots) && $recentSnapshots->count())
+                        @foreach($recentSnapshots->take(3) as $s)
+                            <a class="item item-link {{ $loop->first ? 'active' : '' }}" href="{{ route('snapshot.view', $s->id) }}">
+                                <div class="d-flex align-items-center justify-content-between" style="min-height:50px;">
+                                    <div style="flex:1; min-width:0;">
+                                        <div class="snapshot-title" style="font-weight:700; color:#2d3748; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                            {{ strip_tags($s->title ?? 'Snapshot') }}
+                                            @if($loop->first)
+                                                <span class="new-badge">NEW</span>
+                                            @endif
+                                        </div>
+                                        <div class="value" style="margin-top:4px; color:var(--dashboard-accent); font-size:0.95rem; font-weight:600;">
+                                            @php
+                                                $dateVal = $s->snapshot_date ?? $s->date ?? $s->created_at ?? null;
+                                            @endphp
+                                            {{ $dateVal ? date('d M Y', strtotime($dateVal)) : '' }}
+                                        </div>
                                     </div>
-                                    <div class="small" style="color:#6b7280;">Slot: {{ strip_tags($p->slot ?? $p->final_slot ?? ($p->ptmSlots->first()->slot ?? '—')) }}</div>
-                                    <div class="value" style="margin-top:2px;">{{ $p->ptm_date ? date('d M Y', strtotime($p->ptm_date)) : '' }}</div>
+                                    @if(isset($s->media) && $s->media->count())
+                                        @php
+                                            $firstMedia = $s->media->first();
+                                        @endphp
+                                        @if($firstMedia && $firstMedia->mediaUrl)
+                                            <div class="thumb-wrap">
+                                                <img src="{{ asset($firstMedia->mediaUrl) }}" alt="Snapshot Image" class="snap-thumb">
+                                            </div>
+                                        @endif
+                                    @endif
+                                        <style>
+                                        .snap-thumb {
+                                            width: 56px;
+                                            height: 56px;
+                                            border-radius: 10px;
+                                            object-fit: cover;
+                                            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+                                            cursor: pointer;
+                                            position: relative;
+                                            border: 2px solid rgba(102, 126, 234, 0.2);
+                                            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                                        }
+                                        .thumb-wrap:hover .snap-thumb {
+                                            position: absolute;
+                                            top: 50%;
+                                            left: 50%;
+                                            transform: translate(-130%, -110%) scale(3.2);
+                                            z-index: 9999;
+                                            box-shadow: 0 18px 50px rgba(0,0,0,0.38);
+                                            border-color: rgba(102, 126, 234, 0.6);
+                                        }
+                                        </style>
                                 </div>
                             </a>
                         @endforeach
                     @else
-                        <div class="item active"><div class="small">Total PTMs</div><div class="value">{{ $ptmCount ?? $ptmEventsCount ?? 0 }}</div></div>
+                        <div class="item active"><div class="small">Total Snapshots</div><div class="value">{{ $snapshotCount ?? 0 }}</div></div>
                     @endif
                 </div>
             </div>
@@ -1907,7 +1945,7 @@
                     <span><i class="fas fa-calendar-alt" style="color:#86e191ff;"></i> Event</span>
                     <span><i class="fas fa-birthday-cake" style="color:#e966a5ff;"></i> Birthday</span>
                     <span><i class="fas fa-umbrella-beach" style="color:#e97d4fff;"></i> Holiday</span>
-                    <span><i class="fas fa-chalkboard-teacher" style="color:#c68df7ff;"></i> PTM </span>
+                    <!-- <span><i class="fas fa-chalkboard-teacher" style="color:#c68df7ff;"></i> PTM </span> -->
                 </div>
             </div>
         </div>
@@ -1937,7 +1975,7 @@
                     </div>
                 </div>
 
-                <!-- Row 2: Reflections, Diary, PTM -->
+                <!-- Row 2: Reflections, Diary, Snapshot -->
                 <div class="row mb-2" style="margin-top:-30px;">
                     <div class="col-md-4 mb-3" style="margin-top: 0;">
                         <a href="{{ route('reflection.index') }}" class="card shadow-sm">
@@ -1956,10 +1994,10 @@
                         </a>
                     </div>
                     <div class="col-md-4 mb-3" style="margin-top: 0;">
-                        <a href="{{ route('ptm.index') }}" class="card shadow-sm">
+                        <a href="{{ route('snapshot.index') }}" class="card shadow-sm">
                             <div class="card-body" style="color:#0e0e0e">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                                <p class="card-text mb-0 title">PTM</p>
+                                <i class="icon-camera"></i>
+                                <p class="card-text mb-0 title">Snapshot</p>
                             </div>
                         </a>
                     </div>

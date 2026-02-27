@@ -671,7 +671,9 @@
             <div class="snapshot-card fade-in" data-images='@json($images)' data-id="{{ $snapshot->id }}">
                 <div class="card-header">
                     <h3 class="snapshot-title">{!! $snapshot->title !!}</h3>
+                    @if(Auth::user()->userType != 'Parent')
                     <span class="status-badge {{ $statusClass }}">{{ $snapshot->status }}</span>
+                    @endif
                 </div>
 
                 <div class="image-gallery">

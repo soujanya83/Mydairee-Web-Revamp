@@ -328,12 +328,14 @@ body[class*="theme-"] .print-theme-icon {
 
                         @endif
 
-                        @if($observation->status == 'Published')
-                        <span class="badge badge-pill position-absolute badge-top-right badge-success"
-                            style="top:8px;right: -7px; background: rgba(40, 167, 69, 0.9); color: white;">PUBLISHED</span>
-                        @else
-                        <span class="badge badge-pill position-absolute badge-top-right badge-danger"
-                            style="top:8px;right: -7px;  background: rgba(255, 193, 7, 0.9); color: #856404;">DRAFT</span>
+                        @if(Auth::user()->userType != 'Parent')
+                            @if($observation->status == 'Published')
+                            <span class="badge badge-pill position-absolute badge-top-right badge-success"
+                                style="top:8px;right: -7px; background: rgba(40, 167, 69, 0.9); color: white;">PUBLISHED</span>
+                            @else
+                            <span class="badge badge-pill position-absolute badge-top-right badge-danger"
+                                style="top:8px;right: -7px;  background: rgba(255, 193, 7, 0.9); color: #856404;">DRAFT</span>
+                            @endif
                         @endif
 
                     </a>

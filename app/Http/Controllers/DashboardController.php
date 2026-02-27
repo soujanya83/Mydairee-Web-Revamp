@@ -149,10 +149,41 @@ class DashboardController extends BaseController
         } else {
             $recentReflections = $recentReflectionsQuery->get();
         }
+        
+        if ($usertype === 'Parent') {
+            if ($parentChildIds->isEmpty()) {
+                $recentSnapshots = collect();
+                $snapshotCount = 0;
+            } else {
+                $snapshotIds = \App\Models\SnapshotChild::whereIn('childid', $parentChildIds)->pluck('snapshotid')->unique();
+                $recentSnapshots = \App\Models\Snapshot::with(['media'])
+                    ->whereIn('id', $snapshotIds)
+                    ->orderBy('id', 'desc')
+                    ->take(5)
+                    ->get();
+                $snapshotCount = $recentSnapshots->count();
+            }
+        } elseif ($usertype === 'Staff') {
+            $recentSnapshots = \App\Models\Snapshot::with(['media'])
+                ->where('createdBy', $userid)
+                ->orderBy('id', 'desc')
+                ->take(5)
+                ->get();
+            $snapshotCount = $recentSnapshots->count();
+        } else { // Superadmin or other
+            $recentSnapshots = \App\Models\Snapshot::with(['media'])
+                ->where('centerid', $centerid)
+                ->orderBy('id', 'desc')
+                ->take(5)
+                ->get();
+            $snapshotCount = $recentSnapshots->count();
+        }
+
         if ($usertype == 'Parent') {
             return view('dashboard.parents', compact(
                 'totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes',
-                'recentPtms', 'recentObservations', 'recentReflections'
+                'recentPtms', 'recentObservations', 'recentReflections',
+                'recentSnapshots', 'snapshotCount'
             ));
         } else {
             return view('dashboard.university', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes'));

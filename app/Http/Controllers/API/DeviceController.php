@@ -62,9 +62,7 @@ class DeviceController extends Controller
         }
     }
 
-    /**
-     * 🔥 FIXED METHOD — Now accepts full $data (including module_date)
-     */
+
     public static function notifyParentsModuleCreated(
         array $childIds,
         string $moduleType,
@@ -72,7 +70,7 @@ class DeviceController extends Controller
         $createdBy,
         FirebaseNotificationService $service,
         $section = null,
-        array $data = [] // ✅ Accept full data
+        array $data = []
     ) {
         $titles = [
             'observation' => 'New Observation Added',
