@@ -178,46 +178,52 @@
 
         /* Calendar legend */
         .calendar-legend {
-            position: relative;
-            z-index: 1;
             display: flex;
-            flex-wrap: nowrap;
-            align-items: center;
-            gap: 4px;
-            margin-top: 12px;
-            padding: 8px 10px;
-            background: rgba(15, 23, 42, 0.02);
-            border: 1px dashed #d8dceb;
-            border-radius: 12px;
-            backdrop-filter: blur(4px);
-            overflow: hidden;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1px solid var(--sd-border, #e5e7eb);
+            font-size: 0.78rem;
+            color: var(--sd-muted, #64748b);
+            width: 100%;
+            justify-content: space-between;
         }
 
         .calendar-legend span {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 8px;
-            border-radius: 9px;
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-            font-weight: 600;
-            color: #0f172a;
-            white-space: nowrap;
-            flex-shrink: 0;
-            font-size: 12px;
+            gap: 5px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            border: none;
+            color: #fff;
+            font-weight: 700;
         }
 
-        .calendar-legend span i {
-            width: 18px;
-            height: 18px;
-            display: grid;
-            place-items: center;
-            border-radius: 50%;
-            background: rgba(15, 23, 42, 0.05);
-            margin-right: 0;
-            font-size: 11px;
+        .calendar-legend span:nth-child(1) { background: #93a5f6; }
+        .calendar-legend span:nth-child(2) { background: #86e191; }
+        .calendar-legend span:nth-child(3) { background: rgb(229 119 235); }
+        .calendar-legend span:nth-child(4) { background: #e97d4f; }
+        .calendar-legend span:nth-child(5) { background: #e09e23; }
+
+        /* Calendar event styles */
+        .fc-daygrid-event {
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 0.75rem;
+            border: none;
+            background-color: var(--sd-accent, #2563eb);
+            color: #fff;
+            cursor: pointer !important;
+        }
+
+        .fc-event-main {
+            background-color: var(--sd-accent, #2563eb) !important;
+        }
+
+        .fc-icon-wrapper i {
+            color: #fff !important;
         }
 
         /* Only change background color of FullCalendar toolbar buttons */
@@ -1941,11 +1947,11 @@
                 </div>
 
                 <div class="calendar-legend" >
-                    <span><i class="fas fa-bullhorn"  style="color:#93a5f6ff;"></i> Announcement</span>
-                    <span><i class="fas fa-calendar-alt" style="color:#86e191ff;"></i> Event</span>
-                    <span><i class="fas fa-birthday-cake" style="color:#e966a5ff;"></i> Birthday</span>
-                    <span><i class="fas fa-umbrella-beach" style="color:#e97d4fff;"></i> Holiday</span>
-                    <!-- <span><i class="fas fa-chalkboard-teacher" style="color:#c68df7ff;"></i> PTM </span> -->
+                    <span><i class="fas fa-bullhorn"></i> Announcement</span>
+                    <span><i class="fas fa-calendar-alt"></i> Event</span>
+                    <span><i class="fas fa-birthday-cake"></i> Birthday</span>
+                    <span><i class="fas fa-umbrella-beach"></i> Holiday</span>
+                    <!-- <span><i class="fas fa-chalkboard-teacher"></i> PTM </span> -->
                 </div>
             </div>
         </div>
@@ -2621,33 +2627,27 @@
                             ptms
                         } = arg.event.extendedProps;
 
-                        // helper with icon + badge + type attribute
-                        const makeIcon = (emoji, count, color, type) => {
-                            if (count === 0) return '';
+                        // create icon element with badge
+                        const makeIconEl = (iconClasses, count, color, type) => {
+                            if (!count || count === 0) return '';
                             return `
-                        <div class="fc-icon-wrapper" data-type="${type}" style="position:relative; display:inline-block; font-size:16px; margin:2px; cursor:pointer;">
-                            <span>${emoji}</span>
-                            ${count > 1 ? `<span style="
-                                                position:absolute; top:-8px; right:-10px;
-                                                background:${color}; color:white;
-                                                border-radius:50%; padding:2px 4px;
-                                                font-size:9px; font-weight:bold;
-                                                z-index: 10;
-                                            ">${count}</span>` : ''}
-                        </div> `;
+                                <div class="fc-icon-wrapper" data-type="${type}" style="position:relative; display:inline-block; font-size:16px; margin:2px; cursor:pointer;">
+                                    <i class="${iconClasses}"></i>
+                                    ${count > 0 ? `<span style="position:absolute; top:-8px; right:-10px; background:${color}; color:white; border-radius:50%; padding:2px 6px; font-size:9px; font-weight:700;">${count}</span>` : ''}
+                                </div>
+                            `;
                         };
 
                         return {
                             html: `
-                        <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:100%;">
-                            ${makeIcon('<i class="fas fa-bullhorn"></i>', announcements.length, '#93a5f6ff', 'announcement')}
-                            ${makeIcon('<i class="fas fa-calendar-alt"></i>', normalEvents.length, '#86e191ff', 'event')}
-                            ${makeIcon('<i class="fas fa-birthday-cake"></i>', birthdays.length, '#e966a5ff', 'birthday')}
-                            ${makeIcon('<i class="fas fa-umbrella-beach"></i>', holidays.length, '#e97d4fff', 'holiday')}
-                            ${makeIcon('<i class="fas fa-chalkboard-teacher"></i>', ptms.length, '#c68df7ff', 'ptm')}
-
-
-                        </div>`
+                                <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:100%;">
+                                    ${makeIconEl('fa-solid fa-bullhorn', announcements.length, '#93a5f6ff', 'announcement')}
+                                    ${makeIconEl('fa-solid fa-calendar-alt', normalEvents.length, '#86e191ff', 'event')}
+                                    ${makeIconEl('fa-solid fa-birthday-cake', birthdays.length, 'rgb(229 119 235)', 'birthday')}
+                                    ${makeIconEl('fa-solid fa-umbrella-beach', holidays.length, '#e97d4fff', 'holiday')}
+                                    ${makeIconEl('fa-solid fa-chalkboard-teacher', ptms.length, '#e09e23', 'ptm')}
+                                </div>
+                            `
                         };
                     }
                     return true;

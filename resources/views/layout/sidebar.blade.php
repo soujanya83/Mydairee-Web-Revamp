@@ -339,7 +339,7 @@
                                 $userType=Auth::user()->userType; @endphp
 
 
-                                @if((!empty($permissions['viewCenters']) && $permissions['viewCenters']))
+                                @if((!empty($permissions['viewCenters']) && $permissions['viewCenters']) || auth()->user()->userType == 'Superadmin')
 
                                 <li class="{{ Request::segment(2) === 'center_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.center_settings') }}" data-toggle="tooltip"
@@ -357,7 +357,7 @@
                                         data-placement="right"> &nbsp; &nbsp; &nbsp;Manage Permissions</a>
                                 </li>
 
-                                @if(!empty($permissions['viewParent']) && $permissions['viewParent'])
+                                @if(!empty($permissions['viewParent']) && $permissions['viewParent'] || auth()->user()->userType == 'Superadmin' )
 
                                 <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.parent_settings') }}" data-toggle="tooltip"
