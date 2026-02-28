@@ -173,7 +173,7 @@
 <div class="text-zero top-right-button-container d-flex justify-content-end"
     style="margin-right: 20px;margin-top: -50px;">
 
-    @if(!empty($permissions['addQip']) && $permissions['addQip'] || Auth::user()->userType == "Superadmin")
+    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['addQip']) && $permissions['addQip']))
 
     @if(Auth::user()->userType != 'Parent')
     <!-- Filter Button -->
@@ -221,8 +221,7 @@
                                 <th>Educators</th>
                                 @if(!empty($permissions['editQip']) && $permissions['editQip'])
                                 <th>Edit</th> @endif
-                                @if(!empty($permissions['deleteQip']) && $permissions['deleteQip'])
-
+                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['deleteQip']) && $permissions['deleteQip']))
                                 <th>Delete</th>
                                 @endif
                             </tr>
@@ -253,8 +252,7 @@
                                     </button>
                                 </td>
                                 @endif
-                                @if(!empty($permissions['deleteQip']) && $permissions['deleteQip'])
-
+                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['deleteQip']) && $permissions['deleteQip']))
                                 <td>
                                     <button class="btn btn-sm btn-danger" onclick="deleteSuperadmin({{ $qips['id'] }})">
                                         <i class="fa-solid fa-trash fa-fade"></i> Delete

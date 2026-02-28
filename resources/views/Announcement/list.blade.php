@@ -705,7 +705,7 @@
                                     @endif
 
                                     <!-- Delete -->
-                                    @if($permissionsData && $permissionsData->deleteAnnouncement == 1 || Auth::user()->userType == "Superadmin" || Auth::user()->admin == 1)
+                                    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['deleteAnnouncement']) && $permissions['deleteAnnouncement']) || Auth::user()->admin == 1)
                                     <form action="{{ route('announcements.delete') }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')

@@ -612,6 +612,7 @@
 
                                 <!-- Action Buttons -->
                                 @if(($date ?? now()->format('Y-m-d')) == now()->format('Y-m-d'))
+                                    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateAccidents']) && $permissions['updateAccidents'] == 1))
                                     <div class="action-buttons">
                                         <button type="button" class="btn btn-custom btn-add me-3" id="add-btn">
                                             <i class="fas fa-plus mx-1"></i>Add New
@@ -620,6 +621,7 @@
                                             <i class="fas fa-save mx-1"></i>Save
                                         </button>
                                     </div>
+                                    @endif
                                 @endif
                             </form>
 

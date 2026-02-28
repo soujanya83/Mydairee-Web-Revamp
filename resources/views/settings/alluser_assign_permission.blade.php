@@ -17,7 +17,7 @@
 
   <div class="header float-end text-zero top-right-button-container d-flex justify-content-between" >
                 <h2>Centers Settings<small></small> </h2>
-                @if(!empty($permissions['addCenters']) && $permissions['addCenters'])
+                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['addCenters']) && $permissions['addCenters']))
 
                 <button class="btn btn-outline-info" style="float:right;margin-bottom:20px;" data-toggle="modal"
                     data-target="#addCenterModal">

@@ -867,9 +867,7 @@ padding-inline:0;
                         <!-- <a href="#" class="btn btn-primary btn-lg top-right-button" id="addnewbtn" data-toggle="modal" data-target="#templateModal">ADD NEW</a> -->
                     @endif
 
-                    @if(Auth::user()->userType != 'Parent')
-
-
+                    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateAccidents']) && $permissions['updateAccidents'] == 1))
                        <a href="{{ route('Accidents.create', [
     'centerid' => $selectedCenter ?? optional($centers->first())->id,
     'roomid'   => $roomid ?? optional($rooms->first())->id
@@ -877,9 +875,6 @@ padding-inline:0;
 class="btn btn-info btn-lg">
     ADD NEW ACCIDENT
 </a>
-
-
-
                     @endif
                 </div>
 

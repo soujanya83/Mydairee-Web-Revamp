@@ -175,7 +175,7 @@
                 </div>
             </div>
         </div>
-        @if(!empty($permissions['addRoom']) && $permissions['addRoom'] || Auth::user()->userType == 'Superadmin')
+        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['addRoom']) && $permissions['addRoom']))
 
         <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#roomModal"
             style="height: 36px; margin-right">
@@ -189,7 +189,7 @@
     <form method="POST" action="{{ route('rooms.bulk_delete') }}" id="deleteRoomsForm">
         @csrf
         @method('DELETE')
-        @if(!empty($permissions['deleteRoom']) && $permissions['deleteRoom'] || Auth::user()->userType == 'Superadmin')
+        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['deleteRoom']) && $permissions['deleteRoom']))
 
         <div class="d-flex flex-row d-flex justify-content-end mb-3">
 <div class="d-flex justify-content-end mb-3 mx-2">
@@ -235,7 +235,7 @@
                         </a>
 
                         <!-- Trigger -->
-                        @if(!empty($permissions['editRoom']) && $permissions['editRoom'])
+                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['editRoom']) && $permissions['editRoom']))
 
                         <button type="button" class="btn btn-sm " onclick='openEditModal(@json($room))'
                             style="background-color: #f0ece4;">

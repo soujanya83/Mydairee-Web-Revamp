@@ -894,15 +894,14 @@
                                     </a>
 
                                     @if(Auth::user()->userType != 'Parent')
-                                    @if(!empty($permissions['editProgramPlan']) && $permissions['editProgramPlan'] ||
-                                    Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
+                                    @if(Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1 || (!empty($permissions['editProgramPlan']) && $permissions['editProgramPlan']))
                                     <a href="{{ route('create.programplan', ['centerId' => $centerId, 'planId' => $plan->id]) }}"
                                         class="btn btn-outline-info btn-sm" title="Edit">
                                         <i class="fas fa-pen-to-square"></i>
                                     </a>
                                     @endif
 
-                                    @if(!empty($permissions['deleteProgramPlan']) && $permissions['deleteProgramPlan']
+                                    @if(Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1 || (!empty($permissions['deleteProgramPlan']) && $permissions['deleteProgramPlan']))
                                     || Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
                                     <button type="button" class="btn btn-outline-danger btn-sm delete-program"
                                         data-id="{{ $plan->id }}" title="Delete">

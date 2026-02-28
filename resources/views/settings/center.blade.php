@@ -92,7 +92,7 @@
 
         <div class="header float-end text-zero top-right-button-container d-flex justify-content-between" >
                 <h2 style="color: var(--sd-accent, #17a2b8); font-weight: 700;">Centers Settings<small></small> </h2>
-                @if(!empty($permissions['addCenters']) && $permissions['addCenters'])
+                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['addCenters']) && $permissions['addCenters']))
 
                 <button class="btn theme-outline-btn" style="float:right;margin-bottom:20px;" data-toggle="modal"
                     data-target="#addCenterModal">
@@ -132,7 +132,7 @@
                     <p class="mb-2"><strong>Zip:</strong> {{ $center->addressZip }}</p>
 
                     <div class="d-flex justify-content-start gap-2 mt-3">
-                        @if(!empty($permissions['updateCenters']) && $permissions['updateCenters'])
+                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateCenters']) && $permissions['updateCenters']))
                             <button class="btn btn-sm theme-edit-btn mr-2" onclick="openEditcenterModal({{ $center->id }})">
                                 <i class="fa-solid fa-pen-to-square"></i> Edit
                             </button>
