@@ -512,9 +512,11 @@
                             <span class="gender-badge {{ $genderClass }}">{{ ucfirst($c->gender) }}</span>
                         </div>
                         
+                        @if(Auth::user()->user_type == 'Superadmin' || (!empty($permissions['viewProgress']) && $permissions['viewProgress'] == 1))
                         <a href="{{ url('learningandprogress/lnpdata/' . $c->id) }}" class="mt-auto btn btn-lnp btn-block">
                             <i class="fas fa-chart-line"></i> View Progress
                         </a>
+                        @endif
                     </div>
                 </div>
             </div>

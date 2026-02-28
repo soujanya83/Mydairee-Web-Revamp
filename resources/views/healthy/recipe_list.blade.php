@@ -202,7 +202,7 @@ body[class*='theme-'] .dropdown-menu .active {
                             {{ \Illuminate\Support\Str::title($recipe->itemName) }}
                         </h6>
 
-                        @if(!empty($permissions['updateRecipe']) || !empty($permissions['deleteRecipe']))
+                        @if(Auth::user()->userType == 'Superadmin' || !empty($permissions['updateRecipe']) || !empty($permissions['deleteRecipe']))
                         <div class="dropdown">
                             <a href="#" class="text-muted small" id="dropdownMenu{{ $recipe->id }}"
                                data-bs-toggle="dropdown" aria-expanded="false">
@@ -210,14 +210,14 @@ body[class*='theme-'] .dropdown-menu .active {
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm"
                                 aria-labelledby="dropdownMenu{{ $recipe->id }}">
-                                @if(!empty($permissions['updateRecipe']))
+                                @if(Auth::user()->userType == 'Superadmin' || !empty($permissions['updateRecipe']))
                                 <li>
                                     <a class="dropdown-item" href="{{ route('recipes.edit', $recipe->id) }}">
                                         <i class="fas fa-edit me-2 text-primary"></i> Edit
                                     </a>
                                 </li>
                                 @endif
-                                @if(!empty($permissions['deleteRecipe']))
+                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['deleteRecipe']) && $permissions['deleteRecipe']))
                                 <li>
                                     <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST"
                                           onsubmit="return confirm('Delete this recipe?')">

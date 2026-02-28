@@ -717,7 +717,7 @@
 
                     {{-- Action Buttons --}}
                     <div class="card-actions">
-                        @if(!empty($permissions['updateReflection']) && $permissions['updateReflection'] || Auth::user()->userType == 'Superadmin')
+                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateReflection']) && $permissions['updateReflection']))
 
                         <a href="{{ route('reflection.addnew.optional', ['id' => $reflectionItem->id]) }}"
                             class="btn btn-edit btn-action">
@@ -738,7 +738,7 @@
                         @endif
 
 
-                        @if(!empty($permissions['deleteReflection']) && $permissions['deleteReflection'] || Auth::user()->userType == 'Superadmin')
+                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['deleteReflection']) && $permissions['deleteReflection']))
 
                         <button class="btn btn-delete btn-action delete-reflection" data-id="{{ $reflectionItem->id }}">
                             <i class="fas fa-trash-alt"></i> Delete

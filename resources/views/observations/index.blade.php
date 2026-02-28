@@ -263,9 +263,11 @@ body[class*="theme-"] .print-theme-icon {
         <i class="fa-solid fa-filter" style="margin-right: 5px;"></i> FILTERS
     </button>
     &nbsp;&nbsp;&nbsp;
+    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['addObservation']) && $permissions['addObservation']))
     <button type="button" class="btn btn-outline-info"
         onclick="window.location.href='{{ route('observation.addnew') }}'"><i class="icon-plus"
             style="margin-right: 5px;"></i>Add New</button>
+    @endif
     @endif &nbsp;&nbsp;&nbsp;
 
 
@@ -682,8 +684,10 @@ body[class*="theme-"] .print-theme-icon {
                 <a href="{{ route('observation.print', $obsId) }}" target="_blank" class="mb-2">
                     <i class="fa-solid fa-print fa-lg print-theme-icon"></i>
                 </a>
+                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['deleteObservation']) && $permissions['deleteObservation']))
                 <i class="fa-sharp fa-solid fa-trash fa-lg" style="color: #da0711; cursor: pointer;"
                     onclick="deleteObservation({{ $obsId }})"></i>
+                @endif
                 @else
                 <!-- <i class="fa-solid fa-comment fa-bounce fa-sm" style="color: #74C0FC; cursor: pointer;"
                     onclick="openAddCommentModal({{ $obsId }})"></i> -->

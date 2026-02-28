@@ -107,9 +107,8 @@
                             <ul>
                                 @if(
                                 in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
-                                (auth()->user()->userType == 'Staff' && !empty($permissions['viewDailyDiary']) &&
-                                $permissions['viewDailyDiary'])
-                                )
+                                 (auth()->user()->userType == 'Staff' && !empty($permissions['viewDailyDiary']) && $permissions['viewDailyDiary']))
+                                
                                 <li class="{{ Route::is('dailyDiary.list') ? 'active' : '' }}">
                                     <a href="{{ route('dailyDiary.list') }}" data-toggle="tooltip"
                                         data-placement="right">Daily Diary</a>
@@ -136,8 +135,7 @@
                         </li>
 
                         @if( in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewProgramPlan']) &&
-                        $permissions['viewProgramPlan']))
+                         (auth()->user()->userType == 'Staff' && !empty($permissions['viewProgramPlan']) && $permissions['viewProgramPlan']))
 
                         <li class="{{ Request::is('programPlanList*') ? 'active' : '' }}">
                             <a href="/programPlanList" data-toggle="tooltip" data-placement="right">
@@ -150,8 +148,7 @@
 
 
                         @if( in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllReflection']) &&
-                        $permissions['viewAllReflection']))
+                         (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllReflection']) && $permissions['viewAllReflection']))
 
                         <li class="{{ Request::is('reflection*') ? 'active' : null }}">
                             <a href="{{route('reflection.index')}}" data-toggle="tooltip" data-placement="right"><i
@@ -160,7 +157,6 @@
                                     Daily Reflections</span></a>
                         </li>
                         @endif
-
                         @if( in_array(auth()->user()->userType, ['Superadmin', 'Parent']) ||
                         (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllObservation']) &&
                         $permissions['viewAllObservation']))
@@ -191,19 +187,20 @@
                         </li>
                         @endif  --}}
 
+                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['viewSnapshots']) && $permissions['viewSnapshots']))
                         <li class="{{ Request::is('snapshot*') ? 'active' : null }}">
                             <a href="{{route('snapshot.index')}}" data-toggle="tooltip" data-placement="right">
                                 <i class="icon-camera" style="font-size: 25px;"></i>
                                 <span style="font-size: 18px; margin-left:3px">Snapshots</span>
                             </a>
                         </li>
+                        @endif
 
 
 
 
                         @if( in_array(auth()->user()->userType, ['Superadmin']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllAnnouncement']) &&
-                        $permissions['viewAllAnnouncement']) || auth()->user()->admin == 1)
+                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewAllAnnouncement']) && $permissions['viewAllAnnouncement']) || auth()->user()->admin == 1)
 
                         <li class="{{ Request::segment(1) === 'announcements' ? 'active open' : '' }}">
                             <a href="{{ route('announcements.list') }}" data-toggle="tooltip" data-placement="right"> <i
@@ -215,8 +212,7 @@
 
 
                         @if( in_array(auth()->user()->userType, ['Superadmin']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewRoom']) &&
-                        $permissions['viewRoom']))
+                         (auth()->user()->userType == 'Staff' && !empty($permissions['viewRoom']) && $permissions['viewRoom']))
 
                         <li class="{{ Request::is('room*') ? 'active' : null }}">
                             <a href="{{ route('rooms_list') }}" data-toggle="tooltip" data-placement="right"><i
@@ -236,8 +232,7 @@
                         @endif
 
                         @if( in_array(auth()->user()->userType, ['Superadmin']) ||
-                        (auth()->user()->userType == 'Staff' && !empty($permissions['viewQip']) &&
-                        $permissions['viewQip']))
+                         (auth()->user()->userType == 'Staff' && !empty($permissions['viewQip']) && $permissions['viewQip']))
                         <li class="{{ Request::is('qip*') ? 'active' : null }}">
                             <a href="{{ route('qip.index') }}" data-toggle="tooltip" data-placement="right"><i
                                     class="fa-solid fa-clipboard" style="font-size: 25px;"></i><span
@@ -257,13 +252,14 @@
                         @endif
 
 
+                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['viewLesson']) && $permissions['viewLesson']))
                         <li class="{{ Request::is('learningandprogress*') ? 'active' : null }}">
                             <a href="{{ route('learningandprogress.index') }}" data-toggle="tooltip"
                                 data-placement="right"><i class="fa-solid fa-chart-simple"
                                     style="font-size: 25px;"></i><span style="font-size: 18px; margin-left:13px">Lesson
                                     Plan</span></a>
-
                         </li>
+                        @endif
 
 
                         @php
@@ -272,6 +268,7 @@
                         @endphp
 
 
+                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && (!empty($permissions['viewMenu']) && $permissions['viewMenu'] || !empty($permissions['viewRecipe']) && $permissions['viewRecipe'] || !empty($permissions['viewIngredients']) && $permissions['viewIngredients'])))
                         <li class="{{ $isHealthyActive ? 'active open' : '' }}">
                             <a href="javascript:void(0);" data-toggle="tooltip" data-placement="right"
                                 class="d-flex justify-content-between align-items-center">
@@ -282,15 +279,19 @@
                                 <i class="fa fa-chevron-right dropdown-arrow"></i>
                             </a>
                             <ul>
+                                @if(!empty($permissions['viewMenu']) && $permissions['viewMenu'])
                                 <li class="{{ Route::is('healthy_menu') ? 'active' : '' }}">
                                     <a href="{{ route('healthy_menu') }}" data-toggle="tooltip" data-placement="right">
                                         &nbsp; &nbsp;Menu</a>
                                 </li>
-                                @if(auth()->user()->userType != 'Parent')
+                                @endif
+                                @if(!empty($permissions['viewRecipe']) && $permissions['viewRecipe'])
                                 <li class="{{ Route::is('healthy_recipe') ? 'active' : '' }}">
                                     <a href="{{ route('healthy_recipe') }}" data-toggle="tooltip"
                                         data-placement="right"> &nbsp; &nbsp;Recipe</a>
                                 </li>
+                                @endif
+                                @if(!empty($permissions['viewIngredients']) && $permissions['viewIngredients'])
                                 <li class="{{ Route::is('recipes.Ingredients') ? 'active' : '' }}">
                                     <a href="{{ route('recipes.Ingredients') }}" data-toggle="tooltip"
                                         data-placement="right"> &nbsp; &nbsp;Ingredients</a>
@@ -298,6 +299,7 @@
                                 @endif
                             </ul>
                         </li>
+                        @endif
 
 
 
@@ -357,7 +359,7 @@
                                         data-placement="right"> &nbsp; &nbsp; &nbsp;Manage Permissions</a>
                                 </li>
 
-                                @if(!empty($permissions['viewParent']) && $permissions['viewParent'] || auth()->user()->userType == 'Superadmin' )
+                                @if(auth()->user()->userType == 'Superadmin' || (!empty($permissions['viewParent']) && $permissions['viewParent']))
 
                                 <li class="{{ Request::segment(2) === 'parent_settings' ? 'active' : null }}">
                                     <a href="{{ route('settings.parent_settings') }}" data-toggle="tooltip"

@@ -465,7 +465,7 @@
                 </div>
             </div>
 
-            @if (!empty($permissions['addParent']) && $permissions['addParent'])
+            @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['addParent']) && $permissions['addParent']))
                 <button class="btn btn-outline-info btn-lg theme-outline-btn" style="background: var(--sd-bg, #fff); color: var(--sd-accent, #17a2b8); border: 2px solid var(--sd-accent, #17a2b8);" data-toggle="modal" data-target="#addParentModal">
                     <i class="fa fa-plus"></i>&nbsp; Add Parent
                 </button>
@@ -590,7 +590,7 @@
                                         </ul>
 
                                         <div class="d-flex justify-content-center mt-3">
-                                            @if (!empty($permissions['updateParent']) && $permissions['updateParent'])
+                                            @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateParent']) && $permissions['updateParent']))
                                                 <button class="btn btn-sm theme-edit-btn mr-2"
                                                     style="background: var(--sd-accent, #17a2b8); color: var(--sd-bg, #fff); border: 2px solid var(--sd-accent, #17a2b8);"
                                                     onclick="openEditParentModal({{ $parent->id }})">

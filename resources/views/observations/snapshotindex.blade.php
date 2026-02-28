@@ -610,7 +610,7 @@
     style="margin-right: 20px;margin-top: -64px;">
 
 
-    @if(Auth::user()->userType != 'Parent')
+    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['addSnapshots']) && $permissions['addSnapshots']))
     <!-- Filter Button -->
     <!-- <button class="btn btn-outline-primary btn-lg mr-1 filterbutton" data-toggle="modal"
         data-backdrop="static" data-target="#filtersModal">
@@ -737,12 +737,12 @@
                             <i class="fas fa-eye"></i>
                         </button>
                         @endif
-                        @if(!empty($permissions['editSnapshots']) && $permissions['editSnapshots'] || Auth::user()->userType == "Superadmin")
+                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['editSnapshots']) && $permissions['editSnapshots']))
                         <button class="btn-action btn-edit" onclick="editSnapshot({{ $snapshot->id }})" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
                         @endif
-                        @if(!empty($permissions['deleteSnapshots']) && $permissions['deleteSnapshots'] || Auth::user()->userType == "Superadmin")
+                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['deleteSnapshots']) && $permissions['deleteSnapshots']))
                         <button class="btn-action btn-delete" onclick="deleteSnapshot({{ $snapshot->id }})"
                             title="Delete">
                             <i class="fas fa-trash-alt"></i>
