@@ -8,7 +8,8 @@ class Permission_Role extends Model
 {
     protected $table = "permission_role";
 
-     protected $fillable = [
+      protected $fillable = [
+          'addSnapshots',
         'name',
         'centerid',
         'addObservation',

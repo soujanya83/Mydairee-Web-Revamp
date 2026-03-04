@@ -10,6 +10,7 @@ class Permission extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'addSnapshots',
         'userid',
         'centerid',
         'addObservation',

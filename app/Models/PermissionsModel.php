@@ -9,6 +9,7 @@ class PermissionsModel extends Model
     protected $table = "permissions";
     public $timestamps = false;
     protected $fillable = [
+        'addSnapshots',
         'userid',
         'centerid',
         'addObservation',
