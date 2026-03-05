@@ -902,7 +902,7 @@
                                     @endif
 
                                     @if(Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1 || (!empty($permissions['deleteProgramPlan']) && $permissions['deleteProgramPlan']))
-                                    || Auth::user()->userType == 'Superadmin' || Auth::user()->admin == 1)
+                                    
                                     <button type="button" class="btn btn-outline-danger btn-sm delete-program"
                                         data-id="{{ $plan->id }}" title="Delete">
                                         <i class="fa-solid fa-trash"></i>
