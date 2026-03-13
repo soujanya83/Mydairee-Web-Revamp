@@ -1214,6 +1214,7 @@ Observation:
 
             $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
                 ->where('centerid', $centerid)
+                ->where('status', "Draft")
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
 
@@ -1240,6 +1241,7 @@ Observation:
                         $query->orWhereIn('id', $taggedObservationIds);
                     }
                 })
+                ->where('status', "Draft")
                 ->orderBy('id', 'desc')
                 ->paginate(10);
             //         $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
@@ -1287,11 +1289,8 @@ Observation:
         try {
 
             $centerid = Session('user_center_id');
-
-
-            $query = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
-                ->where('centerid', $centerid);
-            // Status filter
+            $query = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments']);
+                // ->where('centerid', $centerid);
             if ($request->has('observations') && !empty($request->observations)) {
                 $statusFilters = $request->observations;
                 if (!in_array('All', $statusFilters)) {
@@ -1374,7 +1373,16 @@ Observation:
 
             $user = Auth::user();
             if ($user->userType === 'Staff') {
-                $query->where('userId', Auth::id());
+                $authId = Auth::id();
+                $taggedObservationIds = \App\Models\ObservationStaff::where('userid', $authId)
+                    ->pluck('observationId')
+                    ->toArray();
+                $query->where(function ($q) use ($authId, $taggedObservationIds) {
+                    $q->where('userId', $authId);
+                    if (!empty($taggedObservationIds)) {
+                        $q->orWhereIn('id', $taggedObservationIds);
+                    }
+                });
             }
 
             // Apply user-specific filters based on role
@@ -2341,9 +2349,16 @@ Observation:
 
 
         if (!$isEdit) {
-            $rules['media'] = 'nullable|array|min:1';
+            $rules['media'] = 'nullable|array|min:1|max:4';
         } else {
-            $rules['media'] = 'nullable|array';
+            $existingMediaCount = 0;
+            if ($isEdit && isset($observation)) {
+                $existingMediaCount = $observation->media()->count();
+            } else if ($isEdit && $request->id) {
+                $existingMediaCount = \App\Models\ObservationMedia::where('observationId', $request->id)->count();
+            }
+            $maxAllowed = max(0, 4 - $existingMediaCount);
+            $rules['media'] = 'nullable|array|max:' . $maxAllowed;
         }
 
         $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
@@ -2354,6 +2369,28 @@ Observation:
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
+
+        // Custom error for exceeding total image limit during edit
+        if ($isEdit) {
+            $existingMediaCount = 0;
+            if (isset($observation)) {
+                $existingMediaCount = $observation->media()->count();
+            } else if ($request->id) {
+                $existingMediaCount = \App\Models\ObservationMedia::where('observationId', $request->id)->count();
+            }
+            $newFilesCount = is_array($request->media) ? count($request->media) : 0;
+            $maxAllowed = max(0, 4 - $existingMediaCount);
+            if ($newFilesCount > $maxAllowed) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => [
+                        'media' => [
+                            'You can only add ' . $maxAllowed . ' more file(s) because you already have ' . $existingMediaCount . ' file(s) uploaded.'
+                        ]
+                    ],
+                ], 422);
+            }
+        }
 
         if ($validator->fails()) {
             return response()->json([

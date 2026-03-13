@@ -1938,7 +1938,7 @@ class ObservationsController extends Controller
       
 
         $validator = Validator::make($request->all(), $rules, $messages);
-        dd($validator);
+            // dd($validator);
         if ($validator->fails()) {
             return response()->json([
                 'status'  => false,
