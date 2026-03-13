@@ -1330,14 +1330,15 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                                     </div>
 
                                     <div class="col-md-6 mt-4 form-section">
-                                        <label for="editor1">Observation</label>
-                                        <textarea id="editor1" name="title" class="form-control ckeditor">{!! isset($observation) ? $observation->title : '' !!}</textarea>
+                                        <label for="editor3">Critical Reflection</label>
+                                        <textarea id="editor3" name="reflection" class="form-control ckeditor">{!! isset($observation) ? $observation->reflection : '' !!}</textarea>
                                         <div class="refine-container">
                                             <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                                data-editor="editor1"><i class="fas fa-magic mr-1"></i>Refine with
+                                                data-editor="editor3"><i class="fas fa-magic mr-1"></i>Refine with
                                                 Ai</button>
                                         </div>
                                     </div>
+                                    
 
                                     <div class="col-md-6 mt-4 form-section">
                                         <label for="editor2">Analysis/Evaluation</label>
@@ -1350,11 +1351,11 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                                     </div>
 
                                     <div class="col-md-6 mt-4 form-section">
-                                        <label for="editor3">Reflection</label>
-                                        <textarea id="editor3" name="reflection" class="form-control ckeditor">{!! isset($observation) ? $observation->reflection : '' !!}</textarea>
+                                        <label for="editor5">Future Plan/Extension</label>
+                                        <textarea id="editor5" name="future_plan" class="form-control ckeditor">{!! isset($observation) ? $observation->future_plan : '' !!}</textarea>
                                         <div class="refine-container">
                                             <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                                data-editor="editor3"><i class="fas fa-magic mr-1"></i>Refine with
+                                                data-editor="editor5"><i class="fas fa-magic mr-1"></i>Refine with
                                                 Ai</button>
                                         </div>
                                     </div>
@@ -1370,11 +1371,11 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                                     </div>
 
                                     <div class="col-md-6 mt-4 form-section">
-                                        <label for="editor5">Future Plan/Extension</label>
-                                        <textarea id="editor5" name="future_plan" class="form-control ckeditor">{!! isset($observation) ? $observation->future_plan : '' !!}</textarea>
+                                        <label for="editor1">Observation</label>
+                                        <textarea id="editor1" name="title" class="form-control ckeditor">{!! isset($observation) ? $observation->title : '' !!}</textarea>
                                         <div class="refine-container">
                                             <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                                data-editor="editor5"><i class="fas fa-magic mr-1"></i>Refine with
+                                                data-editor="editor1"><i class="fas fa-magic mr-1"></i>Refine with
                                                 Ai</button>
                                         </div>
                                     </div>
@@ -1385,12 +1386,12 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                                         <h4>Media Upload Section</h4>
                                         <div class="media-upload-box p-4 border rounded bg-light text-center">
                                             <label for="mediaInput" class="btn btn-outline-primary">
-                                                Select up to 10 Images/Videos
+                                                Select up to 4 Images/Videos
                                             </label>
                                             <input type="file" id="mediaInput" name="media[]" class="d-none" multiple
                                                 accept="image/*,video/*">
                                             <small class="form-text text-muted mt-2">Only images and videos are allowed.
-                                                Max 10 files.</small>
+                                                Max 4 files.</small>
                                         </div>
 
                                         <div id="mediaPreview" class="row mt-4"></div>
@@ -2397,6 +2398,12 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                     success: function(response) {
                         if (response.success) {
                             let html = '';
+                            // Sort children alphabetically by name
+                            response.children.sort((a, b) => {
+                                const nameA = (a.name + ' ' + (a.lastname || ''));
+                                const nameB = (b.name + ' ' + (b.lastname || ''));
+                                return nameA.localeCompare(nameB);
+                            });
                             response.children.forEach(child => {
                                 const checked = selectedChildren.has(child.id
                                 .toString()) ? 'checked' : '';
@@ -2451,6 +2458,8 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                 $.get('{{ route('observation.get.rooms') }}', function(res) {
                     if (res.success) {
                         let html = '';
+                        // Sort rooms alphabetically by name
+                        res.rooms.sort((a, b) => a.name.localeCompare(b.name));
                         res.rooms.forEach(room => {
                             const checked = selectedRooms.has(room.id.toString()) ?
                                 'checked' : '';
@@ -2500,6 +2509,8 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                     success: function(response) {
                         if (response.success) {
                             let html = '';
+                            // Sort staff alphabetically by name
+                            response.staff.sort((a, b) => a.name.localeCompare(b.name));
                             response.staff.forEach(staff => {
                                 const checked = selectedStaff.has(staff.id.toString()) ?
                                     'checked' : '';
@@ -2652,8 +2663,8 @@ body[class*="theme-"] #selectedStaffPreview .badge,
             const newFiles = Array.from(event.target.files);
             const totalFiles = selectedFiles.length + newFiles.length;
 
-            if (totalFiles > 10) {
-                alert("You can upload a maximum of 10 files.");
+            if (totalFiles > 4) {
+                alert("You can upload a maximum of 4 files.");
                 this.value = '';
                 return;
             }
