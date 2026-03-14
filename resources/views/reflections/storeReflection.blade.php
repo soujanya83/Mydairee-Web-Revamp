@@ -560,7 +560,7 @@ body[class*="theme-"] .media-upload-box:hover {
 
 
 
-@if(isset($reflection) && $reflection->id)
+@if(isset($reflection) && $reflection->id && ( $reflection->about ))
 <div class="text-zero top-right-button-container d-flex justify-content-end" style="margin-right: 20px;margin-top: -40px;margin-bottom:30px;">
     <button type="button" id="publishObservation" class="btn btn-success shadow-lg btn-animated mr-2">
         <i class="fas fa-upload mr-1"></i> Publish Now
