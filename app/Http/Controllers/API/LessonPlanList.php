@@ -32,6 +32,35 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class LessonPlanList extends Controller
 {
+    public function getProgramPlanById($id)
+    {
+        $plan = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])->find($id);
+        if (!$plan) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Program plan not found',
+            ], 404);
+        }
+
+        // Return all fields from the model, including related names for room, creator, children, and educators
+        $planArray = $plan->toArray();
+
+        // Add related names for convenience (optional)
+        $monthNumber = (int) ($plan->months ?? 0);
+        $planArray['month_name'] = $monthNumber > 0 ? \Carbon\Carbon::create()->month($monthNumber)->format('F') : 'December';
+        $roomIds = isset($plan->room_id) ? explode(',', $plan->room_id) : [];
+        $planArray['room_name'] = !empty($roomIds) ? Room::whereIn('id', $roomIds)->pluck('name')->implode(', ') : null;
+        $planArray['creator_name'] = $plan->creator->name ?? null;
+        $children_ids = isset($plan->children) ? explode(',', $plan->children) : [];
+        $planArray['children_names'] = !empty($children_ids) ? Child::whereIn('id', $children_ids)->pluck('name')->implode(', ') : null;
+        $educator_ids = isset($plan->educators) ? explode(',', $plan->educators) : [];
+        $planArray['educator_names'] = !empty($educator_ids) ? User::whereIn('id', $educator_ids)->pluck('name')->implode(', ') : null;
+
+        return response()->json([
+            'status' => true,
+            'data' => $planArray
+        ]);
+    }
 
 public function updatestatus(Request $r)
 {
