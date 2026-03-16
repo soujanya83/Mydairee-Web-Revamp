@@ -52,13 +52,13 @@ class ObservationController extends Controller
             'status' => false,
             'message' => 'Error! Subject ID is missing.'
         ], 400);
-    }
+        }
 
         // Fetch filtered activities
         $activities = MontessoriActivity::where('idSubject', $idSubject)->get();
 
         if(!$activities){
- $response = [
+        $response = [
             'status' => false,
             'message' => "Activities retrived successfully",
             "data" => []
