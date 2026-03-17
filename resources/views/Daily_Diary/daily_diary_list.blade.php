@@ -208,7 +208,7 @@ body {
 }
 
 .collapsed .collapse-icon {
-    transform: rotate(-90deg);
+    transform: rotate(180deg);
 }
 
 .stats-row {
@@ -1001,7 +1001,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                     @else
                                     <span class="badge badge-info badge-status ml-2">No Update</span>
                                     @endif
-                                    <i class="fas fa-chevron-down collapse-icon"></i>
+                                    <i class="fas fa-chevron-up collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse show" id="Breakfast-{{ $childId }}">
@@ -1052,7 +1052,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                     @else
                                     <span class="badge badge-info badge-status ml-2">No Update</span>
                                     @endif
-                                    <i class="fas fa-chevron-down collapse-icon"></i>
+                                    <i class="fas fa-chevron-up collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse" id="Morning-{{ $childId }}">
@@ -1094,7 +1094,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                     @else
                                     <span class="badge badge-warning badge-status ml-2">In Progress</span>
                                     @endif
-                                    <i class="fas fa-chevron-down collapse-icon"></i>
+                                    <i class="fas fa-chevron-up collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse" id="Lunch-{{ $childId }}">
@@ -1138,13 +1138,17 @@ body[class*="theme-"] .page-header .btn-primary {
                                 <i class="fas fa-bed activity-icon"></i>
                                 Sleep
 
-                                @if($sleep->count())
-                                    <span class="badge badge-info badge-status ml-2">{{ $sleep->count() }} Entries</span>
-                                @else
-                                    <span class="badge badge-danger badge-status ml-2">0 Entries</span>
-                                @endif
+                           @if($sleep->count())
+    <span class="badge badge-info badge-status ml-2">
+        {{ $sleep->count() }} {{ $sleep->count() == 1 ? 'Entry' : 'Entries' }}
+    </span>
+@else
+    <span class="badge badge-danger badge-status ml-2">
+        0 Entry
+    </span>
+@endif
 
-                                <i class="fas fa-chevron-down collapse-icon"></i>
+                                <i class="fas fa-chevron-up collapse-icon"></i>
                             </h5>
                             </div>
                             <div class="collapse" id="Sleep-{{ $childId }}">
@@ -1211,7 +1215,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                     @else
                                     <span class="badge badge-secondary badge-status ml-2">Pending</span>
                                     @endif
-                                    <i class="fas fa-chevron-down collapse-icon"></i>
+                                    <i class="fas fa-chevron-up collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse" id="Afternoon-{{ $childId }}">
@@ -1253,7 +1257,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                     @else
                                     <span class="badge badge-secondary badge-status ml-2">Pending</span>
                                     @endif
-                                    <i class="fas fa-chevron-down collapse-icon"></i>
+                                    <i class="fas fa-chevron-up collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse" id="Snacks-{{ $childId }}">
@@ -1303,7 +1307,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                         <span class="badge badge-danger badge-status ml-2">0 Applications</span>
                                     @endif
 
-                                    <i class="fas fa-chevron-down collapse-icon"></i>
+                                    <i class="fas fa-chevron-up collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse" id="Sunscreen-{{ $childId }}">
@@ -1370,7 +1374,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                         <span class="badge badge-warning badge-status ml-2">No Update</span>
                                     @endif
 
-                                    <i class="fas fa-chevron-down collapse-icon"></i>
+                                    <i class="fas fa-chevron-up collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse" id="Toileting-{{ $childId }}">
@@ -1448,7 +1452,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                         <span class="badge badge-secondary badge-status ml-2">Pending</span>
                                     @endif
 
-                                    <i class="fas fa-chevron-down collapse-icon"></i>
+                                    <i class="fas fa-chevron-up collapse-icon"></i>
                                 </h5>
                             </div>
                             <div class="collapse" id="Bottel-{{ $childId }}">
