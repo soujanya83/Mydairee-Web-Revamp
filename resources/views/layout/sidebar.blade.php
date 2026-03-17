@@ -118,7 +118,7 @@
                                 @if(auth()->user()->userType != 'Parent')
 
                                 <li class="{{ Route::is('headChecks') ? 'active' : '' }}">
-                                    <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right" >   &nbsp;Head Checks</a>
+                                    <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right" style="margin-left:6px">   &nbsp;Head Checks</a>
                                 </li>
 
                                 @endif
@@ -411,6 +411,7 @@
 </script>
 
 <script>
+    /*
     // poll unread count for messages and update sidebar badge
     async function updateUnreadBadge() {
         try {
@@ -436,4 +437,5 @@
         updateUnreadBadge();
         setInterval(updateUnreadBadge, 5000);
     });
+    */
 </script>
