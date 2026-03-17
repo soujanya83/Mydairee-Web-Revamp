@@ -50,7 +50,7 @@ class ReflectionController extends Controller
             $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
                 ->where('centerid', $centerid)
                 ->orderBy('id', 'desc') // optional: to show latest first
-                ->paginate(10); // 10 items per page
+                ->paginate(12); // 12 items per page
 
         } elseif (Auth::user()->userType == "Staff") {
 
@@ -73,7 +73,7 @@ class ReflectionController extends Controller
                                 ->orWhereIn('id', $taggedReflectionIds);
                     })
                     ->orderBy('id', 'desc')
-                    ->paginate(10);
+                    ->paginate(12);
 
         } else {
 
@@ -507,6 +507,32 @@ public function autosavereflection(Request $request)
         $reflection = Reflection::find($request->reflectionId);
         $reflection->status = $request->status;
         $reflection->save();
+
+        // Send push notification if published
+        if ($request->status === 'Published') {
+            // Get all child IDs linked to this reflection
+            $childIds = $reflection->children()->pluck('childid')->toArray();
+            if (!empty($childIds)) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                    $childIds,
+                    'reflection',
+                    $reflection->id,
+                    $reflection->createdBy,
+                    $firebaseService,
+                    'Reflection',
+                    [
+                        'type' => 'reflection',
+                        'module_id' => $reflection->id,
+                        'child_ids' => $childIds,
+                        'created_by' => $reflection->createdBy,
+                        'module_date' => now()->format('Y-m-d'),
+                        'section' => 'Reflection',
+                        'title' => $reflection->title ?? '',
+                    ]
+                );
+            }
+        }
 
         return response()->json(['status' => 'success', 'id' => $reflection->id]);
     }

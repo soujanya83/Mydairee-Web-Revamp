@@ -769,9 +769,9 @@
         </div>
 
         <div class="sd-stat-card">
-            <div class="sd-stat-label">Happy Clients</div>
-            <div class="sd-stat-value">{{ $happyClients ?? 0 }}</div>
-            <div class="sd-stat-icon"><i class="fa fa-smile"></i></div>
+                    <div class="sd-stat-label">Active Children</div>
+                <div class="sd-stat-value">{{ $activeChildren ?? 0 }}</div>
+                <div class="sd-stat-icon"><i class="fa fa-smile"></i></div>
         </div>
     </div>
 
