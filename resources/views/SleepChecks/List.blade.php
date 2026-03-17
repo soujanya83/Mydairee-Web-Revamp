@@ -41,6 +41,15 @@
     </style>
 
      <style>
+                /* Remove placeholder on hover for textarea */
+        textarea:hover::placeholder {
+            color: transparent !important;
+        }
+
+        /* Remove placeholder on hover for input fields */
+        input:hover::placeholder {
+            color: transparent !important;
+        }
         .drop-down{
             border: 1px solid #17a2b8 !important;
             /* border-bottom-left-radius: 50px!important;
@@ -364,12 +373,13 @@
         /* Improved Form Controls */
         select {
             cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            /*appearance: none;*/
+           /* background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");*/
             background-position: right 12px center;
             background-repeat: no-repeat;
             background-size: 16px;
-            padding-right: 40px;
+           /* padding-right: 40px; */
+           padding-right: 0px;
         }
 
         /* Mobile Responsiveness */
@@ -452,7 +462,8 @@
             display: grid !important;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            margin-left: -20px;
+            margin-left: 0;
+            justify-content: center;
         }
 
         /* Allow cards to scroll internally instead of cutting content */
@@ -598,6 +609,7 @@
             placeholder="Filter by Child name" 
             onkeyup="filterbyChildname(this.value)"
             style="width:200px;background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
+        <button id="bulk10minBtn" class="btn btn-info ml-3" style="display:none;" onclick="createBulk10MinEntry()"> + ADD Bulk 10-MIN ENTRY </button>
     </div>
 
     <!-- RIGHT SIDE (NEW TOGGLE) -->
@@ -638,24 +650,32 @@
 <input type="hidden" id="roomid" value="{{ $roomid }}" >
 <input type="hidden" id="date" value="{{ $calDate }}" >
 
-<div class="container sleepcheck-data">
-   @foreach($children->sortBy('name') as $child)
+<div class="container grid-center-wrapper" style="display: flex; justify-content: center; width: 100%;">
+    <div class="sleepcheck-data" style="width: 100%;">
+    @foreach($children->sortBy('name') as $child)
     <div class="card child-section" id="child{{ $child->id }}">
       <div class="child-header">
-        @if (!empty($child->imageUrl))
-          <div class="child-avatar" style="display: inline-block; margin-right: 10px;">
-            <img src="{{ asset($child->imageUrl) }}" alt="{{ $child->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-          </div>
-        @else
-          <div class="child-avatar" style="display: inline-block; margin-right: 10px;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #ccc; display: inline-flex; align-items: center; justify-content: center;">
-              <span style="font-size: 18px; color: #666;">
-                {{ strtoupper(substr($child->name, 0, 1)) }}
-              </span>
-            </div>
-          </div>
-        @endif
-        <span>{{ $child->name }} {{ $child->lastname }}</span>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center;">
+                        @if (!empty($child->imageUrl))
+                            <div class="child-avatar" style="display: inline-block; margin-right: 10px;">
+                                <img src="{{ asset($child->imageUrl) }}" alt="{{ $child->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            </div>
+                        @else
+                            <div class="child-avatar" style="display: inline-block; margin-right: 10px;">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #ccc; display: inline-flex; align-items: center; justify-content: center;">
+                                    <span style="font-size: 18px; color: #666;">
+                                        {{ strtoupper(substr($child->name, 0, 1)) }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
+                        <span>{{ $child->name }} {{ $child->lastname }}</span>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="bulk-checkbox" data-childid="{{ $child->id }}" onchange="toggleBulkButton()" style="transform: scale(1.3); margin-left: 10px;" title="Select all for this child" />
+                    </div>
+                </div>
       </div>
 
       <table>
@@ -680,7 +700,9 @@
         
           @foreach($childSleepChecks as $sleep)
             <tr data-id="{{ $sleep->id }}">
-              <td><input type="time" value="{{ $sleep->time }}" /></td>
+                            <td>
+                                <input type="time" value="{{ $sleep->time }}" />
+                            </td>
               <td>
                 <select>
                   <option value="">Select</option>
@@ -726,7 +748,7 @@
                 <option value="Hot">Hot</option>
               </select>
             </td>
-            <td><textarea rows="2" name="children[{{ $child->id }}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
+            <td><input type="text" rows="2" name="children[{{ $child->id }}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
           <td><input type="text"name="children[{{ $child->id }}][signature][]" value="" placeholder="signature"> </td>
             @if(Auth::user()->userType != 'Parent')
             <td>
@@ -743,7 +765,7 @@
     </div>
   @endforeach
 </div>
-                </div>
+
         </div>
     </div>
 </main>
@@ -757,6 +779,104 @@
         defaultDate: "{{ $calDate }}",
         maxDate: "today"
     });
+</script>
+
+<!-- Bulk Entry Modal -->
+<div class="modal fade" id="bulkEntryModal" tabindex="-1" role="dialog" aria-labelledby="bulkEntryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document" style="width:90vw;max-width:1200px;">
+        <div class="modal-content" style="border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
+            <div class="modal-header" style="background: linear-gradient(90deg, #36b9cc 0%, #4e73df 100%); color: #fff; border-top-left-radius: 18px; border-top-right-radius: 18px;">
+                <h5 class="modal-title font-weight-bold" id="bulkEntryModalLabel">Create Bulk 10 min Entry</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #fff; opacity: 1;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="bulkEntryForm">
+                <div class="modal-body" id="bulkEntryModalBody" style="padding: 2rem 2.5rem; background: #f8fafc;">
+                    <!-- Dynamic content here -->
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleBulkButton() {
+    const checked = document.querySelectorAll('.bulk-checkbox:checked');
+    document.getElementById('bulk10minBtn').style.display = checked.length > 1 ? 'inline-block' : 'none';
+}
+
+function createBulk10MinEntry() {
+    const checked = document.querySelectorAll('.bulk-checkbox:checked');
+    if (checked.length < 2) return;
+    let children = Array.from(checked).map(cb => {
+        const childId = cb.getAttribute('data-childid');
+        const childName = cb.closest('.child-section').querySelector('.child-header span').innerText;
+        return { id: childId, name: childName };
+    });
+    let html = `<div class='mb-4' style='font-size:1.1rem;'><span class='font-weight-bold text-primary'>Selected Children:</span> <span style='color:#4e73df;'>${children.map(c => c.name).join(', ')}</span></div>`;
+    children.forEach(child => {
+        html += `<input type='hidden' name='child_ids[]' value='${child.id}'>`;
+    });
+    html += `
+    <div class='table-responsive'>
+      <table class='table table-bordered table-striped' style='background:#fff;border-radius:8px;'>
+        <thead class='thead-light'>
+          <tr>
+            <th>Time</th>
+            <th>Breathing</th>
+            <th>Body Temperature</th>
+            <th>Notes</th>
+            <th>Signature</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type='time' name='time' class='form-control' required></td>
+            <td>
+              <select name='breathing' class='form-control' required>
+                <option value=''>Select</option>
+                <option value='Regular'>Regular</option>
+                <option value='Fast'>Fast</option>
+                <option value='Difficult'>Difficult</option>
+              </select>
+            </td>
+            <td>
+              <select name='temperature' class='form-control' required style='min-width:120px;'>
+                <option value=''>Select</option>
+                <option value='Warm'>Warm</option>
+                <option value='Cool'>Cool</option>
+                <option value='Hot'>Hot</option>
+              </select>
+            </td>
+            <td><textarea name='notes' class='form-control' rows='1' placeholder='Sleep Check List Notes...' style='min-width:180px;' ></textarea></td>
+            <td><input type='text' name='signature' class='form-control' placeholder='Signature' style='min-width:120px;' ></td>
+            <td class='text-center'>
+              <button type='submit' class='btn btn-outline-info btn-sm mr-2'>Save</button>
+              <button type='button' class='btn btn-outline-danger btn-sm' onclick="$('#bulkEntryModal').modal('hide')">Remove</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    `;
+    document.getElementById('bulkEntryModalBody').innerHTML = html;
+    $('#bulkEntryModal').modal('show');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('bulkEntryForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Gather form data
+        const form = e.target;
+        const data = new FormData(form);
+        // TODO: Implement AJAX POST to your bulk create endpoint
+        // Example: console.log(Array.from(data.entries()));
+        alert('Bulk entries would be created for: ' + data.getAll('child_ids[]').join(', '));
+        $('#bulkEntryModal').modal('hide');
+    });
+});
 </script>
 
 <script>
@@ -790,7 +910,7 @@
                     <option value="Hot">Hot</option>
                 </select>
             </td>
-            <td><textarea rows="2" name="children[${childDbId}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
+            <td><input type="text" rows="2" name="children[${childDbId}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
              <td><input type="text" name="children[${childDbId}][signature][]" placeholder="signature"></td>
             <td>
                 <button class="save-row-btn btn-outline-info" onclick="saveRow(this, ${childDbId})">Save</button>
@@ -819,7 +939,7 @@
         const breathing = breathingSelect.value;
         const temperature = temperatureSelect.value;
         const notes = notesTextarea.value;
-          const signature = row.querySelector('input[type="text"]').value;
+        const signature = row.querySelector('input[type="text"]').value;
 
         if (!time || !breathing || !temperature) {
             alert("Please fill all required fields.");
@@ -833,7 +953,7 @@
         formData.append('time', time);
         formData.append('breathing', breathing);
         formData.append('body_temperature', temperature);
-          formData.append('signature', signature);
+        formData.append('signature', signature);
         if (notes) {
             formData.append('notes', notes);
         }
