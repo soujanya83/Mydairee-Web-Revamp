@@ -633,20 +633,19 @@ class ObservationsController extends Controller
         return $rooms;
     }
 
-    private function getroomsforStaff()
+    private function getroomsforStaff($centerid)
     {
         $authId = Auth::user()->id;
-        // $centerid = Session('user_center_id');
 
         $roomIdsFromStaff = RoomStaff::where('staffid', $authId)->pluck('roomid');
-
-        // Get room IDs where user is the owner (userId matches)
         $roomIdsFromOwner = Room::where('userId', $authId)->pluck('id');
+        $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique()->filter()
+        ->values();
 
-        // Merge both collections and remove duplicates
-        $allRoomIds = $roomIdsFromStaff->merge($roomIdsFromOwner)->unique();
-
-        $rooms = Room::where('id', $allRoomIds)->get();
+        // Filter rooms by centerid as well
+        $rooms = Room::whereIn('id', $allRoomIds)
+            ->where('centerid', $centerid)
+            ->get();
         return $rooms;
     }
 
