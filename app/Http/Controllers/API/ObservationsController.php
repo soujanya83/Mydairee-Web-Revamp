@@ -568,7 +568,7 @@ class ObservationsController extends Controller
         try {
             $user = Auth::user();
             $children = collect();
-
+            $staff = collect();
             $validator = Validator::make($request->all(), [
                 'center_id' => 'nullable|integer',
                 'roomid' => 'nullable|array'
@@ -1447,10 +1447,11 @@ class ObservationsController extends Controller
             'child_voice'       => 'nullable|string',
             'future_plan'       => 'nullable|string',
             'selected_children' => 'required|string',
+            'selected_staff'    => 'nullable|string',
         ];
 
         if (!$isEdit) {
-            $rules['media'] = 'required|array|min:1';
+            $rules['media'] = 'nullable|array|min:1';
         } else {
             $rules['media'] = 'nullable|array';
         }
@@ -1482,13 +1483,13 @@ class ObservationsController extends Controller
                 : new Observation();
 
             $observation->room         = $request->input('selected_rooms');
-            $observation->obestitle   = $request->input('obestitle');
-            $observation->title       = $request->input('title') ?? '';
-            $observation->notes       = $request->input('notes') ?? '';
-            $observation->reflection  = $request->input('reflection') ?? '';
-            $observation->child_voice = $request->input('child_voice') ?? '';
-            $observation->future_plan = $request->input('future_plan') ?? '';
-
+            $observation->obestitle    = $request->input('obestitle');
+            $observation->title        = $request->input('title') ?? '';
+            $observation->notes        = $request->input('notes') ?? '';
+            $observation->reflection   = $request->input('reflection') ?? '';
+            $observation->child_voice  = $request->input('child_voice') ?? '';
+            $observation->future_plan  = $request->input('future_plan') ?? '';
+            $observation->tagged_staff = $request->input('selected_staff') ?? '';
             $observation->userId       = $authId;
             $observation->centerid     = $centerid;
             $observation->save();
@@ -1504,6 +1505,18 @@ class ObservationsController extends Controller
                     ObservationChild::create([
                         'observationId' => $observationId,
                         'childId' => trim($childId),
+                    ]);
+                }
+            }
+
+            
+            \App\Models\ObservationStaff::where('observationId', $observationId)->delete();
+            $selectedStaff = explode(',', $request->input('selected_staff'));
+            foreach ($selectedStaff as $userid) {
+                if (trim($userid) !== '') {
+                    \App\Models\ObservationStaff::create([
+                        'observationId' => $observationId,
+                        'userid' => trim($userid),
                     ]);
                 }
             }

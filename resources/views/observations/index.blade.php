@@ -787,12 +787,12 @@ body[class*="theme-"] .print-theme-icon {
                                 <div class="p-4">
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="status_all" name="obs_status_filter"
-                                            class="custom-control-input filter_observation" value="All" checked>
+                                            class="custom-control-input filter_observation" value="All" >
                                         <label class="custom-control-label" for="status_all">All</label>
                                     </div>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="status_draft" name="obs_status_filter"
-                                            class="custom-control-input filter_observation" value="Draft">
+                                            class="custom-control-input filter_observation" value="Draft" checked>
                                         <label class="custom-control-label" for="status_draft">Draft</label>
                                     </div>
                                     <div class="custom-control custom-radio">
