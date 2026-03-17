@@ -4,6 +4,7 @@
 
 @section('page-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css">
 <style>
     #filterbychildname{
         display: none;
@@ -446,8 +447,65 @@
             animation-delay: 0.1s;
         }
 
-        /* Dark Mode Support */
-    
+        /* FIXED GRID VIEW */
+        .grid-view {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-left: -20px;
+        }
+
+        /* Allow cards to scroll internally instead of cutting content */
+        .grid-view .child-section {
+            margin-bottom: 18px;
+            padding: 12px;
+            height: 250px;              /* fixed card height */
+            display: flex;
+            flex-direction: column;
+            width: 511px;
+        }
+
+        /* Make table scroll inside card */
+        .grid-view .child-section table {
+            display: block;
+            overflow-y: auto;
+            max-height: 140px;         /* scroll area */
+            margin-bottom: 6px;
+        }
+
+        /* Keep buttons always visible */
+        .grid-view .add-row-btn {
+            margin-top: auto;
+        }
+
+        /* Compact UI */
+        .grid-view th, 
+        .grid-view td {
+            padding: 5px 6px;
+            font-size: 11px;
+        }
+
+        .grid-view input,
+        .grid-view select,
+        .grid-view textarea {
+            padding: 5px 6px;
+            font-size: 11px;
+        }
+
+        .grid-view .add-row-btn,
+        .grid-view .save-row-btn,
+        .grid-view .remove-row-btn,
+        .grid-view .update-row-btn,
+        .grid-view .delete-row-btn {
+            padding: 5px 8px;
+            font-size: 10px;
+        }
+
+        .grid-view .child-header {
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+            
     </style>
 @endsection
 @section('content')
@@ -505,7 +563,7 @@
             <input type="text" class="form-control theme-input" id="txtCalendar" name="start_date" value="{{ $calDate }}"
                 style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
             <span class="input-group-text input-group-append custom-cal" style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
-                <i class="simple-icon-calendar"></i>
+                <i class="icon-calendar" style="color: var(--sd-accent, #36b9cc);"></i>
             </span>
         </div>
     </div>
@@ -519,22 +577,39 @@
 
 <main class="default-transition" style="padding-block:1em;padding-inline:2em;">
     @if(Auth::user()->userType != 'Parent')
-           <div class="col-5 d-flex justify-content-start align-items-center top-right-button-container mb-4">
-    <i class="fas fa-filter mx-2" style="color: var(--sd-accent, #17a2b8);"></i>
+           <div class="col-12 d-flex justify-content-between align-items-center top-right-button-container mb-4">
 
-    <select name="filter" id="" onchange="showfilter(this.value)" class="form-control form-control-sm theme-input uniform-input col-3"
-        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
-        <option value="">Choose</option>
-        <option value="childname">Child Name</option>
-    </select>
+    <!-- LEFT SIDE (Existing Filter) -->
+    <div class="d-flex align-items-center">
+        <i class="fas fa-filter mx-2" style="color: var(--sd-accent, #17a2b8);"></i>
 
-    <input 
-        type="text" 
-        name="filterbychildname" 
-        id="filterbychildname"
-        class="form-control theme-input ml-2"
-        placeholder="Filter by Child name" onkeyup="filterbyChildname(this.value)"
-        style="background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
+        <select name="filter" onchange="showfilter(this.value)"
+            class="form-control form-control-sm theme-input uniform-input"
+            style="width:150px;background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
+            <option value="">Choose</option>
+            <option value="childname">Child Name</option>
+        </select>
+
+        <input 
+            type="text" 
+            name="filterbychildname" 
+            id="filterbychildname"
+            class="form-control theme-input ml-2"
+            placeholder="Filter by Child name" 
+            onkeyup="filterbyChildname(this.value)"
+            style="width:200px;background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
+    </div>
+
+    <!-- RIGHT SIDE (NEW TOGGLE) -->
+    <div class="d-flex align-items-center">
+        <label class="mr-2 mb-0">View:</label>
+        <select id="viewToggle" class="form-control form-control-sm"
+            style="width:140px;background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
+            <option value="single" selected>Single View</option>
+            <option value="grid">Grid View</option>
+        </select>
+    </div>
+
 </div>
 @endif
 
@@ -564,7 +639,7 @@
 <input type="hidden" id="date" value="{{ $calDate }}" >
 
 <div class="container sleepcheck-data">
-  @foreach($children as $child)
+   @foreach($children->sortBy('name') as $child)
     <div class="card child-section" id="child{{ $child->id }}">
       <div class="child-header">
         @if (!empty($child->imageUrl))
@@ -685,6 +760,15 @@
 </script>
 
 <script>
+    document.getElementById('viewToggle').addEventListener('change', function () {
+    const container = document.querySelector('.sleepcheck-data');
+
+    if (this.value === 'grid') {
+        container.classList.add('grid-view');
+    } else {
+        container.classList.remove('grid-view');
+    }
+});
     function addRow(childId, childDbId) {
         const tableBody = document.querySelector(`#${childId} table tbody`);
         const row = document.createElement('tr');
