@@ -707,8 +707,12 @@ class ObservationsController extends Controller
         if (Auth::user()->userType == "Superadmin") {
             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $center)->get();
+            // For Superadmin, fetch all staff for the center
+            $staff = $centerid ? $this->getStaffForSuperadmin($centerid) : collect();
         } else {
             $centers = Center::where('id', $centerid)->get();
+            // For Staff, fetch staff for the center (could be just self or all staff in center)
+            $staff = $centerid ? $this->getStaffForSuperadmin($centerid) : collect();
         }
         // dd($id);
         $observation = null;
@@ -755,6 +759,7 @@ class ObservationsController extends Controller
                 'subjects'    => $subjects,
                 'outcomes'    => $outcomes,
                 'milestones'  => $milestones,
+                'staff'       => $staff,
             ]
         ]);
     }
