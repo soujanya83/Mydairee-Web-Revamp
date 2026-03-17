@@ -92,7 +92,8 @@ class DashboardController extends BaseController
         $totalCenter = Usercenter::where('centerid', $centerid)->where('userid', $userid)->count();
         $totalRooms = Room::where('centerid', $centerid)->where('status', 'Active')->count();
         $totalRecipes = RecipeModel::where('centerid', $centerid)->count();
-
+        $activeChildren = Child::where('centerid', $centerid)->where('status', 'Active')->count();
+        // dd($activeChildren);
         $parentChildIds = collect();
         if ($usertype === 'Parent') {
             $parentChildIds = Childparent::where('parentid', $userid)->pluck('childid');
@@ -186,7 +187,7 @@ class DashboardController extends BaseController
                 'recentSnapshots', 'snapshotCount'
             ));
         } else {
-            return view('dashboard.university', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes'));
+              return view('dashboard.university', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes', 'activeChildren'));
         }
     }
     public function getEvents()

@@ -1214,7 +1214,7 @@ Observation:
 
             $observations = Observation::with(['user', 'child', 'media', 'Seen.user', 'comments'])
                 ->where('centerid', $centerid)
-                ->where('status', "Draft")
+                //->where('status', "Draft")
                 ->orderBy('id', 'desc') // optional: to show latest first
                 ->paginate(10); // 10 items per page
 
