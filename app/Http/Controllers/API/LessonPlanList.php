@@ -542,6 +542,7 @@ $centerId = $validated['centerid'];
         'created_by' => Auth::user()->userid,
         'educators' => $educators,
         'children' => $children,
+        'status' => $request->input('status', 'Draft'),
         'practical_life' => $request->input('practical_life'),
         'focus_area' => $request->input('focus_area'),
         'practical_life_experiences' => $request->input('practical_life_experiences'),
