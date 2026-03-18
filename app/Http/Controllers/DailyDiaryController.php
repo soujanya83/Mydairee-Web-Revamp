@@ -87,6 +87,7 @@ $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
 
 $children = Child::whereIn('id', $childIds)
 ->where('status','Active')
+->orderBy('name', 'asc')
     ->get()
     ->filter(function ($child) use ($dayIndex) {
         return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
@@ -111,6 +112,7 @@ $children = Child::whereIn('id', $childIds)
         if ($selectedroom) {
             $children = Child::where('room', $selectedroom->id)
             ->where('status','Active')
+            ->orderBy('name', 'asc')
                 ->get()
                 ->filter(function ($child) use ($dayIndex) {
                     return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
