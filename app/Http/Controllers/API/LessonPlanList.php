@@ -303,8 +303,13 @@ $id = $validated['id'];
         // return redirect('login');
         // }
 
-      $authId = Auth::user()->userid; 
-      $user = Auth::user();
+            $authId = Auth::user()->userid; 
+            $user = Auth::user();
+            \Log::info('createForm called', [
+                'user' => $user,
+                'centerid' => $request->centerid,
+                'planId' => $request->planId
+            ]);
     // $centerId = Session('user_center_id');
 $validator = Validator::make($request->all(), [
     'centerid' => 'required|integer|min:1',
@@ -365,12 +370,20 @@ $centerId = $validated['centerid'];
             $selected_children = [];
 
             if ($planid) {
-                $plan_data = ProgramPlanTemplateDetailsAdd::find($planid);
-
-                if ($plan_data) {
-                    $selected_educators = explode(',', $plan_data->educators);
-                    $selected_children = explode(',', $plan_data->children);
-                }
+                                $plan_data = ProgramPlanTemplateDetailsAdd::find($planid);
+                                \Log::info('Fetched plan_data', [
+                                    'planId' => $planid,
+                                    'plan_data' => $plan_data
+                                ]);
+                                if ($plan_data) {
+                                        $selected_educators = explode(',', $plan_data->educators);
+                                        $selected_children = explode(',', $plan_data->children);
+                                } else {
+                                        \Log::warning('Program plan not found', [
+                                            'planId' => $planid,
+                                            'user' => $user
+                                        ]);
+                                }
             }
 
             $userId = $authId;
@@ -542,6 +555,7 @@ $centerId = $validated['centerid'];
         'created_by' => Auth::user()->userid,
         'educators' => $educators,
         'children' => $children,
+        'status' => $request->input('status', 'Draft'),
         'practical_life' => $request->input('practical_life'),
         'focus_area' => $request->input('focus_area'),
         'practical_life_experiences' => $request->input('practical_life_experiences'),

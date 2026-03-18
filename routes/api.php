@@ -98,7 +98,7 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
   Route::get('/centers',[LessonPlanList::class,'centers'])->name('centers');
     // program plan
         Route::get('/programPlanList',[LessonPlanList::class,'programPlanList'])->name('programPlanList');
-        Route::get('/programPlan/{id}', [LessonPlanList::class, 'getProgramPlanById']);
+        Route::get('/programPlan/{id}', [LessonPlanList::class, 'getProgramPlanById'])->where('id', '[0-9]+');
     Route::post('LessonPlanList/deletedataofprogramplan',[LessonPlanList::class,'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
     Route::get('/programPlan/print', [LessonPlanList::class, 'programplanprintpage']);
     Route::post('/LessonPlanList/get_room_users', [LessonPlanList::class, 'getRoomUsers'])->name('LessonPlanList.get_room_users');
