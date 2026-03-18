@@ -49,3 +49,4 @@ storage/app/firebase_credentials.json
 
 /public/uploads/*
 /storage/app/firebase_credentials.json
+app/Http/Controllers/API/DailyDiaryControllerold.php

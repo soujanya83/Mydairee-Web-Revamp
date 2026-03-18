@@ -303,13 +303,8 @@ $id = $validated['id'];
         // return redirect('login');
         // }
 
-            $authId = Auth::user()->userid; 
-            $user = Auth::user();
-            \Log::info('createForm called', [
-                'user' => $user,
-                'centerid' => $request->centerid,
-                'planId' => $request->planId
-            ]);
+      $authId = Auth::user()->userid; 
+      $user = Auth::user();
     // $centerId = Session('user_center_id');
 $validator = Validator::make($request->all(), [
     'centerid' => 'required|integer|min:1',
@@ -370,20 +365,12 @@ $centerId = $validated['centerid'];
             $selected_children = [];
 
             if ($planid) {
-                                $plan_data = ProgramPlanTemplateDetailsAdd::find($planid);
-                                \Log::info('Fetched plan_data', [
-                                    'planId' => $planid,
-                                    'plan_data' => $plan_data
-                                ]);
-                                if ($plan_data) {
-                                        $selected_educators = explode(',', $plan_data->educators);
-                                        $selected_children = explode(',', $plan_data->children);
-                                } else {
-                                        \Log::warning('Program plan not found', [
-                                            'planId' => $planid,
-                                            'user' => $user
-                                        ]);
-                                }
+                $plan_data = ProgramPlanTemplateDetailsAdd::find($planid);
+
+                if ($plan_data) {
+                    $selected_educators = explode(',', $plan_data->educators);
+                    $selected_children = explode(',', $plan_data->children);
+                }
             }
 
             $userId = $authId;
