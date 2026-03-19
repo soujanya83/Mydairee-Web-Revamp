@@ -1919,7 +1919,7 @@ class ObservationsController extends Controller
 
     public function snapshotstore(Request $request)
     {
-           
+                \Log::info('Snapshot status about to save:', ['status' => isset($status) ? $status : null, 'request' => $request->all()]);   
         // ✅ Check PHP upload limits
         $uploadMaxSize = min(
             $this->convertToBytes(ini_get('upload_max_filesize')),
@@ -1983,7 +1983,7 @@ class ObservationsController extends Controller
 
         // ✅ Assign Snapshot Data
 
-        // $snapshot->save();
+        $status = $request->input('publishIntent', $request->input('status', 'Draft'));
         if (!$isEdit && !$snapshot) {
             // Create new snapshot
             $snapshot = Snapshot::create([
@@ -1992,6 +1992,7 @@ class ObservationsController extends Controller
                 'centerid'  => $centerid,
                 'createdBy' => $authId,
                 'educators' => $validated['selected_staff'],
+                'status'    => $status,
             ]);
 
             // Update roomids after creation
@@ -2008,6 +2009,7 @@ class ObservationsController extends Controller
             $snapshot->createdBy = $authId;
             $snapshot->educators = $validated['selected_staff'];
             $snapshot->roomids   = $validated['selected_rooms'];
+            $snapshot->status    = $status;
 
             $snapshot->save();
         }
