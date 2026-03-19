@@ -408,10 +408,12 @@ if ($plan->room_id) {
             })
             ->get();
 
-            // Fetch users
-            $users = User::whereIn('userid', function ($query) use ($centerId) {
-                $query->select('userid')->from('usercenters')->where('centerid', $centerId);
-            })->get();
+            // Fetch all staff for the center
+            $users = User::where('userType', 'Staff')
+                ->where('status', 'ACTIVE')
+                ->whereIn('userid', function ($query) use ($centerId) {
+                    $query->select('userid')->from('usercenters')->where('centerid', $centerId);
+                })->get();
 
             // Fetch EYLF Outcomes with Activities
             $eylf_outcomes = EYLFOutcome::with('activities')->orderBy('title')->get();

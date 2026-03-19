@@ -130,7 +130,12 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                 <div class="form-group mb-4">
                     <label for="users">Select Educators</label>
                     <select class="form-control select2-multiple" id="users" name="users[]" multiple="multiple" required>
-                        <!-- Options will be populated via AJAX -->
+                        @foreach($users as $user)
+                            <option value="{{ $user->userid }}"
+                                {{ in_array($user->userid, $selected_educators) ? 'selected' : '' }}>
+                                {{ $user->name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -1338,7 +1343,7 @@ console.log(jQuery.fn.select2); // Check if Select2 is available
    console.log('Room ID:', roomId);
         console.log('Center ID:', centerId);
         if (roomId) {
-            loadEducators(roomId, centerId);
+           
             loadChildren(roomId, centerId);
         }
     });
@@ -1350,7 +1355,7 @@ console.log(jQuery.fn.select2); // Check if Select2 is available
         let centerId = '<?= $centerId ?>';
         
         if (roomId) {
-            loadEducators(roomId, centerId);
+           // loadEducators(roomId, centerId);
             loadChildren(roomId, centerId);
         }
     <?php endif; ?>

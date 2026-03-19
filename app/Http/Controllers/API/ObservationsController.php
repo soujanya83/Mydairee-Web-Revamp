@@ -1919,7 +1919,7 @@ class ObservationsController extends Controller
 
     public function snapshotstore(Request $request)
     {
-                \Log::info('Snapshot status about to save:', ['status' => isset($status) ? $status : null, 'request' => $request->all()]);   
+           
         // ✅ Check PHP upload limits
         $uploadMaxSize = min(
             $this->convertToBytes(ini_get('upload_max_filesize')),
