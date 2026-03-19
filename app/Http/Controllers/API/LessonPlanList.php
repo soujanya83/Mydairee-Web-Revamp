@@ -348,10 +348,12 @@ $centerId = $validated['centerid'];
             })
             ->get();
 
-            // Fetch users
-            $users = User::whereIn('userid', function ($query) use ($centerId) {
-                $query->select('userid')->from('usercenters')->where('centerid', $centerId);
-            })->get();
+            // Fetch all staff for the center
+            $users = User::where('userType', 'Staff')
+                ->where('status', 'ACTIVE')
+                ->whereIn('userid', function ($query) use ($centerId) {
+                    $query->select('userid')->from('usercenters')->where('centerid', $centerId);
+                })->get();
 
             // Fetch EYLF Outcomes with Activities
             $eylf_outcomes = EYLFOutcome::with('activities')->orderBy('title')->get();
@@ -377,17 +379,41 @@ $centerId = $validated['centerid'];
 
             // Return view with data
             // dd($plan_data);
+          // Prepare selected room as {id, name}
+          $selected_room = null;
+          if ($plan_data && isset($plan_data->room_id)) {
+              $roomIds = explode(',', $plan_data->room_id);
+              $roomNames = Room::whereIn('id', $roomIds)->pluck('name', 'id');
+              // If multiple, return as array of objects; if single, as object
+              if (count($roomIds) > 1) {
+                  $selected_room = [];
+                  foreach ($roomIds as $id) {
+                      $selected_room[] = [
+                          'id' => $id,
+                          'name' => $roomNames[$id] ?? null
+                      ];
+                  }
+              } else {
+                  $id = $roomIds[0];
+                  $selected_room = [
+                      'id' => $id,
+                      'name' => $roomNames[$id] ?? null
+                  ];
+              }
+          }
+
           return response()->json([
-    'rooms' => $rooms,
-    'users' => $users,
-    'centerId' => $centerId,
-    'userId' => $userId,
-    'eylf_outcomes' => $eylf_outcomes,
-    'montessori_subjects' => $montessori_subjects,
-    'plan_data' => $plan_data,
-    'selected_educators' => $selected_educators,
-    'selected_children' => $selected_children
-]);
+              'rooms' => $rooms,
+              'selected_room' => $selected_room,
+              'users' => $users,
+              'centerId' => $centerId,
+              'userId' => $userId,
+              'eylf_outcomes' => $eylf_outcomes,
+              'montessori_subjects' => $montessori_subjects,
+              'plan_data' => $plan_data,
+              'selected_educators' => $selected_educators,
+              'selected_children' => $selected_children
+          ]);
 
         // } else {
         //     return redirect()->route('login');
