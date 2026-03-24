@@ -612,7 +612,7 @@
 
                                 <!-- Action Buttons -->
                                 @if(($date ?? now()->format('Y-m-d')) == now()->format('Y-m-d'))
-                                    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateAccidents']) && $permissions['updateAccidents'] == 1))
+                                    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateHeadChecks']) && $permissions['updateHeadChecks'] == 1))
                                     <div class="action-buttons">
                                         <button type="button" class="btn btn-custom btn-add me-3" id="add-btn">
                                             <i class="fas fa-plus mx-1"></i>Add New
@@ -645,7 +645,17 @@
     flatpickr("#txtCalendar", {
         dateFormat: "d-m-Y",
         defaultDate: "{{ $calDate }}",
-        maxDate: "today"
+        maxDate: "today",
+        onChange: function(selectedDates, dateStr, instance) {
+            // Always use the current roomid and centerid from Blade context, not just from URL
+            const roomid = '{{ request('roomid', $roomid) }}';
+            const centerid = '{{ request('centerid', $centerid) }}';
+            let url = new URL(window.location.href);
+            url.searchParams.set('date', dateStr);
+            if (roomid) url.searchParams.set('roomid', roomid);
+            if (centerid) url.searchParams.set('centerid', centerid);
+            window.location.href = url.pathname + '?' + url.searchParams.toString();
+        }
     });
 </script>
 <!-- 
@@ -1088,13 +1098,8 @@ $(document).ready(function() {
         $('#headCheckForm').submit();
     });
 
-    // On calendar change, redirect
-    $(document).on('change', '#txtCalendar', function () {
-        let date = $(this).val();
-        // alert(date);
-        let url = "{{ url('headChecks') }}?centerid={{ $centerid }}&roomid={{ $roomid }}&date=" + date;
-        window.location.href = url;
-    });
+
+    // Removed duplicate calendar change handler to avoid conflicting redirects
 
     // Save form
     $(document).on('click', '#save_headcheck', function () {
