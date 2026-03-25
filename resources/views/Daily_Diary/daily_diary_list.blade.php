@@ -2489,9 +2489,18 @@ $(document).ready(function() {
     });
 });
 
-    // Set today's date as default
-    const today = new Date().toISOString().split('T')[0];
-    $('#activityDate').val(today);
+
+    // Set modal date to main page date when modal is opened
+    $('#addEntryModal').on('show.bs.modal', function () {
+        const mainDate = $('#datePicker').val();
+        if (mainDate) {
+            $('#activityDate').val(mainDate);
+        } else {
+            // fallback to today if not set
+            const today = new Date().toISOString().split('T')[0];
+            $('#activityDate').val(today);
+        }
+    });
 
 
     function showToast(type, message) {
