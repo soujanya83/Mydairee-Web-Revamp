@@ -36,7 +36,13 @@ use App\Models\Observation;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Artisan;
 
-
+Route::get('/check-timezone', function () {
+    return [
+        'php_now' => now()->toDateTimeString(),
+        'db_now' => DB::select("SELECT NOW() as now")[0]->now,
+        'db_timezone' => DB::select("SELECT @@session.time_zone as tz")[0]->tz,
+    ];
+});
 // share observation to family , feature for parents
 Route::get('/child/observation-link/{id}', [ObservationsController::class, 'print'])->name('sharelink');
 Route::post('/translate-observation', [ObservationsController::class, 'TranslateObservation'])->name('translate-observation');
