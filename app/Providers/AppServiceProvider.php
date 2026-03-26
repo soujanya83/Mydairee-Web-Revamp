@@ -20,6 +20,15 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        date_default_timezone_set('Australia/Sydney');
+
+        try {
+            $offset = now()->format('P'); 
+            DB::statement("SET time_zone = '{$offset}'");
+        } catch (\Exception $e) {
+            // Handle the exception (e.g., log it)
+            \Log::error('Failed to set time zone: ' . $e->getMessage());
+        }
         View::composer('*', function ($view) {
             $permissions = [];
 
