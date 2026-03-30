@@ -202,6 +202,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
     Route::post('sleepcheck/save', [SleepCheckController::class, 'sleepcheckSave'])->name('sleepcheck.save');
     Route::post('sleepcheck/update', [SleepCheckController::class, 'sleepcheckUpdate'])->name('sleepcheck.update');
     Route::post('sleepcheck/delete', [SleepCheckController::class, 'sleepcheckDelete'])->name('sleepcheck.delete');
+    Route::post('sleepcheck/bulk-save', [App\Http\Controllers\SleepCheckController::class, 'bulkSave'])->name('sleepcheck.bulk-save');
 
     // Accidents
     Route::get('Accidents/list', [AccidentsController::class, 'AccidentsList'])->name('Accidents.list');

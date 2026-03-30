@@ -125,8 +125,20 @@ sort($uniqueTimes);
 @endphp
 
 <div class="container" style="margin-top:4em;border:1px solid 	#d3d3d3;padding:1rem;">
+
  <div class="text-center mb-4">
     <h4 style="text-decoration: underline;">Children Head Checks</h4>
+    @if(isset($startOfWeek))
+        <div class="mt-2">
+            <span class="font-weight-bold">Week:</span>
+            {{ \Carbon\Carbon::parse($startOfWeek)->format('d M Y') }} - {{ \Carbon\Carbon::parse($startOfWeek)->addDays(4)->format('d M Y') }}
+        </div>
+    @elseif(isset($inputDate))
+        <div class="mt-2">
+            <span class="font-weight-bold">Date:</span>
+            {{ \Carbon\Carbon::parse($inputDate)->format('d M Y') }}
+        </div>
+    @endif
 </div>
 
 <!-- Room Name and Month on same line -->

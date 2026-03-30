@@ -609,7 +609,40 @@
             placeholder="Filter by Child name" 
             onkeyup="filterbyChildname(this.value)"
             style="width:200px;background: var(--sd-bg, #fff); color: var(--sd-accent, #36b9cc); border: 2px solid var(--sd-accent, #36b9cc);">
-        <button id="bulk10minBtn" class="btn btn-info ml-3" style="display:none;" onclick="createBulk10MinEntry()"> + ADD Bulk 10-MIN ENTRY </button>
+        <button id="bulk10minBtn" class="btn btn-info ml-3 floating-bulk-btn" style="display:none;" onclick="createBulk10MinEntry()"> + ADD Bulk 10-MIN ENTRY </button>
+        <style>
+        .floating-bulk-btn {
+            position: fixed;
+            right: 32px;
+            bottom: 32px;
+            z-index: 9999;
+            min-width: 220px;
+            box-shadow: 0 4px 16px rgba(54, 185, 204, 0.18);
+            background: linear-gradient(135deg, #36b9cc, #4e73df);
+            color: #fff;
+            border: none;
+            border-radius: 32px;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 16px 32px;
+            transition: background 0.2s, box-shadow 0.2s;
+            display: none;
+        }
+        .floating-bulk-btn:hover {
+            background: linear-gradient(135deg, #4e73df, #36b9cc);
+            box-shadow: 0 8px 32px rgba(54, 185, 204, 0.28);
+            color: #fff;
+        }
+        @media (max-width: 600px) {
+            .floating-bulk-btn {
+                right: 12px;
+                bottom: 12px;
+                min-width: 140px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+        </style>
     </div>
 
     <!-- RIGHT SIDE (NEW TOGGLE) -->
@@ -748,7 +781,7 @@
                 <option value="Hot">Hot</option>
               </select>
             </td>
-            <td><input type="text" rows="2" name="children[{{ $child->id }}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
+            <td><textarea rows="2"  name="children[{{ $child->id }}][notes][]" placeholder="Sleep Check List Notes..." style="resize:none;"></textarea></td>
           <td><input type="text"name="children[{{ $child->id }}][signature][]" value="" placeholder="signature"> </td>
             @if(Auth::user()->userType != 'Parent')
             <td>
@@ -803,7 +836,12 @@
 <script>
 function toggleBulkButton() {
     const checked = document.querySelectorAll('.bulk-checkbox:checked');
-    document.getElementById('bulk10minBtn').style.display = checked.length > 1 ? 'inline-block' : 'none';
+    const btn = document.getElementById('bulk10minBtn');
+    if (checked.length > 1) {
+        btn.style.display = 'block';
+    } else {
+        btn.style.display = 'none';
+    }
 }
 
 function createBulk10MinEntry() {
@@ -868,13 +906,49 @@ function createBulk10MinEntry() {
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('bulkEntryForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        // Gather form data
         const form = e.target;
         const data = new FormData(form);
-        // TODO: Implement AJAX POST to your bulk create endpoint
-        // Example: console.log(Array.from(data.entries()));
-        alert('Bulk entries would be created for: ' + data.getAll('child_ids[]').join(', '));
-        $('#bulkEntryModal').modal('hide');
+        // Add roomid and diarydate from hidden fields
+        data.append('roomid', document.getElementById('roomid').value);
+        data.append('diarydate', document.getElementById('date').value);
+        fetch('/sleepcheck/bulk-save', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: data
+        })
+        .then(res => res.json())
+        .then(result => {
+            if(result.success) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: result.message,
+                    icon: 'success',
+                    confirmButtonColor: '#28a745',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: result.message || 'Bulk save failed.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(() => {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Bulk save failed due to server error.',
+                icon: 'error',
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'OK'
+            });
+        });
     });
 });
 </script>
@@ -910,8 +984,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <option value="Hot">Hot</option>
                 </select>
             </td>
-            <td><input type="text" rows="2" name="children[${childDbId}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
-             <td><input type="text" name="children[${childDbId}][signature][]" placeholder="signature"></td>
+            <td><textarea rows="2" name="children[${childDbId}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
+            <td><input type="text" name="children[${childDbId}][signature][]" placeholder="signature"></td>
             <td>
                 <button class="save-row-btn btn-outline-info" onclick="saveRow(this, ${childDbId})">Save</button>
                 <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>

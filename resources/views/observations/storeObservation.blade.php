@@ -1330,47 +1330,6 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                                     </div>
 
                                     <div class="col-md-6 mt-4 form-section">
-                                        <label for="editor3">Critical Reflection</label>
-                                        <textarea id="editor3" name="reflection" class="form-control ckeditor">{!! isset($observation) ? $observation->reflection : '' !!}</textarea>
-                                        <div class="refine-container">
-                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                                data-editor="editor3"><i class="fas fa-magic mr-1"></i>Refine with
-                                                Ai</button>
-                                        </div>
-                                    </div>
-                                    
-
-                                    <div class="col-md-6 mt-4 form-section">
-                                        <label for="editor2">Analysis/Evaluation</label>
-                                        <textarea id="editor2" name="notes" class="form-control ckeditor">{!! isset($observation) ? $observation->notes : '' !!}</textarea>
-                                        <div class="refine-container">
-                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                                data-editor="editor2"><i class="fas fa-magic mr-1"></i>Refine with
-                                                Ai</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 mt-4 form-section">
-                                        <label for="editor5">Future Plan/Extension</label>
-                                        <textarea id="editor5" name="future_plan" class="form-control ckeditor">{!! isset($observation) ? $observation->future_plan : '' !!}</textarea>
-                                        <div class="refine-container">
-                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                                data-editor="editor5"><i class="fas fa-magic mr-1"></i>Refine with
-                                                Ai</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 mt-4 form-section">
-                                        <label for="editor4">Child's Voice</label>
-                                        <textarea id="editor4" name="child_voice" class="form-control ckeditor">{!! isset($observation) ? $observation->child_voice : '' !!}</textarea>
-                                        <div class="refine-container">
-                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
-                                                data-editor="editor4"><i class="fas fa-magic mr-1"></i>Refine with
-                                                Ai</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 mt-4 form-section">
                                         <label for="editor1">Observation</label>
                                         <textarea id="editor1" name="title" class="form-control ckeditor">{!! isset($observation) ? $observation->title : '' !!}</textarea>
                                         <div class="refine-container">
@@ -1379,8 +1338,6 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                                                 Ai</button>
                                         </div>
                                     </div>
-
-
 
                                     <div class="col-md-12 mt-4">
                                         <h4>Media Upload Section</h4>
@@ -1421,6 +1378,46 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                                         @endif
 
 
+                                    </div>
+
+                                     <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor2">Learning Analysis</label>
+                                        <textarea id="editor2" name="notes" class="form-control ckeditor">{!! isset($observation) ? $observation->notes : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor2"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor4">Child's Voice</label>
+                                        <textarea id="editor4" name="child_voice" class="form-control ckeditor">{!! isset($observation) ? $observation->child_voice : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor4"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor5">Future Plan</label>
+                                        <textarea id="editor5" name="future_plan" class="form-control ckeditor">{!! isset($observation) ? $observation->future_plan : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor5"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor3">Critical Reflection</label>
+                                        <textarea id="editor3" name="reflection" class="form-control ckeditor">{!! isset($observation) ? $observation->reflection : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor3"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
                                     </div>
 
 
