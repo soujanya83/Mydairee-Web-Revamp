@@ -1151,38 +1151,34 @@
                                 } = info.event.extendedProps;
 
                                 if (type === 'birthday' && birthdays.length > 0) {
-                                    const user = birthdays[0];
-                                    const fullName = `${user.name} ${user.lastname || ''}`.trim();
-                                    const dob = new Date(user.dob);
-                                    const today = new Date();
-                                    let age = today.getFullYear() - dob.getFullYear();
-                                    
-                                    // Check if birthday hasn't occurred yet this year
-                                    if (today.getMonth() < dob.getMonth() || 
-                                        (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) {
-                                        age--;
-                                    }
-                                    
-                                    const dobFormatted = `${String(dob.getDate()).padStart(2, '0')} ${dob.toLocaleString('en-US', {month: 'long'})} ${dob.getFullYear()}`;
-                                    const gender = user.gender || 'Not specified';
-                                    
-                                    let html = `
-                                        <div class="birthday-content-item">
-                                            <p class="content-label birthday-label">👤 Name:</p>
-                                            <p class="content-value">${fullName}</p>
-                                            <br>
-                                            <p class="content-label birthday-label">🎂 Age:</p>
-                                            <p class="content-value">${age} Years Old</p>
-                                            <br>
-                                            <p class="content-label birthday-label">📅 Date of Birth:</p>
-                                            <p class="content-value">${dobFormatted}</p>
-                                            <br>
-                                            <p class="content-label birthday-label">👶 Gender:</p>
-                                            <p class="content-value">${gender}</p>
-                                        </div>
+                                    let html = birthdays.map(user => {
+                                        const fullName = `${user.name} ${user.lastname || ''}`.trim();
+                                        const dob = new Date(user.dob);
+                                        const today = new Date();
+                                        let age = today.getFullYear() - dob.getFullYear();
                                         
-                                    `;
-                                    
+                                        if (today.getMonth() < dob.getMonth() || 
+                                            (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) {
+                                            age--;
+                                        }
+                                        const dobFormatted = `${String(dob.getDate()).padStart(2, '0')} ${dob.toLocaleString('en-US', {month: 'long'})} ${dob.getFullYear()}`;
+                                        const gender = user.gender || 'Not specified';
+                                        return `
+                                            <div class="birthday-content-item">
+                                                <p class="content-label birthday-label">👤 Name:</p>
+                                                <p class="content-value">${fullName}</p>
+                                                <br>
+                                                <p class="content-label birthday-label">🎂 Age:</p>
+                                                <p class="content-value">${age} Years Old</p>
+                                                <br>
+                                                <p class="content-label birthday-label">📅 Date of Birth:</p>
+                                                <p class="content-value">${dobFormatted}</p>
+                                                <br>
+                                                <p class="content-label birthday-label">👶 Gender:</p>
+                                                <p class="content-value">${gender}</p>
+                                            </div>
+                                        `;
+                                    }).join('');
                                     document.getElementById('birthdayModalBody').innerHTML = html;
                                     new bootstrap.Modal(document.getElementById('birthdayModal')).show();
                                     setTimeout(() => {

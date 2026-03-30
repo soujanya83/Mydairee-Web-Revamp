@@ -361,9 +361,65 @@ public function sleepcheckUpdate(Request $request)
                 ]);
             }
         }
+    /**
+     * Bulk save sleep check entries for multiple children
+     */
+    public function bulkSave(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'child_ids'        => 'required|array|min:1',
+            'child_ids.*'      => 'required|integer|exists:child,id',
+            'diarydate'        => 'required|date_format:d-m-Y',
+            'roomid'           => 'required|integer|exists:room,id',
+            'time'             => 'required|string',
+            'breathing'        => 'nullable|string',
+            'temperature'      => 'nullable|string',
+            'notes'            => 'nullable|string',
+            'signature'        => 'nullable|string',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
 
+        $date = \DateTime::createFromFormat('d-m-Y', $request->diarydate, new \DateTimeZone('Australia/Sydney'));
+        $mysqlDate = $date ? $date->format('Y-m-d') : null;
+        $nowSydney = now()->setTimezone('Australia/Sydney');
+        $createdBy = Auth::user()->userid;
+
+        $successCount = 0;
+        foreach ($request->child_ids as $childid) {
+            $check = DailyDiarySleepCheckList::create([
+                'childid'          => $childid,
+                'diarydate'        => $mysqlDate,
+                'roomid'           => $request->roomid,
+                'time'             => $request->time,
+                'breathing'        => $request->breathing,
+                'body_temperature' => $request->temperature,
+                'notes'            => $request->notes,
+                'createdBy'        => $createdBy,
+                'created_at'       => $nowSydney,
+                'signature'        => $request->signature
+            ]);
+            if ($check) $successCount++;
+        }
+
+        if ($successCount > 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Bulk entries saved successfully!'
+            ]);
+        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Bulk save failed.'
+        ]);
     }
+
+}
     
 
 

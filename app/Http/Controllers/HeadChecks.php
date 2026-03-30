@@ -34,21 +34,22 @@ public function headcheckprint(Request $request)
     $date = \Carbon\Carbon::createFromFormat('d-m-Y', $inputDate);
     $formattedDate = $date->format('Y-m-d');
 
+    // Calculate week range (Monday to Friday only)
+    $startOfWeek = $date->copy()->startOfWeek();
+    $endOfWeek = $startOfWeek->copy()->addDays(4); // Friday
+
     // Extract month & year for filtering
     $month = $date->format('m');
     $year = $date->format('Y');
 
     $room = Room::where('id', $roomid)->select('name')->first();
 
-    // Filter by same month and year
+    // Only fetch head checks for the selected week (Monday to Friday)
     $headchecks = DailyDiaryHeadCheckModel::where('roomid', $roomid)
-        ->whereMonth('diarydate', $month)
-        ->whereYear('diarydate', $year)
+        ->whereBetween('diarydate', [$startOfWeek->format('Y-m-d'), $endOfWeek->format('Y-m-d')])
         ->get();
 
-        // dd($headchecks);
-
-    return view('headChecks.print', compact('room', 'month', 'headchecks'));
+    return view('headChecks.print', compact('room', 'month', 'headchecks', 'startOfWeek', 'endOfWeek', 'inputDate'));
 }
 
 
