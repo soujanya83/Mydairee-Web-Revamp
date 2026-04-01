@@ -93,9 +93,7 @@
             height: 30px;
         }
 
-        .main-content-row td {
-            height: 380px;
-        }
+        
 
         .focus-area {
             text-align: left;
@@ -172,9 +170,7 @@
             cursor: pointer;
         }
 
-        .topdivs {
-            min-height:250px;
-        }
+        
 
         .bottomdivs{
             margin-top:10px;
@@ -277,101 +273,111 @@
         <table>
             <tr class="room-name-row">
                 <td><strong>Room Name</strong></td>
-                <td colspan="3">{{ $room_name }}</td>
-                <td rowspan="2" class="focus-area"><strong>Focus Area</strong></td>
-                <td rowspan="2">{{ $plan['focus_area'] ?? '' }}</td>
+                <td colspan="5">{{ $room_name }}</td>
             </tr>
             <tr class="educators-row">
                 <td><strong>Educators</strong></td>
-                <td colspan="3">{{ $educator_names }}</td>
+                <td colspan="5">{{ $educator_names }}</td>
             </tr>
             <tr class="educators-row">
                 <td><strong>Children</strong></td>
                 <td colspan="5">{{ $children_names }}</td>
             </tr>
-
-            <!-- Montessori Areas -->
             <tr>
-                <th>Practical Life</th>
-                <th>Sensorial</th>
-                <th>Math</th>
-                <th>Language</th>
-                <th>Culture</th>
-                <th>Art & Craft</th>
+                <td class="focus-area"><strong>Focus Area</strong></td>
+                <td colspan="5">{{ strip_tags($plan['focus_area'] ?? '') }}</td>
             </tr>
 
-            <tr class="main-content-row">
-                @php
-                    function formatActivities($input) {
-                        $html = '';
-                        if ($input) {
-                            $lines = explode("\n", $input);
-                            $inList = false;
-                            foreach ($lines as $line) {
-                                if (str_starts_with($line, '**') && str_contains($line, '** - ')) {
-                                    if ($inList) $html .= '</ul>';
-                                    $html .= '<strong>' . str_replace(['**', ' - '], '', $line) . '</strong><ul>';
-                                    $inList = true;
-                                } elseif (str_starts_with($line, '**• **')) {
-                                    $html .= '<li>' . str_replace('**• **', '', $line) . '</li>';
-                                }
+            <!-- Montessori Areas (one per row) -->
+            @php
+                function formatActivities($input) {
+                    $html = '';
+                    if ($input) {
+                        $lines = explode("\n", $input);
+                        $inList = false;
+                        foreach ($lines as $line) {
+                            if (str_starts_with($line, '**') && str_contains($line, '** - ')) {
+                                if ($inList) $html .= '</ul>';
+                                $html .= '<strong>' . str_replace(['**', ' - '], '', $line) . '</strong><ul>';
+                                $inList = true;
+                            } elseif (str_starts_with($line, '**• **')) {
+                                $html .= '<li>' . str_replace('**• **', '', $line) . '</li>';
                             }
-                            if ($inList) $html .= '</ul>';
-                        } else {
-                            $html = '';
                         }
-                        return $html;
+                        if ($inList) $html .= '</ul>';
+                    } else {
+                        $html = '';
                     }
-                @endphp
-
-                @foreach (['practical_life', 'sensorial', 'math', 'language', 'culture'] as $area)
-                    <td>
-                        <div class="topdivs">{!! formatActivities($plan[$area] ?? '') !!}</div>
-                        <div class="bottomdivs">{{ $plan[$area . '_experiences'] ?? '' }}</div>
-                    </td>
-                @endforeach
-
-                <td>
-                    <div class="topdivs">{{ $plan['art_craft'] ?? '' }}</div>
-                    <div class="bottomdivs">{{ $plan['art_craft_experiences'] ?? '' }}</div>
-                </td>
-            </tr>
-        </table>
-
-      <div class="eylf-section">
-    <div class="section-label" style="margin:10px;">EYLF:</div>
-    <div style="margin:10px;">
-        @php
-            $raw = $plan['eylf'] ?? '';
-
-            // Split on "Outcome" while keeping "Outcome" text
-            $outcomes = preg_split('/(?=Outcome)/', $raw, -1, PREG_SPLIT_NO_EMPTY);
-
-            $grouped = collect($outcomes)->mapToGroups(function($item) {
-                // If there's a ":" separate heading and sub, otherwise treat as heading only
-                if (strpos($item, ':') !== false) {
-                    [$heading, $sub] = explode(":", $item, 2);
-                    return [trim($heading) => trim($sub)];
-                } else {
-                    return [trim($item) => null];
+                    return $html;
                 }
-            });
-        @endphp
+            @endphp
 
-        @foreach($grouped as $heading => $subs)
-            <strong>{{ $heading }}</strong><br>
-            @if($subs->filter()->isNotEmpty())
-                <ul>
-                    @foreach($subs as $sub)
-                        @if($sub)
-                            <li>{{ $sub }}</li>
+            @foreach ([
+                'Practical Life' => 'practical_life',
+                'Sensorial' => 'sensorial',
+                'Math' => 'math',
+                'Language' => 'language',
+                'Culture' => 'culture',
+                'Art & Craft' => 'art_craft',
+            ] as $label => $area)
+                @php
+                    $top = $area === 'art_craft' ? ($plan['art_craft'] ?? '') : (isset($plan[$area]) ? formatActivities($plan[$area]) : '');
+                    $bottom = $area === 'art_craft' ? ($plan['art_craft_experiences'] ?? '') : ($plan[$area . '_experiences'] ?? '');
+                @endphp
+                @if(trim(strip_tags($top)) !== '' || trim(strip_tags($bottom)) !== '')
+                <tr class="main-content-row">
+                    <th style="width: 180px;">{{ $label }}</th>
+                    <td>
+                        @if(trim(strip_tags($top)) !== '')
+                            <div class="topdivs">{!! $top !!}</div>
+                        @endif
+                        @if(trim(strip_tags($bottom)) !== '')
+                            <div class="bottomdivs">{!! $bottom !!}</div>
+                        @endif
+                    </td>
+                </tr>
+                @endif
+            @endforeach
+
+        @php
+            $eylfRaw = $plan['eylf'] ?? '';
+            $eylfOutcomes = preg_split('/(?=Outcome)/', $eylfRaw, -1, PREG_SPLIT_NO_EMPTY);
+            $eylfList = [];
+            foreach ($eylfOutcomes as $item) {
+                $item = trim($item);
+                if ($item === '') continue;
+                if (strpos($item, ':') !== false) {
+                    [$heading, $subs] = explode(':', $item, 2);
+                    $eylfList[] = [trim($heading), array_filter(array_map('trim', preg_split('/[\n,]/', $subs)))];
+                } else {
+                    $eylfList[] = [$item, []];
+                }
+            }
+        @endphp
+        <tr class="main-content-row">
+            <th style="width: 180px;">EYLF</th>
+            <td>
+                @if(count($eylfList))
+                    <div style="margin:10px;">
+                    @foreach($eylfList as [$heading, $subs])
+                        <strong>{{ $heading }}</strong>
+                        @if(count($subs))
+                            <ul>
+                            @foreach($subs as $sub)
+                                @if($sub)
+                                    <li>{{ $sub }}</li>
+                                @endif
+                            @endforeach
+                            </ul>
                         @endif
                     @endforeach
-                </ul>
-            @endif
-        @endforeach
-    </div>
-</div>
+                    </div>
+                @else
+                    <div style="margin:10px;">&nbsp;</div>
+                @endif
+            </td>
+        </tr>
+        </table>
 
 
         <div class="footer">
@@ -385,90 +391,176 @@
             <img src="{{ asset('assets/img/profile_1739442700.jpeg') }}" alt="NextGen Montessori Logo">
         </div>
 
-        <div class="outdoor-section">
-            <div class="section-label">Outdoor Experiences:</div>
-            <div style="margin:10px;">
-                @if(!empty($plan['outdoor_experiences']))
-                    <ul>
-                        @foreach (explode(',', $plan['outdoor_experiences']) as $item)
-                            <li>{{ trim($item) }}</li>
+
+        @php
+            $outdoor = splitItems($plan['outdoor_experiences'] ?? '');
+        @endphp
+        <table>
+            <tr>
+                <td style="width:200px;"><div class="section-label">Outdoor Experiences:</div></td>
+                <td>
+                    @if(count($outdoor))
+                        <ul style="margin:10px;">
+                        @foreach($outdoor as $item)
+                            <li>{{ $item }}</li>
                         @endforeach
-                    </ul>
-                @else
-                    <p> </p>
-                @endif
-            </div>
-        </div>
-
-        <table>
-            <tr>
-                <td><div class="section-label">Inquiry Topic:</div><div style="margin:10px;">{{ $plan['inquiry_topic'] ?? '' }}</div></td>
-                <td><div class="section-label">Sustainability Topic:</div><div style="margin:10px;">{{ $plan['sustainability_topic'] ?? '' }}</div></td>
-                <td>
-                    <div class="section-label">Special Events:</div>
-                    <div style="margin:10px;">
-                        @if(!empty($plan['special_events']))
-                            <ul>
-                                @foreach (explode(',', $plan['special_events']) as $event)
-                                    <li>{{ trim($event) }}</li>
-                                @endforeach
-                            </ul>
-                        @else
-                                <p> </p>
-                        @endif
-                    </div>
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
                 </td>
             </tr>
         </table>
 
+        @php
+            // Helper to split by comma or newline, trim, and remove empty
+            function splitItems($text) {
+                if (!is_string($text) || trim($text) === '') return [];
+                $lines = preg_split('/[\n,]/', $text);
+                return array_values(array_filter(array_map('trim', $lines), function($v) { return $v !== ''; }));
+            }
+            $inq = splitItems($plan['inquiry_topic'] ?? '');
+            $sus = splitItems($plan['sustainability_topic'] ?? '');
+            $events = splitItems($plan['special_events'] ?? '');
+        @endphp
         <table>
             <tr>
-                <td colspan="3">
-                    <div class="section-label">Children's Voices:</div>
-                    <div style="margin:10px;">{{ $plan['children_voices'] ?? '' }}</div>
-                </td>
+                <td style="width:200px;"><div class="section-label">Special Events:</div></td>
                 <td>
-                    <div class="section-label">Families Input:</div>
-                    <div style="margin:10px;">{{ $plan['families_input'] ?? '' }}</div>
+                    @if(count($events))
+                        <ul style="margin:10px;">
+                        @foreach($events as $event)
+                            <li>{{ $event }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
+                </td>
+            </tr>
+            <tr>
+                <td><div class="section-label">Inquiry Topic:</div></td>
+                <td>
+                    @if(count($inq))
+                        <ul style="margin:10px;">
+                        @foreach($inq as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
+                </td>
+            </tr>
+            <tr>
+                <td><div class="section-label">Sustainability Topic:</div></td>
+                <td>
+                    @if(count($sus))
+                        <ul style="margin:10px;">
+                        @foreach($sus as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
                 </td>
             </tr>
         </table>
 
+        @php
+            $voices = splitItems($plan['children_voices'] ?? '');
+            $families = splitItems($plan['families_input'] ?? '');
+        @endphp
         <table>
             <tr>
-                <td><div class="section-label">Group Experience:</div><div style="margin:10px;">{{ $plan['group_experience'] ?? '' }}</div></td>
-                <td><div class="section-label">Spontaneous Experience:</div><div style="margin:10px;">{{ $plan['spontaneous_experience'] ?? '' }}</div></td>
-                <td><div class="section-label">Mindfulness Experiences:</div><div style="margin:10px;">{{ $plan['mindfulness_experiences'] ?? '' }}</div></td>
+                <td style="width:200px;"><div class="section-label">Children's Voices:</div></td>
+                <td>
+                    @if(count($voices))
+                        <ul style="margin:10px;">
+                        @foreach($voices as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
+                </td>
+            </tr>
+            <tr>
+                <td><div class="section-label">Families Input:</div></td>
+                <td>
+                    @if(count($families))
+                        <ul style="margin:10px;">
+                        @foreach($families as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
+                </td>
+            </tr>
+        </table>
+
+        @php
+            $group = splitItems($plan['group_experience'] ?? '');
+            $spont = splitItems($plan['spontaneous_experience'] ?? '');
+            $mind = splitItems($plan['mindfulness_experiences'] ?? '');
+        @endphp
+        <table>
+            <tr>
+                <td style="width:200px;"><div class="section-label">Group Experience:</div></td>
+                <td>
+                    @if(count($group))
+                        <ul style="margin:10px;">
+                        @foreach($group as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
+                </td>
+            </tr>
+            <tr>
+                <td><div class="section-label">Spontaneous Experience:</div></td>
+                <td>
+                    @if(count($spont))
+                        <ul style="margin:10px;">
+                        @foreach($spont as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
+                </td>
+            </tr>
+            <tr>
+                <td><div class="section-label">Mindfulness Experiences:</div></td>
+                <td>
+                    @if(count($mind))
+                        <ul style="margin:10px;">
+                        @foreach($mind as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
+                </td>
+            </tr>
+            <tr>
+                <td><div class="section-label">What is working:</div></td>
+                <td colspan="2"><div style="margin:10px;">{{ strip_tags($plan['working'] ?? '') }}</div></td>
+            </tr>
+            <tr>
+                <td><div class="section-label">What is not working:</div></td>
+                <td colspan="2"><div style="margin:10px;">{{ strip_tags($plan['notworking'] ?? '') }}</div></td>
             </tr>
         </table>
 
         <div class="footer">
             1 Capricorn Road, Truganina, VIC 3029
         </div>
-    </div>
-
-    <!-- JS for select2 interaction -->
-    <script>
-        $(document).ready(function() {
-            $('.select2-multiple, #educators').select2({
-                placeholder: "Select",
-                allowClear: true,
-                width: '100%'
-            });
-
-            $('.select2-multiple').on('change', function() {
-                $('#printable-rooms').text($(this).find(':selected').map(function() {
-                    return $(this).text();
-                }).get().join(', '));
-            });
-
-            $('#educators').on('change', function() {
-                $('#printable-educators').text($(this).find(':selected').map(function() {
-                    return $(this).text();
-                }).get().join(', '));
-            });
-        });
-    </script>
-
-</body>
-</html>

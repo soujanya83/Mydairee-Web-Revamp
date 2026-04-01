@@ -320,8 +320,20 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
 </div>
 
 <div class="form-group mb-4">
-    <label class="form-label d-block mb-2 fw-semibold">Status</label>
+    
 
+    <!-- What is working section -->
+    <div class="form-group mb-3">
+        <label for="working">What is working</label>
+        <textarea class="form-control ckeditor" id="working" name="working" rows="3" placeholder="Describe what is working well...">{{ isset($plan_data) ? $plan_data->working : '' }}</textarea>
+    </div>
+
+    <!-- What is not working section -->
+    <div class="form-group mb-3">
+        <label for="notworking">What is not working</label>
+        <textarea class="form-control ckeditor" id="notworking" name="notworking" rows="3" placeholder="Describe what is not working...">{{ isset($plan_data) ? $plan_data->notworking : '' }}</textarea>
+    </div>
+    <label class="form-label d-block mb-2 fw-semibold">Status</label>
     <div class="status-toggle">
         <label class="status-option draft">
             <input type="radio" name="status" value="Draft"
@@ -1363,7 +1375,20 @@ console.log(jQuery.fn.select2); // Check if Select2 is available
     // Form submission handler
     $('#programPlanForm').on('submit', function(e) {
         e.preventDefault();
-        
+
+        // Sync all CKEditor data to their respective textareas before serializing
+        if (typeof editors === 'object') {
+            for (let id in editors) {
+                if (editors.hasOwnProperty(id)) {
+                    let data = editors[id].getData();
+                    // Set the data back to the textarea
+                    if (document.getElementById(id)) {
+                        document.getElementById(id).value = data;
+                    }
+                }
+            }
+        }
+
         // If month field is disabled for edit mode, ensure the value is included
         if ($('#months').prop('disabled')) {
             // The hidden input field already handles this
@@ -1374,18 +1399,22 @@ console.log(jQuery.fn.select2); // Check if Select2 is available
             type: 'POST',
             data: $(this).serialize(),
             headers: {
-            'X-CSRF-TOKEN': csrfToken // Include CSRF token in headers
-        },
-         success: function(response) {
-    if (response.success) {
-        // console.log("Redirecting to:", response.redirect_url); // ✅ this works
-        window.location.href = response.redirect_url; // ✅ actual redirection
-    } else {
-        alert('Error saving program plan. Please try again.');
-    }
-},
-            error: function() {
-                alert('An error occurred while processing your request.');
+                'X-CSRF-TOKEN': csrfToken // Include CSRF token in headers
+            },
+            success: function(response) {
+                if (response.success) {
+                    window.location.href = response.redirect_url;
+                } else {
+                    alert('Error saving program plan. Please try again.');
+                }
+            },
+            error: function(xhr) {
+                // Try to show more detailed error if available
+                let msg = 'An error occurred while processing your request.';
+                if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
+                    msg += '\n' + xhr.responseJSON.message;
+                }
+                alert(msg);
             }
         });
     });
