@@ -39,6 +39,8 @@ class ProgramPlanTemplateDetailsAdd extends Model
 'group_experience',
 'spontaneous_experience',
 'mindfulness_experiences',
+'working',
+'notworking',
     ];
 
     public function room()

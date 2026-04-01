@@ -491,6 +491,14 @@
         </div>
 
 
+
+        <div class="info-block">
+            <strong>Implementation:</strong>
+            <span class="info-text" id="implementation">
+                {!! html_entity_decode($observation->implementation ?? '') !!}
+            </span>
+        </div>
+
         <div class="info-block">
             <strong>Reflection:</strong>
             <span class="info-text" id="reflection">

@@ -737,6 +737,8 @@ public function saveProgramPlan(Request $request)
         'group_experience' => $request->input('group_experience'),
         'spontaneous_experience' => $request->input('spontaneous_experience'),
         'mindfulness_experiences' => $request->input('mindfulness_experiences'),
+        'working' => $request->input('working'), 
+        'notworking' => $request->input('notworking'),
     ];
 
     $planId = $request->input('plan_id');

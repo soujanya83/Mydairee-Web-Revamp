@@ -1343,12 +1343,12 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                                         <h4>Media Upload Section</h4>
                                         <div class="media-upload-box p-4 border rounded bg-light text-center">
                                             <label for="mediaInput" class="btn btn-outline-primary">
-                                                Select up to 4 Images/Videos
+                                                Select up to 3 Images/Videos
                                             </label>
                                             <input type="file" id="mediaInput" name="media[]" class="d-none" multiple
                                                 accept="image/*,video/*">
                                             <small class="form-text text-muted mt-2">Only images and videos are allowed.
-                                                Max 4 files.</small>
+                                                Max 3 files.</small>
                                         </div>
 
                                         <div id="mediaPreview" class="row mt-4"></div>
@@ -1406,6 +1406,16 @@ body[class*="theme-"] #selectedStaffPreview .badge,
                                         <div class="refine-container">
                                             <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
                                                 data-editor="editor5"><i class="fas fa-magic mr-1"></i>Refine with
+                                                Ai</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mt-4 form-section">
+                                        <label for="editor7">Implementation</label>
+                                        <textarea id="editor7" name="implementation" class="form-control ckeditor">{!! isset($observation) ? $observation->implementation : '' !!}</textarea>
+                                        <div class="refine-container">
+                                            <button type="button" class="btn btn-sm btn-primary mt-2 refine-btn"
+                                                data-editor="editor7"><i class="fas fa-magic mr-1"></i>Refine with
                                                 Ai</button>
                                         </div>
                                     </div>
@@ -2658,10 +2668,17 @@ body[class*="theme-"] #selectedStaffPreview .badge,
         document.getElementById('mediaInput').addEventListener('change', function(event) {
             const previewContainer = document.getElementById('mediaPreview');
             const newFiles = Array.from(event.target.files);
-            const totalFiles = selectedFiles.length + newFiles.length;
 
-            if (totalFiles > 4) {
-                alert("You can upload a maximum of 4 files.");
+            // Count already uploaded media (if any)
+            let uploadedCount = 0;
+            const uploadedMediaDiv = document.getElementById('uploadedMedia');
+            if (uploadedMediaDiv) {
+                uploadedCount = uploadedMediaDiv.querySelectorAll('.position-relative.mb-3').length;
+            }
+
+            const totalFiles = uploadedCount + selectedFiles.length + newFiles.length;
+            if (totalFiles > 3) {
+                alert("You can upload a maximum of 3 files in total (including already uploaded).");
                 this.value = '';
                 return;
             }

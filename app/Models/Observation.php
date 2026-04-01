@@ -23,6 +23,7 @@ class Observation extends Model
         'status',
         'approver',
         'centerid',
+        'implementation',
     ];
 
     // Optionally, if you use timestamps (created_at, updated_at), leave this as is.
