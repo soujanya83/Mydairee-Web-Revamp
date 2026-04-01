@@ -569,7 +569,15 @@ class RoomController extends Controller
 
         $child->save();
 
-        return redirect()->back()->with('success', 'Child added successfully.');
+        // Get room name for success message
+        $roomName = '';
+        if ($request->id) {
+            $roomObj = \App\Models\Room::find($request->id);
+            $roomName = $roomObj ? $roomObj->name : '';
+        }
+        $childFullName = $child->name . ' ' . $child->lastname;
+        $successMsg = 'Child ' . $childFullName . ' has been added to ' . $roomName . ' Room.';
+        return redirect()->back()->with('success', $successMsg);
     }
 
 

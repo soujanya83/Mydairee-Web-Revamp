@@ -244,8 +244,9 @@
 
 @section('content')
 <div class="col-12 d-flex align-items-center flex-nowrap gap-3 top-right-button-container mb-3 justify-content-end">
+ 
     <!-- ✅ scroll if overflow -->
-    <div style="margin-right:485px">
+    <div style="margin-right:355px">
         {{-- A-Z / Z-A toggle button --}}
         <button id="sortBtn" class="btn btn-outline-info btn-sm" title="Sort A-Z / Z-A">
             <i class="fas fa-sort-alpha-down"></i> A → Z
@@ -340,6 +341,10 @@
             <input type="hidden" name="roomId" id="roomInput" value="{{ $selectedRoom ?? '' }}">
         </div>
     </form>
+        <!-- Add New Child Button -->
+    <button class="btn btn-outline-info ml-2" id="addChildBtn" data-toggle="modal" data-target="#selectRoomModal">
+        + Add New Child
+    </button>
 </div>
 
 @if ($errors->any())
@@ -365,7 +370,154 @@
 </div>
 @endif
 
-<hr>
+
+<!-- Room Selection Modal -->
+<div class="modal" id="selectRoomModal" tabindex="-1" role="dialog" aria-labelledby="selectRoomModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="selectRoomModalLabel">Select Room</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><b>X</b></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="roomSelectModal">Room <span style="color:red">*</span></label>
+                    <select class="form-control" id="roomSelectModal">
+                        <option value="" selected disabled>Select a room</option>
+                        @foreach($rooms as $room)
+                            <option value="{{ $room->id }}">{{ $room->name }}</option>
+                        @endforeach
+                    </select>
+                    <small class="form-text text-muted" style="color:#555!important;">
+                        <span style="color:red">*</span> Select the room in which you want to add the child.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Child Modal (copied from children_details.blade.php, with room select hidden) -->
+    <div class="modal" id="newChildModal" tabindex="-1" role="dialog" aria-labelledby="newChildModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newChildModalLabel">+Add New Child</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"><b>X</b></span>
+                    </button>
+                </div>
+            <form action="{{ route('add_children') }}" id="form-child" method="post" enctype="multipart/form-data" autocomplete="off">
+                @csrf
+                <input type="hidden" name="id" id="modalRoomId">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="firstname">First Name <span style="color:red">*</span></label>
+                            <span class="text-danger error_firstname"></span>
+                            <input type="text" name="firstname" id="firstname" placeholder="Enter first name" class="form-control" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastname">Last Name <span style="color:red">*</span></label>
+                            <span class="text-danger error_lastname"></span>
+                            <input type="text" name="lastname" id="lastname" placeholder="Enter last name" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="dob">Date of Birth <span style="color:red">*</span></label>
+                            <span class="text-danger error_dob"></span>
+                            <input type="date" name="dob" id="dob" class="form-control date-input flatpickr-input" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="doj">Date of Join <span style="color:red">*</span></label>
+                            <span class="text-danger error_doj"></span>
+                            <input type="date" name="startDate" id="doj" class="form-control date-input flatpickr-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="uploadImg">Choose Image</label>
+                            <input id="uploadImg" name="file" class="form-control" type="file" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="status">Status <span style="color:red">*</span></label>
+                            <select id="status" name="status" class="form-control" required>
+                                <option value="" disabled selected>Select</option>
+                                <option value="Active" selected>Active</option>
+                                <option value="In Active">In Active</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="gender">Gender <span style="color:red">*</span></label>
+                            <div class="d-flex">
+                                <span class="radio-label">
+                                    <input type="radio" name="gender" value="Male" id="genderMale" required> <label for="genderMale">Male</label>
+                                </span>
+                                <span class="radio-label">
+                                    <input type="radio" name="gender" value="Female" id="genderFemale"> <label for="genderFemale">Female</label>
+                                </span>
+                                <span class="radio-label">
+                                    <input type="radio" name="gender" value="Other" id="genderOther"> <label for="genderOther">Other</label>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="daysAttending">Days Attending <span style="color:red">*</span></label>
+                            <div class="flexCheck">
+                                <input type="checkbox" name="mon" value="1" id="Monday" checked>
+                                <label for="Monday"> Monday</label>
+                                <input type="checkbox" name="tue" value="1" id="Tuesday" checked>
+                                <label for="Tuesday"> Tuesday</label>
+                                <input type="checkbox" name="wed" value="1" id="Wednesday" checked>
+                                <label for="Wednesday"> Wednesday</label>
+                                <input type="checkbox" name="thu" value="1" id="Thursday" checked>
+                                <label for="Thursday"> Thursday</label>
+                                <input type="checkbox" name="fri" value="1" id="Friday" checked>
+                                <label for="Friday"> Friday</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success btn-add-child">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts for modal logic -->
+<script>
+
+    // Automatically open child modal after room selection
+    $('#roomSelectModal').on('change', function() {
+        var roomId = $(this).val();
+        if(roomId) {
+            $('#modalRoomId').val(roomId);
+            $('#selectRoomModal').modal('hide');
+            setTimeout(function() {
+                $('#newChildModal').modal('show');
+            }, 400);
+        }
+    });
+
+    // Reset modals on close
+    $('#selectRoomModal').on('hidden.bs.modal', function () {
+        $('#roomSelectModal').val('');
+        $('#proceedToAddChild').prop('disabled', true);
+    });
+    $('#newChildModal').on('hidden.bs.modal', function () {
+        $('#form-child')[0].reset();
+        $('.error_firstname, .error_lastname, .error_dob, .error_doj').text('');
+    });
+</script>
 
 
 <div class="row mb-5" id="childrenWrapper">
@@ -448,15 +600,16 @@
     </div>
 
     <!-- Status History Modal -->
-    <div class="modal" id="statusModal{{ $child->childId }}" tabindex="-1"
-        aria-labelledby="statusModalLabel{{ $child->childId }}" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+    <div class="modal" id="statusModal{{ $child->childId }}" tabindex="-1" role="dialog" aria-labelledby="statusModalLabel{{ $child->childId }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content card">
                 <div class="modal-header">
                     <h5 class="modal-title" id="statusModalLabel{{ $child->childId }}">
                         Status History - {{ $child->childname }} {{ $child->lastname }}
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     @php
@@ -506,7 +659,7 @@
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         filterProgramPlan();
