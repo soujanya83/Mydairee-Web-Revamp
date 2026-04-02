@@ -279,19 +279,19 @@
                                 <i class="fa fa-chevron-right dropdown-arrow"></i>
                             </a>
                             <ul>
-                                @if(!empty($permissions['viewMenu']) && $permissions['viewMenu'])
+                                @if(!empty($permissions['addMenu']) && $permissions['addMenu'])
                                 <li class="{{ Route::is('healthy_menu') ? 'active' : '' }}">
                                     <a href="{{ route('healthy_menu') }}" data-toggle="tooltip" data-placement="right">
                                         &nbsp; &nbsp;Menu</a>
                                 </li>
                                 @endif
-                                @if(!empty($permissions['viewRecipe']) && $permissions['viewRecipe'])
+                                @if(!empty($permissions['addRecipe']) && $permissions['addRecipe'])
                                 <li class="{{ Route::is('healthy_recipe') ? 'active' : '' }}">
                                     <a href="{{ route('healthy_recipe') }}" data-toggle="tooltip"
                                         data-placement="right"> &nbsp; &nbsp;Recipe</a>
                                 </li>
                                 @endif
-                                @if(!empty($permissions['viewIngredients']) && $permissions['viewIngredients'])
+                                @if(!empty($permissions['addRecipe']) && $permissions['addRecipe'])
                                 <li class="{{ Route::is('recipes.Ingredients') ? 'active' : '' }}">
                                     <a href="{{ route('recipes.Ingredients') }}" data-toggle="tooltip"
                                         data-placement="right"> &nbsp; &nbsp;Ingredients</a>
