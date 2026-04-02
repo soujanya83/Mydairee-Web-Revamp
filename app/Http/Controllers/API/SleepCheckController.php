@@ -71,8 +71,9 @@ public function getSleepChecksList(Request $request)
  if ($role != "Parent") {
     // dd('here');
    $children = Child::where('room', $roomid)
-        ->where('status', 'Active')
-        ->get();
+       ->where('status', 'Active')
+       ->orderBy('name')
+       ->get();
 
     // Fetch all sleep checks for the room and date
     $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
@@ -92,9 +93,10 @@ public function getSleepChecksList(Request $request)
 //  dd('here4');
        $childIDs = Childparent::where('parentid',$userid)->pluck('childid');
   $children = Child::where('room', $roomid)
-        ->whereIn('id',$childIDs)
-        ->where('status', 'Active')
-        ->get();
+      ->whereIn('id',$childIDs)
+      ->where('status', 'Active')
+      ->orderBy('name')
+      ->get();
 
     // Fetch all sleep checks for the room and date
     $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
