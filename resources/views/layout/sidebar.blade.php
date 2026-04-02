@@ -268,7 +268,7 @@
                         @endphp
 
 
-                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && (!empty($permissions['viewMenu']) && $permissions['viewMenu'] || !empty($permissions['viewRecipe']) && $permissions['viewRecipe'] || !empty($permissions['viewIngredients']) && $permissions['viewIngredients'])))
+                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && (!empty($permissions['addMenu']) && $permissions['addMenu'] || !empty($permissions['addRecipe']) && $permissions['addRecipe'] || !empty($permissions['addRecipe']) && $permissions['addRecipe'])))
                         <li class="{{ $isHealthyActive ? 'active open' : '' }}">
                             <a href="javascript:void(0);" data-toggle="tooltip" data-placement="right"
                                 class="d-flex justify-content-between align-items-center">
