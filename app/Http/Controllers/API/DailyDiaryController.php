@@ -100,6 +100,7 @@ class DailyDiaryController extends Controller
         if ($selectedroom) {
             if (Auth::user()->userType != "Parent") {
                 $children = Child::where('room', $selectedroom->id)
+                    ->orderBy('name')
                     ->get()
                     ->filter(function ($child) use ($dayIndex) {
                         return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
@@ -124,6 +125,7 @@ class DailyDiaryController extends Controller
                 $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
                 $children = Child::where('room', $selectedroom->id)
                     ->whereIn('id', $childIds)
+                    ->orderBy('name')                
                     ->get()
                     ->filter(function ($child) use ($dayIndex) {
                         return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
