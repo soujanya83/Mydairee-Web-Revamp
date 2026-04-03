@@ -138,6 +138,7 @@ Route::post('Accidents/getCenterRooms',[AccidentsController::class,'getCenterRoo
 Route::put('Accidents/update/{id}',[AccidentsController::class,'AccidentsUpdate'])->name('accidents.update');
 Route::get('Accidents/details',[AccidentsController::class,'getAccidentDetails'])->name('Accidents.details');
 Route::post('Accidents/sendEmail',[AccidentsController::class,'sendEmail'])->name('Accidents.sendEmail');
+Route::get('Accidents/downloadPdf', [AccidentsController::class, 'downloadPdf'])->name('Accidents.downloadPdf');
 Route::get('Accidents/create',[AccidentsController::class,'create'])->name('Accidents.create');
 Route::get('Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
 Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
