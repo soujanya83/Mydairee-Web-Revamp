@@ -375,26 +375,11 @@
     <button onclick="window.print()" class="print-button">Print Page&nbsp;<i
             class="fa-solid fa-print fa-beat-fade"></i></button>
     <div class="container">
+
         <div class="header">
             <img src="{{ asset('assets/profile_1739442700.jpeg') }}" alt="NEXTGEN Montessori" class="logo">
             <div class="title">Child's Observation</div>
             <hr>
-        </div>
-
-        <div class="info-block">
-            <strong>Child's Name</strong>
-            <span class="info-text">
-                @if($observation->child && $observation->child->isNotEmpty())
-                {{ $observation->child->map(fn($c) => $c->child->name . ' ' . $c->child->lastname)->implode(', ') }}
-                @endif
-            </span>
-        </div>
-
-        <div class="info-block">
-            <strong>Title:</strong>
-            <span class="info-text">
-            {!! $observation->obestitle ?? '' !!}
-            </span>
         </div>
 
         <div class="info-block">
@@ -405,9 +390,11 @@
         </div>
 
         <div class="info-block">
-            <strong>Educator's Name:</strong>
+            <strong>Child's Name:</strong>
             <span class="info-text">
-                {{ $observation->user->name ?? $observation->name ?? '' }}
+                @if($observation->child && $observation->child->isNotEmpty())
+                {{ $observation->child->map(fn($c) => $c->child->name . ' ' . $c->child->lastname)->implode(', ') }}
+                @endif
             </span>
         </div>
 
@@ -419,27 +406,18 @@
         </div>
 
         <div class="info-block">
-            <strong>Child's Photos:</strong>
-            <div class="photo-gallery"> @if($observation->media && $observation->media->isNotEmpty())
-                @foreach($observation->media as $mediaItem) @if(Str::startsWith($mediaItem->mediaType, ['image',
-                'Image'])) <a href="javascript:void(0);" class="photo-thumb"
-                    data-full="{{ asset($mediaItem->mediaUrl) }}"> <img src="{{ asset($mediaItem->mediaUrl) }}"
-                        class="child-image" alt="Observation Media"> </a> @endif @endforeach @endif </div>
-        </div>
-        <!-- Lightbox Modal -->
-        <div id="imageLightbox" class="lightbox-overlay" aria-hidden="true">
-            <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
-            
-            <!-- Prev button -->
-            <button type="button" class="lightbox-prev" aria-label="Previous">&#10094;</button>
-            
-            <img id="lightboxImage" src="" alt="Full size image">
-            
-            <!-- Next button -->
-            <button type="button" class="lightbox-next" aria-label="Next">&#10095;</button>
+            <strong>Educator's Name:</strong>
+            <span class="info-text">
+                {{ $observation->user->name ?? $observation->name ?? '' }}
+            </span>
         </div>
 
-
+        <div class="info-block">
+            <strong>Title:</strong>
+            <span class="info-text">
+                {!! $observation->obestitle ?? '' !!}
+            </span>
+        </div>
 
         <div class="info-block">
             <strong>Observation:</strong>
@@ -448,64 +426,36 @@
             </span>
         </div>
 
-
-
-
         <div class="info-block">
-            <strong>EYLF Outcomes:</strong>
-            <span class="info-text" id="eylf">
-                @if($observation->eylfLinks && $observation->eylfLinks->isNotEmpty())
-                @php
-                $groupedByOutcome = $observation->eylfLinks->groupBy(function($item) {
-                return $item->subActivity->activity->outcome->title ?? 'Unknown Outcome';
-                });
-                @endphp
-
-               @foreach($groupedByOutcome as $outcomeTitle => $links)
-    <strong>{{ $outcomeTitle }}</strong><br>
-
-    @php
-        // Group links by activity title
-        $groupedByActivity = collect($links)->groupBy(fn($link) => $link->subActivity->activity->title ?? 'N/A');
-    @endphp
-
-    @foreach($groupedByActivity as $activityTitle => $subLinks)
-        - {{ $activityTitle }}<br>
-        @foreach($subLinks as $link)
-            &nbsp;&nbsp;&nbsp;• {{ $link->subActivity->title ?? 'N/A' }}<br>
-        @endforeach
-    @endforeach
-
-    <br>
-@endforeach
-
+            <strong>Media Files:</strong>
+            <div class="photo-gallery">
+                @if($observation->media && $observation->media->isNotEmpty())
+                    @foreach($observation->media as $mediaItem)
+                        @if(Str::startsWith($mediaItem->mediaType, ['image', 'Image']))
+                            <a href="javascript:void(0);" class="photo-thumb" data-full="{{ asset($mediaItem->mediaUrl) }}">
+                                <img src="{{ asset($mediaItem->mediaUrl) }}" class="child-image" alt="Observation Media">
+                            </a>
+                        @endif
+                    @endforeach
                 @endif
-            </span>
+            </div>
+        </div>
+        <!-- Lightbox Modal -->
+        <div id="imageLightbox" class="lightbox-overlay" aria-hidden="true">
+            <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
+            <!-- Prev button -->
+            <button type="button" class="lightbox-prev" aria-label="Previous">&#10094;</button>
+            <img id="lightboxImage" src="" alt="Full size image">
+            <!-- Next button -->
+            <button type="button" class="lightbox-next" aria-label="Next">&#10095;</button>
         </div>
 
         <div class="info-block">
-            <strong>Analysis/Evaluation:</strong>
+            <strong>Learning Analysis:</strong>
             <span class="info-text" id="analysis">
                 {!! html_entity_decode($observation->notes ?? '') !!}
             </span>
         </div>
-
-
-
-        <div class="info-block">
-            <strong>Implementation:</strong>
-            <span class="info-text" id="implementation">
-                {!! html_entity_decode($observation->implementation ?? '') !!}
-            </span>
-        </div>
-
-        <div class="info-block">
-            <strong>Reflection:</strong>
-            <span class="info-text" id="reflection">
-                {!! html_entity_decode($observation->reflection ?? '') !!}
-            </span>
-        </div>
-
 
         <div class="info-block">
             <strong>Child's Voice:</strong>
@@ -515,6 +465,28 @@
         </div>
 
         <div class="info-block">
+            <strong>Future Plan/Extension:</strong>
+            <span class="info-text" id="futureplan">
+                {!! html_entity_decode($observation->future_plan ?? '') !!}
+            </span>
+        </div>
+
+        <div class="info-block">
+            <strong>Implementation:</strong>
+            <span class="info-text" id="implementation">
+                {!! html_entity_decode($observation->implementation ?? '') !!}
+            </span>
+        </div>
+
+        <div class="info-block">
+            <strong>Critical Reflection:</strong>
+            <span class="info-text" id="reflection">
+                {!! html_entity_decode($observation->reflection ?? '') !!}
+            </span>
+        </div>
+
+        <!-- Montessori Assessment Section -->
+        <div class="info-block">
             <strong>Montessori Assessment:</strong>
             <span class="info-text" id="montessori_assesment">
                 @if($observation->montessoriLinks && $observation->montessoriLinks->isNotEmpty())
@@ -523,59 +495,61 @@
                 return $item->subActivity->activity->subject->name ?? 'Unknown';
                 });
                 @endphp
-
-             {{--   @foreach($groupedBySubject as $subjectName => $assessments)
-                <strong>{{ $subjectName }}</strong><br>
-                @foreach($assessments as $assessment)
-                - {{ $assessment->subActivity->activity->title ?? 'N/A' }}<br>
-                &nbsp;&nbsp;&nbsp;• {{ $assessment->subActivity->title ?? 'N/A' }}
-                @php
-                $statusClass = [
-                'Not Assessed' => 'badge-danger',
-                'Introduced' => 'badge-info',
-                'Working' => 'badge-warning',
-                'Completed' => 'badge-success'
-                ];
-                @endphp
-                ({{ $assessment->assesment }})<br>
-                @endforeach
-                <br>
-                @endforeach
-                --}}
                 @foreach($groupedBySubject as $subjectName => $assessments)
-    <strong>{{ $subjectName }}</strong><br>
-
-    @php
-        // Group by Activity title inside each Subject
-        $groupedByActivity = collect($assessments)->groupBy(fn($assessment) => $assessment->subActivity->activity->title ?? 'N/A');
-
-        $statusClass = [
-            'Not Assessed' => 'badge-danger',
-            'Introduced'   => 'badge-info',
-            'Working'      => 'badge-warning',
-            'Completed'    => 'badge-success'
-        ];
-    @endphp
-
-    @foreach($groupedByActivity as $activityTitle => $subAssessments)
-        - {{ $activityTitle }}<br>
-
-        @foreach($subAssessments as $assessment)
-            &nbsp;&nbsp;&nbsp;• {{ $assessment->subActivity->title ?? 'N/A' }}
-            <span class="badge {{ $statusClass[$assessment->assesment] ?? 'badge-secondary' }}">
-                {{ $assessment->assesment }}
-            </span>
-            <br>
-        @endforeach
-    @endforeach
-
-    <br>
-@endforeach
+                    <strong>{{ $subjectName }}</strong><br>
+                    @php
+                        $groupedByActivity = collect($assessments)->groupBy(fn($assessment) => $assessment->subActivity->activity->title ?? 'N/A');
+                        $statusClass = [
+                            'Not Assessed' => 'badge-danger',
+                            'Introduced'   => 'badge-info',
+                            'Working'      => 'badge-warning',
+                            'Completed'    => 'badge-success'
+                        ];
+                    @endphp
+                    @foreach($groupedByActivity as $activityTitle => $subAssessments)
+                        - {{ $activityTitle }}<br>
+                        @foreach($subAssessments as $assessment)
+                            &nbsp;&nbsp;&nbsp;• {{ $assessment->subActivity->title ?? 'N/A' }}
+                            <span class="badge {{ $statusClass[$assessment->assesment] ?? 'badge-secondary' }}">
+                                {{ $assessment->assesment }}
+                            </span>
+                            <br>
+                        @endforeach
+                    @endforeach
+                    <br>
+                @endforeach
                 @endif
             </span>
         </div>
 
+        <!-- EYLF Outcomes Section -->
+        <div class="info-block">
+            <strong>EYLF Outcomes:</strong>
+            <span class="info-text" id="eylf">
+                @if($observation->eylfLinks && $observation->eylfLinks->isNotEmpty())
+                @php
+                $groupedByOutcome = $observation->eylfLinks->groupBy(function($item) {
+                return $item->subActivity->activity->outcome->title ?? 'Unknown Outcome';
+                });
+                @endphp
+                @foreach($groupedByOutcome as $outcomeTitle => $links)
+                    <strong>{{ $outcomeTitle }}</strong><br>
+                    @php
+                        $groupedByActivity = collect($links)->groupBy(fn($link) => $link->subActivity->activity->title ?? 'N/A');
+                    @endphp
+                    @foreach($groupedByActivity as $activityTitle => $subLinks)
+                        - {{ $activityTitle }}<br>
+                        @foreach($subLinks as $link)
+                            &nbsp;&nbsp;&nbsp;• {{ $link->subActivity->title ?? 'N/A' }}<br>
+                        @endforeach
+                    @endforeach
+                    <br>
+                @endforeach
+                @endif
+            </span>
+        </div>
 
+        <!-- Developmental Milestone Section -->
         <div class="info-block">
             <strong>Development Milestones:</strong>
             <span class="info-text" id="development_milestone">
@@ -585,45 +559,32 @@
                 return $item->devMilestone->milestone->ageGroup ?? 'Unknown Age Group';
                 });
                 @endphp
-
                 @foreach($groupedByAgeGroup as $ageGroup => $milestones)
-                <strong>{{ $ageGroup }}</strong><br>
-                @php
-                $groupedByMain = $milestones->groupBy(function($item) {
-                return $item->devMilestone->main->name ?? 'Unknown Category';
-                });
-                @endphp
-
-                @foreach($groupedByMain as $mainCategory => $categoryMilestones)
-                - {{ $mainCategory }}<br>
-                @foreach($categoryMilestones as $milestone)
-                &nbsp;&nbsp;&nbsp;• {{ $milestone->devMilestone->name ?? 'N/A' }}
-                @php
-                $statusClass = [
-                'Introduced' => 'badge-info',
-                'Working towards' => 'badge-warning',
-                'Achieved' => 'badge-success'
-                ];
-                @endphp
-                ({{ $milestone->assessment }})<br>
-                @endforeach
-                @endforeach
-                <br>
+                    <strong>{{ $ageGroup }}</strong><br>
+                    @php
+                        $groupedByMain = $milestones->groupBy(function($item) {
+                            return $item->devMilestone->main->name ?? 'Unknown Category';
+                        });
+                    @endphp
+                    @foreach($groupedByMain as $mainCategory => $categoryMilestones)
+                        - {{ $mainCategory }}<br>
+                        @foreach($categoryMilestones as $milestone)
+                            &nbsp;&nbsp;&nbsp;• {{ $milestone->devMilestone->name ?? 'N/A' }}
+                            @php
+                                $statusClass = [
+                                    'Introduced' => 'badge-info',
+                                    'Working towards' => 'badge-warning',
+                                    'Achieved' => 'badge-success'
+                                ];
+                            @endphp
+                            ({{ $milestone->assessment }})<br>
+                        @endforeach
+                    @endforeach
+                    <br>
                 @endforeach
                 @endif
             </span>
         </div>
-
-
-
-        <div class="info-block">
-            <strong>Future Plan/Extension:</strong>
-            <span class="info-text" id="futureplan">
-                {!! html_entity_decode($observation->future_plan ?? '') !!}
-            </span>
-        </div>
-
-
 
     </div>
 
