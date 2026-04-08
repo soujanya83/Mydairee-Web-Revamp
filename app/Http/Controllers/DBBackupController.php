@@ -8,52 +8,50 @@ use Carbon\Carbon;
 
 class DBBackupController extends Controller
 {
-    public function runBackup()
-    {
-        $database = config('database.connections.mysql.database');
-        $username = config('database.connections.mysql.username');
-        $password = config('database.connections.mysql.password');
-        $host     = config('database.connections.mysql.host');
-        $port     = config('database.connections.mysql.port');
+ public function runBackup()
+{
+    $database = config('database.connections.mysql.database');
+    $username = config('database.connections.mysql.username');
+    $password = config('database.connections.mysql.password');
+    $host     = config('database.connections.mysql.host');
+    $port     = config('database.connections.mysql.port');
 
-        $date = Carbon::now()->format('Y-m-d_H-i-s');
-        $fileName = "{$database}_backup_{$date}.sql";
+    $date = Carbon::now()->format('Y-m-d_H-i-s');
+    $fileName = "{$database}_backup_{$date}.sql";
 
-        $storagePath = storage_path('app/backups');
-        if (!File::exists($storagePath)) {
-            File::makeDirectory($storagePath, 0755, true);
-        }
+    $storagePath = storage_path('app/backups');
+    if (!File::exists($storagePath)) {
+        File::makeDirectory($storagePath, 0755, true);
+    }
 
-        $sqlPath = "{$storagePath}/{$fileName}";
+    $sqlPath = "{$storagePath}/{$fileName}";
 
-        // XAMPP mysqldump full path
-        // $mysqldumpPath = 'D:\\xampp\\mysql\\bin\\mysqldump.exe';  
-        $mysqldumpPath = '/usr/bin/mysqldump';
-        /////////   currently used local path....
-        // Build and execute command
-        $command = "\"{$mysqldumpPath}\" --user={$username} --password={$password} --host={$host} --port={$port} {$database} > \"{$sqlPath}\"";
-        exec($command, $output, $result);
+    // Linux mysqldump path
+    $mysqldumpPath = '/usr/bin/mysqldump';
 
-        if ($result !== 0 || !file_exists($sqlPath) || filesize($sqlPath) === 0) {
-            return response()->json(['status' => 'error', 'message' => '❌ Backup failed or file is empty.']);
-        }
+    // Build command (Important: wrap password in quotes)
+    $command = "{$mysqldumpPath} -u{$username} -p'{$password}' -h{$host} -P{$port} {$database} > {$sqlPath}";
 
-        $this->cleanOldBackups($storagePath);
+    // Execute command
+    shell_exec($command);
 
-        exec($command . ' 2>&1', $output, $result);
-
-dd([
-    'command' => $command,
-    'output' => $output,
-    'result' => $result
-]);
-
+    // Check if file created successfully
+    if (!file_exists($sqlPath) || filesize($sqlPath) === 0) {
         return response()->json([
-            'status' => 'success',
-            'message' => '✅ Database backup completed.',
-            'file' => $fileName
+            'status' => 'error',
+            'message' => '❌ Backup failed or file is empty.'
         ]);
     }
+
+    // Clean old backups
+    $this->cleanOldBackups($storagePath);
+
+    return response()->json([
+        'status' => 'success',
+        'message' => '✅ Database backup completed.',
+        'file' => $fileName
+    ]);
+}
 
     protected function cleanOldBackups($path)
     {
