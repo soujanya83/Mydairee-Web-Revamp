@@ -27,7 +27,9 @@ class DBBackupController extends Controller
         $sqlPath = "{$storagePath}/{$fileName}";
 
         // XAMPP mysqldump full path
-        $mysqldumpPath = 'D:\\xampp\\mysql\\bin\\mysqldump.exe';  /////////   currently used local path....
+        // $mysqldumpPath = 'D:\\xampp\\mysql\\bin\\mysqldump.exe';  
+        $mysqldumpPath = '/usr/bin/mysqldump';
+        /////////   currently used local path....
         // Build and execute command
         $command = "\"{$mysqldumpPath}\" --user={$username} --password={$password} --host={$host} --port={$port} {$database} > \"{$sqlPath}\"";
         exec($command, $output, $result);
@@ -37,6 +39,14 @@ class DBBackupController extends Controller
         }
 
         $this->cleanOldBackups($storagePath);
+
+        exec($command . ' 2>&1', $output, $result);
+
+dd([
+    'command' => $command,
+    'output' => $output,
+    'result' => $result
+]);
 
         return response()->json([
             'status' => 'success',
