@@ -90,14 +90,40 @@ body[class*='theme-'] .modal-header {
                                     data-action="{{ route('ingredients.update', $ingredient->id) }}">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>
-                                <form action="{{ route('ingredients.destroy', $ingredient->id) }}" method="POST"
-                                    style="display:inline-block;" onsubmit="return confirm('Are you sure?')">
+                                <form action="{{ route('ingredients.destroy', $ingredient->id) }}" method="POST" style="display:inline-block;" class="delete-ingredient-form">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="btn btn-sm btn-danger">
+                                    <button type="button" class="btn btn-sm btn-danger delete-ingredient-btn">
                                         <i class="fas fa-trash-alt"></i> Delete
                                     </button>
                                 </form>
+                            <!-- SweetAlert2 -->
+                            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                            <script>
+                                $(document).ready(function () {
+                                    // ...existing code...
+
+                                    // SweetAlert2 for delete ingredient
+                                    $('.delete-ingredient-btn').on('click', function (e) {
+                                        e.preventDefault();
+                                        const form = $(this).closest('form');
+                                        Swal.fire({
+                                            title: 'Are you sure?',
+                                            text: "This ingredient will be permanently deleted!",
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#d33',
+                                            cancelButtonColor: '#3085d6',
+                                            confirmButtonText: 'Yes, delete!',
+                                            cancelButtonText: 'Cancel'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                form.submit();
+                                            }
+                                        });
+                                    });
+                                });
+                            </script>
                             </td>
                         </tr>
                         @endforeach
