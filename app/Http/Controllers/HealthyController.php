@@ -34,7 +34,12 @@ class HealthyController extends Controller
 
             $MEALTYPE = $type;
         }
-        $recipes = RecipeModel::where('type', strtoupper($MEALTYPE))->select('id', 'itemName')->get();
+        $centerid = session('user_center_id');
+        $recipes = RecipeModel::where('type', strtoupper($MEALTYPE))
+            ->where('centerid', $centerid)
+            ->select('id', 'itemName')
+            ->orderBy('itemName', 'asc')
+            ->get();
         return response()->json($recipes);
     }
 

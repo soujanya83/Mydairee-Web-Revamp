@@ -413,15 +413,33 @@
         </table>
 
         @php
-            // Helper to split by comma or newline, trim, and remove empty
+            // Helper to split only by newlines (Enter), trim, and remove empty
             function splitItems($text) {
                 if (!is_string($text) || trim($text) === '') return [];
-                $lines = preg_split('/[\n,]/', $text);
-                return array_values(array_filter(array_map('trim', $lines), function($v) { return $v !== ''; }));
+                // Decode HTML entities (e.g., &nbsp;)
+                $text = html_entity_decode($text);
+                // Replace <br>, <br/>, <br /> and <p> tags with a unique separator
+                $text = preg_replace('/<\s*br\s*\/?>/i', '|||', $text);
+                $text = preg_replace('/<\s*\/p\s*>/i', '|||', $text);
+                $text = preg_replace('/<\s*p\s*>/i', '', $text);
+                // Split on unique separator, literal \\n, literal \\r, or literal \n
+                $lines = preg_split('/\|\|\||\\n|\\r|\n/', $text);
+                $items = [];
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    if ($line !== '') {
+                        $items[] = $line;
+                    }
+                }
+                // DEBUG: Output the $items array
+                echo '<!-- SPLIT_ITEMS: ' . print_r($items, true) . ' -->';
+                return $items;
             }
             $inq = splitItems($plan['inquiry_topic'] ?? '');
             $sus = splitItems($plan['sustainability_topic'] ?? '');
-            $events = splitItems($plan['special_events'] ?? '');
+            // DEBUG: Output the raw HTML for troubleshooting
+            echo '<!-- RAW_EVENTS: ' . (isset($plan['special_events']) ? $plan['special_events'] : '') . ' -->';
+            $events = splitItems(isset($plan['special_events']) ? html_entity_decode($plan['special_events']) : '');
         @endphp
         <table>
             <tr>

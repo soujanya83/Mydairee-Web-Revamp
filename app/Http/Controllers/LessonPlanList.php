@@ -315,7 +315,7 @@ public function programPlanPrintPage($id)
         'outdoor_experiences',
         'inquiry_topic',
         'sustainability_topic',
-        'special_events',
+        
         'children_voices',
         'families_input',
         'group_experience',
@@ -337,20 +337,20 @@ public function programPlanPrintPage($id)
 
     // Get room name
     // $room_name = optional($plan->room)->name ?? 'Unknown Room';
- $room_name = '';
+    $room_name = '';
 
-if ($plan->room_id) {
-    // Convert comma-separated IDs into an array
-    $roomIds = explode(',', $plan->room_id);
-//  dd($roomIds);
-    // Fetch all matching room names
-    $names = Room::whereIn('id', $roomIds)->pluck('name')->toArray();
+    if ($plan->room_id) {
+        // Convert comma-separated IDs into an array
+        $roomIds = explode(',', $plan->room_id);
+    //  dd($roomIds);
+        // Fetch all matching room names
+        $names = Room::whereIn('id', $roomIds)->pluck('name')->toArray();
 
-   
+    
 
-    // Join them into a single string
-    $room_name = implode(', ', $names);
-}
+        // Join them into a single string
+        $room_name = implode(', ', $names);
+    }
 
     // Get educator names
     $educator_ids = explode(',', $plan->educators);
@@ -377,82 +377,82 @@ if ($plan->room_id) {
 
 
 
- public function createForm(Request $request)
-    {
-        if (!Auth::check()) {
-        return redirect('login');
-        }
+public function createForm(Request $request)
+{
+    if (!Auth::check()) {
+    return redirect('login');
+    }
 
-      $authId = Auth::user()->userid; 
+    $authId = Auth::user()->userid; 
     $centerId = Session('user_center_id');
 
     // dd($centerId);
-        if (Auth::check()) {
-            $centerid = $request->centerid;
-            // dd($centerid);
-            // $userid = session('LoginId');
-            // $usertype = session('UserType');
-            $planid = $request->planId;
-            // dd($planid);
+    if (Auth::check()) {
+        $centerid = $request->centerid;
+        // dd($centerid);
+        // $userid = session('LoginId');
+        // $usertype = session('UserType');
+        $planid = $request->planId;
+        // dd($planid);
 
-            $admin = (Auth::user()->userType == "Superadmin") ? 1 : 0;
+        $admin = (Auth::user()->userType == "Superadmin") ? 1 : 0;
 
-            // Fetch rooms
-            $rooms = Room::when($admin == 1, function ($query) use ($centerId) {
-                return $query->where('centerid', $centerId);
-            })
-            ->when($admin == 0, function ($query) use ($authId) {
-                return $query->whereHas('staff', function ($query) use ($authId) {
-                    return $query->where('staffid', $authId);
-                });
-            })
-            ->get();
+        // Fetch rooms
+        $rooms = Room::when($admin == 1, function ($query) use ($centerId) {
+            return $query->where('centerid', $centerId);
+        })
+        ->when($admin == 0, function ($query) use ($authId) {
+            return $query->whereHas('staff', function ($query) use ($authId) {
+                return $query->where('staffid', $authId);
+            });
+        })
+        ->get();
 
-            // Fetch all staff for the center
-            $users = User::where('userType', 'Staff')
-                ->where('status', 'ACTIVE')
-                ->whereIn('userid', function ($query) use ($centerId) {
-                    $query->select('userid')->from('usercenters')->where('centerid', $centerId);
-                })->get();
+        // Fetch all staff for the center
+        $users = User::where('userType', 'Staff')
+            ->where('status', 'ACTIVE')
+            ->whereIn('userid', function ($query) use ($centerId) {
+                $query->select('userid')->from('usercenters')->where('centerid', $centerId);
+            })->get();
 
-            // Fetch EYLF Outcomes with Activities
-            $eylf_outcomes = EYLFOutcome::with('activities')->orderBy('title')->get();
+        // Fetch EYLF Outcomes with Activities
+        $eylf_outcomes = EYLFOutcome::with('activities')->orderBy('title')->get();
 
-            // Fetch Montessori Subjects with Activities and Sub-Activities
-            $montessori_subjects = MontessoriSubject::with(['activities.subActivities'])->orderBy('idSubject')->get();
+        // Fetch Montessori Subjects with Activities and Sub-Activities
+        $montessori_subjects = MontessoriSubject::with(['activities.subActivities'])->orderBy('idSubject')->get();
 
-            // Fetch Program Plan Data if editing
-            $plan_data = null;
-            $selected_educators = [];
-            $selected_children = [];
+        // Fetch Program Plan Data if editing
+        $plan_data = null;
+        $selected_educators = [];
+        $selected_children = [];
 
-            if ($planid) {
-                $plan_data = ProgramPlanTemplateDetailsAdd::find($planid);
+        if ($planid) {
+            $plan_data = ProgramPlanTemplateDetailsAdd::find($planid);
 
-                if ($plan_data) {
-                    $selected_educators = explode(',', $plan_data->educators);
-                    $selected_children = explode(',', $plan_data->children);
-                }
+            if ($plan_data) {
+                $selected_educators = explode(',', $plan_data->educators);
+                $selected_children = explode(',', $plan_data->children);
             }
-
-            $userId = $authId;
-
-            // Return view with data
-            // dd( $selected_children);
-//             foreach( $montessori_subjects as $subject){
-//   if($subject->name == "Sensorial"){
-//                 dd($subject->activities );
-
-//             }
-//             }
-          
-            return view('ProgramPlan.create', compact(
-                'rooms', 'users', 'centerId', 'userId', 'eylf_outcomes', 'montessori_subjects', 'plan_data', 'selected_educators', 'selected_children'
-            ));
-        } else {
-            return redirect()->route('login');
         }
+
+        $userId = $authId;
+
+        // Return view with data
+        // dd( $selected_children);
+    //             foreach( $montessori_subjects as $subject){
+    //   if($subject->name == "Sensorial"){
+    //                 dd($subject->activities );
+
+    //             }
+    //             }
+        
+        return view('ProgramPlan.create', compact(
+            'rooms', 'users', 'centerId', 'userId', 'eylf_outcomes', 'montessori_subjects', 'plan_data', 'selected_educators', 'selected_children'
+        ));
+    } else {
+        return redirect()->route('login');
     }
+}
 public function programplanMonthYear(Request $request)
 {
     // dd('here');
@@ -701,7 +701,7 @@ public function saveProgramPlan(Request $request)
     $educators = implode(',', $request->input('users'));
     $children = implode(',', $request->input('children'));
         $room = implode(',', $request->input('room'));
-//  dd(  $room);
+    //  dd(  $room);
       
 
     // Prepare data

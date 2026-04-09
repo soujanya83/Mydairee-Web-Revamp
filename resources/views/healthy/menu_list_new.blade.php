@@ -6,6 +6,12 @@
 <!-- Flatpickr CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
+        /* Make modal close button pure white */
+        .btn-close.btn-close-white {
+            filter: none !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath stroke='white' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M2 2l12 12M14 2L2 14'/%3e%3c/svg%3e") !important;
+            opacity: 1 !important;
+        }
     :root {
         --primary-blue: #2c5aa0;
         --light-blue: #87ceeb;
@@ -412,62 +418,62 @@
     background-color: #0d6bb4;   /* Same as select bg */
     color: white;
     font-weight: 500;
-}
+    }
 
-.week-selector option:hover,
-.week-selector option:focus {
-    background-color: #036d82;   /* Darker on hover */
-    color: #fff;
-}
+    .week-selector option:hover,
+    .week-selector option:focus {
+        background-color: #036d82;   /* Darker on hover */
+        color: #fff;
+    }
 
 </style>
 <style>
-/* ===================== THEME SUPPORT (GLOBAL) ===================== */
-body.theme-purple .header-section {
-    background: linear-gradient(135deg, var(--sd-accent, #a259ec) 0%, #d291bc 100%) !important;
-}
-body.theme-blue .header-section {
-    background: linear-gradient(135deg, var(--sd-accent, #176ba6) 0%, #00a8ff 100%) !important;
-}
-body.theme-cyan .header-section {
-    background: linear-gradient(135deg, var(--sd-accent, #00b8d9) 0%, #00e1d9 100%) !important;
-}
-body[class*='theme-'] .header-section {
-    background: linear-gradient(135deg, var(--sd-accent, #176ba6) 0%, #00a8ff 100%) !important;
-}
+    /* ===================== THEME SUPPORT (GLOBAL) ===================== */
+    body.theme-purple .header-section {
+        background: linear-gradient(135deg, var(--sd-accent, #a259ec) 0%, #d291bc 100%) !important;
+    }
+    body.theme-blue .header-section {
+        background: linear-gradient(135deg, var(--sd-accent, #176ba6) 0%, #00a8ff 100%) !important;
+    }
+    body.theme-cyan .header-section {
+        background: linear-gradient(135deg, var(--sd-accent, #00b8d9) 0%, #00e1d9 100%) !important;
+    }
+    body[class*='theme-'] .header-section {
+        background: linear-gradient(135deg, var(--sd-accent, #176ba6) 0%, #00a8ff 100%) !important;
+    }
 
-body.theme-purple .menu-title .fa-utensils {
-    color: var(--sd-accent, #a259ec) !important;
-}
-body.theme-blue .menu-title .fa-utensils {
-    color: var(--sd-accent, #176ba6) !important;
-}
-body.theme-cyan .menu-title .fa-utensils {
-    color: var(--sd-accent, #00b8d9) !important;
-}
-body[class*='theme-'] .menu-title .fa-utensils {
-    color: var(--sd-accent, #176ba6) !important;
-}
+    body.theme-purple .menu-title .fa-utensils {
+        color: var(--sd-accent, #a259ec) !important;
+    }
+    body.theme-blue .menu-title .fa-utensils {
+        color: var(--sd-accent, #176ba6) !important;
+    }
+    body.theme-cyan .menu-title .fa-utensils {
+        color: var(--sd-accent, #00b8d9) !important;
+    }
+    body[class*='theme-'] .menu-title .fa-utensils {
+        color: var(--sd-accent, #176ba6) !important;
+    }
 
-body[class*='theme-'] .week-selector {
-    background-color: var(--sd-accent, #176ba6) !important;
-    border-color: var(--sd-accent, #176ba6) !important;
-    color: #fff !important;
-}
-body[class*='theme-'] .week-selector option {
-    background-color: var(--sd-accent, #176ba6) !important;
-    color: #fff !important;
-}
+    body[class*='theme-'] .week-selector {
+        background-color: var(--sd-accent, #176ba6) !important;
+        border-color: var(--sd-accent, #176ba6) !important;
+        color: #fff !important;
+    }
+    body[class*='theme-'] .week-selector option {
+        background-color: var(--sd-accent, #176ba6) !important;
+        color: #fff !important;
+    }
 
-body[class*='theme-'] .btn-outline-info {
-    border-color: var(--sd-accent, #176ba6) !important;
-    color: var(--sd-accent, #176ba6) !important;
-}
-body[class*='theme-'] .btn-outline-info:hover, body[class*='theme-'] .btn-outline-info:focus {
-    background-color: var(--sd-accent, #176ba6) !important;
-    color: #fff !important;
-}
-/* =================== END THEME SUPPORT =================== */
+    body[class*='theme-'] .btn-outline-info {
+        border-color: var(--sd-accent, #176ba6) !important;
+        color: var(--sd-accent, #176ba6) !important;
+    }
+    body[class*='theme-'] .btn-outline-info:hover, body[class*='theme-'] .btn-outline-info:focus {
+        background-color: var(--sd-accent, #176ba6) !important;
+        color: #fff !important;
+    }
+
 
 </style>
 
@@ -652,9 +658,7 @@ body[class*='theme-'] .btn-outline-info:hover, body[class*='theme-'] .btn-outlin
                                     <div>
                                         <div class="meal-item fw-bold text-wrap">{{ $r->itemName ?? 'Untitled Dish' }}</div>
                                         <div class="meal-description small text-muted">
-                                            {{ $r->recipe ?? 'No recipe description' }}
-
-
+                                            {!! html_entity_decode($r->recipe ?? 'No recipe description') !!}
                                         </div>
                                         <div class="meal-description small text-muted">
 
@@ -814,7 +818,7 @@ body[class*='theme-'] .btn-outline-info:hover, body[class*='theme-'] .btn-outlin
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="ingredientModalLabel">Select Recipes</h5>
-                    <button type="button" class="btn-close text-light" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div id="recipeList">

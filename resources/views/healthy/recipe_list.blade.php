@@ -9,6 +9,34 @@
 
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <style>
+        /* Centered action buttons for recipe cards */
+        .recipe-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-top: 1.5rem;
+        }
+        .recipe-actions .btn {
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        .recipe-actions .btn-outline-primary:hover, .recipe-actions .btn-outline-primary:focus {
+            background: #176ba6;
+            color: #fff;
+            border-color: #176ba6;
+        }
+        .recipe-actions .btn-outline-danger:hover, .recipe-actions .btn-outline-danger:focus {
+            background: #dc3545;
+            color: #fff;
+            border-color: #dc3545;
+        }
     .card-img-top {
         width: 100%;
         height: 180px;
@@ -194,43 +222,13 @@ body[class*='theme-'] .dropdown-menu .active {
         <div class="row">
             @foreach($recipeGroup as $recipe)
             <div class="col-md-3 mb-4">
-                <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card h-70 shadow-sm border-0 rounded-4 overflow-hidden">
 
                     <!-- Card Header with Title & Dropdown -->
                     <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3 border-0">
                         <h6 class="card-title mb-0 fw-bold text-truncate text-dark" title="{{ $recipe->itemName }}">
                             {{ \Illuminate\Support\Str::title($recipe->itemName) }}
                         </h6>
-
-                        @if(Auth::user()->userType == 'Superadmin' || !empty($permissions['updateRecipe']) || !empty($permissions['deleteRecipe']))
-                        <div class="dropdown">
-                            <a href="#" class="text-muted small" id="dropdownMenu{{ $recipe->id }}"
-                               data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-sm"
-                                aria-labelledby="dropdownMenu{{ $recipe->id }}">
-                                @if(Auth::user()->userType == 'Superadmin' || !empty($permissions['updateRecipe']))
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('recipes.edit', $recipe->id) }}">
-                                        <i class="fas fa-edit me-2 text-primary"></i> Edit
-                                    </a>
-                                </li>
-                                @endif
-                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['deleteRecipe']) && $permissions['deleteRecipe']))
-                                <li>
-                                    <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST"
-                                          onsubmit="return confirm('Delete this recipe?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger">
-                                            <i class="fas fa-trash-alt me-2"></i> Delete
-                                        </button>
-                                    </form>
-                                </li>
-                                @endif
-                            </ul>
-                        </div>
-                        @endif
                     </div>
 
                     <!-- Recipe Image -->
@@ -244,6 +242,7 @@ body[class*='theme-'] .dropdown-menu .active {
 
                     <!-- Card Body -->
                     <div class="card-body p-3">
+                       
 
                         <!-- Food Type Badge -->
                         @if(!empty($recipe->foodtype))
@@ -276,6 +275,23 @@ body[class*='theme-'] .dropdown-menu .active {
                             <i class="fab fa-youtube me-1"></i> Watch Video
                         </a>
                         @endif
+                         @if(Auth::user()->userType == 'Superadmin' || !empty($permissions['updateRecipe']) || !empty($permissions['deleteRecipe']))
+                        <div class="recipe-actions">
+                            @if(Auth::user()->userType == 'Superadmin' || !empty($permissions['updateRecipe']))
+                                <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-outline-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            @endif
+                            @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['deleteRecipe']) && $permissions['deleteRecipe']))
+                                <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this recipe?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -286,9 +302,10 @@ body[class*='theme-'] .dropdown-menu .active {
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content rounded-4 shadow-lg">
                         <div class="modal-body text-center p-0">
-                            <img src="{{ asset('uploads/recipes/' . $recipe->mediaUrl) }}"
-                                 class="img-fluid rounded-3"
-                                 alt="{{ $recipe->itemName }}">
+                               <img src="{{ asset('storage/'.$recipe->mediaUrl) }}"
+                                   onerror="this.onerror=null;this.src='{{ asset('storage/../'.$recipe->mediaUrl) }}';"
+                                   class="img-fluid rounded-3"
+                                   alt="{{ $recipe->itemName }}">
                         </div>
                     </div>
                 </div>
