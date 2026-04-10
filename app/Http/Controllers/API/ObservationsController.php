@@ -48,7 +48,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Notifications\ObservationAdded;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 use Intervention\Image\Drivers\Gd\Driver;
 
 class ObservationsController extends Controller
@@ -83,7 +83,52 @@ class ObservationsController extends Controller
             'refined_text' => $refinedText
         ]);
     }
+    //    public function print_snapshots($id)
+    // {
+    //     $authId   = Auth::id();
+    //     $centerid = session('user_center_id');
 
+    //     // Get centers based on user type
+    //     if (Auth::user()->userType === "Superadmin") {
+    //         $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+    //         $centers   = Center::whereIn('id', $centerIds)->get();
+
+    //         $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+    //             ->where('centerid', $centerid)
+    //             ->where('id', $id)
+    //             ->firstOrFail();
+    //     } elseif (Auth::user()->userType === "Staff") {
+    //         $centers = Center::where('id', $centerid)->get();
+
+    //         $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+    //             ->where('createdBy', $authId)
+    //             ->where('id', $id)
+    //             ->firstOrFail();
+    //     } else { // Parent
+    //         $centers = Center::where('id', $centerid)->get();
+
+    //         $childIds   = Childparent::where('parentid', $authId)->pluck('childid');
+    //         $snapshotIds = SnapshotChild::whereIn('childid', $childIds)
+    //             ->pluck('snapshotid')
+    //             ->unique()
+    //             ->toArray();
+
+    //         $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+    //             ->whereIn('id', $snapshotIds)
+    //             ->where('id', $id)
+    //             ->firstOrFail();
+    //     }
+
+    //     // ✅ Rooms mapping
+    //     $roomIds = !empty($snapshot->roomids) ? explode(',', $snapshot->roomids) : [];
+    //     $rooms   = Room::whereIn('id', $roomIds)->get();
+    //     $roomNames = $rooms->pluck('name')->implode(', ');
+
+    //     // Permissions
+    //     $permissions = Permission::where('userid', Auth::user()->userid)->first();
+
+    //     return view('snapshots.printSnapshots', compact('snapshot', 'centers', 'permissions', 'rooms', 'roomNames'));
+    // }
     private function callAIRefiner($text)
     {
         $apiKey = 'sk-d1febdfb38e3491391e5ca4ce911be5c'; // replace with your key
@@ -1708,35 +1753,7 @@ class ObservationsController extends Controller
             $pdf = Pdf::loadView('observations.apiPrint', compact('observation', 'roomNames'))
                 ->setPaper('a4', 'landscape');
             $fileName = 'observation_' . $id . '_' . time() . '.pdf';
-            $filePath = public_path('observationpdf/' . $fileName);
-
-            // Ensure directory exists
-            if (!file_exists(public_path('observationpdf'))) {
-                mkdir(public_path('observationpdf'), 0777, true);
-            }
-
-            // Save to disk
-            file_put_contents($filePath, $pdf->output());
-            $url = asset('observationpdf/' . $fileName);
-
-            // Prepare response
-            $response = response()->json([
-                'status' => true,
-                'message' => 'PDF generated successfully.',
-                'data' => [
-                    'pdf_url' => $url,
-                    'filename' => $fileName
-                ]
-            ]);
-
-            // Delete the file AFTER the response is sent
-            // register_shutdown_function(function () use ($filePath) {
-            //     if (file_exists($filePath)) {
-            //         unlink($filePath);
-            //     }
-            // });
-
-            return $response;
+            return $pdf->download($fileName);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

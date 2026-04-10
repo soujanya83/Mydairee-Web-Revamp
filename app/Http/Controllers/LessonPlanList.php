@@ -312,17 +312,7 @@ public function programPlanPrintPage($id)
 
     // List of CKEditor fields to clean
     $ckeditorFields = [
-        'outdoor_experiences',
-        'inquiry_topic',
-        'sustainability_topic',
         
-        'children_voices',
-        'families_input',
-        'group_experience',
-        'spontaneous_experience',
-        'mindfulness_experiences',
-        'art_craft',
-        'focus_area'
     ];
 
     // Clean all CKEditor fields

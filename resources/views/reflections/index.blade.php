@@ -485,7 +485,9 @@
         <i class="fa-solid fa-filter" style="margin-right: 5px;"></i> FILTERS
 </button>
 &nbsp;&nbsp;&nbsp;
+ @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['addReflection']) && $permissions['addReflection']))
 <button type="button" class="btn btn-outline-info" onclick="window.location.href='{{ route('reflection.addnew') }}'"><i class="icon-plus" style="margin-right: 5px;"></i>Add New</button>
+@endif
 @endif &nbsp;&nbsp;&nbsp;
 
 

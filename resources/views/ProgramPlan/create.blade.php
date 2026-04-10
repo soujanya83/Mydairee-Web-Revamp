@@ -8,40 +8,40 @@
 
 @section('content')
 
-    <!-- Theme-scoped overrides: apply only when a theme is active -->
-    <style>
-        /* Defaults stay intact; theme accents only when a theme class is present */
-        body[class*="theme-"] .btn-info {
-            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
-            border-color: var(--sd-accent);
-            color: #000;
-        }
+<!-- Theme-scoped overrides: apply only when a theme is active -->
+<style>
+    /* Defaults stay intact; theme accents only when a theme class is present */
+    body[class*="theme-"] .btn-info {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        border-color: var(--sd-accent);
+        color: #000;
+    }
 
-        body[class*="theme-"] .btn-outline-info {
-            border-color: var(--sd-accent);
-            color: var(--sd-accent);
-        }
+    body[class*="theme-"] .btn-outline-info {
+        border-color: var(--sd-accent);
+        color: var(--sd-accent);
+    }
 
-        body[class*="theme-"] .btn-outline-info:hover {
-            background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
-            color: #000;
-        }
+    body[class*="theme-"] .btn-outline-info:hover {
+        background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent));
+        color: #000;
+    }
 
-        body[class*="theme-"] .form-control:focus {
-            border-color: var(--sd-accent);
-            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.06);
-        }
+    body[class*="theme-"] .form-control:focus {
+        border-color: var(--sd-accent);
+        box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.06);
+    }
 
-        /* Optional subtle accent for labels */
-        body[class*="theme-"] label {
-            color: var(--sd-accent);
-        }
-    </style>
+    /* Optional subtle accent for labels */
+    body[class*="theme-"] label {
+        color: var(--sd-accent);
+    }
+</style>
 
-    <main data-centerid="<?= isset($centerId)?$centerId:null; ?>" style="padding-block:5em;padding-inline:2em;">
-  
+<main data-centerid="<?= isset($centerId)?$centerId:null; ?>" style="padding-block:5em;padding-inline:2em;">
 
-     <!-- <div class="col-12 service-details-header">
+
+    <!-- <div class="col-12 service-details-header">
     <div class="d-flex justify-content-between align-items-end flex-wrap">
  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end gap-4"> 
  <h2 class="mb-0">Create Program Plan</h2> 
@@ -56,468 +56,517 @@
     <hr class="mt-3">
    </div>     -->
 
- 
 
-<!-- Form container -->
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-body">
-            <h6 class="card-title">Create Program Plan</h6> 
-            <form id="programPlanForm" method="post">
 
-            <?php if(isset($plan_data) && $plan_data): ?>
-        <input type="hidden" name="plan_id" id="plan_id" value="<?= $plan_data->id ?>">
-    <?php endif; ?>
-         
-            <input type="hidden" name="centerid" id="centerid" value="<?= isset($centerId)?$centerId:null; ?>";>
-<input type="hidden" name="user_id" id="user_id" value="<?= isset($userId)?$userId:null; ?>";>
+    <!-- Form container -->
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Create Program Plan</h6>
+                <form id="programPlanForm" method="post">
 
-          
-<div class="form-group mb-4">
-        <label for="months">Select Month</label>
-        <select class="form-control" id="months" name="months" required>
-            <option value="">Select Month</option>
+                    <?php if(isset($plan_data) && $plan_data): ?>
+                    <input type="hidden" name="plan_id" id="plan_id" value="<?= $plan_data->id ?>">
+                    <?php endif; ?>
+
+                    <input type="hidden" name="centerid" id="centerid" value="<?= isset($centerId)?$centerId:null; ?>"
+                        ;>
+                    <input type="hidden" name="user_id" id="user_id" value="<?= isset($userId)?$userId:null; ?>" ;>
+
+
+                    <div class="form-group mb-4">
+                        <label for="months">Select Month</label>
+                        <select class="form-control" id="months" name="months" required>
+                            <option value="">Select Month</option>
+                            <?php
+                                $months = [
+                                    '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April',
+                                    '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August',
+                                    '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
+                                ];
+                                foreach ($months as $key => $month): ?>
+                            <option value="<?= $key ?>" <?=(isset($plan_data) && $plan_data->months == $key) ?
+                                'selected' : '' ?>>
+                                <?= $month ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="years">Select Year</label>
+                        <select class="form-control" id="years" name="years" required>
+                            <option value="">Select Year</option>
             <?php
-            $months = [
-                '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April',
-                '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August',
-                '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
-            ];
-            foreach ($months as $key => $month): ?>
-                <option value="<?= $key ?>" <?= (isset($plan_data) && $plan_data->months == $key) ? 'selected' : '' ?>><?= $month ?></option>
-            <?php endforeach; ?>
-        </select>
-    
-    </div>
+                $currentYear = date('Y');
+                $startYear = $currentYear - 10; // Adjust as needed, e.g., show last 10 years
+                $endYear = $currentYear + 10;   //adjust as needed to show future years.
 
-    <div class="form-group mb-4">
-    <label for="years">Select Year</label>
-    <select class="form-control" id="years" name="years" required>
-        <option value="">Select Year</option>
-        <?php
-        $currentYear = date('Y');
-        $startYear = $currentYear - 10; // Adjust as needed, e.g., show last 10 years
-        $endYear = $currentYear + 10;   //adjust as needed to show future years.
-
-        for ($year = $startYear; $year <= $endYear; $year++) {
+                for ($year = $startYear; $year <= $endYear; $year++) {
             ?>
-            <option value="<?= $year ?>" <?= (isset($plan_data) && $plan_data->years == $year) ? 'selected' : '' ?>><?= $year ?></option>
-            <?php
-        }
-        ?>
-    </select>
-</div>
+                    <option value="<?= $year ?>" <?=(isset($plan_data) && $plan_data->years == $year) ?
+                        'selected' : '' ?>>
+                        <?= $year ?>
+                    </option>
+                <?php
+                      }
+                 ?>
+                        </select>
+                    </div>
 
 
-                <!-- Room Selection -->
-               <!-- Room Selection -->
-               <?php
-$selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
-?> 
-    <div class="form-group mb-4">
-        <label for="room">Select Room</label>
-        <select class="form-control select2-multiple" id="room" name="room[]" multiple="multiple" required>
-            <option value="">Select Room</option>
-             @foreach($rooms as $room)
-               <option value="<?= $room->id ?>" <?= in_array($room->id, $selectedRooms) ? 'selected' : '' ?>>
-    <?= $room->name ?>
-</option>
-             @endforeach
-        </select>
-    </div>
+                    <!-- Room Selection -->
+                    <?php
+                       $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
+                    ?>
+                    <div class="form-group mb-4">
+                        <label for="room">Select Room</label>
+                        <select class="form-control select2-multiple" id="room" name="room[]" multiple="multiple"
+                            required>
+                            <option value="">Select Room</option>
+                            @foreach($rooms as $room)
+                            <option value="<?= $room->id ?>" <?=in_array($room->id, $selectedRooms) ? 'selected' : ''
+                                ?>>
+                                <?= $room->name ?>
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <!-- Users Multiple Selection -->
-                <div class="form-group mb-4">
-                    <label for="users">Select Educators</label>
-                    <select class="form-control select2-multiple" id="users" name="users[]" multiple="multiple" required>
-                        @foreach($users as $user)
-                            <option value="{{ $user->userid }}"
-                                {{ in_array($user->userid, $selected_educators) ? 'selected' : '' }}>
+                    <!-- Users Multiple Selection -->
+                    <div class="form-group mb-4">
+                        <label for="users">Select Educators</label>
+                        <select class="form-control select2-multiple" id="users" name="users[]" multiple="multiple"
+                            required>
+                            @foreach($users as $user)
+                            <option value="{{ $user->userid }}" {{ in_array($user->userid, $selected_educators) ?
+                                'selected' : '' }}>
                                 {{ $user->name }}
                             </option>
-                        @endforeach
-                    </select>
-                </div>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <!-- Children Multiple Selection -->
-                <div class="form-group mb-4">
-                    <label for="children">Select Children</label>
-                    <select class="form-control select2-multiple" id="children" name="children[]" multiple="multiple" required>
-                        <!-- Options will be populated via AJAX -->
-                    </select>
-                </div>
+                    <!-- Children Multiple Selection -->
+                    <div class="form-group mb-4">
+                        <label for="children">Select Children</label>
+                        <select class="form-control select2-multiple" id="children" name="children[]"
+                            multiple="multiple" required>
+                            <!-- Options will be populated via AJAX -->
+                        </select>
+                    </div>
 
-                <!-- Focus Areas Section -->
-                <div class="card mb-4">
-                  
-                    <div class="card-body">
-<div class="form-group mb-3">
-    <label>Focus Areas</label>
-    <textarea class="form-control ckeditor" id="focus_area" name="focus_area" rows="3" placeholder="Focus Area"><?= isset($plan_data) ? $plan_data->focus_area : '' ?></textarea>
-</div>
+                    <!-- Focus Areas Section -->
+                    <div class="card mb-4">
 
-                        <!-- Practical Life -->
-                        <div class="form-group mb-3">
-                      
-                        <label for="practical_life">Practical Life</label>
-          <div class="input-group">
-       <textarea class="form-control" id="practical_life" name="practical_life" rows="3" readonly><?= isset($plan_data) ? $plan_data->practical_life : '' ?></textarea>
-         <div class="input-group-append">
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#practicalLifeModal">
-            <i class="fa fa-search"></i> Select Activities
-        </button>
-             </div>
-        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label>Focus Areas</label>
+                                <textarea class="form-control ckeditor" id="focus_area" name="focus_area" rows="3"
+                                    placeholder="Focus Area"><?= isset($plan_data) ? $plan_data->focus_area : '' ?></textarea>
+                            </div>
 
-                            <input type="hidden" class="form-control mt-2" name="practical_life_experiences" value="<?= isset($plan_data) ? $plan_data->practical_life_experiences : '' ?>" placeholder="Planned experiences">
-                        </div>
+                            <!-- Practical Life -->
+                            <div class="form-group mb-3">
 
-                        <!-- Sensorial -->
-                        <div class="form-group mb-3">
+                                <label for="practical_life">Practical Life</label>
+                                <div class="input-group">
+                                    <textarea class="form-control" id="practical_life" name="practical_life" rows="3"
+                                        readonly><?= isset($plan_data) ? $plan_data->practical_life : '' ?></textarea>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-info" data-toggle="modal"
+                                            data-target="#practicalLifeModal">
+                                            <i class="fa fa-search"></i> Select Activities
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" class="form-control mt-2" name="practical_life_experiences"
+                                    value="<?= isset($plan_data) ? $plan_data->practical_life_experiences : '' ?>"
+                                    placeholder="Planned experiences">
+                            </div>
+
+                            <!-- Sensorial -->
+                            <div class="form-group mb-3">
 
 
-                        <label for="sensorial">Sensorial</label>
-<div class="input-group">
-    <textarea class="form-control" id="sensorial" name="sensorial" rows="3" readonly><?= isset($plan_data) ? $plan_data->sensorial : '' ?></textarea>
-    <div class="input-group-append">
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#sensorialModal">
-            <i class="fa fa-search"></i> Select Activities
-        </button>
-    </div>
-</div>
-                           
-                           
-                            <input type="hidden" class="form-control mt-2" name="sensorial_experiences" value="<?= isset($plan_data) ? $plan_data->sensorial_experiences : '' ?>" placeholder="Planned experiences">
-                        </div>
+                                <label for="sensorial">Sensorial</label>
+                                <div class="input-group">
+                                    <textarea class="form-control" id="sensorial" name="sensorial" rows="3"
+                                        readonly><?= isset($plan_data) ? $plan_data->sensorial : '' ?></textarea>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-info" data-toggle="modal"
+                                            data-target="#sensorialModal">
+                                            <i class="fa fa-search"></i> Select Activities
+                                        </button>
+                                    </div>
+                                </div>
 
-                        <!-- Math -->
-                        <div class="form-group mb-3"> 
 
-                        <label for="math">Math</label>
-<div class="input-group">
-    <textarea class="form-control" id="math" name="math" rows="3" readonly><?= isset($plan_data) ? $plan_data->math : '' ?></textarea>
-    <div class="input-group-append">
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#mathModal">
-            <i class="fa fa-search"></i> Select Activities
-        </button>
-    </div>
-</div>
-                          
-                            <input type="hidden" class="form-control mt-2" name="math_experiences" value="<?= isset($plan_data) ? $plan_data->math_experiences : '' ?>" placeholder="Planned experiences">
-                        </div>
+                                <input type="hidden" class="form-control mt-2" name="sensorial_experiences"
+                                    value="<?= isset($plan_data) ? $plan_data->sensorial_experiences : '' ?>"
+                                    placeholder="Planned experiences">
+                            </div>
 
-                        <!-- Language -->
-                        <div class="form-group mb-3">
+                            <!-- Math -->
+                            <div class="form-group mb-3">
 
-                        <label for="language">Language</label>
-<div class="input-group">
-    <textarea class="form-control" id="language" name="language" rows="3" readonly><?= isset($plan_data) ? $plan_data->language : '' ?></textarea>
-    <div class="input-group-append">
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#languageModal">
-            <i class="fa fa-search"></i> Select Activities
-        </button>
-    </div>
-</div>
-                           
-                            <input type="hidden" class="form-control mt-2" name="language_experiences" value="<?= isset($plan_data) ? $plan_data->language_experiences : '' ?>" placeholder="Planned experiences">
-                        </div>
+                                <label for="math">Math</label>
+                                <div class="input-group">
+                                    <textarea class="form-control" id="math" name="math" rows="3"
+                                        readonly><?= isset($plan_data) ? $plan_data->math : '' ?></textarea>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-info" data-toggle="modal"
+                                            data-target="#mathModal">
+                                            <i class="fa fa-search"></i> Select Activities
+                                        </button>
+                                    </div>
+                                </div>
 
-                        <!-- Culture -->
-                        <div class="form-group mb-3">
-                          
-                        <label for="culture">Culture</label>
-<div class="input-group">
-    <textarea class="form-control" id="culture" name="culture" rows="3" readonly><?= isset($plan_data) ? $plan_data->culture : '' ?></textarea>
-    <div class="input-group-append">
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#cultureModal">
-            <i class="fa fa-search"></i> Select Activities
-        </button>
-    </div>
-</div>
-                          
-                            <input type="hidden" class="form-control mt-2" name="culture_experiences" value="<?= isset($plan_data) ? $plan_data->culture_experiences : '' ?>" placeholder="Planned experiences">
-                        </div>
+                                <input type="hidden" class="form-control mt-2" name="math_experiences"
+                                    value="<?= isset($plan_data) ? $plan_data->math_experiences : '' ?>"
+                                    placeholder="Planned experiences">
+                            </div>
 
-                        <!-- Art & Craft -->
-      <div class="form-group mb-3">
-    <label>Art & Craft</label>
-    <textarea class="form-control ckeditor" id="art_craft" name="art_craft" rows="3" placeholder="Art & Craft"><?= isset($plan_data) ? $plan_data->art_craft : '' ?></textarea>
+                            <!-- Language -->
+                            <div class="form-group mb-3">
 
-    <!-- CKEditor textarea for experiences (commented out for now) -->
-    <!--
+                                <label for="language">Language</label>
+                                <div class="input-group">
+                                    <textarea class="form-control" id="language" name="language" rows="3"
+                                        readonly><?= isset($plan_data) ? $plan_data->language : '' ?></textarea>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-info" data-toggle="modal"
+                                            data-target="#languageModal">
+                                            <i class="fa fa-search"></i> Select Activities
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" class="form-control mt-2" name="language_experiences"
+                                    value="<?= isset($plan_data) ? $plan_data->language_experiences : '' ?>"
+                                    placeholder="Planned experiences">
+                            </div>
+
+                            <!-- Culture -->
+                            <div class="form-group mb-3">
+
+                                <label for="culture">Culture</label>
+                                <div class="input-group">
+                                    <textarea class="form-control" id="culture" name="culture" rows="3"
+                                        readonly><?= isset($plan_data) ? $plan_data->culture : '' ?></textarea>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-info" data-toggle="modal"
+                                            data-target="#cultureModal">
+                                            <i class="fa fa-search"></i> Select Activities
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" class="form-control mt-2" name="culture_experiences"
+                                    value="<?= isset($plan_data) ? $plan_data->culture_experiences : '' ?>"
+                                    placeholder="Planned experiences">
+                            </div>
+
+                            <!-- Art & Craft -->
+                            <div class="form-group mb-3">
+                                <label>Art & Craft</label>
+                                <textarea class="form-control ckeditor" id="art_craft" name="art_craft" rows="3"
+                                    placeholder="Art & Craft"><?= isset($plan_data) ? $plan_data->art_craft : '' ?></textarea>
+
+                                <!-- CKEditor textarea for experiences (commented out for now) -->
+                                <!--
     <label class="mt-2">Planned Experiences</label>
     <textarea class="form-control ckeditor" name="art_craft_experiences" rows="3" placeholder="Planned experiences"><?= isset($plan_data) ? $plan_data->art_craft_experiences : '' ?></textarea>
     -->
-</div>
+                            </div>
 
 
+                        </div>
                     </div>
-                </div>
 
-                <!-- Additional Experiences Section -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Additional Experiences</h5>
+                    <!-- Additional Experiences Section -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Additional Experiences</h5>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="form-group mb-3">
+                                <label for="eylf">EYLF</label>
+                                <div class="input-group">
+                                    <textarea class="form-control" id="eylf" name="eylf"
+                                        rows="3"><?= isset($plan_data) ? $plan_data->eylf : '' ?></textarea>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-info" data-toggle="modal"
+                                            data-target="#eylfModal">
+                                            <i class="fa fa-search"></i> Select EYLF
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group mb-3">
+                                <label for="outdoor_experiences">Outdoor Experiences <span
+                                        style="color:blueviolet;font-weight:bold;"></span></label>
+                                <textarea class="form-control ckeditor" id="outdoor_experiences"
+                                    name="outdoor_experiences" rows="3"
+                                    placeholder="1st Experiences, 2nd Experiences, 3rd Experiences etc..."><?= isset($plan_data) ? $plan_data->outdoor_experiences : '' ?></textarea>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="inquiry_topic">Inquiry Topic</label>
+                                <textarea class="form-control ckeditor" id="inquiry_topic" name="inquiry_topic"
+                                    rows="3"><?= isset($plan_data) ? $plan_data->inquiry_topic : '' ?></textarea>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="sustainability_topic">Sustainability Topic</label>
+                                <textarea class="form-control ckeditor" id="sustainability_topic"
+                                    name="sustainability_topic"
+                                    rows="3"><?= isset($plan_data) ? $plan_data->sustainability_topic : '' ?></textarea>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="special_events">Special Events <span
+                                        style="color:blueviolet;font-weight:bold;"> </span> </label>
+                                <textarea class="form-control ckeditor" id="special_events" name="special_events"
+                                    rows="3"
+                                    placeholder="14th March- Holi, 18th March- Global Recycling Day, 21st March- Harmony Day etc..."><?= isset($plan_data) ? $plan_data->special_events : '' ?></textarea>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="children_voices">Children's Voices</label>
+                                <textarea class="form-control ckeditor" id="children_voices" name="children_voices"
+                                    rows="3"><?= isset($plan_data) ? $plan_data->children_voices : '' ?></textarea>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="families_input">Families Input</label>
+                                <textarea class="form-control ckeditor" id="families_input" name="families_input"
+                                    rows="3"><?= isset($plan_data) ? $plan_data->families_input : '' ?></textarea>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="group_experience">Group Experience</label>
+                                <textarea class="form-control ckeditor" id="group_experience" name="group_experience"
+                                    rows="3"><?= isset($plan_data) ? $plan_data->group_experience : '' ?></textarea>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="spontaneous_experience">Spontaneous Experience</label>
+                                <textarea class="form-control ckeditor" id="spontaneous_experience"
+                                    name="spontaneous_experience"
+                                    rows="3"><?= isset($plan_data) ? $plan_data->spontaneous_experience : '' ?></textarea>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="mindfulness_experiences">Mindfulness Experiences</label>
+                                <textarea class="form-control ckeditor" id="mindfulness_experiences"
+                                    name="mindfulness_experiences"
+                                    rows="3"><?= isset($plan_data) ? $plan_data->mindfulness_experiences : '' ?></textarea>
+                            </div>
+
+                            <div class="form-group mb-4">
+
+
+                                <!-- What is working section -->
+                                <div class="form-group mb-3">
+                                    <label for="working">What is working</label>
+                                    <textarea class="form-control ckeditor" id="working" name="working" rows="3"
+                                        placeholder="Describe what is working well...">{{ isset($plan_data) ? $plan_data->working : '' }}</textarea>
+                                </div>
+
+                                <!-- What is not working section -->
+                                <div class="form-group mb-3">
+                                    <label for="notworking">What is not working</label>
+                                    <textarea class="form-control ckeditor" id="notworking" name="notworking" rows="3"
+                                        placeholder="Describe what is not working...">{{ isset($plan_data) ? $plan_data->notworking : '' }}</textarea>
+                                </div>
+                                <label class="form-label d-block mb-2 fw-semibold">Status</label>
+                                <div class="status-toggle">
+                                    <label class="status-option draft">
+                                        <input type="radio" name="status" value="Draft" <?=(isset($plan_data) &&
+                                            $plan_data->status === 'Draft') ? 'checked' : '' ?>>
+                                        <span>Draft</span>
+                                    </label>
+
+                                    <label class="status-option published">
+                                        <input type="radio" name="status" value="Published" <?=(isset($plan_data) &&
+                                            $plan_data->status === 'Published') ? 'checked' : '' ?>>
+                                        <span>Published</span>
+                                    </label>
+                                </div>
+                            </div>
+
+
+                            <style>
+                                .status-toggle {
+                                    display: inline-flex;
+                                    /* background: #ffffff; */
+                                    border-radius: 50px;
+                                    padding: 4px;
+                                    gap: 6px;
+                                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+                                }
+
+                                .status-option {
+                                    position: relative;
+                                }
+
+                                .status-option input {
+                                    display: none;
+                                }
+
+                                .status-option span {
+                                    min-width: 110px;
+                                    text-align: center;
+                                    display: inline-block;
+                                    padding: 8px 18px;
+                                    border-radius: 40px;
+                                    cursor: pointer;
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    transition: all 0.25s ease;
+                                    border: 1px solid transparent;
+                                }
+
+                                /* Draft (Red) */
+                                .status-option.draft span {
+                                    color: #dc3545;
+                                    background: #fff5f5;
+                                    border-color: #f5c2c7;
+                                }
+
+                                .status-option.draft input:checked+span {
+                                    background: #dc3545;
+                                    color: #fff;
+                                    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.35);
+                                }
+
+                                /* Published (Green) */
+                                .status-option.published span {
+                                    color: #198754;
+                                    background: #f0fff8;
+                                    border-color: #b7dfc8;
+                                }
+
+                                .status-option.published input:checked+span {
+                                    background: #198754;
+                                    color: #fff;
+                                    box-shadow: 0 4px 12px rgba(25, 135, 84, 0.35);
+                                }
+
+                                /* Hover effect */
+                                .status-option span:hover {
+                                    transform: translateY(-1px);
+                                }
+                            </style>
+
+
+                        </div>
                     </div>
-                    <div class="card-body">
-                        
- <div class="form-group mb-3">
-    <label for="eylf">EYLF</label>
-    <div class="input-group">
-    <textarea class="form-control" id="eylf" name="eylf" rows="3" ><?= isset($plan_data) ? $plan_data->eylf : '' ?></textarea>
-        <div class="input-group-append">
-            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#eylfModal">
-                <i class="fa fa-search"></i> Select EYLF
-            </button>
-        </div>
-    </div>
-</div>
 
+                    <?php if(isset($plan_data) && $plan_data): ?>
 
-                     <div class="form-group mb-3">
-    <label for="outdoor_experiences">Outdoor Experiences <span style="color:blueviolet;font-weight:bold;"> (Add Experiences separated by Comma ",") </span></label>
-    <textarea class="form-control ckeditor" id="outdoor_experiences" name="outdoor_experiences" rows="3" placeholder="1st Experiences, 2nd Experiences, 3rd Experiences etc..."><?= isset($plan_data) ? $plan_data->outdoor_experiences : '' ?></textarea>
-</div>
-
-<div class="form-group mb-3">
-    <label for="inquiry_topic">Inquiry Topic</label>
-    <textarea class="form-control ckeditor" id="inquiry_topic" name="inquiry_topic"  rows="3"><?= isset($plan_data) ? $plan_data->inquiry_topic : '' ?></textarea>
-</div>
-
-<div class="form-group mb-3">
-    <label for="sustainability_topic">Sustainability Topic</label>
-    <textarea class="form-control ckeditor" id="sustainability_topic" name="sustainability_topic" rows="3"><?= isset($plan_data) ? $plan_data->sustainability_topic : '' ?></textarea>
-</div>
-
-<div class="form-group mb-3">
-    <label for="special_events">Special Events <span style="color:blueviolet;font-weight:bold;"> (Add multiple events separated by Comma ",") </span> </label>
-    <textarea class="form-control ckeditor" id="special_events" name="special_events" rows="3" placeholder="14th March- Holi, 18th March- Global Recycling Day, 21st March- Harmony Day etc..."><?= isset($plan_data) ? $plan_data->special_events : '' ?></textarea>
-</div>
-
-<div class="form-group mb-3">
-    <label for="children_voices">Children's Voices</label>
-    <textarea class="form-control ckeditor" id="children_voices" name="children_voices"  rows="3"><?= isset($plan_data) ? $plan_data->children_voices : '' ?></textarea>
-</div>
-
-<div class="form-group mb-3">
-    <label for="families_input">Families Input</label>
-    <textarea class="form-control ckeditor" id="families_input" name="families_input"  rows="3"><?= isset($plan_data) ? $plan_data->families_input : '' ?></textarea>
-</div>
-
-<div class="form-group mb-3">
-    <label for="group_experience">Group Experience</label>
-    <textarea class="form-control ckeditor" id="group_experience" name="group_experience" rows="3"><?= isset($plan_data) ? $plan_data->group_experience : '' ?></textarea>
-</div>
-
-<div class="form-group mb-3">
-    <label for="spontaneous_experience">Spontaneous Experience</label>
-    <textarea class="form-control ckeditor" id="spontaneous_experience" name="spontaneous_experience" rows="3"><?= isset($plan_data) ? $plan_data->spontaneous_experience : '' ?></textarea>
-</div>
-
-<div class="form-group mb-3">
-    <label for="mindfulness_experiences">Mindfulness Experiences</label>
-    <textarea class="form-control ckeditor" id="mindfulness_experiences" name="mindfulness_experiences"  rows="3"><?= isset($plan_data) ? $plan_data->mindfulness_experiences : '' ?></textarea>
-</div>
-
-<div class="form-group mb-4">
-    
-
-    <!-- What is working section -->
-    <div class="form-group mb-3">
-        <label for="working">What is working</label>
-        <textarea class="form-control ckeditor" id="working" name="working" rows="3" placeholder="Describe what is working well...">{{ isset($plan_data) ? $plan_data->working : '' }}</textarea>
-    </div>
-
-    <!-- What is not working section -->
-    <div class="form-group mb-3">
-        <label for="notworking">What is not working</label>
-        <textarea class="form-control ckeditor" id="notworking" name="notworking" rows="3" placeholder="Describe what is not working...">{{ isset($plan_data) ? $plan_data->notworking : '' }}</textarea>
-    </div>
-    <label class="form-label d-block mb-2 fw-semibold">Status</label>
-    <div class="status-toggle">
-        <label class="status-option draft">
-            <input type="radio" name="status" value="Draft"
-                <?= (isset($plan_data) && $plan_data->status === 'Draft') ? 'checked' : '' ?>>
-            <span>Draft</span>
-        </label>
-
-        <label class="status-option published">
-            <input type="radio" name="status" value="Published"
-                <?= (isset($plan_data) && $plan_data->status === 'Published') ? 'checked' : '' ?>>
-            <span>Published</span>
-        </label>
-    </div>
-</div>
-
-
-<style>
-   .status-toggle {
-    display: inline-flex;
-    /* background: #ffffff; */
-    border-radius: 50px;
-    padding: 4px;
-    gap: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.status-option {
-    position: relative;
-}
-
-.status-option input {
-    display: none;
-}
-
-.status-option span {
-    min-width: 110px;
-    text-align: center;
-    display: inline-block;
-    padding: 8px 18px;
-    border-radius: 40px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.25s ease;
-    border: 1px solid transparent;
-}
-
-/* Draft (Red) */
-.status-option.draft span {
-    color: #dc3545;
-    background: #fff5f5;
-    border-color: #f5c2c7;
-}
-
-.status-option.draft input:checked + span {
-    background: #dc3545;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(220,53,69,0.35);
-}
-
-/* Published (Green) */
-.status-option.published span {
-    color: #198754;
-    background: #f0fff8;
-    border-color: #b7dfc8;
-}
-
-.status-option.published input:checked + span {
-    background: #198754;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(25,135,84,0.35);
-}
-
-/* Hover effect */
-.status-option span:hover {
-    transform: translateY(-1px);
-}
-
-
-</style>
-
-
-                    </div>
-                </div>
-
-                <?php if(isset($plan_data) && $plan_data): ?>
-                   
                     <div class="form-group action-buttons">
-    <button type="submit" class="btn btn-pill btn-primary" id="updateBtn">
-        Update
-    </button>
+                        <button type="submit" class="btn btn-pill btn-primary" id="updateBtn">
+                            Update
+                        </button>
 
-    <button type="button" class="btn btn-pill btn-success" id="saveAsNewBtn">
-        Save as New Data
-    </button>
+                        <button type="button" class="btn btn-pill btn-success" id="saveAsNewBtn">
+                            Save as New Data
+                        </button>
 
-    <button type="button" class="btn btn-pill btn-danger" id="cancel-btn">
-        Cancel
-    </button>
-</div>
+                        <button type="button" class="btn btn-pill btn-danger" id="cancel-btn">
+                            Cancel
+                        </button>
+                    </div>
 
 
-                <?php else: ?>
-                <div class="form-group action-buttons">
-    <button type="submit" class="btn btn-pill btn-primary">
-        Submit
-    </button>
+                    <?php else: ?>
+                    <div class="form-group action-buttons">
+                        <button type="submit" class="btn btn-pill btn-primary">
+                            Submit
+                        </button>
 
-    <button type="button" class="btn btn-pill btn-danger" id="cancel-btn">
-        Cancel
-    </button>
-</div>
-                <?php endif; ?>
-                
-            </form>
+                        <button type="button" class="btn btn-pill btn-danger" id="cancel-btn">
+                            Cancel
+                        </button>
+                    </div>
+                    <?php endif; ?>
+
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
 
 </main>
 
 <style>
     .action-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-}
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
 
-.btn-pill {
-    border-radius: 40px;
-    padding: 10px 22px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-}
+    .btn-pill {
+        border-radius: 40px;
+        padding: 10px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
 
-/* Primary (Submit / Update) */
-.btn-primary {
-    background: linear-gradient(135deg, #0dcaf0, #0b9ed0);
-    color: #fff;
-}
+    /* Primary (Submit / Update) */
+    .btn-primary {
+        background: linear-gradient(135deg, #0dcaf0, #0b9ed0);
+        color: #fff;
+    }
 
-.btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(13,202,240,0.4);
-}
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(13, 202, 240, 0.4);
+    }
 
-/* Success (Save as New) */
-.btn-success {
-    background: linear-gradient(135deg, #2eefb7, #20c997);
-    color: #063b2d;
-}
+    /* Success (Save as New) */
+    .btn-success {
+        background: linear-gradient(135deg, #2eefb7, #20c997);
+        color: #063b2d;
+    }
 
-.btn-success:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(32,201,151,0.4);
-}
+    .btn-success:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(32, 201, 151, 0.4);
+    }
 
-/* Danger (Cancel) */
-.btn-danger {
-    background: linear-gradient(135deg, #dc3545, #b02a37);
-    color: #fff;
-}
+    /* Danger (Cancel) */
+    .btn-danger {
+        background: linear-gradient(135deg, #dc3545, #b02a37);
+        color: #fff;
+    }
 
-.btn-danger:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(220,53,69,0.4);
-}
+    .btn-danger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+    }
 
-/* Disabled state */
-.btn-pill:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
+    /* Disabled state */
+    .btn-pill:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
 </style>
 
- 
+
 <!-- EYLF Modal -->
 <div class="modal" id="eylfModal" tabindex="-1" role="dialog" aria-labelledby="eylfModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -539,46 +588,52 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                                 </span>
                                 <span>Early Years Learning Framework (EYLF) - Australia (V2.0 2022)</span>
                             </div>
-                            
+
                             <!-- EYLF Framework content -->
                             <div id="eylfFramework" class="collapse mt-2">
                                 <ul class="list-group">
                                     <!-- EYLF Learning Outcomes -->
                                     <li class="list-group-item eylf-outcomes-container">
                                         <div class="d-flex align-items-center">
-                                            <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#eylfOutcomes">
+                                            <span class="mr-2 toggle-icon" data-toggle="collapse"
+                                                data-target="#eylfOutcomes">
                                                 <i class="fa fa-chevron-right"></i>
                                             </span>
                                             <span>EYLF Learning Outcomes</span>
                                         </div>
-                                        
+
                                         <!-- List of all outcomes -->
                                         <div id="eylfOutcomes" class="collapse mt-2">
                                             <ul class="list-group">
                                                 <?php foreach ($eylf_outcomes as $outcome) : ?>
                                                 <li class="list-group-item eylf-outcome">
                                                     <div class="d-flex align-items-center">
-                                                        <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#outcome<?= $outcome->id ?>">
+                                                        <span class="mr-2 toggle-icon" data-toggle="collapse"
+                                                            data-target="#outcome<?= $outcome->id ?>">
                                                             <i class="fa fa-chevron-right"></i>
                                                         </span>
-                                                        <span><?= $outcome->title ?> - <?= $outcome->name ?></span>
+                                                        <span>
+                                                            <?= $outcome->title ?> -
+                                                            <?= $outcome->name ?>
+                                                        </span>
                                                     </div>
-                                                    
+
                                                     <!-- Activities for this outcome -->
                                                     <div id="outcome<?= $outcome->id ?>" class="collapse mt-2">
                                                         <ul class="list-group">
                                                             <?php foreach ($outcome->activities as $activity) : ?>
                                                             <li class="list-group-item eylf-activity">
                                                                 <div class="form-check">
-                                                                    <input class="form-check-input eylf-activity-checkbox"
-                                                                           type="checkbox"
-                                                                           value="<?= $activity->id ?>"
-                                                                           id="activity<?= $activity->id ?>"
-                                                                           data-outcome-id="<?= $outcome->id ?>"
-                                                                           data-outcome-title="<?= $outcome->title ?>"
-                                                                           data-outcome-name="<?= $outcome->name ?>"
-                                                                           data-activity-title="<?= $activity->title ?>">
-                                                                    <label class="form-check-label" for="activity<?= $activity->id ?>">
+                                                                    <input
+                                                                        class="form-check-input eylf-activity-checkbox"
+                                                                        type="checkbox" value="<?= $activity->id ?>"
+                                                                        id="activity<?= $activity->id ?>"
+                                                                        data-outcome-id="<?= $outcome->id ?>"
+                                                                        data-outcome-title="<?= $outcome->title ?>"
+                                                                        data-outcome-name="<?= $outcome->name ?>"
+                                                                        data-activity-title="<?= $activity->title ?>">
+                                                                    <label class="form-check-label"
+                                                                        for="activity<?= $activity->id ?>">
                                                                         <?= $activity->title ?>
                                                                     </label>
                                                                 </div>
@@ -591,7 +646,7 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                                             </ul>
                                         </div>
                                     </li>
-                                    
+
                                     <!-- You can add EYLF Practices and EYLF Principles here if needed -->
                                 </ul>
                             </div>
@@ -616,7 +671,8 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
 
 
 <!-- Practical Life Modal -->
-<div class="modal" id="practicalLifeModal" tabindex="-1" role="dialog" aria-labelledby="practicalLifeModalLabel" aria-hidden="true">
+<div class="modal" id="practicalLifeModal" tabindex="-1" role="dialog" aria-labelledby="practicalLifeModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -631,7 +687,8 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                     <ul class="list-group">
                         <li class="list-group-item practical-life-framework">
                             <div class="d-flex align-items-center">
-                                <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#practicalLifeFramework">
+                                <span class="mr-2 toggle-icon" data-toggle="collapse"
+                                    data-target="#practicalLifeFramework">
                                     <i class="fa fa-chevron-right"></i>
                                 </span>
                                 <span>Practical Life (Montessori)</span>
@@ -640,42 +697,40 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                             <div id="practicalLifeFramework" class="collapse mt-2">
                                 <ul class="list-group">
                                     @foreach ($montessori_subjects as $subject)
-                                        @if ($subject->name === 'Practical Life')
-                                            @foreach ($subject->activities as $activity)
-                                                <li class="list-group-item practical-life-activity">
-                                                    <div class="d-flex align-items-center">
-                                                        <span class="mr-2 toggle-icon"
-                                                              data-toggle="collapse"
-                                                              data-target="#pl_activity{{ $activity->idActivity }}">
-                                                            <i class="fa fa-chevron-right"></i>
-                                                        </span>
-                                                        <span>{{ $activity->title }}</span>
-                                                    </div>
+                                    @if ($subject->name === 'Practical Life')
+                                    @foreach ($subject->activities as $activity)
+                                    <li class="list-group-item practical-life-activity">
+                                        <div class="d-flex align-items-center">
+                                            <span class="mr-2 toggle-icon" data-toggle="collapse"
+                                                data-target="#pl_activity{{ $activity->idActivity }}">
+                                                <i class="fa fa-chevron-right"></i>
+                                            </span>
+                                            <span>{{ $activity->title }}</span>
+                                        </div>
 
-                                                    <div id="pl_activity{{ $activity->idActivity }}" class="collapse mt-2">
-                                                        <ul class="list-group">
-                                                            @foreach ($activity->subActivities as $index => $subActivity)
-                                                                <li class="list-group-item practical-life-sub-activity">
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input practical-life-checkbox"
-                                                                               type="checkbox"
-                                                                               value="{{ $subActivity->title }}"
-                                                                               id="pl_subActivity{{ $activity->idActivity }}_{{ $index }}"
-                                                                               data-activity-id="{{ $activity->idActivity }}"
-                                                                               data-activity-title="{{ $activity->title }}"
-                                                                               data-sub-activity-title="{{ $subActivity->title }}">
-                                                                        <label class="form-check-label"
-                                                                               for="pl_subActivity{{ $activity->idActivity }}_{{ $index }}">
-                                                                            {{ $subActivity->title }}
-                                                                        </label>
-                                                                    </div>
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
+                                        <div id="pl_activity{{ $activity->idActivity }}" class="collapse mt-2">
+                                            <ul class="list-group">
+                                                @foreach ($activity->subActivities as $index => $subActivity)
+                                                <li class="list-group-item practical-life-sub-activity">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input practical-life-checkbox"
+                                                            type="checkbox" value="{{ $subActivity->title }}"
+                                                            id="pl_subActivity{{ $activity->idActivity }}_{{ $index }}"
+                                                            data-activity-id="{{ $activity->idActivity }}"
+                                                            data-activity-title="{{ $activity->title }}"
+                                                            data-sub-activity-title="{{ $subActivity->title }}">
+                                                        <label class="form-check-label"
+                                                            for="pl_subActivity{{ $activity->idActivity }}_{{ $index }}">
+                                                            {{ $subActivity->title }}
+                                                        </label>
                                                     </div>
                                                 </li>
-                                            @endforeach
-                                        @endif
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    @endforeach
+                                    @endif
                                     @endforeach
                                 </ul>
                             </div>
@@ -695,7 +750,8 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
 
 
 <!-- Sensorial Modal -->
-<div class="modal" id="sensorialModal" tabindex="-1" role="dialog" aria-labelledby="sensorialModalLabel" aria-hidden="true">
+<div class="modal" id="sensorialModal" tabindex="-1" role="dialog" aria-labelledby="sensorialModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -720,42 +776,43 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                             <div id="sensorialFramework" class="collapse mt-2">
                                 <ul class="list-group">
                                     @foreach ($montessori_subjects as $subject)
-                                        @if ($subject->name === 'Sensorial')
-                                   
-                                            @foreach ($subject->activities as $activity)
-                                                <li class="list-group-item sensorial-activity">
-                                                    <div class="d-flex align-items-center">
-                                                        <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#sensorialActivity{{ $activity->idActivity }}">
-                                                            <i class="fa fa-chevron-right"></i>
-                                                        </span>
-                                                        <span>{{ $activity->title }}</span>
-                                                    </div>
+                                    @if ($subject->name === 'Sensorial')
 
-                                                    <!-- Sub-Activities -->
-                                                    <div id="sensorialActivity{{ $activity->idActivity }}" class="collapse mt-2">
-                                                        <ul class="list-group">
-                                                       
-                                                            @foreach ($activity->subActivities as $index => $subActivity)
-                                                                <li class="list-group-item sensorial-sub-activity">
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input sensorial-checkbox"
-                                                                               type="checkbox"
-                                                                               value="{{ $subActivity->title }}"
-                                                                               id="sensorialSubActivity{{ $activity->idActivity }}_{{ $index }}"
-                                                                               data-activity-id="{{ $activity->idActivity }}"
-                                                                               data-activity-title="{{ $activity->title }}"
-                                                                               data-sub-activity-title="{{ $subActivity->title }}">
-                                                                        <label class="form-check-label" for="sensorialSubActivity{{ $activity->idActivity }}_{{ $index }}">
-                                                                            {{ $subActivity->title }}
-                                                                        </label>
-                                                                    </div>
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
+                                    @foreach ($subject->activities as $activity)
+                                    <li class="list-group-item sensorial-activity">
+                                        <div class="d-flex align-items-center">
+                                            <span class="mr-2 toggle-icon" data-toggle="collapse"
+                                                data-target="#sensorialActivity{{ $activity->idActivity }}">
+                                                <i class="fa fa-chevron-right"></i>
+                                            </span>
+                                            <span>{{ $activity->title }}</span>
+                                        </div>
+
+                                        <!-- Sub-Activities -->
+                                        <div id="sensorialActivity{{ $activity->idActivity }}" class="collapse mt-2">
+                                            <ul class="list-group">
+
+                                                @foreach ($activity->subActivities as $index => $subActivity)
+                                                <li class="list-group-item sensorial-sub-activity">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input sensorial-checkbox"
+                                                            type="checkbox" value="{{ $subActivity->title }}"
+                                                            id="sensorialSubActivity{{ $activity->idActivity }}_{{ $index }}"
+                                                            data-activity-id="{{ $activity->idActivity }}"
+                                                            data-activity-title="{{ $activity->title }}"
+                                                            data-sub-activity-title="{{ $subActivity->title }}">
+                                                        <label class="form-check-label"
+                                                            for="sensorialSubActivity{{ $activity->idActivity }}_{{ $index }}">
+                                                            {{ $subActivity->title }}
+                                                        </label>
                                                     </div>
                                                 </li>
-                                            @endforeach
-                                        @endif
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    @endforeach
+                                    @endif
                                     @endforeach
                                 </ul>
                             </div>
@@ -794,54 +851,57 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                                 </span>
                                 <span>Maths</span>
                             </div>
-                            
+
                             <!-- Math Framework content -->
                             <div id="mathFramework" class="collapse mt-2">
                                 <ul class="list-group">
                                     <?php foreach ($montessori_subjects as $subject) : ?>
-                                        <?php if ($subject->name === 'Maths') : ?>
-                                            <?php foreach ($subject->activities as $activity) : ?>
-                                            <li class="list-group-item math-activity">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#mathActivity<?= $activity->idActivity ?>">
-                                                        <i class="fa fa-chevron-right"></i>
-                                                    </span>
-                                                    <span><?= $activity->title ?></span>
-                                                </div>
-                                                
-                                                <!-- Sub-activities for this activity -->
-                                                <div id="mathActivity<?= $activity->idActivity ?>" class="collapse mt-2">
-                                                    <ul class="list-group">
-                                                        <?php 
+                                    <?php if ($subject->name === 'Maths') : ?>
+                                    <?php foreach ($subject->activities as $activity) : ?>
+                                    <li class="list-group-item math-activity">
+                                        <div class="d-flex align-items-center">
+                                            <span class="mr-2 toggle-icon" data-toggle="collapse"
+                                                data-target="#mathActivity<?= $activity->idActivity ?>">
+                                                <i class="fa fa-chevron-right"></i>
+                                            </span>
+                                            <span>
+                                                <?= $activity->title ?>
+                                            </span>
+                                        </div>
+
+                                        <!-- Sub-activities for this activity -->
+                                        <div id="mathActivity<?= $activity->idActivity ?>" class="collapse mt-2">
+                                            <ul class="list-group">
+                                                <?php 
                                                          $subActivityCounter = 0;
                                                         foreach ($activity->subActivities
 
  as $sub_activity) : 
                                                         ?>
-                                                           
-                                                        <li class="list-group-item math-sub-activity">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input math-checkbox"
-                                                                       type="checkbox"
-                                                                       value="<?= $sub_activity->title ?>"
-                                                                       id="mathSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>"
-                                                                       data-activity-id="<?= $activity->idActivity ?>"
-                                                                       data-activity-title="<?= $activity->title ?>"
-                                                                       data-sub-activity-title="<?= $sub_activity->title ?>">
-                                                                <label class="form-check-label" for="mathSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>">
-                                                                    <?= $sub_activity->title ?>
-                                                                </label>
-                                                            </div>
-                                                        </li>
-                                                    <?php
+
+                                                <li class="list-group-item math-sub-activity">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input math-checkbox" type="checkbox"
+                                                            value="<?= $sub_activity->title ?>"
+                                                            id="mathSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>"
+                                                            data-activity-id="<?= $activity->idActivity ?>"
+                                                            data-activity-title="<?= $activity->title ?>"
+                                                            data-sub-activity-title="<?= $sub_activity->title ?>">
+                                                        <label class="form-check-label"
+                                                            for="mathSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>">
+                                                            <?= $sub_activity->title ?>
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                                <?php
                                                     $subActivityCounter++; 
                                                     endforeach; 
                                                     ?>
-                                                    </ul>
-                                                </div>
-                                            </li>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
                                     <?php endforeach; ?>
                                 </ul>
                             </div>
@@ -859,7 +919,8 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
 
 
 <!-- Language Modal -->
-<div class="modal" id="languageModal" tabindex="-1" role="dialog" aria-labelledby="languageModalLabel" aria-hidden="true">
+<div class="modal" id="languageModal" tabindex="-1" role="dialog" aria-labelledby="languageModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -879,53 +940,56 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                                 </span>
                                 <span>Language</span>
                             </div>
-                            
+
                             <!-- Language Framework content -->
                             <div id="languageFramework" class="collapse mt-2">
                                 <ul class="list-group">
                                     <?php foreach ($montessori_subjects as $subject) : ?>
-                                        <?php if ($subject->name === 'Language') : ?>
-                                            <?php foreach ($subject->activities as $activity) : ?>
-                                            <li class="list-group-item language-activity">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#languageActivity<?= $activity->idActivity ?>">
-                                                        <i class="fa fa-chevron-right"></i>
-                                                    </span>
-                                                    <span><?= $activity->title ?></span>
-                                                </div>
-                                                
-                                                <!-- Sub-activities for this activity -->
-                                                <div id="languageActivity<?= $activity->idActivity ?>" class="collapse mt-2">
-                                                    <ul class="list-group">
-                                                        <?php 
+                                    <?php if ($subject->name === 'Language') : ?>
+                                    <?php foreach ($subject->activities as $activity) : ?>
+                                    <li class="list-group-item language-activity">
+                                        <div class="d-flex align-items-center">
+                                            <span class="mr-2 toggle-icon" data-toggle="collapse"
+                                                data-target="#languageActivity<?= $activity->idActivity ?>">
+                                                <i class="fa fa-chevron-right"></i>
+                                            </span>
+                                            <span>
+                                                <?= $activity->title ?>
+                                            </span>
+                                        </div>
+
+                                        <!-- Sub-activities for this activity -->
+                                        <div id="languageActivity<?= $activity->idActivity ?>" class="collapse mt-2">
+                                            <ul class="list-group">
+                                                <?php 
                                                          $subActivityCounter = 0;
                                                         foreach ($activity->subActivities
  as $sub_activity) : 
                                                         ?>
-                                                           
-                                                        <li class="list-group-item language-sub-activity">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input language-checkbox"
-                                                                       type="checkbox"
-                                                                       value="<?= $sub_activity->title ?>"
-                                                                       id="languageSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>"
-                                                                       data-activity-id="<?= $activity->idActivity ?>"
-                                                                       data-activity-title="<?= $activity->title ?>"
-                                                                       data-sub-activity-title="<?= $sub_activity->title ?>">
-                                                                <label class="form-check-label" for="languageSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>">
-                                                                    <?= $sub_activity->title ?>
-                                                                </label>
-                                                            </div>
-                                                        </li>
-                                                    <?php
+
+                                                <li class="list-group-item language-sub-activity">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input language-checkbox"
+                                                            type="checkbox" value="<?= $sub_activity->title ?>"
+                                                            id="languageSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>"
+                                                            data-activity-id="<?= $activity->idActivity ?>"
+                                                            data-activity-title="<?= $activity->title ?>"
+                                                            data-sub-activity-title="<?= $sub_activity->title ?>">
+                                                        <label class="form-check-label"
+                                                            for="languageSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>">
+                                                            <?= $sub_activity->title ?>
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                                <?php
                                                     $subActivityCounter++; 
                                                     endforeach; 
                                                     ?>
-                                                    </ul>
-                                                </div>
-                                            </li>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
                                     <?php endforeach; ?>
                                 </ul>
                             </div>
@@ -963,53 +1027,56 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
                                 </span>
                                 <span>Cultural</span>
                             </div>
-                            
+
                             <!-- Culture Framework content -->
                             <div id="cultureFramework" class="collapse mt-2">
                                 <ul class="list-group">
                                     <?php foreach ($montessori_subjects as $subject) : ?>
-                                        <?php if ($subject->name === 'Cultural') : ?>
-                                            <?php foreach ($subject->activities as $activity) : ?>
-                                            <li class="list-group-item culture-activity">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="mr-2 toggle-icon" data-toggle="collapse" data-target="#cultureActivity<?= $activity->idActivity ?>">
-                                                        <i class="fa fa-chevron-right"></i>
-                                                    </span>
-                                                    <span><?= $activity->title ?></span>
-                                                </div>
-                                                
-                                                <!-- Sub-activities for this activity -->
-                                                <div id="cultureActivity<?= $activity->idActivity ?>" class="collapse mt-2">
-                                                    <ul class="list-group">
-                                                        <?php 
+                                    <?php if ($subject->name === 'Cultural') : ?>
+                                    <?php foreach ($subject->activities as $activity) : ?>
+                                    <li class="list-group-item culture-activity">
+                                        <div class="d-flex align-items-center">
+                                            <span class="mr-2 toggle-icon" data-toggle="collapse"
+                                                data-target="#cultureActivity<?= $activity->idActivity ?>">
+                                                <i class="fa fa-chevron-right"></i>
+                                            </span>
+                                            <span>
+                                                <?= $activity->title ?>
+                                            </span>
+                                        </div>
+
+                                        <!-- Sub-activities for this activity -->
+                                        <div id="cultureActivity<?= $activity->idActivity ?>" class="collapse mt-2">
+                                            <ul class="list-group">
+                                                <?php 
                                                          $subActivityCounter = 0;
                                                         foreach ($activity->subActivities
  as $sub_activity) : 
                                                         ?>
-                                                           
-                                                        <li class="list-group-item culture-sub-activity">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input culture-checkbox"
-                                                                       type="checkbox"
-                                                                       value="<?= $sub_activity->title ?>"
-                                                                       id="cultureSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>"
-                                                                       data-activity-id="<?= $activity->idActivity ?>"
-                                                                       data-activity-title="<?= $activity->title ?>"
-                                                                       data-sub-activity-title="<?= $sub_activity->title ?>">
-                                                                <label class="form-check-label" for="cultureSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>">
-                                                                    <?= $sub_activity->title ?>
-                                                                </label>
-                                                            </div>
-                                                        </li>
-                                                    <?php
+
+                                                <li class="list-group-item culture-sub-activity">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input culture-checkbox" type="checkbox"
+                                                            value="<?= $sub_activity->title ?>"
+                                                            id="cultureSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>"
+                                                            data-activity-id="<?= $activity->idActivity ?>"
+                                                            data-activity-title="<?= $activity->title ?>"
+                                                            data-sub-activity-title="<?= $sub_activity->title ?>">
+                                                        <label class="form-check-label"
+                                                            for="cultureSubActivity<?= $activity->idActivity ?>_<?= $subActivityCounter ?>">
+                                                            <?= $sub_activity->title ?>
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                                <?php
                                                     $subActivityCounter++; 
                                                     endforeach; 
                                                     ?>
-                                                    </ul>
-                                                </div>
-                                            </li>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
                                     <?php endforeach; ?>
                                 </ul>
                             </div>
@@ -1026,20 +1093,21 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
 </div>
 
 <!-- Modal -->
-<div class="modal" id="dateModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header d-flex align-items-center justify-content-between">
-        <h5 class="modal-title">Program Plan</h5>
-      </div>
-      <form action="{{ route('programplan.MonthYear') }}" method="post">
-        @csrf
-        <div class="modal-body">
-          <div class="form-group mb-4">
-            <label for="months">Select Month</label>
-       <select class="form-control" id="months" name="months" required>
-    <option value="">Select Month</option>
-    <?php
+<div class="modal" id="dateModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true"
+    data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header d-flex align-items-center justify-content-between">
+                <h5 class="modal-title">Program Plan</h5>
+            </div>
+            <form action="{{ route('programplan.MonthYear') }}" method="post">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group mb-4">
+                        <label for="months">Select Month</label>
+                        <select class="form-control" id="months" name="months" required>
+                            <option value="">Select Month</option>
+                            <?php
     $months = [
         '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April',
         '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August',
@@ -1050,49 +1118,47 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
 
     foreach ($months as $key => $month):
     ?>
-        <option value="<?= $key ?>"
-            <?= (isset($plan_data) && $plan_data->months == $key) 
-                ? 'selected' 
-                : ((!isset($plan_data) && $currentMonth == $key) ? 'selected' : '') ?>>
-            <?= $month ?>
-        </option>
-    <?php endforeach; ?>
-</select>
+                            <option value="<?= $key ?>" <?=(isset($plan_data) && $plan_data->months == $key)
+                                ? 'selected'
+                                : ((!isset($plan_data) && $currentMonth == $key) ? 'selected' : '') ?>>
+                                <?= $month ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
 
-          </div>
+                    </div>
 
-          <div class="form-group mb-4">
-            <label for="years">Select Year</label>
-           <select class="form-control" id="years" name="years" required>
-    <option value="">Select Year</option>
-    <?php
+                    <div class="form-group mb-4">
+                        <label for="years">Select Year</label>
+                        <select class="form-control" id="years" name="years" required>
+                            <option value="">Select Year</option>
+                            <?php
     $currentYear = date('Y');
     $startYear = $currentYear - 10;
     $endYear   = $currentYear + 10;
 
     for ($year = $startYear; $year <= $endYear; $year++):
     ?>
-        <option value="<?= $year ?>"
-            <?= (isset($plan_data) && $plan_data->years == $year) 
-                ? 'selected' 
-                : ((!isset($plan_data) && $currentYear == $year) ? 'selected' : '') ?>>
-            <?= $year ?>
-        </option>
-    <?php endfor; ?>
-</select>
+                            <option value="<?= $year ?>" <?=(isset($plan_data) && $plan_data->years == $year)
+                                ? 'selected'
+                                : ((!isset($plan_data) && $currentYear == $year) ? 'selected' : '') ?>>
+                                <?= $year ?>
+                            </option>
+                            <?php endfor; ?>
+                        </select>
 
-          </div>
-        </div>
+                    </div>
+                </div>
 
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Submit</button>
-          <button type="button" class="btn btn-secondary" onclick="window.history.back()">
-            <i class="fas fa-times mr-1"></i> Cancel
-          </button>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                        <i class="fas fa-times mr-1"></i> Cancel
+                    </button>
+                </div>
+            </form>
         </div>
-      </form>
     </div>
-  </div>
 </div>
 
 
@@ -1107,7 +1173,7 @@ $selectedRooms = isset($plan_data) ? explode(',', $plan_data->room_id) : [];
 
 
 <script>
-let editors = {}; // Store all CKEditor instances
+    let editors = {}; // Store all CKEditor instances
 
 document.addEventListener("DOMContentLoaded", function () {
     // Initialize all CKEditor instances
@@ -1181,9 +1247,7 @@ function AutoSave() {
 </script>
 
 <script>
-    
-
-        $(document).ready(function () {
+    $(document).ready(function () {
         let reflection = @json($plan_data);
 
         if (!reflection) {
@@ -1215,9 +1279,9 @@ document.addEventListener("DOMContentLoaded", function() {
     updateDateData();
 }); 
 </script>
-    <!-- all the script here of this page only -->
+<!-- all the script here of this page only -->
 <script>
-       document.getElementById('cancel-btn').addEventListener('click', function () {
+    document.getElementById('cancel-btn').addEventListener('click', function () {
         history.back(); // ✅ Go to the last visited page
     });
 $(document).ready(function () {
@@ -1434,7 +1498,7 @@ console.log(jQuery.fn.select2); // Check if Select2 is available
 
 
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
     $(document).on('click', '.toggle-icon', function(e) {
         // Prevent the event from bubbling up
         e.stopPropagation();

@@ -283,10 +283,40 @@ $id = $validated['id'];
 
 //     // ✅ Return as a file download (inline or attachment)
 //     return $pdf->download("programplan_{$id}.pdf");
+    // Helper to split text like splitItems in Blade
+    $splitItems = function($text) {
+        if (!is_string($text) || trim($text) === '') return [];
+        $text = html_entity_decode($text);
+        $text = preg_replace('/<\s*br\s*\/?\s*>/i', '|||', $text);
+        $text = preg_replace('/<\s*\/p\s*>/i', '|||', $text);
+        $text = preg_replace('/<\s*p\s*>/i', '', $text);
+        $lines = preg_split('/\|\|\||\\n|\\r|\n/', $text);
+        $items = [];
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line !== '') {
+                $items[] = $line;
+            }
+        }
+        return $items;
+    };
+
+    $fieldsToSplit = [
+        'focus_area', 'art_craft', 'art_craft_experiences', 'outdoor_experiences',
+        'inquiry_topic', 'sustainability_topic', 'special_events',
+        'children_voices', 'families_input', 'group_experience',
+        'spontaneous_experience', 'mindfulness_experiences',
+        'working', 'notworking'
+    ];
+    $planArr = $plan->toArray();
+    foreach ($fieldsToSplit as $field) {
+        $planArr[$field . '_split'] = $splitItems($planArr[$field] ?? '');
+    }
+
     return response()->json([
         'status' => 'true',
         'message' => 'Program plan retrived successfull',
-         'plan' => $plan,
+        'plan' => $planArr,
         'room_name' => $room_name,
         'educator_names' => $educator_names,
         'children_names' => $children_names,

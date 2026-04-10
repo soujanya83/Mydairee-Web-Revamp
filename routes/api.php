@@ -24,6 +24,7 @@ use App\Http\Controllers\API\ParentSlideshowController;
 use App\Http\Controllers\API\ApiResetPasswordController; 
 use App\Http\Controllers\API\UserProfileController; 
 use App\Http\Controllers\API\DeviceController;
+use App\Http\Controllers\API\NotificationApiController;
 
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
@@ -83,6 +84,8 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
         Route::get('/addnew', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew');
         // Route::get('/addnew/{id?}', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew.optional');
         Route::post('/store', [ObservationsController::class, 'snapshotstore'])->name('store');
+        // API endpoint for snapshot PDF print
+        Route::get('/print/{id}', [ObservationsController::class, 'print_snapshots'])->name('print');
         Route::delete('/snapshot-media/{id}', [ObservationsController::class, 'snapshotdestroyimage']);
         Route::post('/status/update', [ObservationsController::class, 'snapshotupdateStatus'])->name('status.update');
         Route::delete('snapshotsdelete/{id}', [ObservationsController::class, 'snapshotsdelete'])->name('snapshots.snapshotsdelete');
@@ -330,6 +333,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Daily Journel Ends here
 
 
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/notifications', [NotificationApiController::class, 'index']);
+    Route::post('/notifications/read/{id}', [NotificationApiController::class, 'markAsRead']);
+    Route::post('/notifications/mark-all-read', [NotificationApiController::class, 'markAllRead']);
 });
 
 Route::get('/test-parent-notification', function () {

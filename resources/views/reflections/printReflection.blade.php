@@ -359,10 +359,14 @@
         </div>
 
         <div class="info-block"> <strong>Child's Photos:</strong>
-            <div class="photo-gallery"> @foreach(($reflection->media ?? []) as $mediaItem)
-                @if(Str::startsWith($mediaItem->mediaType, ['image', 'Image'])) <a href="javascript:void(0);"
-                    class="photo-thumb" data-full="{{ asset($mediaItem->mediaUrl) }}"> <img
-                        src="{{ asset($mediaItem->mediaUrl) }}" class="child-image" alt="Photo"> </a> @endif @endforeach
+            <div class="photo-gallery">
+                @foreach(($reflection->media ?? []) as $mediaItem)
+                    @if(Str::startsWith($mediaItem->mediaType, ['image', 'Image']))
+                        <a href="javascript:void(0);" class="photo-thumb" data-full="{{ asset($mediaItem->mediaUrl) }}">
+                            <img src="{{ isset($isPdf) && $isPdf ? public_path($mediaItem->mediaUrl) : asset($mediaItem->mediaUrl) }}" class="child-image" alt="Photo">
+                        </a>
+                    @endif
+                @endforeach
             </div>
         </div> <!-- Lightbox Modal (include once per page, can be shared with other galleries) -->
        <!-- Lightbox Modal -->

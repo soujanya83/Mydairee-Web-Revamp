@@ -782,7 +782,7 @@
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" onclick="submitEditParent()" class="btn theme-outline-btn">Update</button>
+                            <button type="button" id="editParentUpdateBtn" onclick="submitEditParent()" class="btn theme-outline-btn">Update</button>
                         </div>
                     </div>
                 </form>
@@ -1079,12 +1079,16 @@
             }
 
             function submitEditParent() {
-                const form = document.getElementById('editParentForm');
-                const formData = new FormData(form);
+            const form = document.getElementById('editParentForm');
+            const formData = new FormData(form);
 
-                const submitBtn = document.querySelector('#editParentModal button.btn-primary');
+            const submitBtn = document.getElementById('editParentUpdateBtn');
+            if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = 'Updating...';
+            } else {
+                console.warn('Update button not found: #editParentUpdateBtn');
+            }
 
                 $.ajax({
                     url: "{{ route('settings.parent.update') }}", // define this route

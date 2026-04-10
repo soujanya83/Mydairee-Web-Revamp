@@ -202,10 +202,47 @@
 
         <div class="d-flex justify-content-end mb-3">
 
-            <button type="submit" class="btn btn-outline-danger"
-                onclick="return confirm('Are you sure to delete selected rooms?')">
+            <button type="button" class="btn btn-outline-danger" id="deleteSelectedRoomsBtn">
                 <i class="fa fa-trash"></i> Delete Selected
             </button>
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const deleteBtn = document.getElementById('deleteSelectedRoomsBtn');
+                const form = document.getElementById('deleteRoomsForm');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', function (e) {
+                        // Check if any checkbox is selected
+                        const checked = form.querySelectorAll('input[name="selected_rooms[]"]:checked').length;
+                        if (!checked) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'No rooms selected',
+                                text: 'Please select at least one room to delete.',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'OK'
+                            });
+                            return;
+                        }
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: "You won't be able to revert this!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Yes, delete!',
+                            cancelButtonText: 'Cancel'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.submit();
+                            }
+                        });
+                    });
+                }
+            });
+        </script>
         </div>
         </div>
 
@@ -381,9 +418,9 @@
                             <div class="educator-checkbox-list">
                                 @foreach($roomStaffs as $data)
                                 <div class="checkbox-item">
-                                    <input type="checkbox" id="educator_{{ $data->staffid }}" name="educators[]"
-                                        value="{{ $data->staffid }}">
-                                    <label for="educator_{{ $data->staffid }}">{{ $data->name }}</label>
+                                    <input type="checkbox" id="educator_{{ $data->userid }}" name="educators[]"
+                                        value="{{ $data->userid }}">
+                                    <label for="educator_{{ $data->userid }}">{{ $data->name }}</label>
                                 </div>
                                 @endforeach
                             </div>

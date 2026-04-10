@@ -174,21 +174,30 @@ class RoomController extends Controller
 
     public function childrens_list(Request $request)
     {
-        $userId = Auth::user()->id;
-        if ($userId == 145) {
-            $userId = $userId - 1;
+
+        $authId = Auth::user()->id;
+        $centerid = Session('user_center_id');
+
+        // Get all centers user is attached to
+        $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+        $centers = Center::whereIn('id', $center)->get();
+
+        if (Auth::user()->userType == "Superadmin") {
+            // Superadmin sees all rooms in the selected center
+            $rooms = Room::where('centerid', $centerid)
+                ->where('status', 'Active')
+                ->get();
+        } else {
+            // Staff: Only get rooms assigned to staff AND in their center
+            $roomIds = RoomStaff::where('staffid', $authId)->pluck('roomid');
+            $rooms = Room::whereIn('id', $roomIds)
+                ->where('centerid', $centerid)
+                ->where('status', 'Active')
+                ->get();
         }
-        //  $centerid = Session('user_center_id');
 
-        if (empty($centerid)) {
-
-            $centerid = Usercenter::where('userid', Auth::user()->userid)->value('centerid');
-        }
-        $rooms = Room::where('name', '!=', null)
-            ->where('userId', $userId)->where('status', 'Active')
-            ->where('centerid', $centerid)
-            ->get();
-
+        // Now fetch children for these rooms
+        $roomIdsForChildren = $rooms->pluck('id');
         $chilData = Child::select(
             'child.*',
             'child.status as childstatus',
@@ -198,7 +207,7 @@ class RoomController extends Controller
             'room.*',
             'child.createdAt as childcreatedate'
         )
-            ->where('child.createdBy', $userId)
+            ->whereIn('child.room', $roomIdsForChildren)
             ->orderBy('child.name', 'asc')
             ->join('room', 'room.id', '=', 'child.room');
 
@@ -220,7 +229,9 @@ class RoomController extends Controller
         return view('rooms.childrens_list', [
             'chilData' => $chilData,
             'rooms' => $rooms,
-            'selectedRoom' => $request->roomId
+            'selectedRoom' => $request->roomId,
+            'centers' => $centers,
+            'centerid' => $centerid
         ]);
     }
 
@@ -334,13 +345,23 @@ class RoomController extends Controller
                 'userId' => Auth::user()->id,
             ]);
 
-            // Assign educators
+
+            // Always assign the creating user as an educator
+            RoomStaff::create([
+                'roomid' => $roomId,
+                'staffid' => Auth::user()->userid ?? Auth::user()->id,
+            ]);
+
+            // Assign additional educators if provided
             if ($request->has('educators')) {
                 foreach ($request->input('educators') as $educatorId) {
-                    RoomStaff::create([
-                        'roomid' => $roomId,
-                        'staffid' => $educatorId,
-                    ]);
+                    // Avoid duplicate assignment
+                    if ($educatorId != (Auth::user()->userid ?? Auth::user()->id)) {
+                        RoomStaff::create([
+                            'roomid' => $roomId,
+                            'staffid' => $educatorId,
+                        ]);
+                    }
                 }
             }
 
@@ -365,25 +386,27 @@ class RoomController extends Controller
             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $center)->get();
         } else {
-            $centers = Center::where('id', $centerid)->get();
+            // For staff, show all centers they are attached to
+            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
         }
-
-        $getrooms = Room::select('room.id as roomid', 'room.*')
-            ->join('centers', 'centers.id', '=', 'room.centerid')
-            ->where('room.userId', $userId);
-        if ($centerid) {
-            $getrooms->where('room.centerid', $centerid);
-        }
-
 
         if (Auth::user()->userType == "Superadmin") {
-            $getrooms = $getrooms->get();
+            // Superadmin sees all rooms in the selected center
+            $getrooms = Room::select('room.id as roomid', 'room.*')
+                ->join('centers', 'centers.id', '=', 'room.centerid')
+                ->where('room.centerid', $centerid)
+                ->get();
         } else {
             // Get room IDs assigned to staff
             $roomIds = RoomStaff::where('staffid', $authId)->pluck('roomid');
 
-            // Get room data using those room IDs
-            $getrooms = Room::whereIn('id', $roomIds)->get();
+            // Only get rooms assigned to staff AND in their center
+            $getrooms = Room::select('room.id as roomid', 'room.*')
+                ->join('centers', 'centers.id', '=', 'room.centerid')
+                ->whereIn('room.id', $roomIds)
+                ->where('room.centerid', $centerid)
+                ->get();
         }
 
 
