@@ -147,11 +147,13 @@
 @section('content')
 
 <div class="container mt-4" style="margin-bottom: 30px">
-    <div class="text-zero top-right-button-container mt-3" style="margin-right:40px">
+    <div class="text-zero top-right-button-container mt-3" style="margin-right:40px">                    
+         @if((Auth::user()->userType === 'Superadmin') || (Auth::user()->userType ==='Staff' && !empty($permissions['addChildGroup']) && $permissions['addChildGroup'] ))
         <div class="btn-group">
             <button data-toggle="modal" data-target="#newChildModal" class="btn btn-outline-info"> + Add
                 New Child</button>
         </div>
+        @endif
     </div>
 
     @if ($errors->any())
@@ -269,11 +271,37 @@
                         <button type="submit" class="btn btn-outline-primary btn-xs" id="moveButton"
                             disabled>MOVE</button>
                         &nbsp;&nbsp;
-                        <button type="submit" formaction="{{ route('delete_selected_children') }}"
-                            class="btn btn-outline-danger btn-xs" id="deleteButton"
-                            onclick="return confirm('Are you sure you want to delete the selected children?')" disabled>
+                        <button type="button" class="btn btn-outline-danger btn-xs" id="deleteButton" disabled>
                             DELETE
                         </button>
+                    <!-- SweetAlert2 -->
+                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const deleteButton = document.getElementById('deleteButton');
+                            const form = deleteButton.closest('form');
+                            if (deleteButton) {
+                                deleteButton.addEventListener('click', function (e) {
+                                    if (deleteButton.disabled) return;
+                                    Swal.fire({
+                                        title: 'Are you sure?',
+                                        text: "You won't be able to revert this!",
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#d33',
+                                        cancelButtonColor: '#3085d6',
+                                        confirmButtonText: 'Yes, delete!',
+                                        cancelButtonText: 'Cancel'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            form.setAttribute('action', "{{ route('delete_selected_children') }}");
+                                            form.submit();
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    </script>
                     </div>
 
                     <div class="row">

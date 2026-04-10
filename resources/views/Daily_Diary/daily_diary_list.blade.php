@@ -918,10 +918,12 @@ body[class*="theme-"] .page-header .btn-primary {
                 <div class="col-md-4 text-right">
                     <div class="btn-group">
                     @if(auth()->user()->userType !== 'Parent')
+                    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateDailyDiary']) && $permissions['updateDailyDiary']))
                     <button class="btn theme-outline-btn" data-toggle="modal" data-target="#addEntryModal"
                         style="background: var(--sd-bg, #fff); color: var(--sd-accent, #007bff); border: 2px solid var(--sd-accent, #007bff);">
                         <i class="fas fa-plus mr-2"></i>Add Entry
                     </button>
+                    @endif
 @endif
                         <!-- <button class="btn btn-outline-primary"><i class="fas fa-download mr-2"></i>Export</button> -->
                     </div>
@@ -1007,6 +1009,7 @@ body[class*="theme-"] .page-header .btn-primary {
                             <div class="collapse show" id="Breakfast-{{ $childId }}">
                                 <div class="activity-content">
                                 @if(auth()->user()->userType !== 'Parent')
+                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateDailyDiary']) && $permissions['updateDailyDiary']))
                                 <button 
                                         class="btn btn-outline-primary open-diary-modal" 
                                         style="float:right;"
@@ -1016,6 +1019,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                         <i class="fa-solid fa-plus"></i>
                                     </button>  
                                     @endif     
+                                    @endif
                        <div class="activity-entry activity-breakfast">
                                         <div class="entry-row">
                                             <div class="entry-item">
@@ -1058,6 +1062,7 @@ body[class*="theme-"] .page-header .btn-primary {
                             <div class="collapse" id="Morning-{{ $childId }}">
                                 <div class="activity-content">
                                 @if(auth()->user()->userType !== 'Parent')
+                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateDailyDiary']) && $permissions['updateDailyDiary']))
                                 <button 
                                     class="btn btn-outline-warning open-morningtea-modal"
                                     style="float:right;"
@@ -1066,6 +1071,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 >
                                     <i class="fa fa-plus"></i>
                                 </button>
+                                @endif
                                 @endif
                                     <div class="activity-entry activity-morning-tea">
                                         <div class="entry-row">
@@ -1100,6 +1106,7 @@ body[class*="theme-"] .page-header .btn-primary {
                             <div class="collapse" id="Lunch-{{ $childId }}">
                                 <div class="activity-content">
                                 @if(auth()->user()->userType !== 'Parent')
+                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateDailyDiary']) && $permissions['updateDailyDiary']))
                                 <button
                                     class="btn btn-outline-success open-lunch-modal"
                                     style="float:right;"
@@ -1108,6 +1115,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 >
                                     <i class="fa fa-plus"></i>
                                 </button>
+                                @endif
                                 @endif
                                     <div class="activity-entry activity-lunch">
                                         <div class="entry-row">
@@ -1155,6 +1163,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 <div class="activity-content">
                                 <div class="text-right">
                                 @if(auth()->user()->userType !== 'Parent')
+                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateDailyDiary']) && $permissions['updateDailyDiary']))
                                 <button
                                     class="btn btn-outline-primary mb-2 open-sleep-modal"
                                     data-child-id="{{ $child }}"
@@ -1163,6 +1172,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 >
                                     <i class="fa fa-plus"></i> Add Sleep
                                 </button>
+                                @endif
                                 @endif
                                 </div>
                                     @forelse ($sleep as $entry)
@@ -1221,6 +1231,7 @@ body[class*="theme-"] .page-header .btn-primary {
                             <div class="collapse" id="Afternoon-{{ $childId }}">
                                 <div class="activity-content">
                                 @if(auth()->user()->userType !== 'Parent')
+                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateDailyDiary']) && $permissions['updateDailyDiary']))
                                 <button
                                     class="btn btn-outline-info open-afternoontea-modal"
                                     style="float:right;"
@@ -1229,6 +1240,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 >
                                     <i class="fa fa-plus"></i>
                                 </button>
+                                @endif
                                 @endif
                                     <div class="activity-entry activity-afternoon-tea">
                                         <div class="entry-row">
@@ -1263,6 +1275,7 @@ body[class*="theme-"] .page-header .btn-primary {
                             <div class="collapse" id="Snacks-{{ $childId }}">
                                 <div class="activity-content">
                                 @if(auth()->user()->userType !== 'Parent')
+                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateDailyDiary']) && $permissions['updateDailyDiary']))
                                 <button
                                     class="btn btn-outline-dark open-snacks-modal"
                                     style="float:right;"
@@ -1271,6 +1284,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 >
                                     <i class="fa fa-plus"></i>
                                 </button>
+                                @endif
                                 @endif
                                     <div class="activity-entry activity-snacks">
                                         <div class="entry-row">
@@ -1314,6 +1328,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 <div class="activity-content">
                                     <div class="text-right">
                                     @if(auth()->user()->userType !== 'Parent')
+                                    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateDailyDiary']) && $permissions['updateDailyDiary']))
                                 <button
                                     class="btn btn-outline-warning mb-2 open-sunscreen-modal"
                                     data-child-id="{{ $child }}"
@@ -1322,6 +1337,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 >
                                     <i class="fa fa-plus"></i> Add Sunscreen
                                 </button>
+                                @endif
                                 @endif
                                 </div>
                                     @forelse ($sunscreen as $entry)
@@ -1381,6 +1397,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 <div class="activity-content">
                                 <div class="text-right">
                                 @if(auth()->user()->userType !== 'Parent')
+                                @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateDailyDiary']) && $permissions['updateDailyDiary']))
                                 <button
                                     class="btn btn-outline-secondary mb-2 open-toileting-modal"
                                     data-child-id="{{ $child }}"
@@ -1389,6 +1406,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 >
                                     <i class="fa fa-plus"></i> Add Toileting
                                 </button>
+                                @endif
                                 @endif
                                 </div>
                                     @forelse ($toileting as $entry)
@@ -1459,6 +1477,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                 <div class="activity-content">
                                     <div class="text-right">
                                     @if(auth()->user()->userType !== 'Parent')
+                                    @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateDailyDiary']) && $permissions['updateDailyDiary']))
                                     <button
                                         class="btn btn-outline-info mb-2 open-bottle-modal"
                                         data-child-id="{{ $child }}"
@@ -1467,6 +1486,7 @@ body[class*="theme-"] .page-header .btn-primary {
                                     >
                                         <i class="fa fa-plus"></i> Add Bottle
                                     </button>
+                                    @endif
                                     @endif
                                     </div>
                                     @forelse ($bottle as $entry)

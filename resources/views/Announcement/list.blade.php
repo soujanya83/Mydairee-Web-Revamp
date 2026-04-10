@@ -447,7 +447,7 @@
         <a href="{{ route('settings.public_holiday') }}" class="btn btn-outline-info btn-lg top-right-button">Public Holiday</a>
         @endif
 
-        @if((Auth::user()->userType != 'Parent') || (!empty($permissions['addAnnouncement']) && $permissions['addAnnouncement'] ))
+        @if((Auth::user()->userType === 'Superadmin') || (Auth::user()->userType ==='Staff' && !empty($permissions['addAnnouncement']) && $permissions['addAnnouncement'] ))
         <a href="{{ route('announcements.create', ['centerid' => $selectedCenter ?? $centers->first()->id]) }}"
             class="btn btn-outline-info btn-lg">ADD NEW</a>
         @endif
@@ -492,7 +492,7 @@
 
         <!-- From Date -->
         <div class="d-flex flex-column Filterbydate_from">
-            <label for="Filterbydate_from " id="Filterbydate_fr om_label" class="text-info small m b-1 Filterbydate_from_label">From Date</label>
+            <label for="Filterbydate_from " id="Filterbydate_fr om_label" class="text-info small m b-1 Filterbydate_from_label">From</label>
             <input type="date"
                 class="form-control border-info form-control-sm uniform-input"
                 id="Filterbydate_from"
@@ -931,7 +931,7 @@
             dataType: "json",
             data: {
                 title: Title,
-                created_by: CreatedBy,
+                createdBy: CreatedBy, 
                 date_from: date_from,
                 date_to: date_to,
                 status: statusFilter
@@ -1120,9 +1120,7 @@
                         </div>`;
                     });
 
-                    $('.annoucement-list').html(` < div class = "row g-3" > $ {
-                                            html
-                                        } < /div>`);
+                    $('.annoucement-list').html(`<div class="row g-3">${html}</div>`);
 
                 } else {
                     $('.annoucement-list').html(`

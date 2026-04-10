@@ -240,9 +240,21 @@
         }
 
         textarea {
-            resize: vertical;
-            min-height: 80px;
+            resize: both;
+            min-height: 40px;
+            max-height: 300px;
+            white-space: pre-wrap;
+            overflow: auto;
         }
+        /* Make notes textarea 50% wider */
+        td textarea,
+        .table-responsive textarea,
+        .sleepcheck-data textarea {
+            width: 130% !important;
+            box-sizing: border-box;
+        }
+
+        /* Auto-expand textarea height */
 
         /* Modern Button Styles */
         .add-row-btn,
@@ -747,8 +759,8 @@
               <td>
                 <select>
                   <option value="">Select</option>
+                  <option value="Normal" {{ $sleep->body_temperature == 'Normal' ? 'selected' : '' }}>Normal</option>
                   <option value="Warm" {{ $sleep->body_temperature == 'Warm' ? 'selected' : '' }}>Warm</option>
-                  <option value="Cool" {{ $sleep->body_temperature == 'Cool' ? 'selected' : '' }}>Cool</option>
                   <option value="Hot" {{ $sleep->body_temperature == 'Hot' ? 'selected' : '' }}>Hot</option>
                 </select>
               </td>
@@ -764,7 +776,7 @@
           @endforeach
 
           <tr>
-            <td><input type="time" name="children[{{ $child->id }}][time][]"></td>
+            <td><input type="time" name="children[{{ $child->id }}][time][]" class="auto-time"></td>
             <td>
               <select name="children[{{ $child->id }}][breathing][]">
                 <option value="">Select</option>
@@ -774,12 +786,12 @@
               </select>
             </td>
             <td>
-              <select name="children[{{ $child->id }}][temperature][]">
-                <option value="">Select</option>
-                <option value="Warm">Warm</option>
-                <option value="Cool">Cool</option>
-                <option value="Hot">Hot</option>
-              </select>
+                            <select name="children[{{ $child->id }}][temperature][]">
+                                <option value="">Select</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Warm">Warm</option>
+                                <option value="Hot">Hot</option>
+                            </select>
             </td>
             <td><textarea rows="2"  name="children[{{ $child->id }}][notes][]" placeholder="Sleep Check List Notes..." style="resize:none;"></textarea></td>
           <td><input type="text"name="children[{{ $child->id }}][signature][]" value="" placeholder="signature"> </td>
@@ -881,12 +893,12 @@ function createBulk10MinEntry() {
               </select>
             </td>
             <td>
-              <select name='temperature' class='form-control' required style='min-width:120px;'>
-                <option value=''>Select</option>
-                <option value='Warm'>Warm</option>
-                <option value='Cool'>Cool</option>
-                <option value='Hot'>Hot</option>
-              </select>
+                            <select name='temperature' class='form-control' required style='min-width:120px;'>
+                                <option value=''>Select</option>
+                                <option value='Normal'>Normal</option>
+                                <option value='Warm'>Warm</option>
+                                <option value='Hot'>Hot</option>
+                            </select>
             </td>
             <td><textarea name='notes' class='form-control' rows='1' placeholder='Sleep Check List Notes...' style='min-width:180px;' ></textarea></td>
             <td><input type='text' name='signature' class='form-control' placeholder='Signature' style='min-width:120px;' ></td>
@@ -899,8 +911,7 @@ function createBulk10MinEntry() {
       </table>
     </div>
     `;
-    document.getElementById('bulkEntryModalBody').innerHTML = html;
-    $('#bulkEntryModal').modal('show');
+    document.getElementById('bulkEntryModalBody').innerHTML = html;    $('#bulkEntryModal').modal('show');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -967,7 +978,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tableBody = document.querySelector(`#${childId} table tbody`);
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><input type="time" name="children[${childDbId}][time][]"></td>
+            <td><input type="time" name="children[${childDbId}][time][]" class="auto-time"></td>
             <td>
                 <select name="children[${childDbId}][breathing][]">
                     <option value="">Select</option>
@@ -979,8 +990,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>
                 <select name="children[${childDbId}][temperature][]">
                     <option value="">Select</option>
+                    <option value="Normal">Normal</option>
                     <option value="Warm">Warm</option>
-                    <option value="Cool">Cool</option>
                     <option value="Hot">Hot</option>
                 </select>
             </td>
@@ -998,13 +1009,14 @@ document.addEventListener('DOMContentLoaded', function() {
         button.closest('tr').remove();
     }
 
+
     function saveRow(button, childId) {
         const row = button.closest('tr');
         const timeInput = row.querySelector('input[type="time"]');
         const breathingSelect = row.querySelector('select[name*="breathing"]');
         const temperatureSelect = row.querySelector('select[name*="temperature"]');
-      
         const notesTextarea = row.querySelector('textarea');
+        const signatureInput = row.querySelector('input[type="text"]');
 
         const roomIdValue = document.getElementById("roomid").value;
         const dateValue = document.getElementById("date").value;
@@ -1013,12 +1025,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const breathing = breathingSelect.value;
         const temperature = temperatureSelect.value;
         const notes = notesTextarea.value;
-        const signature = row.querySelector('input[type="text"]').value;
+        const signature = signatureInput.value;
 
         if (!time || !breathing || !temperature) {
             alert("Please fill all required fields.");
             return;
         }
+
+        // Store last entered data in localStorage for this child
+        localStorage.setItem('sleepcheck_lastdata_' + childId, JSON.stringify({
+            time, breathing, temperature, notes, signature
+        }));
 
         const formData = new FormData();
         formData.append('childid', childId);
@@ -1044,22 +1061,16 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(res => res.json())
         .then(result => {
-               Swal.fire({
-    title: 'Success!',
-    text: result.message,
-    icon: 'success',
-    confirmButtonColor: '#28a745',
-    confirmButtonText: 'OK'
-}).then(() => {
-    // Wait for 2 seconds after clicking OK, then reload
-    setTimeout(function () {
-        location.reload();
-    }, 1000); // 2 seconds
-});
-            // alert(result.message);
-            // button.disabled = false;
-            // button.textContent = 'Saved';
-            // setTimeout(() => location.reload(), 500);
+            Swal.fire({
+                title: 'Success!',
+                text: result.message,
+                icon: 'success',
+                confirmButtonColor: '#28a745',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Reload the page so the saved row appears, and the new input row will be pre-filled
+                location.reload();
+            });
         })
         .catch(err => {
             console.error(err);
@@ -1294,8 +1305,8 @@ function filterbyChildname(childname) {
                             <td>
                                 <select>
                                     <option value="">Select</option>
+                                    <option value="Normal" ${sleep.body_temperature === 'Normal' ? 'selected' : ''}>Normal</option>
                                     <option value="Warm" ${sleep.body_temperature === 'Warm' ? 'selected' : ''}>Warm</option>
-                                    <option value="Cool" ${sleep.body_temperature === 'Cool' ? 'selected' : ''}>Cool</option>
                                     <option value="Hot" ${sleep.body_temperature === 'Hot' ? 'selected' : ''}>Hot</option>
                                 </select>
                             </td>
@@ -1312,7 +1323,7 @@ function filterbyChildname(childname) {
                 // Empty row for new entry
                 html += `
                     <tr>
-                        <td><input type="time" name="children[${child.id}][time][]"></td>
+                        <td><input type="time" name="children[${child.id}][time][]" class="auto-time"></td>
                         <td>
                             <select name="children[${child.id}][breathing][]">
                                 <option value="">Select</option>
@@ -1324,8 +1335,8 @@ function filterbyChildname(childname) {
                         <td>
                             <select name="children[${child.id}][temperature][]">
                                 <option value="">Select</option>
+                                <option value="Normal">Normal</option>
                                 <option value="Warm">Warm</option>
-                                <option value="Cool">Cool</option>
                                 <option value="Hot">Hot</option>
                             </select>
                         </td>
@@ -1385,6 +1396,57 @@ function showfilter(val) {
     }
 }
 
+// Set default value of all new time inputs to current system time
+document.addEventListener('DOMContentLoaded', function() {
+    function setCurrentTimeInputs() {
+        const now = new Date();
+        const pad = n => n.toString().padStart(2, '0');
+        const current = pad(now.getHours()) + ':' + pad(now.getMinutes());
+        document.querySelectorAll('input[type="time"].auto-time').forEach(input => {
+            if (!input.value) input.value = current;
+        });
+    }
+    setCurrentTimeInputs();
+    // Also set for dynamically added rows
+    document.body.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-row-btn')) {
+            setTimeout(setCurrentTimeInputs, 100); // Wait for row to be added
+        }
+    });
+
+    // Pre-fill the new input row with last data if present (after reload)
+    document.querySelectorAll('.child-section').forEach(function(section) {
+        const childId = section.id.replace('child', '');
+        const lastDataStr = localStorage.getItem('sleepcheck_lastdata_' + childId);
+        if (lastDataStr) {
+            try {
+                const lastData = JSON.parse(lastDataStr);
+                // Find the first empty input row for this child (should be the last row with .auto-time)
+                const inputRows = section.querySelectorAll('tr');
+                let found = false;
+                for (let i = inputRows.length - 1; i >= 0; i--) {
+                    const inputRow = inputRows[i];
+                    const timeInput = inputRow.querySelector('input[type="time"].auto-time');
+                    if (timeInput) {
+                        if (lastData.time) timeInput.value = lastData.time;
+                        const breathing = inputRow.querySelector('select[name*="breathing"]');
+                        if (breathing && lastData.breathing) breathing.value = lastData.breathing;
+                        const temp = inputRow.querySelector('select[name*="temperature"]');
+                        if (temp && lastData.temperature) temp.value = lastData.temperature;
+                        const notes = inputRow.querySelector('textarea');
+                        if (notes && lastData.notes) notes.value = lastData.notes;
+                        const signature = inputRow.querySelector('input[type="text"]');
+                        if (signature && lastData.signature) signature.value = lastData.signature;
+                        found = true;
+                        break;
+                    }
+                }
+            } catch (e) {}
+            // Clear after use
+            localStorage.removeItem('sleepcheck_lastdata_' + childId);
+        }
+    });
+});
 </script>
 
 @endpush

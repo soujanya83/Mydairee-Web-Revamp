@@ -285,7 +285,18 @@
             </tr>
             <tr>
                 <td class="focus-area"><strong>Focus Area</strong></td>
-                <td colspan="5">{{ strip_tags($plan['focus_area'] ?? '') }}</td>
+                <td colspan="5">
+                    @php $focusAreaItems = splitItems($plan['focus_area'] ?? ''); @endphp
+                    @if(count($focusAreaItems))
+                        <ul style="margin:10px;">
+                        @foreach($focusAreaItems as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
+                </td>
             </tr>
 
             <!-- Montessori Areas (one per row) -->
@@ -328,8 +339,23 @@
                 <tr class="main-content-row">
                     <th style="width: 180px;">{{ $label }}</th>
                     <td>
-                        @if(trim(strip_tags($top)) !== '')
-                            <div class="topdivs">{!! $top !!}</div>
+                        @if($area === 'art_craft')
+                            @php
+                                echo '<!-- RAW_ART_CRAFT: ' . (isset($plan['art_craft']) ? $plan['art_craft'] : '') . ' -->';
+                                $artCraftItems = splitItems($plan['art_craft'] ?? '');
+                                echo '<!-- SPLIT_ART_CRAFT: ' . print_r($artCraftItems, true) . ' -->';
+                            @endphp
+                            @if(count($artCraftItems))
+                                <ul style="margin:10px;">
+                                @foreach($artCraftItems as $item)
+                                    <li>{{ $item }}</li>
+                                @endforeach
+                                </ul>
+                            @endif
+                        @else
+                            @if(trim(strip_tags($top)) !== '')
+                                <div class="topdivs">{!! $top !!}</div>
+                            @endif
                         @endif
                         @if(trim(strip_tags($bottom)) !== '')
                             <div class="bottomdivs">{!! $bottom !!}</div>
@@ -437,6 +463,13 @@
             }
             $inq = splitItems($plan['inquiry_topic'] ?? '');
             $sus = splitItems($plan['sustainability_topic'] ?? '');
+            $voices = splitItems($plan['children_voices'] ?? '');
+            $families = splitItems($plan['families_input'] ?? '');
+            $group = splitItems($plan['group_experience'] ?? '');
+            $spont = splitItems($plan['spontaneous_experience'] ?? '');
+            $mind = splitItems($plan['mindfulness_experiences'] ?? '');
+            $working = splitItems($plan['working'] ?? '');
+            $notworking = splitItems($plan['notworking'] ?? '');
             // DEBUG: Output the raw HTML for troubleshooting
             echo '<!-- RAW_EVENTS: ' . (isset($plan['special_events']) ? $plan['special_events'] : '') . ' -->';
             $events = splitItems(isset($plan['special_events']) ? html_entity_decode($plan['special_events']) : '');
@@ -484,13 +517,6 @@
                     @endif
                 </td>
             </tr>
-        </table>
-
-        @php
-            $voices = splitItems($plan['children_voices'] ?? '');
-            $families = splitItems($plan['families_input'] ?? '');
-        @endphp
-        <table>
             <tr>
                 <td style="width:200px;"><div class="section-label">Children's Voices:</div></td>
                 <td>
@@ -519,14 +545,6 @@
                     @endif
                 </td>
             </tr>
-        </table>
-
-        @php
-            $group = splitItems($plan['group_experience'] ?? '');
-            $spont = splitItems($plan['spontaneous_experience'] ?? '');
-            $mind = splitItems($plan['mindfulness_experiences'] ?? '');
-        @endphp
-        <table>
             <tr>
                 <td style="width:200px;"><div class="section-label">Group Experience:</div></td>
                 <td>
@@ -542,7 +560,7 @@
                 </td>
             </tr>
             <tr>
-                <td><div class="section-label">Spontaneous Experience:</div></td>
+                <td style="width:200px;"><div class="section-label">Spontaneous Experience:</div></td>
                 <td>
                     @if(count($spont))
                         <ul style="margin:10px;">
@@ -556,7 +574,7 @@
                 </td>
             </tr>
             <tr>
-                <td><div class="section-label">Mindfulness Experiences:</div></td>
+                <td style="width:200px;"><div class="section-label">Mindfulness Experiences:</div></td>
                 <td>
                     @if(count($mind))
                         <ul style="margin:10px;">
@@ -570,12 +588,32 @@
                 </td>
             </tr>
             <tr>
-                <td><div class="section-label">What is working:</div></td>
-                <td colspan="2"><div style="margin:10px;">{{ strip_tags($plan['working'] ?? '') }}</div></td>
+                <td style="width:200px;"><div class="section-label">What is working:</div></td>
+                <td colspan="2">
+                    @if(count($working))
+                        <ul style="margin:10px;">
+                        @foreach($working as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
+                </td>
             </tr>
             <tr>
-                <td><div class="section-label">What is not working:</div></td>
-                <td colspan="2"><div style="margin:10px;">{{ strip_tags($plan['notworking'] ?? '') }}</div></td>
+                <td style="width:200px;"><div class="section-label">What is not working:</div></td>
+                <td colspan="2">
+                    @if(count($notworking))
+                        <ul style="margin:10px;">
+                        @foreach($notworking as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
+                        </ul>
+                    @else
+                        <div style="margin:10px;">&nbsp;</div>
+                    @endif
+                </td>
             </tr>
         </table>
 

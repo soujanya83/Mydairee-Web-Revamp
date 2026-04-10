@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -55,6 +55,7 @@ class UserProfileController extends Controller
             'email' => $user->email,
             'phone' => $user->contactNo,
             'gender' => $user->gender,
+            'profile_image' => $user->imageUrl ? asset('storage/' . $user->imageUrl) : null,
         ]);
     }
 

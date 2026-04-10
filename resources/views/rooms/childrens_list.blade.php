@@ -342,9 +342,11 @@
         </div>
     </form>
         <!-- Add New Child Button -->
+    @if((Auth::user()->userType === 'Superadmin') || (Auth::user()->userType ==='Staff' && !empty($permissions['addChildGroup']) && $permissions['addChildGroup'] ))
     <button class="btn btn-outline-info ml-2" id="addChildBtn" data-toggle="modal" data-target="#selectRoomModal">
         + Add New Child
     </button>
+    @endif
 </div>
 
 @if ($errors->any())
@@ -399,7 +401,6 @@
     </div>
 </div>
 
-<!-- Add Child Modal (copied from children_details.blade.php, with room select hidden) -->
     <div class="modal" id="newChildModal" tabindex="-1" role="dialog" aria-labelledby="newChildModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -578,21 +579,47 @@
                         title="View Status History">
                         <i class="fas fa-eye"></i>
                     </button>
+                    @if((Auth::user()->userType === 'Superadmin') || (Auth::user()->userType ==='Staff' && !empty($permissions['updateChildGroup']) && $permissions['updateChildGroup'] ))
                     <a href="{{ route('children.edit', $child->childId) }}" class="btn btn-outline-primary btn-sm"
                         style="height: 24px;" title="Child Edit">
                         <i class="fas fa-edit"></i>
                     </a>&nbsp;&nbsp;
+                    @endif
 
 
 
-                    <form action="{{ route('children.destroy', $child->childId) }}" method="POST"
-                        onsubmit="return confirm('Are you sure?')" class="me-2">
+                    <form action="{{ route('children.destroy', $child->childId) }}" method="POST" class="me-2 delete-child-form">
                         @csrf
-                        
                         @method('DELETE')
-                        <button class="btn btn-outline-danger btn-sm" title="Child Delete"><i
-                                class="fas fa-trash-alt"></i></button>
+                        <button type="button" class="btn btn-outline-danger btn-sm delete-child-btn" title="Child Delete"><i class="fas fa-trash-alt"></i></button>
                     </form>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Attach SweetAlert2 to all delete buttons
+        document.querySelectorAll('.delete-child-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = btn.closest('form');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This child will be permanently deleted!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 
                 </div>
             </div>

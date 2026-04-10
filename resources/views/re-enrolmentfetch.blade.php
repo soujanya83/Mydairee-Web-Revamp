@@ -1119,9 +1119,59 @@ table.custom-table td {
 
         // Search and filter functionality
         document.getElementById('searchInput').addEventListener('input', function(e) {
-            // Implement search functionality
-            console.log('Search:', e.target.value);
+            filterTable();
         });
+
+        document.getElementById('sessionFilter').addEventListener('change', filterTable);
+        document.getElementById('kinderFilter').addEventListener('change', filterTable);
+        document.getElementById('dateFilter').addEventListener('change', filterTable);
+
+        function filterTable() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const session = document.getElementById('sessionFilter').value;
+            const kinder = document.getElementById('kinderFilter').value;
+            const date = document.getElementById('dateFilter').value;
+
+            const rows = document.querySelectorAll('#enrollmentTable tbody tr');
+            rows.forEach(row => {
+                // Skip empty row (no data)
+                if (row.querySelectorAll('td').length < 9) {
+                    row.style.display = '';
+                    return;
+                }
+                let show = true;
+                // Search filter
+                if (search) {
+                    const childName = row.children[1].innerText.toLowerCase();
+                    const parentEmail = row.children[2].innerText.toLowerCase();
+                    if (!childName.includes(search) && !parentEmail.includes(search)) {
+                        show = false;
+                    }
+                }
+                // Session filter
+                if (session) {
+                    const sessionText = row.children[5].innerText.replace(/\s+/g, '_').toLowerCase();
+                    if (!sessionText.includes(session)) {
+                        show = false;
+                    }
+                }
+                // Kinder filter
+                if (kinder) {
+                    const kinderText = row.children[6].innerText.replace(/\s+/g, '_').toLowerCase();
+                    if (!kinderText.includes(kinder)) {
+                        show = false;
+                    }
+                }
+                // Date filter
+                if (date) {
+                    const submitted = row.children[7].innerText;
+                    if (!submitted.includes(date.split('-').reverse().join(' '))) {
+                        show = false;
+                    }
+                }
+                row.style.display = show ? '' : 'none';
+            });
+        }
 
         // Mobile sidebar2 toggle
         function togglesidebar2() {

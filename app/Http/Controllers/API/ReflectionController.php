@@ -263,13 +263,13 @@ public function print(Request $request)
         ->pluck('name')
         ->implode(', ');
 
-    return response()->json([
-        'status'     => true,
-        'message'    => 'Reflection data retrieved successfully',
+    $pdf = Pdf::loadView('reflections.printReflection', [
         'reflection' => $reflection,
-        'roomNames'  => $roomNames,
-        'seen'       => $alreadySeen
+        'roomNames' => $roomNames,
+        'isPdf' => true
     ]);
+    $filename = 'Reflection_Report_' . ($reflection->id ?? 'report') . '.pdf';
+    return $pdf->download($filename);
 }
 
 
@@ -293,6 +293,15 @@ public function print(Request $request)
         'selected_children' => 'required|string',
         'selected_staff'    => 'required|string',
         'center_id'         => 'required|integer|exists:centers,id',
+        'status'            => [
+            'required',
+            function ($attribute, $value, $fail) {
+                $allowed = ['PUBLISHED', 'DRAFT'];
+                if (!in_array(strtoupper($value), $allowed)) {
+                    $fail('The ' . $attribute . ' field must be PUBLISHED or DRAFT.');
+                }
+            },
+        ],
     ];
 
     if (!$isEdit) {
@@ -335,7 +344,7 @@ public function print(Request $request)
         $reflection->eylf      = $request->eylf;
         $reflection->centerid  = $centerId;
         $reflection->createdBy = $authId;
-      
+        $reflection->status    = (strtoupper($request->status ?? '') === 'PUBLISHED') ? 'PUBLISHED' : 'DRAFT';
         $reflection->save();
 
         $reflectionId = $reflection->id;
