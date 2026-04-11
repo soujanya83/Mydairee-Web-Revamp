@@ -83,52 +83,94 @@ class ObservationsController extends Controller
             'refined_text' => $refinedText
         ]);
     }
-    //    public function print_snapshots($id)
-    // {
-    //     $authId   = Auth::id();
-    //     $centerid = session('user_center_id');
+    
+    
+    public function print_snapshots($id)
+    {
+        $authId   = Auth::id();
+        $centerid = session('user_center_id');
 
-    //     // Get centers based on user type
-    //     if (Auth::user()->userType === "Superadmin") {
-    //         $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-    //         $centers   = Center::whereIn('id', $centerIds)->get();
+        if (Auth::user()->userType === "Superadmin") {
+            $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers   = Center::whereIn('id', $centerIds)->get();
+            $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('id', $id)
+                ->first();
+        } elseif (Auth::user()->userType === "Staff") {
+            $centers = Center::where('id', $centerid)->get();
+            $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('createdBy', $authId)
+                ->where('id', $id)
+                ->first();
+        } else { // Parent
+            $centers = Center::where('id', $centerid)->get();
+            $childIds   = Childparent::where('parentid', $authId)->pluck('childid');
+            $snapshotIds = SnapshotChild::whereIn('childid', $childIds)
+                ->pluck('snapshotid')
+                ->unique()
+                ->toArray();
+            $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->whereIn('id', $snapshotIds)
+                ->where('id', $id)
+                ->first();
+        }
 
-    //         $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-    //             ->where('centerid', $centerid)
-    //             ->where('id', $id)
-    //             ->firstOrFail();
-    //     } elseif (Auth::user()->userType === "Staff") {
-    //         $centers = Center::where('id', $centerid)->get();
+        if (!$snapshot) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Snapshot not found or not accessible.'
+            ], 404);
+        }
 
-    //         $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-    //             ->where('createdBy', $authId)
-    //             ->where('id', $id)
-    //             ->firstOrFail();
-    //     } else { // Parent
-    //         $centers = Center::where('id', $centerid)->get();
+        // Rooms mapping
+        $roomIds = !empty($snapshot->roomids) ? explode(',', $snapshot->roomids) : [];
+        $rooms   = Room::whereIn('id', $roomIds)->get();
+        $roomNames = $rooms->pluck('name')->implode(', ');
 
-    //         $childIds   = Childparent::where('parentid', $authId)->pluck('childid');
-    //         $snapshotIds = SnapshotChild::whereIn('childid', $childIds)
-    //             ->pluck('snapshotid')
-    //             ->unique()
-    //             ->toArray();
+        // Permissions
+        $permissions = Permission::where('userid', Auth::user()->userid)->first();
 
-    //         $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-    //             ->whereIn('id', $snapshotIds)
-    //             ->where('id', $id)
-    //             ->firstOrFail();
-    //     }
+        // Render the Blade view to HTML
+        $htmlContent = view('snapshots.printSnapshots', compact('snapshot', 'centers', 'permissions', 'rooms', 'roomNames') + ['isPdf' => true])->render();
 
-    //     // ✅ Rooms mapping
-    //     $roomIds = !empty($snapshot->roomids) ? explode(',', $snapshot->roomids) : [];
-    //     $rooms   = Room::whereIn('id', $roomIds)->get();
-    //     $roomNames = $rooms->pluck('name')->implode(', ');
+        // Generate PDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($htmlContent)->setPaper('a4', 'portrait');
 
-    //     // Permissions
-    //     $permissions = Permission::where('userid', Auth::user()->userid)->first();
+        // Get first child's name (if available)
+        $childName = 'UnknownChild';
+        if ($snapshot->children && count($snapshot->children) > 0) {
+            $child = $snapshot->children[0];
+            if (isset($child->child)) {
+                $childName = trim(preg_replace('/\s+/', '_', $child->child->name . '_' . ($child->child->lastname ?? '')));
+            } elseif (isset($child->name)) {
+                $childName = trim(preg_replace('/\s+/', '_', $child->name . '_' . ($child->lastname ?? '')));
+            }
+        }
+        $date = $snapshot->created_at ? \Carbon\Carbon::parse($snapshot->created_at)->format('d-m-Y') : now()->format('d-m-Y');
+        $filename = 'Snapshot_' . $childName . '_' . $date . '.pdf';
+        $pdfPath = public_path('reports/' . $filename);
 
-    //     return view('snapshots.printSnapshots', compact('snapshot', 'centers', 'permissions', 'rooms', 'roomNames'));
-    // }
+        // Make sure the directory exists
+        if (!file_exists(public_path('reports'))) {
+            mkdir(public_path('reports'), 0777, true);
+        }
+
+        // Save the PDF to public/reports/
+        file_put_contents($pdfPath, $pdf->output());
+
+        // Return the PDF as a download response
+        if (file_exists($pdfPath)) {
+            return response()->download($pdfPath, $filename, [
+                'Content-Type' => 'application/pdf',
+            ])->deleteFileAfterSend(true);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to generate PDF file.'
+            ], 500);
+        }
+    }
+
     private function callAIRefiner($text)
     {
         $apiKey = 'sk-d1febdfb38e3491391e5ca4ce911be5c'; // replace with your key
