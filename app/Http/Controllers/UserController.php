@@ -195,9 +195,22 @@ class UserController extends Controller
 
 
         $imagePath = null;
-        if ($request->hasFile('imageUrl')) {
-            $imagePath = $request->file('imageUrl')->store('profile_images', 'public');
-        }
+        // if ($request->hasFile('imageUrl')) {
+        //     $file = $request->file('imageUrl');
+        //     $filename = time() . '.' . $file->getClientOriginalExtension();
+        //     $file->storeAs('profile_images', $filename, 'public');
+        //     $imagePath = 'profile_images/' . $filename;
+        // }
+
+        // $imagePath = $request->file('imageUrl')->store(
+        //     'profile_images',
+        //     'public'
+        // );
+
+
+        $imagePath = $request->file('imageUrl')->store('profile_images', 'public');
+
+        $imageUrl = Storage::url($imagePath);
 
         // Create user
         $user = new User();
@@ -209,7 +222,7 @@ class UserController extends Controller
         $user->emailid      = $request->emailid;
         $user->password     = Hash::make($request->password);
         $user->gender       = $request->gender;
-        $user->imageUrl     = $imagePath ?? '';
+        $user->imageUrl     = $imageUrl ?? '';
         $user->title        = $request->title;
         $user->userType     = 'Superadmin';
         $user->status       = 'ACTIVE';

@@ -1307,8 +1307,17 @@ if ($('#filter_author_any').is(':checked')) {
                         <div class="modal-body">
         `;
 
-        if (!observation.seen || observation.seen.filter(s => s.userType === 'Parent').length === 0) {
-            seenModalHtml += '<p>No parent has seen this yet.</p>';
+        // if (!observation.seen || observation?.seen?.filter(s => s.userType === 'Parent').length === 0) {
+        //    seenModalHtml += '<p>No parent has seen this yet.</p>';
+        const seenList = Array.isArray(observation?.seen)
+    ? observation.seen
+    : [];
+
+const parentSeen = seenList.filter(s => s.userType === 'Parent');
+
+if (parentSeen.length === 0) {
+    seenModalHtml += '<p>No parent has seen this yet.</p>';
+
         } else {
             seenModalHtml += '<ul class="list-unstyled" style="max-height:280px;overflow-y:auto;">';
             observation.seen.forEach(function(seen) {

@@ -25,7 +25,7 @@ use App\Http\Controllers\API\ApiResetPasswordController;
 use App\Http\Controllers\API\UserProfileController; 
 use App\Http\Controllers\API\DeviceController;
 use App\Http\Controllers\API\NotificationApiController;
-
+ 
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/save-fcm-token', [DeviceController::class, 'saveToken']);

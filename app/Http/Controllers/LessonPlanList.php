@@ -141,11 +141,11 @@ public function filterProgramPlan(Request $request)
             : 'December'; // if 0 is December in your DB
 
 
-$roomIds = explode(',', $plan->room_id);  // convert CSV to array
+    $roomIds = explode(',', $plan->room_id);  // convert CSV to array
 
-$rooms = Room::whereIn('id', $roomIds)->pluck('name')->toArray();
+    $rooms = Room::whereIn('id', $roomIds)->pluck('name')->toArray();
 
-$room_name = implode(',', $rooms);
+    $room_name = implode(',', $rooms);
 
             // dd( $data );
 
@@ -175,7 +175,7 @@ $room_name = implode(',', $rooms);
         $viewProgramPlan   = 1;
         $editProgramPlan   = 1;
     }
-}
+        }
             
 
         return [
