@@ -11,7 +11,7 @@ class UserProfileController extends Controller
     {
         $user = $request->user();
             return response()->json([
-                'profile_picture' => asset('storage/' . $user->imageUrl),
+                'profile_picture' => asset( $user->imageUrl),
             ]);
     }
 
@@ -29,22 +29,35 @@ class UserProfileController extends Controller
 
         $user = $request->user();
 
-        if ($user->imageUrl && Storage::disk('public')->exists($user->imageUrl)) {
-            Storage::disk('public')->delete($user->imageUrl);
-        }
+        $imagePath = null;
+        // if ($request->hasFile('profile_picture')) {
+        //     $file = $request->file('profile_picture');
+        //     $filename = time() . '.' . $file->getClientOriginalExtension();
+        //     $file->storeAs('profile_images', $filename, 'public');
+        //     $imagePath = 'profile_images/' . $filename;
+        // }
 
-        $path = $request->file('profile_picture')->store(
-            'profile_pictures',
-            'public'
-        );
+        // if ($user->imageUrl && Storage::disk('public')->exists($user->imageUrl)) {
+        //     Storage::disk('public')->delete($user->imageUrl);
+        // }
 
-        $user->imageUrl = $path;
+        // $imagePath = $request->file('profile_picture')->store(
+        //     'profile_pictures',
+        //     'public'
+        // );
+
+        $imagePath = $request->file('profile_picture')->store('profile_images', 'public');
+
+        $imageUrl = Storage::url($imagePath);
+
+        $user->imageUrl = $imageUrl;
         $user->save();
 
         return response()->json([
             'message' => 'Profile picture updated successfully',
-            'profile_picture' => asset('storage/' . $path),
-        ]);
+            // 'profile_picture' => asset('storage/' . $imagePath),
+            'profile_picture' => asset($imageUrl),
+            ]);
     }
 
     public function getProfile(Request $request)
@@ -55,7 +68,7 @@ class UserProfileController extends Controller
             'email' => $user->email,
             'phone' => $user->contactNo,
             'gender' => $user->gender,
-            'profile_image' => $user->imageUrl ? asset('storage/' . $user->imageUrl) : null,
+            'profile_image' => $user->imageUrl ? asset(  $user->imageUrl) : null,
         ]);
     }
 
