@@ -1750,10 +1750,39 @@ class ObservationsController extends Controller
                 }
             }
             // Generate PDF
-            $pdf = Pdf::loadView('observations.apiPrint', compact('observation', 'roomNames'))
-                ->setPaper('a4', 'landscape');
-            $fileName = 'observation_' . $id . '_' . time() . '.pdf';
-            return $pdf->download($fileName);
+            $htmlContent = view('observations.apiPrint', compact('observation', 'roomNames'))->render();
+            $pdf = Pdf::loadHTML($htmlContent)->setPaper('a4', 'landscape');
+            // Get first child's name (if available)
+            $childName = 'UnknownChild';
+            if ($observation->child && count($observation->child) > 0) {
+                $childObj = $observation->child[0]->child ?? null;
+                if ($childObj) {
+                    $childName = trim(preg_replace('/\s+/', '_', $childObj->name . '_' . ($childObj->lastname ?? '')));
+                }
+            }
+            $date = $observation->created_at ? \Carbon\Carbon::parse($observation->created_at)->format('d-m-Y') : now()->format('d-m-Y');
+            $fileName = 'Observation_' . $childName . '_' . $date . '.pdf';
+            $pdfPath = public_path('reports/' . $fileName);
+
+            // Make sure the directory exists
+            if (!file_exists(public_path('reports'))) {
+                mkdir(public_path('reports'), 0777, true);
+            }
+
+            // Save the PDF to public/reports/
+            file_put_contents($pdfPath, $pdf->output());
+
+            // Return the PDF as a download response
+            if (file_exists($pdfPath)) {
+                return response()->download($pdfPath, $fileName, [
+                    'Content-Type' => 'application/pdf',
+                ])->deleteFileAfterSend(true);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to generate PDF file.'
+                ], 500);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
