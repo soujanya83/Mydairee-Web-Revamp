@@ -263,13 +263,45 @@ public function print(Request $request)
         ->pluck('name')
         ->implode(', ');
 
-    $pdf = Pdf::loadView('reflections.printReflection', [
+    $htmlContent = view('reflections.printReflection', [
         'reflection' => $reflection,
         'roomNames' => $roomNames,
         'isPdf' => true
-    ]);
-    $filename = 'Reflection_Report_' . ($reflection->id ?? 'report') . '.pdf';
-    return $pdf->download($filename);
+    ])->render();
+    $pdf = Pdf::loadHTML($htmlContent)->setPaper('a4', 'portrait');
+    // Get first child's name (if available)
+    $childName = 'UnknownChild';
+    if ($reflection->children && count($reflection->children) > 0) {
+        $child = $reflection->children[0];
+        if (isset($child->childDetails)) {
+            $childName = trim(preg_replace('/\s+/', '_', $child->childDetails->name . '_' . ($child->childDetails->lastname ?? '')));
+        } elseif (isset($child->name)) {
+            $childName = trim(preg_replace('/\s+/', '_', $child->name . '_' . ($child->lastname ?? '')));
+        }
+    }
+    $date = $reflection->created_at ? \Carbon\Carbon::parse($reflection->created_at)->format('d-m-Y') : now()->format('d-m-Y');
+    $filename = 'Reflection_' . $childName . '_' . $date . '.pdf';
+    $pdfPath = public_path('reports/' . $filename);
+
+    // Make sure the directory exists
+    if (!file_exists(public_path('reports'))) {
+        mkdir(public_path('reports'), 0777, true);
+    }
+
+    // Save the PDF to public/reports/
+    file_put_contents($pdfPath, $pdf->output());
+
+    // Return the PDF as a download response
+    if (file_exists($pdfPath)) {
+        return response()->download($pdfPath, $filename, [
+            'Content-Type' => 'application/pdf',
+        ])->deleteFileAfterSend(true);
+    } else {
+        return response()->json([
+            'status' => false,
+            'message' => 'Failed to generate PDF file.'
+        ], 500);
+    }
 }
 
 
