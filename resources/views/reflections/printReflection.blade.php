@@ -309,9 +309,11 @@
 
 <body>
 
-    <button onclick="window.print()" class="print-button">
-        <i class="fa-solid fa-print"></i> Print
-    </button>
+    @if(empty($isPdf) || !$isPdf)
+        <button onclick="window.print()" class="print-button">
+            <i class="fa-solid fa-print"></i> Print
+        </button>
+    @endif
 
     <div class="container">
         <div class="header">
