@@ -145,7 +145,7 @@ public function AnnouncementCreate(Request $request)
     'age' => $dob->diff($now)->format('%y years %m months'),
     'gender' => $childobj->gender,
     'checked' => $checked
-];
+    ];
             
         }
         // Groups
@@ -244,19 +244,19 @@ public function AnnouncementCreate(Request $request)
    $permissions = PermissionsModel::where('userid',$userid)
             ->get();
        
-return response()->json([
-    'status' => true,
-    'message' => 'Announcement create data fetched successfully',
-    'data' => [
-        'announcement' => $announcement,
-        'centerid' => $centerid,
-        'Childrens' => $Childrens,
-        'Groups' => $Groups,
-        'Rooms' => $Rooms,
-        'permissions' => $permissions,
-        'userType' =>  $user->userType
-    ]
-]);
+    return response()->json([
+        'status' => true,
+        'message' => 'Announcement create data fetched successfully',
+        'data' => [
+            'announcement' => $announcement,
+            'centerid' => $centerid,
+            'Childrens' => $Childrens,
+            'Groups' => $Groups,
+            'Rooms' => $Rooms,
+            'permissions' => $permissions,
+            'userType' =>  $user->userType
+        ]
+    ]);
 
 }
 
@@ -407,6 +407,8 @@ public function AnnouncementStore(Request $request)
                 'text'              => $request->text,
                 'status'            => $status,
                 'announcementMedia' => !empty($mediaFiles) ? json_encode($mediaFiles) : $announcement->announcementMedia,
+                'type'              => $request->type,
+                'audience'          => $request->audience,
             ]);
 
             $announcementId = $announcement->id;
@@ -423,6 +425,8 @@ public function AnnouncementStore(Request $request)
                 'centerid'          => $centerid,
                 'createdAt'         => now(),
                 'announcementMedia' => json_encode($mediaFiles),
+                'type'              => $request->type,
+                'audience'          => $request->audience,
             ]);
 
             if (!$announcement) {

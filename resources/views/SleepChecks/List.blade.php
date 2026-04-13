@@ -797,7 +797,7 @@
           <td><input type="text"name="children[{{ $child->id }}][signature][]" value="" placeholder="signature"> </td>
             @if(Auth::user()->userType != 'Parent')
             <td>
-              <button class="save-row-btn btn-outline-info" onclick="saveRow(this, '{{ $child->id }}')">Save</button>
+              <button class="save-row-btn btn-outline-info" style="width:110px;" onclick="saveRow(this, '{{ $child->id }}')">Save</button>
               <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>
             </td>
             @endif
@@ -903,7 +903,7 @@ function createBulk10MinEntry() {
             <td><textarea name='notes' class='form-control' rows='1' placeholder='Sleep Check List Notes...' style='min-width:180px;' ></textarea></td>
             <td><input type='text' name='signature' class='form-control' placeholder='Signature' style='min-width:120px;' ></td>
             <td class='text-center'>
-              <button type='submit' class='btn btn-outline-info btn-sm mr-2'>Save</button>
+              <button type='submit' class='btn btn-outline-info btn-sm mr-2' style="width:80px;">Save</button>
               <button type='button' class='btn btn-outline-danger btn-sm' onclick="$('#bulkEntryModal').modal('hide')">Remove</button>
             </td>
           </tr>
@@ -998,7 +998,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td><textarea rows="2" name="children[${childDbId}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
             <td><input type="text" name="children[${childDbId}][signature][]" placeholder="signature"></td>
             <td>
-                <button class="save-row-btn btn-outline-info" onclick="saveRow(this, ${childDbId})">Save</button>
+                <button class="save-row-btn btn-outline-info" style="width:110px;" onclick="saveRow(this, ${childDbId})">Save</button>
                 <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>
             </td>
         `;
@@ -1343,7 +1343,7 @@ function filterbyChildname(childname) {
                         <td><textarea rows="2" name="children[${child.id}][notes][]" placeholder="Sleep Check List Notes..."></textarea></td>
                           <td><input type="text" name="children[${child.id}][signature][]" value="" placeholder="signature"></td>
                         <td>
-                            <button class="save-row-btn btn-outline-info" onclick="saveRow(this, '${child.id}')">Save</button>
+                            <button class="save-row-btn btn-outline-info" style="width:110px;" onclick="saveRow(this, '${child.id}')">Save</button>
                             <button class="remove-row-btn btn-outline-info" onclick="removeRow(this)">Remove</button>
                         </td>
                     </tr>
