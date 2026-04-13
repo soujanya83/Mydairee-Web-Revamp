@@ -170,7 +170,13 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
     
 
     // observations
-       Route::prefix('observation')->name('observation')->group(function () {
+
+    Route::prefix('observation')->name('observation')->group(function () {
+
+    // Observation comments API
+    Route::get('/{observationId}/comments', [ObservationsController::class, 'listComments']);
+    Route::post('/{observationId}/comments', [ObservationsController::class, 'addComment']);
+    Route::delete('/delete/{id}', [ObservationsController::class, 'destroy'])->name('delete');
 
         Route::get('/index', [ObservationsController::class, 'index'])->name('index');
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
