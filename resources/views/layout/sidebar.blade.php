@@ -118,18 +118,18 @@
                                 @if(auth()->user()->userType != 'Parent')
 
                                 <li class="{{ Route::is('headChecks') ? 'active' : '' }}">
-                                    <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right" style="margin-left:6px">   &nbsp;Head Checks</a>
+                                    <a href="{{ route('headChecks') }}" data-toggle="tooltip" data-placement="right" style="margin-left:6px">   &nbsp;Head Check</a>
                                 </li>
 
                                 @endif
 
                                 <li class="{{ Route::is('sleepcheck.list') ? 'active' : '' }}">
                                     <a href="{{ route('sleepcheck.list') }}" data-toggle="tooltip"
-                                        data-placement="right">Sleep Check List</a>
+                                        data-placement="right">Sleep Check</a>
                                 </li>
                                 <li class="{{ Route::is('Accidents.list') ? 'active' : '' }}">
                                     <a href="{{ route('Accidents.list') }}" data-toggle="tooltip"
-                                        data-placement="right">Accidents</a>
+                                        data-placement="right">Accident Form</a>
                                 </li>
                             </ul>
                         </li>
