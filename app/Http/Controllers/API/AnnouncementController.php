@@ -509,10 +509,15 @@ public function AnnouncementView(Request $request)
     $user = User::where('userid', $announcementInfo->createdBy)->first();
     $announcementInfo->username = $user->name ?? 'Unknown';
 
+    // Fetch children linked to this announcement
+    $childIds = \App\Models\AnnouncementChildModel::where('aid', $announcementId)->pluck('childid');
+    $children = \App\Models\Child::whereIn('id', $childIds)->get();
+
     return response()->json([
         'status' => 'true',
         'data' => [
             'info' => $announcementInfo,
+            'children' => $children,
             'permissions' => $permission,
             'centerid' => $announcementInfo->centerid
         ]
