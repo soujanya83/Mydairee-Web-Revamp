@@ -53,6 +53,38 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class ObservationsController extends Controller
 {
+    // List comments for an observation
+    public function listComments($observationId)
+    {
+        $observation = Observation::find($observationId);
+        if (!$observation) {
+            return response()->json(['status' => false, 'message' => 'Observation not found.'], 404);
+        }
+        $comments = $observation->comments()->with('user:id,name')->orderBy('created_at', 'asc')->get();
+        return response()->json(['status' => true, 'comments' => $comments]);
+    }
+
+    // Add a comment to an observation
+    public function addComment(Request $request, $observationId)
+    {
+        $validator = Validator::make($request->all(), [
+            'comments' => 'required|string|max:1000',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+        }
+        $observation = Observation::find($observationId);
+        if (!$observation) {
+            return response()->json(['status' => false, 'message' => 'Observation not found.'], 404);
+        }
+        $comment = ObservationComment::create([
+            'observationId' => $observationId,
+            'userId' => Auth::id(),
+            'comments' => $request->comments,
+        ]);
+        return response()->json(['status' => true, 'message' => 'Comment added successfully.', 'comment' => $comment]);
+    }
+
     public function refine(Request $request)
     {
         $text = $request->input('text');
@@ -1833,6 +1865,49 @@ class ObservationsController extends Controller
             ], 500);
         }
     }
+
+        // Delete observation
+    public function destroy($id)
+    {
+        $observation = Observation::find($id);
+        if (!$observation) {
+            return response()->json(['status' => false, 'message' => 'Observation not found.'], 404);
+        }
+
+        // Delete related children
+        ObservationChild::where('observationId', $id)->delete();
+        // Delete related staff
+        if (class_exists('App\\Models\\ObservationStaff')) {
+            \App\Models\ObservationStaff::where('observationId', $id)->delete();
+        }
+        // Delete related media and files
+        $mediaItems = ObservationMedia::where('observationId', $id)->get();
+        foreach ($mediaItems as $media) {
+            $filePath = public_path($media->mediaUrl);
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+            $media->delete();
+        }
+        // Delete the observation
+        $observation->delete();
+        return response()->json(['status' => true, 'message' => 'Observation deleted successfully.']);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     public function snapshotindex(Request $request)
