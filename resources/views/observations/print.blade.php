@@ -382,12 +382,6 @@
             <hr>
         </div>
 
-        <div class="info-block">
-            <strong>Date:</strong>
-            <span class="info-text">
-                {{ \Carbon\Carbon::parse($observation->date_added)->format('d/m/Y') }}
-            </span>
-        </div>
 
         <div class="info-block">
             <strong>Child's Name:</strong>
