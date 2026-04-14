@@ -85,11 +85,57 @@ class AnnouncementController extends Controller
         'centerId' => $centerId,
         'userType' => $userType
     ]
-]);
+    ]);
 
 }
 
+  public function Filterlist(Request $request)
+    {
+        $centerId = $request->centerid ?? session('user_center_id');
+        $user = \Auth::user();
+        $userId = $user->userid;
+        $userType = $user->userType;
 
+        $query = AnnouncementsModel::query();
+
+        if ($centerId) {
+            $query->where('centerid', $centerId);
+        }
+
+        if ($request->filled('title')) {
+            $query->where('title', 'like', '%' . $request->title . '%');
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('eventDate', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('eventDate', '<=', $request->date_to);
+        }
+
+        if ($request->filled('createdBy')) {
+            $query->whereHas('creator', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->createdBy . '%');
+            });
+        }
+
+        $records = $query->orderByDesc('id')->get();
+
+        // Attach creator name if needed
+        foreach ($records as $announcement) {
+            $creator = \App\Models\User::where('userid', $announcement->createdBy)->first();
+            $announcement->createdBy = $creator->name ?? 'Not Available';
+        }
+
+        return response()->json([
+            'status' => true,
+            'records' => $records,
+        ]);
+    }
 
 public function AnnouncementCreate(Request $request)
 {
