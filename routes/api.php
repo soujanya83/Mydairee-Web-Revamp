@@ -25,6 +25,7 @@ use App\Http\Controllers\API\ApiResetPasswordController;
 use App\Http\Controllers\API\UserProfileController; 
 use App\Http\Controllers\API\DeviceController;
 use App\Http\Controllers\API\NotificationApiController;
+use App\Http\Controllers\PublicHolidayController;
  
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
@@ -48,7 +49,7 @@ Route::post('password/update', [ApiResetPasswordController::class, 'updatePasswo
 
 
 
-
+Route::middleware('auth:sanctum')->get('public-holidays', [PublicHolidayController::class, 'holidayEvents'])->name('public_holidays.list');
 
 
 Route::get('/test', function () {
