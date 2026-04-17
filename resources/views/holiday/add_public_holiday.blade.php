@@ -7,13 +7,11 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
 <style>
-
-
-
     #holidayEditModal .modal-body {
-    max-height: 70vh;   /* or any value */
-    overflow-y: auto;
-}
+        max-height: 70vh;
+        /* or any value */
+        overflow-y: auto;
+    }
 
     /* Limit modal height and allow scroll */
     #selectChildrenModal .modal-body {
@@ -127,48 +125,51 @@
         /* This is like setting more "rows" */
     }
 
-/* Slide-out style for child modal */
-.modal.right .modal-dialog {
-  position: fixed;
-  margin: auto;
-  width: 80%;
-  height: 100%;
-  right: 0;
-  top: 0;
-  transform: translate3d(100%, 0, 0);
-  transition: all 0.3s ease-out;
-}
+    /* Slide-out style for child modal */
+    .modal.right .modal-dialog {
+        position: fixed;
+        margin: auto;
+        width: 80%;
+        height: 100%;
+        right: 0;
+        top: 0;
+        transform: translate3d(100%, 0, 0);
+        transition: all 0.3s ease-out;
+    }
 
-.modal.right.show .modal-dialog {
-  transform: translate3d(0, 0, 0);
-}
-
-
-th.sortable {
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-}
-.arrow {
-    display: inline-block;
-    width: 1em;
-    text-align: center;
-}
-.arrow::before {
-    content: "⇅"; /* neutral */
-    font-size: 0.8em;
-    color: #666;
-}
-th.asc .arrow::before {
-    content: "↑";
-    color: green;
-}
-th.desc .arrow::before {
-    content: "↓";
-    color: red;
-}
+    .modal.right.show .modal-dialog {
+        transform: translate3d(0, 0, 0);
+    }
 
 
+    th.sortable {
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    .arrow {
+        display: inline-block;
+        width: 1em;
+        text-align: center;
+    }
+
+    .arrow::before {
+        content: "⇅";
+        /* neutral */
+        font-size: 0.8em;
+        color: #666;
+    }
+
+    th.asc .arrow::before {
+        content: "↑";
+        color: green;
+    }
+
+    th.desc .arrow::before {
+        content: "↓";
+        color: red;
+    }
 </style>
 
 
@@ -239,50 +240,51 @@ th.desc .arrow::before {
                     <a href="{{ route('settings.public_holiday') }}" class="btn btn-secondary"
                         style="margin-left:12px"><i class="fas fa-refresh"></i> Reset</a>
 
-                           <button type="button" class="btn btn-danger deleteselected-btn d-none" style="margin-left:12px" onclick="deleteselected()"><i class="fas fa-trash"></i>
+                    <button type="button" class="btn btn-danger deleteselected-btn d-none" style="margin-left:12px"
+                        onclick="deleteselected()"><i class="fas fa-trash"></i>
                         Delete Selected </button>
                 </form>
 
-<table id="holidayTable" class="table">
-   <thead>
-    <tr>
-        <th class="sortable" data-col="0"><i class="fas fa-sort"></i></th>
-        <th class="sortable" data-col="0">sno <i class="fas fa-sort"></i></th>
-        <th class="sortable" data-col="1">Date <i class="fas fa-sort"></i></th>
-        <th class="sortable" data-col="2">Occasion <i class="fas fa-sort"></i></th>
-        <th class="sortable" data-col="3">State <i class="fas fa-sort"></i></th>
-        <th>Action</th>
-    </tr>
-</thead>
+                <table id="holidayTable" class="table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-col="0"><i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-col="0">sno <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-col="1">Date <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-col="2">Occasion <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-col="3">State <i class="fas fa-sort"></i></th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
 
-    <tbody>
-        @foreach($holidayData as $index => $holidays)
-        <tr>
-            <td><input type="checkbox" name="deleteid[]" value="{{ $holidays->id }}" id="" class="deleteselected"></td>
-            <td>{{ $index + 1 }}</td>
-            <td>{{ $holidays->full_date->format('d M Y') }}</td>
-            <td>{{ \Illuminate\Support\Str::limit($holidays->occasion, 75) }}</td>
-            <td>{{ $holidays->state ?: '--' }}</td>
-            <td>
-                <button type="button"
-                        class="btn btn-sm btn-info p-2"
-                        onclick="window.location.href='{{ route('settings.holidays.edit', $holidays->id) }}'">
-                    <i class="fas fa-edit"></i>
-                </button>
-                &nbsp;
-                <form action="{{ route('settings.holiday.destroy', $holidays->id) }}" method="POST"
-                      style="display:inline-block;" onsubmit="return confirm('Are you sure?')">
-                    @csrf
-                    @method('DELETE')
-                    <button class="btn btn-sm btn-danger p-2" title="Record Delete">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </form>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
+                    <tbody>
+                        @foreach($holidayData as $index => $holidays)
+                        <tr>
+                            <td><input type="checkbox" name="deleteid[]" value="{{ $holidays->id }}" id=""
+                                    class="deleteselected"></td>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $holidays->full_date->format('d M Y') }}</td>
+                            <td>{{ \Illuminate\Support\Str::limit($holidays->occasion, 75) }}</td>
+                            <td>{{ $holidays->state ?: '--' }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-info p-2"
+                                    onclick="window.location.href='{{ route('settings.holidays.edit', $holidays->id) }}'">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                &nbsp;
+                                <form action="{{ route('settings.holiday.destroy', $holidays->id) }}" method="POST"
+                                    style="display:inline-block;" onsubmit="return confirm('Are you sure?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-danger p-2" title="Record Delete">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
 
             </div>
 
@@ -868,7 +870,7 @@ th.desc .arrow::before {
 
 <!-- image preview  -->
 <script>
-   let mediaFilesUpload1 = []; // store uploaded files
+    let mediaFilesUpload1 = []; // store uploaded files
 
 // Handle file selection (delegated because input is dynamic)
 $(document).on("change", "#mediaInputUpload1", function (e) {
@@ -1015,7 +1017,7 @@ $('#selectChildrenModal').on('hidden.bs.modal', function () {
 
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
     const table = document.getElementById("holidayTable");
     const headers = table.querySelectorAll("th.sortable");
 
