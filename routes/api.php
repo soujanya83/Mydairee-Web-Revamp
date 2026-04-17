@@ -25,7 +25,7 @@ use App\Http\Controllers\API\ApiResetPasswordController;
 use App\Http\Controllers\API\UserProfileController; 
 use App\Http\Controllers\API\DeviceController;
 use App\Http\Controllers\API\NotificationApiController;
-use App\Http\Controllers\PublicHolidayController;
+use App\Http\Controllers\API\PublicHolidayController;
  
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
@@ -49,7 +49,25 @@ Route::post('password/update', [ApiResetPasswordController::class, 'updatePasswo
 
 
 
-Route::middleware('auth:sanctum')->get('public-holidays', [PublicHolidayController::class, 'holidayEvents'])->name('public_holidays.list');
+
+// Public Holiday API (CRUD & filter)
+
+Route::middleware('auth:sanctum')->group(function () {
+    // List/filter holidays
+    Route::get('getholidays', [PublicHolidayController::class, 'index']); // supports ?month=, ?date=
+
+    // Add new holiday
+    Route::post('createholidays', [PublicHolidayController::class, 'store']);
+
+    // Edit holiday
+    Route::put('editholidays/{id}', [PublicHolidayController::class, 'update']);
+
+    // Delete single holiday
+    Route::delete('deleteholidays/{id}', [PublicHolidayController::class, 'destroy']);
+
+    // Bulk delete
+    Route::post('bulkdeleteholidays', [PublicHolidayController::class, 'deleteSelected']);
+});
 
 
 Route::get('/test', function () {
