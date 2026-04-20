@@ -244,7 +244,7 @@ class PublicHolidayController extends Controller
                 ]);
             }
 
-            return redirect()->back()->with([
+            return redirect()->route('settings.public_holiday')->with([
                 'status' => 'success',
                 'msg' => "Holidays imported successfully! ✅ {$insertedCount} entries added.",
                 "type" => "public_holiday"
@@ -265,7 +265,7 @@ class PublicHolidayController extends Controller
                 'Holiday_date' =>     $carbonDate
             ]);
 
-            return redirect()->back()->with([
+            return redirect()->route('settings.public_holiday')->with([
                 'status' => 'success',
                 'msg' => "Holidays imported successfully! ✅ ",
                 "type" => "public_holiday"
