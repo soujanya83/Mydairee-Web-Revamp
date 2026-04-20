@@ -71,13 +71,12 @@ public function headcheckprint(Request $request)
         $centers = Center::where('id', $centerId)->get();
     }
 
-        // Determine room ID
-        if (empty($payload['roomid'])) {
+        if (empty($request->roomid)) {
             $centerRoom = Room::where('centerid', $centerId)->first();
             $roomid = $centerRoom->id ?? null;
             $roomname = $centerRoom->name ?? '';
             $roomcolor = $centerRoom->color ?? '';
-             $centerRooms = Room::where('centerid', $centerId)->get();
+            $centerRooms = Room::where('centerid', $centerId)->get();
         } else {
             $roomid = $request->roomid;
             $room = Room::find($roomid);
