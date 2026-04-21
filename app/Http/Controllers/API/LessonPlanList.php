@@ -174,6 +174,7 @@ $centerId = $validated['centerid'];
             if ($childIds->isNotEmpty()) {
                 $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
                     ->where('centerid', $centerId)
+                     ->where('status',"Published")
                     ->where(function ($query) use ($childIds) {
                         foreach ($childIds as $childId) {
                             $query->orWhereRaw('FIND_IN_SET(?, children)', [$childId]);
