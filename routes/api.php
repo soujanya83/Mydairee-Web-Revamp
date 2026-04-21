@@ -215,6 +215,10 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::post('/store', [ObservationsController::class, 'store'])->name('store');
         Route::post('/refine-text', [ObservationsController::class, 'refine'])->name('refine.text');
 
+
+        
+        // Share observation via email (API)
+        Route::post('/share', [ObservationsController::class, 'shareObservationApi']);
         Route::post('/observation-media', [ObservationsController::class, 'destroyimage']);
 
         Route::post('/montessori/store', [ObservationsController::class, 'storeMontessoriData'])->name('montessori.store');

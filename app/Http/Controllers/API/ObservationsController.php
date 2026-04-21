@@ -85,6 +85,59 @@ class ObservationsController extends Controller
         return response()->json(['status' => true, 'message' => 'Comment added successfully.', 'comment' => $comment]);
     }
 
+
+        /**
+     * Share  observation via email (API endpoint)
+     */
+    public function shareObservationApi(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'recipient_email' => 'required|email',
+            'obsId' => 'required|integer',
+            'message' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $email = $request->recipient_email;
+        $message = $request->message ?? 'Please check the report link below.';
+        $obsId = $request->obsId;
+
+        try {
+            // Generate the shareable URL (web route)
+            $url = route('sharelink', $obsId);
+
+            // Send email
+            \Mail::send([], [], function ($mail) use ($email, $url, $message, $obsId) {
+                $mail->from('mydairee47@gmail.com', 'Observation Report')
+                    ->to($email)
+                    ->subject('Observation Report - ' . $obsId)
+                    ->html("
+                        <p>{$message}</p>
+                        <p>You can view the observation by clicking the link below:</p>
+                        <p><a href='{$url}' target='_blank'>{$url}</a></p>
+                    ");
+            });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Observation shared successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error occurred while sending the email: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
     public function refine(Request $request)
     {
         $text = $request->input('text');

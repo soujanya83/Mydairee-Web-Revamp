@@ -377,6 +377,7 @@
                                     <label for="working">What is working</label>
                                     <textarea class="form-control ckeditor" id="working" name="working" rows="3"
                                         placeholder="Describe what is working well...">{{ isset($plan_data) ? $plan_data->working : '' }}</textarea>
+                                    <input type="hidden" id="working_enter_count" name="working_enter_count" value="0">
                                 </div>
 
                                 <!-- What is not working section -->
@@ -1175,7 +1176,7 @@
 <script>
     let editors = {}; // Store all CKEditor instances
 
-document.addEventListener("DOMContentLoaded", function () {
+{{--  document.addEventListener("DOMContentLoaded", function () {
     // Initialize all CKEditor instances
     document.querySelectorAll(".ckeditor").forEach((textarea) => {
         let id = textarea.getAttribute("id");
@@ -1192,6 +1193,52 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => console.error(id + " error ❌", error));
     });
+});  --}}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.querySelectorAll(".ckeditor").forEach((textarea) => {
+
+        let id = textarea.id;
+
+        ClassicEditor.create(textarea)
+            .then(editor => {
+
+                editors[id] = editor;
+                console.log(id + " ready ✅");
+
+                let hiddenInput = document.getElementById(id + "_enter_count");
+
+                editor.model.document.on("change:data", () => {
+
+                    // Get plain text from editor
+                    let text = editor.getData();
+
+                    // Convert <br> and </p> into new line markers
+                    text = text.replace(/<br\s*\/?>/gi, "\n");
+                    text = text.replace(/<\/p>/gi, "\n");
+
+                    // Remove all remaining HTML tags
+                    text = text.replace(/<[^>]*>/g, "");
+
+                    // Count line breaks
+                    let enterCount = (text.match(/\n/g) || []).length;
+
+                    if (hiddenInput) {
+                        hiddenInput.value = enterCount;
+                    }
+
+                    console.log(id + " Enter Count:", enterCount);
+
+                    AutoSave();
+                });
+
+            })
+            .catch(error => console.error(error));
+
+    });
+
 });
 
 // AutoSave function

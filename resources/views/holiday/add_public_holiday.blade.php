@@ -5,6 +5,8 @@
 @section('page-styles')
 <!-- Font Awesome 6 CDN -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<!-- SweetAlert2 CDN (moved to top for instant load) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     #holidayEditModal .modal-body {
@@ -185,7 +187,6 @@
 
 </div>
 <hr>
-
 @if ($errors->any())
 <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:-22px">
     <ul class="mb-0">
@@ -272,14 +273,37 @@
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 &nbsp;
-                                <form action="{{ route('settings.holiday.destroy', $holidays->id) }}" method="POST"
-                                    style="display:inline-block;" onsubmit="return confirm('Are you sure?')">
+                                <form action="{{ route('settings.holiday.destroy', $holidays->id) }}" method="POST" style="display:inline-block;" class="delete-holiday-form">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="btn btn-sm btn-danger p-2" title="Record Delete">
+                                    <button type="button" class="btn btn-sm btn-danger p-2 delete-holiday-btn" title="Record Delete">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
+                            </script>
+
+                            <script>
+                                $(document).ready(function () {
+                                    $('.delete-holiday-btn').on('click', function (e) {
+                                        e.preventDefault();
+                                        const form = $(this).closest('form');
+                                        Swal.fire({
+                                            title: 'Are you sure?',
+                                            text: "This holiday will be permanently deleted!",
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#d33',
+                                            cancelButtonColor: '#3085d6',
+                                            confirmButtonText: 'Yes, delete!',
+                                            cancelButtonText: 'Cancel'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                form.submit();
+                                            }
+                                        });
+                                    });
+                                });
+                            </script>
                             </td>
                         </tr>
                         @endforeach
