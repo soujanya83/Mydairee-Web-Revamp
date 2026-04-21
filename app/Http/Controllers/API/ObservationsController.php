@@ -87,7 +87,7 @@ class ObservationsController extends Controller
 
 
         /**
-     * Share an observation via email (API endpoint)
+     * Share  observation via email (API endpoint)
      */
     public function shareObservationApi(Request $request)
     {
