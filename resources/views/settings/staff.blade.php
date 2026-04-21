@@ -459,7 +459,7 @@
                 <form id="editSuperadminForm">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Edit Superadmin</h5>
+                            <h5 class="modal-title">Edit Staff</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -513,13 +513,15 @@
                             </div>
                         </div>
 
+                         <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="Submit" class="btn btn-primary" onclick="updateSuperadmin()">Save</button>
+                </div>
+
                 </div>
 
                 <!-- Modal Footer -->
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="Submit" class="btn btn-primary" onclick="submitSuperadminForm()">Save</button>
-                </div>
+               
                 </form>
             </div>
         </div>
