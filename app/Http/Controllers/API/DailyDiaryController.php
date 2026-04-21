@@ -123,10 +123,9 @@ class DailyDiaryController extends Controller
             } else {
                 $parentId = auth()->user()->id;
                 $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
-                $children = Child::where('room', $selectedroom->id)
-                    ->whereIn('id', $childIds)
-                    ->orderBy('name')                
-                    ->get()
+                $children = Child::whereIn('id', $childIds)
+    ->orderBy('name')
+    ->get()
                     ->filter(function ($child) use ($dayIndex) {
                         return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
                     })
