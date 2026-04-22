@@ -123,7 +123,7 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
         Route::get('/programPlan/{id}', [LessonPlanList::class, 'getProgramPlanById'])->where('id', '[0-9]+');
     Route::post('LessonPlanList/deletedataofprogramplan',[LessonPlanList::class,'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
     Route::get('/programPlan/print', [LessonPlanList::class, 'programplanprintpage']);
-    Route::get('/program-plan/pdf/{id}', [LessonPlanList::class, 'downloadProgramPlanPdf']);
+    Route::get('/program-plan/pdf/{id}', [LessonPlanList::class, 'generatePDF']);
     Route::post('/LessonPlanList/get_room_users', [LessonPlanList::class, 'getRoomUsers'])->name('LessonPlanList.get_room_users');
     Route::post('/LessonPlanList/get_room_children', [LessonPlanList::class, 'getRoomChildren'])->name('LessonPlanList.get_room_children');
     Route::post('/LessonPlanList/save_program_planinDB', [LessonPlanList::class, 'saveProgramPlan'])->name('LessonPlanList.save_program_planinDB');

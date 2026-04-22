@@ -31,6 +31,7 @@ use App\Http\Controllers\Illuminate\Pagination\Paginator;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 
+
 class LessonPlanList extends Controller
 {
     public function getProgramPlanById($id)
@@ -698,65 +699,65 @@ public function deleteProgramPlan(Request $request)
         ], 500);
     }
 }
-public function downloadProgramPlanPdf(Request $request, $id)
-{
-    try {
+ public function generatePDF($id)
+    {
+        try {
+            // Fetch the program plan by ID
+            $plan = ProgramPlanTemplateDetailsAdd::find($id);
+            
+            if (!$plan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Program plan not found'
+                ], 404);
+            }
 
-        $plan = ProgramPlanTemplateDetailsAdd::find($id);
+            // Get room name
+            $room_name = '';
+            if ($plan->room_id) {
+                $roomIds = explode(',', $plan->room_id);
+                $names = Room::whereIn('id', $roomIds)->pluck('name')->toArray();
+                $room_name = implode(', ', $names);
+            }
 
-        if (!$plan) {
+            // Get educator names
+            $educator_ids = explode(',', $plan->educators);
+            $educator_names = !empty($educator_ids) ? 
+                User::whereIn('id', $educator_ids)->pluck('name')->implode(', ') : 
+                'No Educators';
+
+            // Get child names
+            $child_ids = explode(',', $plan->children);
+            $children_names = !empty($child_ids) ? 
+                Child::whereIn('id', $child_ids)->pluck('name')->implode(', ') : 
+                'No Children';
+
+            // Get month name
+            $month_name = strtoupper(Carbon::createFromDate(null, $plan->months)->format('F'));
+
+            // Prepare data for PDF
+            $data = [
+                'plan' => $plan,
+                'room_name' => $room_name,
+                'educator_names' => $educator_names,
+                'children_names' => $children_names,
+                'month_name' => $month_name,
+                'current_date' => Carbon::now()->format('d/m/Y'),
+            ];
+
+            // Generate PDF
+            $pdf = PDF::loadView('api.program-plan-pdf', $data);
+            $pdf->setPaper('A3', 'landscape');
+            
+            // Return PDF as download response
+            return $pdf->download("program-plan-{$id}.pdf");
+            
+        } catch (\Exception $e) {
             return response()->json([
-                'status' => false,
-                'message' => 'Program plan not found'
-            ], 404);
+                'success' => false,
+                'message' => 'Failed to generate PDF: ' . $e->getMessage()
+            ], 500);
         }
-
-        // ===============================
-        // SAME LOGIC AS WEB CONTROLLER
-        // ===============================
-
-        $month_name = strtoupper(\Carbon\Carbon::createFromDate(null, $plan->months)->format('F'));
-
-        // Room names
-        $room_name = '';
-        if ($plan->room_id) {
-            $roomIds = explode(',', $plan->room_id);
-            $room_name = Room::whereIn('id', $roomIds)->pluck('name')->implode(', ');
-        }
-
-        // Educators
-        $educator_ids = explode(',', $plan->educators);
-        $educator_names = !empty($educator_ids)
-            ? User::whereIn('id', $educator_ids)->pluck('name')->implode(', ')
-            : 'No Educators';
-
-        // Children
-        $child_ids = explode(',', $plan->children);
-        $children_names = !empty($child_ids)
-            ? \App\Models\Child::whereIn('id', $child_ids)->pluck('name')->implode(', ')
-            : 'No Children';
-
-        // ===============================
-        // GENERATE PDF
-        // ===============================
-        $pdf = Pdf::loadView('ProgramPlan.print', [
-            'plan' => $plan,
-            'room_name' => $room_name,
-            'educator_names' => $educator_names,
-            'children_names' => $children_names,
-            'month_name' => $month_name
-        ]);
-
-        return $pdf->download('program-plan-' . $id . '.pdf');
-
-    } catch (\Exception $e) {
-
-        return response()->json([
-            'status' => false,
-            'message' => 'Failed to generate PDF',
-            'error' => $e->getMessage()
-        ], 500);
     }
-}
 
 }
