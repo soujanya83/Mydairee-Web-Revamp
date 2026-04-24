@@ -254,102 +254,62 @@
         <div class="row clearfix" style="margin-bottom: 43px;">
             @foreach($getrooms as $room)
             <div class="col-lg-4 col-md-4 mb-1 room-card" data-room-name="{{ strtolower($room->name) }}">
-                <div class="card shadow-sm border-0 rounded p-3 hover-shadow position-relative"
-                    style="    height: 165px;">
-
-                    <input type="checkbox" name="selected_rooms[]" value="{{ $room->roomid }}"
-                        class="form-check-input position-absolute"
-                        style="top: 13px; left: 26px; z-index: 2;width: 15px; height: 15px;">
-
-                    <div class="d-flex justify-content-between align-items-start mb-2"
-                        style="margin-left: 20px; margin-top: -3px;">
-                        <a href="{{ route('room.children', ['roomid' => $room->id]) }}"
-                            style="text-decoration: none; color: inherit;">
+                <a href="{{ route('room.children', ['roomid' => $room->id]) }}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="card shadow-sm border-0 rounded p-3 hover-shadow position-relative" style="height: 165px;">
+                        <input type="checkbox" name="selected_rooms[]" value="{{ $room->roomid }}"
+                            class="form-check-input position-absolute"
+                            style="top: 13px; left: 26px; z-index: 2;width: 15px; height: 15px;"
+                            onclick="event.stopPropagation();">
+                        <div class="d-flex justify-content-between align-items-start mb-2"
+                            style="margin-left: 20px; margin-top: -3px;">
                             <h5 class="mb-0">
                                 {{ $room->name }}
                                 <small class="text-muted" style="font-size: 0.8rem;">({{ $room->status }})</small>
                             </h5>
-                        </a>
 
-                        <!-- Trigger -->
-                        @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['editRoom']) && $permissions['editRoom']))
-
-                        <button type="button" class="btn btn-sm " onclick='openEditModal(@json($room))'
-                            style="background-color: #f0ece4;">
-                            <i class="fa fa-edit" class="d-flex justify-content-between align-items-start"></i>
-                        </button>
-
-
-
-
-                        @endif
+                        </div>
+                        <div class="mb-2 children-age" 
+                            data-age-from="{{ $room->ageFrom }}" 
+                            data-age-to="{{ $room->ageTo }}">
+                            <i class="fa fa-children me-2" style="color:blue"></i>
+                            <span class="age-text">
+                                Age Group (years): {{ $room->ageFrom }} to {{ $room->ageTo }}
+                            </span>
+                        </div>
+                        <div class="mb-2">
+                            <i class="fa fa-children me-2" style="color:blue"></i>
+                            Children: {{ count($room->children) }}
+                        </div>
+                        <div class="mb-2">
+                            <i class="fa fa-chalkboard-teacher me-2" style="color:blue"></i>
+                            Educators:
+                            @php
+                            $educatorIds = collect($room->educators)->pluck('userid')->toArray();
+                            $educatorsCenterdata = DB::table('usercenters')
+                                ->join('users','users.id','=','usercenters.userid')
+                                ->where('usercenters.centerid', $room->centerid)
+                                ->whereIn('users.id', $educatorIds)
+                                ->select('users.*')
+                                ->get();
+                            $total = count($educatorsCenterdata);
+                            @endphp
+                            @foreach($educatorsCenterdata->take(5) as $educator)
+                            <img src="{{ $educator->imageUrl ? asset($educator->imageUrl) : asset('storage/children/images/download.jpg') }}"
+                                class="rounded-circle border"
+                                style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px; cursor:pointer;"
+                                title="{{ ucfirst($educator->name ?? '') }}"
+                                onclick="event.stopPropagation(); event.preventDefault(); showRoomEducators(@json($educatorsCenterdata))">
+                            @endforeach
+                            @if($total > 5)
+                            <span
+                                class="rounded-circle border bg-light d-inline-flex align-items-center justify-content-center"
+                                style="width: 35px; height: 35px; font-size: 14px; font-weight: bold; margin-right: 4px;">
+                                +{{ $total - 5 }}
+                            </span>
+                            @endif
+                        </div>
                     </div>
-
-                  <div class="mb-2 children-age" 
-     data-age-from="{{ $room->ageFrom }}" 
-     data-age-to="{{ $room->ageTo }}">
-    <i class="fa fa-children me-2" style="color:blue"></i>
-    <span class="age-text">
-        Age Group (years): {{ $room->ageFrom }} to {{ $room->ageTo }}
-    </span>
-</div>
-
-                    <div class="mb-2">
-                        <i class="fa fa-children me-2" style="color:blue"></i>
-                        Children: {{ count($room->children) }}
-                    </div>
-
-                    <div class="mb-2">
-                        <i class="fa fa-chalkboard-teacher me-2" style="color:blue"></i>
-                        Educators:
-
-                        @php
-                        // educators array me se sirf userid nikaal lo
-                        $educatorIds = collect($room->educators)->pluck('userid')->toArray();
-
-                        // fir DB query karo in ids ke against
-                        $educatorsCenterdata = DB::table('usercenters')
-                        ->join('users','users.id','=','usercenters.userid')
-                        ->where('usercenters.centerid', $room->centerid) // ya $centerid
-                        ->whereIn('users.id', $educatorIds)
-                        ->select('users.*')
-                        ->get();
-
-                        $total = count($educatorsCenterdata);
-                        @endphp
-
-
-                        {{-- @foreach($educators->take(5) as $educator)
-                        <img src="{{ isset($educator->imageUrl) && $educator->imageUrl ? asset($educator->imageUrl) : asset('storage/children/images/download.jpg') }}"
-                            class="rounded-circle border"
-                            style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px;"
-                            title="{{ ucfirst($educator->person_name ?? '') }}">
-                        @endforeach --}}
-
-                        @foreach($educatorsCenterdata->take(5) as $educator)
-                        <img src="{{ $educator->imageUrl ? asset($educator->imageUrl) : asset('storage/children/images/download.jpg') }}"
-                            class="rounded-circle border"
-                            style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px; cursor:pointer;"
-                            title="{{ ucfirst($educator->name ?? '') }}"
-                            onclick='showRoomEducators(@json($educatorsCenterdata))'>
-                        @endforeach
-
-                        @if($total > 5)
-                        <span
-                            class="rounded-circle border bg-light d-inline-flex align-items-center justify-content-center"
-                            style="width: 35px; height: 35px; font-size: 14px; font-weight: bold; margin-right: 4px;">
-                            +{{ $total - 5 }}
-                        </span>
-                        @endif
-
-                    </div>
-
-
-                    {{-- <div class="mb-1">
-                        <i class="fa fa-user text-secondary me-2"></i>
-                        <span class="text-muted">Lead:</span> &nbsp;{{ Auth::user()->username ?? 'Not Assigned' }}
-                    </div> --}}
-                </div>
+                </a>
             </div>
             @endforeach
         </div>
@@ -572,36 +532,7 @@
 
 
 <!-- Script -->
-<script>
-    function openEditModal(room) {
-    // Set form fields
-    document.getElementById('editRoomId').value = room.roomid;
-    document.getElementById('editRoomName').value = room.name;
-    document.getElementById('editRoomCapacity').value = room.capacity;
-    document.getElementById('editAgeFrom').value = room.ageFrom;
-    document.getElementById('editAgeTo').value = room.ageTo;
-    document.getElementById('editRoomStatus').value = room.status;
-    document.getElementById('editRoomColor').value = room.color;
 
-    // Reset all checkboxes first
-    document.querySelectorAll('#editEducators input[type="checkbox"]').forEach(cb => cb.checked = false);
-
-    // ✅ Check the educators of this room
-    if (Array.isArray(room.assignedEducatorIds)) {
-        room.assignedEducatorIds.forEach(id => {
-            const checkbox = document.getElementById('educator_' + id);
-            if (checkbox) checkbox.checked = true;
-        });
-    }
-
-    // Set form action
-    document.getElementById('editRoomForm').action = `/rooms/update/${room.roomid}`;
-
-    // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('editRoomModal'));
-    modal.show();
-}
-</script>
 
 
 <script>
