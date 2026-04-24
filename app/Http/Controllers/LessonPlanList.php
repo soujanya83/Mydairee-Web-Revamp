@@ -477,7 +477,7 @@ public function programplanMonthYear(Request $request)
 
 public function programplanAutosave(Request $request)
 {
-    dd($request->all());
+    // dd($request->all());
     // Validate input
     $validated = $request->validate([
         'plan_id' => 'required|integer|exists:programplantemplatedetailsadd,id',
