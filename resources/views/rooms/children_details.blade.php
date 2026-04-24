@@ -305,24 +305,43 @@
                     </div>
 
                     <div class="row">
+                        @php
+                            $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+                            $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+                        @endphp
                         @foreach($allchilds as $child)
+                        @php
+                            $profileImg = null;
+                            if (!empty($child->imageUrl)) {
+                                $profileImg = asset($child->imageUrl);
+                            } elseif (isset($child->gender) && strtolower($child->gender) === 'female') {
+                                $profileImg = asset('assets/img/xs/' . $femaleAvatars[array_rand($femaleAvatars)]);
+                            } elseif (isset($child->gender) && strtolower($child->gender) === 'male') {
+                                $profileImg = asset('assets/img/xs/' . $maleAvatars[array_rand($maleAvatars)]);
+                            } else {
+                                $profileImg = asset('assets/img/user.png');
+                            }
+                            $fallbackImg = isset($child->gender) && strtolower($child->gender) === 'female'
+                                ? asset('assets/img/xs/' . $femaleAvatars[array_rand($femaleAvatars)])
+                                : (isset($child->gender) && strtolower($child->gender) === 'male'
+                                    ? asset('assets/img/xs/' . $maleAvatars[array_rand($maleAvatars)])
+                                    : asset('assets/img/user.png'));
+                        @endphp
                         <div class="col-md-4 mb-4">
                             <div class="card shadow-sm border-0 rounded p-3">
                                 <div class="d-flex align-items-center mb-2">
-                                    <img src="{{ $child->imageUrl ? asset($child->imageUrl) : 'https://e7.pngegg.com/pngimages/565/301/png-clipart-computer-icons-app-store-child-surprise-in-collection-game-child.png' }}"
+                                    <img src="{{ $profileImg }}"
                                         alt="Profile" class="rounded-circle" width="50" height="50"
-                                        style="object-fit: cover;">
+                                        style="object-fit: cover;"
+                                        onerror="this.onerror=null;this.src='{{ $fallbackImg }}';">
                                     <div class="ms-3" style="margin-left:12px">
                                         <h5 class="mb-1">
-                                            <a href="{{ route('edit_child', ['id' => $child->id]) }}">{{
-                                                ucfirst($child->name) }}</a>
+                                            <a href="{{ route('edit_child', ['id' => $child->id]) }}">{{ ucfirst($child->name) }}</a>
                                         </h5>
                                         <p class="mb-0">Date of Birth: {{ date('d-M-Y', strtotime($child->dob)) }}</p>
-                                        <p class="mb-0">Joining Date: {{ date('d-M-Y', strtotime($child->startDate)) }}
-                                        </p>
-                                        <p class="mb-0">Gender: {{ $child->gender }}
+                                        <p class="mb-0">Joining Date: {{ date('d-M-Y', strtotime($child->startDate)) }}</p>
+                                        <p class="mb-0">Gender: {{ $child->gender }}</p>
                                         <p class="mb-0">{{ \Carbon\Carbon::parse($child->dob)->age }} years</p>
-
                                     </div>
                                 </div>
                                 {{-- <a href="#" class="btn btn-outline-primary btn-sm mt-2">Last Observation</a> --}}
@@ -346,13 +365,35 @@
 
 
                 <div class="row">
+                    @php
+                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+                    @endphp
                     @foreach($roomEducators as $educator)
+                    @php
+                        $profileImg = null;
+                        if (!empty($educator->imageUrl)) {
+                            $profileImg = asset($educator->imageUrl);
+                        } elseif (isset($educator->gender) && strtolower($educator->gender) === 'female') {
+                            $profileImg = asset('assets/img/xs/' . $femaleAvatars[array_rand($femaleAvatars)]);
+                        } elseif (isset($educator->gender) && strtolower($educator->gender) === 'male') {
+                            $profileImg = asset('assets/img/xs/' . $maleAvatars[array_rand($maleAvatars)]);
+                        } else {
+                            $profileImg = asset('assets/img/user.png');
+                        }
+                        $fallbackImg = isset($educator->gender) && strtolower($educator->gender) === 'female'
+                            ? asset('assets/img/xs/' . $femaleAvatars[array_rand($femaleAvatars)])
+                            : (isset($educator->gender) && strtolower($educator->gender) === 'male'
+                                ? asset('assets/img/xs/' . $maleAvatars[array_rand($maleAvatars)])
+                                : asset('assets/img/user.png'));
+                    @endphp
                     <div class="col-md-4 mb-4">
                         <div class="card shadow-sm border-0 rounded p-3">
                             <div class="d-flex align-items-center mb-2">
-                                <img src="{{ $educator->imageUrl ? asset($educator->imageUrl) : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}"
+                                <img src="{{ $profileImg }}"
                                     alt="Profile" class="rounded-circle" width="50" height="50"
-                                    style="object-fit: cover;">
+                                    style="object-fit: cover;"
+                                    onerror="this.onerror=null;this.src='{{ $fallbackImg }}';">
                                 <div class="ms-3" style="margin-left:12px">
                                     <h5 class="mb-1">{{ ucfirst($educator->name) }}</h5>
                                     <p class="mb-0">{{ $educator->gender }}</p>
@@ -401,14 +442,34 @@
                     @endforeach --}}
 
 
+                    @php
+                        $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+                        $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+                    @endphp
                     @foreach ($AllEducators as $educator)
+                    @php
+                        $profileImg = null;
+                        if (!empty($educator->imageUrl)) {
+                            $profileImg = asset($educator->imageUrl);
+                        } elseif (isset($educator->gender) && strtolower($educator->gender) === 'female') {
+                            $profileImg = asset('assets/img/xs/' . $femaleAvatars[array_rand($femaleAvatars)]);
+                        } elseif (isset($educator->gender) && strtolower($educator->gender) === 'male') {
+                            $profileImg = asset('assets/img/xs/' . $maleAvatars[array_rand($maleAvatars)]);
+                        } else {
+                            $profileImg = asset('assets/img/user.png');
+                        }
+                        $fallbackImg = isset($educator->gender) && strtolower($educator->gender) === 'female'
+                            ? asset('assets/img/xs/' . $femaleAvatars[array_rand($femaleAvatars)])
+                            : (isset($educator->gender) && strtolower($educator->gender) === 'male'
+                                ? asset('assets/img/xs/' . $maleAvatars[array_rand($maleAvatars)])
+                                : asset('assets/img/user.png'));
+                    @endphp
                     <div class="form-check d-flex align-items-center mb-2">
-                        <img src="{{ asset($educator->imageUrl) }}" class="rounded-circle ms-2 me-2" width="40"
-                            height="40">
+                        <img src="{{ $profileImg }}" class="rounded-circle ms-2 me-2" width="40" height="40"
+                            onerror="this.onerror=null;this.src='{{ $fallbackImg }}';">
 
                         <input class="form-check-input" type="checkbox" name="educators[]"
-                            value="{{ $educator->userid }}" {{ in_array($educator->userid, $assignedEducatorIds) ?
-                        'checked' : '' }}>
+                            value="{{ $educator->userid }}" {{ in_array($educator->userid, $assignedEducatorIds) ? 'checked' : '' }}>
 
                         &nbsp;&nbsp;&nbsp;
                         <label class="form-check-label">{{ $educator->name }}</label>
