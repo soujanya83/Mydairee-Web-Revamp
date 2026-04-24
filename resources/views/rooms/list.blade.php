@@ -294,11 +294,31 @@
                             $total = count($educatorsCenterdata);
                             @endphp
                             @foreach($educatorsCenterdata->take(5) as $educator)
-                            <img src="{{ $educator->imageUrl ? asset($educator->imageUrl) : asset('storage/children/images/download.jpg') }}"
+                            @php
+                                $maleAvatars = ['avatar1.jpg', 'avatar5.jpg', 'avatar8.jpg', 'avatar9.jpg', 'avatar10.jpg'];
+                                $femaleAvatars = ['avatar2.jpg', 'avatar3.jpg', 'avatar4.jpg', 'avatar6.jpg', 'avatar7.jpg'];
+                                $profileImg = null;
+                                if (!empty($educator->imageUrl)) {
+                                    $profileImg = asset($educator->imageUrl);
+                                } elseif (isset($educator->gender) && strtolower($educator->gender) === 'female') {
+                                    $profileImg = asset('assets/img/xs/' . $femaleAvatars[array_rand($femaleAvatars)]);
+                                } elseif (isset($educator->gender) && strtolower($educator->gender) === 'male') {
+                                    $profileImg = asset('assets/img/xs/' . $maleAvatars[array_rand($maleAvatars)]);
+                                } else {
+                                    $profileImg = asset('assets/img/user.png');
+                                }
+                                $fallbackImg = isset($educator->gender) && strtolower($educator->gender) === 'female'
+                                    ? asset('assets/img/xs/' . $femaleAvatars[array_rand($femaleAvatars)])
+                                    : (isset($educator->gender) && strtolower($educator->gender) === 'male'
+                                        ? asset('assets/img/xs/' . $maleAvatars[array_rand($maleAvatars)])
+                                        : asset('assets/img/user.png'));
+                            @endphp
+                            <img src="{{ $profileImg }}"
                                 class="rounded-circle border"
                                 style="width: 35px; height: 35px; object-fit: cover; margin-right: 4px; cursor:pointer;"
                                 title="{{ ucfirst($educator->name ?? '') }}"
-                                onclick="event.stopPropagation(); event.preventDefault(); showRoomEducators(@json($educatorsCenterdata))">
+                                onclick="event.stopPropagation(); event.preventDefault(); showRoomEducators(@json($educatorsCenterdata))"
+                                onerror="this.onerror=null;this.src='{{ $fallbackImg }}';">
                             @endforeach
                             @if($total > 5)
                             <span
