@@ -274,7 +274,7 @@ $convertedTime = intval($hours) . 'h:' . str_pad($minutes, 2, '0', STR_PAD_LEFT)
             ->get();
 
        
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('headChecks.print', compact('room', 'month', 'headchecks', 'startOfWeek', 'endOfWeek', 'inputDate'));
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('headChecks.print_pdf', compact('room', 'month', 'headchecks', 'startOfWeek', 'endOfWeek', 'inputDate'));
         return $pdf->download('headchecks.pdf');
     }
 
