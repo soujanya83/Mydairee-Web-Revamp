@@ -149,6 +149,9 @@ Route::get('headChecks',[HeadChecks::class,'index'])->name('headChecks');
 Route::post('headchecks/store',[HeadChecks::class,'headchecksStore'])->name('headchecks.store');
 Route::post('headchecks/getCenterRooms',[HeadChecks::class,'getCenterRooms'])->name('headchecks.getCenterRooms');
 Route::post('headcheckdelete',[HeadChecks::class,'headcheckDelete'])->name('headcheck.delete');
+Route::get('headChecks/print', [HeadChecks::class, 'print'])->middleware('auth:sanctum');
+Route::get('headChecks/view', [HeadChecks::class, 'weekTable'])->middleware('auth:sanctum');
+
 
 // sleep checks
 Route::get('sleepcheck/list',[SleepCheckController::class,'getSleepChecksList'])->name('sleepcheck.list');

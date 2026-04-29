@@ -250,6 +250,33 @@ $convertedTime = intval($hours) . 'h:' . str_pad($minutes, 2, '0', STR_PAD_LEFT)
 }
 
 
+    public function print(Request $request)
+    {
+        $request->validate([
+            'roomid' => 'required',
+            'centerid' => 'required',
+            'diarydate' => 'required'
+        ]);
+
+        $roomid = $request->roomid;
+        $inputDate = $request->diarydate;
+
+        // Convert from d-m-Y to Y-m-d
+        $date = \Carbon\Carbon::createFromFormat('d-m-Y', $inputDate);
+        $formattedDate = $date->format('Y-m-d');
+        $startOfWeek = $date->copy()->startOfWeek();
+        $endOfWeek = $startOfWeek->copy()->addDays(4); // Friday
+        $month = $date->format('m');
+        $room = Room::where('id', $roomid)->select('name')->first();
+
+        $headchecks = DailyDiaryHeadCheckModel::where('roomid', $roomid)
+            ->whereBetween('diarydate', [$startOfWeek->format('Y-m-d'), $endOfWeek->format('Y-m-d')])
+            ->get();
+
+       
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('headChecks.print', compact('room', 'month', 'headchecks', 'startOfWeek', 'endOfWeek', 'inputDate'));
+        return $pdf->download('headchecks.pdf');
+    }
 
 public function headcheckDelete(Request $request)
 {
@@ -273,4 +300,74 @@ public function headcheckDelete(Request $request)
         ]);
     }
 }
+
+
+    public function weekTable(Request $request)
+    {
+        $request->validate([
+            'roomid' => 'required',
+            'centerid' => 'required',
+            'diarydate' => 'required'
+        ]);
+
+        $roomid = $request->roomid;
+        $inputDate = $request->diarydate;
+
+        // Convert from d-m-Y to Y-m-d
+        $date = \Carbon\Carbon::createFromFormat('d-m-Y', $inputDate);
+        $startOfWeek = $date->copy()->startOfWeek();
+        $endOfWeek = $startOfWeek->copy()->addDays(4); // Friday
+        $month = $date->format('m');
+        $room = Room::where('id', $roomid)->select('name')->first();
+
+        $headchecks = DailyDiaryHeadCheckModel::where('roomid', $roomid)
+            ->whereBetween('diarydate', [$startOfWeek->format('Y-m-d'), $endOfWeek->format('Y-m-d')])
+            ->get();
+
+        $weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        $headcheckMap = [];
+        $uniqueTimes = [];
+        $diaryDates = [];
+
+        // Normalize function
+        $normalizeTime = function($str) {
+            if (preg_match('/(\d+)h:(\d+)m/', $str, $matches)) {
+                return sprintf('%02d.%02d', $matches[1], $matches[2]);
+            }
+            return $str;
+        };
+
+        // Process headchecks
+        foreach ($headchecks as $hc) {
+            $day = \Carbon\Carbon::parse($hc->diarydate)->format('l');
+            $dateFormatted = \Carbon\Carbon::parse($hc->diarydate)->format('d-m-Y');
+            $normalizedTime = $normalizeTime($hc->time);
+            if (!in_array($normalizedTime, $uniqueTimes)) {
+                $uniqueTimes[] = $normalizedTime;
+            }
+            if (in_array($day, $weekdays)) {
+                $headcheckMap[$normalizedTime][$day] = [
+                    'headcount' => $hc->headcount,
+                    'signature' => $hc->signature
+                ];
+                $diaryDates[$day] = $dateFormatted;
+            }
+        }
+        sort($uniqueTimes);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Weekly head checks data fetched successfully.',
+            'data' => [
+                'room' => $room,
+                'month' => $month,
+                'startOfWeek' => $startOfWeek->format('d-m-Y'),
+                'endOfWeek' => $endOfWeek->format('d-m-Y'),
+                'weekdays' => $weekdays,
+                'diaryDates' => $diaryDates,
+                'uniqueTimes' => $uniqueTimes,
+                'headcheckMap' => $headcheckMap
+            ]
+        ]);
+    }
 }
