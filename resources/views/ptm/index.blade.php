@@ -386,8 +386,10 @@ body[class^="theme-"] .modal-footer .btn.btn-primary:focus {
                                 @if ($ptm->status === 'Draft')
                                     <a href="#" class="publish-btn" data-ptm-id="{{ $ptm->id }}"
                                         title="Publish PTM"><i class="fas fa-upload"></i></a>
+                                     @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['editPtm']) && $permissions['editPtm']))
                                     <a href="{{ route('ptm.editptm', $ptm->id) }}" title="Edit PTM"><i
                                             class="fas fa-pen-square"></i></a>
+                                    @endif
                                 @endif
                                 @if(!empty($permissions['deletePtm']) && $permissions['deletePtm'])
                                 <a href="#" class="delete-btn" data-ptm-id="{{ $ptm->id }}"

@@ -176,6 +176,23 @@
             margin-top:10px;
         }
 
+        .name-badge-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .name-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border: 1px solid #d5dbe3;
+            border-radius: 999px;
+            background: #f4f7fb;
+            font-size: 13px;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
         @media print {
     .print-button {
         display: none;
@@ -270,18 +287,54 @@
             PROGRAM PLAN <span style="color:#22b1c4;">{{ $month_name }} {{ $plan['years'] ?? '' }}</span>
         </div>
 
+        @php
+            $roomBadges = array_values(array_filter(array_map('trim', explode(',', (string) $room_name))));
+            $educatorBadges = array_values(array_filter(array_map('trim', explode(',', (string) $educator_names))));
+            $childrenBadges = array_values(array_filter(array_map('trim', explode(',', (string) $children_names))));
+        @endphp
+
         <table>
             <tr class="room-name-row">
                 <td><strong>Room Name</strong></td>
-                <td colspan="5">{{ $room_name }}</td>
+                <td colspan="5">
+                    @if(count($roomBadges))
+                        <div class="name-badge-wrap">
+                            @foreach($roomBadges as $name)
+                                <span class="name-badge">{{ $name }}</span>
+                            @endforeach
+                        </div>
+                    @else
+                        &nbsp;
+                    @endif
+                </td>
             </tr>
             <tr class="educators-row">
                 <td><strong>Educators</strong></td>
-                <td colspan="5">{{ $educator_names }}</td>
+                <td colspan="5">
+                    @if(count($educatorBadges))
+                        <div class="name-badge-wrap">
+                            @foreach($educatorBadges as $name)
+                                <span class="name-badge">{{ $name }}</span>
+                            @endforeach
+                        </div>
+                    @else
+                        &nbsp;
+                    @endif
+                </td>
             </tr>
             <tr class="educators-row">
                 <td><strong>Children</strong></td>
-                <td colspan="5">{{ $children_names }}</td>
+                <td colspan="5">
+                    @if(count($childrenBadges))
+                        <div class="name-badge-wrap">
+                            @foreach($childrenBadges as $name)
+                                <span class="name-badge">{{ $name }}</span>
+                            @endforeach
+                        </div>
+                    @else
+                        &nbsp;
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td class="focus-area"><strong>Focus Area</strong></td>

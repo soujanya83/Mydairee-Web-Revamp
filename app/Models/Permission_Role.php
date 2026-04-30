@@ -93,6 +93,11 @@ class Permission_Role extends Model
         'addsubActivity',
         'deletesubActivity',
         'editsubActivity',
+        'viewPtm',
+        'createPtm',
+        'editPtm',
+        'reschedulePtm',
+        'deletePtm',
         'created_by',
         'created_at', 
         'updated_at'

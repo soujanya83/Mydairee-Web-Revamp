@@ -1130,6 +1130,10 @@ body[class*="theme-"] .page-header .btn-primary {
                                         </div>
                                         <div class="entry-row">
                                             <div class="entry-item">
+                                                <span class="entry-label">No of Serve:</span>
+                                                <span class="entry-value">{{ isset($lunch->serve) ? $lunch->serve : 'No Update' }}</span>
+                                            </div>                                            
+                                            <div class="entry-item">
                                                 <span class="entry-label">Comments:</span>
                                                 <span class="entry-value">{{ $lunch->comments ?? 'No Update' }}</span>
                                             </div>
@@ -1763,12 +1767,25 @@ body[class*="theme-"] .page-header .btn-primary {
                                                 </div>
                                             </div>
                                         </div>
+                                         <div class="form-group">
+                                            <label class="form-label">
+                                                <i class="fas fa-user-friends mr-2"></i>No of Serve
+                                            </label>
+                                            <select class="form-control" id="lunch-no-of-serve">
+                                                <option value="0">0</option>
+                                                <option value="1" selected>1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                            </select>
+                                        </div>
                                         <div class="form-group">
                                             <label class="form-label">
                                                 <i class="fas fa-comment mr-2"></i>Comments
                                             </label>
                                             <textarea class="form-control" id="lunch-comments" rows="3" placeholder="Any additional notes..."></textarea>
                                         </div>
+                                       
                                         <div class="form-group text-right">
                                             <button type="button" class="btn btn-primary submit-activity" data-activity="lunch">
                                                 <i class="fas fa-save mr-2"></i>Save Lunch Entry
@@ -2107,9 +2124,20 @@ body[class*="theme-"] .page-header .btn-primary {
                         <input type="text" name="item" class="form-control" id="lunch_modal_item">
                     </div>
                     <div class="form-group">
+                        <label>No of Serve</label>
+                        <select name="no_of_serve" class="form-control" id="lunch_modal_no_of_serve">
+                            <option value="0">0</option>
+                            <option value="1" selected>1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>Comments</label>
                         <textarea name="comments" class="form-control" id="lunch_modal_comments"></textarea>
                     </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">Save</button>
@@ -2443,6 +2471,7 @@ $(document).ready(function() {
             activityData.time = $('#lunch-time').val();
             activityData.item = $('#lunch-item').val();
             activityData.comments = $('#lunch-comments').val();
+            activityData.no_of_serve = $('#lunch-no-of-serve').val();
             break;
         case 'sleep':
             activityData.sleep_time = $('#sleep-time').val();
@@ -2897,10 +2926,12 @@ $(document).on('click', '.open-lunch-modal', function() {
                 $('#lunch_modal_start_time').val(res.data.startTime || '');
                 $('#lunch_modal_item').val(res.data.item || '');
                 $('#lunch_modal_comments').val(res.data.comments || '');
+                $('#lunch_modal_no_of_serve').val(res.data.serve !== undefined ? res.data.serve : '1');
             } else {
                 $('#lunch_modal_start_time').val('');
                 $('#lunch_modal_item').val('');
                 $('#lunch_modal_comments').val('');
+                $('#lunch_modal_no_of_serve').val('1');
             }
             $('#lunchModal').modal('show');
         },
@@ -2926,6 +2957,7 @@ $('#lunchForm').on('submit', function(e) {
             startTime: $('#lunch_modal_start_time').val(),
             item: $('#lunch_modal_item').val(),
             comments: $('#lunch_modal_comments').val(),
+            no_of_serve: $('#lunch_modal_no_of_serve').val(),
             _token: '{{ csrf_token() }}'
         },
         success: function(res) {
