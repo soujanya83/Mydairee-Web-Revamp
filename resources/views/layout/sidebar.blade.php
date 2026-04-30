@@ -168,11 +168,13 @@
                         </li>
                         @endif
 
-                        {{--  <li class="{{ Request::is('ptm*') ? 'active' : null }}">
+                        @if( in_array(auth()->user()->userType, ['Superadmin']))
+                        <li class="{{ Request::is('ptm*') ? 'active' : null }}">
                             <a href="{{route('ptm.index')}}" data-toggle="tooltip" data-placement="right">
                                 <i class="fas fa-chalkboard-teacher" style="font-size: 21px; "></i><span
                                     style="font-size: 18px; margin-left:4px;">PTM</span></a>
-                        </li>  --}}
+                        </li>
+                        @endif
 
 {{--                          
                         @if(auth()->user()->userType === 'Parent' || auth()->user()->userType === 'Superadmin' || (!empty($permissions['viewMessages']) && $permissions['viewMessages']))

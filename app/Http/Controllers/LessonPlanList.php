@@ -291,8 +291,13 @@ public function programPlanPrintPage($id)
         // Decode HTML entities
         $content = html_entity_decode($content);
 
-        // Replace <br> and <br /> with newlines
-        $content = preg_replace('/<br\s*\/?>/i', "\n", $content);
+        // Preserve structure before stripping HTML so lines don't merge
+        $content = preg_replace('/<\s*br\s*\/?\s*>/i', "\n", $content);
+        $content = preg_replace('/<\s*\/p\s*>/i', "\n", $content);
+        $content = preg_replace('/<\s*p[^>]*>/i', '', $content);
+        $content = preg_replace('/<\s*li[^>]*>/i', '', $content);
+        $content = preg_replace('/<\s*\/li\s*>/i', "\n", $content);
+        $content = preg_replace('/<\s*\/\s*(ul|ol)\s*>/i', "\n", $content);
 
         // Remove all other HTML tags
         $content = strip_tags($content);
@@ -312,7 +317,31 @@ public function programPlanPrintPage($id)
 
     // List of CKEditor fields to clean
     $ckeditorFields = [
-        
+        'focus_area',
+        'art_craft',
+        'art_craft_experiences',
+        'practical_life',
+        'practical_life_experiences',
+        'sensorial',
+        'sensorial_experiences',
+        'math',
+        'math_experiences',
+        'language',
+        'language_experiences',
+        'culture',
+        'culture_experiences',
+        'eylf',
+        'outdoor_experiences',
+        'inquiry_topic',
+        'sustainability_topic',
+        'special_events',
+        'children_voices',
+        'families_input',
+        'group_experience',
+        'spontaneous_experience',
+        'mindfulness_experiences',
+        'working',
+        'notworking'
     ];
 
     // Clean all CKEditor fields

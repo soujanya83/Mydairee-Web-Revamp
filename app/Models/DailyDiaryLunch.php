@@ -16,6 +16,7 @@ class DailyDiaryLunch extends Model
         'item',
         'calories',
         'qty',
+        'serve',
         'comments',
         'createdBy',
         'createdAt',

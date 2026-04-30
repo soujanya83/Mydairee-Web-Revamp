@@ -83,16 +83,16 @@ class DailyDiaryController extends Controller
 
             $parentId = auth()->user()->id;
 
-$childIds = Childparent::where('parentid', $parentId)->pluck('childid');
+        $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
 
-$children = Child::whereIn('id', $childIds)
-->where('status','Active')
-->orderBy('name', 'asc')
-    ->get()
-    ->filter(function ($child) use ($dayIndex) {
-        return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
-    })
-    ->map(function ($child) use ($selectedDate) {
+        $children = Child::whereIn('id', $childIds)
+        ->where('status','Active')
+        ->orderBy('name', 'asc')
+            ->get()
+            ->filter(function ($child) use ($dayIndex) {
+                return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
+            })
+            ->map(function ($child) use ($selectedDate) {
         return [
             'child' => $child,
             'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
@@ -925,8 +925,14 @@ $children = Child::whereIn('id', $childIds)
             'child_ids.*' => 'exists:child,id',
             'time' => 'required|date_format:H:i',
             'item' => 'required|string|max:255',
+            'no_of_serve' => 'nullable|integer',
             'comments' => 'nullable|string'
         ]);
+
+        $serve = (int) ($request->input('no_of_serve', 1) ?: 1);
+        if ($serve < 0 || $serve > 4) {
+            $serve = 1;
+        }
 
         try {
             DB::beginTransaction();
@@ -948,6 +954,7 @@ $children = Child::whereIn('id', $childIds)
                     $existingEntry->update([
                         'startTime' => $request->time,
                         'item' => $request->item,
+                        'serve' => $serve,
                         'comments' => $request->comments,
                         'updated_at' => now()
                     ]);
@@ -959,6 +966,7 @@ $children = Child::whereIn('id', $childIds)
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
                         'item' => $request->item,
+                        'serve' => $serve,
                         'comments' => $request->comments,
                         'createdBy' => $authId
                     ]);
@@ -1778,6 +1786,10 @@ $children = Child::whereIn('id', $childIds)
             $childId = $request->input('child_id');
             $date = $request->input('selected_date');
             $authId = auth()->user()->id;
+            $serve = (int) ($request->input('no_of_serve', 1) ?: 1);
+            if ($serve < 0 || $serve > 4) {
+                $serve = 1;
+            }
 
             $lunch = DailyDiaryLunch::updateOrCreate(
                 [
@@ -1788,6 +1800,7 @@ $children = Child::whereIn('id', $childIds)
                     'startTime' => $request->input('startTime'),
                     'item' => $request->input('item'),
                     'comments' => $request->input('comments'),
+                    'serve' => $serve,
                     'createdBy' => $authId
                 ]
             );

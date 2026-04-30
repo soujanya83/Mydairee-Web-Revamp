@@ -84,5 +84,10 @@ class PermissionsModel extends Model
         'editSelfAssessment',
         'deleteSelfAssessment',
         'viewSelfAssessment',
+        'viewPtm',
+        'createPtm',
+        'editPtm',
+        'reschedulePtm',
+        'deletePtm',
     ];
 }

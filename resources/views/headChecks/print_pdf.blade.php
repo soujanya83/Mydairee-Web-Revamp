@@ -52,30 +52,24 @@
 @endphp
 <body>
 <div class="container">
- <div class="text-center mb-4">
     <h4>Children Head Checks</h4>
-    @if(isset($startOfWeek))
-        <div class="mt-2">
-            <span class="font-weight-bold">Week:</span>
-            {{ Carbon::parse($startOfWeek)->format('d M Y') }} - {{ Carbon::parse($startOfWeek)->addDays(4)->format('d M Y') }}
-        </div>
-    @elseif(isset($inputDate))
-        <div class="mt-2">
-            <span class="font-weight-bold">Date:</span>
-            {{ Carbon::parse($inputDate)->format('d M Y') }}
-        </div>
-    @endif
-</div>
-<div class="form-group row justify-content-center text-center align-items-center">
-    <div class="col-auto">
-        <label class="mb-0 font-weight-bold mr-2">Room Name:</label>
-        <span>{{ $room->name ?? '-' }}</span>
+    <div style="width:100%; text-align:center;  margin-bottom:0.5em;">
+        @if(isset($startOfWeek))
+            <span><b>Week:</b> {{ Carbon::parse($startOfWeek)->format('d M Y') }} - {{ Carbon::parse($startOfWeek)->addDays(4)->format('d M Y') }}</span>
+        @elseif(isset($inputDate))
+            <span><b>Date:</b> {{ Carbon::parse($inputDate)->format('d M Y') }}</span>
+        @endif
     </div>
-    <div class="col-auto ml-4">
-        <label class="mb-0 font-weight-bold mr-2">Month:</label>
-        <span>{{ Carbon::createFromFormat('m', $month)->format('F') ?? '-' }}</span>
+    <div style="width:100%; display:table; margin-bottom: 1.5em;">
+        <div style="display:table-row;">
+            <div style="display:table-cell; text-align:right; vertical-align:middle; width:50%;">
+                <span class="font-weight-bold">Room Name:</span> {{ $room->name ?? '-' }}
+            </div>
+            <div style="display:table-cell; text-align:left; vertical-align:middle; width:50%; padding-left:60px;">
+                <span class="font-weight-bold">Month:</span> {{ Carbon::createFromFormat('m', $month)->format('F') ?? '-' }}
+            </div>
+        </div>
     </div>
-</div>
     <table>
    <thead>
     <tr>
