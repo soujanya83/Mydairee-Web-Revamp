@@ -24,6 +24,7 @@ use App\Http\Controllers\API\ParentSlideshowController;
 use App\Http\Controllers\API\ApiResetPasswordController; 
 use App\Http\Controllers\API\UserProfileController; 
 use App\Http\Controllers\API\DeviceController;
+use App\Http\Controllers\API\GlobalRoomsChildrenController;
 use App\Http\Controllers\API\NotificationApiController;
 use App\Http\Controllers\API\PublicHolidayController;
  
@@ -39,6 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::post('user/profile-picture', [UserProfileController::class, 'updateProfilePicture']);
 	Route::get('user/profile', [UserProfileController::class, 'getProfile']);
 	Route::patch('user/profile', [UserProfileController::class, 'updateProfile']);
+    Route::get('global-rooms', [GlobalRoomsChildrenController::class, 'getCenterRooms']);
+    Route::get('global-children', [GlobalRoomsChildrenController::class, 'getRoomChildren']);
 });
 
 Route::middleware('auth:sanctum')->post('user/change-password', [ApiResetPasswordController::class, 'changePassword']);
@@ -90,11 +93,13 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('dashboard/analytical', [Dashboard::class, 'analytical'])->name('dashboard.analytical');
 Route::get('/api/events', [Dashboard::class, 'getEvents']);
   Route::get('/dashboard', [Dashboard::class, 'university']);
+    Route::match(['get', 'post'], '/newdashboard', [Dashboard::class, 'newdashboard']);
 //  Route::get('/dashboard', [Dashboard::class, 'university'])->name('dashboard.university');
      Route::get('users/birthday', [Dashboard::class, 'getUser'])->name('users..birthday');
      Route::get('/api/events', [Dashboard::class, 'getEvents']);
 
            Route::get('/slideshow', [ParentSlideshowController::class, 'getSlideshowData']);
+
 
 
         Route::prefix('snapshot')->name('snapshot.')->group(function () {
@@ -161,14 +166,14 @@ Route::post('sleepcheck/delete',[SleepCheckController::class,'sleepcheckDelete']
 Route::post('sleepcheck/bulk-save', [SleepCheckController::class, 'bulkSave'])->name('sleepcheck.bulk_save');
 
 // Accidents
-Route::get('Accidents/list',[AccidentsController::class,'AccidentsList'])->name('Accidents.list');
+Route::match(['get', 'post'], 'Accidents/list',[AccidentsController::class,'AccidentsList'])->name('Accidents.list');
 Route::post('Accidents/getCenterRooms',[AccidentsController::class,'getCenterRooms'])->name('Accidents.getCenterRooms');
 Route::put('Accidents/update/{id}',[AccidentsController::class,'AccidentsUpdate'])->name('accidents.update');
-Route::get('Accidents/details',[AccidentsController::class,'getAccidentDetails'])->name('Accidents.details');
+Route::match(['get', 'post'], 'Accidents/details',[AccidentsController::class,'getAccidentDetails'])->name('Accidents.details');
 Route::post('Accidents/sendEmail',[AccidentsController::class,'sendEmail'])->name('Accidents.sendEmail');
-Route::get('Accidents/downloadPdf', [AccidentsController::class, 'downloadPdf'])->name('Accidents.downloadPdf');
-Route::get('Accidents/create',[AccidentsController::class,'create'])->name('Accidents.create');
-Route::get('Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
+Route::match(['get', 'post'], 'Accidents/downloadPdf', [AccidentsController::class, 'downloadPdf'])->name('Accidents.downloadPdf');
+Route::match(['get', 'post'], 'Accidents/create',[AccidentsController::class,'create'])->name('Accidents.create');
+Route::match(['get', 'post'], 'Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
 Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
 Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
     Route::post('Accident/delete', [AccidentsController::class, 'AccidentDelete'])->name('Accident.delete');
@@ -200,6 +205,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
     // Observation comments API
     Route::get('/{observationId}/comments', [ObservationsController::class, 'listComments']);
     Route::post('/{observationId}/comments', [ObservationsController::class, 'addComment']);
+    Route::delete('/{observationId}/comments/{commentId}', [ObservationsController::class, 'deleteComment']);
     Route::delete('/delete/{id}', [ObservationsController::class, 'destroy'])->name('delete');
 
         Route::get('/index', [ObservationsController::class, 'index'])->name('index');
@@ -329,7 +335,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // Daily Journel here
-    Route::get('DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.apilist');
+    Route::match(['get', 'post'],'DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.apilist');
     Route::post('dailyDiary/storeBottle', [DailyDiaryController::class, 'storeBottle'])->name('dailyDiary.storeBottle');
     Route::post('dailyDiary/storeFood', [DailyDiaryController::class, 'storeFood'])->name('dailyDiary.storeFood');
     Route::post('dailyDiary/storeSleep', [DailyDiaryController::class, 'storeSleep'])->name('dailyDiary.storeSleep');
