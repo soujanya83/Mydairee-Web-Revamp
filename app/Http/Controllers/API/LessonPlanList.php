@@ -23,6 +23,7 @@ use App\Models\MontessoriActivity;
 use App\Models\ProgramPlan;
 use App\Models\MontessoriSubActivity;
 use App\Models\RoomStaff;
+use App\Models\Permission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -64,33 +65,33 @@ class LessonPlanList extends Controller
         ]);
     }
 
-public function updatestatus(Request $r)
-{
-    $validator = Validator::make($r->all(), [
-        'planid' => 'required|exists:program_plan_template_details_adds,id',
-    ]);
+    public function updatestatus(Request $r)
+    {
+        $validator = Validator::make($r->all(), [
+            'planid' => 'required|exists:ProgramPlanTemplateDetailsAdd,id',
+        ]);
 
-    if ($validator->fails()) {
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        // Find plan
+        $plan = ProgramPlanTemplateDetailsAdd::find($r->planid);
+
+        // Toggle status
+        $plan->status = ($plan->status == 'Draft') ? 'Published' : 'Draft';
+        $plan->save();
+
         return response()->json([
-            'status'  => false,
-            'message' => 'Validation failed',
-            'errors'  => $validator->errors(),
-        ], 422);
+            'status'  => true,
+            'message' => 'Status updated successfully',
+            'new_status' => $plan->status
+        ]);
     }
-
-    // Find plan
-    $plan = ProgramPlanTemplateDetailsAdd::find($r->planid);
-
-    // Toggle status
-    $plan->status = ($plan->status == 'Draft') ? 'Published' : 'Draft';
-    $plan->save();
-
-    return response()->json([
-        'status'  => true,
-        'message' => 'Status updated successfully',
-        'new_status' => $plan->status
-    ]);
-}
 
     public function centers(){
          $user = Auth::user();
@@ -218,6 +219,123 @@ $centerId = $validated['centerid'];
     // } else {
     //     // return redirect('login');
     // }
+}
+
+public function filterProgramPlan(Request $request)
+{
+    if (!Auth::check()) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    $user = Auth::user();
+    $authId = $user->id;
+    $defaultCenterId = session('user_center_id');
+    $centerId = $request->input('center_id', $defaultCenterId);
+
+    if (!$centerId) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Center ID is required.'
+        ], 422);
+    }
+
+    $query = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
+        ->where('centerid', $centerId);
+
+    if ($user->userType === 'Superadmin') {
+        $accessibleCenters = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+        if (!in_array($centerId, $accessibleCenters)) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized center access'], 403);
+        }
+    } elseif ($user->userType === 'Staff') {
+        $query->where(function ($q) use ($authId) {
+            $q->where('created_by', $authId)
+              ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
+        });
+    } elseif ($user->userType === 'Parent') {
+        $childIds = Childparent::where('parentid', $authId)->pluck('childid');
+        if ($childIds->isNotEmpty()) {
+            $query->where(function ($q) use ($childIds) {
+                foreach ($childIds as $childId) {
+                    $q->orWhereRaw('FIND_IN_SET(?, children)', [$childId]);
+                }
+            });
+        } else {
+            return response()->json(['success' => true, 'data' => []]);
+        }
+    }
+
+    if ($request->filled('room')) {
+        $query->whereHas('room', function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->room . '%');
+        });
+    }
+
+    if ($request->filled('created_by')) {
+        $query->whereHas('creator', function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->created_by . '%');
+        });
+    }
+
+    if ($request->filled('status')) {
+        $query->where('status', 'like', '%' . $request->status . '%');
+    }
+
+    if ($request->filled('month')) {
+        $query->where('months', $request->month);
+    }
+
+    if ($request->filled('year')) {
+        $query->where('years', $request->year);
+    }
+
+    $programPlans = $query->orderByDesc('created_at')->get();
+
+    $permission = Permission::where('userid', $user->userid)->first();
+
+    $data = $programPlans->map(function ($plan) use ($permission, $user) {
+        $monthNumber = (int) $plan->months;
+        $monthName = $monthNumber > 0
+            ? Carbon::create()->month($monthNumber)->format('F')
+            : 'December';
+
+        $roomIds = explode(',', (string) $plan->room_id);
+        $rooms = !empty($roomIds) ? Room::whereIn('id', $roomIds)->pluck('name')->toArray() : [];
+        $room_name = implode(',', $rooms);
+
+        $deleteProgramPlan = 0;
+        $viewProgramPlan = 0;
+        $editProgramPlan = 0;
+
+        if ($user->userType === 'Superadmin' || $user->admin === '1') {
+            $deleteProgramPlan = 1;
+            $viewProgramPlan = 1;
+            $editProgramPlan = 1;
+        } elseif ($permission) {
+            $deleteProgramPlan = $permission->deleteProgramPlan ? 1 : 0;
+            $viewProgramPlan = $permission->viewProgramPlan ? 1 : 0;
+            $editProgramPlan = $permission->editProgramPlan ? 1 : 0;
+        }
+
+        return [
+            'id' => $plan->id,
+            'month' => $plan->months,
+            'month_name' => $monthName,
+            'years' => $plan->years,
+            'room_name' => $room_name,
+            'creator_name' => $plan->creator->name ?? '',
+            'created_at_formatted' => optional($plan->created_at)->format('d M Y / H:i'),
+            'updated_at_formatted' => optional($plan->updated_at)->format('d M Y / H:i'),
+            'can_edit' => $editProgramPlan,
+            'can_delete' => $deleteProgramPlan,
+            'status' => $plan->status ?? ''
+        ];
+    });
+
+    return response()->json([
+        'status' => true,
+        'data' => $data
+    ]);
 }
 
 
@@ -698,6 +816,179 @@ public function deleteProgramPlan(Request $request)
             'message' => 'Unexpected error occurred while deleting program plan.'
         ], 500);
     }
+}
+
+// public function programplanMonthYear(Request $request)
+// {
+//     $validator = Validator::make($request->all(), [
+//         'months' => 'required',
+//         'years' => 'required',
+//         'centerid' => 'nullable|integer|exists:centers,id',
+//     ]);
+
+//     if ($validator->fails()) {
+//         return response()->json([
+//             'status' => false,
+//             'message' => 'Validation failed.',
+//             'errors' => $validator->errors(),
+//         ], 422);
+//     }
+
+//     $centerid = $request->centerid ?? Auth::user()?->user_center_id ?? session('user_center_id');
+//     if (!$centerid) {
+//         return response()->json([
+//             'status' => false,
+//             'message' => 'Center not found for current user.',
+//         ], 400);
+//     }
+
+//     $programPlan = ProgramPlanTemplateDetailsAdd::create([
+//         'months' => $request->months,
+//         'years' => $request->years,
+//         'created_by' => Auth::user()->userid,
+//         'centerid' => $centerid,
+//     ]);
+
+//     return response()->json([
+//         'status' => true,
+//         'message' => 'Program plan month/year initialized successfully.',
+//         'data' => [
+//             'planId' => $programPlan->id,
+//             'centerId' => $centerid,
+//         ]
+//     ]);
+// }
+
+public function programplanAutosave(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'plan_id' => 'required|integer|exists:programplantemplatedetailsadd,id',
+        'focus_area' => 'nullable|string',
+        'art_craft' => 'nullable|string',
+        'outdoor_experiences' => 'nullable|string',
+        'inquiry_topic' => 'nullable|string',
+        'sustainability_topic' => 'nullable|string',
+        'special_events' => 'nullable|string',
+        'children_voices' => 'nullable|string',
+        'families_input' => 'nullable|string',
+        'group_experience' => 'nullable|string',
+        'spontaneous_experience' => 'nullable|string',
+        'mindfulness_experiences' => 'nullable|string',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $validated = $validator->validated();
+    $planId = $validated['plan_id'];
+    unset($validated['plan_id']);
+
+    $updated = ProgramPlanTemplateDetailsAdd::where('id', $planId)->update($validated);
+
+    if ($updated) {
+        return response()->json([
+            'status' => true,
+            'message' => 'Program plan autosaved successfully.',
+        ]);
+    }
+
+    return response()->json([
+        'status' => false,
+        'message' => 'No changes were made or plan not found.',
+    ]);
+}
+
+public function getProgramPlanEylf(Request $request)
+{
+    // Keep parity with web create flow: outcomes with activities.
+    $outcomes = EYLFOutcome::with('activities')->orderBy('title')->get();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'EYLF outcomes fetched successfully.',
+        'data' => $outcomes,
+    ]);
+}
+
+public function getProgramPlanEylfFull(Request $request)
+{
+    // Full payload including subactivities for API clients that need all data in one call.
+    $outcomes = EYLFOutcome::with('activities.subActivities')->orderBy('title')->get();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'EYLF outcomes with subactivities fetched successfully.',
+        'data' => $outcomes,
+    ]);
+}
+
+public function getProgramPlanMontessori(Request $request)
+{
+    $subjects = MontessoriSubject::with('activities.subActivities')->orderBy('idSubject')->get();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Montessori subjects with activities and subactivities fetched successfully.',
+        'data' => $subjects,
+    ]);
+}
+
+public function getProgramPlanSubActivities(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'activity_id' => 'required|integer|exists:montessoriactivity,idActivity',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $subActivities = MontessoriSubActivity::where('idActivity', $request->activity_id)
+        ->select('idSubActivity', 'idActivity', 'title')
+        ->orderBy('idSubActivity')
+        ->get();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Subactivities fetched successfully.',
+        'data' => $subActivities,
+    ]);
+}
+
+public function getProgramPlanEylfSubActivities(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'activity_id' => 'required|integer|exists:eylfactivity,id',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $subActivities = DB::table('eylfsubactivity')
+        ->where('activityid', $request->activity_id)
+        ->select('id', 'activityid', 'title')
+        ->orderBy('id')
+        ->get();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'EYLF subactivities fetched successfully.',
+        'data' => $subActivities,
+    ]);
 }
  public function generatePDF($id)
     {
