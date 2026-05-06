@@ -12,6 +12,8 @@ use App\Http\Controllers\API\AnnouncementController;
 use App\Http\Controllers\API\HeadChecks;
 use App\Http\Controllers\API\SleepCheckController;
 use App\Http\Controllers\API\AccidentsController;
+use App\Http\Controllers\API\QipController;
+use App\Http\Controllers\API\ReEnrolmentController;
 use App\Http\Controllers\API\RoomController;
 use App\Http\Controllers\API\ObservationController;
 use App\Http\Controllers\API\ObservationsController;
@@ -80,6 +82,31 @@ Route::get('/test', function () {
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/store', [RagisterController::class, 'store']);
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('qip')->name('qip.')->group(function () {
+        Route::get('/index', [QipController::class, 'index'])->name('index');
+        Route::post('/addnew', [QipController::class, 'addnew'])->name('addnew');
+        Route::post('/update-name', [QipController::class, 'updateName'])->name('update.name');
+        Route::delete('/delete/{id}', [QipController::class, 'destroy'])->name('delete');
+        Route::get('/{id}/area/{area}', [QipController::class, 'viewArea'])->name('area.view');
+        Route::post('/discussion/send', [QipController::class, 'sendDiscussion'])->name('discussion.send');
+    });
+});
+
+Route::prefix('re-enrollment')->name('re-enrollment.')->group(function () {
+    Route::get('/index', [ReEnrolmentController::class, 'dashboard'])->name('index');
+    Route::get('/form', [ReEnrolmentController::class, 'createForm'])->name('form');
+    Route::post('/store', [ReEnrolmentController::class, 'storeForm'])->name('store');
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/formdashboard', [ReEnrolmentController::class, 'dashboard'])->name('dashboard');
+        Route::get('/{reEnrolment}/details', [ReEnrolmentController::class, 'getDetails'])->name('details');
+        Route::post('/send-email', [ReEnrolmentController::class, 'sendEnrollmentEmail'])->name('send-email');
+        Route::post('/filter', [ReEnrolmentController::class, 'filterSubmissions'])->name('filter');
+        Route::get('/print/{id}', [ReEnrolmentController::class, 'printSubmission'])->name('print');
+    });
+});
+
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::get('/login',[LoginController::class,'login'])->name('login');
 // });
@@ -125,13 +152,22 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
   Route::get('/centers',[LessonPlanList::class,'centers'])->name('centers');
     // program plan
         Route::get('/programPlanList',[LessonPlanList::class,'programPlanList'])->name('programPlanList');
+                Route::get('/LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans');
+                Route::post('/LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans.post');
         Route::get('/programPlan/{id}', [LessonPlanList::class, 'getProgramPlanById'])->where('id', '[0-9]+');
     Route::post('LessonPlanList/deletedataofprogramplan',[LessonPlanList::class,'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
     Route::get('/programPlan/print', [LessonPlanList::class, 'programplanprintpage']);
     Route::get('/program-plan/pdf/{id}', [LessonPlanList::class, 'generatePDF']);
     Route::post('/LessonPlanList/get_room_users', [LessonPlanList::class, 'getRoomUsers'])->name('LessonPlanList.get_room_users');
     Route::post('/LessonPlanList/get_room_children', [LessonPlanList::class, 'getRoomChildren'])->name('LessonPlanList.get_room_children');
+    Route::get('/LessonPlanList/eylf', [LessonPlanList::class, 'getProgramPlanEylf'])->name('LessonPlanList.eylf');
+    Route::get('/LessonPlanList/eylf-full', [LessonPlanList::class, 'getProgramPlanEylfFull'])->name('LessonPlanList.eylf_full');
+    Route::get('/LessonPlanList/montessori', [LessonPlanList::class, 'getProgramPlanMontessori'])->name('LessonPlanList.montessori');
+    Route::post('/LessonPlanList/subactivities', [LessonPlanList::class, 'getProgramPlanSubActivities'])->name('LessonPlanList.subactivities');
+    Route::post('/LessonPlanList/eylf-subactivities', [LessonPlanList::class, 'getProgramPlanEylfSubActivities'])->name('LessonPlanList.eylf_subactivities');
     Route::post('/LessonPlanList/save_program_planinDB', [LessonPlanList::class, 'saveProgramPlan'])->name('LessonPlanList.save_program_planinDB');
+    Route::post('/programPlan/autosave', [LessonPlanList::class, 'programplanAutosave'])->name('programplan.autosave');
+    Route::post('/programplan/MonthYear', [LessonPlanList::class, 'programplanMonthYear'])->name('programplan.MonthYear');
     Route::get('/programPlan/create',[LessonPlanList::class,'createForm'])->name('create.programplan');
     Route::post('/programPlan',[LessonPlanList::class,'store'])->name('store.programPlan');
 Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus'])->name('update-program-plan-status');
@@ -184,12 +220,14 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
     Route::post('/child/update', [RoomController::class, 'update_child'])->name('update_child');
     Route::post('/move-children', [RoomController::class, 'moveChildren'])->name('move_children');
     Route::post('/children/delete-selected', [RoomController::class, 'delete_selected_children'])->name('delete_selected_children');
+    Route::post('/children/filter', [RoomController::class, 'filterChildren'])->name('children.filter');
     Route::get('/staffs', [RoomController::class, 'staffs'])->name('staffs');
+    Route::post('/room/assign-staff', [RoomController::class, 'assignStaffToRoom'])->name('room.assign_staff');
     Route::post('add-children', [RoomController::class, 'add_new_children'])->name('add_children');
     Route::match(['get', 'post'], '/rooms', [RoomController::class, 'rooms_list'])->name('rooms_list');
 
     Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
-    Route::delete('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
+    Route::post('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
 
     // observation
         Route::post('Observation/addActivity', [ObservationController::class, 'addActivity'])->name('Observation.addActivity');
@@ -325,10 +363,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/menu/{id}', [ApiHealthyController::class, 'apiMenuDestroy']);
     Route::match(['get', 'post'], '/healthy-recipes', [ApiHealthyController::class, 'apiHealthyRecipe']);
     Route::get('/recipe/edit/{id}', [ApiHealthyController::class, 'apiEditRecipe']);
+    Route::post('/recipe/update', [ApiHealthyController::class, 'apiUpdateRecipe']);
+    Route::post('/recipe/update/{id}', [ApiHealthyController::class, 'apiUpdateRecipe']);
     Route::delete('/recipe/delete/{id}', [ApiHealthyController::class, 'apiDestroyRecipe']);
     Route::post('/recipe/store', [ApiHealthyController::class, 'apiStoreRecipe']);
     Route::get('/ingredients', [ApiHealthyController::class, 'apiRecipeIngredients']);
     Route::get('/ingredients/edit/{id}', [ApiHealthyController::class, 'apiEditIngredient']);
+    Route::post('/ingredient/update', [ApiHealthyController::class, 'apiUpdateIngredient']);
     Route::delete('/ingredient/{id}', [ApiHealthyController::class, 'destroyIngredient']);
     Route::post('/ingredient/store', [ApiHealthyController::class, 'ingredientsStore']);
     Route::get('/meal-types', [ApiHealthyController::class, 'getUniqueMealTypes']);
