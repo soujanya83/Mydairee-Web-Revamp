@@ -29,6 +29,8 @@ use App\Http\Controllers\API\DeviceController;
 use App\Http\Controllers\API\GlobalRoomsChildrenController;
 use App\Http\Controllers\API\NotificationApiController;
 use App\Http\Controllers\API\PublicHolidayController;
+use App\Http\Controllers\API\ApiWifiIPController;
+use App\Http\Controllers\API\ApiPTMController;
  
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
@@ -174,7 +176,7 @@ Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus']
     
 
     // service details 
-        Route::get('ServiceDetails', [ServiceDetailsController::class, 'create'])->name('create.serviceDetails');
+        Route::get('ServiceDetails', [ServiceDetailsController::class, 'index'])->name('create.serviceDetails');
     Route::post('ServiceDetails', [ServiceDetailsController::class, 'store'])->name('store.serviceDetails');
 
     // annoucement
@@ -309,14 +311,14 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::prefix('settings')->name('settings.')->group(function () {
        Route::post('/updateStatusSuperadmin', [SettingsController::class, 'updateStatusSuperadmin'])->name('updateStatusSuperadmin');
         Route::get('/superadmin_settings', [SettingsController::class, 'superadminSettings'])->name('superadmin_settings');
-        Route::post('/superadmin', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
+        Route::post('/superadmin/delete', [SettingsController::class, 'destroy'])->name('superadmin.destroy');
         Route::post('/superadmin/store', [SettingsController::class, 'store'])->name('superadmin.store');
         Route::get('/superadmin/edit', [SettingsController::class, 'edit'])->name('superadmin.edit');
         Route::post('/superadmin/update', [SettingsController::class, 'update'])->name('superadmin.update');
         Route::get('/center_settings', [SettingsController::class, 'center_settings'])->name('center_settings');
         Route::post('/center_store', [SettingsController::class, 'center_store'])->name('center_store');
         Route::get('/center/{id}/edit', [SettingsController::class, 'center_edit'])->name('center.edit');
-        Route::post('/center/{id}', [SettingsController::class, 'center_update'])->name('center.update');
+        Route::post('/center', [SettingsController::class, 'center_update'])->name('center.update');
         Route::delete('/center/{id}/destroy', [SettingsController::class, 'destroycenter'])->name('center.destroy');
 
         Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
@@ -324,7 +326,8 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::post('/staff/store', [SettingsController::class, 'staff_store'])->name('staff.store');
 
         Route::get('/staff/{id}/edit', [SettingsController::class, 'staff_edit'])->name('staff.edit');
-        Route::post('/staff/{id}', [SettingsController::class, 'staff_update'])->name('staff.update');
+        Route::post('/staff/update', [SettingsController::class, 'staff_update'])->name('staff.update');
+        Route::delete('/staff/destroy/{id}', [SettingsController::class, 'staff_destroy'])->name('staff.destroy');
         Route::post('/settings/update-permissions', [SettingsController::class, 'updateUserPermissions'])->name('update_user_permissions');
 
 
@@ -332,10 +335,15 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
 
         Route::get('/parent_settings', [SettingsController::class, 'parent_settings'])->name('parent_settings');
         Route::get('/manage_permissions', [SettingsController::class, 'manage_permissions'])->name('manage_permissions');
-        Route::get('user/permissions', [SettingsController::class, 'show'])->name('allusers_permissions');
+        Route::post('user/permissions', [SettingsController::class, 'show'])->name('allusers_permissions');
         Route::post('/parent/store', [SettingsController::class, 'parent_store'])->name('parent.store');
         Route::post('/assign-permissions', [SettingsController::class, 'assign_user_permissions'])->name('assign_permissions');
         Route::get('permissions-assigned', [SettingsController::class, 'assigned_permissions'])->name('assigned_permissions');
+        Route::get('/roles', [SettingsController::class, 'role_list'])->name('roles.list');
+        Route::post('/roles', [SettingsController::class, 'role_store'])->name('roles.store');
+        Route::get('/roles/{id}', [SettingsController::class, 'role_show'])->name('roles.show');
+        Route::post('/roles/{id}/permissions', [SettingsController::class, 'role_update_permissions'])->name('roles.permissions.update');
+        Route::delete('/roles/{id}', [SettingsController::class, 'role_destroy'])->name('roles.destroy');
 
         Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
         Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');
@@ -345,6 +353,20 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::post('/upload-profile-image', [SettingsController::class, 'uploadImage'])->name('upload.profile.image');
         Route::post('/profile/update/{id}', [SettingsController::class, 'profileupdate'])->name('profile.update');
         Route::post('/profile/change-password/{id}', [SettingsController::class, 'changePassword'])->name('profile.change-password');
+
+        // Parent Email & Track Mails
+        Route::post('/parent/send-email', [SettingsController::class, 'sendEmailToParent'])->name('parent.send-email');
+        Route::get('/parent/track-mails', [SettingsController::class, 'trackMails'])->name('parent.track-mails');
+
+        // WiFi / IP Management
+        Route::prefix('ip-manage')->name('ip-manage.')->group(function () {
+            Route::get('/', [ApiWifiIPController::class, 'index'])->name('index');
+            Route::post('/store', [ApiWifiIPController::class, 'store'])->name('store');
+            Route::get('/{id}', [ApiWifiIPController::class, 'show'])->name('show');
+            Route::post('/{id}', [ApiWifiIPController::class, 'update'])->name('update');
+            Route::post('/{id}/toggle', [ApiWifiIPController::class, 'toggleStatus'])->name('toggle');
+            Route::delete('/{id}', [ApiWifiIPController::class, 'destroy'])->name('destroy');
+        });
     });
 
 
@@ -377,6 +399,25 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Daily Journel here
     Route::match(['get', 'post'],'DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.apilist');
+
+    Route::prefix('ptm')->group(function () {
+        Route::get('/', [ApiPTMController::class, 'index']);
+        Route::post('/', [ApiPTMController::class, 'store']);
+        Route::get('/rooms', [ApiPTMController::class, 'getrooms']);
+        Route::get('/children', [ApiPTMController::class, 'getChildren']);
+        Route::get('/staff', [ApiPTMController::class, 'getStaff']);
+        Route::get('/events', [ApiPTMController::class, 'getPtmEvents']);
+        Route::get('/slots', [ApiPTMController::class, 'getSlots']);
+        Route::get('/date-slots/{ptmid}', [ApiPTMController::class, 'getPtmDateSlots']);
+        Route::post('/reschedule', [ApiPTMController::class, 'reschedulePtm']);
+        Route::get('/details/{id}', [ApiPTMController::class, 'ptmDetails']);
+        Route::get('/{ptm}/edit', [ApiPTMController::class, 'edit']);
+        Route::post('/{ptm}/publish', [ApiPTMController::class, 'directPublish']);
+        Route::post('/{ptm}/reschedule-staff/{childid}', [ApiPTMController::class, 'resupdateFromStaff']);
+        Route::post('/{ptm}/bulk-reschedule', [ApiPTMController::class, 'bulkResupdate']);
+        Route::delete('/{ptm}', [ApiPTMController::class, 'delete']);
+        Route::get('/{ptm}', [ApiPTMController::class, 'view']);
+    });
     Route::post('dailyDiary/storeBottle', [DailyDiaryController::class, 'storeBottle'])->name('dailyDiary.storeBottle');
     Route::post('dailyDiary/storeFood', [DailyDiaryController::class, 'storeFood'])->name('dailyDiary.storeFood');
     Route::post('dailyDiary/storeSleep', [DailyDiaryController::class, 'storeSleep'])->name('dailyDiary.storeSleep');

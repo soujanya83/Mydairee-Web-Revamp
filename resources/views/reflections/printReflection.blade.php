@@ -327,7 +327,10 @@
             <span class="info-text">
 
                 @if($reflection->children && $reflection->children->isNotEmpty())
-                {{ $reflection->children->map(fn($c) => $c->child->name . ' ' . $c->child->lastname)->implode(', ') }}
+                {{ $reflection->children
+                    ->map(fn($c) => $c->child ? trim(($c->child->name ?? '') . ' ' . ($c->child->lastname ?? '')) : null)
+                    ->filter()
+                    ->implode(', ') }}
                 @endif
             </span>
         </div>

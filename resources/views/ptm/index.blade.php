@@ -353,10 +353,10 @@ body[class^="theme-"] .modal-footer .btn.btn-primary:focus {
                                 $userType = Auth::user()->userType;
 
                                 $latestReschedule = $ptm->reschedules->sortByDesc('created_at')->first();
-                                $fallbackFinalDate = $ptm->finalDate ?? optional($latestReschedule->rescheduledate)->date ?? $ptm->originalDate ?? ($ptm->ptmDates->min('date') ?? null);
+                                $fallbackFinalDate = $ptm->finalDate ?? optional($latestReschedule?->rescheduledate)->date ?? $ptm->originalDate ?? ($ptm->ptmDates->min('date') ?? null);
 
 
-                                $fallbackFinalSlot = $ptm->finalSlot ?? optional($latestReschedule->rescheduleslot)->slot ?? $ptm->slot ?? ($ptm->ptmSlots->first()->slot ?? null);
+                                $fallbackFinalSlot = $ptm->finalSlot ?? optional($latestReschedule?->rescheduleslot)->slot ?? $ptm->slot ?? optional($ptm->ptmSlots->first())->slot;
 
                                 $dateToShow = $userType === 'Parent' ? $fallbackFinalDate : $ptm->originalDate;
                             @endphp
@@ -420,8 +420,8 @@ body[class^="theme-"] .modal-footer .btn.btn-primary:focus {
                             @php
                                 $userType = Auth::user()->userType;
                                 $latestReschedule = $ptm->reschedules->sortByDesc('created_at')->first();
-                                $fallbackFinalDate = $ptm->finalDate ?? optional($latestReschedule->rescheduledate)->date ?? $ptm->originalDate ?? ($ptm->ptmDates->min('date') ?? null);
-                                $fallbackFinalSlot = $ptm->finalSlot ?? optional($latestReschedule->rescheduleslot)->slot ?? $ptm->slot ?? ($ptm->ptmSlots->first()->slot ?? null);
+                                $fallbackFinalDate = $ptm->finalDate ?? optional($latestReschedule?->rescheduledate)->date ?? $ptm->originalDate ?? ($ptm->ptmDates->min('date') ?? null);
+                                $fallbackFinalSlot = $ptm->finalSlot ?? optional($latestReschedule?->rescheduleslot)->slot ?? $ptm->slot ?? optional($ptm->ptmSlots->first())->slot;
                                 $dateToShow = $userType === 'Parent' ? $fallbackFinalDate : $ptm->originalDate;
                             @endphp
 

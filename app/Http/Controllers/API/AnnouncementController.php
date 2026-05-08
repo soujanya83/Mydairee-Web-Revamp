@@ -309,11 +309,50 @@ public function AnnouncementCreate(Request $request)
 
 public function AnnouncementStore(Request $request)
 {
+    $eventDateInput = $request->input('eventDate');
+    if (!empty($eventDateInput)) {
+        $request->merge([
+            'eventDate' => str_replace('/', '-', $eventDateInput),
+        ]);
+    }
+
+    $childIds = $request->input('childId', []);
+    if (is_string($childIds)) {
+        $childIds = explode(',', $childIds);
+    }
+
+    if (is_array($childIds)) {
+        $flattenedChildIds = [];
+
+        foreach ($childIds as $childId) {
+            if (is_string($childId) && str_contains($childId, ',')) {
+                foreach (explode(',', $childId) as $nestedChildId) {
+                    $nestedChildId = trim($nestedChildId);
+                    if ($nestedChildId !== '') {
+                        $flattenedChildIds[] = $nestedChildId;
+                    }
+                }
+
+                continue;
+            }
+
+            $childId = trim((string) $childId);
+            if ($childId !== '') {
+                $flattenedChildIds[] = $childId;
+            }
+        }
+
+        $request->merge([
+            'childId' => array_values(array_unique($flattenedChildIds)),
+        ]);
+    }
+
     // ✅ Use Validator instead of $request->validate()
     $validator = Validator::make($request->all(), [
         'title'      => 'required|string|max:255',
         'text'       => 'required|string',
         'eventDate'  => 'nullable|date_format:d-m-Y',
+        'eventColor' => 'nullable|string|max:50',
         'childId'    => 'required|array',
         'childId.*'  => 'required|numeric|exists:child,id',
         'media'      => 'nullable|array',
@@ -359,6 +398,7 @@ public function AnnouncementStore(Request $request)
         $userid    = Auth::user()->userid;
         $centerid  = $request->centerid;
         $announcementId = null;
+        $eventColor = $request->input('eventColor', $request->input('color'));
 
         $eventDate = empty($request->eventDate)
             ? now()->addDay()->format('Y-m-d')
@@ -452,6 +492,7 @@ public function AnnouncementStore(Request $request)
                 'eventDate'         => $eventDate,
                 'text'              => $request->text,
                 'status'            => $status,
+                'eventColor'        => $eventColor,
                 'announcementMedia' => !empty($mediaFiles) ? json_encode($mediaFiles) : $announcement->announcementMedia,
                 'type'              => $request->type,
                 'audience'          => $request->audience,
@@ -470,6 +511,7 @@ public function AnnouncementStore(Request $request)
                 'createdBy'         => $userid,
                 'centerid'          => $centerid,
                 'createdAt'         => now(),
+                'eventColor'        => $eventColor,
                 'announcementMedia' => json_encode($mediaFiles),
                 'type'              => $request->type,
                 'audience'          => $request->audience,

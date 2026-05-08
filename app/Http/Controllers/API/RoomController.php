@@ -49,6 +49,136 @@ class RoomController extends Controller
         ], 500);
     }
 } 
+public function assignStaffToRoom(Request $request)
+{
+    $staffIdsRaw = $request->input('staff_ids', []);
+    $removeStaffIdsRaw = $request->input('remove_staff_ids', $request->input('removed_staff_id', []));
+
+    if (is_string($staffIdsRaw)) {
+        $staffIdsRaw = str_contains($staffIdsRaw, ',') ? explode(',', $staffIdsRaw) : [$staffIdsRaw];
+    }
+    if (is_string($removeStaffIdsRaw)) {
+        $removeStaffIdsRaw = str_contains($removeStaffIdsRaw, ',') ? explode(',', $removeStaffIdsRaw) : [$removeStaffIdsRaw];
+    }
+
+    $staffIdsRaw = is_array($staffIdsRaw) ? $staffIdsRaw : [];
+    $removeStaffIdsRaw = is_array($removeStaffIdsRaw) ? $removeStaffIdsRaw : [];
+
+    $staffIds = array_values(array_filter(array_unique(array_map(function($id) {
+        $trimmed = trim((string)$id);
+        return ($trimmed !== '' && is_numeric($trimmed)) ? (int)$trimmed : null;
+    }, $staffIdsRaw)), fn($id) => $id !== null));
+
+    $removeStaffIds = array_values(array_filter(array_unique(array_map(function($id) {
+        $trimmed = trim((string)$id);
+        return ($trimmed !== '' && is_numeric($trimmed)) ? (int)$trimmed : null;
+    }, $removeStaffIdsRaw)), fn($id) => $id !== null));
+
+    $validator = Validator::make([
+        'room_id' => $request->input('room_id'),
+        'staff_ids' => $staffIds,
+        'remove_staff_ids' => $removeStaffIds,
+    ], [
+        'room_id'           => 'required|integer|exists:room,id',
+        'staff_ids'         => 'nullable|array',
+        'remove_staff_ids'  => 'nullable|array',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $roomId = (int) $request->input('room_id');
+
+    if (!empty($staffIds)) {
+        $validStaffIdsToAdd = User::whereIn('id', $staffIds)
+            ->where('userType', 'Staff')
+            ->pluck('id')
+            ->map(fn($id) => (int) $id)
+            ->toArray();
+
+        if (count($validStaffIdsToAdd) !== count($staffIds)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Some staff IDs to add are invalid or not Staff role.',
+            ], 422);
+        }
+    } else {
+        $validStaffIdsToAdd = [];
+    }
+
+    if (!empty($removeStaffIds)) {
+        $validStaffIdsToRemove = User::whereIn('id', $removeStaffIds)
+            ->where('userType', 'Staff')
+            ->pluck('id')
+            ->map(fn($id) => (int) $id)
+            ->toArray();
+
+        if (count($validStaffIdsToRemove) !== count($removeStaffIds)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Some staff IDs to remove are invalid or not Staff role.',
+            ], 422);
+        }
+    } else {
+        $validStaffIdsToRemove = [];
+    }
+
+    try {
+        DB::beginTransaction();
+
+        if (!empty($validStaffIdsToRemove)) {
+            RoomStaff::where('roomid', $roomId)
+                ->whereIn('staffid', $validStaffIdsToRemove)
+                ->delete();
+        }
+
+        $existingStaffIds = RoomStaff::where('roomid', $roomId)
+            ->pluck('staffid')
+            ->map(fn($id) => (int) $id)
+            ->toArray();
+
+        $actuallyAdded = [];
+        foreach ($validStaffIdsToAdd as $staffId) {
+            if (!in_array($staffId, $existingStaffIds)) {
+                RoomStaff::create([
+                    'roomid' => $roomId,
+                    'staffid' => $staffId,
+                ]);
+                $actuallyAdded[] = $staffId;
+            }
+        }
+
+        $finalStaffIds = RoomStaff::where('roomid', $roomId)
+            ->pluck('staffid')
+            ->map(fn($id) => (int) $id)
+            ->toArray();
+
+        DB::commit();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Room staff updated successfully.',
+            'room_id' => $roomId,
+            'current_staff_ids' => $finalStaffIds,
+            'added_staff_ids' => $actuallyAdded,
+            'removed_staff_ids' => $validStaffIdsToRemove,
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Failed to update room staff.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 public function bulkDelete(Request $request)
 {
    
@@ -504,6 +634,156 @@ public function delete_selected_children(Request $request)
         'status' => true,
         'message' => 'Selected children deleted successfully.'
     ]);
+}
+
+public function filterChildren(Request $request)
+{
+    // Get current user's center
+    $authId = Auth::user()->id;
+    $userType = Auth::user()->userType;
+    $userCenterId = $request->user_center_id;
+
+    // Check if center_id is provided in request, otherwise use user's center
+    $centerid = $request->input('center_id', $userCenterId);
+
+    // For Superadmin, get first assigned center if not provided
+    if ($userType == "Superadmin" && empty($centerid)) {
+        $centerid = Usercenter::where('userid', $authId)->first()->centerid ?? null;
+    }
+
+    if (empty($centerid)) {
+        return response()->json([
+            'status' => false,
+            'message' => 'No center assigned to user or center_id not provided.',
+            'data' => []
+        ], 403);
+    }
+
+    // Normalize form-data inputs with defaults (case-insensitive)
+    $roomId = $request->input('room_id');
+    $genderRaw = strtolower($request->input('gender', 'all'));
+    $statusRaw = strtolower($request->input('status', 'all'));
+    $sortInput = strtolower($request->input('sort', 'asc')); // 'asc' for A-Z, 'desc' for Z-A
+    $searchInput = $request->input('search', '');
+
+    // Normalize gender to proper case
+    $genderMap = [
+        'male' => 'Male',
+        'female' => 'Female',
+        'other' => 'Other',
+        'all' => 'All',
+    ];
+    $genderInput = $genderMap[$genderRaw] ?? 'All';
+
+    // Normalize status to proper case
+    $statusMap = [
+        'active' => 'Active',
+        'enrolled' => 'Enrolled',
+        'inactive' => 'Inactive',
+        'all' => 'All',
+    ];
+    $statusInput = $statusMap[$statusRaw] ?? 'All';
+
+    // Validation - all optional with defaults
+    $validator = Validator::make([
+        'center_id' => $centerid,
+        'room_id' => $roomId,
+        'gender' => $genderInput,
+        'status' => $statusInput,
+        'sort' => $sortInput,
+    ], [
+        'center_id' => 'required|integer|exists:centers,id',
+        'room_id' => 'nullable|integer|exists:room,id',
+        'gender' => 'nullable|in:Male,Female,Other,All',
+        'status' => 'nullable|in:Active,Enrolled,Inactive,All',
+        'sort' => 'nullable|in:asc,desc',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    try {
+        // Build query - filter by center
+        $query = Child::where('centerid', (int)$centerid);
+
+        // Filter by room_id if provided, otherwise get all children from center
+        if (!empty($roomId)) {
+            $query->where('room', (int)$roomId);
+        }
+
+        // Apply gender filter
+        if ($genderInput !== 'All') {
+            $query->where('gender', $genderInput);
+        }
+
+        // Apply status filter
+        if ($statusInput !== 'All') {
+            $query->where('status', $statusInput);
+        }
+
+        // Apply search filter
+        if (!empty($searchInput)) {
+            $query->where(function($q) use ($searchInput) {
+                $q->where('name', 'like', '%' . $searchInput . '%')
+                  ->orWhere('lastname', 'like', '%' . $searchInput . '%');
+            });
+        }
+
+        // Apply sorting (A-Z or Z-A)
+        if ($sortInput === 'desc') {
+            $query->orderBy('name', 'desc')->orderBy('lastname', 'desc');
+        } else {
+            $query->orderBy('name', 'asc')->orderBy('lastname', 'asc');
+        }
+
+        // Get filtered children
+        $children = $query->get();
+
+        // Calculate summary based on scope (all or specific room) but only for current center
+        if (!empty($roomId)) {
+            $allChildrenInScope = Child::where('centerid', (int)$centerid)->where('room', (int)$roomId)->get();
+        } else {
+            $allChildrenInScope = Child::where('centerid', (int)$centerid)->get();
+        }
+
+        $summary = [
+            'total' => $allChildrenInScope->count(),
+            'male' => $allChildrenInScope->where('gender', 'Male')->count(),
+            'female' => $allChildrenInScope->where('gender', 'Female')->count(),
+            'other' => $allChildrenInScope->where('gender', 'Other')->count(),
+            'active' => $allChildrenInScope->where('status', 'Active')->count(),
+            'enrolled' => $allChildrenInScope->where('status', 'Enrolled')->count(),
+            'inactive' => $allChildrenInScope->where('status', 'Inactive')->count(),
+            'filtered_count' => $children->count(),
+        ];
+
+        return response()->json([
+            'status' => true,
+            'message' => $children->count() > 0 ? 'Children filtered successfully.' : 'No children found matching the filters.',
+            'room_id' => !empty($roomId) ? (int)$roomId : null,
+            'scope' => !empty($roomId) ? 'specific_room' : 'all_rooms',
+            'center_id' => (int)$centerid,
+            'filters' => [
+                'gender' => $genderInput,
+                'status' => $statusInput,
+                'sort' => $sortInput,
+                'search' => $searchInput,
+            ],
+            'summary' => $summary,
+            'data' => $children,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Failed to filter children.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 }
  
 
