@@ -168,7 +168,7 @@
                         </li>
                         @endif
 
-                        @if( in_array(auth()->user()->userType, ['Superadmin']))
+                        @if( Auth::user()->id==1 || Auth::user()->id==423)
                         <li class="{{ Request::is('ptm*') ? 'active' : null }}">
                             <a href="{{route('ptm.index')}}" data-toggle="tooltip" data-placement="right">
                                 <i class="fas fa-chalkboard-teacher" style="font-size: 21px; "></i><span
