@@ -90,51 +90,51 @@ class ReflectionController extends Controller
 
     // }
 
-public function index(Request $request)
-{
-    $authId = Auth::user()->id; 
-    $centerid = $request->center_id;
-    $perPage = $request->get('per_page', 10); // Default 10 items per page
+    public function index(Request $request)
+    {
+        $authId = Auth::user()->id; 
+        $centerid = $request->center_id;
+        $perPage = $request->get('per_page', 10); // Default 10 items per page
 
-    if (Auth::user()->userType == "Superadmin") {
-        $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $center)->get();
-    } else {
-        $centers = Center::where('id', $centerid)->get();
+        if (Auth::user()->userType == "Superadmin") {
+            $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $center)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+
+        if (Auth::user()->userType == "Superadmin") {
+            $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+                ->where('centerid', $centerid)
+                ->orderBy('id', 'desc')
+                ->paginate($perPage);
+        } elseif (Auth::user()->userType == "Staff") {
+            $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+                ->where('centerid', $centerid)
+                ->orderBy('id', 'desc')
+                ->paginate($perPage);
+        } else {
+            $childids = Childparent::where('parentid', $authId)->pluck('childid');
+            $reflectionIds = ReflectionChild::whereIn('childId', $childids)
+                ->pluck('reflectionid')
+                ->unique()
+                ->toArray();
+
+            $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+                ->whereIn('id', $reflectionIds)
+                ->orderBy('id', 'desc')
+                ->paginate($perPage);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data retrieved successfully',
+            'data' => [
+                'centers' => $centers,
+                'reflection' => $reflection
+            ]
+        ]);
     }
-
-    if (Auth::user()->userType == "Superadmin") {
-        $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-            ->where('centerid', $centerid)
-            ->orderBy('id', 'desc')
-            ->paginate($perPage);
-    } elseif (Auth::user()->userType == "Staff") {
-        $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-            ->where('centerid', $centerid)
-            ->orderBy('id', 'desc')
-            ->paginate($perPage);
-    } else {
-        $childids = Childparent::where('parentid', $authId)->pluck('childid');
-        $reflectionIds = ReflectionChild::whereIn('childId', $childids)
-            ->pluck('reflectionid')
-            ->unique()
-            ->toArray();
-
-        $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-            ->whereIn('id', $reflectionIds)
-            ->orderBy('id', 'desc')
-            ->paginate($perPage);
-    }
-
-    return response()->json([
-        'status' => true,
-        'message' => 'Data retrieved successfully',
-        'data' => [
-            'centers' => $centers,
-            'reflection' => $reflection
-        ]
-    ]);
-}
 
 
     public function storepage(Request $request)
@@ -160,23 +160,23 @@ public function index(Request $request)
          }
 
          $staffs = $reflection
-    ? $reflection->staff->pluck('staff')->filter()
-    : collect();
+        ? $reflection->staff->pluck('staff')->filter()
+        : collect();
 
-    $outcomes = EYLFOutcome::with('activities.subActivities')->get();
+        $outcomes = EYLFOutcome::with('activities.subActivities')->get();
 
 
-       return response()->json([
-            'status'    => true,
-            'message'   => 'Reflection data loaded successfully.',
-            'data'      => [
-                'reflection' => $reflection,
-                'childrens' => $childrens,
-                'rooms'     => $rooms,
-                'staffs'    => $staffs,
-                'outcomes'  => $outcomes,
-            ]
-        ]);
+        return response()->json([
+                'status'    => true,
+                'message'   => 'Reflection data loaded successfully.',
+                'data'      => [
+                    'reflection' => $reflection,
+                    'childrens' => $childrens,
+                    'rooms'     => $rooms,
+                    'staffs'    => $staffs,
+                    'outcomes'  => $outcomes,
+                ]
+            ]);
 
      }
 
@@ -233,7 +233,7 @@ public function print(Request $request)
         ], 422);
     }
 
-    $reflection = Reflection::with(['creator', 'center', 'children.childDetails', 'media', 'staff.staffDetails'])->find($id);
+    $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff'])->find($id);
 
     if (! $reflection) {
         return response()->json([
@@ -273,10 +273,10 @@ public function print(Request $request)
     $childName = 'UnknownChild';
     if ($reflection->children && count($reflection->children) > 0) {
         $child = $reflection->children[0];
-        if (isset($child->childDetails)) {
+        if (isset($child->child) && $child->child) {
+            $childName = trim(preg_replace('/\s+/', '_', $child->child->name . '_' . ($child->child->lastname ?? '')));
+        } elseif (isset($child->childDetails) && $child->childDetails) {
             $childName = trim(preg_replace('/\s+/', '_', $child->childDetails->name . '_' . ($child->childDetails->lastname ?? '')));
-        } elseif (isset($child->name)) {
-            $childName = trim(preg_replace('/\s+/', '_', $child->name . '_' . ($child->lastname ?? '')));
         }
     }
     $date = $reflection->created_at ? \Carbon\Carbon::parse($reflection->created_at)->format('d-m-Y') : now()->format('d-m-Y');

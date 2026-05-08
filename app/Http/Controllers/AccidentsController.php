@@ -90,6 +90,12 @@ class AccidentsController extends Controller
             $centerid = $centerId;
         }
 
+        // If a center is explicitly selected in the request (UI selection), use it.
+        // This allows Superadmin to view a specific center's accidents when selected.
+        if (!empty($request->centerid)) {
+            $centerid = $request->centerid;
+        }
+
         // Fetch centers
         if ($userType === "Superadmin") {
             $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
@@ -137,9 +143,15 @@ class AccidentsController extends Controller
             )
                 ->join('childparent', 'childparent.childid', '=', 'accidents.childid')
                 ->where('childparent.parentid', $userid)
-                ->where('centerid', Session('user_center_id'))
-                ->where('roomid', $roomid)
                 ->orderBy('added_at', 'desc');
+
+            // scope parents to the selected center if available
+            if ($centerid !== null) {
+                $accQuery->where('accidents.centerid', $centerid);
+            }
+            if ($roomid !== null) {
+                $accQuery->where('roomid', $roomid);
+            }
         } else {
             $accQuery = AccidentsModel::select(
                 'id',
@@ -152,8 +164,9 @@ class AccidentsController extends Controller
             )
                 ->orderBy('added_at', 'desc');
 
-            if (Session('user_center_id') !== null) {
-                $accQuery->where('centerid', Session('user_center_id'));
+            // If a center is selected (or non-superadmin with session center), scope by center
+            if ($centerid !== null) {
+                $accQuery->where('centerid', $centerid);
             }
             if ($roomid !== null) {
                 $accQuery->where('roomid', $roomid);

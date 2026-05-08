@@ -10,6 +10,7 @@ use App\Models\Usercenter; // Add this at the top if not already added
 use App\Models\Child; // Add this at the top if not already added
 use App\Models\Childparent; // Add this at the top if not already added
 use App\Models\Permission;
+use App\Models\Permission_Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
@@ -145,54 +146,61 @@ foreach ($permissionCols as $col) {
 //     ]);
 // }
 
-public function assigned_permissions()
+public function assigned_permissions(Request $request)
 {
-    $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
+    $validator = Validator::make($request->all(), [
+        'center_id' => 'nullable|exists:centers,id',
+        'centerid' => 'nullable|exists:centers,id',
+    ]);
 
-    // Get all permission columns except id, userid, timestamps
-    $permissionColumns = collect(Schema::getColumnListing('permissions'))
-        ->reject(fn($col) => in_array($col, ['id', 'userid', 'created_at', 'updated_at']))
-        ->values()
-        ->toArray();
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
 
-    $authId = Usercenter::where('userid',Auth::user()->userid)->pluck('centerid');
+    $centerId = $request->input('center_id', $request->input('centerid'));
 
-    $usercenter = Usercenter::whereIn('centerid',$authId)->pluck('userid');
+    if (!$centerId) {
+        return response()->json([
+            'status' => false,
+            'message' => 'center_id (or centerid) is required.',
+        ], 422);
+    }
 
-    $assignedUserList = User::with(['permissions' => function ($query) use ($permissionColumns) {
-            $query->select(array_merge(['id', 'userid'], $permissionColumns));
-        }])
-         ->whereIn('userid', $usercenter)
+    // Users mapped to this center
+    $centerUserIds = Usercenter::where('centerid', $centerId)->pluck('userid');
+
+    // Permission records for this center only
+    $permissionRows = Permission::where('centerid', $centerId)
+        ->whereIn('userid', $centerUserIds)
         ->get()
-        ->map(function ($user, $index) use ($colors, $permissionColumns) {
-            $user->colorClass = $colors[$index % count($colors)];
+        ->keyBy('userid');
 
-            // Map permissions dynamically
-            $user->assigned_permissions = optional($user->permissions)->map(function ($perm) use ($permissionColumns) {
-                return collect($perm)->only($permissionColumns);
-            });
+    // Return only users who have permissions assigned in this center
+    $assignedUsers = User::whereIn('userid', $permissionRows->keys())
+        ->orderBy('name', 'asc')
+        ->get()
+        ->map(function ($user) use ($permissionRows) {
+            $permission = $permissionRows->get($user->userid);
 
-            return $user;
-        });
-
-        $permissionColumns1 = collect((new Permission())->getConnection()
-    ->getSchemaBuilder()
-    ->getColumnListing((new Permission())->getTable()))
-    ->reject(fn($col) => in_array($col, ['id', 'userid', 'created_at', 'updated_at']))
-  
-    ->toArray();
-
-    // Prepare permission column info for front-end
-    $permissionColumnsInfo = collect($permissionColumns1)
-        ->map(fn($col) => [
-            'name' => $col,
-            'label' => Str::headline($col),
-        ]);
+            return [
+                'user' => $user,
+                'permissions' => $permission,
+            ];
+        })
+        ->values();
 
     return response()->json([
-        'success' => true,
-        'assigned_users' => $assignedUserList,
-        'permissions' => $permissionColumnsInfo,
+        'status' => true,
+        'message' => 'Users with assigned permissions fetched successfully.',
+        'data' => [
+            'center_id' => (int) $centerId,
+            'total' => $assignedUsers->count(),
+            'assigned_users' => $assignedUsers,
+        ],
     ]);
 }
 
@@ -260,6 +268,177 @@ public function assign_user_permissions(Request $request)
         'success' => true,
         'message' => 'Permissions updated successfully!',
         'updated_users' => $updatedUsers
+    ]);
+}
+
+public function role_list(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'center_id' => 'required|exists:centers,id',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $centerId = (int) $request->center_id;
+    $roles = Permission_Role::where('centerid', $centerId)
+        ->orderBy('name', 'asc')
+        ->get();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Roles retrieved successfully.',
+        'data' => [
+            'center_id' => $centerId,
+            'total' => $roles->count(),
+            'roles' => $roles,
+        ],
+    ]);
+}
+
+public function role_store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'center_id' => 'required|exists:centers,id',
+        'role' => 'required|string|max:255',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $centerId = (int) $request->center_id;
+    $roleName = trim($request->role);
+
+    $exists = Permission_Role::where('centerid', $centerId)
+        ->whereRaw('LOWER(name) = ?', [strtolower($roleName)])
+        ->exists();
+
+    if ($exists) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Role name already exists for this center.',
+            'errors' => ['role' => ['This role name is already taken.']],
+        ], 422);
+    }
+
+    $role = Permission_Role::create([
+        'name' => $roleName,
+        'centerid' => $centerId,
+        'created_by' => Auth::user()->userid ?? Auth::id(),
+    ]);
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Role created successfully.',
+        'data' => $role,
+    ]);
+}
+
+public function role_show($id)
+{
+    $role = Permission_Role::find($id);
+
+    if (!$role) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Role not found.',
+        ], 404);
+    }
+
+    $exclude = ['id', 'centerid', 'name', 'created_by', 'created_at', 'updated_at'];
+    $permissionColumns = collect(Schema::getColumnListing('permission_role'))
+        ->filter(fn($column) => !in_array($column, $exclude))
+        ->map(function ($column) {
+            $label = Str::headline($column);
+            $label = str_replace('Qip', 'QIP', $label);
+
+            return [
+                'name' => $column,
+                'label' => $label,
+                'value' => 0,
+            ];
+        });
+
+    // Re-map with actual values from role model
+    $permissionColumns = $permissionColumns->map(function ($item) use ($role) {
+        $item['value'] = (int) ($role->{$item['name']} ?? 0);
+        return $item;
+    })->values();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Role details retrieved successfully.',
+        'data' => [
+            'role' => $role,
+            'permissions' => $permissionColumns,
+        ],
+    ]);
+}
+
+public function role_update_permissions(Request $request, $id)
+{
+    $role = Permission_Role::find($id);
+
+    if (!$role) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Role not found.',
+        ], 404);
+    }
+
+    $submitted = $request->input('permissions', []);
+    if (!is_array($submitted)) {
+        return response()->json([
+            'status' => false,
+            'message' => 'permissions must be an object/array.',
+        ], 422);
+    }
+
+    $allColumns = Schema::getColumnListing('permission_role');
+    $exclude = ['id', 'centerid', 'name', 'created_by', 'created_at', 'updated_at'];
+    $permissionColumns = array_values(array_diff($allColumns, $exclude));
+
+    $updateData = [];
+    foreach ($permissionColumns as $col) {
+        $updateData[$col] = array_key_exists($col, $submitted) ? 1 : 0;
+    }
+
+    $role->fill($updateData);
+    $role->save();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Role permissions updated successfully.',
+        'data' => $role->fresh(),
+    ]);
+}
+
+public function role_destroy($id)
+{
+    $role = Permission_Role::find($id);
+
+    if (!$role) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Role not found.',
+        ], 404);
+    }
+
+    $role->delete();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Role deleted successfully.',
     ]);
 }
 
@@ -585,58 +764,60 @@ if ($check) {
         return response()->json($user);
     }
 
-public function center_update(Request $request, $id)
-{
-   
+    public function center_update(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id'            => 'required|exists:centers,id',
+            'centerName'    => 'required|string',
+            'adressStreet'  => 'required|string',
+            'addressCity'   => 'required|string',
+            'addressState'  => 'required|string',
+            'addressZip'    => 'required|min:3',
+        ]);
 
-    // Step 1: Validate input
-    $validator = Validator::make($request->all(), [
-        'centerName'     => 'required|string',
-        'adressStreet'   => 'required|string',
-        'addressCity'    => 'required|string',
-        'addressState'   => 'required|string',
-        'addressZip'     => 'required|min:3',
-    ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
 
-    // Step 2: Handle validation errors
-    if ($validator->fails()) {
+        $center = Center::findOrFail($request->id);
+
+        if ((int) $center->user_id !== (int) Auth::user()->id) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Unauthorized to update this center.',
+            ], 403);
+        }
+
+        $exists = Center::whereRaw('LOWER(centerName) = ?', [strtolower($request->centerName)])
+            ->where('user_id', Auth::id())
+            ->where('id', '!=', $request->id)
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Center name already exists.',
+                'errors'  => ['centerName' => ['This center name is already taken.']],
+            ], 422);
+        }
+
+        $center->centerName   = $request->centerName;
+        $center->adressStreet  = $request->adressStreet;
+        $center->addressCity   = $request->addressCity;
+        $center->addressState  = $request->addressState;
+        $center->addressZip    = $request->addressZip;
+        $center->save();
+
         return response()->json([
-            'status'  => false,
-            'message' => 'Validation failed.',
-            'errors'  => $validator->errors()
-        ], 422);
+            'status'  => true,
+            'message' => 'Center updated successfully.',
+            'data'    => $center,
+        ]);
     }
-
-     $center = Center::findOrFail($id);
-    // Step 3: Check for duplicate center name for same user (excluding current)
- $exists = Center::whereRaw('LOWER(centerName) = ?', [strtolower($request->centerName)])
-    ->where('user_id', Auth::id())
-    ->where('id', '!=', $id)
-    ->exists();
-
-if ($exists) {
-    return response()->json([
-        'status'  => false,
-        'message' => 'Center name already exists.',
-        'errors'  => ['centerName' => ['This center name is already taken.']]
-    ], 422);
-}
-
-    // Step 4: Update center
-    $center->centerName    = $request->centerName;
-    $center->adressStreet  = $request->adressStreet;
-    $center->addressCity   = $request->addressCity;
-    $center->addressState  = $request->addressState;
-    $center->addressZip    = $request->addressZip;
-    $center->save();
-
-    return response()->json([
-        'status'  => true,
-        'message' => 'Center updated successfully.',
-        'data'    => $center
-    ]);
-}
-
 
     public function destroycenter($id)
     {
@@ -787,11 +968,12 @@ public function staff_store(Request $request)
 
 
 
-    public function staff_update(Request $request, $id)
+    public function staff_update(Request $request)
     {
-        $user = User::findOrFail($id);
+        $user = User::findOrFail($request->id);
 
         $request->validate([
+            'id' => 'required|exists:users,id',
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'contactNo' => 'required|string|min:9',
@@ -799,6 +981,7 @@ public function staff_store(Request $request)
             'password' => 'nullable|string|min:6',
             'imageUrl' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
         ]);
+
 
         $user->name = $request->name;
         $user->email = $request->email;
@@ -825,7 +1008,7 @@ public function staff_store(Request $request)
         }
         $user->save();
 
-        return response()->json(['status' => 'success']);
+        return response()->json(['status' => 'success', 'message' => 'User updated successfully'], 200);
     }
 
 
@@ -839,7 +1022,10 @@ public function staff_store(Request $request)
 
         try {
             $user->delete();
-            return response()->json(['status' => 'success']);
+           return response()->json([
+                        'status' => 'success',
+                        'message' => 'User deleted successfully'
+                    ], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Delete failed']);
         }
@@ -1688,4 +1874,286 @@ public function updateStatusSuperadmin(Request $request)
         ], 500);
     }
 }
+
+
+/**
+ * Send email to parents
+ */
+public function sendEmailToParent(Request $request)
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'subject'       => 'required|string|max:255',
+            'message'       => 'required|string',
+            'parent_ids'    => 'required|string', // comma-separated IDs
+            'parent_emails' => 'required|string', // comma-separated emails (validation only)
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $parentIds = array_filter(array_map('trim', explode(',', $request->parent_ids)));
+        
+        // Get parent details
+        $parents = User::whereIn('id', $parentIds)
+            ->where('userType', 'Parent')
+            ->get();
+
+        if ($parents->isEmpty()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'No parents found for the provided IDs.'
+            ], 404);
+        }
+
+        // Handle attachments if any
+        $attachments = [];
+        if ($request->hasFile('attachments')) {
+            $allowedExt = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+            $maxSize = 25 * 1024 * 1024; // 25MB
+            
+            foreach ($request->file('attachments') as $file) {
+                if (!$file) {
+                    continue;
+                }
+                
+                if (!$file->isValid()) {
+                    $code = $file->getError();
+                    $reason = match ($code) {
+                        UPLOAD_ERR_INI_SIZE => 'File exceeds server upload_max_filesize limit.',
+                        UPLOAD_ERR_FORM_SIZE => 'File exceeds form max size limit.',
+                        UPLOAD_ERR_PARTIAL => 'File was only partially uploaded.',
+                        UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
+                        UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder on server.',
+                        UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+                        UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.',
+                        default => 'Unknown upload error.',
+                    };
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Attachment upload failed: ' . $reason
+                    ], 422);
+                }
+                
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (!in_array($ext, $allowedExt, true)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Unsupported file type: .' . $ext
+                    ], 422);
+                }
+                
+                if ($file->getSize() > $maxSize) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'File is too large. Max allowed is 25MB.'
+                    ], 422);
+                }
+
+                $originalName = $file->getClientOriginalName();
+                $safeName = time() . '_' . preg_replace('/[^A-Za-z0-9_\.\-]/', '_', $originalName);
+                $storedPath = \Illuminate\Support\Facades\Storage::disk('public')->putFileAs('email_attachments', $file, $safeName);
+
+                $attachments[] = [
+                    'disk'  => 'public',
+                    'path'  => $storedPath,
+                    'name'  => $originalName,
+                    'mime'  => $file->getMimeType(),
+                    'size'  => $file->getSize(),
+                ];
+            }
+        }
+
+        $emailData = [
+            'subject'    => $request->subject,
+            'message'    => $request->message,
+            'from_name'  => Auth::user()->name ?? 'MyDairee System',
+            'from_email' => config('mail.from.address'),
+        ];
+
+        $successCount = 0;
+        $failedEmails = [];
+
+        // Send email to each parent
+        foreach ($parents as $parent) {
+            try {
+                \Mail::send([], [], function ($message) use ($parent, $emailData, $attachments) {
+                    $message->to($parent->email, $parent->name)
+                        ->subject($emailData['subject'])
+                        ->from($emailData['from_email'], $emailData['from_name'])
+                        ->html($emailData['message']);
+
+                    foreach ($attachments as $att) {
+                        try {
+                            if (!empty($att['disk']) && !empty($att['path'])) {
+                                try {
+                                    $absolute = \Illuminate\Support\Facades\Storage::disk($att['disk'])->path($att['path']);
+                                } catch (\Throwable $e) {
+                                    $absolute = storage_path('app/' . ($att['disk'] === 'public' ? 'public/' : '') . $att['path']);
+                                }
+
+                                if (file_exists($absolute)) {
+                                    $message->attach($absolute, [
+                                        'as'   => $att['name'] ?? basename($att['path']),
+                                        'mime' => $att['mime'] ?? null,
+                                    ]);
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            \Log::error('Attachment failed: ' . ($att['path'] ?? 'unknown') . ' => ' . $e->getMessage());
+                        }
+                    }
+                });
+
+                // Get children info for this parent
+                $childrenInfo = $parent->children->map(function ($child) {
+                    return [
+                        'id'   => $child->id,
+                        'name' => $child->name . ' ' . $child->lastname,
+                    ];
+                })->toArray();
+
+                // Log email
+                $emailLog = \App\Models\EmailLog::create([
+                    'parent_id'   => $parent->id,
+                    'parent_email' => $parent->email,
+                    'parent_name' => $parent->name,
+                    'sent_by'     => Auth::id(),
+                    'subject'     => $request->subject,
+                    'message'     => $request->message,
+                    'sent_at'     => now()
+                ]);
+
+                // Attach files metadata
+                foreach ($attachments as $att) {
+                    try {
+                        $url = null;
+                        if (!empty($att['disk']) && !empty($att['path'])) {
+                            try {
+                                $url = \Illuminate\Support\Facades\Storage::disk($att['disk'])->url($att['path']);
+                            } catch (\Throwable $e) {
+                                $url = $att['path'] ?? null;
+                            }
+                        }
+
+                        \App\Models\EmailAttachment::create([
+                            'email_id' => $emailLog->id,
+                            'name'     => $att['name'] ?? null,
+                            'path'     => $url ?? ($att['path'] ?? null),
+                            'size'     => $att['size'] ?? null,
+                            'mime'     => $att['mime'] ?? null,
+                        ]);
+                    } catch (\Throwable $e) {
+                        \Log::error('Failed to insert email attachment: ' . $e->getMessage());
+                    }
+                }
+
+                // Attach children to email log
+                $childIds = array_column($childrenInfo, 'id');
+                $childIds = array_filter($childIds);
+                if (!empty($childIds)) {
+                    $emailLog->childrenRelation()->syncWithoutDetaching($childIds);
+                }
+
+                $successCount++;
+            } catch (\Exception $e) {
+                $failedEmails[] = $parent->email;
+                \Log::error('Failed to send email to ' . $parent->email . ': ' . $e->getMessage());
+            }
+        }
+
+        if ($successCount > 0) {
+            $message = $successCount === 1 
+                ? "Email sent successfully to {$parents->first()->name}"
+                : "Email sent successfully to {$successCount} parent(s)";
+            
+            if (!empty($failedEmails)) {
+                $message .= ". Failed: " . implode(', ', $failedEmails);
+            }
+            
+            return response()->json([
+                'status'  => true,
+                'message' => $message,
+                'sent_count' => $successCount,
+                'failed_count' => count($failedEmails)
+            ]);
+        } else {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Failed to send emails to all recipients'
+            ], 500);
+        }
+    } catch (\Exception $e) {
+        \Log::error('Email sending error: ' . $e->getMessage());
+        return response()->json([
+            'status'  => false,
+            'message' => 'Failed to send email: ' . $e->getMessage()
+        ], 500);
+    }
 }
+
+
+/**
+ * Track emails sent to parents
+ */
+public function trackMails(Request $request)
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'parent_ids' => 'nullable|string' // comma-separated parent IDs
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $parentIds = [];
+        if ($request->filled('parent_ids')) {
+            $parentIds = array_filter(array_map('trim', explode(',', $request->parent_ids)));
+        }
+
+        $query = \App\Models\EmailLog::with(['parent', 'sender', 'attachmentsRelation', 'childrenRelation'])
+            ->orderBy('sent_at', 'desc');
+
+        if (!empty($parentIds)) {
+            $query->whereIn('parent_id', $parentIds);
+        }
+
+        $emails = $query->get();
+
+        $parents = [];
+        if (!empty($parentIds)) {
+            $parents = User::whereIn('id', $parentIds)
+                ->where('userType', 'Parent')
+                ->get()
+                ->toArray();
+        }
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Email history retrieved successfully.',
+            'data'    => [
+                'emails'  => $emails,
+                'parents' => $parents,
+                'total'   => $emails->count()
+            ]
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Track mails error: ' . $e->getMessage());
+        return response()->json([
+            'status'  => false,
+            'message' => 'Failed to retrieve email history: ' . $e->getMessage()
+        ], 500);
+    }
+}
+}
+

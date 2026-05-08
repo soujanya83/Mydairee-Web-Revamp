@@ -18,59 +18,58 @@ use Illuminate\Support\Facades\Validator;
 class ServiceDetailsController extends Controller
 {
     
-    public function create(Request $request)
-{
-// dd('here');
-      $authId = Auth::user()->id; 
-    // $centerid = Session('user_center_id');
-    // $authId = $request->user_id;
-    $centerid = $request->user_center_id;
-    // dd($authId);
+    public function index(Request $request)
+    {
+        // dd('here');
+        $authId = Auth::user()->id; 
+        // $centerid = Session('user_center_id');
+        // $authId = $request->user_id;
+        $centerid = $request->user_center_id;
+        // dd($authId);
 
-    $user = User::where('userid',$authId)->first();
+        $user = User::where('userid',$authId)->first();
 
-      if($user->userType == "Superadmin"){
-    $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
- 
-    $centers = Center::whereIn('id', $center)->get();
-//    dd($centers);
-     }else{
-    $centers = Center::where('id', $centerid)->get();
-     }
-    //  dd($centers);
+        if($user->userType == "Superadmin"){
+        $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+    
+        $centers = Center::whereIn('id', $center)->get();
+        //    dd($centers);
+        }else{
+        $centers = Center::where('id', $centerid)->get();
+        }
+        //  dd($centers);
 
-    // $centers = Center::all();
-    // $selectedCenterId = $request->centerid;
+        // $centers = Center::all();
+        // $selectedCenterId = $request->centerid;
 
-    $serviceDetails = null;
-    $selectedCenter = null;
-    $data = [];
+        $serviceDetails = null;
+        $selectedCenter = null;
+        $data = [];
 
-    if ($centerid) {
-        $serviceDetails = ServiceDetailsModel::where('centerid', $centerid)->first();
-        $selectedCenter = Center::find($centerid);
+        if ($centerid) {
+            $serviceDetails = ServiceDetailsModel::where('centerid', $centerid)->first();
+            $selectedCenter = Center::find($centerid);
 
-        $data = [
-        'centers' => $centers,
-        'serviceDetails' => $serviceDetails,
-        'selectedCenter' => $selectedCenter
-        ];
+            $data = [
+            'selectedCenter' => $selectedCenter,
+            'serviceDetails' => $serviceDetails
+            ];
+            $response = [
+                'status' => true,
+                'msg' => 'data retrived successfully',
+                'data' => $data
+            ];
+        }
+        else{
         $response = [
-            'status' => true,
-            'msg' => 'data retrived successfully',
-            'data' => $data
-        ];
+                'status' => false,
+                'msg' => 'data donot exist',
+                'data' => $data
+            ];
+        }
+     return response()->json($response);
+
     }
-
-    $response = [
-            'status' => false,
-            'msg' => 'data donot exist',
-            'data' => $data
-        ];
-
-  return response()->json($response);
-
-}
 
 
 public function store(Request $request)

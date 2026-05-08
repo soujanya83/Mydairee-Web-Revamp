@@ -51,3 +51,6 @@ storage/app/firebase_credentials.json
 /storage/app/firebase_credentials.json
 app/Http/Controllers/API/DailyDiaryControllerold.php
 resources/views/ProgramPlan/oldprint.blade.php
+
+bootstrap/OLDAPP.PHP
+app/Http/Middleware/OLDaUTHENTICATE.PHP

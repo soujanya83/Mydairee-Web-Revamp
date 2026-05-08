@@ -30,6 +30,7 @@ class PublicHolidayController extends Controller
 			'state'    => 'required|string|max:255',
 			'occasion' => 'required|string|max:255',
 			'status'   => 'nullable|in:0,1',
+			'centerid' => 'required|integer|exists:centers,id',
 		]);
 		if ($validator->fails()) {
 			return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
@@ -41,7 +42,7 @@ class PublicHolidayController extends Controller
 			'state'     => $request->state,
 			'occasion'  => $request->occasion,
 			'status'    => $request->status ?? 1,
-			'centerid'  => $request->user()->centerid ?? null,
+			'centerid'  => $request->centerid,
 			'Holiday_date' => $carbonDate
 		]);
 		return response()->json(['status' => 'success', 'holiday' => $holiday]);
@@ -55,6 +56,7 @@ class PublicHolidayController extends Controller
 			'occasion' => 'required|string|max:255',
 			'state'    => 'required|string|max:255',
 			'status'   => 'required|in:0,1',
+			'centerid' => 'nullable|integer|exists:centers,id',
 		]);
 		if ($validator->fails()) {
 			return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
@@ -66,6 +68,9 @@ class PublicHolidayController extends Controller
 		$holiday->occasion  = $request->occasion;
 		$holiday->state     = $request->state;
 		$holiday->status    = $request->status;
+		if ($request->filled('centerid')) {
+			$holiday->centerid  = $request->centerid;
+		}
 		$holiday->save();
 		return response()->json(['status' => 'success', 'holiday' => $holiday]);
 	}

@@ -123,6 +123,44 @@ class ApiHealthyController extends Controller
         }
     }
 
+    /**
+     * Update ingredient via API
+     */
+    public function apiUpdateIngredient(Request $request, $id = null)
+    {
+        $idToUse = $id ?? $request->input('id');
+
+        if (!$idToUse) {
+            return response()->json(['status' => 'error', 'message' => 'Ingredient ID is required.'], 400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:ingredients,name,' . $idToUse,
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $ingredient = IngredientModel::find($idToUse);
+        if (!$ingredient) {
+            return response()->json(['status' => 'error', 'message' => 'Ingredient not found.'], 404);
+        }
+
+        $ingredient->name = $request->name;
+        $ingredient->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Ingredient updated successfully.',
+            'data' => $ingredient
+        ], 200);
+    }
+
     public function apiRecipeIngredients()
     {
         try {
@@ -148,13 +186,15 @@ class ApiHealthyController extends Controller
 
     public function apiStoreRecipe(Request $request)
     {
-
-
         $validator = Validator::make($request->all(), [
             'itemName'   => 'required|string|max:255',
             'mealType'   => 'required|string|max:255',
             'ingredient' => 'required|exists:ingredients,id',
             'recipe'     => 'required|string',
+            'centerId'   => 'nullable|exists:centers,id',
+            'notes'      => 'nullable|string',
+            'foodtype'   => 'nullable|string|max:255',
+            'RecipeVideolink' => 'nullable|string|max:255',
             'image.*'    => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'video.*'    => 'nullable|file|mimes:mp4,avi,mov,webm|max:10240',
         ]);
@@ -169,19 +209,19 @@ class ApiHealthyController extends Controller
 
         try {
             $user = Auth::user();
- $nowSydney = now()->setTimezone('Australia/Sydney');
+            $centerId = $request->centerId ?? $user?->user_center_id ?? session('user_center_id');
 
             $recipe = RecipeModel::create([
                 'itemName'  => $request->itemName,
                 'type'      => $request->mealType,
                 'recipe'    => $request->recipe,
                 'createdBy' => $user->id,
-                'centerid'  => $request->centerId,
-              
+                'centerid'  => $centerId,
+                'RecipeVideolink' => $request->RecipeVideolink,
+                'foodtype'  => $request->foodtype ?? 'veg',
+                'notes'     => $request->notes ?? '',
 
             ]);
-
-            
 
             // Link ingredient
             DB::table('recipe_ingredients')->insert([
@@ -219,7 +259,6 @@ class ApiHealthyController extends Controller
                 'recipe_id' => $recipe->id
             ]);
         } catch (\Exception $e) {
-            dd($e);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Something went wrong while saving the recipe.',
@@ -256,6 +295,120 @@ class ApiHealthyController extends Controller
         }
     }
 
+    /**
+     * Update recipe via API
+     */
+    public function apiUpdateRecipe(Request $request, $id = null)
+    {
+        $idToUse = $id ?? $request->input('id');
+
+        if (!$idToUse) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Recipe ID is required.'
+            ], 400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'itemName'      => 'required|string|max:255',
+            'mealType'      => 'required_without:type|string|max:255',
+            'type'          => 'nullable|string|max:255',
+            'ingredients'   => 'required|array',
+            'ingredients.*' => 'exists:ingredients,id',
+            'recipe'        => 'nullable|string',
+            'RecipeVideolink' => 'nullable|string|max:500',
+            'notes'         => 'nullable|string',
+            'foodtype'      => 'nullable|string|max:255',
+            'image.*'       => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'video.*'       => 'nullable|file|mimes:mp4,avi,mov,webm|max:10240',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $normalizedMealType = $this->normalizeRecipeMealType($request->mealType ?? $request->type);
+        if (!$normalizedMealType) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid meal type.',
+                'allowed' => ['BREAKFAST', 'MORNING_TEA', 'LUNCH', 'AFTERNOON_TEA', 'SNACKS'],
+            ], 422);
+        }
+
+        $recipe = RecipeModel::find($idToUse);
+        if (!$recipe) {
+            return response()->json(['status' => 'error', 'message' => 'Recipe not found.'], 404);
+        }
+
+        // Update main recipe fields
+        $recipe->itemName = $request->itemName;
+        $recipe->type = $normalizedMealType;
+        $recipe->recipe = $request->recipe ?? $recipe->recipe;
+        $recipe->RecipeVideolink = $request->RecipeVideolink ?? $recipe->RecipeVideolink;
+        $recipe->notes = $request->notes ?? $recipe->notes;
+        $recipe->foodtype = $request->foodtype ?? $recipe->foodtype;
+        $recipe->save();
+
+        // Sync ingredients: insert new, remove deleted
+        $existingIngredients = DB::table('recipe_ingredients')
+            ->where('recipeId', $recipe->id)
+            ->pluck('ingredientId')
+            ->toArray();
+
+        $newIngredients = $request->ingredients ?? [];
+
+        $toInsert = array_diff($newIngredients, $existingIngredients);
+        foreach ($toInsert as $ingredientId) {
+            DB::table('recipe_ingredients')->insert([
+                'recipeId' => $recipe->id,
+                'ingredientId' => $ingredientId,
+            ]);
+        }
+
+        $toDelete = array_diff($existingIngredients, $newIngredients);
+        if (!empty($toDelete)) {
+            DB::table('recipe_ingredients')
+                ->where('recipeId', $recipe->id)
+                ->whereIn('ingredientId', $toDelete)
+                ->delete();
+        }
+
+        // Save uploaded images
+        if ($request->hasFile('image')) {
+            foreach ($request->file('image') as $image) {
+                $imagePath = $image->store('uploads/recipes', 'public');
+                DB::table('recipe_media')->insert([
+                    'recipeId' => $recipe->id,
+                    'mediaUrl' => $imagePath,
+                    'mediaType' => 'Image',
+                ]);
+            }
+        }
+
+        // Save uploaded videos
+        if ($request->hasFile('video')) {
+            foreach ($request->file('video') as $video) {
+                $videoPath = $video->store('recipes/videos', 'public');
+                DB::table('recipe_media')->insert([
+                    'recipeId' => $recipe->id,
+                    'mediaUrl' => $videoPath,
+                    'mediaType' => 'Video',
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Recipe updated successfully.',
+            'recipe_id' => $recipe->id
+        ], 200);
+    }
+
 
     public function apiEditRecipe($id)
     {
@@ -283,7 +436,7 @@ class ApiHealthyController extends Controller
         }
     }
 
-    public function apiHealthyRecipe()
+    public function apiHealthyRecipe(Request $request)
     {
         try {
             $user = Auth::user();
@@ -294,12 +447,24 @@ class ApiHealthyController extends Controller
 
             $authId = $user->id;
             $centerid = $user->user_center_id ?? session('user_center_id');
+            $requestedCenterId = $request->input('center_id');
 
             if ($user->userType == "Superadmin") {
                 $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+
+                if ($requestedCenterId) {
+                    $centerIds = [$requestedCenterId];
+                }
+
                 $centers = Center::whereIn('id', $centerIds)->get();
             } else {
-                $centerIds = [$centerid];
+                $centerId = $centerid;
+
+                if ($requestedCenterId && $requestedCenterId != $centerId) {
+                    return response()->json(['status' => 'error', 'message' => 'Access denied for requested center.'], 403);
+                }
+
+                $centerIds = [$centerId];
                 $centers = Center::whereIn('id', $centerIds)->get();
             }
 
@@ -321,6 +486,7 @@ class ApiHealthyController extends Controller
             return response()->json([
                 'status' => 'success',
                 'centers' => $centers,
+                'Current Center Id' => $requestedCenterId,
                 'recipes' => $recipes,
                 'unique_meal_types' => $uniqueMealTypes,
                 'ingredients' => $ingredients,
@@ -365,6 +531,7 @@ class ApiHealthyController extends Controller
                 'recipe_ids' => 'required|array',
                 'recipe_ids.*' => 'exists:recipes,id',
                 'center_id' => 'required|string',
+                'menuweek' => 'nullable|integer|min:1',
             ]);
 
             $user = Auth::user();
@@ -373,8 +540,11 @@ class ApiHealthyController extends Controller
             }
 
             $currentDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->selected_date)->format('Y-m-d');
+            $selectedCarbonDate = Carbon::createFromFormat('d-m-Y', $request->selected_date);
+            $menuWeek = $request->filled('menuweek')
+                ? (int) $request->menuweek
+                : $this->resolveMenuWeek($selectedCarbonDate);
 
-            // Determine center ID (adjust if center is stored differently)
             $centerId = $request->center_id;
             if (!$centerId) {
                 return response()->json(['status' => 'error', 'message' => 'Center ID not found.'], 400);
@@ -388,6 +558,7 @@ class ApiHealthyController extends Controller
                     'addedBy' => $user->id,
                     'centerId' => $centerId,
                     'currentDate' => $currentDate,
+                    'menuweek' => $menuWeek,
                 ]);
             }
 
@@ -426,11 +597,22 @@ class ApiHealthyController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Invalid date format. Use d-m-Y.'], 400);
             }
 
-            // Get centers
+            // Get centers (allow optional `center_id` request param)
+            $requestedCenterId = $request->input('center_id');
+
             if ($user->userType === "Superadmin") {
                 $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+
+                if ($requestedCenterId) {
+                    $centerIds = [$requestedCenterId];
+                }
             } else {
                 $centerId = Usercenter::where('userid', $authId)->value('centerid'); // Fetch single center ID
+
+                if ($requestedCenterId && $requestedCenterId != $centerId) {
+                    return response()->json(['status' => 'error', 'message' => 'Access denied for requested center.'], 403);
+                }
+
                 $centerIds = [$centerId];
             }
 
@@ -467,6 +649,7 @@ class ApiHealthyController extends Controller
                 'status' => 'success',
                 'selected_date' => $selectedDate,
                 'selected_day' => $selectedDay,
+                'Current Center' => $requestedCenterId,
                 'menus' => $menus,
                 'centers' => $centers,
             ]);
@@ -528,5 +711,83 @@ class ApiHealthyController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    private function resolveMenuWeek(Carbon $selectedDate): int
+    {
+        $weeks = $this->getWeeksOfMonth($selectedDate->year, $selectedDate->month);
+
+        foreach ($weeks as $weekIndex => $weekRange) {
+            if ($selectedDate->betweenIncluded($weekRange['start'], $weekRange['end'])) {
+                return (int) $weekIndex;
+            }
+        }
+
+        return 1;
+    }
+
+    private function getWeeksOfMonth($year = null, $month = null)
+    {
+        $year = $year ?? now()->year;
+        $month = $month ?? now()->month;
+
+        $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfDay();
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+
+        $weeks = [];
+        $weekIndex = 1;
+
+        $current = $startOfMonth->copy();
+        if (!$current->isMonday()) {
+            $current->next(Carbon::MONDAY);
+        }
+
+        while ($current->lte($endOfMonth)) {
+            $weekStart = $current->copy();
+            $weekEnd = $current->copy()->endOfWeek(Carbon::FRIDAY);
+
+            if ($weekEnd->gt($endOfMonth)) {
+                $weekEnd = $endOfMonth->copy();
+
+                if ($weekEnd->isSaturday()) {
+                    $weekEnd->subDay();
+                } elseif ($weekEnd->isSunday()) {
+                    $weekEnd->subDays(2);
+                }
+            }
+
+            $weeks[$weekIndex] = [
+                'start' => $weekStart,
+                'end' => $weekEnd,
+            ];
+
+            $weekIndex++;
+            $current->addWeek();
+        }
+
+        return $weeks;
+    }
+
+    private function normalizeRecipeMealType(?string $rawType): ?string
+    {
+        if (!$rawType) {
+            return null;
+        }
+
+        $normalized = strtoupper(trim($rawType));
+        $normalized = preg_replace('/\s+/', '_', $normalized);
+
+        $map = [
+            'BREAKFAST' => 'BREAKFAST',
+            'MORNING_TEA' => 'MORNING_TEA',
+            'LUNCH' => 'LUNCH',
+            'AFTERNOON_TEA' => 'AFTERNOON_TEA',
+            'SNACK' => 'SNACKS',
+            'SNACKS' => 'SNACKS',
+            'LATE_SNACK' => 'SNACKS',
+            'LATE_SNACKS' => 'SNACKS',
+        ];
+
+        return $map[$normalized] ?? null;
     }
 }

@@ -85,6 +85,38 @@ class ObservationsController extends Controller
         return response()->json(['status' => true, 'message' => 'Comment added successfully.', 'comment' => $comment]);
     }
 
+    // Delete a comment for an observation
+    public function deleteComment($observationId, $commentId)
+    {
+        $observation = Observation::find($observationId);
+        if (!$observation) {
+            return response()->json(['status' => false, 'message' => 'Observation not found.'], 404);
+        }
+
+        $comment = ObservationComment::find($commentId);
+        if (!$comment || intval($comment->observationId) !== intval($observationId)) {
+            return response()->json(['status' => false, 'message' => 'Comment not found for this observation.'], 404);
+        }
+
+        $user = Auth::user();
+
+        // Allow deletion if the user is the comment author or a staff/superadmin
+        $isAuthor = $comment->userId == Auth::id();
+        $isPrivileged = in_array($user->userType ?? '', ['Superadmin', 'Staff']);
+
+        if (! $isAuthor && ! $isPrivileged) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized to delete this comment.'], 403);
+        }
+
+        try {
+            $comment->delete();
+            return response()->json(['status' => true, 'message' => 'Comment deleted successfully.']);
+        } catch (\Exception $e) {
+            Log::error('Delete comment failed: ' . $e->getMessage());
+            return response()->json(['status' => false, 'message' => 'Failed to delete comment.'], 500);
+        }
+    }
+
 
         /**
      * Share  observation via email (API endpoint)
@@ -1614,14 +1646,24 @@ class ObservationsController extends Controller
 
         $isEdit = $request->filled('id');
 
+        $normalizedInput = $request->all();
+        foreach (['selected_rooms', 'selected_children', 'selected_staff'] as $field) {
+            if (isset($normalizedInput[$field]) && is_array($normalizedInput[$field])) {
+                $normalizedInput[$field] = implode(',', array_filter($normalizedInput[$field], static function ($value) {
+                    return $value !== null && $value !== '';
+                }));
+            }
+        }
+
         $rules = [
-            'selected_rooms'    => 'required',
+            'selected_rooms'    => 'required|string',
             'obestitle'         => 'required|string|max:255',
             'title'             => 'nullable|string|max:255',
             'notes'             => 'nullable|string',
             'reflection'        => 'nullable|string',
             'child_voice'       => 'nullable|string',
             'future_plan'       => 'nullable|string',
+            'implementation'    => 'nullable|string',
             'selected_children' => 'required|string',
             'selected_staff'    => 'nullable|string',
         ];
@@ -1639,7 +1681,7 @@ class ObservationsController extends Controller
             'media.*.max' => 'Each file must be smaller than ' . ($uploadMaxSize / 1024 / 1024) . 'MB.',
         ];
 
-        $validator = Validator::make($request->all(), $rules, $messages);
+        $validator = Validator::make($normalizedInput, $rules, $messages);
 
         if ($validator->fails()) {
             return response()->json([
@@ -1647,6 +1689,8 @@ class ObservationsController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
+
+        $validated = $validator->validated();
 
         DB::beginTransaction();
 
@@ -1658,14 +1702,14 @@ class ObservationsController extends Controller
                 ? Observation::findOrFail($request->id)
                 : new Observation();
 
-            $observation->room         = $request->input('selected_rooms');
-            $observation->obestitle    = $request->input('obestitle');
-            $observation->title        = $request->input('title') ?? '';
-            $observation->notes        = $request->input('notes') ?? '';
-            $observation->reflection   = $request->input('reflection') ?? '';
-            $observation->child_voice  = $request->input('child_voice') ?? '';
-            $observation->future_plan  = $request->input('future_plan') ?? '';
-            $observation->tagged_staff = $request->input('selected_staff') ?? '';
+            $observation->room         = $validated['selected_rooms'];
+            $observation->obestitle    = $validated['obestitle'];
+            $observation->title        = $validated['title'] ?? '';
+            $observation->notes        = $validated['notes'] ?? '';
+            $observation->reflection   = $validated['reflection'] ?? '';
+            $observation->child_voice  = $validated['child_voice'] ?? '';
+            $observation->future_plan  = $validated['future_plan'] ?? '';
+            $observation->tagged_staff = $validated['selected_staff'] ?? '';
             $observation->userId       = $authId;
             $observation->centerid     = $centerid;
             $observation->save();
@@ -1675,7 +1719,7 @@ class ObservationsController extends Controller
             // Replace all existing ObservationChild records
             ObservationChild::where('observationId', $observationId)->delete();
 
-            $selectedChildren = explode(',', $request->input('selected_children'));
+            $selectedChildren = explode(',', $validated['selected_children']);
             foreach ($selectedChildren as $childId) {
                 if (trim($childId) !== '') {
                     ObservationChild::create([
@@ -1687,7 +1731,7 @@ class ObservationsController extends Controller
 
             
             \App\Models\ObservationStaff::where('observationId', $observationId)->delete();
-            $selectedStaff = explode(',', $request->input('selected_staff'));
+            $selectedStaff = explode(',', $validated['selected_staff']);
             foreach ($selectedStaff as $userid) {
                 if (trim($userid) !== '') {
                     \App\Models\ObservationStaff::create([
@@ -1967,7 +2011,7 @@ class ObservationsController extends Controller
     {
         $authId = Auth::user()->id;
         $user = Auth::user();
-        $centerid = $request->centerid;
+        $centerid = $request->query('centerid', $request->input('centerid'));
 
         // Fallback for Parent
         if ($user->usertype == "Parent") {
@@ -1987,20 +2031,34 @@ class ObservationsController extends Controller
             $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
 
             if (!empty($centerIds)) {
-                $centers = Center::whereIn('id', $centerIds)->get();
-                $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-                    ->whereIn('centerid', $centerIds)
-                    ->orderBy('id', 'desc')
-                    ->get();
+                $centersQuery = Center::whereIn('id', $centerIds);
+                if (!empty($centerid)) {
+                    $centersQuery->where('id', $centerid);
+                }
+                $centers = $centersQuery->get();
+
+                $snapshotQuery = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                    ->whereIn('centerid', $centerIds);
+
+                if (!empty($centerid)) {
+                    $snapshotQuery->where('centerid', $centerid);
+                }
+
+                $snapshots = $snapshotQuery->orderBy('id', 'desc')->get();
             }
         } elseif ($user->userType == "Staff") {
             if (!empty($centerid)) {
                 $centers = Center::where('id', $centerid)->get();
             }
-            $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-                ->where('createdBy', $authId)
-                ->orderBy('id', 'desc')
-                ->get();
+
+            $snapshotQuery = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('createdBy', $authId);
+
+            if (!empty($centerid)) {
+                $snapshotQuery->where('centerid', $centerid);
+            }
+
+            $snapshots = $snapshotQuery->orderBy('id', 'desc')->get();
         } else { // Parent
             if (!empty($centerid)) {
                 $centers = Center::where('id', $centerid)->get();
@@ -2014,11 +2072,15 @@ class ObservationsController extends Controller
                     ->toArray();
 
                 if (!empty($snapshotid)) {
-                    $snapshots = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                    $snapshotQuery = Snapshot::with(['creator', 'center', 'children.child', 'media'])
                         ->whereIn('id', $snapshotid)
-                        ->where('status', "Published")
-                        ->orderBy('id', 'desc')
-                        ->get();
+                        ->where('status', "Published");
+
+                    if (!empty($centerid)) {
+                        $snapshotQuery->where('centerid', $centerid);
+                    }
+
+                    $snapshots = $snapshotQuery->orderBy('id', 'desc')->get();
                 }
             }
         }
@@ -2420,6 +2482,9 @@ class ObservationsController extends Controller
                 // ✅ Delete DB record for media
                 $media->delete();
             }
+
+            // ✅ Delete linked children from pivot table
+            SnapshotChild::where('snapshotid', $id)->delete();
 
             // ✅ Delete snapshot record itself
             $snapshot->delete();

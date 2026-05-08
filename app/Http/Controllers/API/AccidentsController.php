@@ -182,10 +182,10 @@ class AccidentsController extends Controller
                 'roomid'          => $roomid,
                 'roomname'        => $roomname,
                 'roomcolor'       => $roomcolor,
-                'rooms'           => $centerRooms,
-                'childs'          => $childs,
+                //'rooms'           => $centerRooms,
+                //'childs'          => $childs,
                 'accidents'       => $accArr,
-                'centers'         => $centers,
+                //'centers'         => $centers,
                 'selectedCenter'  => $request->centerid,
             ]
         ]);

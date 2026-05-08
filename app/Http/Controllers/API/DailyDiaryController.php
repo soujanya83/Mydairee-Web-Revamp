@@ -628,9 +628,19 @@ public function getCenterDDSettings($centerid = '')
 
 public function addFoodRecord(Request $request)
 {
+    if (is_string($request->childid)) {
+    $decoded = json_decode($request->childid, true);
+
+    if (json_last_error() === JSON_ERROR_NONE) {
+        $request->merge([
+            'childid' => $decoded
+        ]);
+    }
+    }
+
     $validator = Validator::make($request->all(), [
         'type'       => 'required|string|in:BREAKFAST,MORNINGTEA,LUNCH,AFTERNOONTEA,SNACKS',
-        'childid'    => 'required|json',
+        'childid'    => 'required|array',
         'diarydate'  => 'required|date',
         'startTime'  => 'nullable|date_format:H:i',
         'item'       => 'nullable|array',
@@ -652,8 +662,8 @@ public function addFoodRecord(Request $request)
 
     $userId = Auth::user()->userid;
     $foodType = strtoupper($request->type);
-    $childIds = json_decode($request->childid, true);
-
+   // $childIds = json_decode($request->childid, true);
+    $childIds = $request->childid;
     $payload = [
         'childid'    => null, // will be set per child
         'diarydate'  => $request->diarydate,
@@ -986,6 +996,7 @@ public function viewChildDiary1($data)
         'child_ids.*' => 'exists:child,id',
         'time' => 'required|date_format:H:i',
         'item' => 'required|string|max:255',
+        'serve'=> 'nullable|string|max:255',
         'comments' => 'nullable|string'
     ]);
 
@@ -1018,6 +1029,7 @@ public function viewChildDiary1($data)
                     $existingEntry->update([
                         'startTime'   => $request->time,
                         'item'        => $request->item,
+                        'serve'       => $request->serve,
                         'comments'    => $request->comments,
                         'updated_at'  => now(),
                     ]);
@@ -1028,6 +1040,7 @@ public function viewChildDiary1($data)
                         'diarydate' => $request->date,
                         'startTime' => $request->time,
                         'item'      => $request->item,
+                        'serve'     => $request->serve,
                         'comments'  => $request->comments,
                         'createdBy' => $authId
                     ]);
@@ -1643,6 +1656,7 @@ public function viewChildDiary1($data)
 
     public function storeBottle(Request $request, FirebaseNotificationService $firebaseService)
 {
+  
     // ✅ Validate input
     $validator = Validator::make($request->all(), [
         'date'        => 'required|date',
@@ -1652,7 +1666,7 @@ public function viewChildDiary1($data)
         'comments'    => 'nullable|string',
         'id'          => 'nullable|exists:dailydiarybottle,id' // if editing
     ]);
-   
+  // dd($request->all(), $validator);
     if ($validator->fails()) {
         return response()->json([
             'status'  => false,
