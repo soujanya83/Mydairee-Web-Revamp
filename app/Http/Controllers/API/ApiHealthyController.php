@@ -413,7 +413,7 @@ class ApiHealthyController extends Controller
     public function apiEditRecipe($id)
     {
         try {
-            $recipe = RecipeModel::find($id);
+            $recipe = RecipeModel::with('ingredients')->find($id);
 
             if (!$recipe) {
                 return response()->json([
@@ -477,6 +477,7 @@ class ApiHealthyController extends Controller
                     'users.name as created_by_name',
                     'users.userType as created_by_role'
                 )
+                ->with('ingredients')
                 ->get()
                 ->groupBy('type');
 
