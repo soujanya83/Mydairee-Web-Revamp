@@ -293,10 +293,10 @@
 
 
         <div class="navbar-right">
-            <form id="navbar-search" class="navbar-form search-form mt-3">
+            {{--  <form id="navbar-search" class="navbar-form search-form mt-3">
                 <input value="" class="form-control" placeholder="Search here..." type="text" style="width: 360px;">
                 <button type="button" class="btn btn-default"><i class="icon-magnifier"></i></button>
-            </form>
+            </form>  --}}
 
 
 

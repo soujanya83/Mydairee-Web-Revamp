@@ -547,6 +547,8 @@ public function autosavereflection(Request $request)
     public function destroy($id)
     {
         $reflection = Reflection::findOrFail($id);
+        $reflection->deleted_by = Auth::id();
+        $reflection->save();
         $reflection->delete();
 
         return response()->json(['message' => 'Reflection deleted successfully.']);

@@ -299,69 +299,145 @@ public function rooms_list(Request $request)
 {
     $userId   = Auth::id();
     $authId   = Auth::user()->id;
+    $userType = Auth::user()->userType;
     $centerid = $request->user_center_id;
 
-    // Get centers
-    if (Auth::user()->userType == "Superadmin") {
-        $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers   = Center::whereIn('id', $centerIds)->get();
+    /*
+    |--------------------------------------------------------------------------
+    | Get Centers
+    |--------------------------------------------------------------------------
+    */
+    if ($userType == "Superadmin") {
+
+        $centerIds = Usercenter::where('userid', $authId)
+            ->pluck('centerid')
+            ->toArray();
+
+        $centers = Center::whereIn('id', $centerIds)->get();
+
     } else {
+
         $centers = Center::where('id', $centerid)->get();
     }
 
-    // Base room query
-    $roomQuery = Room::select('room.id as roomid', 'room.*')
-        ->join('centers', 'centers.id', '=', 'room.centerid')
-        ->where('room.userId', $userId);
+    /*
+    |--------------------------------------------------------------------------
+    | Base Room Query
+    |--------------------------------------------------------------------------
+    */
+    $roomQuery = Room::query()
+        ->where('userId', $userId);
 
-    if ($centerid) {
-        $roomQuery->where('room.centerid', $centerid);
+    // Filter by selected center
+    if (!empty($centerid)) {
+        $roomQuery->where('centerid', $centerid);
     }
 
-    // Room fetching logic based on user type
-    if (Auth::user()->userType == "Superadmin") {
+    /*
+    |--------------------------------------------------------------------------
+    | Fetch Rooms Based On User Type
+    |--------------------------------------------------------------------------
+    */
+    if ($userType == "Superadmin") {
+
         $getrooms = $roomQuery->get();
-    } else if(Auth::user()->userType == "Staff"){
-        $roomIds  = RoomStaff::where('staffid', $authId)->pluck('roomid');
-        $getrooms = Room::whereIn('id', $roomIds)->get();
-    }else{
-        $childids = Childparent::where('parentid',$authId)->pluck('childid');
-        $roomIds = Child::whereIn('id',$childids)->pluck('room');
-        $getrooms = Room::whereIn('id', $roomIds)->get();
-    }
 
-    // Attach children and educators
-    $roomStaffs = [];
-    if(Auth::user()->userType != "Parent"){
-    foreach ($getrooms as $room) {
-        $room->children = Child::where('room', $room->roomid)->get();
+    } elseif ($userType == "Staff") {
 
-        $room->educators = DB::table('room_staff')
-            ->leftJoin('users', 'users.id', '=', 'room_staff.staffid') // fixed to match PK
-            ->select('users.id as userid', 'users.name', 'users.gender', 'users.imageUrl')
-            ->where('room_staff.roomid', $room->roomid)
+        // Rooms assigned to logged-in staff
+        $roomIds = RoomStaff::where('staffid', $authId)
+            ->pluck('roomid');
+
+        $getrooms = $roomQuery
+            ->whereIn('id', $roomIds)
+            ->get();
+
+    } else {
+
+        // Parent -> Child -> Room
+        $childids = Childparent::where('parentid', $authId)
+            ->pluck('childid');
+
+        $roomIds = Child::whereIn('id', $childids)
+            ->pluck('room');
+
+        $getrooms = $roomQuery
+            ->whereIn('id', $roomIds)
             ->get();
     }
 
-    // Active staff list
-    $roomStaffs = RoomStaff::join('users', 'users.id', '=', 'room_staff.staffid')
-        ->where('users.userType', 'Staff')
-        ->where('users.status', 'Active')
-        ->select('room_staff.staffid', 'users.name')
-        ->distinct('room_staff.staffid')
-        ->get();
-}
-    // JSON response
+    /*
+    |--------------------------------------------------------------------------
+    | Attach Children & Educators
+    |--------------------------------------------------------------------------
+    */
+    foreach ($getrooms as $room) {
+
+        // Room children
+        $room->children = Child::where('room', $room->id)->get();
+
+        // Room educators
+        $room->educators = DB::table('room_staff')
+            ->leftJoin('users', 'users.id', '=', 'room_staff.staffid')
+            ->select(
+                'users.id as userid',
+                'users.name',
+                'users.gender',
+                'users.imageUrl'
+            )
+            ->where('room_staff.roomid', $room->id)
+            ->get();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Staff List Center Wise
+    |--------------------------------------------------------------------------
+    */
+    $roomStaffs = [];
+
+    if ($userType != "Parent") {
+
+        $roomStaffs = RoomStaff::join(
+                'users',
+                'users.id',
+                '=',
+                'room_staff.staffid'
+            )
+            ->join(
+                'room',
+                'room.id',
+                '=',
+                'room_staff.roomid'
+            )
+            ->where('users.userType', 'Staff')
+            ->where('users.status', 'Active')
+            ->where('room.userId', $userId)
+            ->when($centerid, function ($q) use ($centerid) {
+                $q->where('room.centerid', $centerid);
+            })
+            ->select(
+                'room_staff.staffid',
+                'users.name'
+            )
+            ->distinct()
+            ->get();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Response
+    |--------------------------------------------------------------------------
+    */
     return response()->json([
         'status'     => true,
         'message'    => 'Room list fetched successfully.',
         'rooms'      => $getrooms,
-        'centers'    => $centers,
+        // 'centers'    => $centers,
         'centerid'   => $centerid,
         'roomStaffs' => $roomStaffs,
     ]);
 }
-
 
 
 

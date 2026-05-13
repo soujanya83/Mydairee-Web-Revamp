@@ -3,11 +3,12 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class Observation extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'observation'; // explicitly set if not plural
 
@@ -27,6 +28,10 @@ class Observation extends Model
     ];
 
     // Optionally, if you use timestamps (created_at, updated_at), leave this as is.
+    public function deletedByUser()
+    {
+        return $this->belongsTo(User::class, 'deleted_by', 'id');
+    }
     // If not, add this:
     // public $timestamps = false;
 
@@ -58,6 +63,11 @@ public function media()
     return $this->hasMany(ObservationMedia::class, 'observationId');
 }
 
+    public function staff()
+    {
+        return $this->hasMany(ObservationStaff::class, 'observationId');
+    }
+
 public function links()
 {
     return $this->hasMany(ObservationLink::class, 'observationId');
@@ -71,6 +81,31 @@ public function comments()
 {
     return $this->hasMany(ObservationComment::class, 'observationId');
 }
+
+    protected static function booted()
+    {
+        static::deleting(function (Observation $observation) {
+            if (! $observation->isForceDeleting()) {
+                return;
+            }
+
+            foreach ($observation->media as $media) {
+                if (!empty($media->mediaUrl) && file_exists(public_path($media->mediaUrl))) {
+                    @unlink(public_path($media->mediaUrl));
+                }
+            }
+
+            $observation->child()->delete();
+            $observation->devMilestoneSubs()->delete();
+            $observation->eylfLinks()->delete();
+            $observation->montessoriLinks()->delete();
+            $observation->links()->delete();
+            $observation->comments()->delete();
+            $observation->Seen()->delete();
+            $observation->staff()->delete();
+            $observation->media()->delete();
+        });
+    }
 
 
 

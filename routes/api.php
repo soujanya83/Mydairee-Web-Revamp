@@ -31,12 +31,16 @@ use App\Http\Controllers\API\NotificationApiController;
 use App\Http\Controllers\API\PublicHolidayController;
 use App\Http\Controllers\API\ApiWifiIPController;
 use App\Http\Controllers\API\ApiPTMController;
+use App\Http\Controllers\API\RecycleBinController as ApiRecycleBinController;
  
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/save-fcm-token', [DeviceController::class, 'saveToken']);
     Route::post('/test-fcm', [DeviceController::class, 'testNotification']);
     Route::patch('/user/notification-preference', [DeviceController::class, 'updateNotificationPreference']);
+
+    // New API: Get all permissions
+    Route::get('settings/all-permissions', [SettingsController::class, 'all_permissions']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -99,7 +103,7 @@ Route::prefix('re-enrollment')->name('re-enrollment.')->group(function () {
     Route::get('/index', [ReEnrolmentController::class, 'dashboard'])->name('index');
     Route::get('/form', [ReEnrolmentController::class, 'createForm'])->name('form');
     Route::post('/store', [ReEnrolmentController::class, 'storeForm'])->name('store');
-
+    Route::get('/form-options', [ReEnrolmentController::class, 'formOptions'])->name('form-options');
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/formdashboard', [ReEnrolmentController::class, 'dashboard'])->name('dashboard');
         Route::get('/{reEnrolment}/details', [ReEnrolmentController::class, 'getDetails'])->name('details');
@@ -112,6 +116,26 @@ Route::prefix('re-enrollment')->name('re-enrollment.')->group(function () {
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::get('/login',[LoginController::class,'login'])->name('login');
 // });
+
+Route::middleware('auth:sanctum')->prefix('recycle')->name('recycle.')->group(function () {
+    Route::get('/modules', [ApiRecycleBinController::class, 'modules'])->name('modules');
+    Route::get('/program-plans', [ApiRecycleBinController::class, 'programPlans'])->name('program-plans');
+    Route::get('/observations', [ApiRecycleBinController::class, 'observations'])->name('observations');
+    Route::get('/reflections', [ApiRecycleBinController::class, 'reflections'])->name('reflections');
+    Route::get('/snapshots', [ApiRecycleBinController::class, 'snapshots'])->name('snapshots');
+
+    Route::post('/program-plans/{id}/restore', [ApiRecycleBinController::class, 'restoreProgramPlan'])->name('program-plans.restore');
+    Route::delete('/program-plans/{id}', [ApiRecycleBinController::class, 'forceDeleteProgramPlan'])->name('program-plans.force-delete');
+
+    Route::post('/observations/{id}/restore', [ApiRecycleBinController::class, 'restoreObservation'])->name('observations.restore');
+    Route::delete('/observations/{id}', [ApiRecycleBinController::class, 'forceDeleteObservation'])->name('observations.force-delete');
+
+    Route::post('/reflections/{id}/restore', [ApiRecycleBinController::class, 'restoreReflection'])->name('reflections.restore');
+    Route::delete('/reflections/{id}', [ApiRecycleBinController::class, 'forceDeleteReflection'])->name('reflections.force-delete');
+
+    Route::post('/snapshots/{id}/restore', [ApiRecycleBinController::class, 'restoreSnapshot'])->name('snapshots.restore');
+    Route::delete('/snapshots/{id}', [ApiRecycleBinController::class, 'forceDeleteSnapshot'])->name('snapshots.force-delete');
+});
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -478,4 +502,19 @@ Route::get('/test-parent-notification', function () {
     );
     return $results;
 });
+});
+
+// Recycle bin API endpoints for mobile/app clients
+Route::middleware('auth:sanctum')->prefix('recycle')->name('recycle.')->group(function () {
+    Route::post('/program-plan/{id}/restore', [\App\Http\Controllers\API\RecycleBinController::class, 'restoreProgramPlan']);
+    Route::delete('/program-plan/{id}', [\App\Http\Controllers\API\RecycleBinController::class, 'forceDeleteProgramPlan']);
+
+    Route::post('/observation/{id}/restore', [\App\Http\Controllers\API\RecycleBinController::class, 'restoreObservation']);
+    Route::delete('/observation/{id}', [\App\Http\Controllers\API\RecycleBinController::class, 'forceDeleteObservation']);
+
+    Route::post('/reflection/{id}/restore', [\App\Http\Controllers\API\RecycleBinController::class, 'restoreReflection']);
+    Route::delete('/reflection/{id}', [\App\Http\Controllers\API\RecycleBinController::class, 'forceDeleteReflection']);
+
+    Route::post('/snapshot/{id}/restore', [\App\Http\Controllers\API\RecycleBinController::class, 'restoreSnapshot']);
+    Route::delete('/snapshot/{id}', [\App\Http\Controllers\API\RecycleBinController::class, 'forceDeleteSnapshot']);
 });

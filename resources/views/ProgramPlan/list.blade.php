@@ -800,6 +800,14 @@
 
         @endif
 
+       
+            {{--  /* <button type="button" class="btn btn-outline-secondary ml-2"
+                data-recycle-bin-toggle
+                data-url="{{ route('recycle-bin.module', 'program-plan') }}"
+                data-title="Program Plan Recycle Bin"
+                title="Recycle Bin">
+                <i class="fa-solid fa-box-archive"></i>
+            </button>*/  --}} 
     </div>
 
 @endif

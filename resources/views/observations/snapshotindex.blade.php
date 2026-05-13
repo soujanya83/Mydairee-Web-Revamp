@@ -621,6 +621,17 @@
         <i class="icon-plus" style="margin-right: 5px;"></i>Add New</button>
     @endif &nbsp;&nbsp;&nbsp;
 
+    {{-- 
+        /*@if(Auth::user()->userType != 'Parent')
+      <button type="button" class="btn btn-outline-secondary ml-2"
+        data-recycle-bin-toggle
+        data-url="{{ route('recycle-bin.module', 'snapshot') }}"
+        data-title="Snapshot Recycle Bin"
+        title="Recycle Bin">
+        <i class="fa-solid fa-box-archive"></i>
+    </button>  
+    @endif */  --}}
+
 
     <div class="dropdown">
         <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="centerDropdown"
