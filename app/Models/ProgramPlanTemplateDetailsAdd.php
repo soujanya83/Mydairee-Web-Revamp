@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProgramPlanTemplateDetailsAdd extends Model
 {
+    use SoftDeletes;
+
     protected $table = "programplantemplatedetailsadd";
     protected $fillable = [
 'room_id',
@@ -52,5 +55,9 @@ class ProgramPlanTemplateDetailsAdd extends Model
     {
         return $this->belongsTo(User::class, 'created_by', 'id');
 
+    }
+    public function deletedByUser()
+    {
+        return $this->belongsTo(User::class, 'deleted_by', 'id');
     }
 }

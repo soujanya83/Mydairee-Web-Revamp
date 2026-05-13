@@ -3023,6 +3023,8 @@ $rules['media.*'] = "file|mimetypes:image/jpeg,image/png,image/jpg,image/webp,vi
     public function snapshotsdelete($id)
     {
         $snapshot = Snapshot::findOrFail($id);
+        $snapshot->deleted_by = Auth::id();
+        $snapshot->save();
         $snapshot->delete();
 
         return response()->json(['status' => 'success']);
@@ -3084,15 +3086,15 @@ $rules['media.*'] = "file|mimetypes:image/jpeg,image/png,image/jpg,image/webp,vi
     public function destroy($id)
     {
         try {
-            // Find the observation by ID
             $observation = Observation::findOrFail($id);
+            $observation->deleted_by = Auth::id();
+            $observation->save();
 
-            // Delete the observation
             $observation->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Observation deleted successfully!'
+                'message' => 'Observation Deleted successfully!'
             ]);
         } catch (\Exception $e) {
             return response()->json([

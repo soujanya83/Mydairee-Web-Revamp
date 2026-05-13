@@ -3,10 +3,11 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Reflection extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'reflection';
     public $timestamps = false;
@@ -25,6 +26,10 @@ class Reflection extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'createdBy');
+    }
+    public function deletedByUser()
+    {
+        return $this->belongsTo(User::class, 'deleted_by', 'id');
     }
 
     // 🔗 Optional: Relationship to center (if a Center model exists)
@@ -56,6 +61,26 @@ public function Seen()
 {
     return $this->hasMany(SeenReflection::class, 'reflection_id');
 }
+
+    protected static function booted()
+    {
+        static::deleting(function (Reflection $reflection) {
+            if (! $reflection->isForceDeleting()) {
+                return;
+            }
+
+            foreach ($reflection->media as $media) {
+                if (!empty($media->mediaUrl) && file_exists(public_path($media->mediaUrl))) {
+                    @unlink(public_path($media->mediaUrl));
+                }
+            }
+
+            $reflection->children()->delete();
+            $reflection->media()->delete();
+            $reflection->staff()->delete();
+            $reflection->Seen()->delete();
+        });
+    }
 
 
 

@@ -799,6 +799,126 @@
 
     @stack('scripts')
 
+    <div class="modal fade" id="moduleRecycleModal" tabindex="-1" role="dialog" aria-labelledby="moduleRecycleModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document" style="max-width: 94vw; width: 94vw;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="moduleRecycleModalTitle">Recycle Bin</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="moduleRecycleModalBody">
+                    <div class="text-center py-5 text-muted">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            const modal = $('#moduleRecycleModal');
+            const modalBody = $('#moduleRecycleModalBody');
+            const modalTitle = $('#moduleRecycleModalTitle');
+
+            function showToast(type, title) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1800,
+                    icon: type,
+                    title: title
+                });
+            }
+
+            $(document).on('click', '[data-recycle-bin-toggle]', function (event) {
+                event.preventDefault();
+                const button = $(this);
+                const url = button.data('url');
+                const title = button.data('title') || 'Recycle Bin';
+
+                modalTitle.text(title);
+                modalBody.html('<div class="text-center py-5 text-muted">Loading...</div>');
+                modal.modal('show');
+
+                $.get(url + (url.indexOf('?') === -1 ? '?' : '&') + 'embed=1')
+                    .done(function (html) {
+                        modalBody.html(html);
+                    })
+                    .fail(function () {
+                        modalBody.html('<div class="alert alert-danger mb-0">Unable to load recycle bin content.</div>');
+                    });
+            });
+
+            $(document).on('submit', '.recycle-restore-form', function (event) {
+                event.preventDefault();
+                const form = $(this);
+
+                Swal.fire({
+                    title: 'Restore item?',
+                    text: 'This will restore the deleted item.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Restore'
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        url: form.attr('action'),
+                        method: 'POST',
+                        data: form.serialize(),
+                        headers: { 'X-CSRF-TOKEN': csrfToken },
+                        success: function () {
+                            showToast('success', 'Restored');
+                            const card = form.closest('[data-recycle-item-card]');
+                            if (card.length) {
+                                card.fadeOut(250, function () { $(this).remove(); });
+                            }
+                        },
+                        error: function () {
+                            showToast('error', 'Restore failed');
+                        }
+                    });
+                });
+            });
+
+            $(document).on('submit', '.recycle-delete-form', function (event) {
+                event.preventDefault();
+                const form = $(this);
+
+                Swal.fire({
+                    title: 'Permanently delete?',
+                    text: 'This cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Delete',
+                    confirmButtonColor: '#d33'
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        url: form.attr('action'),
+                        method: 'POST',
+                        data: form.serialize(),
+                        headers: { 'X-CSRF-TOKEN': csrfToken },
+                        success: function () {
+                            showToast('success', 'Deleted permanently');
+                            const card = form.closest('[data-recycle-item-card]');
+                            if (card.length) {
+                                card.fadeOut(250, function () { $(this).remove(); });
+                            }
+                        },
+                        error: function () {
+                            showToast('error', 'Delete failed');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
 
     <!-- up and down floating button -->
     <script>

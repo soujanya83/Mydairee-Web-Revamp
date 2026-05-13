@@ -431,4 +431,21 @@ class ReEnrolmentController extends Controller
             ], 500);
         }
     }
+
+    // Returns available form options for API/mobile
+    public function formOptions()
+    {
+        return response()->json([
+            [
+                'name' => 'Re-enrolment Form',
+                'slug' => 'reenrolment',
+                'url' => url('/re-enrollment/form')
+            ],
+            [
+                'name' => 'Health Form',
+                'slug' => 'health',
+                'url' => url('/health/form')
+            ]
+        ]);
+    }
 }

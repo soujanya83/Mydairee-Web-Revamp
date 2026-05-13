@@ -12,6 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\DailyDatabaseBackup::class,
+        \App\Console\Commands\PurgeRecycleBin::class,
     ];
 
     /**
@@ -22,6 +23,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('db:daily-backup')
             ->dailyAt('19:00')
             ->timezone('Australia/Sydney'); // ⬅️ Set Sydney timezone
+
+        $schedule->command('recycle-bin:purge')
+            ->dailyAt('02:15')
+            ->timezone('Australia/Sydney');
     }
 
     /**

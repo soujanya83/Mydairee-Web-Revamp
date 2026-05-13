@@ -488,6 +488,13 @@
  @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['addReflection']) && $permissions['addReflection']))
 <button type="button" class="btn btn-outline-info" onclick="window.location.href='{{ route('reflection.addnew') }}'"><i class="icon-plus" style="margin-right: 5px;"></i>Add New</button>
 @endif
+{{--  /*<button type="button" class="btn btn-outline-secondary ml-2"
+    data-recycle-bin-toggle
+    data-url="{{ route('recycle-bin.module', 'reflection') }}"
+    data-title="Reflection Recycle Bin"
+    title="Recycle Bin">
+    <i class="fa-solid fa-box-archive"></i>
+</button> */ --}}
 @endif &nbsp;&nbsp;&nbsp;
 
 

@@ -268,6 +268,13 @@ body[class*="theme-"] .print-theme-icon {
         onclick="window.location.href='{{ route('observation.addnew') }}'"><i class="icon-plus"
             style="margin-right: 5px;"></i>Add New</button>
     @endif
+    {{-- /* <button type="button" class="btn btn-outline-secondary ml-2"
+        data-recycle-bin-toggle
+        data-url="{{ route('recycle-bin.module', 'observation') }}"
+        data-title="Observation Recycle Bin"
+        title="Recycle Bin">
+        <i class="fa-solid fa-box-archive"></i>
+    </button>*/  --}}
     @endif &nbsp;&nbsp;&nbsp;
 
 

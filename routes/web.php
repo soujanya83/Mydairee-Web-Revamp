@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Models\Child;
 use App\Http\Controllers\ObservationController;
+use App\Http\Controllers\RecycleBinController;
 use App\Http\Controllers\ReflectionController;
 use App\Http\Controllers\SleepCheckController;
 use App\Http\Controllers\SurveyController;
@@ -128,6 +129,20 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
 
 
     Route::get('programPlanList', [LessonPlanList::class, 'programPlanList'])->name('programPlanList');
+  
+  
+    /* Recycle bin web routes are temporarily disabled 
+    Route::get('recycle-bin', [RecycleBinController::class, 'index'])->name('recycle-bin.index');
+    Route::get('recycle-bin/module/{module}', [RecycleBinController::class, 'moduleItems'])->name('recycle-bin.module');
+    Route::post('recycle-bin/program-plan/{id}/restore', [RecycleBinController::class, 'restoreProgramPlan'])->name('recycle-bin.program-plan.restore');
+    Route::delete('recycle-bin/program-plan/{id}', [RecycleBinController::class, 'forceDeleteProgramPlan'])->name('recycle-bin.program-plan.force-delete');
+    Route::post('recycle-bin/observation/{id}/restore', [RecycleBinController::class, 'restoreObservation'])->name('recycle-bin.observation.restore');
+    Route::delete('recycle-bin/observation/{id}', [RecycleBinController::class, 'forceDeleteObservation'])->name('recycle-bin.observation.force-delete');
+    Route::post('recycle-bin/reflection/{id}/restore', [RecycleBinController::class, 'restoreReflection'])->name('recycle-bin.reflection.restore');
+    Route::delete('recycle-bin/reflection/{id}', [RecycleBinController::class, 'forceDeleteReflection'])->name('recycle-bin.reflection.force-delete');
+    Route::post('recycle-bin/snapshot/{id}/restore', [RecycleBinController::class, 'restoreSnapshot'])->name('recycle-bin.snapshot.restore');
+    Route::delete('recycle-bin/snapshot/{id}', [RecycleBinController::class, 'forceDeleteSnapshot'])->name('recycle-bin.snapshot.force-delete');
+    */
 
 
     Route::get('LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans');
