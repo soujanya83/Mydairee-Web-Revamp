@@ -325,13 +325,7 @@ public function rooms_list(Request $request)
     | Base Room Query
     |--------------------------------------------------------------------------
     */
-    $roomQuery = Room::query()
-        ->where('userId', $userId);
-
-    // Filter by selected center
-    if (!empty($centerid)) {
-        $roomQuery->where('centerid', $centerid);
-    }
+    // We'll build the room query per user type below
 
     /*
     |--------------------------------------------------------------------------
@@ -339,31 +333,21 @@ public function rooms_list(Request $request)
     |--------------------------------------------------------------------------
     */
     if ($userType == "Superadmin") {
-
-        $getrooms = $roomQuery->get();
-
+        // Superadmin: all rooms of the current center
+        if (!empty($centerid)) {
+            $getrooms = Room::where('centerid', $centerid)->get();
+        } else {
+            $getrooms = collect(); // No center selected, return empty
+        }
     } elseif ($userType == "Staff") {
-
-        // Rooms assigned to logged-in staff
-        $roomIds = RoomStaff::where('staffid', $authId)
-            ->pluck('roomid');
-
-        $getrooms = $roomQuery
-            ->whereIn('id', $roomIds)
-            ->get();
-
+        // Staff: all rooms they are attached to
+        $roomIds = RoomStaff::where('staffid', $authId)->pluck('roomid');
+        $getrooms = Room::whereIn('id', $roomIds)->get();
     } else {
-
-        // Parent -> Child -> Room
-        $childids = Childparent::where('parentid', $authId)
-            ->pluck('childid');
-
-        $roomIds = Child::whereIn('id', $childids)
-            ->pluck('room');
-
-        $getrooms = $roomQuery
-            ->whereIn('id', $roomIds)
-            ->get();
+        // Parent: all rooms their children are in
+        $childids = Childparent::where('parentid', $authId)->pluck('childid');
+        $roomIds = Child::whereIn('id', $childids)->pluck('room')->filter()->unique();
+        $getrooms = Room::whereIn('id', $roomIds)->get();
     }
 
     /*

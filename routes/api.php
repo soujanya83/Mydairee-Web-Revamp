@@ -427,7 +427,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('ptm')->group(function () {
         Route::get('/', [ApiPTMController::class, 'index']);
         Route::post('/', [ApiPTMController::class, 'store']);
-        Route::get('/rooms', [ApiPTMController::class, 'getrooms']);
+        Route::get('/ptmroom', [ApiPTMController::class, 'getrooms']);
         Route::get('/children', [ApiPTMController::class, 'getChildren']);
         Route::get('/staff', [ApiPTMController::class, 'getStaff']);
         Route::get('/events', [ApiPTMController::class, 'getPtmEvents']);
