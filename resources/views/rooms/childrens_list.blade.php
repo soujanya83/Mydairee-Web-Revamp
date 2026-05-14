@@ -527,7 +527,7 @@
     <div class="col-md-3 mb-2 child-card" data-name="{{ strtolower($child->childname . ' ' . $child->lastname) }}"
         data-gender="{{ strtolower($child->gender) }}">
 
-        {{-- 👇 Yahan aapka card code as it is rahega --}}
+        
         <div class="card shadow rounded-lg position-relative">
             <img src="{{ $child->imageUrl
                     ? asset($child->imageUrl)
@@ -586,9 +586,9 @@
                                         <h5 class="modal-title" id="detailsModalLabel{{ $child->childId }}">
                                             Child Details - {{ $child->childname }} {{ $child->lastname }}
                                         </h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        {{--  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
-                                        </button>
+                                        </button>  --}}
                                     </div>
                                     <div class="modal-body">
                                         <div class="row">

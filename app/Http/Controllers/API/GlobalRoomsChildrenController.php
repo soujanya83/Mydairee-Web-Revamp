@@ -87,6 +87,15 @@ class GlobalRoomsChildrenController extends Controller
             $rooms = collect();
         }
 
+        if ($rooms->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You do not have access to any rooms in this center.',
+                'centerid' => $centerid,
+                'userType' => $userType,
+            ], 403);
+        }
+
         return response()->json([
             'status' => true,
             'centerid' => $centerid,
