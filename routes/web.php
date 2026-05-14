@@ -346,6 +346,7 @@ Route::middleware(['web', 'auth', CheckOfficeWifi::class, ClearCacheAfterLogout:
     Route::post('/rooms/{roomid}/assign-educators', [RoomController::class, 'assignEducators'])->name('rooms.assign.educators');
     Route::patch('/children/{id}/toggle-status', [RoomController::class, 'toggleStatus'])
         ->name('children.toggleStatus');
+    Route::get('/children/{id}/details', [RoomController::class, 'childDetails'])->name('children.details');
 
 
     // recipe

@@ -490,8 +490,8 @@ public function rooms_list(Request $request)
    public function add_new_children(Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'firstname'   => 'required|string|max:255',
-        'lastname'    => 'required|string|max:255',
+        'firstname'   => ['required','string','max:255','not_regex:/\\d/'],
+        'lastname'    => ['required','string','max:255','not_regex:/\\d/'],
         'dob'         => 'required|date',
         'startDate'   => 'required|date',
         'gender'      => 'required|in:Male,Female,Other',
@@ -583,8 +583,8 @@ public function rooms_list(Request $request)
 {
     //   dd('here'); 
     $validator = Validator::make($request->all(), [
-        'firstname' => 'required|string|max:255',
-        'lastname' => 'required|string|max:255',
+        'firstname' => ['required','string','max:255','not_regex:/\\d/'],
+        'lastname' => ['required','string','max:255','not_regex:/\\d/'],
         'dob' => 'required|date',
         'startDate' => 'required|date',
         'gender' => 'required|in:Male,Female,Other',

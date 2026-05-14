@@ -1392,7 +1392,7 @@ public function staff_store(Request $request)
 
         $request->validate([
             'id' => 'required|exists:users,id',
-            'name' => 'required|string',
+            'name' => ['required','string','not_regex:/\\d/'],
             'email' => 'required|email|unique:users,email,' . $user->id,
             'contactNo' => 'required|string|min:9',
             'gender' => 'required',
@@ -1504,7 +1504,7 @@ public function parent_store(Request $request)
         'email' => 'required|email|unique:users,email',
         'password' => 'required|string|min:6',
         'contactNo' => 'required|string|min:9',
-        'name' => 'required|string',
+        'name' => ['required','string','not_regex:/\\d/'],
         'gender' => 'required|string',
         'imageUrl' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
         'children' => 'required|array|min:1',
@@ -2008,7 +2008,7 @@ public function parent_update(Request $request)
     ],
     'password' => 'nullable|string|min:6',
     'contactNo' => 'required|string',
-    'name' => 'required|string',
+    'name' => ['required','string','not_regex:/\\d/'],
     'gender' => 'required|string',
     'imageUrl' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
     'children' => 'required|array|min:1',

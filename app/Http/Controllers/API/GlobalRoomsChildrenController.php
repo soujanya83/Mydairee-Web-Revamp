@@ -38,6 +38,64 @@ class GlobalRoomsChildrenController extends Controller
         ]);
     }
 
+
+    public function getUserCenterRooms(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'centerid' => 'required|integer|exists:centers,id',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $centerid = (int) $request->input('centerid');
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not authenticated.'
+            ], 401);
+        }
+
+        $userType = $user->userType;
+        $authId = $user->id;
+        if ($userType === 'Superadmin') {
+            // All rooms in the center
+            $rooms = Room::where('centerid', $centerid)->get();
+        } elseif ($userType === 'Staff') {
+            // Rooms in center where staff is attached
+            $roomIds = \App\Models\RoomStaff::where('staffid', $authId)->pluck('roomid');
+            $rooms = Room::where('centerid', $centerid)
+                ->whereIn('id', $roomIds)
+                ->get();
+        } elseif ($userType === 'Parent') {
+            // Rooms in center where any of parent's children are attached
+            $childIds = \App\Models\Childparent::where('parentid', $authId)->pluck('childid');
+            $roomIds = \App\Models\Child::whereIn('id', $childIds)
+                ->where('centerid', $centerid)
+                ->pluck('room')
+                ->filter()
+                ->unique();
+            $rooms = Room::where('centerid', $centerid)
+                ->whereIn('id', $roomIds)
+                ->get();
+        } else {
+            $rooms = collect();
+        }
+
+        return response()->json([
+            'status' => true,
+            'centerid' => $centerid,
+            'userType' => $userType,
+            'rooms' => $rooms,
+        ]);
+    }
+
+    
     public function getRoomChildren(Request $request)
     {
         $validator = Validator::make($request->all(), [

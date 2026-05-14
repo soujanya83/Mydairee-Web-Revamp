@@ -711,7 +711,11 @@ class SettingsController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
             'contactNo' => 'required|string|min:9',
-            'name' => 'required|string',
+            'name' => [
+                'required',
+                'string',
+                'not_regex:/\d/' // disallow digits
+            ],
             'gender' => 'required',
             // 'title' => 'required',
             'centerName' => 'required|string',
@@ -775,7 +779,11 @@ class SettingsController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string',
+            'name' => [
+                'required',
+                'string',
+                'not_regex:/\d/'
+            ],
             'email' => 'required|email|unique:users,email,' . $user->id,
             'contactNo' => 'required|string|min:9',
             'gender' => 'required',
@@ -963,7 +971,11 @@ class SettingsController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
             'contactNo' => 'required|string|min:9',
-            'name' => 'required|string',
+            'name' => [
+                'required',
+                'string',
+                'not_regex:/\d/'
+            ],
             'gender' => 'required',
             'imageUrl' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
         ]);
@@ -1017,7 +1029,11 @@ class SettingsController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string',
+            'name' => [
+                'required',
+                'string',
+                'not_regex:/\d/'
+            ],
             'email' => 'required|email|unique:users,email,' . $user->id,
             'contactNo' => 'required|string|min:9',
             'gender' => 'required',

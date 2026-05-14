@@ -535,15 +535,15 @@
                         ? asset('assets/img/default-boyimage.jpg')
                         : asset('assets/img/default-girlimage.jpg')) }}" class="card-img-top"
                 style="height: 200px; object-fit: cover; border-radius: 8px; padding: 5px;" alt="{{ $child->name }}">
-            <form action="{{ route('children.toggleStatus', $child->childId) }}" method="POST" class="position-absolute"
-                style="top: 10px; right: 10px;">
+            <form action="{{ route('children.toggleStatus', $child->childId) }}" method="POST" class="position-absolute" style="top: 10px; right: 10px;">
                 @csrf
                 @method('PATCH')
-                <button type="submit"
-                    class="btn btn-sm {{ $child->childstatus == 'Active' ? 'btn-success' : 'btn-danger' }}">
+                <button type="button"
+                    class="btn btn-sm {{ $child->childstatus == 'Active' ? 'btn-success' : 'btn-danger' }} toggle-status-btn"
+                    data-child-id="{{ $child->childId }}"
+                    data-child-status="{{ $child->childstatus }}">
                     {{ $child->childstatus == 'Active' ? 'Active' : 'Inactive' }}
                 </button>
-
             </form>
             <div class="card-body">
                 <h5 class="card-title">{{ $child->childname }} {{ $child->lastname }}</h5>
@@ -565,7 +565,7 @@
 
                 </div>
 
-                <p class="mb-1"><i class="fas fa-id-card me-1"></i> ID: {{ $child->childId }}</p>
+                {{--  <p class="mb-1"><i class="fas fa-id-card me-1"></i> ID: {{ $child->childId }}</p>  --}}
                 <p class="mb-1"><i class="fas fa-door-open me-1"></i> Room: {{ $child->roomname ?? 'N/A' }}</p>
                 <p class="mb-3"><i class="fas fa-calendar-check me-1"></i>
                     Joined: {{ optional($child->startDate ? \Carbon\Carbon::parse($child->startDate) :
@@ -574,11 +574,82 @@
                 </p>
 
                 <div class="d-flex justify-content-end" style="margin-top:-17px">
-                    <button type="button" class="btn btn-outline-info btn-sm " data-bs-toggle="modal"
-                        data-bs-target="#statusModal{{ $child->childId }}" style="height: 23px; margin-right:6px;"
-                        title="View Status History">
+                    <button type="button" class="btn btn-outline-info btn-sm view-details-btn" style="height: 23px; margin-right:6px;"
+                        data-child-id="{{ $child->childId }}" data-toggle="modal" data-target="#detailsModal{{ $child->childId }}" title="View Details">
                         <i class="fas fa-eye"></i>
                     </button>
+                        <!-- View Details Modal -->
+                        <div class="modal fade" id="detailsModal{{ $child->childId }}" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel{{ $child->childId }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content card">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="detailsModalLabel{{ $child->childId }}">
+                                            Child Details - {{ $child->childname }} {{ $child->lastname }}
+                                        </h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <img src="{{ $child->imageUrl ? asset($child->imageUrl) : (strtolower($child->gender) == 'male' ? asset('assets/img/default-boyimage.jpg') : asset('assets/img/default-girlimage.jpg')) }}" class="img-fluid rounded mb-2" alt="{{ $child->childname }}">
+                                            </div>
+                                            <div class="col-md-8">
+                                                <table class="table table-bordered table-sm">
+                                                    <tbody>
+                                                        <tr><th>Full Name</th><td>{{ $child->childname }} {{ $child->lastname }}</td></tr>
+                                                        <tr><th>Room</th><td>{{ $child->roomname ?? 'N/A' }}</td></tr>
+                                                        <tr><th>Date of Birth</th><td>{{ optional($child->dob ? \Carbon\Carbon::parse($child->dob) : null)->format('d M Y') ?? 'N/A' }}</td></tr>
+                                                        <tr><th>Gender</th><td>{{ $child->gender }}</td></tr>
+                                                        <tr><th>Status</th><td>{{ $child->childstatus }}</td></tr>
+                                                        <tr><th>Joined</th><td>{{ optional($child->startDate ? \Carbon\Carbon::parse($child->startDate) : null)->format('d M Y') ?? 'N/A' }}</td></tr>
+                                                        <tr><th>Address</th><td>{{ $child->address ?? 'N/A' }}</td></tr>
+                                                        <tr><th>Parents</th><td>
+                                                            @php
+                                                                $parents = \App\Models\Childparent::where('childid', $child->childId)
+                                                                    ->join('users', 'users.id', '=', 'childparent.parentid')
+                                                                    ->select('users.name', 'childparent.relation', 'users.contactNo as phone')
+                                                                    ->get();
+                                                            @endphp
+                                                            @if($parents && $parents->isNotEmpty())
+                                                                <ul class="mb-0 pl-3">
+                                                                @foreach($parents as $parent)
+                                                                    <li>{{ $parent->name }} ({{ $parent->relation }}) - {{ $parent->phone ?? '' }}</li>
+                                                                @endforeach
+                                                                </ul>
+                                                            @else
+                                                                N/A
+                                                            @endif
+                                                        </td></tr>
+                                                        <tr><th>Siblings</th><td>
+                                                            @php
+                                                                $parentIds = \App\Models\Childparent::where('childid', $child->childId)->pluck('parentid');
+                                                                $siblingIds = \App\Models\Childparent::whereIn('parentid', $parentIds)
+                                                                    ->where('childid', '!=', $child->childId)
+                                                                    ->pluck('childid')->unique();
+                                                                $siblings = \App\Models\Child::whereIn('id', $siblingIds)->select('name as childname', 'lastname')->get();
+                                                            @endphp
+                                                            @if($siblings && $siblings->isNotEmpty())
+                                                                <ul class="mb-0 pl-3">
+                                                                @foreach($siblings as $sibling)
+                                                                    <li>{{ $sibling->childname }} {{ $sibling->lastname }}</li>
+                                                                @endforeach
+                                                                </ul>
+                                                            @else
+                                                                N/A
+                                                            @endif
+                                                        </td></tr>
+                                                        <tr><th>Other Details</th><td>{{ $child->other_details ?? 'N/A' }}</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <!-- status modal placeholder (moved to global) -->
                     @if((Auth::user()->userType === 'Superadmin') || (Auth::user()->userType ==='Staff' && !empty($permissions['updateChildGroup']) && $permissions['updateChildGroup'] ))
                     <a href="{{ route('children.edit', $child->childId) }}" class="btn btn-outline-primary btn-sm"
                         style="height: 24px;" title="Child Edit">
@@ -684,10 +755,51 @@
 
 </div>
 
+    <!-- Global Status Toggle Confirmation Modal -->
+    <div class="modal fade" id="statusConfirmModal" tabindex="-1" role="dialog" aria-labelledby="statusConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="statusConfirmModalLabel">Confirm Status Change</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">Are you sure you want to change the status of this child?</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="confirmStatusChangeBtn">Yes, Change</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script>
+// Handle View Details button
+$(document).on('click', '.view-details-btn', function() {
+    var childId = $(this).data('child-id');
+    $('#detailsModal' + childId).modal('show');
+});
+
+// Status toggle confirmation logic
+let statusFormToSubmit = null;
+$(document).on('click', '.toggle-status-btn', function(e) {
+    e.preventDefault();
+    statusFormToSubmit = $(this).closest('form');
+    $('#statusConfirmModal').modal('show');
+});
+
+$('#confirmStatusChangeBtn').on('click', function() {
+    if (statusFormToSubmit) {
+        statusFormToSubmit.submit();
+        statusFormToSubmit = null;
+        $('#statusConfirmModal').modal('hide');
+        // Optionally show a success toast/modal here
+    }
+});
     document.addEventListener("DOMContentLoaded", function () {
         filterProgramPlan();
     const sortBtn = document.getElementById("sortBtn");
@@ -796,7 +908,7 @@ function filterProgramPlan() {
     $('.row.mb-5 > .col-md-3').each(function() {
         var card        = $(this);
         var childName   = card.find('.card-title').text().toLowerCase();
-        var childStatus = card.find('form button[type="submit"]').text().toLowerCase().trim();
+        var childStatus = card.find('form button').first().text().toLowerCase().trim();
         var childGender = card.find('.badge i').hasClass('fa-mars') ? 'male' : 'female';
 
         // Extract DOB from badge
