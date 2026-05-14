@@ -224,36 +224,21 @@ class ApiPTMController extends Controller
     }
 
     public function getrooms()
-{
-    $request = request();
+    {
+        $request = request();
+        [$centerId, $currentCenter, $authError] = $this->resolveAuthorizedCenter($request);
+        if ($authError) {
+            return $authError;
+        }
 
-    [$centerId, $currentCenter, $authError] = $this->resolveAuthorizedCenter($request);
-
-    if ($authError) {
-        return $authError;
+        $user = Auth::user();
+        // if ($user->userType === 'Superadmin') {
+            $rooms = Room::where('centerid', $centerId)->get();
+        // } else {
+        //     $rooms = Auth::user()->rooms()->where('centerid', $centerId)->get();
+        // }
+        return response()->json(['status' => 'success', 'rooms' => $rooms]);
     }
-
-    // Allow GET parameter: ?user_center_id=5
-    $requestedCenterId = $request->get('user_center_id');
-
-    // Use requested center if provided, else fallback
-    $finalCenterId = $requestedCenterId ?: $centerId;
-
-    $user = Auth::user();
-
-    if ($user->userType === 'Superadmin') {
-        $rooms = Room::where('centerid', $finalCenterId)->get();
-    } else {
-        $rooms = $user->rooms()
-            ->where('centerid', $finalCenterId)
-            ->get();
-    }
-
-    return response()->json([
-        'status' => 'success',
-        'rooms' => $rooms
-    ]);
-}
 
     public function getChildren(Request $request)
     {
