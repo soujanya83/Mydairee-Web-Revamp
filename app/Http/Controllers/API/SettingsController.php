@@ -277,466 +277,146 @@ use Illuminate\Validation\Rule;
     public function all_permissions()
     {
         // Main module order
+        // Define the module order as per your requirements
         $moduleOrder = [
             'Dashboard',
-            'Daily Journal',
+            'Daily Diary',
+            'Head Check',
+            'Sleep Check',
+            'Accident Form',
             'Program Plan',
-            'Lesson Plan',
             'Daily Reflections',
             'Observation',
             'PTM',
             'Snapshots',
             'Events',
-            'Children',
             'Rooms',
-            'Healthy Eating',
+            'Children',
             'QIP',
+            'Survey',
+            'Lesson',
+            'Assessment',
+            'Activity',
             'Forms',
+            'Lesson Plan',
+            'Learning & Progress',
+            'Menu',
+            'Recipe',
+            'Ingredients',
+            'Super-Admin Settings',
             'Service Details',
-            'Settings',
+            'Modules',
+            'Staff Settings',
+            'Center Settings',
+            'Parent Settings',
+            'Manage Permissions',
+            'Self Assessment',
+            'Sub Activity',
         ];
 
-        // Define module/submodule structure
-        $permissionMap = [
+            // Map permission keywords to modules
+            $permissionMap = [
+                'Dashboard' => ['Dashboard'],
+                'Daily Diary' => ['DailyDiary'],
+                'Head Check' => ['HeadCheck'],
+                'Sleep Check' => ['SleepCheck'],
+                'Accident Form' => ['Accident'],
+                'Program Plan' => ['ProgramPlan'],
+                'Lesson Plan' => ['LessonPlan'],
+                'Daily Reflections' => ['Reflection'],
+                'Observation' => ['Observation'],
+                'PTM' => ['Ptm'],
+                'Snapshots' => ['Snapshot'],
+                'Events' => ['Announcement', 'Event'],
+                'Children' => ['ChildGroup'],
+                'Rooms' => ['Room'],
+                'Recipe' => ['Recipe'],
+                'Menu' => ['Menu'],
+                'Ingredients' => ['Ingredient'],
+                'QIP' => ['Qip'],
+                'Forms' => ['Form'],
+                'Service Details' => ['ServiceDetail'],
+                'Survey' => ['Survey'],
+                'Modules' => ['Modules'],
+                'Staff Settings' => ['Users'],
+                'Center Settings' => ['Centers'],
+                'Parent Settings' => ['Parent'],
+                'Manage Permissions' => ['Permission'],
+                'Learning & Progress' => ['Progress'],
+                'Lesson' => ['Lesson'],
+                'Assessment' => ['Assessment'],
+                'Self Assessment' => ['SelfAssessment'],
+                'Activity' => ['Activity'],
+                'Sub Activity' => ['subActivity'],
+            ];
 
-            /*
-            |--------------------------------------------------------------------------
-            | Dashboard
-            |--------------------------------------------------------------------------
-            */
-            'Dashboard' => [
-                'keywords' => ['Dashboard'],
-                'submodule' => null,
-            ],
+            $allColumns = Schema::getColumnListing('permissions');
+            $exclude = ['id', 'userid', 'centerid', 'created_at', 'updated_at'];
+            $permissionCols = array_diff($allColumns, $exclude);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Daily Journal
-            |--------------------------------------------------------------------------
-            */
-            'Daily Diary' => [
-                'keywords' => ['DailyDiary'],
-                'module' => 'Daily Journal',
-                'submodule' => 'Daily Diary',
-            ],
+            // Permission labels
+            $labelMap = collect($permissionCols)->mapWithKeys(function ($col) {
+                return [$col => Str::headline($col)];
+            })->toArray();
 
-            'Head Check' => [
-                'keywords' => ['HeadCheck', 'HeadChecks'],
-                'module' => 'Daily Journal',
-                'submodule' => 'Head Check',
-            ],
+            $grouped = [];
+            $other = [];
 
-            'Sleep Check' => [
-                'keywords' => ['SleepCheck'],
-                'module' => 'Daily Journal',
-                'submodule' => 'Sleep Check',
-            ],
-
-            'Accident Form' => [
-                'keywords' => ['Accident', 'Accidents'],
-                'module' => 'Daily Journal',
-                'submodule' => 'Accident Form',
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Program Plan
-            |--------------------------------------------------------------------------
-            */
-            'Program Plan' => [
-                'keywords' => ['ProgramPlan'],
-                'module' => 'Program Plan',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Lesson Plan
-            |--------------------------------------------------------------------------
-            */
-            'Lesson Plan' => [
-                'keywords' => ['LessonPlan'],
-                'module' => 'Lesson Plan',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Daily Reflections
-            |--------------------------------------------------------------------------
-            */
-            'Daily Reflections' => [
-                'keywords' => ['DailyReflection', 'DailyReflections'],
-                'module' => 'Daily Reflections',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Observation
-            |--------------------------------------------------------------------------
-            */
-            'Observation' => [
-                'keywords' => ['Observation'],
-                'module' => 'Observation',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | PTM
-            |--------------------------------------------------------------------------
-            */
-            'PTM' => [
-                'keywords' => ['PTM'],
-                'module' => 'PTM',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Snapshots
-            |--------------------------------------------------------------------------
-            */
-            'Snapshots' => [
-                'keywords' => ['Snapshot', 'Snapshots'],
-                'module' => 'Snapshots',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Events
-            |--------------------------------------------------------------------------
-            */
-            'Events' => [
-                'keywords' => ['Event', 'Events', 'Announcement'],
-                'module' => 'Events',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Children
-            |--------------------------------------------------------------------------
-            */
-            'Children' => [
-                'keywords' => ['Children', 'Child'],
-                'module' => 'Children',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Rooms
-            |--------------------------------------------------------------------------
-            */
-            'Rooms' => [
-                'keywords' => ['Room', 'Rooms'],
-                'module' => 'Rooms',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Healthy Eating
-            |--------------------------------------------------------------------------
-            */
-            'Menu' => [
-                'keywords' => ['Menu'],
-                'module' => 'Healthy Eating',
-                'submodule' => 'Menu',
-            ],
-
-            'Recipe' => [
-                'keywords' => ['Recipe'],
-                'module' => 'Healthy Eating',
-                'submodule' => 'Recipe',
-            ],
-
-            'Ingredients' => [
-                'keywords' => ['Ingredient', 'Ingredients'],
-                'module' => 'Healthy Eating',
-                'submodule' => 'Ingredients',
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | QIP
-            |--------------------------------------------------------------------------
-            */
-            'QIP' => [
-                'keywords' => ['QIP'],
-                'module' => 'QIP',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Forms
-            |--------------------------------------------------------------------------
-            */
-            'Forms' => [
-                'keywords' => ['Form', 'Forms'],
-                'module' => 'Forms',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Service Details
-            |--------------------------------------------------------------------------
-            */
-            'Service Details' => [
-                'keywords' => ['ServiceDetail', 'ServiceDetails'],
-                'module' => 'Service Details',
-                'submodule' => null,
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Settings
-            |--------------------------------------------------------------------------
-            */
-            'Super-Admin Settings' => [
-                'keywords' => ['SuperAdminSettings'],
-                'module' => 'Settings',
-                'submodule' => 'Super-Admin Settings',
-            ],
-
-            'IP Manage' => [
-                'keywords' => ['IpManage', 'IPManage'],
-                'module' => 'Settings',
-                'submodule' => 'IP Manage',
-            ],
-
-            'Center Settings' => [
-                'keywords' => ['CenterSettings'],
-                'module' => 'Settings',
-                'submodule' => 'Center Settings',
-            ],
-
-            'Staffs Settings' => [
-                'keywords' => ['StaffsSettings', 'StaffSettings'],
-                'module' => 'Settings',
-                'submodule' => 'Staffs Settings',
-            ],
-
-            'Parents Settings' => [
-                'keywords' => ['ParentsSettings', 'ParentSettings'],
-                'module' => 'Settings',
-                'submodule' => 'Parents Settings',
-            ],
-
-            'Manage Permissions' => [
-                'keywords' => ['ManagePermissions'],
-                'module' => 'Settings',
-                'submodule' => 'Manage Permissions',
-            ],
-        ];
-
-        $allColumns = Schema::getColumnListing('permissions');
-
-        $exclude = [
-            'id',
-            'userid',
-            'centerid',
-            'created_at',
-            'updated_at',
-        ];
-
-        $permissionCols = array_diff($allColumns, $exclude);
-
-        // Permission labels
-        $labelMap = collect($permissionCols)->mapWithKeys(function ($col) {
-            return [$col => Str::headline($col)];
-        })->toArray();
-
-        $grouped = [];
-        $other = [];
-
-        foreach ($permissionCols as $perm) {
-
-            $matched = false;
-
-            foreach ($permissionMap as $config) {
-
-                foreach ($config['keywords'] as $keyword) {
-
-                    if (Str::contains($perm, $keyword)) {
-
-                        $module = $config['module'] ?? $keyword;
-                        $submodule = $config['submodule'];
-
-                        if (!isset($grouped[$module])) {
-                            $grouped[$module] = [];
-                        }
-
-                        // Direct permissions under module
-                        if (!$submodule) {
-
-                            if (!isset($grouped[$module]['__direct'])) {
-                                $grouped[$module]['__direct'] = [];
+            foreach ($permissionCols as $perm) {
+                $matched = false;
+                foreach ($permissionMap as $module => $keywords) {
+                    foreach ($keywords as $keyword) {
+                        if (Str::contains($perm, $keyword)) {
+                            if (!isset($grouped[$module])) {
+                                $grouped[$module] = [];
                             }
-
-                            $grouped[$module]['__direct'][] = [
+                            $grouped[$module][] = [
                                 'name' => $perm,
                                 'label' => $labelMap[$perm] ?? $perm,
                             ];
-
-                        } else {
-
-                            // Submodule permissions
-                            if (!isset($grouped[$module][$submodule])) {
-                                $grouped[$module][$submodule] = [];
-                            }
-
-                            $grouped[$module][$submodule][] = [
-                                'name' => $perm,
-                                'label' => $labelMap[$perm] ?? $perm,
-                            ];
+                            $matched = true;
+                            break 2;
                         }
-
-                        $matched = true;
-                        break 2;
                     }
                 }
-            }
-
-            // Unmapped permissions
-            if (!$matched) {
-
-                $other[] = [
-                    'name' => $perm,
-                    'label' => $labelMap[$perm] ?? $perm,
-                ];
-            }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Build Final Response
-        |--------------------------------------------------------------------------
-        */
-
-        $result = [];
-
-        foreach ($moduleOrder as $module) {
-
-            if (!isset($grouped[$module])) {
-                continue;
-            }
-
-            $subs = $grouped[$module];
-
-            $submodules = [];
-
-            foreach ($subs as $subName => $perms) {
-
-                if ($subName === '__direct') {
-                    continue;
+                if (!$matched) {
+                    $other[] = [
+                        'name' => $perm,
+                        'label' => $labelMap[$perm] ?? $perm,
+                    ];
                 }
-
-                $submodules[] = [
-                    'name' => $subName,
-                    'permissions' => array_values($perms),
-                ];
             }
 
-            // Add module with submodules
-            if (!empty($submodules)) {
-
-                $result[] = [
-                    'module' => $module,
-                    'submodules' => $submodules,
-                ];
-            }
-
-            // Add direct permissions
-            if (isset($subs['__direct'])) {
-
-                $result[] = [
-                    'module' => $module,
-                    'permissions' => array_values($subs['__direct']),
-                ];
-            }
-        }
-
-        // Remaining modules not in order
-        foreach ($grouped as $module => $subs) {
-
-            if (collect($result)->pluck('module')->contains($module)) {
-                continue;
-            }
-
-            $submodules = [];
-
-            foreach ($subs as $subName => $perms) {
-
-                if ($subName === '__direct') {
-                    continue;
+            $result = [];
+            foreach ($moduleOrder as $module) {
+                if (isset($grouped[$module]) && count($grouped[$module])) {
+                    $result[] = [
+                        'module' => $module,
+                        'permissions' => array_values($grouped[$module]),
+                    ];
                 }
-
-                $submodules[] = [
-                    'name' => $subName,
-                    'permissions' => array_values($perms),
-                ];
             }
-
-            if (!empty($submodules)) {
-
+            // Add any modules not in the order
+            foreach ($grouped as $module => $perms) {
+                if (!in_array($module, $moduleOrder)) {
+                    $result[] = [
+                        'module' => $module,
+                        'permissions' => array_values($perms),
+                    ];
+                }
+            }
+            if (!empty($other)) {
                 $result[] = [
-                    'module' => $module,
-                    'submodules' => $submodules,
+                    'module' => 'Other',
+                    'permissions' => $other,
                 ];
             }
-
-            if (isset($subs['__direct'])) {
-
-                $result[] = [
-                    'module' => $module,
-                    'permissions' => array_values($subs['__direct']),
-                ];
-            }
+			return response()->json([
+				'status' => true,
+				'data' => $result,
+			]);
+		// End of all_permissions()
         }
-
-        // Other unmapped permissions
-        if (!empty($other)) {
-
-            $result[] = [
-                'module' => 'Other',
-                'permissions' => $other,
-            ];
-        }
-
-        return response()->json([
-            'status' => true,
-            'data' => $result,
-        ]);
-    }
-
-
-       public function show(Request $request)
-    {
-        
-        $userId = $request->userid;
-      
-        $username = User::where('userid', $userId)->first();
-
-        $Permissions = Permission::where('userid', $userId)->first();
-
-  $userPermissions = [
-    'user' => $username ,
-    'permissions' => $Permissions
-  ];
-
-
-return response()->json([
-'status' => true,
-'message' => 'User Permission retrived',
-'data' => $userPermissions
-]);
-    }
 
  public function updateUserPermissions(Request $request)
 {
@@ -932,6 +612,7 @@ public function assign_user_permissions(Request $request)
 {
     $userIds = $request->input('user_ids', []);
     $checkedPermissions = $request->input('permissions', []);
+    $centerId = $request->input('centerid');
 
     if (empty($userIds)) {
         return response()->json([
@@ -940,19 +621,43 @@ public function assign_user_permissions(Request $request)
         ], 400);
     }
 
+    if (empty($centerId)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Center ID is required.'
+        ], 400);
+    }
+
     $updatedUsers = [];
 
-    foreach ($userIds as $userId) {
-        $permissionRecord = Permission::firstOrNew(['userid' => $userId]);
+    $allColumns = Schema::getColumnListing('permissions');
 
-        $allColumns = Schema::getColumnListing('permissions');
-        $permissionColumns = collect($allColumns)->filter(fn($col) => !in_array($col, ['id', 'userid', 'centerid', 'created_at', 'updated_at']));
+    $permissionColumns = collect($allColumns)->filter(function ($col) {
+        return !in_array($col, [
+            'id',
+            'userid',
+            'centerid',
+            'created_at',
+            'updated_at'
+        ]);
+    });
+
+    foreach ($userIds as $userId) {
+
+        $permissionRecord = Permission::firstOrNew([
+            'userid'   => $userId,
+            'centerid' => $centerId
+        ]);
+
+        // Always ensure centerid is saved
+        $permissionRecord->centerid = $centerId;
 
         foreach ($permissionColumns as $col) {
             $permissionRecord->{$col} = isset($checkedPermissions[$col]) ? 1 : 0;
         }
 
         $permissionRecord->save();
+
         $updatedUsers[] = $userId;
     }
 
@@ -963,6 +668,27 @@ public function assign_user_permissions(Request $request)
     ]);
 }
 
+       public function show(Request $request)
+    {
+        
+        $userId = $request->userid;
+      
+        $username = User::where('userid', $userId)->first();
+
+        $Permissions = Permission::where('userid', $userId)->first();
+
+  $userPermissions = [
+    'user' => $username ,
+    'permissions' => $Permissions
+  ];
+
+
+return response()->json([
+'status' => true,
+'message' => 'User Permission retrived',
+'data' => $userPermissions
+]);
+    }
 public function role_list(Request $request)
 {
     $validator = Validator::make($request->all(), [
