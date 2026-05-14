@@ -37,6 +37,42 @@ class RoomController extends Controller
         return redirect()->back()->with('success', 'Status updated successfully!');
     }
 
+    // Return child details for web (AJAX)
+    public function childDetails($id)
+    {
+        $child = \App\Models\Child::findOrFail($id);
+
+        $parents = \App\Models\Childparent::where('childid', $child->id)
+            ->join('users', 'users.id', '=', 'childparent.parentid')
+            ->select('users.id', 'users.name', 'childparent.relation', 'users.contactNo as phone')
+            ->get();
+
+        $parentIds = $parents->pluck('id');
+        $siblingIds = \App\Models\Childparent::whereIn('parentid', $parentIds)
+            ->where('childid', '!=', $child->id)
+            ->pluck('childid')->unique();
+
+        $siblings = \App\Models\Child::whereIn('id', $siblingIds)
+            ->select('id', 'name as childname', 'lastname')
+            ->get();
+
+        return response()->json([
+            'id' => $child->id,
+            'name' => $child->name,
+            'lastname' => $child->lastname,
+            'dob' => $child->dob,
+            'startDate' => $child->startDate,
+            'room' => $child->room,
+            'imageUrl' => $child->imageUrl,
+            'gender' => $child->gender,
+            'status' => $child->status,
+            'address' => $child->address ?? null,
+            'parents' => $parents,
+            'siblings' => $siblings,
+            'other_details' => $child->other_details ?? null,
+        ]);
+    }
+
 
 
 
@@ -110,8 +146,8 @@ class RoomController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
+            'firstname' => ['required','string','max:255','not_regex:/\\d/'],
+            'lastname' => ['required','string','max:255','not_regex:/\\d/'],
             'dob' => 'required|date',
             'startDate' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
@@ -120,6 +156,13 @@ class RoomController extends Controller
         ]);
 
         if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
@@ -536,8 +579,8 @@ class RoomController extends Controller
     public function add_new_children(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
+            'firstname' => ['required','string','max:255','not_regex:/\\d/'],
+            'lastname' => ['required','string','max:255','not_regex:/\\d/'],
             'dob' => 'required|date',
             'startDate' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
@@ -548,6 +591,13 @@ class RoomController extends Controller
 
 
         if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
@@ -635,8 +685,8 @@ class RoomController extends Controller
     {
 
         $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
+            'firstname' => ['required','string','max:255','not_regex:/\\d/'],
+            'lastname' => ['required','string','max:255','not_regex:/\\d/'],
             'dob' => 'required|date',
             'roomid' => 'required',
             'startDate' => 'required|date',

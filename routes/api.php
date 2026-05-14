@@ -35,6 +35,9 @@ use App\Http\Controllers\API\RecycleBinController as ApiRecycleBinController;
  
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
+        // Child details and status toggle
+        Route::get('/children/{id}/details', [\App\Http\Controllers\API\ChildDetailsController::class, 'show']);
+        Route::patch('/children/{id}/toggle-status', [\App\Http\Controllers\API\ChildDetailsController::class, 'toggleStatus']);
     Route::post('/save-fcm-token', [DeviceController::class, 'saveToken']);
     Route::post('/test-fcm', [DeviceController::class, 'testNotification']);
     Route::patch('/user/notification-preference', [DeviceController::class, 'updateNotificationPreference']);
@@ -49,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('user/profile', [UserProfileController::class, 'getProfile']);
 	Route::patch('user/profile', [UserProfileController::class, 'updateProfile']);
     Route::get('global-rooms', [GlobalRoomsChildrenController::class, 'getCenterRooms']);
+    Route::get('global-userrooms',[GlobalRoomsChildrenController::class, 'getUserCenterRooms']);
     Route::get('global-children', [GlobalRoomsChildrenController::class, 'getRoomChildren']);
 });
 
