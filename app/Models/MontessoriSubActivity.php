@@ -22,6 +22,8 @@ class MontessoriSubActivity extends Model
         'idActivity',
         'title',
         'added_by',
+        'added_at',
+        'subject',
     ];
 
     // 🔗 Relationship to MontessoriActivity

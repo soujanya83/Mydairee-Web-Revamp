@@ -230,7 +230,26 @@ class RecycleBinController extends Controller
             ->orderByDesc('deleted_at');
 
         return $query->get()->map(function ($item) {
-            $firstChild = $item->child->first()?->child;
+            $children = $item->child->map(function ($itemChild) {
+                $child = $itemChild->child;
+
+                if (! $child) {
+                    return null;
+                }
+
+                return [
+                    'id' => $child->id,
+                    'name' => trim(($child->name ?? '') . ' ' . ($child->lastname ?? '')),
+                ];
+            })->filter()->values();
+
+            $media = $item->media->map(function ($itemMedia) {
+                return [
+                    'id' => $itemMedia->id,
+                    'url' => $itemMedia->mediaUrl,
+                    'type' => $itemMedia->mediaType,
+                ];
+            })->values();
 
             return [
                 'id' => $item->id,
@@ -240,8 +259,11 @@ class RecycleBinController extends Controller
                 'deleted_at' => optional($item->deleted_at)->format('Y-m-d H:i:s'),
                 'deleted_by' => $item->deletedByUser?->name,
                 'creator' => $item->user?->name,
-                'child' => $firstChild ? trim(($firstChild->name ?? '') . ' ' . ($firstChild->lastname ?? '')) : null,
-                'media_count' => $item->media->count(),
+                'child_count' => $children->count(),
+                // 'child' => $children->first()['name'] ?? null,
+                'children' => $children,
+                'media_count' => $media->count(),
+                'media' => $media,
             ];
         })->values();
     }
@@ -255,6 +277,27 @@ class RecycleBinController extends Controller
             ->orderByDesc('deleted_at');
 
         return $query->get()->map(function ($item) {
+            $children = $item->children->map(function ($itemChild) {
+                $child = $itemChild->child;
+
+                if (! $child) {
+                    return null;
+                }
+
+                return [
+                    'id' => $child->id,
+                    'name' => trim(($child->name ?? '') . ' ' . ($child->lastname ?? '')),
+                ];
+            })->filter()->values();
+
+            $media = $item->media->map(function ($itemMedia) {
+                return [
+                    'id' => $itemMedia->id,
+                    'url' => $itemMedia->mediaUrl ?? null,
+                    'type' => $itemMedia->mediaType ?? null,
+                ];
+            })->values();
+
             return [
                 'id' => $item->id,
                 'module' => 'reflection',
@@ -264,7 +307,9 @@ class RecycleBinController extends Controller
                 'deleted_by' => $item->deletedByUser?->name,
                 'creator' => $item->creator?->name,
                 'children_count' => $item->children->count(),
+                'children' => $children,
                 'media_count' => $item->media->count(),
+                'media' => $media,
             ];
         })->values();
     }
@@ -278,6 +323,27 @@ class RecycleBinController extends Controller
             ->orderByDesc('deleted_at');
 
         return $query->get()->map(function ($item) {
+            $children = $item->children->map(function ($itemChild) {
+                $child = $itemChild->child;
+
+                if (! $child) {
+                    return null;
+                }
+
+                return [
+                    'id' => $child->id,
+                    'name' => trim(($child->name ?? '') . ' ' . ($child->lastname ?? '')),
+                ];
+            })->filter()->values();
+
+            $media = $item->media->map(function ($itemMedia) {
+                return [
+                    'id' => $itemMedia->id,
+                    'url' => $itemMedia->mediaUrl ?? null,
+                    'type' => $itemMedia->mediaType ?? null,
+                ];
+            })->values();
+
             return [
                 'id' => $item->id,
                 'module' => 'snapshot',
@@ -287,7 +353,9 @@ class RecycleBinController extends Controller
                 'deleted_by' => $item->deletedByUser?->name,
                 'creator' => $item->creator?->name,
                 'children_count' => $item->children->count(),
+                'children' => $children,
                 'media_count' => $item->media->count(),
+                'media' => $media,
             ];
         })->values();
     }

@@ -129,7 +129,7 @@
                     <p class="mb-1"><strong>Street:</strong> {{ $center->adressStreet }}</p>
                     <p class="mb-1"><strong>City:</strong> {{ $center->addressCity }}</p>
                     <p class="mb-1"><strong>State:</strong> {{ $center->addressState }}</p>
-                    <p class="mb-2"><strong>Zip:</strong> {{ $center->addressZip }}</p>
+                    <p class="mb-2"><strong>Postal Code:</strong> {{ $center->addressZip }}</p>
 
                     <div class="d-flex justify-content-start gap-2 mt-3">
                         @if(Auth::user()->userType == 'Superadmin' || (Auth::user()->userType == 'Staff' && !empty($permissions['updateCenters']) && $permissions['updateCenters']))

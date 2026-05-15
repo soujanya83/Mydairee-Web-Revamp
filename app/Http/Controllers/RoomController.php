@@ -41,10 +41,21 @@ class RoomController extends Controller
     public function childDetails($id)
     {
         $child = \App\Models\Child::findOrFail($id);
+        $room = $child->room ? \App\Models\Room::find($child->room) : null;
+        $fullName = trim($child->name . ' ' . $child->lastname);
 
         $parents = \App\Models\Childparent::where('childid', $child->id)
             ->join('users', 'users.id', '=', 'childparent.parentid')
-            ->select('users.id', 'users.name', 'childparent.relation', 'users.contactNo as phone')
+            ->select(
+                'users.id',
+                'users.title',
+                'users.name',
+                'users.email',
+                'users.contactNo',
+                'users.gender',
+                'users.imageUrl',
+                'childparent.relation'
+            )
             ->get();
 
         $parentIds = $parents->pluck('id');
@@ -53,16 +64,44 @@ class RoomController extends Controller
             ->pluck('childid')->unique();
 
         $siblings = \App\Models\Child::whereIn('id', $siblingIds)
-            ->select('id', 'name as childname', 'lastname')
+            ->select('id', 'name as childname', 'lastname', 'gender', 'imageUrl')
             ->get();
+
+        $parents = $parents->map(function ($parent) {
+            return [
+                'id' => $parent->id,
+                'title' => $parent->title ?? null,
+                'name' => $parent->name,
+                'full_name' => trim(($parent->title ? $parent->title . ' ' : '') . $parent->name),
+                'email' => $parent->email ?? null,
+                'contactNo' => $parent->contactNo ?? null,
+                'imageUrl' => $parent->imageUrl ?? null,
+                'gender' => $parent->gender ?? null,
+                'relation' => $parent->relation ?? null,
+                'phone' => $parent->contactNo ?? null,
+            ];
+        });
+
+        $siblings = $siblings->map(function ($sibling) {
+            return [
+                'id' => $sibling->id,
+                'full_name' => trim($sibling->childname . ' ' . $sibling->lastname),
+                'childname' => $sibling->childname,
+                'lastname' => $sibling->lastname,
+                'gender' => $sibling->gender ?? null,
+                'imageUrl' => $sibling->imageUrl ?? null,
+            ];
+        });
 
         return response()->json([
             'id' => $child->id,
             'name' => $child->name,
             'lastname' => $child->lastname,
+            'full_name' => $fullName,
             'dob' => $child->dob,
             'startDate' => $child->startDate,
-            'room' => $child->room,
+            'room_id' => $room ? $room->id : null,
+            'room' => $room ? $room->name : null,
             'imageUrl' => $child->imageUrl,
             'gender' => $child->gender,
             'status' => $child->status,

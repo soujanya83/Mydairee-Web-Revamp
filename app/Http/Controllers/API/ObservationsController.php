@@ -1971,24 +1971,9 @@ class ObservationsController extends Controller
             return response()->json(['status' => false, 'message' => 'Observation not found.'], 404);
         }
 
-        // Delete related children
-        ObservationChild::where('observationId', $id)->delete();
-        // Delete related staff
-        if (class_exists('App\\Models\\ObservationStaff')) {
-            \App\Models\ObservationStaff::where('observationId', $id)->delete();
-        }
-        // Delete related media and files
-        $mediaItems = ObservationMedia::where('observationId', $id)->get();
-        foreach ($mediaItems as $media) {
-            $filePath = public_path($media->mediaUrl);
-            if (file_exists($filePath)) {
-                @unlink($filePath);
-            }
-            $media->delete();
-        }
         $observation->deleted_by = Auth::id();
         $observation->save();
-        // Delete the observation
+        // Soft delete the observation only; related rows stay available for recycle bin display.
         $observation->delete();
         return response()->json(['status' => true, 'message' => 'Observation deleted successfully.']);
     }
@@ -2464,38 +2449,14 @@ class ObservationsController extends Controller
                 ], 404);
             }
 
-            // ✅ Get all media linked to this snapshot
-            $mediaFiles = SnapshotMedia::where('snapshotid', $id)->get();
-
-            foreach ($mediaFiles as $media) {
-                $filePath = public_path($media->mediaUrl);
-
-                // ✅ Delete physical file
-                if (file_exists($filePath)) {
-                    try {
-                        @unlink($filePath);
-                    } catch (\Exception $e) {
-                        Log::warning("Failed to delete file: {$filePath}. Error: " . $e->getMessage());
-                    }
-                } else {
-                    Log::info("File already missing: {$filePath}");
-                }
-
-                // ✅ Delete DB record for media
-                $media->delete();
-            }
-
-            // ✅ Delete linked children from pivot table
-            SnapshotChild::where('snapshotid', $id)->delete();
-
-            // ✅ Delete snapshot record itself
+            // Soft delete only; keep related rows and files for recovery.
             $snapshot->deleted_by = Auth::id();
             $snapshot->save();
             $snapshot->delete();
 
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Snapshot and all related media deleted successfully.',
+                'message' => 'Snapshot deleted successfully.',
             ]);
         } catch (\Exception $e) {
             Log::error("Snapshot delete failed: " . $e->getMessage());

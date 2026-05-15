@@ -1433,27 +1433,14 @@ class DailyDiaryController extends Controller
 
             $diaryIds = [];
             foreach ($request->child_ids as $childId) {
-                $existingEntry = DailyDiarySunscreen::where('childid', $childId)
-                    ->whereDate('diarydate', $request->date)
-                    ->first();
-
-                if ($existingEntry) {
-                    $existingEntry->update([
-                        'startTime' => $request->time,
-                        'comments' => $request->comments,
-                        'signature' => $request->signature
-                    ]);
-                    $diary = $existingEntry;
-                } else {
-                    $diary = DailyDiarySunscreen::create([
-                        'childid' => $childId,
-                        'diarydate' => $request->date,
-                        'startTime' => $request->time,
-                        'comments' => $request->comments,
-                        'signature' => $request->signature,
-                        'createdBy' => $authId
-                    ]);
-                }
+                $diary = DailyDiarySunscreen::create([
+                    'childid' => $childId,
+                    'diarydate' => $request->date,
+                    'startTime' => $request->time,
+                    'comments' => $request->comments,
+                    'signature' => $request->signature,
+                    'createdBy' => $authId
+                ]);
                 $count++;
                 $diaryIds[$childId] = $diary->id;
                 $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
@@ -1526,29 +1513,15 @@ class DailyDiaryController extends Controller
 
             $diaryIds = [];
             foreach ($request->child_ids as $childId) {
-                $existingEntry = DailyDiaryToileting::where('childid', $childId)
-                    ->whereDate('diarydate', $request->date)
-                    ->first();
-
-                if ($existingEntry) {
-                    $existingEntry->update([
-                        'startTime' => $request->time,
-                        'status' => $request->status,
-                        'comments' => $request->comments,
-                        'signature' => $request->signature
-                    ]);
-                    $diary = $existingEntry;
-                } else {
-                    $diary = DailyDiaryToileting::create([
-                        'childid' => $childId,
-                        'diarydate' => $request->date,
-                        'startTime' => $request->time,
-                        'status' => $request->status,
-                        'comments' => $request->comments,
-                        'signature' => $request->signature,
-                        'createdBy' => $authId
-                    ]);
-                }
+                $diary = DailyDiaryToileting::create([
+                    'childid' => $childId,
+                    'diarydate' => $request->date,
+                    'startTime' => $request->time,
+                    'status' => $request->status,
+                    'comments' => $request->comments,
+                    'signature' => $request->signature,
+                    'createdBy' => $authId
+                ]);
                 $count++;
                 $diaryIds[$childId] = $diary->id;
                 $parentIds = Childparent::where('childid', $childId)->pluck('parentid');
@@ -1618,26 +1591,13 @@ class DailyDiaryController extends Controller
 
             $diaryIds = [];
             foreach ($request->child_ids as $childId) {
-                $existingEntry = DailyDiaryBottle::where('childid', $childId)
-                    ->whereDate('diarydate', $request->date)
-                    ->first();
-
-                if ($existingEntry) {
-                    $existingEntry->update([
-                        'startTime' => $request->time,
-                        'comments' => $request->comments,
-                        'updated_at' => now()
-                    ]);
-                    $diary = $existingEntry;
-                } else {
-                    $diary = DailyDiaryBottle::create([
-                        'childid' => $childId,
-                        'diarydate' => $request->date,
-                        'startTime' => $request->time,
-                        'comments' => $request->comments,
-                        'createdBy' => $authId
-                    ]);
-                }
+                $diary = DailyDiaryBottle::create([
+                    'childid' => $childId,
+                    'diarydate' => $request->date,
+                    'startTime' => $request->time,
+                    'comments' => $request->comments,
+                    'createdBy' => $authId
+                ]);
                 $count++;
                 $diaryIds[$childId] = $diary->id;
                 $parentIds = Childparent::where('childid', $childId)->pluck('parentid');

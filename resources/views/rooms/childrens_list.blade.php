@@ -8,6 +8,41 @@
         height: 180px;
         object-fit: cover;
     }
+
+    .child-details-modal .modal-dialog {
+        max-width: 920px;
+        width: calc(100% - 1rem);
+    }
+
+    .child-details-modal .modal-content {
+        max-width: 100%;
+    }
+
+    .child-details-modal .modal-body {
+        overflow-x: hidden;
+    }
+
+    .child-details-modal table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .child-details-modal th,
+    .child-details-modal td {
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        vertical-align: top;
+    }
+
+    .child-details-modal .parent-card,
+    .child-details-modal .sibling-card {
+        min-width: 0;
+    }
+
+    .child-details-modal .text-break {
+        overflow-wrap: anywhere;
+    }
 </style>
 <style>
     /* Theme accent for filter icon and filter dropdown/input */
@@ -575,74 +610,139 @@
 
                 <div class="d-flex justify-content-end" style="margin-top:-17px">
                     <button type="button" class="btn btn-outline-info btn-sm view-details-btn" style="height: 23px; margin-right:6px;"
-                        data-child-id="{{ $child->childId }}" data-toggle="modal" data-target="#detailsModal{{ $child->childId }}" title="View Details">
+                        data-child-id="{{ $child->childId }}" title="View Details">
                         <i class="fas fa-eye"></i>
                     </button>
                         <!-- View Details Modal -->
-                        <div class="modal fade" id="detailsModal{{ $child->childId }}" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel{{ $child->childId }}" aria-hidden="true">
-                            <div class="modal-dialog modal-lg" role="document">
-                                <div class="modal-content card">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="detailsModalLabel{{ $child->childId }}">
-                                            Child Details - {{ $child->childname }} {{ $child->lastname }}
+                        <div class="modal fade child-details-modal" id="detailsModal{{ $child->childId }}" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel{{ $child->childId }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+                                <div class="modal-content border-0 overflow-hidden">
+                                    <div class="modal-header py-3">
+                                        <h5 class="modal-title text-break" id="detailsModalLabel{{ $child->childId }}">
+                                            Child Details{{ !empty($child->childname) || !empty($child->lastname) ? ' - ' . trim($child->childname . ' ' . $child->lastname) : '' }}
                                         </h5>
-                                        {{--  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
-                                        </button>  --}}
+                                        </button>
                                     </div>
-                                    <div class="modal-body">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <img src="{{ $child->imageUrl ? asset($child->imageUrl) : (strtolower($child->gender) == 'male' ? asset('assets/img/default-boyimage.jpg') : asset('assets/img/default-girlimage.jpg')) }}" class="img-fluid rounded mb-2" alt="{{ $child->childname }}">
+                                    <div class="modal-body p-3 p-md-4">
+                                        <div class="row g-3 align-items-start">
+                                            <div class="col-lg-4">
+                                                <div class="border rounded-4 p-3 bg-light text-center h-100 shadow-sm parent-card">
+                                                    <img src="{{ $child->imageUrl ? asset($child->imageUrl) : (strtolower($child->gender) == 'male' ? asset('assets/img/default-boyimage.jpg') : asset('assets/img/default-girlimage.jpg')) }}" class="img-fluid rounded-circle mb-3" style="max-width: 180px; width: 100%; height: 180px; object-fit: cover;" alt="{{ $child->childname }}">
+                                                    <h5 class="mb-1 text-break">{{ $child->childname }} {{ $child->lastname }}</h5>
+                                                    @if(!empty($child->roomname))
+                                                        <div class="text-muted small">{{ $child->roomname }}</div>
+                                                    @endif
+                                                    <div class="mt-2 d-flex justify-content-center flex-wrap gap-2">
+                                                        @if(!empty($child->gender))
+                                                            <span class="badge bg-info text-dark">{{ $child->gender }}</span>
+                                                        @endif
+                                                        @if(!empty($child->childstatus))
+                                                            <span class="badge bg-secondary">{{ $child->childstatus }}</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="col-md-8">
-                                                <table class="table table-bordered table-sm">
+                                            <div class="col-lg-8">
+                                                <div class="table-responsive">
+                                                <table class="table table-bordered table-sm mb-0">
                                                     <tbody>
-                                                        <tr><th>Full Name</th><td>{{ $child->childname }} {{ $child->lastname }}</td></tr>
-                                                        <tr><th>Room</th><td>{{ $child->roomname ?? 'N/A' }}</td></tr>
-                                                        <tr><th>Date of Birth</th><td>{{ optional($child->dob ? \Carbon\Carbon::parse($child->dob) : null)->format('d M Y') ?? 'N/A' }}</td></tr>
-                                                        <tr><th>Gender</th><td>{{ $child->gender }}</td></tr>
-                                                        <tr><th>Status</th><td>{{ $child->childstatus }}</td></tr>
-                                                        <tr><th>Joined</th><td>{{ optional($child->startDate ? \Carbon\Carbon::parse($child->startDate) : null)->format('d M Y') ?? 'N/A' }}</td></tr>
-                                                        <tr><th>Address</th><td>{{ $child->address ?? 'N/A' }}</td></tr>
-                                                        <tr><th>Parents</th><td>
+                                                        @if(!empty($child->childname) || !empty($child->lastname))
+                                                            <tr><th>Full Name</th><td>{{ trim($child->childname . ' ' . $child->lastname) }}</td></tr>
+                                                        @endif
+                                                        @if(!empty($child->roomname))
+                                                            <tr><th>Room</th><td>{{ $child->roomname }}</td></tr>
+                                                        @endif
+                                                        @if(!empty($child->dob))
+                                                            <tr><th>Date of Birth</th><td>{{ \Carbon\Carbon::parse($child->dob)->format('d M Y') }}</td></tr>
+                                                        @endif
+                                                        @if(!empty($child->gender))
+                                                            <tr><th>Gender</th><td>{{ $child->gender }}</td></tr>
+                                                        @endif
+                                                        @if(!empty($child->childstatus))
+                                                            <tr><th>Status</th><td>{{ $child->childstatus }}</td></tr>
+                                                        @endif
+                                                        @if(!empty($child->startDate))
+                                                            <tr><th>Joined</th><td>{{ \Carbon\Carbon::parse($child->startDate)->format('d M Y') }}</td></tr>
+                                                        @endif
+                                                        @if(!empty($child->address))
+                                                            <tr><th>Address</th><td>{{ $child->address }}</td></tr>
+                                                        @endif
+                                                        @php
+                                                            $parents = \App\Models\Childparent::where('childid', $child->childId)
+                                                                ->join('users', 'users.id', '=', 'childparent.parentid')
+                                                                ->select('users.id', 'users.title', 'users.name', 'users.email', 'users.contactNo', 'users.gender', 'users.imageUrl', 'childparent.relation')
+                                                                ->get();
+                                                        @endphp
+                                                        @if($parents && $parents->isNotEmpty())
+                                                            <tr><th>Parents</th><td>
                                                             @php
-                                                                $parents = \App\Models\Childparent::where('childid', $child->childId)
-                                                                    ->join('users', 'users.id', '=', 'childparent.parentid')
-                                                                    ->select('users.name', 'childparent.relation', 'users.contactNo as phone')
-                                                                    ->get();
+                                                                $parents = $parents;
                                                             @endphp
-                                                            @if($parents && $parents->isNotEmpty())
-                                                                <ul class="mb-0 pl-3">
+                                                                <div class="d-flex flex-column gap-3">
                                                                 @foreach($parents as $parent)
-                                                                    <li>{{ $parent->name }} ({{ $parent->relation }}) - {{ $parent->phone ?? '' }}</li>
+                                                                    <div class="border rounded p-3 bg-white shadow-sm parent-card">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <img src="{{ $parent->imageUrl ? asset($parent->imageUrl) : asset('assets/img/user.png') }}" alt="{{ $parent->name }}" class="rounded-circle me-3" style="width: 56px; height: 56px; object-fit: cover;">
+                                                                            <div>
+                                                                                <div class="fw-semibold">{{ trim(($parent->title ? $parent->title . ' ' : '') . $parent->name) }}</div>
+                                                                                @if(!empty($parent->relation))
+                                                                                    <div class="text-muted small">{{ $parent->relation }}</div>
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row mt-3 small">
+                                                                            @if(!empty($parent->email))
+                                                                                <div class="col-md-12 mb-2"><strong>Email:</strong> {{ $parent->email }}</div>
+                                                                            @endif
+                                                                            <br>
+                                                                            @if(!empty($parent->contactNo))
+                                                                                <div class="col-md-6 mb-2"><strong>Contact:</strong> {{ $parent->contactNo }}</div>
+                                                                            @endif
+                                                                            
+                                                                            @if(!empty($parent->gender))
+                                                                                <div class="col-md-6 mb-2"><strong>Gender:</strong> {{ $parent->gender }}</div>
+                                                                            @endif
+                                                                            @if(!empty($parent->title))
+                                                                                <div class="col-md-6 mb-2"><strong>Title:</strong> {{ $parent->title }}</div>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
                                                                 @endforeach
-                                                                </ul>
-                                                            @else
-                                                                N/A
-                                                            @endif
-                                                        </td></tr>
-                                                        <tr><th>Siblings</th><td>
-                                                            @php
-                                                                $parentIds = \App\Models\Childparent::where('childid', $child->childId)->pluck('parentid');
-                                                                $siblingIds = \App\Models\Childparent::whereIn('parentid', $parentIds)
-                                                                    ->where('childid', '!=', $child->childId)
-                                                                    ->pluck('childid')->unique();
-                                                                $siblings = \App\Models\Child::whereIn('id', $siblingIds)->select('name as childname', 'lastname')->get();
-                                                            @endphp
-                                                            @if($siblings && $siblings->isNotEmpty())
-                                                                <ul class="mb-0 pl-3">
+                                                                </div>
+                                                            </td></tr>
+                                                        @endif
+                                                        @php
+                                                            $parentIds = \App\Models\Childparent::where('childid', $child->childId)->pluck('parentid');
+                                                            $siblingIds = \App\Models\Childparent::whereIn('parentid', $parentIds)
+                                                                ->where('childid', '!=', $child->childId)
+                                                                ->pluck('childid')->unique();
+                                                            $siblings = \App\Models\Child::whereIn('id', $siblingIds)->select('name as childname', 'lastname', 'gender', 'imageUrl')->get();
+                                                        @endphp
+                                                        @if($siblings && $siblings->isNotEmpty())
+                                                            <tr><th>Siblings</th><td>
+                                                                <div class="d-flex flex-column gap-2">
                                                                 @foreach($siblings as $sibling)
-                                                                    <li>{{ $sibling->childname }} {{ $sibling->lastname }}</li>
+                                                                    <div class="d-flex align-items-center border rounded p-2 bg-light sibling-card">
+                                                                        <img src="{{ $sibling->imageUrl ? asset($sibling->imageUrl) : (strtolower($sibling->gender) == 'male' ? asset('assets/img/default-boyimage.jpg') : asset('assets/img/default-girlimage.jpg')) }}" alt="{{ $sibling->childname }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                                                        <div>
+                                                                            <div class="fw-semibold">{{ $sibling->childname }} {{ $sibling->lastname }}</div>
+                                                                            @if(!empty($sibling->gender))
+                                                                                <div class="text-muted small">{{ $sibling->gender }}</div>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
                                                                 @endforeach
-                                                                </ul>
-                                                            @else
-                                                                N/A
-                                                            @endif
-                                                        </td></tr>
-                                                        <tr><th>Other Details</th><td>{{ $child->other_details ?? 'N/A' }}</td></tr>
+                                                                </div>
+                                                            </td></tr>
+                                                        @endif
+                                                        @if(!empty($child->other_details))
+                                                            <tr><th>Other Details</th><td>{{ $child->other_details }}</td></tr>
+                                                        @endif
                                                     </tbody>
                                                 </table>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -664,33 +764,33 @@
                         @method('DELETE')
                         <button type="button" class="btn btn-outline-danger btn-sm delete-child-btn" title="Child Delete"><i class="fas fa-trash-alt"></i></button>
                     </form>
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Attach SweetAlert2 to all delete buttons
-        document.querySelectorAll('.delete-child-btn').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const form = btn.closest('form');
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "This child will be permanently deleted!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete!',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
-        });
-    });
-</script>
+                    <!-- SweetAlert2 -->
+                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Attach SweetAlert2 to all delete buttons
+                            document.querySelectorAll('.delete-child-btn').forEach(function(btn) {
+                                btn.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    const form = btn.closest('form');
+                                    Swal.fire({
+                                        title: 'Are you sure?',
+                                        text: "This child will be permanently deleted!",
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#d33',
+                                        cancelButtonColor: '#3085d6',
+                                        confirmButtonText: 'Yes, delete!',
+                                        cancelButtonText: 'Cancel'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            form.submit();
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    </script>
 
                 </div>
             </div>
@@ -778,6 +878,11 @@
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script>
+$(document).on('hidden.bs.modal', '.child-details-modal', function () {
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open').css('padding-right', '');
+});
+
 // Handle View Details button
 $(document).on('click', '.view-details-btn', function() {
     var childId = $(this).data('child-id');

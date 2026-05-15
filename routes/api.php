@@ -110,7 +110,7 @@ Route::prefix('re-enrollment')->name('re-enrollment.')->group(function () {
     Route::get('/form-options', [ReEnrolmentController::class, 'formOptions'])->name('form-options');
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/formdashboard', [ReEnrolmentController::class, 'dashboard'])->name('dashboard');
-        Route::get('/{reEnrolment}/details', [ReEnrolmentController::class, 'getDetails'])->name('details');
+        Route::get('/details/{id?}', [ReEnrolmentController::class, 'getDetails'])->name('details');
         Route::post('/send-email', [ReEnrolmentController::class, 'sendEnrollmentEmail'])->name('send-email');
         Route::post('/filter', [ReEnrolmentController::class, 'filterSubmissions'])->name('filter');
         Route::get('/print/{id}', [ReEnrolmentController::class, 'printSubmission'])->name('print');
@@ -263,8 +263,13 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
     // observation
         Route::post('Observation/addActivity', [ObservationController::class, 'addActivity'])->name('Observation.addActivity');
     Route::post('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name(' Observation.addSubActivity');
+    Route::post('Observation/updateActivity', [ObservationController::class, 'updateActivity'])->name('Observation.updateActivity');
+    Route::post('Observation/updateSubActivity', [ObservationController::class, 'updateSubActivity'])->name('Observation.updateSubActivity');
+    Route::post('Observation/deleteActivity', [ObservationController::class, 'deleteActivity'])->name('Observation.deleteActivity');
+    Route::post('Observation/deleteSubActivity', [ObservationController::class, 'deleteSubActivity'])->name('Observation.deleteSubActivity');
       Route::get('Observation/getSubjects', [ObservationController::class, 'getSubjects'])->name('Observation.getSubjects');
     Route::get('Observation/getActivitiesBySubject', [ObservationController::class, 'getActivitiesBySubject'])->name('Observation.getActivitiesBySubject');
+    Route::get('Observation/getSubActivitiesByActivity', [ObservationController::class, 'getSubActivitiesByActivity'])->name('Observation.getSubActivitiesByActivity');
     
 
     // observations

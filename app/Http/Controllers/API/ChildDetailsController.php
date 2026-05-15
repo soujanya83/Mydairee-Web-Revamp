@@ -18,6 +18,7 @@ class ChildDetailsController extends Controller
             ->findOrFail($id);
 
         $room = $child->room ? Room::find($child->room) : null;
+        $fullName = trim($child->name . ' ' . $child->lastname);
 
         // Get siblings (children with same parents, excluding self)
         $parentIds = $child->parents->pluck('id');
@@ -32,20 +33,29 @@ class ChildDetailsController extends Controller
             : Child::whereIn('id', $siblingIds)->get();
 
         // Format parents
-        $parents = $child->parents->map(function($parent) {
+        $parents = $child->parents->map(function ($parent) {
             return [
                 'id' => $parent->id,
+                'title' => $parent->title ?? null,
                 'name' => $parent->name,
+                'full_name' => trim(($parent->title ? $parent->title . ' ' : '') . $parent->name),
+                'email' => $parent->email ?? null,
+                'contactNo' => $parent->contactNo ?? null,
+                'imageUrl' => $parent->imageUrl ?? null,
+                'gender' => $parent->gender ?? null,
                 'relation' => $parent->pivot->relation ?? null,
                 'phone' => $parent->contactNo ?? null,
             ];
         });
         // Format siblings
-        $siblingsArr = $siblings->map(function($sibling) {
+        $siblingsArr = $siblings->map(function ($sibling) {
             return [
                 'id' => $sibling->id,
+                'full_name' => trim($sibling->name . ' ' . $sibling->lastname),
                 'childname' => $sibling->name,
                 'lastname' => $sibling->lastname,
+                'gender' => $sibling->gender ?? null,
+                'imageUrl' => $sibling->imageUrl ?? null,
             ];
         });
 
@@ -53,10 +63,11 @@ class ChildDetailsController extends Controller
             'id' => $child->id,
             'name' => $child->name,
             'lastname' => $child->lastname,
+            'full_name' => $fullName,
             'dob' => $child->dob,
             'startDate' => $child->startDate,
+            'room_id' => $room ? $room->id : null,
             'room' => $room ? $room->name : null,
-            // 'room_id' => $room ? $room->id : null,
             'imageUrl' => $child->imageUrl,
             'gender' => $child->gender,
             'status' => $child->status,
