@@ -70,8 +70,8 @@ class DailyDiaryController extends Controller
             'center_id' => $centerid,
             'rooms' => $room
         ]);
-        $selectedDate = $request->query('selected_date')
-            ? \Carbon\Carbon::parse($request->query('selected_date'))
+        $selectedDate = $request->input('selected_date')
+            ? \Carbon\Carbon::parse($request->input('selected_date'))
             : now();
         $dayIndex = $selectedDate->dayOfWeekIso - 1; // 0 = Monday
 
@@ -124,8 +124,8 @@ class DailyDiaryController extends Controller
                 $parentId = auth()->user()->id;
                 $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
                 $children = Child::whereIn('id', $childIds)
-    ->orderBy('name')
-    ->get()
+                    ->orderBy('name')
+                    ->get()
                     ->filter(function ($child) use ($dayIndex) {
                         return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
                     })
@@ -1469,32 +1469,6 @@ public function viewChildDiary1($data)
         $createdCount = 0;
         $updatedCount = 0;
 
-        // If updating by ID (direct single record update)
-        if ($request->id) {
-            $entry = DailyDiarySunscreen::find($request->id);
-            if ($entry) {
-                $updateData = [
-                    'startTime' => $time,
-                    'comments'  => $comments,
-                ];
-
-                // only update signature if provided
-                if ($request->filled('signature')) {
-                    $updateData['signature'] = $signature;
-                }
-
-                $entry->update($updateData);
-                $updatedCount++;
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'status'  => 'success',
-                'message' => "Sunscreen entries saved. Created: {$createdCount}, Updated: {$updatedCount}. , {$entry->id}"
-            ]);
-        }
-
         // Loop through children and insert new records
         $childIds = $request->child_ids;
         foreach ($childIds as $childId) {
@@ -1527,7 +1501,7 @@ public function viewChildDiary1($data)
 
         return response()->json([
             'status'  => 'success',
-            'message' => "Sunscreen entries saved. Created: {$createdCount}, Updated: {$updatedCount}. , {$entry->id}"
+            'message' => "Sunscreen entries saved. Created: {$createdCount}"
         ]);
 
     } catch (\Throwable $e) {
@@ -1571,41 +1545,7 @@ public function viewChildDiary1($data)
         $authId = Auth::user()->userid;
         $count  = 0;
 
-        // ✅ If updating a specific record
-        if ($request->filled('id')) {
-            $entry = DailyDiaryToileting::find($request->id);
-
-            if (!$entry) {
-                return response()->json([
-                    'status'  => false,
-                    'message' => 'Record not found.'
-                ], 404);
-            }
-
-            // Prepare update data
-            $updateData = [
-                'startTime' => $request->time,
-                'status'    => $request->status,
-                'comments'  => $request->comments,
-            ];
-
-            // Only update signature if provided
-            if ($request->filled('signature')) {
-                $updateData['signature'] = $request->signature;
-            }
-
-            $entry->fill($updateData);
-            $entry->save();
-
-            DB::commit();
-
-            return response()->json([
-                'status'  => true,
-                'message' => "Toileting entry updated successfully (ID: {$entry->id})."
-            ]);
-        }
-
-        // ✅ Create new entries for multiple children
+        // Create new entries for multiple children
         $childIds = $request->child_ids;
         foreach ($childIds as $childId) {
             DailyDiaryToileting::create([
@@ -1682,26 +1622,7 @@ public function viewChildDiary1($data)
         $authId = Auth::id();
         $count = 0;
 
-        // ✅ If editing an existing single entry
-        if (!empty($validated['id'])) {
-            $existingEntry = DailyDiaryBottle::find($validated['id']);
-            if ($existingEntry) {
-                $existingEntry->update([
-                    'startTime'  => $validated['time'],
-                    'comments'   => $validated['comments'] ?? null,
-                    'updated_at' => now()
-                ]);
-                DB::commit();
-
-                return response()->json([
-                    'status'  => true,
-                    'message' => 'Bottle entry updated successfully'
-                ]);
-            }
-        }
-
-
-        // ✅ Create/update multiple children entries
+        // Create new entries for multiple children
         $childIds = $validated['child_ids'];
         foreach ($childIds as $childId) {
             // $existingEntry = DailyDiaryBottle::where('childid', $childId)

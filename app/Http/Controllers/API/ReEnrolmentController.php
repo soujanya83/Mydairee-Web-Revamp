@@ -133,27 +133,48 @@ class ReEnrolmentController extends Controller
         ]);
     }
 
-    public function getDetails(ReEnrolment $reEnrolment)
-    {
+    // Controller Function
+// Controller Function
+public function getDetails($id = null)
+{
+    // Missing ID
+    if (!$id) {
         return response()->json([
-            'status' => true,
-            'message' => 'Re-enrollment details fetched successfully',
-            'data' => [
-                'id' => $reEnrolment->id,
-                'child_name' => $reEnrolment->child_name,
-                'child_dob' => $reEnrolment->child_dob?->format('d M Y'),
-                'parent_email' => $reEnrolment->parent_email,
-                'current_days' => $reEnrolment->current_days,
-                'requested_days' => $reEnrolment->requested_days,
-                'session_option' => $reEnrolment->session_option_display,
-                'kinder_program' => $reEnrolment->kinder_program_display,
-                'finishing_child_name' => $reEnrolment->finishing_child_name,
-                'last_day' => $reEnrolment->last_day?->format('d M Y'),
-                'holiday_dates' => $reEnrolment->holiday_dates,
-                'created_at' => $reEnrolment->created_at?->format('d M Y H:i'),
-            ],
-        ]);
+            'status' => false,
+            'message' => 'Re-enrollment ID is required',
+        ], 400);
     }
+
+    // Record Not Found
+    $reEnrolment = ReEnrolment::find($id);
+
+    if (!$reEnrolment) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Re-enrollment record not found',
+        ], 404);
+    }
+
+    // Success Response
+    return response()->json([
+        'status' => true,
+        'message' => 'Re-enrollment details fetched successfully',
+        'data' => [
+            'id' => $reEnrolment->id,
+            'child_name' => $reEnrolment->child_name,
+            'child_dob' => $reEnrolment->child_dob?->format('d M Y'),
+            'parent_email' => $reEnrolment->parent_email,
+            'current_days' => $reEnrolment->current_days,
+            'requested_days' => $reEnrolment->requested_days,
+            'session_option' => $reEnrolment->session_option_display,
+            'kinder_program' => $reEnrolment->kinder_program_display,
+            'finishing_child_name' => $reEnrolment->finishing_child_name,
+            'last_day' => $reEnrolment->last_day?->format('d M Y'),
+            'holiday_dates' => $reEnrolment->holiday_dates,
+            'created_at' => $reEnrolment->created_at?->format('d M Y H:i'),
+        ],
+    ]);
+}
 
     /**
      * Send re-enrollment link to parents
