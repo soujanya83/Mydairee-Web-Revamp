@@ -1986,6 +1986,8 @@ class ObservationsController extends Controller
             }
             $media->delete();
         }
+        $observation->deleted_by = Auth::id();
+        $observation->save();
         // Delete the observation
         $observation->delete();
         return response()->json(['status' => true, 'message' => 'Observation deleted successfully.']);
@@ -2487,6 +2489,8 @@ class ObservationsController extends Controller
             SnapshotChild::where('snapshotid', $id)->delete();
 
             // ✅ Delete snapshot record itself
+            $snapshot->deleted_by = Auth::id();
+            $snapshot->save();
             $snapshot->delete();
 
             return response()->json([

@@ -594,6 +594,8 @@ public function destroy($id)
 
     // Proceed to delete after validation passes
     $reflection = Reflection::findOrFail($id);
+    $reflection->deleted_by = Auth::id();
+    $reflection->save();
     $reflection->delete();
 
     return response()->json([

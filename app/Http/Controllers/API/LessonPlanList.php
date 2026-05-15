@@ -795,7 +795,18 @@ public function deleteProgramPlan(Request $request)
     }
 
     try {
-        $deleted = ProgramPlanTemplateDetailsAdd::where('id', $request->program_id)->delete();
+        $plan = ProgramPlanTemplateDetailsAdd::find($request->program_id);
+
+        if (! $plan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Program plan not found or already deleted.'
+            ]);
+        }
+
+        $plan->deleted_by = Auth::id();
+        $plan->save();
+        $deleted = $plan->delete();
 
         if ($deleted) {
             return response()->json([

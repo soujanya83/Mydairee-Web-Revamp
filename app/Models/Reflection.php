@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Reflection extends Model
 {
@@ -66,6 +67,9 @@ public function Seen()
     {
         static::deleting(function (Reflection $reflection) {
             if (! $reflection->isForceDeleting()) {
+                if (Auth::check() && empty($reflection->deleted_by)) {
+                    $reflection->forceFill(['deleted_by' => Auth::id()])->saveQuietly();
+                }
                 return;
             }
 

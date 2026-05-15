@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 
 class Observation extends Model
@@ -86,6 +87,9 @@ public function comments()
     {
         static::deleting(function (Observation $observation) {
             if (! $observation->isForceDeleting()) {
+                if (Auth::check() && empty($observation->deleted_by)) {
+                    $observation->forceFill(['deleted_by' => Auth::id()])->saveQuietly();
+                }
                 return;
             }
 

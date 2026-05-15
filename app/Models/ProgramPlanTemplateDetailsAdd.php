@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class ProgramPlanTemplateDetailsAdd extends Model
 {
@@ -59,5 +60,18 @@ class ProgramPlanTemplateDetailsAdd extends Model
     public function deletedByUser()
     {
         return $this->belongsTo(User::class, 'deleted_by', 'id');
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function (ProgramPlanTemplateDetailsAdd $plan) {
+            if ($plan->isForceDeleting()) {
+                return;
+            }
+
+            if (Auth::check() && empty($plan->deleted_by)) {
+                $plan->forceFill(['deleted_by' => Auth::id()])->saveQuietly();
+            }
+        });
     }
 }
