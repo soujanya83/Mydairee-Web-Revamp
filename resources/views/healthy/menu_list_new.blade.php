@@ -496,7 +496,6 @@
 
     &nbsp;&nbsp;&nbsp;&nbsp;
     <form method="GET" action="{{ route('healthy_menu') }}" id="dateFilterForm">
-        <input type="hidden" name="menuweek" value=" {{$menuweek}}">
         <input type="text" id="calendarPicker" name="selected_date" class="btn btn-outline-info btn-lg" readonly
             value="{{ $selectedDate ?? now()->format('d-m-Y') }}">
     </form>
@@ -548,8 +547,7 @@
                 </div>
                 <form method="GET" action="{{ route('healthy_menu') }}" id="menuweekform">
                     <input type="hidden" name="selected_date" value="{{ $selectedDate }}">
-
-
+                    <input type="hidden" name="menuweek" value="{{ $menuweek }}">
 
                     <select class="week-selector " id="menuweek" name="menuweek">
                         @foreach ($weeks as $index => $range)
@@ -942,6 +940,8 @@
         dateFormat: "d-m-Y",
         defaultDate: "{{ $selectedDate ?? now()->format('d-m-Y') }}",
         onChange: function(selectedDates, dateStr, instance) {
+
+            document.getElementById("menuweekform").querySelector('input[name="selected_date"]').value = dateStr;
             document.getElementById("dateFilterForm").submit();
         }
     });

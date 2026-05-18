@@ -22,60 +22,95 @@ use App\Models\DailyDiaryModel;
 use Illuminate\Support\Carbon;   
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class LnPcontroller extends Controller
 {
    public function index(Request $request)
-{
-    $authId = Auth::user()->id; 
-    $centerid = $request->centerid;
-    $roomId = $request->room_id;
+    {
+        $authId = Auth::user()->id; 
+        $centerid = $request->centerid;
+        $roomId = $request->room_id;
 
-    if (!$centerid) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Center id required'
-        ], 400);
-    }
-
-    // Fetch centers based on user type
-    if (Auth::user()->userType == "Superadmin") {
-        $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $centerIds)->get();
-    } else {
-        $centers = Center::where('id', $centerid)->get();
-    }
-
-    // Get rooms
-    $room = $this->getrooms5($centerid);
-
-    // Determine selected room
-    $selectedroom = $room->where('id', $roomId)->first() ?? $room->first();
-
-    // Fetch children
-    $children = collect();
-
-    if (auth()->user()->userType == 'Parent') {
-        $parentId = auth()->user()->id;
-        $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
-        $children = Child::whereIn('id', $childIds)->get();
-    } else {
-        if ($selectedroom) {
-            $children = Child::where('room', $selectedroom->id)->get();
+        if (!$centerid) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Center id required'
+            ], 400);
         }
-    }
 
-    return response()->json([
-        'status' => true,
-        'message' => 'Data fetched successfully',
-        'data' => [
-            'centers' => $centers,
-            'rooms' => $room,
-            'selected_room' => $selectedroom,
-            'children' => $children
-        ]
-    ]);
-}
+        // Fetch centers based on user type
+        if (Auth::user()->userType == "Superadmin") {
+            $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $centerIds)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+
+        // Get rooms
+        $room = $this->getrooms5($centerid);
+
+        // Determine selected room
+        $selectedroom = $room->where('id', $roomId)->first() ?? $room->first();
+
+        // Fetch children
+        $children = collect();
+        $search = trim((string) $request->input('search', ''));
+
+        if (auth()->user()->userType == 'Parent') {
+            $parentId = auth()->user()->id;
+            $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
+            $children = Child::whereIn('id', $childIds)
+                ->when($search !== '', function ($query) use ($search) {
+                    $query->where(function ($nameQuery) use ($search) {
+                        $nameQuery->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('lastname', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+                    });
+                })
+                ->get();
+        } else {
+            if ($selectedroom) {
+                $children = Child::where('room', $selectedroom->id)
+                    ->when($search !== '', function ($query) use ($search) {
+                        $query->where(function ($nameQuery) use ($search) {
+                            $nameQuery->where('name', 'like', '%' . $search . '%')
+                                ->orWhere('lastname', 'like', '%' . $search . '%')
+                                ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+                        });
+                    })
+                    ->get();
+            }
+        }
+
+        $page = max((int) $request->input('page', 1), 1);
+        $perPage = max((int) $request->input('per_page', 10), 1);
+        $total = $children->count();
+        $paginatedChildren = $children->forPage($page, $perPage)->values();
+
+        $children = new LengthAwarePaginator(
+            $paginatedChildren,
+            $total,
+            $perPage,
+            $page,
+            [
+                'path' => Paginator::resolveCurrentPath(),
+                'query' => $request->query(),
+            ]
+        );
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data fetched successfully',
+            'data' => [
+                'centers' => $centers,
+                'rooms' => $room,
+                'selected_room' => $selectedroom,
+                'children' => $children
+            ]
+        ]);
+    }
 
 
 

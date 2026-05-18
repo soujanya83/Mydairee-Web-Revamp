@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Child;
 use App\Models\Room;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -139,6 +140,105 @@ class GlobalRoomsChildrenController extends Controller
         return response()->json([
             'status' => true,
             'room_id' => $roomId,
+            'children' => $children,
+        ]);
+    }
+
+    public function getChildParents($childId)
+    {
+        if (!filter_var($childId, FILTER_VALIDATE_INT)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid child id.',
+            ], 400);
+        }
+
+        $child = Child::with(['parents' => function ($query) {
+            $query->select('users.id', 'userid', 'title', 'name', 'email', 'contactNo', 'imageUrl', 'gender', 'status');
+        }])->find((int) $childId);
+
+        if (!$child) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Child not found.',
+            ], 404);
+        }
+
+        $parents = $child->parents->map(function ($parent) {
+            return [
+                'id' => (int) $parent->id,
+                'userid' => $parent->userid ?? null,
+                'title' => $parent->title ?? null,
+                'name' => $parent->name ?? null,
+                'full_name' => trim(($parent->title ? $parent->title . ' ' : '') . ($parent->name ?? '')),
+                'email' => $parent->email ?? null,
+                'contactNo' => $parent->contactNo ?? null,
+                'imageUrl' => $parent->imageUrl ?? null,
+                'gender' => $parent->gender ?? null,
+                'status' => $parent->status ?? null,
+                'relation' => $parent->pivot->relation ?? null,
+            ];
+        })->values();
+
+        return response()->json([
+            'status' => true,
+            'child' => [
+                'id' => (int) $child->id,
+                'name' => $child->name,
+                'lastname' => $child->lastname,
+                'full_name' => trim(($child->name ?? '') . ' ' . ($child->lastname ?? '')),
+            ],
+            'parents' => $parents,
+        ]);
+    }
+
+    public function getParentChildren($parentId)
+    {
+        if (!filter_var($parentId, FILTER_VALIDATE_INT)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid parent id.',
+            ], 400);
+        }
+
+        $parent = User::where('userType', 'Parent')
+            ->with(['children' => function ($query) {
+                $query->select('child.id', 'name', 'lastname', 'dob', 'room', 'imageUrl', 'gender', 'status', 'centerid');
+            }])
+            ->find((int) $parentId);
+
+        if (!$parent) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Parent not found.',
+            ], 404);
+        }
+
+        $children = $parent->children->map(function ($child) {
+            return [
+                'id' => (int) $child->id,
+                'name' => $child->name ?? null,
+                'lastname' => $child->lastname ?? null,
+                'full_name' => trim(($child->name ?? '') . ' ' . ($child->lastname ?? '')),
+                'dob' => $child->dob ?? null,
+                'room' => $child->room ?? null,
+                'imageUrl' => $child->imageUrl ?? null,
+                'gender' => $child->gender ?? null,
+                'status' => $child->status ?? null,
+                'centerid' => $child->centerid ?? null,
+                'relation' => $child->pivot->relation ?? null,
+            ];
+        })->values();
+
+        return response()->json([
+            'status' => true,
+            'parent' => [
+                'id' => (int) $parent->id,
+                'userid' => $parent->userid ?? null,
+                'title' => $parent->title ?? null,
+                'name' => $parent->name ?? null,
+                'full_name' => trim(($parent->title ? $parent->title . ' ' : '') . ($parent->name ?? '')),
+            ],
             'children' => $children,
         ]);
     }

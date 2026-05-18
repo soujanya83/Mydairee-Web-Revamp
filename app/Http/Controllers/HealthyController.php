@@ -213,8 +213,18 @@ class HealthyController extends Controller
             $centerIds = [$centerid];
         }
 
-        // Detect weeks
-        $weeks = $this->getWeeksOfMonth(); // only weekdays (Mon–Fri)
+        // ✅ GET MONTH/YEAR FROM SELECTED DATE (not current date)
+        $targetYear = now()->year;
+        $targetMonth = now()->month;
+        
+        if ($formattedDate) {
+            $selectedDateCarbon = Carbon::createFromFormat('Y-m-d', $formattedDate)->startOfDay();
+            $targetYear = $selectedDateCarbon->year;
+            $targetMonth = $selectedDateCarbon->month;
+        }
+
+        // Detect weeks for the correct month/year
+        $weeks = $this->getWeeksOfMonth($targetYear, $targetMonth);
 
         $currentWeek = null;
         $today = now()->startOfDay();
@@ -231,16 +241,19 @@ class HealthyController extends Controller
             $currentWeek = 1;
         }
 
-        // ✅ now handle request value
-        // $menuweek = (int) $request->get('menuweek', $currentWeek);
-
-        // check if user explicitly chose menuweek
-if ($request->filled('menuweek')) {
-    $menuweek = (int) $request->get('menuweek');
-} else {
-    // otherwise, detect week from selected_date
-    $menuweek = $currentWeek;
-}
+        // ✅ DETECT WEEK FROM SELECTED DATE
+        $menuweek = $currentWeek;
+        
+        if ($formattedDate) {
+            $selectedDateCarbon = Carbon::createFromFormat('Y-m-d', $formattedDate)->startOfDay();
+            
+            foreach ($weeks as $index => $range) {
+                if ($selectedDateCarbon->between($range['start'], $range['end'])) {
+                    $menuweek = $index;
+                    break;
+                }
+            }
+        }
 
 
 

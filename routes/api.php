@@ -54,6 +54,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('global-rooms', [GlobalRoomsChildrenController::class, 'getCenterRooms']);
     Route::get('global-userrooms',[GlobalRoomsChildrenController::class, 'getUserCenterRooms']);
     Route::get('global-children', [GlobalRoomsChildrenController::class, 'getRoomChildren']);
+    Route::get('global-child-parents/{childId}', [GlobalRoomsChildrenController::class, 'getChildParents']);
+    Route::get('global-parent-children/{parentId}', [GlobalRoomsChildrenController::class, 'getParentChildren']);
 });
 
 Route::middleware('auth:sanctum')->post('user/change-password', [ApiResetPasswordController::class, 'changePassword']);
@@ -150,8 +152,8 @@ Route::middleware('auth:sanctum')->group(function () {
 // Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
 Route::get('dashboard/analytical', [Dashboard::class, 'analytical'])->name('dashboard.analytical');
 Route::get('/api/events', [Dashboard::class, 'getEvents']);
-  Route::get('/dashboard', [Dashboard::class, 'university']);
-    Route::match(['get', 'post'], '/newdashboard', [Dashboard::class, 'newdashboard']);
+//   Route::get('/dashboard', [Dashboard::class, 'university']);
+    Route::get('/newdashboard', [Dashboard::class, 'newdashboard']);
 //  Route::get('/dashboard', [Dashboard::class, 'university'])->name('dashboard.university');
      Route::get('users/birthday', [Dashboard::class, 'getUser'])->name('users..birthday');
      Route::get('/api/events', [Dashboard::class, 'getEvents']);
@@ -241,10 +243,10 @@ Route::post('Accidents/sendEmail',[AccidentsController::class,'sendEmail'])->nam
 Route::match(['get', 'post'], 'Accidents/downloadPdf', [AccidentsController::class, 'downloadPdf'])->name('Accidents.downloadPdf');
 Route::match(['get', 'post'], 'Accidents/create',[AccidentsController::class,'create'])->name('Accidents.create');
 Route::match(['get', 'post'], 'Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
+Route::get('accidents/form-data', [AccidentsController::class, 'create'])->name('accidents.form-data');
 Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
 Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
     Route::post('Accident/delete', [AccidentsController::class, 'AccidentDelete'])->name('Accident.delete');
-
 // rooms
     Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
     Route::get('/edit-child/{id}', [RoomController::class, 'edit_child'])->name('edit_child');
@@ -485,6 +487,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/activities/sunscreen', [DailyDiaryController::class, 'storeSunscreen']);
     Route::post('/activities/toileting', [DailyDiaryController::class, 'storeToileting']);
     Route::post('/activities/bottle', [DailyDiaryController::class, 'storeBottle']);
+
+    Route::match(['post', 'delete'], '/activities/breakfast/delete/{id?}', [DailyDiaryController::class, 'deleteBreakfast'])->name('dailyDiary.deleteBreakfast');
+    Route::match(['post', 'delete'], '/activities/morning-tea/delete/{id?}', [DailyDiaryController::class, 'deleteMorningTea'])->name('dailyDiary.deleteMorningTea');
+    Route::match(['post', 'delete'], '/activities/lunch/delete/{id?}', [DailyDiaryController::class, 'deleteLunch'])->name('dailyDiary.deleteLunch');
+    Route::match(['post', 'delete'], '/activities/afternoon-tea/delete/{id?}', [DailyDiaryController::class, 'deleteAfternoonTea'])->name('dailyDiary.deleteAfternoonTea');
+    Route::match(['post', 'delete'], '/activities/late-snacks/delete/{id?}', [DailyDiaryController::class, 'deleteSnacks'])->name('dailyDiary.deleteSnacks');
+    Route::match(['post', 'delete'], '/activities/sunscreen/delete/{id?}', [DailyDiaryController::class, 'deleteSunscreen'])->name('dailyDiary.deleteSunscreen');
+    Route::match(['post', 'delete'], '/activities/toileting/delete/{id?}', [DailyDiaryController::class, 'deleteToileting'])->name('dailyDiary.deleteToileting');
+    Route::match(['post', 'delete'], '/activities/sleep/delete/{id?}', [DailyDiaryController::class, 'deleteSleep'])->name('dailyDiary.deleteSleep');
+    Route::match(['post', 'delete'], '/activities/bottle/delete/{id?}', [DailyDiaryController::class, 'deleteBottle'])->name('dailyDiary.deleteBottle');
 
     // Daily Journel Ends here
 

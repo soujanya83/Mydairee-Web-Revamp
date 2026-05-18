@@ -751,9 +751,9 @@
     <!-- Additional stats (added so all cards show) -->
     <div class="sd-stats-row">
         <div class="sd-stat-card">
-            <div class="sd-stat-label">Total Centers</div>
-            <div class="sd-stat-value">{{ $totalCenters ?? $totalCenter ?? 0 }}</div>
-            <div class="sd-stat-icon"><i class="fa fa-building"></i></div>
+            <div class="sd-stat-label">New Enrolments </div>
+            <div class="sd-stat-value">{{ $newEnrolmentsLastYear ?? 0 }}</div>
+            <div class="sd-stat-icon"><i class="fa fa-user-plus"></i></div>
         </div>
 
         <div class="sd-stat-card">
