@@ -95,6 +95,7 @@ class ReflectionController extends Controller
         $authId = Auth::user()->id; 
         $centerid = $request->center_id;
         $perPage = $request->get('per_page', 10); // Default 10 items per page
+        $search = trim((string) $request->input('search', ''));
 
         if (Auth::user()->userType == "Superadmin") {
             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
@@ -103,16 +104,13 @@ class ReflectionController extends Controller
             $centers = Center::where('id', $centerid)->get();
         }
 
+        $query = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+            ->where('centerid', $centerid);
+
         if (Auth::user()->userType == "Superadmin") {
-            $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-                ->where('centerid', $centerid)
-                ->orderBy('id', 'desc')
-                ->paginate($perPage);
+            // Superadmin can see all reflections for the selected center.
         } elseif (Auth::user()->userType == "Staff") {
-            $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-                ->where('centerid', $centerid)
-                ->orderBy('id', 'desc')
-                ->paginate($perPage);
+            // Staff can see all reflections for the selected center.
         } else {
             $childids = Childparent::where('parentid', $authId)->pluck('childid');
             $reflectionIds = ReflectionChild::whereIn('childId', $childids)
@@ -120,11 +118,22 @@ class ReflectionController extends Controller
                 ->unique()
                 ->toArray();
 
-            $reflection = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
-                ->whereIn('id', $reflectionIds)
-                ->orderBy('id', 'desc')
-                ->paginate($perPage);
+            $query->whereIn('id', $reflectionIds);
         }
+
+        if ($search !== '') {
+            $query->where(function ($searchQuery) use ($search) {
+                $searchQuery->whereHas('children.child', function ($childQuery) use ($search) {
+                    $childQuery->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('lastname', 'like', '%' . $search . '%')
+                        ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+                })->orWhereHas('staff.staff', function ($staffQuery) use ($search) {
+                    $staffQuery->where('name', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        $reflection = $query->orderBy('id', 'desc')->paginate($perPage);
 
         return response()->json([
             'status' => true,

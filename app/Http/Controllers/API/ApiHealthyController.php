@@ -589,33 +589,42 @@ class ApiHealthyController extends Controller
             $selectedDate = $request->selected_date ?? Carbon::now()->format('d-m-Y');
             $formattedDate = null;
             $selectedDay = null;
+            $menuWeek = null;
 
             try {
                 $carbonDate = Carbon::createFromFormat('d-m-Y', $selectedDate);
                 $formattedDate = $carbonDate->format('Y-m-d');
                 $selectedDay = $carbonDate->format('l');
+                $menuWeek = $request->filled('menuweek')
+                    ? (int) $request->input('menuweek')
+                    : $this->resolveMenuWeek($carbonDate);
             } catch (\Exception $e) {
                 return response()->json(['status' => 'error', 'message' => 'Invalid date format. Use d-m-Y.'], 400);
             }
 
-            // Get centers (allow optional `center_id` request param)
+            // Require an explicit `center_id` request param.
             $requestedCenterId = $request->input('center_id');
 
-            if ($user->userType === "Superadmin") {
-                $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-
-                if ($requestedCenterId) {
-                    $centerIds = [$requestedCenterId];
-                }
-            } else {
-                $centerId = Usercenter::where('userid', $authId)->value('centerid'); // Fetch single center ID
-
-                if ($requestedCenterId && $requestedCenterId != $centerId) {
-                    return response()->json(['status' => 'error', 'message' => 'Access denied for requested center.'], 403);
-                }
-
-                $centerIds = [$centerId];
+            if ($requestedCenterId === null || $requestedCenterId === '') {
+                return response()->json(['status' => 'error', 'message' => 'center_id is required.'], 400);
             }
+
+            $requestedCenterExists = Center::whereKey($requestedCenterId)->exists();
+
+            if (!$requestedCenterExists) {
+                return response()->json(['status' => 'error', 'message' => 'Requested center not found.'], 404);
+            }
+
+            $allowedCenterIds = Usercenter::where('userid', $authId)
+                ->pluck('centerid')
+                ->map(fn($id) => (string) $id)
+                ->toArray();
+
+            if (!in_array((string) $requestedCenterId, $allowedCenterIds, true)) {
+                return response()->json(['status' => 'error', 'message' => 'Access denied for requested center.'], 403);
+            }
+
+            $centerIds = [$requestedCenterId];
 
             $centers = Center::whereIn('id', $centerIds)->get();
 
@@ -630,29 +639,61 @@ class ApiHealthyController extends Controller
                 ->join('recipes', 'recipes.id', '=', 'menu.recipeid')
                 ->leftJoin('recipe_media', 'recipe_media.recipeid', '=', 'recipes.id');
 
-            if ($formattedDate) {
-                $query->where('menu.currentDate', $formattedDate);
+            if ($menuWeek !== null) {
+                $query->where('menu.menuweek', $menuWeek);
             }
 
-            $menus = $query->get()->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->itemName,
-                    'day' => $item->day,
-                    'mealType' => strtoupper($item->mealType),
-                    'colorClass' => $item->color_class ?? null,
-                    'mediaUrl' => $item->mediaUrl ?? null,
-                    'createdAt' => $item->recepiesDate ?? null,
-                ];
-            });
+            $mealTypeLabels = [
+                'BREAKFAST' => 'Breakfast',
+                'MORNING_TEA' => 'Morning Tea',
+                'LUNCH' => 'Lunch',
+                'AFTERNOON_TEA' => 'Afternoon Tea',
+                'SNACKS' => 'Late Snacks',
+            ];
+            $weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+            $menusByMealType = $query->get()->groupBy(fn ($item) => strtoupper($item->mealType));
+
+            $menus = collect($mealTypeLabels)
+                ->map(function ($label, $mealTypeKey) use ($menusByMealType, $weekDays) {
+                    $mealItems = $menusByMealType->get($mealTypeKey, collect());
+
+                    return [
+                        'mealType' => $label,
+                        'days' => collect($weekDays)
+                            ->map(function ($day) use ($mealItems, $mealTypeKey) {
+                                $dayItems = $mealItems
+                                    ->where('day', $day)
+                                    ->values()
+                                    ->map(function ($item) use ($mealTypeKey) {
+                                        return [
+                                            'id' => $item->id,
+                                            'name' => $item->itemName,
+                                            'mealType' => $mealTypeKey,
+                                            'colorClass' => $item->color_class ?? null,
+                                            'mediaUrl' => $item->mediaUrl ?? null,
+                                            'createdAt' => $item->recepiesDate ?? null,
+                                        ];
+                                    });
+
+                                return [
+                                    'day' => $day,
+                                    'items' => $dayItems,
+                                ];
+                            })
+                            ->values(),
+                    ];
+                })
+                ->values();
 
             return response()->json([
                 'status' => 'success',
                 'selected_date' => $selectedDate,
                 'selected_day' => $selectedDay,
+                'menuweek' => $menuWeek,
                 'Current Center' => $requestedCenterId,
                 'menus' => $menus,
-                'centers' => $centers,
+                
             ]);
         } catch (\Exception $e) {
             return response()->json([

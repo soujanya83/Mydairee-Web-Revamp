@@ -32,6 +32,7 @@ use App\Models\Qip;
 use App\Models\Reflection;
 use App\Models\ReflectionStaff;
 use App\Models\ProgramPlanTemplateDetailsAdd;
+use Illuminate\Support\Facades\DB;
 
 class SettingsController extends Controller
 {
@@ -919,7 +920,10 @@ class SettingsController extends Controller
         }
 
         try {
-            $center->delete();
+            DB::transaction(function () use ($center) {
+                Usercenter::where('centerid', $center->id)->delete();
+                $center->delete();
+            });
             return response()->json(['status' => 'success']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Delete failed']);

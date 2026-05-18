@@ -33,6 +33,8 @@ use App\Models\Permission;
 use Illuminate\Support\Carbon;   
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class DailyDiaryController extends Controller
 {
@@ -74,6 +76,7 @@ class DailyDiaryController extends Controller
             ? \Carbon\Carbon::parse($request->input('selected_date'))
             : now();
         $dayIndex = $selectedDate->dayOfWeekIso - 1; // 0 = Monday
+        $search = trim((string) $request->input('search', ''));
 
         $children = collect();
         $selectedroom = null;
@@ -99,7 +102,17 @@ class DailyDiaryController extends Controller
 
         if ($selectedroom) {
             if (Auth::user()->userType != "Parent") {
-                $children = Child::where('room', $selectedroom->id)
+                $childQuery = Child::where('room', $selectedroom->id);
+
+                if ($search !== '') {
+                    $childQuery->where(function ($nameQuery) use ($search) {
+                        $nameQuery->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('lastname', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+                    });
+                }
+
+                $children = $childQuery
                     ->orderBy('name')
                     ->get()
                     ->filter(function ($child) use ($dayIndex) {
@@ -123,7 +136,19 @@ class DailyDiaryController extends Controller
             } else {
                 $parentId = auth()->user()->id;
                 $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
-                $children = Child::whereIn('id', $childIds)
+
+                $childQuery = Child::whereIn('id', $childIds)
+                    ->where('room', $selectedroom->id);
+
+                if ($search !== '') {
+                    $childQuery->where(function ($nameQuery) use ($search) {
+                        $nameQuery->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('lastname', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+                    });
+                }
+
+                $children = $childQuery
                     ->orderBy('name')
                     ->get()
                     ->filter(function ($child) use ($dayIndex) {
@@ -147,17 +172,35 @@ class DailyDiaryController extends Controller
             }
         }
 
+        // Apply pagination to the children collection
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 10);
+        $total = $children->count();
+
+        $paginatedItems = $children->forPage($page, $perPage)->values();
+
+        $children = new LengthAwarePaginator(
+            $paginatedItems,
+            $total,
+            $perPage,
+            $page,
+            [
+                'path' => Paginator::resolveCurrentPath(),
+                'query' => $request->query(),
+            ]
+        );
+
         $permissions = Permission::where('userid',Auth::user()->userid)->where('centerid',$centerid)->first();
 
         return response()->json([
             'status' => true,
             'message' => 'Daily diary data fetched successfully.',
             'data' => [
-                'centers' => $centers,
-                'rooms' => $room,
+                // 'centers' => $centers,
+                // 'rooms' => $room,
                 'selectedRoom' => $selectedroom,
                 'selectedDate' => $selectedDate->format('Y-m-d'),
-                'permission' => $permissions,
+                // 'permission' => $permissions,
                 'children' => $children,
             ]
         ]);
@@ -467,6 +510,79 @@ public function getSnacks($childid, $date = null)
             ->first();
     }
 }
+
+    /** Delete endpoints for daily diary submodules */
+    private function deleteDiaryEntry(Request $request, string $modelClass, string $table, string $successMessage)
+    {
+        $id = $request->route('id') ?? $request->input('id');
+
+        $validator = Validator::make(['id' => $id], [
+            'id' => 'required|integer|exists:' . $table . ',id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $entry = $modelClass::find($id);
+
+        if (!$entry) {
+            return response()->json(['status' => false, 'message' => 'Entry not found.'], 404);
+        }
+
+        $entry->delete();
+
+        return response()->json(['status' => true, 'message' => $successMessage]);
+    }
+
+    public function deleteBreakfast(Request $request)
+    {
+        return $this->deleteDiaryEntry($request, DailyDiaryBreakfast::class, 'dailydiarybreakfast', 'Breakfast entry deleted.');
+    }
+
+    public function deleteMorningTea(Request $request)
+    {
+        return $this->deleteDiaryEntry($request, DailyDiaryMorningTea::class, 'dailydiarymorningtea', 'Morning tea entry deleted.');
+    }
+
+    public function deleteLunch(Request $request)
+    {
+        return $this->deleteDiaryEntry($request, DailyDiaryLunch::class, 'dailydiarylunch', 'Lunch entry deleted.');
+    }
+
+    public function deleteAfternoonTea(Request $request)
+    {
+        return $this->deleteDiaryEntry($request, DailyDiaryAfternoonTea::class, 'dailydiaryafternoontea', 'Afternoon tea entry deleted.');
+    }
+
+    public function deleteSnacks(Request $request)
+    {
+        return $this->deleteDiaryEntry($request, DailyDiarySnacks::class, 'dailydiarysnacks', 'Snacks entry deleted.');
+    }
+
+    public function deleteSunscreen(Request $request)
+    {
+        return $this->deleteDiaryEntry($request, DailyDiarySunscreen::class, 'dailydiarysunscreen', 'Sunscreen entry deleted.');
+    }
+
+    public function deleteToileting(Request $request)
+    {
+        return $this->deleteDiaryEntry($request, DailyDiaryToileting::class, 'dailydiarytoileting', 'Toileting entry deleted.');
+    }
+
+    public function deleteSleep(Request $request)
+    {
+        return $this->deleteDiaryEntry($request, DailyDiarySleep::class, 'dailydiarysleep', 'Sleep entry deleted.');
+    }
+
+    public function deleteBottle(Request $request)
+    {
+        return $this->deleteDiaryEntry($request, DailyDiaryBottle::class, 'dailydiarybottle', 'Bottle entry deleted.');
+    }
 
 public function getAfternoonTea($childid, $date = null)
 {
@@ -1595,17 +1711,16 @@ public function viewChildDiary1($data)
 
 
     public function storeBottle(Request $request, FirebaseNotificationService $firebaseService)
-{
-  
-    // ✅ Validate input
-    $validator = Validator::make($request->all(), [
-        'date'        => 'required|date',
-        'child_ids'   => 'required|array|min:1',
-        'child_ids.*' => 'exists:child,id',
-        'time'        => 'required|date_format:H:i',
-        'comments'    => 'nullable|string',
-        'id'          => 'nullable|exists:dailydiarybottle,id' // if editing
-    ]);
+    {
+        // ✅ Validate input
+        $validator = Validator::make($request->all(), [
+            'date'        => 'required|date',
+            'child_ids'   => 'required|array|min:1',
+            'child_ids.*' => 'exists:child,id',
+            'time'        => 'required|date_format:H:i',
+            'comments'    => 'nullable|string',
+            'id'          => 'nullable|exists:dailydiarybottle,id' // if editing
+        ]);
   // dd($request->all(), $validator);
     if ($validator->fails()) {
         return response()->json([

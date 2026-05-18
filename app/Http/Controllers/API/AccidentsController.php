@@ -648,12 +648,13 @@ class AccidentsController extends Controller
 
     public function create(Request $request)
     {
-        $centerid = $request->centerid;
         $user = Auth::user();
+        $centerid = $request->centerid ?: Usercenter::where('userid', $user->userid)->value('centerid');
         $roomid = $request->roomid;
 
-        $children = Child::where('room', $roomid)
+        $children = Child::where('centerid', $centerid)
             ->where('status', 'Active')
+            ->orderBy('name')
             ->get()
             ->map(function ($child) {
                 $age = $child->dob ? Carbon::parse($child->dob)->age : 'N/A';
@@ -661,13 +662,24 @@ class AccidentsController extends Controller
                 return $child;
             });
 
+        $staffUsers = User::whereIn('id', Usercenter::where('centerid', $centerid)->pluck('userid'))
+            ->where('userType', 'Staff')
+            ->orderBy('name')
+            ->get(['id', 'name', 'title', 'userType']);
+
+        $rooms = Room::where('centerid', $centerid)->orderBy('name')->get();
+
         return response()->json([
             'status' => true,
             'message' => 'Accident creation data fetched successfully.',
             'data' => [
                 'Childrens' => $children,
+                'staffUsers' => $staffUsers,
+                'rooms' => $rooms,
                 'centerid' => $centerid,
                 'roomid' => $roomid,
+                'default_date' => Carbon::now()->format('Y-m-d'),
+                'default_time' => Carbon::now()->format('H:i'),
             ]
         ]);
     }

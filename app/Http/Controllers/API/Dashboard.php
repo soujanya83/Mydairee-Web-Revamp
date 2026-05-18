@@ -21,101 +21,132 @@ use App\Models\AnnouncementChildModel;
 use App\Models\Childparent;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use App\Models\ReEnrolment;
 
 class Dashboard extends Controller
 {
-        public function university()
-        {
-            $totalUsers = User::count();
-            $totalSuperadmin = User::where('userType', 'Superadmin')->count();
-            $totalStaff = User::where('userType', 'Staff')->count();
-            $totalParent = User::where('userType', 'Parent')->count();
-            $totalCenter = Usercenter::count();
-            $totalRooms = Room::count();
-            $totalRecipes = RecipeModel::count();
 
-            return response()->json([
-                'status' => true,
-                'message' => 'University dashboard stats fetched successfully',
-                'data' => [
-                    'totalUsers'      => $totalUsers,
-                    'totalSuperadmin' => $totalSuperadmin,
-                    'totalStaff'      => $totalStaff,
-                    'totalParent'     => $totalParent,
-                    'totalCenter'     => $totalCenter,
-                    'totalRooms'      => $totalRooms,
-                    'totalRecipes'    => $totalRecipes,
-                ]
-            ]);
-        }
-
-        //this is form dashboard function !!
+      // New University Dashboard Function
         public function newdashboard(\Illuminate\Http\Request $request)
         {
             $auth = Auth::user();
-            $usertype = $auth->userType ?? null;
+
+            if (!$auth) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
             $userid = $auth->userid ?? null;
 
-            // 1) Prefer explicit centerid param from request
-            // Accept `centerid` or `center_id` from JSON/form-data, or `X-Center-Id` header
-            $requestedCenter = $request->input('centerid') ?? $request->input('center_id') ?? $request->header('X-Center-Id');
-            $centerid = null;
 
-            if ($requestedCenter !== null) {
-                if (!filter_var($requestedCenter, FILTER_VALIDATE_INT)) {
-                    return response()->json(['status' => false, 'message' => 'Invalid center id'], 400);
-                }
-                $centerid = (int) $requestedCenter;
+            $centerid = $request->input('centerid')
+                ?? $request->input('center_id')
+                ?? $request->header('X-Center-Id');
 
-                // Authorization: allow if user is admin or linked to center
-                $isAdmin = isset($auth->admin) && $auth->admin == '1';
-                $isAssociated = Usercenter::where('userid', $userid)->where('centerid', $centerid)->exists();
-                if (!$isAdmin && !$isAssociated) {
-                    return response()->json(['status' => false, 'message' => 'Unauthorized for this center'], 403);
-                }
+            if ($centerid === null) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Center id is required'
+                ], 400);
             }
 
-            // 2) Fall back to session value (web clients)
-            if (!$centerid) {
-                $centerid = session('user_center_id');
+            if (!filter_var($centerid, FILTER_VALIDATE_INT)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid center id'
+                ], 400);
             }
 
-            // 3) Fall back to user's Usercenter relation (APIs without session)
-            if (!$centerid && $userid) {
-                $centerid = Usercenter::where('userid', $userid)->value('centerid');
+            $centerid = (int) $centerid;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Authorization Check
+            |--------------------------------------------------------------------------
+            */
+
+            $isAdmin = isset($auth->admin) && $auth->admin == '1';
+
+            $isAssociated = Usercenter::where('userid', $userid)
+                ->where('centerid', $centerid)
+                ->exists();
+
+            // Superadmin can access any center
+            // Normal users only their mapped centers
+            if (!$isAdmin && !$isAssociated) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized for this center'
+                ], 403);
             }
 
-            if (!$centerid) {
-                return response()->json(['status' => false, 'message' => 'No center specified or associated with user'], 400);
-            }
+            /*
+            |--------------------------------------------------------------------------
+            | Get All User IDs Belonging To Current Center
+            |--------------------------------------------------------------------------
+            */
 
-            $staffusercenter = Usercenter::where('centerid', $centerid)->pluck('userid');
+            $centerUserIds = Usercenter::where('centerid', $centerid)
+                ->distinct()
+                ->pluck('userid');
 
-            $totalUsers = User::whereIn('userid', $staffusercenter)->where('status', 'ACTIVE')->count();
-            $totalSuperadmin = User::where('admin', '1')->count();
-            $totalStaff = User::whereIn('userid', $staffusercenter)->where('userType', 'Staff')->where('status', 'ACTIVE')->count();
-            $totalParent = User::whereIn('userid', $staffusercenter)->where('userType', 'Parent')->where('status', 'ACTIVE')->count();
-            $totalCenter = Usercenter::where('centerid', $centerid)->where('userid', $userid)->count();
-            $totalRooms = Room::where('centerid', $centerid)->where('status', 'Active')->count();
-            $totalRecipes = RecipeModel::where('centerid', $centerid)->count();
-            $activeChildren = Child::where('centerid', $centerid)->where('status', 'Active')->count();
+            /*
+            |--------------------------------------------------------------------------
+            | Dashboard Counts (CENTER SCOPED ONLY)
+            |--------------------------------------------------------------------------
+            */
+
+            $totalUsers = User::whereIn('userid', $centerUserIds)
+                ->where('status', 'ACTIVE')
+                ->count();
+
+
+            $totalStaff = User::whereIn('userid', $centerUserIds)
+                ->where('userType', 'Staff')
+                ->where('status', 'ACTIVE')
+                ->count();
+
+            $totalParent = User::whereIn('userid', $centerUserIds)
+                ->where('userType', 'Parent')
+                ->where('status', 'ACTIVE')
+                ->count();
+
+            $newEnrolmentsLastYear = ReEnrolment::whereDate('created_at', '>=', now()->subYear())
+            ->count();
+
+            $totalRooms = Room::where('centerid', $centerid)
+                ->where('status', 'Active')
+                ->count();
+
+            $totalRecipes = RecipeModel::where('centerid', $centerid)
+                ->count();
+
+            $activeChildren = Child::where('centerid', $centerid)
+                ->where('status', 'Active')
+                ->count();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Response
+            |--------------------------------------------------------------------------
+            */
 
             return response()->json([
                 'status' => true,
-                'message' => 'New dashboard (center-scoped) fetched successfully',
+                'message' => 'Dashboard fetched successfully',
                 'data' => [
-                    'totalUsers'      => $totalUsers,
-                    'totalSuperadmin' => $totalSuperadmin,
-                    'totalStaff'      => $totalStaff,
-                    'totalParent'     => $totalParent,
-                    'totalCenter'     => $totalCenter,
-                    'totalRooms'      => $totalRooms,
-                    'totalRecipes'    => $totalRecipes,
-                    'activeChildren'  => $activeChildren,
-                    'centerid'        => $centerid,
+                    'centerid'         => $centerid,
+                    'totalUsers'       => $totalUsers,
+                    'totalStaff'       => $totalStaff,
+                    'totalParent'      => $totalParent,
+                    'newEnrolmentsLastYear' => $newEnrolmentsLastYear,
+                    'totalRooms'       => $totalRooms,
+                    'totalRecipes'     => $totalRecipes,
+                    'activeChildren'   => $activeChildren,
                 ]
             ]);
-
         }
 
         public function parentDashboard(Request $request)

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 
@@ -1246,7 +1247,10 @@ if ($check) {
         }
 
         try {
-            $center->delete();
+            DB::transaction(function () use ($center) {
+                Usercenter::where('centerid', $center->id)->delete();
+                $center->delete();
+            });
             return response()->json(['status' => true,'message' => 'center deleted successfully']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Delete failed']);

@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\contact;
 use Illuminate\Support\Facades\Mail;
+use App\Models\ReEnrolment;
 
 class DashboardController extends BaseController
 {
@@ -89,7 +90,8 @@ class DashboardController extends BaseController
         $totalSuperadmin = User::where('admin', '1')->count();
         $totalStaff = User::whereIn('userid', $staffusercenter)->where('userType', 'Staff')->where('status', 'ACTIVE')->count();
         $totalParent = User::whereIn('userid', $staffusercenter)->where('userType', 'Parent')->where('status', 'ACTIVE')->count();
-        $totalCenter = Usercenter::where('centerid', $centerid)->where('userid', $userid)->count();
+        $newEnrolmentsLastYear = ReEnrolment::whereDate('created_at', '>=', now()->subYear())
+            ->count();
         $totalRooms = Room::where('centerid', $centerid)->where('status', 'Active')->count();
         $totalRecipes = RecipeModel::where('centerid', $centerid)->count();
         $activeChildren = Child::where('centerid', $centerid)->where('status', 'Active')->count();
@@ -187,7 +189,7 @@ class DashboardController extends BaseController
                 'recentSnapshots', 'snapshotCount'
             ));
         } else {
-              return view('dashboard.university', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes', 'activeChildren'));
+              return view('dashboard.university', compact('totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'newEnrolmentsLastYear', 'totalRooms', 'totalRecipes', 'activeChildren'));
         }
     }
     public function getEvents()
