@@ -154,7 +154,7 @@ Route::get('dashboard/analytical', [Dashboard::class, 'analytical'])->name('dash
 Route::get('/api/events', [Dashboard::class, 'getEvents']);
 //   Route::get('/dashboard', [Dashboard::class, 'university']);
     Route::get('/newdashboard', [Dashboard::class, 'newdashboard']);
-//  Route::get('/dashboard', [Dashboard::class, 'university'])->name('dashboard.university');
+     Route::get('/dashboard', [Dashboard::class, 'university'])->name('dashboard.university');
      Route::get('users/birthday', [Dashboard::class, 'getUser'])->name('users..birthday');
      Route::get('/api/events', [Dashboard::class, 'getEvents']);
 

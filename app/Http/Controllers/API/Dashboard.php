@@ -26,6 +26,33 @@ use App\Models\ReEnrolment;
 class Dashboard extends Controller
 {
 
+    
+    public function university()
+{
+    $totalUsers = User::count();
+    $totalSuperadmin = User::where('userType', 'Superadmin')->count();
+    $totalStaff = User::where('userType', 'Staff')->count();
+    $totalParent = User::where('userType', 'Parent')->count();
+    $totalCenter = Usercenter::count();
+    $totalRooms = Room::count();
+    $totalRecipes = RecipeModel::count();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'University dashboard stats fetched successfully',
+        'data' => [
+            'totalUsers'      => $totalUsers,
+            'totalSuperadmin' => $totalSuperadmin,
+            'totalStaff'      => $totalStaff,
+            'totalParent'     => $totalParent,
+            'totalCenter'     => $totalCenter,
+            'totalRooms'      => $totalRooms,
+            'totalRecipes'    => $totalRecipes,
+        ]
+    ]);
+}
+
+
       // New University Dashboard Function
         public function newdashboard(\Illuminate\Http\Request $request)
         {
