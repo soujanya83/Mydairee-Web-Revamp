@@ -29,7 +29,9 @@ public function getSleepChecksList(Request $request)
     $user = Auth::user();
     $userid = $user->userid;
     $userType = $user->userType;
-// dd( $userType);
+    $search = trim((string) $request->input('search', ''));
+    $perPage = max((int) $request->input('per_page', 10), 1);
+    // dd( $userType);
     // Determine center ID
     $centerid = $request->centerid;
     if (empty($centerid)) {
@@ -66,50 +68,41 @@ public function getSleepChecksList(Request $request)
     $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
 
     // Fetch children
-  
-     $role = $user->userType;
- if ($role != "Parent") {
-    // dd('here');
-   $children = Child::where('room', $roomid)
-       ->where('status', 'Active')
-       ->orderBy('name')
-       ->get();
+    $role = $user->userType;
+    $childrenQuery = Child::query()
+        ->where('room', $roomid)
+        ->where('status', 'Active');
 
-    // Fetch all sleep checks for the room and date
+    if ($role === "Parent") {
+        $childIDs = Childparent::where('parentid', $userid)->pluck('childid');
+        $childrenQuery->whereIn('id', $childIDs);
+    }
+
+    if ($search !== '') {
+        $childrenQuery->where(function ($query) use ($search) {
+            $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('lastname', 'like', '%' . $search . '%')
+                ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+        });
+    }
+
+    $children = $childrenQuery->orderBy('name')->paginate($perPage);
+
+    // Fetch all sleep checks for the room and date for the current page children only
+    $pageChildIds = $children->getCollection()->pluck('id')->all();
     $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
         ->whereDate('created_at', $date)
+        ->whereIn('childid', $pageChildIds)
         ->get()
-        ->groupBy('childid'); // Group by child ID
+        ->groupBy('childid');
 
     // Attach sleepchecks to children
-    $childrenWithSleepChecks = $children->map(function ($child) use ($sleepChecks) {
-        $child->sleepchecks = $sleepChecks->get($child->id, collect([])); // Empty collection if none
+    $childrenWithSleepChecks = $children->getCollection()->map(function ($child) use ($sleepChecks) {
+        $child->sleepchecks = $sleepChecks->get($child->id, collect([]));
         return $child;
     });
 
- }else{
-    
-    
-//  dd('here4');
-       $childIDs = Childparent::where('parentid',$userid)->pluck('childid');
-  $children = Child::where('room', $roomid)
-      ->whereIn('id',$childIDs)
-      ->where('status', 'Active')
-      ->orderBy('name')
-      ->get();
-
-    // Fetch all sleep checks for the room and date
-    $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
-        ->whereDate('created_at', $date)
-        ->get()
-        ->groupBy('childid'); // Group by child ID
-
-    // Attach sleepchecks to children
-    $childrenWithSleepChecks = $children->map(function ($child) use ($sleepChecks) {
-        $child->sleepchecks = $sleepChecks->get($child->id, collect([])); // Empty collection if none
-        return $child;
-    });
- }
+    $children->setCollection($childrenWithSleepChecks);
 
 
     // Handle permissions
@@ -136,9 +129,15 @@ public function getSleepChecksList(Request $request)
         'roomname'    => $roomname,
         'roomcolor'   => $roomcolor,
         'children'    => $childrenWithSleepChecks,
-        'rooms'       => $centerRooms ?? [],
-        'permissions' => $permission,
-        'centers'     => $centers
+        'pagination'  => [
+            'current_page' => $children->currentPage(),
+            'per_page' => $children->perPage(),
+            'total' => $children->total(),
+            'last_page' => $children->lastPage(),
+        ]
+        // 'rooms'       => $centerRooms ?? [],
+        // 'permissions' => $permission,
+        // 'centers'     => $centers
     ]);
 }
 

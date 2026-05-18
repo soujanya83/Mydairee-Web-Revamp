@@ -455,10 +455,18 @@ class ObservationsController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'center_id' => 'required|integer|min:1',
+                'per_page'  => 'nullable|integer|min:1',
+                'page'      => 'nullable|integer|min:1',
+                'child_search' => 'nullable|string',
+                'created_by_search' => 'nullable|string',
             ], [
                 'center_id.required' => 'Center ID is required.',
                 'center_id.integer'  => 'Center ID must be an integer.',
                 'center_id.min'      => 'Center ID must be greater than 0.',
+                'per_page.integer'   => 'Per page must be an integer.',
+                'per_page.min'       => 'Per page must be greater than 0.',
+                'page.integer'       => 'Page must be an integer.',
+                'page.min'           => 'Page must be greater than 0.',
             ]);
 
             // If validation fails, return response
@@ -473,6 +481,8 @@ class ObservationsController extends Controller
             // Get validated center_id
             $validated = $validator->validated();
             $centerid = $validated['center_id'];
+            $perPage = $validated['per_page'] ?? max((int) $request->input('per_page', 10), 1);
+            $page = $validated['page'] ?? max((int) $request->input('page', 1), 1);
 
 
             $query = Observation::with(['user', 'child', 'media', 'Seen.user'])
@@ -551,6 +561,30 @@ class ObservationsController extends Controller
                 }
             }
 
+            // Child name search filter
+            if ($request->filled('child_search')) {
+                $childSearch = trim((string) $request->input('child_search'));
+
+                if ($childSearch !== '') {
+                    $query->whereHas('child.child', function ($childQuery) use ($childSearch) {
+                        $childQuery->where('name', 'like', '%' . $childSearch . '%')
+                            ->orWhere('lastname', 'like', '%' . $childSearch . '%')
+                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $childSearch . '%']);
+                    });
+                }
+            }
+
+            // Creator name search filter
+            if ($request->filled('created_by_search')) {
+                $creatorSearch = trim((string) $request->input('created_by_search'));
+
+                if ($creatorSearch !== '') {
+                    $query->whereHas('user', function ($creatorQuery) use ($creatorSearch) {
+                        $creatorQuery->where('name', 'like', '%' . $creatorSearch . '%');
+                    });
+                }
+            }
+
 
             $user = Auth::user();
             if ($user->userType === 'Staff') {
@@ -592,11 +626,11 @@ class ObservationsController extends Controller
             // Order by latest first
             $query->orderBy('created_at', 'desc');
 
-            // Get the filtered observations
-            $observations = $query->get();
+            // Get the filtered observations with pagination
+            $observations = $query->paginate($perPage, ['*'], 'page', $page);
 
             // Format the observations for response
-            $formattedObservations = $observations->map(function ($observation) {
+            $formattedObservations = $observations->getCollection()->map(function ($observation) {
                 return [
                     'id' => $observation->id,
                     'title' => html_entity_decode($observation->title ?? ''),
@@ -619,12 +653,27 @@ class ObservationsController extends Controller
                     })->filter(),
                 ];
             });
+
+            $observations->setCollection($formattedObservations);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Filters applied successfully',
-                'observations' => $formattedObservations,
+                'observations' => $observations,
                 'userRole' => Auth::user()->userType,
-                'count' => $formattedObservations->count()
+                'count' => $observations->total(),
+                'pagination' => [
+                    'current_page' => $observations->currentPage(),
+                    'per_page' => $observations->perPage(),
+                    'total' => $observations->total(),
+                    'last_page' => $observations->lastPage(),
+                    'from' => $observations->firstItem(),
+                    'to' => $observations->lastItem(),
+                ],
+                'filters' => [
+                    'child_search' => $request->input('child_search', ''),
+                    'created_by_search' => $request->input('created_by_search', ''),
+                ],
             ]);
         } catch (\Exception $e) {
             Log::error('Filter error: ' . $e->getMessage());

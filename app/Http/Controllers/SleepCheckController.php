@@ -78,7 +78,7 @@ class SleepCheckController extends Controller
 
     // Fetch sleep checks filtered by room and date
     $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
-        ->whereDate('created_at', $date)
+        ->whereDate('diarydate', $date)
         ->get();
 
     // Prepare JSON response
@@ -207,7 +207,7 @@ public function getSleepChecksList(Request $request)
 //   dd( $childIDs );
 
             $sleepChecks = DailyDiarySleepCheckList::where(['roomid'=>$roomid])
-             ->whereDate('created_at', $date)
+             ->whereDate('diarydate', $date)
              ->whereIn('childid', $childIDs)
              ->get();
 
@@ -215,8 +215,8 @@ public function getSleepChecksList(Request $request)
   }else{
   $children = Child::where('room', $roomid)->where('status','Active')->get();
 
-            $sleepChecks = DailyDiarySleepCheckList::where(['createdBy'=>$userid, 'roomid'=>$roomid])
-             ->whereDate('created_at', $date)
+            $sleepChecks = DailyDiarySleepCheckList::where(['roomid'=>$roomid])
+             ->whereDate('diarydate', $date)
              ->get();
   }
           
