@@ -256,6 +256,8 @@ public function filterProgramPlan(Request $request)
     $authId = $user->id;
     $defaultCenterId = session('user_center_id');
     $centerId = $request->input('center_id', $defaultCenterId);
+    $search = trim((string) $request->input('search', ''));
+    $perPage = max((int) $request->input('per_page', 10), 1);
 
     if (!$centerId) {
         return response()->json([
@@ -302,23 +304,49 @@ public function filterProgramPlan(Request $request)
         });
     }
 
+    if ($search !== '') {
+        $query->where(function ($searchQuery) use ($search) {
+            $searchQuery->whereHas('room', function ($roomQuery) use ($search) {
+                $roomQuery->where('name', 'like', '%' . $search . '%');
+            })->orWhereHas('creator', function ($creatorQuery) use ($search) {
+                $creatorQuery->where('name', 'like', '%' . $search . '%');
+            });
+        });
+    }
+
     if ($request->filled('status')) {
         $query->where('status', 'like', '%' . $request->status . '%');
     }
 
     if ($request->filled('month')) {
-        $query->where('months', $request->month);
+        $monthInput = trim((string) $request->month);
+
+        if (is_numeric($monthInput)) {
+            $query->where('months', (int) $monthInput);
+        } else {
+            $monthNumber = null;
+
+            try {
+                $monthNumber = Carbon::parse($monthInput)->month;
+            } catch (\Exception $e) {
+                $monthNumber = null;
+            }
+
+            if ($monthNumber) {
+                $query->where('months', $monthNumber);
+            }
+        }
     }
 
     if ($request->filled('year')) {
         $query->where('years', $request->year);
     }
 
-    $programPlans = $query->orderByDesc('created_at')->get();
+    $programPlans = $query->orderByDesc('created_at')->paginate($perPage);
 
     $permission = Permission::where('userid', $user->userid)->first();
 
-    $data = $programPlans->map(function ($plan) use ($permission, $user) {
+    $data = $programPlans->getCollection()->map(function ($plan) use ($permission, $user) {
         $monthNumber = (int) $plan->months;
         $monthName = $monthNumber > 0
             ? Carbon::create()->month($monthNumber)->format('F')
@@ -357,9 +385,24 @@ public function filterProgramPlan(Request $request)
         ];
     });
 
+    $programPlans->setCollection($data);
+
     return response()->json([
         'status' => true,
-        'data' => $data
+        'data' => [
+            'programPlans' => $programPlans,
+            'pagination' => [
+                'current_page' => $programPlans->currentPage(),
+                'per_page' => $programPlans->perPage(),
+                'total' => $programPlans->total(),
+                'last_page' => $programPlans->lastPage(),
+                'from' => $programPlans->firstItem(),
+                'to' => $programPlans->lastItem(),
+            ],
+            'filters' => [
+                'search' => $search,
+            ],
+        ]
     ]);
 }
 

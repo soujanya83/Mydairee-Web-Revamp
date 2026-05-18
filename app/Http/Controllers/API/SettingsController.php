@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 
     class SettingsController extends Controller
@@ -535,6 +537,8 @@ public function assigned_permissions(Request $request)
     }
 
     $centerId = $request->input('center_id', $request->input('centerid'));
+    $search = trim((string) $request->input('search', ''));
+    $perPage = max((int) $request->input('per_page', 10), 1);
 
     if (!$centerId) {
         return response()->json([
@@ -553,26 +557,53 @@ public function assigned_permissions(Request $request)
         ->keyBy('userid');
 
     // Return only users who have permissions assigned in this center
-    $assignedUsers = User::whereIn('userid', $permissionRows->keys())
-        ->orderBy('name', 'asc')
-        ->get()
-        ->map(function ($user) use ($permissionRows) {
+    $assignedUsersQuery = User::whereIn('userid', $permissionRows->keys());
+
+    if ($search !== '') {
+        $assignedUsersQuery->where('name', 'like', '%' . $search . '%');
+    }
+
+    $assignedUsers = $assignedUsersQuery->orderBy('name', 'asc')->get();
+    $total = $assignedUsers->count();
+    $page = max((int) $request->input('page', 1), 1);
+    $pagedUsers = $assignedUsers->forPage($page, $perPage)->values();
+
+    $assignedUsers = new LengthAwarePaginator(
+        $pagedUsers,
+        $total,
+        $perPage,
+        $page,
+        [
+            'path' => Paginator::resolveCurrentPath(),
+            'query' => $request->query(),
+        ]
+    );
+
+    $assignedUsers->setCollection($assignedUsers->getCollection()->map(function ($user) use ($permissionRows) {
             $permission = $permissionRows->get($user->userid);
 
             return [
                 'user' => $user,
                 'permissions' => $permission,
             ];
-        })
-        ->values();
+        }));
 
     return response()->json([
         'status' => true,
         'message' => 'Users with assigned permissions fetched successfully.',
         'data' => [
             'center_id' => (int) $centerId,
-            'total' => $assignedUsers->count(),
+            'total' => $assignedUsers->total(),
             'assigned_users' => $assignedUsers,
+        ],
+        'filters' => [
+            'search' => $search,
+        ],
+        'pagination' => [
+            'current_page' => $assignedUsers->currentPage(),
+            'per_page' => $assignedUsers->perPage(),
+            'total' => $assignedUsers->total(),
+            'last_page' => $assignedUsers->lastPage(),
         ],
     ]);
 }
@@ -1263,6 +1294,7 @@ public function staff_settings(Request $request)
     // Step 1: Validate request
     $validator = Validator::make($request->all(), [
         'center_id' => 'required|exists:centers,id',
+        'sort' => 'nullable|in:asc,desc',
     ]);
 
     if ($validator->fails()) {
@@ -1275,32 +1307,46 @@ public function staff_settings(Request $request)
 
     $authId = Auth::id();
     $centerid = $request->center_id;
+    $search = trim((string) $request->input('search', ''));
+    $sort = strtolower((string) $request->input('sort', 'asc'));
+    $perPage = max((int) $request->input('per_page', 10), 1);
 
     // Step 2: Get all user IDs in the center
     $userIds = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
 
     // Step 3: Exclude current user and filter Staff
-    $staff = User::whereIn('id', $userIds)
+    $staffQuery = User::whereIn('id', $userIds)
         ->where('id', '!=', $authId)
-        ->where('userType', 'Staff')
-        ->get();
+        ->where('userType', 'Staff');
 
-    // Step 4: Get centers based on user type
-    if (Auth::user()->userType === "Superadmin") {
-        $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $centerIds)->get();
-    } else {
-        $centers = Center::where('id', $centerid)->get();
+    if ($search !== '') {
+        $staffQuery->where(function ($query) use ($search) {
+            $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('email', 'like', '%' . $search . '%');
+        });
     }
 
-    // Step 5: Return JSON response
+    $staff = $staffQuery
+        ->orderBy('name', $sort)
+        ->paginate($perPage);
+
+    // Step 4: Return JSON response
     return response()->json([
         'status'  => true,
-        'message' => 'Staff and centers retrieved successfully.',
+        'message' => 'Staff retrieved successfully.',
         'data'    => [
             'staff'   => $staff,
-            'centers' => $centers
-        ]
+        ],
+        'filters' => [
+            'search' => $search,
+            'sort' => $sort,
+        ],
+        'pagination' => [
+            'current_page' => $staff->currentPage(),
+            'per_page' => $staff->perPage(),
+            'total' => $staff->total(),
+            'last_page' => $staff->lastPage(),
+        ],
     ]);
 }
 
@@ -1460,6 +1506,7 @@ public function parent_settings(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'center_id' => 'required|exists:centers,id',
+        'sort' => 'nullable|in:asc,desc',
     ]);
 
     if ($validator->fails()) {
@@ -1471,32 +1518,44 @@ public function parent_settings(Request $request)
 
     $authId = Auth::user()->id;
     $centerid = $request->center_id;
+    $search = trim((string) $request->input('search', ''));
+    $sort = strtolower((string) $request->input('sort', 'asc'));
+    $perPage = max((int) $request->input('per_page', 10), 1);
 
     // Get all user IDs in the center
     $usersid = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
 
     // Get parents excluding current user
-    $parents = User::whereIn('id', $usersid)
+    $parentsQuery = User::whereIn('id', $usersid)
         ->where('id', '!=', $authId)
         ->where('userType', 'Parent')
-        ->with(['children:id,name,lastname'])
-        ->get();
+        ->with(['children:id,name,lastname']);
 
-    $children = Child::where('centerid', $centerid)->get();
-
-    if (Auth::user()->userType === 'Superadmin') {
-        $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $centerIds)->get();
-    } else {
-        $centers = Center::where('id', $centerid)->get();
+    if ($search !== '') {
+        $parentsQuery->where(function ($query) use ($search) {
+            $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('email', 'like', '%' . $search . '%');
+        });
     }
+
+    $parents = $parentsQuery
+        ->orderBy('name', $sort)
+        ->paginate($perPage);
 
     return response()->json([
         'success' => true,
         'data' => [
             'parents' => $parents,
-            'children' => $children,
-            'centers' => $centers,
+        ],
+        'filters' => [
+            'search' => $search,
+            'sort' => $sort,
+        ],
+        'pagination' => [
+            'current_page' => $parents->currentPage(),
+            'per_page' => $parents->perPage(),
+            'total' => $parents->total(),
+            'last_page' => $parents->lastPage(),
         ],
     ]);
 }
