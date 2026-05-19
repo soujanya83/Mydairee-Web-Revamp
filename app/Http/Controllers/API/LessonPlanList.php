@@ -28,8 +28,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 
@@ -189,22 +187,6 @@ class LessonPlanList extends Controller
                 }
             }
 
-            $page = max((int) $request->input('page', 1), 1);
-            $perPage = max((int) $request->input('per_page', 10), 1);
-            $total = $programPlans->count();
-            $paginatedPlans = $programPlans->forPage($page, $perPage)->values();
-
-            $programPlans = new LengthAwarePaginator(
-                $paginatedPlans,
-                $total,
-                $perPage,
-                $page,
-                [
-                    'path' => Paginator::resolveCurrentPath(),
-                    'query' => $request->query(),
-                ]
-            );
-
             // Month name helper
             // $getMonthName = function ($monthNumber) {
                 $getMonthName = [
@@ -225,14 +207,6 @@ class LessonPlanList extends Controller
         'status' => true,
         'data' => [
             'programPlans' => $programPlans,
-            'pagination' => [
-                'current_page' => $programPlans->currentPage(),
-                'per_page' => $programPlans->perPage(),
-                'total' => $programPlans->total(),
-                'last_page' => $programPlans->lastPage(),
-                'from' => $programPlans->firstItem(),
-                'to' => $programPlans->lastItem(),
-            ],
             'userType' => $userType,
             'userId' => $userId,
             'centerId' => $centerId,

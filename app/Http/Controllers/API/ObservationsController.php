@@ -2048,8 +2048,6 @@ class ObservationsController extends Controller
         $authId = Auth::user()->id;
         $user = Auth::user();
         $centerid = $request->query('centerid', $request->input('centerid'));
-        $search = trim((string) $request->input('search', ''));
-        $perPage = max((int) $request->input('per_page', 10), 1);
 
         // Fallback for Parent
         if ($user->usertype == "Parent") {
@@ -2082,15 +2080,7 @@ class ObservationsController extends Controller
                     $snapshotQuery->where('centerid', $centerid);
                 }
 
-                if ($search !== '') {
-                    $snapshotQuery->whereHas('children.child', function ($childQuery) use ($search) {
-                        $childQuery->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('lastname', 'like', '%' . $search . '%')
-                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
-                    });
-                }
-
-                $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
+                $snapshots = $snapshotQuery->orderBy('id', 'desc')->get();
             }
         } elseif ($user->userType == "Staff") {
             if (!empty($centerid)) {
@@ -2104,15 +2094,7 @@ class ObservationsController extends Controller
                 $snapshotQuery->where('centerid', $centerid);
             }
 
-            if ($search !== '') {
-                $snapshotQuery->whereHas('children.child', function ($childQuery) use ($search) {
-                    $childQuery->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('lastname', 'like', '%' . $search . '%')
-                        ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
-                });
-            }
-
-            $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
+            $snapshots = $snapshotQuery->orderBy('id', 'desc')->get();
         } else { // Parent
             if (!empty($centerid)) {
                 $centers = Center::where('id', $centerid)->get();
@@ -2134,15 +2116,7 @@ class ObservationsController extends Controller
                         $snapshotQuery->where('centerid', $centerid);
                     }
 
-                    if ($search !== '') {
-                        $snapshotQuery->whereHas('children.child', function ($childQuery) use ($search) {
-                            $childQuery->where('name', 'like', '%' . $search . '%')
-                                ->orWhere('lastname', 'like', '%' . $search . '%')
-                                ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
-                        });
-                    }
-
-                    $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
+                    $snapshots = $snapshotQuery->orderBy('id', 'desc')->get();
                 }
             }
         }
@@ -2167,12 +2141,8 @@ class ObservationsController extends Controller
             ]);
         }
 
-        $snapshotItems = $snapshots instanceof \Illuminate\Pagination\LengthAwarePaginator
-            ? $snapshots->getCollection()
-            : $snapshots;
-
         // Rooms collection
-        $allRoomIds = $snapshotItems->pluck('roomids')
+        $allRoomIds = $snapshots->pluck('roomids')
             ->flatMap(fn($roomids) => explode(',', $roomids))
             ->unique()
             ->filter();
@@ -2182,30 +2152,18 @@ class ObservationsController extends Controller
             : collect();
 
         // Attach room data
-        $snapshotItems->transform(function ($snapshot) use ($rooms) {
+        $snapshots->transform(function ($snapshot) use ($rooms) {
             $roomIds = array_filter(explode(',', $snapshot->roomids));
             $snapshot->rooms = $rooms->only($roomIds)->values();
             return $snapshot;
         });
-
-        if ($snapshots instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-            $snapshots->setCollection($snapshotItems);
-        } else {
-            $snapshots = $snapshotItems;
-        }
 
         // Success response
         return response()->json([
             'status' => true,
             'message' => 'Snapshots fetched successfully',
             'snapshots' => $snapshots,
-            // 'centers' => $centers,
-            'pagination' => $snapshots instanceof \Illuminate\Pagination\LengthAwarePaginator ? [
-                'current_page' => $snapshots->currentPage(),
-                'per_page' => $snapshots->perPage(),
-                'total' => $snapshots->total(),
-                'last_page' => $snapshots->lastPage(),
-            ] : null,
+            'centers' => $centers
         ]);
     }
 
