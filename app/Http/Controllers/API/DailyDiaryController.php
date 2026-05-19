@@ -42,7 +42,7 @@ class DailyDiaryController extends Controller
     public function list(Request $request)
 {
     $authId = Auth::user()->id;
-    $centerid =  $request->input('center_id');
+    $centerid =  $request->query('center_id');
 
     // Store centerid back into session if it came from query
 
@@ -59,14 +59,14 @@ class DailyDiaryController extends Controller
     // dd($room);
 
     // Selected room
-    $selectedroom = $room->where('id', $request->input('room_id'))->first();
+    $selectedroom = $room->where('id', $request->query('room_id'))->first();
     if (!$selectedroom) {
         $selectedroom = $room->first();
     }
 
     // Selected date
-    $selectedDate = $request->input('selected_date')
-        ? \Carbon\Carbon::parse($request->input('selected_date'))
+    $selectedDate = $request->query('selected_date')
+        ? \Carbon\Carbon::parse($request->query('selected_date'))
         : now();
 
     $dayIndex = $selectedDate->dayOfWeekIso - 1; // 0 = Monday
