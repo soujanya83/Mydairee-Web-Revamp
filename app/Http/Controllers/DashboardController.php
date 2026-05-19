@@ -184,7 +184,7 @@ class DashboardController extends BaseController
 
         if ($usertype == 'Parent') {
             return view('dashboard.parents', compact(
-                'totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'totalCenter', 'totalRooms', 'totalRecipes',
+                'totalSuperadmin', 'totalParent', 'totalStaff', 'totalUsers', 'newEnrolmentsLastYear', 'totalRooms', 'totalRecipes',
                 'recentPtms', 'recentObservations', 'recentReflections',
                 'recentSnapshots', 'snapshotCount'
             ));
