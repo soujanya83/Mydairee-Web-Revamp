@@ -42,7 +42,8 @@ class DailyDiaryController extends Controller
     public function list(Request $request)
 {
     $authId = Auth::user()->id;
-    $centerid =  $request->query('center_id');
+    // Accept parameters from POST (form-data) or GET querystring
+    $centerid = $request->input('center_id', $request->query('center_id'));
 
     // Store centerid back into session if it came from query
 
@@ -59,14 +60,14 @@ class DailyDiaryController extends Controller
     // dd($room);
 
     // Selected room
-    $selectedroom = $room->where('id', $request->query('room_id'))->first();
+    $selectedroom = $room->where('id', $request->input('room_id', $request->query('room_id')))->first();
     if (!$selectedroom) {
         $selectedroom = $room->first();
     }
 
     // Selected date
-    $selectedDate = $request->query('selected_date')
-        ? \Carbon\Carbon::parse($request->query('selected_date'))
+    $selectedDate = $request->input('selected_date', $request->query('selected_date'))
+        ? \Carbon\Carbon::parse($request->input('selected_date', $request->query('selected_date')))
         : now();
 
     $dayIndex = $selectedDate->dayOfWeekIso - 1; // 0 = Monday
@@ -93,15 +94,20 @@ class DailyDiaryController extends Controller
             ->values();
     }
 
-    // JSON Response
-    return response()->json([
-        'status'        => true,
-        'message'       => 'Daily diary list fetched successfully.',
+    // JSON Response: wrap payload under `data` for app compatibility.
+    $payload = [
         'centers'       => $centers,
         'rooms'         => $room,
         'selected_room' => $selectedroom,
         'children'      => $children,
         'selected_date' => $selectedDate->toDateString(),
+    ];
+
+    return response()->json([
+        'status'   => true,
+        'message'  => 'Daily diary list fetched successfully.',
+        'data'     => $payload,
+        'dataJson' => $payload, // legacy compatibility if app expects `dataJson`
     ]);
 }
 
