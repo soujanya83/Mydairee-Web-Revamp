@@ -29,7 +29,8 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 
 class LessonPlanList extends Controller
@@ -220,6 +221,138 @@ class LessonPlanList extends Controller
             // }
     }
 
+    public function mernprogramPlanList(Request $request)
+    {
+        
+            $user = Auth::user();
+            // dd($user);
+            if (!$user) {
+                return response()->json([
+            'success' => false,
+            'message' => 'User not found or not authenticated',
+            
+        ], 401);
+        // return response()->json(['error' => 'User not found or not authenticated'], 401);
+            }
+            $authId = $user->id;
+            // $centerId = Session('user_center_id');
+        $validator = Validator::make($request->all(), [
+        'centerid' => 'required|integer|min:1|exists:centers,id', // Adjust table/column as needed
+            ], [
+                'centerid.required' => 'Center ID is required.',
+                'centerid.integer'  => 'Center ID must be an integer.',
+                'centerid.min'      => 'Center ID must be greater than 0.',
+                'centerid.exists'   => 'Selected Center ID does not exist.',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed.',
+                    'errors'  => $validator->errors(),
+                ], 422);
+            }
+
+            $validated = $validator->validated();
+            $centerId = $validated['centerid'];
+
+            if ($user->userType == "Superadmin") {
+                // dd('here');
+                $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+                $centers = Center::whereIn('id', $center)->get();
+            } else {
+                $centers = Center::where('id', $centerId)->get();
+            }
+
+            $programPlans = collect();
+
+            if ($user->userType === 'Superadmin') {
+                $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
+                    ->where('centerid', $centerId)
+                    ->orderByDesc('created_at')
+                    ->get();
+            } elseif ($user->userType === 'Staff') {
+                $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
+                    ->where('centerid', $centerId)
+                    ->where(function ($query) use ($authId) {
+                        $query->where('created_by', $authId)
+                            ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
+                    })
+                    ->orderByDesc('created_at')
+                    ->get();
+            } elseif ($user->userType === 'Parent') {
+                $childIds = ChildParent::where('parentid', $authId)->pluck('childid');
+
+                if ($childIds->isNotEmpty()) {
+                    $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
+                        ->where('centerid', $centerId)
+                        ->where('status',"Published")
+                        ->where(function ($query) use ($childIds) {
+                            foreach ($childIds as $childId) {
+                                $query->orWhereRaw('FIND_IN_SET(?, children)', [$childId]);
+                            }
+                        })
+                        ->orderByDesc('created_at')
+                        ->get();
+                }
+            }
+
+            $page = max((int) $request->input('page', 1), 1);
+            $perPage = max((int) $request->input('per_page', 10), 1);
+            $total = $programPlans->count();
+            $paginatedPlans = $programPlans->forPage($page, $perPage)->values();
+
+            $programPlans = new LengthAwarePaginator(
+                $paginatedPlans,
+                $total,
+                $perPage,
+                $page,
+                [
+                    'path' => Paginator::resolveCurrentPath(),
+                    'query' => $request->query(),
+                ]
+            );
+
+            // Month name helper
+            // $getMonthName = function ($monthNumber) {
+                $getMonthName = [
+                    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                ];
+                // return $months[$monthNumber] ?? '';
+            // };
+
+            $userType = $user->userType;
+            $userId = $authId;
+
+            // return view('programPlan.list', compact(
+            //     'programPlans', 'userType', 'userId', 'centerId', 'centers', 'getMonthName'
+            // ));
+            return response()->json([
+        'status' => true,
+        'data' => [
+            'programPlans' => $programPlans,
+            'pagination' => [
+                'current_page' => $programPlans->currentPage(),
+                'per_page' => $programPlans->perPage(),
+                'total' => $programPlans->total(),
+                'last_page' => $programPlans->lastPage(),
+                'from' => $programPlans->firstItem(),
+                'to' => $programPlans->lastItem(),
+            ],
+            'userType' => $userType,
+            'userId' => $userId,
+            'centerId' => $centerId,
+            // 'centers' => $centers,
+            // 'getMonthName' => $getMonthName,
+        ]
+        ]);
+
+            // } else {
+            //     // return redirect('login');
+            // }
+    }
 public function filterProgramPlan(Request $request)
 {
     if (!Auth::check()) {

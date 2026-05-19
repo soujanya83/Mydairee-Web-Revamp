@@ -32,6 +32,7 @@ use App\Http\Controllers\API\PublicHolidayController;
 use App\Http\Controllers\API\ApiWifiIPController;
 use App\Http\Controllers\API\ApiPTMController;
 use App\Http\Controllers\API\RecycleBinController as ApiRecycleBinController;
+use App\Http\Controllers\API\ProgramPlanApiController;
  
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
@@ -165,6 +166,7 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
         Route::prefix('snapshot')->name('snapshot.')->group(function () {
 
         Route::get('/index', [ObservationsController::class, 'snapshotindex'])->name('index');
+        Route::get('/mernindex', [ObservationsController::class, 'mernsnapshotindex'])->name('mernindex');
         Route::get('/addnew', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew');
         // Route::get('/addnew/{id?}', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew.optional');
         Route::post('/store', [ObservationsController::class, 'snapshotstore'])->name('store');
@@ -185,6 +187,7 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
   Route::get('/centers',[LessonPlanList::class,'centers'])->name('centers');
     // program plan
         Route::get('/programPlanList',[LessonPlanList::class,'programPlanList'])->name('programPlanList');
+        Route::get('/mernprogramPlanList',[LessonPlanList::class,'mernprogramPlanList'])->name('mernprogramPlanList');
                 Route::get('/LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans');
                 Route::post('/LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans.post');
         Route::get('/programPlan/{id}', [LessonPlanList::class, 'getProgramPlanById'])->where('id', '[0-9]+');
@@ -204,6 +207,14 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
     Route::get('/programPlan/create',[LessonPlanList::class,'createForm'])->name('create.programplan');
     Route::post('/programPlan',[LessonPlanList::class,'store'])->name('store.programPlan');
 Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus'])->name('update-program-plan-status');
+
+    // New dedicated Program Plan API create flow: subject -> module -> submodule
+    Route::prefix('program-plan')->name('program-plan.')->group(function () {
+        Route::get('/subjects', [ProgramPlanApiController::class, 'subjects'])->name('subjects');
+        Route::get('/modules', [ProgramPlanApiController::class, 'modules'])->name('modules');
+        Route::get('/submodules', [ProgramPlanApiController::class, 'subModules'])->name('submodules');
+        Route::post('/store', [ProgramPlanApiController::class, 'store'])->name('store');
+    });
     
 
     // service details 
@@ -435,6 +446,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Daily Journel here
     Route::match(['get', 'post'],'DailyDiary/list', [DailyDiaryController::class, 'list'])->name('dailyDiary.apilist');
+    Route::match(['get', 'post'],'mernDailyDiary/list', [DailyDiaryController::class, 'mernlist'])->name('merndailyDiary.apilist');
 
     Route::prefix('ptm')->group(function () {
         Route::get('/', [ApiPTMController::class, 'index']);

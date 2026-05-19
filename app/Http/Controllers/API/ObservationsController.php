@@ -2167,6 +2167,172 @@ class ObservationsController extends Controller
         ]);
     }
 
+    public function mernsnapshotindex(Request $request)
+    {
+        $authId = Auth::user()->id;
+        $user = Auth::user();
+        $centerid = $request->query('centerid', $request->input('centerid'));
+        $search = trim((string) $request->input('search', ''));
+        $perPage = max((int) $request->input('per_page', 10), 1);
+
+        // Fallback for Parent
+        if ($user->usertype == "Parent") {
+            $centerid = Usercenter::where('userid', $authId)->value('centerid');
+        }
+
+        // Fallback if still empty
+        if (empty($centerid)) {
+            $centerid = Usercenter::where('userid', $authId)->value('centerid');
+        }
+
+        $snapshots = collect();
+        $centers = collect();
+
+        // Role-specific fetching
+        if ($user->userType == "Superadmin") {
+            $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+
+            if (!empty($centerIds)) {
+                $centersQuery = Center::whereIn('id', $centerIds);
+                if (!empty($centerid)) {
+                    $centersQuery->where('id', $centerid);
+                }
+                $centers = $centersQuery->get();
+
+                $snapshotQuery = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                    ->whereIn('centerid', $centerIds);
+
+                if (!empty($centerid)) {
+                    $snapshotQuery->where('centerid', $centerid);
+                }
+
+                if ($search !== '') {
+                    $snapshotQuery->whereHas('children.child', function ($childQuery) use ($search) {
+                        $childQuery->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('lastname', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+                    });
+                }
+
+                $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
+            }
+        } elseif ($user->userType == "Staff") {
+            if (!empty($centerid)) {
+                $centers = Center::where('id', $centerid)->get();
+            }
+
+            $snapshotQuery = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('createdBy', $authId);
+
+            if (!empty($centerid)) {
+                $snapshotQuery->where('centerid', $centerid);
+            }
+
+            if ($search !== '') {
+                $snapshotQuery->whereHas('children.child', function ($childQuery) use ($search) {
+                    $childQuery->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('lastname', 'like', '%' . $search . '%')
+                        ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+                });
+            }
+
+            $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
+        } else { // Parent
+            if (!empty($centerid)) {
+                $centers = Center::where('id', $centerid)->get();
+            }
+            $childids = Childparent::where('parentid', $authId)->pluck('childid');
+
+            if ($childids->isNotEmpty()) {
+                $snapshotid = SnapshotChild::whereIn('childid', $childids)
+                    ->pluck('snapshotid')
+                    ->unique()
+                    ->toArray();
+
+                if (!empty($snapshotid)) {
+                    $snapshotQuery = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                        ->whereIn('id', $snapshotid)
+                        ->where('status', "Published");
+
+                    if (!empty($centerid)) {
+                        $snapshotQuery->where('centerid', $centerid);
+                    }
+
+                    if ($search !== '') {
+                        $snapshotQuery->whereHas('children.child', function ($childQuery) use ($search) {
+                            $childQuery->where('name', 'like', '%' . $search . '%')
+                                ->orWhere('lastname', 'like', '%' . $search . '%')
+                                ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+                        });
+                    }
+
+                    $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
+                }
+            }
+        }
+
+        // Response if no centers
+        if ($centers->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No centers found for this user',
+                'snapshots' => [],
+                'centers' => []
+            ]);
+        }
+
+        // Response if no snapshots
+        if ($snapshots->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No snapshots found for the selected center',
+                'snapshots' => [],
+                'centers' => $centers
+            ]);
+        }
+
+        $snapshotItems = $snapshots instanceof \Illuminate\Pagination\LengthAwarePaginator
+            ? $snapshots->getCollection()
+            : $snapshots;
+
+        // Rooms collection
+        $allRoomIds = $snapshotItems->pluck('roomids')
+            ->flatMap(fn($roomids) => explode(',', $roomids))
+            ->unique()
+            ->filter();
+
+        $rooms = $allRoomIds->isNotEmpty()
+            ? Room::whereIn('id', $allRoomIds)->get()->keyBy('id')
+            : collect();
+
+        // Attach room data
+        $snapshotItems->transform(function ($snapshot) use ($rooms) {
+            $roomIds = array_filter(explode(',', $snapshot->roomids));
+            $snapshot->rooms = $rooms->only($roomIds)->values();
+            return $snapshot;
+        });
+
+        if ($snapshots instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            $snapshots->setCollection($snapshotItems);
+        } else {
+            $snapshots = $snapshotItems;
+        }
+
+        // Success response
+        return response()->json([
+            'status' => true,
+            'message' => 'Snapshots fetched successfully',
+            'snapshots' => $snapshots,
+            // 'centers' => $centers,
+            'pagination' => $snapshots instanceof \Illuminate\Pagination\LengthAwarePaginator ? [
+                'current_page' => $snapshots->currentPage(),
+                'per_page' => $snapshots->perPage(),
+                'total' => $snapshots->total(),
+                'last_page' => $snapshots->lastPage(),
+            ] : null,
+        ]);
+    }
+
 
     public function snapshotindexstorepage(Request $request)
     {
