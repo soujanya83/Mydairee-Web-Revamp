@@ -14,5 +14,6 @@ class WifiIP_Model extends Model
         'wifi_address',
         'wifi_name',
         'status',
+        'center_id',
     ];
 }

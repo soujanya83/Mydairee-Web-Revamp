@@ -145,6 +145,139 @@ class ReflectionController extends Controller
         ]);
     }
 
+    public function mernindex(Request $request)
+    {
+        $authId = Auth::id();
+        $user = Auth::user();
+        $centerid = $request->input('center_id', $request->query('center_id'));
+        $perPage = max((int) $request->input('per_page', 10), 1);
+        $roomId = $request->input('room_id', $request->input('roomid'));
+
+        if ($user->userType === 'Superadmin') {
+            $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $centerIds)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+
+        $query = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
+            ->where('centerid', $centerid);
+
+        if ($user->userType === 'Superadmin') {
+            // Superadmin can see all reflections for the selected center.
+        } elseif ($user->userType === 'Staff') {
+            // Staff can see all reflections for the selected center.
+        } else {
+            $childids = Childparent::where('parentid', $authId)->pluck('childid');
+            $reflectionIds = ReflectionChild::whereIn('childid', $childids)
+                ->pluck('reflectionid')
+                ->unique()
+                ->toArray();
+
+            $query->whereIn('id', $reflectionIds);
+        }
+
+        $search = trim((string) $request->input('search', ''));
+        if ($search !== '') {
+            $query->where(function ($searchQuery) use ($search) {
+                $searchQuery->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('about', 'like', '%' . $search . '%')
+                    ->orWhere('eylf', 'like', '%' . $search . '%')
+                    ->orWhereHas('children.child', function ($childQuery) use ($search) {
+                        $childQuery->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('lastname', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+                    })
+                    ->orWhereHas('staff.staff', function ($staffQuery) use ($search) {
+                        $staffQuery->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if ($request->has('observations') && !empty($request->observations)) {
+            $statusFilters = array_map('strtoupper', (array) $request->observations);
+
+            if (!in_array('ALL', $statusFilters)) {
+                $query->whereIn('status', $statusFilters);
+            }
+        }
+
+        if ($request->has('added') && !empty($request->added)) {
+            foreach ((array) $request->added as $dateFilter) {
+                switch ($dateFilter) {
+                    case 'Today':
+                        $query->whereDate('createdAt', Carbon::today());
+                        break;
+
+                    case 'This Week':
+                        $query->whereBetween('createdAt', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                        break;
+
+                    case 'This Month':
+                        $query->whereBetween('createdAt', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
+                        break;
+
+                    case 'Custom':
+                        if ($request->fromDate && $request->toDate) {
+                            $fromDate = Carbon::parse($request->fromDate)->startOfDay();
+                            $toDate = Carbon::parse($request->toDate)->endOfDay();
+                            $query->whereBetween('createdAt', [$fromDate, $toDate]);
+                        }
+                        break;
+                }
+            }
+        }
+
+        if ($request->has('childs') && !empty($request->childs)) {
+            $childIds = (array) $request->childs;
+            $reflectionIds = ReflectionChild::whereIn('childid', $childIds)
+                ->pluck('reflectionid')
+                ->unique()
+                ->toArray();
+
+            if (!empty($reflectionIds)) {
+                $query->whereIn('id', $reflectionIds);
+            } else {
+                $query->where('id', 0);
+            }
+        }
+
+        if ($request->has('authors') && !empty($request->authors)) {
+            $authorFilters = (array) $request->authors;
+
+            if (!in_array('Any', $authorFilters)) {
+                if (in_array('Me', $authorFilters)) {
+                    $query->where('createdBy', Auth::id());
+                } else {
+                    $query->whereIn('createdBy', $authorFilters);
+                }
+            }
+        }
+
+        if (!empty($roomId)) {
+            $query->whereRaw('FIND_IN_SET(?, roomids)', [$roomId]);
+        }
+
+        $reflection = $query->orderBy('id', 'desc')->paginate($perPage);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data retrieved successfully',
+            'data' => [
+                // 'centers' => $centers,
+                'reflection' => $reflection,
+            ],
+            // 'pagination' => [
+            //     'current_page' => $reflection->currentPage(),
+            //     'per_page' => $reflection->perPage(),
+            //     'total' => $reflection->total(),
+            //     'last_page' => $reflection->lastPage(),
+            //     'from' => $reflection->firstItem(),
+            //     'to' => $reflection->lastItem(),
+            // ],
+        ]);
+    }
+
 
     public function storepage(Request $request)
      {
@@ -619,7 +752,7 @@ public function destroy($id)
 
 public function applyFilters(Request $request)
 {
-//    dd($request->all());
+        //    dd($request->all());
     try {
 
      $validator = Validator::make($request->all(), [
