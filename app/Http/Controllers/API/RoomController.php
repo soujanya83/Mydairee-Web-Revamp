@@ -494,8 +494,8 @@ class RoomController extends Controller
             'dob'         => 'required|date',
             'startDate'   => 'required|date',
             'gender'      => 'required|in:Male,Female,Other',
-            'status'      => 'required|in:Active,Enrolled',
-            'file'        => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status'      => 'nullable|in:Active,,Enrolled',
+            'file'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'id'          => 'required|integer|exists:room,id',
         ]);
 
@@ -587,7 +587,7 @@ class RoomController extends Controller
             'dob' => 'required|date',
             'startDate' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
-            'status' => 'required|in:Active,Active,Enrolled',
+            'status' => 'nullable|in:Active,,Enrolled',
             'file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'id' => 'required'
         ]);

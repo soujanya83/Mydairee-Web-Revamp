@@ -1625,6 +1625,61 @@ public function parent_store(Request $request)
     ]);
 }
 
+public function parent_destroy($id)
+{
+    $parent = User::find($id);
+
+    if (!$parent) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Parent not found.'
+        ], 404);
+    }
+
+    // Optional safety check
+    if ($parent->userType !== 'Parent') {
+        return response()->json([
+            'status' => false,
+            'message' => 'Selected user is not a parent.'
+        ], 422);
+    }
+
+    DB::beginTransaction();
+
+    try {
+
+        // Delete parent-child relations
+        Childparent::where('parentid', $id)->delete();
+
+        // Delete center mappings
+        Usercenter::where('userid', $id)->delete();
+
+        // Delete image if exists
+        if (!empty($parent->imageUrl) && file_exists(public_path($parent->imageUrl))) {
+            unlink(public_path($parent->imageUrl));
+        }
+
+        // Delete user
+        $parent->delete();
+
+        DB::commit();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Parent deleted successfully.'
+        ]);
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Failed to delete parent.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
     private function sendWelcomeEmail($email, $password, $childrenData)
 {

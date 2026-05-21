@@ -1311,7 +1311,9 @@ class ObservationsController extends Controller
 
         $observationId = $request->input('obsId');
 
-        ObservationLink::where('observationId', $observationId)->delete();
+        ObservationLink::where('observationId', $observationId)
+            ->where('linktype', 'OBSERVATION')
+            ->delete();
 
         $linkIds = $request->input('observation_ids');
 
@@ -1758,6 +1760,7 @@ class ObservationsController extends Controller
             $observation->reflection   = $validated['reflection'] ?? '';
             $observation->child_voice  = $validated['child_voice'] ?? '';
             $observation->future_plan  = $validated['future_plan'] ?? '';
+            $observation->implementation = $validated['implementation'] ?? '';
             $observation->tagged_staff = $validated['selected_staff'] ?? '';
             $observation->userId       = $authId;
             $observation->centerid     = $centerid;
@@ -2172,7 +2175,7 @@ class ObservationsController extends Controller
         $authId = Auth::user()->id;
         $user = Auth::user();
         $centerid = $request->query('centerid', $request->input('centerid'));
-        $search = trim((string) $request->input('search', ''));
+        $roomId = $request->input('room_id', $request->input('roomid'));
         $perPage = max((int) $request->input('per_page', 10), 1);
 
         // Fallback for Parent
@@ -2206,13 +2209,8 @@ class ObservationsController extends Controller
                     $snapshotQuery->where('centerid', $centerid);
                 }
 
-                if ($search !== '') {
-                    $snapshotQuery->whereHas('children.child', function ($childQuery) use ($search) {
-                        $childQuery->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('lastname', 'like', '%' . $search . '%')
-                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
-                    });
-                }
+                $this->applySnapshotFilters($snapshotQuery, $request);
+                $this->applySnapshotRoomFilter($snapshotQuery, $roomId);
 
                 $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
             }
@@ -2228,13 +2226,8 @@ class ObservationsController extends Controller
                 $snapshotQuery->where('centerid', $centerid);
             }
 
-            if ($search !== '') {
-                $snapshotQuery->whereHas('children.child', function ($childQuery) use ($search) {
-                    $childQuery->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('lastname', 'like', '%' . $search . '%')
-                        ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
-                });
-            }
+            $this->applySnapshotFilters($snapshotQuery, $request);
+            $this->applySnapshotRoomFilter($snapshotQuery, $roomId);
 
             $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
         } else { // Parent
@@ -2258,13 +2251,8 @@ class ObservationsController extends Controller
                         $snapshotQuery->where('centerid', $centerid);
                     }
 
-                    if ($search !== '') {
-                        $snapshotQuery->whereHas('children.child', function ($childQuery) use ($search) {
-                            $childQuery->where('name', 'like', '%' . $search . '%')
-                                ->orWhere('lastname', 'like', '%' . $search . '%')
-                                ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
-                        });
-                    }
+                    $this->applySnapshotFilters($snapshotQuery, $request);
+                    $this->applySnapshotRoomFilter($snapshotQuery, $roomId);
 
                     $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
                 }
@@ -2331,6 +2319,77 @@ class ObservationsController extends Controller
                 'last_page' => $snapshots->lastPage(),
             ] : null,
         ]);
+    }
+
+    private function applySnapshotFilters($query, Request $request)
+    {
+        $search = trim((string) $request->input('search', ''));
+        $title = trim((string) $request->input('title', ''));
+        $status = trim((string) $request->input('status', ''));
+        $date = trim((string) $request->input('date', ''));
+        $author = trim((string) $request->input('author', ''));
+        $childName = trim((string) $request->input('child_name', ''));
+
+        if ($search !== '') {
+            $query->where(function ($searchQuery) use ($search) {
+                $searchQuery->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('status', 'like', '%' . $search . '%')
+                    ->orWhereHas('creator', function ($creatorQuery) use ($search) {
+                        $creatorQuery->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('children.child', function ($childQuery) use ($search) {
+                        $childQuery->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('lastname', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+                    });
+
+                try {
+                    $searchDate = Carbon::parse($search)->toDateString();
+                    $searchQuery->orWhereDate('created_at', $searchDate);
+                } catch (\Exception $e) {
+                    // Ignore non-date search strings.
+                }
+            });
+        }
+
+        if ($title !== '') {
+            $query->where(function ($titleQuery) use ($title) {
+                $titleQuery->where('title', 'like', '%' . $title . '%');
+            });
+        }
+
+        if ($status !== '') {
+            $query->where('status', 'like', '%' . $status . '%');
+        }
+
+        if ($date !== '') {
+            try {
+                $query->whereDate('created_at', Carbon::parse($date)->toDateString());
+            } catch (\Exception $e) {
+                $query->whereRaw("DATE_FORMAT(created_at, '%d-%m-%Y') LIKE ?", ['%' . $date . '%']);
+            }
+        }
+
+        if ($author !== '') {
+            $query->whereHas('creator', function ($creatorQuery) use ($author) {
+                $creatorQuery->where('name', 'like', '%' . $author . '%');
+            });
+        }
+
+        if ($childName !== '') {
+            $query->whereHas('children.child', function ($childQuery) use ($childName) {
+                $childQuery->where('name', 'like', '%' . $childName . '%')
+                    ->orWhere('lastname', 'like', '%' . $childName . '%')
+                    ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $childName . '%']);
+            });
+        }
+    }
+
+    private function applySnapshotRoomFilter($query, $roomId)
+    {
+        if (!empty($roomId)) {
+            $query->whereRaw('FIND_IN_SET(?, roomids)', [$roomId]);
+        }
     }
 
 

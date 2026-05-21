@@ -33,6 +33,7 @@ use App\Http\Controllers\API\ApiWifiIPController;
 use App\Http\Controllers\API\ApiPTMController;
 use App\Http\Controllers\API\RecycleBinController as ApiRecycleBinController;
 use App\Http\Controllers\API\ProgramPlanApiController;
+use App\Http\Controllers\API\ObservationApiController;
  
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
@@ -273,6 +274,36 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
     Route::post('/room-create', [RoomController::class, 'rooms_create'])->name('room_create');
     Route::post('/rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk_delete');
 
+    Route::prefix('observation-api')->name('observation-api.')->group(function () {
+        Route::get('/form-data/{id?}/{activeTab?}/{activesubTab?}', [ObservationApiController::class, 'formData'])->name('form-data');
+        Route::post('/store', [ObservationApiController::class, 'storeObservation'])->name('store');
+        Route::get('/view/{id}', [ObservationApiController::class, 'show'])->name('view');
+        Route::post('/status/update', [ObservationApiController::class, 'updateObservationStatus'])->name('status.update');
+
+        Route::get('/subjects', [ObservationApiController::class, 'getSubjects'])->name('subjects');
+        Route::get('/modules', [ObservationApiController::class, 'getActivitiesBySubject'])->name('modules');
+        Route::get('/submodules', [ObservationApiController::class, 'getSubActivitiesByActivity'])->name('submodules');
+
+        Route::prefix('devmilestone')->name('devmilestone.')->group(function () {
+            Route::get('/subjects', [ObservationApiController::class, 'getDevelopmentSubjects'])->name('subjects');
+            Route::get('/modules', [ObservationApiController::class, 'getDevelopmentModules'])->name('modules');
+            Route::get('/submodules', [ObservationApiController::class, 'getDevelopmentSubModules'])->name('submodules');
+        });
+
+        Route::post('/montessori', [ObservationApiController::class, 'saveMontessoriData'])->name('montessori.save');
+        Route::post('/eylf', [ObservationApiController::class, 'saveEylfData'])->name('eylf.save');
+        Route::post('/development-milestone', [ObservationApiController::class, 'saveDevelopmentMilestone'])->name('development-milestone.save');
+
+        Route::get('/link/observation', [ObservationApiController::class, 'linkObservationData'])->name('link.observation');
+        Route::post('/link/observation', [ObservationApiController::class, 'storeLinkedObservation'])->name('link.observation.store');
+
+        Route::get('/link/reflection', [ObservationApiController::class, 'linkReflectionData'])->name('link.reflection');
+        Route::post('/link/reflection', [ObservationApiController::class, 'storeLinkedReflection'])->name('link.reflection.store');
+
+        Route::get('/link/program-plan', [ObservationApiController::class, 'linkProgramPlanData'])->name('link.program-plan');
+        Route::post('/link/program-plan', [ObservationApiController::class, 'storeLinkedProgramPlan'])->name('link.program-plan.store');
+    });
+
     // observation
         Route::post('Observation/addActivity', [ObservationController::class, 'addActivity'])->name('Observation.addActivity');
     Route::post('Observation/addSubActivity', [ObservationController::class, 'addSubActivity'])->name(' Observation.addSubActivity');
@@ -337,6 +368,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::prefix('reflection')->name('reflection.')->group(function () {
 
         Route::get('/index', [ReflectionController::class, 'index'])->name('index');
+        Route::get('/mernindex', [ReflectionController::class, 'mernindex'])->name('mernindex');
 
         Route::get('/addnew', [ReflectionController::class, 'storepage'])->name('addnew');
         Route::get('/addnew/{id?}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
@@ -376,6 +408,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::post('/staff/update', [SettingsController::class, 'staff_update'])->name('staff.update');
         Route::delete('/staff/destroy/{id}', [SettingsController::class, 'staff_destroy'])->name('staff.destroy');
         Route::post('/settings/update-permissions', [SettingsController::class, 'updateUserPermissions'])->name('update_user_permissions');
+        Route::post('/staff/wifi-access', [ApiWifiIPController::class, 'userwifiChangeStatus'])->name('staff.wifi-access');
 
 
 
@@ -394,6 +427,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
 
         Route::get('/parent/{id}/get', [SettingsController::class, 'getParentData']);
         Route::post('/parent/update', [SettingsController::class, 'parent_update'])->name('parent.update');
+        Route::delete('/parent/destroy/{id}', [SettingsController::class, 'parent_destroy'])->name('parent.destroy');
 
 
         Route::get('/profile', [SettingsController::class, 'getprofile_page'])->name('profile');
@@ -470,7 +504,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('dailyDiary/storeFood', [DailyDiaryController::class, 'storeFood'])->name('dailyDiary.storeFood');
     Route::post('dailyDiary/storeSleep', [DailyDiaryController::class, 'storeSleep'])->name('dailyDiary.storeSleep');
     Route::post('dailyDiary/storeToileting', [DailyDiaryController::class, 'storeToileting'])->name('dailyDiary.storeToileting');
-
+    Route::post('dailyDiary/storeToiletingmern', [DailyDiaryController::class, 'storeToiletingMern3'])->name('dailyDiary.storeToiletingmern3');
     Route::post('dailyDiary/storeSunscreen', [DailyDiaryController::class, 'storeSunscreen'])->name('dailyDiary.storeSunscreen');
     // Route::post('dailyDiary/getItems', [DailyDiaryController::class, 'getItems'])->name('dailyDiary.getItems');
     Route::post('dailyDiary/addFoodRecord', [DailyDiaryController::class, 'addFoodRecord'])->name('dailyDiary.addFoodRecord');
@@ -548,7 +582,7 @@ Route::middleware('auth:sanctum')->prefix('recycle')->name('recycle.')->group(fu
 
     Route::post('/reflection/{id}/restore', [\App\Http\Controllers\API\RecycleBinController::class, 'restoreReflection']);
     Route::delete('/reflection/{id}', [\App\Http\Controllers\API\RecycleBinController::class, 'forceDeleteReflection']);
-
+ 
     Route::post('/snapshot/{id}/restore', [\App\Http\Controllers\API\RecycleBinController::class, 'restoreSnapshot']);
     Route::delete('/snapshot/{id}', [\App\Http\Controllers\API\RecycleBinController::class, 'forceDeleteSnapshot']);
 });
