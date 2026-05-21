@@ -14,6 +14,7 @@ use App\Models\PTM;
 use App\Models\PubicHoliday_Model;
 use App\Models\User;
 use App\Models\Room;
+use App\Models\RoomStaff;
 use App\Models\Usercenter;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -307,6 +308,185 @@ class Dashboard extends Controller
                     'reflections' => $recentReflections->values(),
                     'snapshots' => $recentSnapshots->values(),
                     'calendarEvents' => $this->buildCalendarEvents($announcements, $birthdays, $holidays, $recentPtms),
+                ],
+            ]);
+        }
+
+        public function universalDashboard(Request $request)
+        {
+            $auth = Auth::user();
+
+            if (!$auth) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+
+            $usertype = strtolower((string) ($auth->userType ?? ''));
+            $isSuperadmin = ((string) ($auth->admin ?? '')) === '1' || $usertype === 'superadmin';
+            $isStaff = $usertype === 'staff';
+
+            if (!$isSuperadmin && !$isStaff) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This endpoint is only for superadmin and staff users.',
+                    'userType' => $auth->userType ?? null,
+                    'endpoint' => 'universal-dashboard'
+                ], 403);
+            }
+
+            $centerid = $request->input('centerid')
+                ?? $request->input('center_id')
+                ?? $request->header('X-Center-Id');
+
+            if ($centerid === null || $centerid === '') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Center id is required',
+                ], 400);
+            }
+
+            if (!filter_var($centerid, FILTER_VALIDATE_INT)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid center id',
+                ], 400);
+            }
+
+            $centerid = (int) $centerid;
+
+            $hasCenterData = Room::where('centerid', $centerid)->exists()
+                || Child::where('centerid', $centerid)->exists()
+                || AnnouncementsModel::where('centerid', $centerid)->exists()
+                || PubicHoliday_Model::where('centerid', $centerid)->exists();
+
+            if (!$hasCenterData) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid center id',
+                ], 404);
+            }
+
+            $requestedMonth = $request->input('month')
+                ?? $request->input('month_id')
+                ?? $request->input('month_number');
+
+            $month = null;
+
+            if ($requestedMonth !== null && $requestedMonth !== '') {
+                if (!filter_var($requestedMonth, FILTER_VALIDATE_INT)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Invalid month',
+                    ], 400);
+                }
+
+                $month = (int) $requestedMonth;
+
+                if ($month < 1 || $month > 12) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Invalid month',
+                    ], 400);
+                }
+            }
+
+            $roomIds = collect();
+
+            if ($isStaff) {
+                $authId = $auth->id ?? null;
+
+                if (!$authId) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Unable to resolve staff identity',
+                    ], 403);
+                }
+
+                $roomIds = RoomStaff::query()
+                    ->join('room', 'room.id', '=', 'room_staff.roomid')
+                    ->where('room_staff.staffid', $authId)
+                    ->where('room.centerid', $centerid)
+                    ->pluck('room_staff.roomid')
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                if ($roomIds->isEmpty()) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'No rooms found for this staff member in the selected center',
+                    ], 403);
+                }
+            }
+
+            $children = $isStaff
+                ? Child::whereIn('room', $roomIds)->get()
+                : Child::where('centerid', $centerid)->get();
+
+            if ($month !== null) {
+                $children = $this->filterCollectionByMonth($children, $month, function ($child) {
+                    return $child->dob ?? null;
+                });
+            }
+
+            $childIds = $children->pluck('id')->filter()->unique()->values();
+
+            $holidays = $this->getUniversalHolidays($centerid);
+
+            if ($month !== null) {
+                $holidays = $this->filterCollectionByMonth($holidays, $month, function ($holiday) {
+                    return $holiday['date'] ?? null;
+                });
+            }
+
+            $events = $this->getUniversalEvents($centerid, $isStaff, $childIds);
+
+            if ($month !== null) {
+                $events = $this->filterCollectionByMonth($events, $month, function ($event) {
+                    return $event['date'] ?? null;
+                });
+            }
+
+            $birthdays = $children->map(function ($child) {
+                return [
+                    'id' => $child->id,
+                    'name' => $child->name,
+                    'lastname' => $child->lastname ?? '',
+                    'dob' => $child->dob,
+                    'birthdayDate' => $this->birthdayCalendarDate($child->dob),
+                    'age' => $this->calculateAge($child->dob),
+                    'imageUrl' => $child->imageUrl ?? '',
+                ];
+            })->values();
+
+            $holidays = $holidays->map(function ($holiday) {
+                return [
+                    'id' => $holiday['id'] ?? null,
+                    'date' => $holiday['date'] ?? null,
+                    'occasion' => $holiday['occasion'] ?? 'Holiday',
+                    'state' => $holiday['state'] ?? '',
+                ];
+            })->values();
+
+            $events = $events->map(function ($event) {
+                return [
+                    'id' => $event['id'] ?? null,
+                    'title' => $event['title'] ?? '',
+                    'date' => $event['date'] ?? null,
+                    'type' => $event['type'] ?? 'event',
+                    'text' => $event['text'] ?? '',
+                ];
+            })->values();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Universal dashboard fetched successfully',
+                'data' => [
+                    // 'birthdays' => $birthdays,
+                    // 'holidays' => $holidays,
+                    'events' => $events,
                 ],
             ]);
         }
@@ -632,6 +812,90 @@ class Dashboard extends Controller
             $cleanText = preg_replace('/\s+/', ' ', $cleanText);
 
             return trim($cleanText);
+        }
+
+        private function filterCollectionByMonth(Collection $items, int $month, callable $dateResolver): Collection
+        {
+            return $items->filter(function ($item) use ($month, $dateResolver) {
+                $date = $dateResolver($item);
+
+                if (empty($date)) {
+                    return false;
+                }
+
+                try {
+                    return Carbon::parse($date)->month === $month;
+                } catch (\Exception $e) {
+                    return false;
+                }
+            })->values();
+        }
+
+        private function getUniversalEvents(int $centerid, bool $isStaff, Collection $childIds): Collection
+        {
+            $query = AnnouncementsModel::query()
+                ->where('centerid', $centerid)
+                ->where('status', 'sent');
+
+            if ($isStaff) {
+                if ($childIds->isEmpty()) {
+                    return collect();
+                }
+
+                $announcementIds = AnnouncementChildModel::whereIn('childid', $childIds)
+                    ->pluck('aid')
+                    ->filter()
+                    ->unique();
+
+                if ($announcementIds->isEmpty()) {
+                    return collect();
+                }
+
+                $query->whereIn('id', $announcementIds);
+            }
+
+            return $query->orderBy('id', 'desc')
+                ->get()
+                ->map(function ($announcement) {
+                    return $this->formatEventForDashboard($announcement);
+                });
+        }
+
+        private function getUniversalHolidays(int $centerid): Collection
+        {
+            return PubicHoliday_Model::where('centerid', $centerid)
+                ->get()
+                ->map(function ($holiday) {
+                    $date = null;
+
+                    if (!empty($holiday->Holiday_date)) {
+                        $date = $this->safeFormatDate($holiday->Holiday_date, 'Y-m-d');
+                    } elseif (!empty($holiday->month) && !empty($holiday->date)) {
+                        $date = Carbon::create(null, (int) $holiday->month, (int) $holiday->date)->format('Y-m-d');
+                    }
+
+                    return [
+                        'id' => $holiday->id,
+                        'date' => $date,
+                        'state' => $holiday->state ?? '',
+                        'occasion' => $holiday->occasion ?? 'Holiday',
+                        'status' => $holiday->status ?? null,
+                    ];
+                });
+        }
+
+
+        private function formatEventForDashboard($announcement): array
+        {
+            return [
+                'id' => $announcement->id,
+                'title' => $announcement->title,
+                'text' => $this->cleanText($announcement->text) ?? '',
+                'status' => $announcement->status ?? '',
+                'announcementMedia' => $announcement->announcementMedia ?? '',
+                'type' => $announcement->type ?? '',
+                'date' => $this->safeFormatDate($announcement->eventDate ?? $announcement->createdAt, 'Y-m-d'),
+            ];
         }
 //    public function getEvents()
 // {

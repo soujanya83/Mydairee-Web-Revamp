@@ -150,6 +150,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::get('announcements/events', [Dashboard::class, 'getEvents'])->name('announcements.events');
              Route::get('parent-dashboard', [Dashboard::class, 'parentDashboard'])->name('parent.dashboard');
+             Route::get('universal-dashboard', [Dashboard::class, 'universalDashboard'])->name('dashboard.universal');
 // Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
 // Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
 Route::get('dashboard/analytical', [Dashboard::class, 'analytical'])->name('dashboard.analytical');
