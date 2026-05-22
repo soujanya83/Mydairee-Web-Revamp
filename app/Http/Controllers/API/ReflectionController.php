@@ -152,6 +152,8 @@ class ReflectionController extends Controller
         $centerid = $request->input('center_id', $request->query('center_id'));
         $perPage = max((int) $request->input('per_page', 10), 1);
         $roomId = $request->input('room_id', $request->input('roomid'));
+        $selectedChildId = null;
+        $selectedChildSource = null;
 
         if ($user->userType === 'Superadmin') {
             $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
@@ -168,8 +170,35 @@ class ReflectionController extends Controller
         } elseif ($user->userType === 'Staff') {
             // Staff can see all reflections for the selected center.
         } else {
-            $childids = Childparent::where('parentid', $authId)->pluck('childid');
-            $reflectionIds = ReflectionChild::whereIn('childid', $childids)
+            $childids = Childparent::where('parentid', $authId)->pluck('childid')->values();
+            $requestedChildId = $request->input('child_id', $request->input('childid'));
+            $savedChildId = User::where('userid', $authId)->value('selectedchildreanid');
+
+            if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+                $requestedChildId = (int) $requestedChildId;
+
+                if (!$childids->contains($requestedChildId)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'This child does not belong to this parent',
+                    ], 403);
+                }
+
+                $selectedChildId = $requestedChildId;
+                $selectedChildSource = 'request';
+            }
+
+            if (!$selectedChildId && !empty($savedChildId) && $childids->contains((int) $savedChildId)) {
+                $selectedChildId = (int) $savedChildId;
+                $selectedChildSource = 'saved';
+            }
+
+            if (!$selectedChildId && $childids->isNotEmpty()) {
+                $selectedChildId = (int) $childids->first();
+                $selectedChildSource = 'fallback';
+            }
+
+            $reflectionIds = ReflectionChild::whereIn('childid', $selectedChildId ? [$selectedChildId] : $childids)
                 ->pluck('reflectionid')
                 ->unique()
                 ->toArray();
@@ -258,6 +287,18 @@ class ReflectionController extends Controller
             $query->whereRaw('FIND_IN_SET(?, roomids)', [$roomId]);
         }
 
+        if (! $query->exists()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No reflections found.',
+                'data' => [
+                    'reflection' => [],
+                    'selectedChildId' => $selectedChildId,
+                    'selectedChildSource' => $selectedChildSource,
+                ],
+            ]);
+        }
+
         $reflection = $query->orderBy('id', 'desc')->paginate($perPage);
 
         return response()->json([
@@ -265,6 +306,9 @@ class ReflectionController extends Controller
             'message' => 'Data retrieved successfully',
             'data' => [
                 // 'centers' => $centers,
+                
+                'selectedChildId' => $selectedChildId,
+                'selectedChildSource' => $selectedChildSource,
                 'reflection' => $reflection,
             ],
             // 'pagination' => [

@@ -206,8 +206,43 @@ class Dashboard extends Controller
                 $parentChildIds = Childparent::where('parentid', $userid)->pluck('childid')->values();
             }
 
+            $requestedChildId = $request->input('child_id', $request->input('childid'));
+            $savedChildId = User::where('userid', $userid)->value('selectedchildreanid');
+            $selectedChildId = null;
+            $selectedChildSource = null;
+
+            if ($parentChildIds->isNotEmpty()) {
+                if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+                    $requestedChildId = (int) $requestedChildId;
+
+                    if ($parentChildIds->contains($requestedChildId)) {
+                        $selectedChildId = $requestedChildId;
+                        $selectedChildSource = 'request';
+                    }
+                }
+
+                if (!$selectedChildId && !empty($savedChildId) && $parentChildIds->contains((int) $savedChildId)) {
+                    $selectedChildId = (int) $savedChildId;
+                    $selectedChildSource = 'saved';
+                }
+
+                if (!$selectedChildId) {
+                    $selectedChildId = (int) $parentChildIds->first();
+                    $selectedChildSource = 'fallback';
+                }
+            }
+
+            $selectedChildIds = $selectedChildId ? collect([$selectedChildId]) : $parentChildIds;
+
             $requestedCenter = $request->input('centerid') ?? $request->input('center_id') ?? $request->header('X-Center-Id');
             $centerid = null;
+
+            if ($selectedChildId) {
+                $selectedChildCenterId = Child::where('id', $selectedChildId)->value('centerid');
+                if ($selectedChildCenterId) {
+                    $centerid = (int) $selectedChildCenterId;
+                }
+            }
 
             if ($requestedCenter !== null) {
                 if (!filter_var($requestedCenter, FILTER_VALIDATE_INT)) {
@@ -218,8 +253,8 @@ class Dashboard extends Controller
 
                 $isAdmin = isset($auth->admin) && $auth->admin == '1';
                 $isAssociated = Usercenter::where('userid', $userid)->where('centerid', $centerid)->exists();
-                $hasChildInCenter = $parentChildIds->isNotEmpty()
-                    && Child::whereIn('id', $parentChildIds)->where('centerid', $centerid)->exists();
+                $hasChildInCenter = $selectedChildIds->isNotEmpty()
+                    && Child::whereIn('id', $selectedChildIds)->where('centerid', $centerid)->exists();
 
                 if (!$isAdmin && !$isAssociated && !$hasChildInCenter) {
                     return response()->json(['status' => false, 'message' => 'Unauthorized for this center'], 403);
@@ -228,6 +263,10 @@ class Dashboard extends Controller
 
             if (!$centerid && $userid) {
                 $centerid = Usercenter::where('userid', $userid)->value('centerid');
+            }
+
+            if (!$centerid && $selectedChildIds->isNotEmpty()) {
+                $centerid = Child::whereIn('id', $selectedChildIds)->value('centerid');
             }
 
             if (!$centerid && $parentChildIds->isNotEmpty()) {
@@ -254,12 +293,12 @@ class Dashboard extends Controller
 
             $recentPtms = PTM::with(['children', 'ptmDates', 'ptmSlots'])
                 ->where('centerid', $centerid)
-                ->when(strtolower((string) $usertype) === 'parent', function ($query) use ($parentChildIds) {
+                ->when(strtolower((string) $usertype) === 'parent', function ($query) use ($selectedChildIds) {
                     $query->where('status', 'Published');
 
-                    if ($parentChildIds->isNotEmpty()) {
-                        $query->whereHas('children', function ($childQuery) use ($parentChildIds) {
-                            $childQuery->whereIn('child.id', $parentChildIds);
+                    if ($selectedChildIds->isNotEmpty()) {
+                        $query->whereHas('children', function ($childQuery) use ($selectedChildIds) {
+                            $childQuery->whereIn('child.id', $selectedChildIds);
                         });
                     }
                 })
@@ -274,12 +313,12 @@ class Dashboard extends Controller
                     return $ptm;
                 });
 
-            $recentObservations = $this->getParentObservations($centerid, $parentChildIds, $usertype);
-            $recentReflections = $this->getParentReflections($centerid, $parentChildIds, $usertype);
-            $recentSnapshots = $this->getParentSnapshots($centerid, $parentChildIds, $usertype, $userid);
+            $recentObservations = $this->getParentObservations($centerid, $selectedChildIds, $usertype);
+            $recentReflections = $this->getParentReflections($centerid, $selectedChildIds, $usertype);
+            $recentSnapshots = $this->getParentSnapshots($centerid, $selectedChildIds, $usertype, $userid);
             $snapshotCount = $recentSnapshots->count();
-            $announcements = $this->getParentAnnouncements($centerid, $parentChildIds, $usertype);
-            $birthdays = $this->getParentChildren($centerid, $parentChildIds, $usertype);
+            $announcements = $this->getParentAnnouncements($centerid, $selectedChildIds, $usertype);
+            $birthdays = $this->getParentChildren($centerid, $selectedChildIds, $usertype);
             $holidays = $this->getParentHolidays($centerid);
 
             return response()->json([
@@ -287,6 +326,8 @@ class Dashboard extends Controller
                 'message' => 'Parent dashboard fetched successfully',
                 'data' => [
                     'centerid' => $centerid,
+                    'selectedChildId' => $selectedChildId,
+                    'selectedChildSource' => $selectedChildSource,
                     // 'stats' => [
                     //     'totalUsers' => $totalUsers,
                     //     'totalSuperadmin' => $totalSuperadmin,
@@ -312,6 +353,107 @@ class Dashboard extends Controller
             ]);
         }
 
+
+        public function saveSelectedChild(Request $request)
+        {
+            $auth = Auth::user();
+
+            if (!$auth) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+
+            $userid = $auth->userid ?? null;
+            $usertype = strtolower((string) ($auth->userType ?? ''));
+
+            if ($usertype !== 'parent') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This endpoint is only for parents.',
+                ], 403);
+            }
+
+            $validated = $request->validate([
+                'child_id' => 'required|integer',
+            ]);
+
+            $parentChildIds = Childparent::where('parentid', $userid)->pluck('childid')->values();
+
+            if ($parentChildIds->isEmpty() || !$parentChildIds->contains((int) $validated['child_id'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This child does not belong to this parent',
+                ], 403);
+            }
+
+            User::where('userid', $userid)->update([
+                'selectedchildreanid' => (int) $validated['child_id'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Selected child saved successfully',
+                'data' => [
+                    'selectedchildreanid' => (int) $validated['child_id'],
+                ],
+            ]);
+        }
+
+        public function getSelectedChild(Request $request)
+        {
+            $auth = Auth::user();
+
+            if (!$auth) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+
+            $userid = $auth->userid ?? null;
+            $usertype = strtolower((string) ($auth->userType ?? ''));
+
+            if ($usertype !== 'parent') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This endpoint is only for parents.',
+                ], 403);
+            }
+
+            $user = User::where('userid', $userid)->first();
+
+            if (!$user || !$user->selectedchildreanid) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No selected child found',
+                    'data' => null,
+                ], 404);
+            }
+
+            $childBelongsToParent = Childparent::where('parentid', $userid)
+                ->where('childid', $user->selectedchildreanid)
+                ->exists();
+
+            if (!$childBelongsToParent) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Selected child does not belong to this parent',
+                ], 403);
+            }
+
+            $child = Child::find($user->selectedchildreanid);
+            return response()->json([
+                'status' => true,
+                'message' => 'Selected child fetched successfully',
+                'data' => [
+                    'selectedchildreanid' => (int) $user->selectedchildreanid,
+                    'child' => $child,
+                ],
+            ]);
+        }
+        
         public function universalDashboard(Request $request)
         {
             $auth = Auth::user();
@@ -444,9 +586,9 @@ class Dashboard extends Controller
             $events = $this->getUniversalEvents($centerid, $isStaff, $childIds);
 
             if ($month !== null) {
-                $events = $this->filterCollectionByMonth($events, $month, function ($event) {
-                    return $event['date'] ?? null;
-                });
+                    $events = $this->filterCollectionByMonth($events, $month, function ($event) {
+                        return $event['date'] ?? null;
+                    });
             }
 
             $birthdays = $children->map(function ($child) {

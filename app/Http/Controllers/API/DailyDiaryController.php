@@ -11,6 +11,7 @@ use App\Models\Center;
 use App\Models\Room;
 use App\Models\Childparent;
 use App\Models\Child;
+use App\Models\User;
 use App\Models\RoomStaff;
 use App\Models\DailyDiarySettings;
 use App\Models\DailyDiaryBreakfast;
@@ -154,6 +155,10 @@ class DailyDiaryController extends Controller
 
         $children = collect();
         $selectedroom = null;
+        $selectedChildId = null;
+        $selectedChildSource = null;
+        $parentChildIds = collect();
+        $selectedChild = null;
 
         // Always select a room: use room_id if provided, else first available
         $selectedroom = $room->where('id', $request->room_id)->first();
@@ -172,6 +177,62 @@ class DailyDiaryController extends Controller
                     'children' => [],
                 ]
             ]);
+        }
+
+        if (Auth::user()->userType == "Parent") {
+            $parentId = auth()->user()->id;
+            $parentChildIds = Childparent::where('parentid', $parentId)->pluck('childid')->values();
+            $requestedChildId = $request->input('child_id', $request->input('childid'));
+            $savedChildId = User::where('userid', $parentId)->value('selectedchildreanid');
+
+            if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+                $requestedChildId = (int) $requestedChildId;
+
+                if (!$parentChildIds->contains($requestedChildId)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'This child does not belong to this parent',
+                    ], 403);
+                }
+
+                $selectedChildId = $requestedChildId;
+                $selectedChildSource = 'request';
+            }
+
+            if (!$selectedChildId && !empty($savedChildId) && $parentChildIds->contains((int) $savedChildId)) {
+                $selectedChildId = (int) $savedChildId;
+                $selectedChildSource = 'saved';
+            }
+
+            if (!$selectedChildId && $parentChildIds->isNotEmpty()) {
+                $selectedChildId = (int) $parentChildIds->first();
+                $selectedChildSource = 'fallback';
+            }
+
+            if ($selectedChildId) {
+                $selectedChild = Child::where('id', $selectedChildId)->first();
+
+                if ($selectedChild) {
+                    $childRoom = $room->where('id', $selectedChild->room)->first();
+
+                    if ($childRoom) {
+                        $selectedroom = $childRoom;
+                    }
+                }
+            }
+
+            if (!$selectedroom && $parentChildIds->isNotEmpty()) {
+                $fallbackChild = Child::whereIn('id', $parentChildIds)->first();
+
+                if ($fallbackChild) {
+                    $selectedroom = $room->where('id', $fallbackChild->room)->first() ?? $selectedroom;
+                    if (!$selectedChildId) {
+                        $selectedChildId = (int) $fallbackChild->id;
+                        $selectedChildSource = 'fallback';
+                        $selectedChild = $fallbackChild;
+                    }
+                }
+            }
         }
 
         if ($selectedroom) {
@@ -208,10 +269,9 @@ class DailyDiaryController extends Controller
                     })
                     ->values();
             } else {
-                $parentId = auth()->user()->id;
-                $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
+                $targetChildIds = $selectedChildId ? collect([$selectedChildId]) : $parentChildIds;
 
-                $childQuery = Child::whereIn('id', $childIds)
+                $childQuery = Child::whereIn('id', $targetChildIds)
                     ->where('room', $selectedroom->id);
 
                 if ($search !== '') {
@@ -246,6 +306,22 @@ class DailyDiaryController extends Controller
             }
         }
 
+        $hasDiaryData = $children->contains(function ($childDiary) {
+            return !empty($childDiary['bottle'])
+                || !empty($childDiary['toileting'])
+                || !empty($childDiary['sunscreen'])
+                || !empty($childDiary['snacks'])
+                || !empty($childDiary['afternoon_tea'])
+                || !empty($childDiary['sleep'])
+                || !empty($childDiary['lunch'])
+                || !empty($childDiary['morning_tea'])
+                || !empty($childDiary['breakfast']);
+        });
+
+        $responseMessage = $hasDiaryData
+            ? 'Daily diary data fetched successfully.'
+            : 'No daily diary available for this child.';
+
         // Apply pagination to the children collection
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 10);
@@ -268,12 +344,14 @@ class DailyDiaryController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Daily diary data fetched successfully.',
+            'message' => $responseMessage,
             'data' => [
                 // 'centers' => $centers,
                 // 'rooms' => $room,
                 'selectedRoom' => $selectedroom,
                 'selectedDate' => $selectedDate->format('Y-m-d'),
+                'selectedChildId' => $selectedChildId,
+                'selectedChildSource' => $selectedChildSource,
                 // 'permission' => $permissions,
                 'children' => $children,
             ]

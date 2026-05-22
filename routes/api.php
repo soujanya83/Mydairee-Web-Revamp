@@ -150,6 +150,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::get('announcements/events', [Dashboard::class, 'getEvents'])->name('announcements.events');
              Route::get('parent-dashboard', [Dashboard::class, 'parentDashboard'])->name('parent.dashboard');
+             Route::post('parent-dashboard/selected-child', [Dashboard::class, 'saveSelectedChild'])->name('parent.dashboard.selected-child');
+             Route::get('parent-dashboard/selected-child', [Dashboard::class, 'getSelectedChild'])->name('parent.dashboard.selected-child');
+            
              Route::get('universal-dashboard', [Dashboard::class, 'universalDashboard'])->name('dashboard.universal');
 // Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
 // Route::get('/check-username-exists', [UserController::class, 'checkUsernameExists']);
@@ -225,6 +228,7 @@ Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus']
 
     // annoucement
     Route::get('announcements/list',[AnnouncementController::class,'list'])->name('announcements.list');
+    Route::get('announcements/mernlist',[AnnouncementController::class,'mernlist'])->name('announcements.mernlist');
     Route::get('announcements/filterlist',[AnnouncementController::class,'Filterlist'])->name('announcements.Filterlist');
 Route::get('announcements/create',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
 Route::post('announcements/store',[AnnouncementController::class,'AnnouncementStore'])->name('announcements.store');
@@ -242,6 +246,7 @@ Route::get('headChecks/view', [HeadChecks::class, 'weekTable'])->middleware('aut
 
 // sleep checks
 Route::get('sleepcheck/list',[SleepCheckController::class,'getSleepChecksList'])->name('sleepcheck.list');
+Route::get('mernsleepcheck/list',[SleepCheckController::class,'getmernSleepChecksList'])->name('mernsleepcheck.list');
 Route::post('sleepcheck/save',[SleepCheckController::class,'sleepcheckSave'])->name('sleepcheck.save');
 Route::post('sleepcheck/update',[SleepCheckController::class,'sleepcheckUpdate'])->name('sleepcheck.update');
 Route::post('sleepcheck/delete',[SleepCheckController::class,'sleepcheckDelete'])->name('sleepcheck.delete');
@@ -249,6 +254,7 @@ Route::post('sleepcheck/bulk-save', [SleepCheckController::class, 'bulkSave'])->
 
 // Accidents
 Route::match(['get', 'post'], 'Accidents/list',[AccidentsController::class,'AccidentsList'])->name('Accidents.list');
+Route::match(['get', 'post'], 'Accidents/mernlist',[AccidentsController::class,'mernAccidentsList'])->name('Accidents.mernlist');
 Route::post('Accidents/getCenterRooms',[AccidentsController::class,'getCenterRooms'])->name('Accidents.getCenterRooms');
 Route::put('Accidents/update/{id}',[AccidentsController::class,'AccidentsUpdate'])->name('accidents.update');
 Route::match(['get', 'post'], 'Accidents/details',[AccidentsController::class,'getAccidentDetails'])->name('Accidents.details');
@@ -328,9 +334,11 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
     Route::delete('/delete/{id}', [ObservationsController::class, 'destroy'])->name('delete');
 
         Route::get('/index', [ObservationsController::class, 'index'])->name('index');
+        Route::get('/mernindex', [ObservationsController::class, 'mernindex'])->name('mernindex');
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
         Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
         Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
+        Route::post('/mernfilters', [ObservationsController::class, 'applymernFilters'])->name('mernfilters');
         Route::get('/view', [ObservationsController::class, 'index'])->name('view');
         Route::get('/print', [ObservationsController::class, 'print'])->name('print');
 

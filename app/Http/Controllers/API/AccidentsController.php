@@ -191,6 +191,149 @@ class AccidentsController extends Controller
         ]);
     }
 
+    public function mernAccidentsList(Request $request)
+    {
+        $user = Auth::user();
+        // $user = User::where('userid',$request->userid)->first();
+        $userid = $user->userid;
+        $userType = $user->userType;
+        $centerid = $request->centerid;
+        $selectedChildId = null;
+        $selectedChildSource = null;
+
+        // Fallback: get first assigned center if not present
+        if (empty($centerid)) {
+            $centerid = Usercenter::where('userid', $userid)->pluck('centerid')->first();
+        }
+
+        // Get list of centers
+        if ($userType === "Superadmin") {
+            $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $centerIds)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+
+        // Get room info
+        $roomid = $request->roomid;
+        if (empty($roomid)) {
+            $centerRoom = Room::where('centerid', $centerid)->first();
+            $roomid = $centerRoom->id ?? null;
+            $roomname = $centerRoom->name ?? '';
+            $roomcolor = $centerRoom->color ?? '';
+            $selectedRoom = Room::where('id', $roomid)->first();
+                $centerRooms = Room::where('centerid', $centerid)->get();
+        } else {
+            $room = Room::find($roomid);
+            $roomname = $room->name ?? '';
+            $roomcolor = $room->color ?? '';
+            $selectedRoom = Room::where('id', $roomid)->first();
+                $centerRooms = Room::where('centerid', $centerid)->get();
+        }
+
+        if(Auth::user()->userType == "Parent"){
+
+            $childids = Childparent::where('parentid', $userid)->pluck('childid')->values();
+            $requestedChildId = $request->input('child_id', $request->input('childid'));
+            $savedChildId = User::where('userid', $userid)->value('selectedchildreanid');
+
+            if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+                $requestedChildId = (int) $requestedChildId;
+
+                if (!$childids->contains($requestedChildId)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'This child does not belong to this parent',
+                    ], 403);
+                }
+
+                $selectedChildId = $requestedChildId;
+                $selectedChildSource = 'request';
+            }
+
+            if (!$selectedChildId && !empty($savedChildId) && $childids->contains((int) $savedChildId)) {
+                $selectedChildId = (int) $savedChildId;
+                $selectedChildSource = 'saved';
+            }
+
+            if (!$selectedChildId && $childids->isNotEmpty()) {
+                $selectedChildId = (int) $childids->first();
+                $selectedChildSource = 'fallback';
+            }
+
+            if ($selectedChildId) {
+                $selectedChild = Child::where('id', $selectedChildId)->first();
+
+                if ($selectedChild) {
+                    $roomid = $selectedChild->room;
+                    $room = Room::find($roomid);
+                    $roomname = $room->name ?? '';
+                    $roomcolor = $room->color ?? '';
+                    $selectedRoom = $room;
+                }
+            }
+
+            $roomids = Child::whereIn('id', $childids)->pluck('room');
+            $centerRooms = Room::whereIn('id', $roomids)->get();
+        }
+
+    
+
+        $date = !empty($request->date)
+            ? date('Y-m-d', strtotime($request->date))
+            : date('Y-m-d');
+
+        // Get accidents data
+        if ($userType == "Parent") {
+            $accQuery = AccidentsModel::select('accidents.id', 'accidents.child_name', 'accidents.child_gender', 'accidents.roomid', 'accidents.incident_date', 'accidents.ack_parent_name', 'accidents.added_by')
+                ->join('childparent', 'childparent.childid', '=', 'accidents.childid')
+                ->where('childparent.parentid', $userid);
+
+            if ($selectedChildId) {
+                $accQuery->where('accidents.childid', $selectedChildId);
+            }
+
+            if (!empty($roomid)) {
+                $accQuery->where('accidents.roomid', $roomid);
+            }
+
+            $accArr = $accQuery->get();
+        } else {
+            $query = AccidentsModel::select('id', 'child_name', 'child_gender', 'roomid', 'incident_date', 'ack_parent_name', 'added_by');
+            if (!empty($roomid)) {
+                $query->where('roomid', $roomid);
+            }
+            $accArr = $query->get();
+        }
+
+        // Append username to each accident
+        foreach ($accArr as $acc) {
+            $addedByUser = User::find($acc->added_by);
+            $acc->username = $addedByUser->name ?? 'Unknown';
+        }
+
+        $childs = Child::where('room', $roomid)->get();
+
+        return response()->json([
+            'success'      => true,
+            'message'      => 'Accident list fetched successfully.',
+            'data'         => [
+                'centerid'        => $centerid,
+                'date'            => $date,
+                'roomid'          => $roomid,
+                'roomname'        => $roomname,
+                'roomcolor'       => $roomcolor,
+                //'rooms'           => $centerRooms,
+                //'childs'          => $childs,
+                'accidents'       => $accArr,
+                'selectedChildId' => $selectedChildId,
+                'selectedChildSource' => $selectedChildSource,
+                //'centers'         => $centers,
+                'selectedCenter'  => $request->centerid,
+            ]
+        ]);
+    }
+
     public function getCenterRooms(Request $request)
     {
 
