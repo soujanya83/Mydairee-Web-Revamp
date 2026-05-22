@@ -265,6 +265,8 @@ class LessonPlanList extends Controller
             }
 
             $programPlans = collect();
+            $selectedChildId = null;
+            $selectedChildSource = null;
 
             if ($user->userType === 'Superadmin') {
                 $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
@@ -281,16 +283,40 @@ class LessonPlanList extends Controller
                     ->orderByDesc('created_at')
                     ->get();
             } elseif ($user->userType === 'Parent') {
-                $childIds = ChildParent::where('parentid', $authId)->pluck('childid');
+                $childIds = Childparent::where('parentid', $authId)->pluck('childid')->values();
+                $requestedChildId = $request->input('child_id', $request->input('childid'));
+                $savedChildId = User::where('userid', $authId)->value('selectedchildreanid');
 
-                if ($childIds->isNotEmpty()) {
+                if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+                    $requestedChildId = (int) $requestedChildId;
+
+                    if (!$childIds->contains($requestedChildId)) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'This child does not belong to this parent',
+                        ], 403);
+                    }
+
+                    $selectedChildId = $requestedChildId;
+                    $selectedChildSource = 'request';
+                }
+
+                if (!$selectedChildId && !empty($savedChildId) && $childIds->contains((int) $savedChildId)) {
+                    $selectedChildId = (int) $savedChildId;
+                    $selectedChildSource = 'saved';
+                }
+
+                if (!$selectedChildId && $childIds->isNotEmpty()) {
+                    $selectedChildId = (int) $childIds->first();
+                    $selectedChildSource = 'fallback';
+                }
+
+                if ($selectedChildId) {
                     $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
                         ->where('centerid', $centerId)
                         ->where('status',"Published")
-                        ->where(function ($query) use ($childIds) {
-                            foreach ($childIds as $childId) {
-                                $query->orWhereRaw('FIND_IN_SET(?, children)', [$childId]);
-                            }
+                        ->where(function ($query) use ($selectedChildId) {
+                            $query->whereRaw('FIND_IN_SET(?, children)', [$selectedChildId]);
                         })
                         ->orderByDesc('created_at')
                         ->get();
@@ -314,6 +340,21 @@ class LessonPlanList extends Controller
             );
 
             // Month name helper
+
+            if ($programPlans->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No program plans found.',
+                    'data' => [
+                        'userType' => $user->userType,
+                        'userId' => $authId,
+                        'centerId' => $centerId,
+                        'selectedChildId' => $selectedChildId,
+                        'selectedChildSource' => $selectedChildSource,
+                        'programPlans' => [],
+                    ]
+                ]);
+            }
             // $getMonthName = function ($monthNumber) {
                 $getMonthName = [
                     1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
@@ -332,6 +373,14 @@ class LessonPlanList extends Controller
             return response()->json([
         'status' => true,
         'data' => [
+            
+            // 'userType' => $userType,
+            // 'userId' => $userId,
+            // 'centerId' => $centerId,
+            'selectedChildId' => $selectedChildId,
+            'selectedChildSource' => $selectedChildSource,
+            // 'centers' => $centers,
+            // 'getMonthName' => $getMonthName,
             'programPlans' => $programPlans,
             'pagination' => [
                 'current_page' => $programPlans->currentPage(),
@@ -341,11 +390,6 @@ class LessonPlanList extends Controller
                 'from' => $programPlans->firstItem(),
                 'to' => $programPlans->lastItem(),
             ],
-            'userType' => $userType,
-            'userId' => $userId,
-            'centerId' => $centerId,
-            // 'centers' => $centers,
-            // 'getMonthName' => $getMonthName,
         ]
         ]);
 

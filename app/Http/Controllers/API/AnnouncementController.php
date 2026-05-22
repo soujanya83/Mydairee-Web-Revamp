@@ -28,66 +28,198 @@ use App\Notifications\AnnouncementAdded;
 class AnnouncementController extends Controller
 {
     public function list(Request $request)
-{
-    // $centerId = Session::get('user_center_id');
-    $centerId = $request->centerid;
-    // $user = User::where('userid',$request->userid)->first();
-    $user = Auth::user();
-    $userId = $user->userid;
-    $userType = $user->userType;
-    $permissions = null;
+    {
+        // $centerId = Session::get('user_center_id');
+        $centerId = $request->centerid;
+        // $user = User::where('userid',$request->userid)->first();
+        $user = Auth::user();
+        $userId = $user->userid;
+        $userType = $user->userType;
+        $permissions = null;
 
-    if ($userType === "Superadmin") {
-        $centerIds = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
-        $centers = Center::whereIn('id', $centerIds)->get();
-    } else {
-        $centers = Center::where('id', $centerId)->get();
-    }
-
-    // Fetch announcements with pagination
-    if ($userType === 'Staff' || $userType === 'Superadmin') {
-        $query = AnnouncementsModel::with('creator') // optional relationship
-            ->where('centerid', $centerId);
-
-        if ($userType === 'Staff') {
-            $query->where('createdBy', $userId);
+        if ($userType === "Superadmin") {
+            $centerIds = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $centerIds)->get();
+        } else {
+            $centers = Center::where('id', $centerId)->get();
         }
 
-        $records = $query->orderByDesc('id')->get(); // ✅ Pagination applied
-    } else {
-        // For Parents or other roles - get related children announcements
-        $childIds = ChildParent::where('parentid', $userId)->pluck('childid');
+        // Fetch announcements with pagination
+        if ($userType === 'Staff' || $userType === 'Superadmin') {
+            $query = AnnouncementsModel::with('creator') // optional relationship
+                ->where('centerid', $centerId);
 
-        $records = AnnouncementsModel::select('announcement.*')
-            ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
-            ->whereIn('announcementchild.childid', $childIds)
-            ->orderByDesc('announcement.id')
-            ->get(); // ✅ Pagination here too
+            if ($userType === 'Staff') {
+                $query->where('createdBy', $userId);
+            }
+
+            $records = $query->orderByDesc('id')->get(); // ✅ Pagination applied
+        } else {
+            // For Parents or other roles - get related children announcements
+            $childIds = ChildParent::where('parentid', $userId)->pluck('childid');
+
+            $records = AnnouncementsModel::select('announcement.*')
+                ->join('announcementchild', 'announcement.id', '=', 'announcementchild.aid')
+                ->whereIn('announcementchild.childid', $childIds)
+                ->orderByDesc('announcement.id')
+                ->get(); // ✅ Pagination here too
+        }
+
+        // Attach creator name manually if needed
+        foreach ($records as $announcement) {
+            $creator = User::where('userid', $announcement->createdBy)->first();
+            $announcement->createdBy = $creator->name ?? 'Not Available';
+        }
+
+        // Permissions
+        $permissions = PermissionsModel::where('userid', $userId)
+            ->where('centerid', $centerId)
+            ->first();
+
+        return response()->json([
+        'status' => true,
+        'data' => [
+            'records' => $records,
+            'permissions' => $permissions,
+            'centers' => $centers,
+            'centerId' => $centerId,
+            'userType' => $userType
+        ]
+        ]);
+
     }
 
-    // Attach creator name manually if needed
-    foreach ($records as $announcement) {
-        $creator = User::where('userid', $announcement->createdBy)->first();
-        $announcement->createdBy = $creator->name ?? 'Not Available';
+
+    public function mernlist(Request $request)
+    {
+        // $centerId = Session::get('user_center_id');
+        $centerId = $request->centerid;
+        // $user = User::where('userid',$request->userid)->first();
+        $user = Auth::user();
+        $userId = $user->userid;
+        $userType = $user->userType;
+        $permissions = null;
+        $selectedChildId = null;
+        $selectedChildSource = null;
+
+        if ($userType === "Superadmin") {
+            $centerIds = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
+            $centers = Center::whereIn('id', $centerIds)->get();
+        } else {
+            $centers = Center::where('id', $centerId)->get();
+        }
+
+        // Fetch announcements with pagination
+        if ($userType === 'Staff' || $userType === 'Superadmin') {
+            $query = AnnouncementsModel::with('creator') // optional relationship
+                ->where('centerid', $centerId);
+
+            if ($userType === 'Staff') {
+                $query->where('createdBy', $userId);
+            }
+
+            $records = $query->orderByDesc('id')->get(); // ✅ Pagination applied
+        } else {
+            // For Parents - resolve one selected child first
+            $childIds = Childparent::where('parentid', $userId)->pluck('childid')->values();
+            $requestedChildId = $request->input('child_id', $request->input('childid'));
+            $savedChildId = User::where('userid', $userId)->value('selectedchildreanid');
+
+            if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+                $requestedChildId = (int) $requestedChildId;
+
+                if (!$childIds->contains($requestedChildId)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'This child does not belong to this parent',
+                    ], 403);
+                }
+
+                $selectedChildId = $requestedChildId;
+                $selectedChildSource = 'request';
+            }
+
+            if (!$selectedChildId && !empty($savedChildId) && $childIds->contains((int) $savedChildId)) {
+                $selectedChildId = (int) $savedChildId;
+                $selectedChildSource = 'saved';
+            }
+
+            if (!$selectedChildId && $childIds->isNotEmpty()) {
+                $selectedChildId = (int) $childIds->first();
+                $selectedChildSource = 'fallback';
+            }
+
+            if (!$selectedChildId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No affiliated child found for this parent.',
+                    'data' => [
+                        'records' => [],
+                        'permissions' => $permissions,
+                        'centers' => $centers,
+                        'centerId' => $centerId,
+                        'userType' => $userType,
+                        'selectedChildId' => null,
+                        'selectedChildSource' => null,
+                    ]
+                ]);
+            }
+
+            $announcementIds = AnnouncementChildModel::where('childid', $selectedChildId)
+                ->distinct()
+                ->pluck('aid')
+                ->filter()
+                ->values();
+
+            $records = AnnouncementsModel::with('creator')
+                ->whereIn('id', $announcementIds)
+                ->where('status', 'Sent')
+                ->orderByDesc('id')
+                ->get();
+        }
+
+        if ($userType === 'Parent' && $records->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No announcements found for the selected child.',
+                'data' => [
+                    'records' => [],
+                    'permissions' => $permissions,
+                    'centers' => $centers,
+                    'centerId' => $centerId,
+                    'userType' => $userType,
+                    'selectedChildId' => $selectedChildId,
+                    'selectedChildSource' => $selectedChildSource,
+                ]
+            ]);
+        }
+
+        // Attach creator name manually if needed
+        foreach ($records as $announcement) {
+            $creator = User::where('userid', $announcement->createdBy)->first();
+            $announcement->createdBy = $creator->name ?? 'Not Available';
+        }
+
+        // Permissions
+        $permissions = PermissionsModel::where('userid', $userId)
+            ->where('centerid', $centerId)
+            ->first();
+
+        return response()->json([
+        'status' => true,
+        'data' => [
+          
+            
+            'centerId' => $centerId,
+            
+            'selectedChildId' => $selectedChildId,
+            'selectedChildSource' => $selectedChildSource,
+            'records' => $records,
+            'permissions' => $permissions,
+        ]
+        ]);
+
     }
-
-    // Permissions
-    $permissions = PermissionsModel::where('userid', $userId)
-        ->where('centerid', $centerId)
-        ->first();
-
-    return response()->json([
-    'status' => true,
-    'data' => [
-        'records' => $records,
-        'permissions' => $permissions,
-        'centers' => $centers,
-        'centerId' => $centerId,
-        'userType' => $userType
-    ]
-    ]);
-
-}
 
   public function Filterlist(Request $request)
     {

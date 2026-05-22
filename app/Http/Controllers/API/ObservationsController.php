@@ -447,6 +447,134 @@ class ObservationsController extends Controller
         ]);
     }
 
+    public function mernindex(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'center_id' => 'required|integer|min:1',
+            'per_page'  => 'nullable|integer|min:1' // optional pagination size
+        ], [
+            'center_id.required' => 'Center ID is required',
+            'center_id.integer'  => 'Center ID must be an integer.',
+            'center_id.min'      => 'Center ID must be greater than 0.',
+            'per_page.integer'   => 'Per page must be an integer.',
+            'per_page.min'       => 'Per page must be greater than 0.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+        $centerid  = $validated['center_id'];
+        $perPage   = $validated['per_page'] ?? 10; // default to 10 items per page
+        $user      = Auth::user();
+        $authId    = $user->id;
+        $selectedChildId = null;
+        $selectedChildSource = null;
+
+        // Fetch centers based on role
+        if ($user->userType == "Superadmin") {
+            $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers   = Center::whereIn('id', $centerIds)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+
+        // Fetch observations based on role
+        if ($user->userType == "Superadmin") {
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+                ->where('centerid', $centerid)
+                ->orderBy('id', 'desc')
+                ->paginate($perPage);
+        } elseif ($user->userType == "Staff") {
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+                ->where('userId', $authId)
+                ->orderBy('id', 'desc')
+                ->paginate($perPage);
+        } else {
+            $childIds = Childparent::where('parentid', $authId)->pluck('childid')->values();
+            $requestedChildId = $request->input('child_id', $request->input('childid'));
+            $savedChildId = User::where('userid', $authId)->value('selectedchildreanid');
+
+            if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+                $requestedChildId = (int) $requestedChildId;
+
+                if (!$childIds->contains($requestedChildId)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'This child does not belong to this parent',
+                    ], 403);
+                }
+
+                $selectedChildId = $requestedChildId;
+                $selectedChildSource = 'request';
+            }
+
+            if (!$selectedChildId && !empty($savedChildId) && $childIds->contains((int) $savedChildId)) {
+                $selectedChildId = (int) $savedChildId;
+                $selectedChildSource = 'saved';
+            }
+
+            if (!$selectedChildId && $childIds->isNotEmpty()) {
+                $selectedChildId = (int) $childIds->first();
+                $selectedChildSource = 'fallback';
+            }
+
+            if (!$selectedChildId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No affiliated child found for this parent.',
+                    'observations' => [],
+                    'selectedChildId' => null,
+                    'selectedChildSource' => null,
+                ]);
+            }
+
+            $observationIds = ObservationChild::whereIn('childId', [$selectedChildId])
+                ->pluck('observationId')
+                ->unique()
+                ->toArray();
+
+            if (empty($observationIds)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No observations found for the selected child.',
+                    'observations' => [],
+                    'selectedChildId' => $selectedChildId,
+                    'selectedChildSource' => $selectedChildSource,
+                ]);
+            }
+
+            $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+                ->whereIn('id', $observationIds)
+                ->where('status', 'Published')
+                ->orderBy('id', 'desc')
+                ->paginate($perPage);
+
+            if ($observations->total() === 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No observations found for the selected child.',
+                    'observations' => [],
+                    'selectedChildId' => $selectedChildId,
+                    'selectedChildSource' => $selectedChildSource,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success'      => true,
+           
+            //'centers'      => $centers,
+            'selectedChildId' => $selectedChildId,
+            'selectedChildSource' => $selectedChildSource,
+             'observations' => $observations,   
+        ]);
+    }
 
     public function applyFilters(Request $request)
     {
@@ -2177,6 +2305,8 @@ class ObservationsController extends Controller
         $centerid = $request->query('centerid', $request->input('centerid'));
         $roomId = $request->input('room_id', $request->input('roomid'));
         $perPage = max((int) $request->input('per_page', 10), 1);
+        $selectedChildId = null;
+        $selectedChildSource = null;
 
         // Fallback for Parent
         if ($user->usertype == "Parent") {
@@ -2234,29 +2364,83 @@ class ObservationsController extends Controller
             if (!empty($centerid)) {
                 $centers = Center::where('id', $centerid)->get();
             }
-            $childids = Childparent::where('parentid', $authId)->pluck('childid');
+            $childids = Childparent::where('parentid', $authId)->pluck('childid')->values();
+            $requestedChildId = $request->input('child_id', $request->input('childid'));
+            $savedChildId = User::where('userid', $authId)->value('selectedchildreanid');
 
-            if ($childids->isNotEmpty()) {
-                $snapshotid = SnapshotChild::whereIn('childid', $childids)
-                    ->pluck('snapshotid')
-                    ->unique()
-                    ->toArray();
+            if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+                $requestedChildId = (int) $requestedChildId;
 
-                if (!empty($snapshotid)) {
-                    $snapshotQuery = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-                        ->whereIn('id', $snapshotid)
-                        ->where('status', "Published");
+                if (!$childids->contains($requestedChildId)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'This child does not belong to this parent',
+                    ], 403);
+                }
 
-                    if (!empty($centerid)) {
-                        $snapshotQuery->where('centerid', $centerid);
+                $selectedChildId = $requestedChildId;
+                $selectedChildSource = 'request';
+            }
+
+            if (!$selectedChildId && !empty($savedChildId) && $childids->contains((int) $savedChildId)) {
+                $selectedChildId = (int) $savedChildId;
+                $selectedChildSource = 'saved';
+            }
+
+            if (!$selectedChildId && $childids->isNotEmpty()) {
+                $selectedChildId = (int) $childids->first();
+                $selectedChildSource = 'fallback';
+            }
+
+            if ($selectedChildId) {
+                $selectedChild = Child::where('id', $selectedChildId)->first();
+
+                if ($selectedChild) {
+                    $selectedChildRoom = Room::where('id', $selectedChild->room)->first();
+
+                    if ($selectedChildRoom) {
+                        $roomId = $selectedChildRoom->id;
                     }
-
-                    $this->applySnapshotFilters($snapshotQuery, $request);
-                    $this->applySnapshotRoomFilter($snapshotQuery, $roomId);
-
-                    $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
                 }
             }
+
+            if (!$selectedChildId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No affiliated child found for this parent.',
+                    'snapshots' => [],
+                    'selectedChildId' => null,
+                    'selectedChildSource' => null,
+                ]);
+            }
+
+            $snapshotIds = SnapshotChild::where('childid', $selectedChildId)
+                ->pluck('snapshotid')
+                ->unique()
+                ->toArray();
+
+            if (empty($snapshotIds)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No snapshots found for the selected child.',
+                    'snapshots' => [],
+                    'selectedChildId' => $selectedChildId,
+                    'selectedChildSource' => $selectedChildSource,
+                ]);
+            }
+
+            $snapshotQuery = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->whereIn('id', $snapshotIds)
+                ->where('status', "Published");
+
+            if (!empty($centerid)) {
+                $snapshotQuery->where('centerid', $centerid);
+            }
+
+            $this->applySnapshotFilters($snapshotQuery, $request);
+            $this->applySnapshotRoomFilter($snapshotQuery, $roomId);
+
+            $snapshots = $snapshotQuery->orderBy('id', 'desc')->paginate($perPage);
         }
 
         // Response if no centers
@@ -2264,8 +2448,8 @@ class ObservationsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'No centers found for this user',
-                'snapshots' => [],
-                'centers' => []
+                'snapshots' => []
+                // 'centers' => []
             ]);
         }
 
@@ -2274,8 +2458,8 @@ class ObservationsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'No snapshots found for the selected center',
-                'snapshots' => [],
-                'centers' => $centers
+                'snapshots' => []
+                // 'centers' => $centers
             ]);
         }
 
@@ -2310,14 +2494,16 @@ class ObservationsController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Snapshots fetched successfully',
+            'selectedChildId' => $selectedChildId ?? null,
+            'selectedChildSource' => $selectedChildSource ?? null,
             'snapshots' => $snapshots,
             // 'centers' => $centers,
-            'pagination' => $snapshots instanceof \Illuminate\Pagination\LengthAwarePaginator ? [
-                'current_page' => $snapshots->currentPage(),
-                'per_page' => $snapshots->perPage(),
-                'total' => $snapshots->total(),
-                'last_page' => $snapshots->lastPage(),
-            ] : null,
+            // 'pagination' => $snapshots instanceof \Illuminate\Pagination\LengthAwarePaginator ? [
+            //     'current_page' => $snapshots->currentPage(),
+            //     'per_page' => $snapshots->perPage(),
+            //     'total' => $snapshots->total(),
+            //     'last_page' => $snapshots->lastPage(),
+            // ] : null,
         ]);
     }
 

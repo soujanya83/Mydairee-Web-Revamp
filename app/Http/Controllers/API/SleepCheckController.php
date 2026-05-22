@@ -141,6 +141,173 @@ public function getSleepChecksList(Request $request)
     ]);
 }
 
+public function getmernSleepChecksList(Request $request)
+{
+    $user = Auth::user();
+    $userid = $user->userid;
+    $userType = $user->userType;
+    $search = trim((string) $request->input('search', ''));
+    $perPage = max((int) $request->input('per_page', 10), 1);
+    // dd( $userType);
+    // Determine center ID
+    $centerid = $request->centerid;
+    if (empty($centerid)) {
+        $centerId = Usercenter::where('userid', $userid)->pluck('centerid')->first();
+        $centerid = $centerId;
+    } else {
+        $centerId = $centerid;
+    }
+
+    // Fetch centers for user
+    if ($userType === "Superadmin") {
+        $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
+        $centers = Center::whereIn('id', $centerIds)->get();
+    } else {
+        $centers = Center::where('id', $centerId)->get();
+    }
+
+    $parentChildIds = collect();
+    $selectedChildId = null;
+    $selectedChildSource = null;
+    $selectedChild = null;
+
+    if ($userType === 'Parent') {
+        $parentChildIds = Childparent::where('parentid', $userid)->pluck('childid')->values();
+        $savedChildId = User::where('userid', $userid)->value('selectedchildreanid');
+        $requestedChildId = $request->input('child_id', $request->input('childid'));
+
+        if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+            $requestedChildId = (int) $requestedChildId;
+
+            if ($parentChildIds->contains($requestedChildId)) {
+                $selectedChildId = $requestedChildId;
+                $selectedChildSource = 'request';
+            }
+        }
+
+        if (!$selectedChildId && !empty($savedChildId) && $parentChildIds->contains((int) $savedChildId)) {
+            $selectedChildId = (int) $savedChildId;
+            $selectedChildSource = 'saved';
+        }
+
+        if (!$selectedChildId && $parentChildIds->isNotEmpty()) {
+            $selectedChildId = (int) $parentChildIds->first();
+            $selectedChildSource = 'fallback';
+        }
+    }
+
+    // Determine room
+    if (empty($request->roomid)) {
+        $centerRoom = Room::where('centerid', $centerid)->first();
+        $roomid = $centerRoom->id ?? null;
+        $roomname = $centerRoom->name ?? '';
+        $roomcolor = $centerRoom->color ?? '';
+        $centerRooms = Room::where('centerid', $centerid)->get();
+    } else {
+        $roomid = $request->roomid;
+        $room = Room::find($roomid);
+        $roomname = $room->name ?? '';
+        $roomcolor = $room->color ?? '';
+        $centerRooms = Room::where('centerid', $centerid)->get();
+    }
+
+    if ($selectedChildId) {
+        $selectedChild = Child::where('id', $selectedChildId)->first();
+
+        if ($selectedChild) {
+            $childRoom = Room::where('id', $selectedChild->room)->first();
+
+            if ($childRoom) {
+                $roomid = $childRoom->id;
+                $roomname = $childRoom->name ?? '';
+                $roomcolor = $childRoom->color ?? '';
+            }
+        }
+    }
+   
+
+    $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
+
+    // Fetch children
+    $role = $user->userType;
+    $childrenQuery = Child::query()
+        ->where('room', $roomid)
+        ->where('status', 'Active');
+
+    if ($role === "Parent") {
+        $targetChildIds = $selectedChildId ? collect([$selectedChildId]) : $parentChildIds;
+        $childrenQuery->whereIn('id', $targetChildIds);
+    }
+
+    if ($search !== '') {
+        $childrenQuery->where(function ($query) use ($search) {
+            $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('lastname', 'like', '%' . $search . '%')
+                ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+        });
+    }
+
+    $children = $childrenQuery->orderBy('name')->paginate($perPage);
+
+    // Fetch all sleep checks for the room and date for the current page children only
+    $pageChildIds = $children->getCollection()->pluck('id')->all();
+    $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
+        ->whereDate('created_at', $date)
+        ->whereIn('childid', $pageChildIds)
+        ->get()
+        ->groupBy('childid');
+
+    // Attach sleepchecks to children
+    $childrenWithSleepChecks = $children->getCollection()->map(function ($child) use ($sleepChecks) {
+        $child->sleepchecks = $sleepChecks->get($child->id, collect([]));
+        return $child;
+    });
+
+    $children->setCollection($childrenWithSleepChecks);
+
+    $hasSleepChecks = $childrenWithSleepChecks->contains(function ($child) {
+        return !empty($child->sleepchecks) && $child->sleepchecks->isNotEmpty();
+    });
+
+
+    // Handle permissions
+   
+    if ($role === "Superadmin") {
+         $permission = \App\Models\PermissionsModel::where('userid', $userid)
+            ->where('centerid', $centerId)
+            ->first();
+    } elseif ($role === "Staff") {
+        $permission = \App\Models\PermissionsModel::where('userid', $userid)
+            ->where('centerid', $centerId)
+            ->first();
+    } else {
+        $permission = null;
+    }
+
+    // Return JSON response
+    return response()->json([
+        'status'      => true,
+        'message'     => $hasSleepChecks ? 'Sleep checks list fetched successfully.' : 'No daily dairy available for this child.',
+        'centerid'    => $centerid,
+        'date'        => $date,
+        'roomid'      => $roomid,
+        'roomname'    => $roomname,
+        'roomcolor'   => $roomcolor,
+        'selectedChildId' => $selectedChildId,
+        'selectedChildSource' => $selectedChildSource,
+        'children'    => $childrenWithSleepChecks,
+        'pagination'  => [
+            'current_page' => $children->currentPage(),
+            'per_page' => $children->perPage(),
+            'total' => $children->total(),
+            'last_page' => $children->lastPage(),
+        ]
+        // 'rooms'       => $centerRooms ?? [],
+        // 'permissions' => $permission,
+        // 'centers'     => $centers
+    ]);
+}
+
 // public function getSleepChecksList(Request $request)
 // {
 //     $user = Auth::user();
