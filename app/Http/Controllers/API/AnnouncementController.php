@@ -205,18 +205,22 @@ class AnnouncementController extends Controller
             ->where('centerid', $centerId)
             ->first();
 
+        $selectionMeta = $userType === 'Parent'
+            ? [
+                'selectedChildId' => $selectedChildId,
+                'selectedChildSource' => $selectedChildSource,
+            ]
+            : [];
+
         return response()->json([
         'status' => true,
         'data' => [
           
             
             'centerId' => $centerId,
-            
-            'selectedChildId' => $selectedChildId,
-            'selectedChildSource' => $selectedChildSource,
             'records' => $records,
             'permissions' => $permissions,
-        ]
+        ] + $selectionMeta
         ]);
 
     }

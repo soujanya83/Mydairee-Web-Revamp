@@ -194,6 +194,8 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
         Route::get('/programPlanList',[LessonPlanList::class,'programPlanList'])->name('programPlanList');
         Route::get('/mernprogramPlanList',[LessonPlanList::class,'mernprogramPlanList'])->name('mernprogramPlanList');
                 Route::get('/LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans');
+                Route::get('/LessonPlanList/mernfilter-program-plans', [LessonPlanList::class, 'mernfilterProgramPlan'])->name('mernfilter-program-plans');
+                Route::post('/LessonPlanList/mernfilter-program-plans', [LessonPlanList::class, 'mernfilterProgramPlan'])->name('mernfilter-program-plans');
                 Route::post('/LessonPlanList/filter-program-plans', [LessonPlanList::class, 'filterProgramPlan'])->name('filter-program-plans.post');
         Route::get('/programPlan/{id}', [LessonPlanList::class, 'getProgramPlanById'])->where('id', '[0-9]+');
     Route::post('LessonPlanList/deletedataofprogramplan',[LessonPlanList::class,'deleteProgramPlan'])->name('LessonPlanList.deletedataofprogramplan');
@@ -338,7 +340,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::get('/get-children', [ObservationsController::class, 'getChildren'])->name('get-children');
         Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
         Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
-        Route::post('/mernfilters', [ObservationsController::class, 'applymernFilters'])->name('mernfilters');
+        Route::post('/mernfilters', [ObservationsController::class, 'mernapplyFilters'])->name('mernfilters');
         Route::get('/view', [ObservationsController::class, 'index'])->name('view');
         Route::get('/print', [ObservationsController::class, 'print'])->name('print');
 

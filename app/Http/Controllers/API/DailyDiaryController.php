@@ -342,6 +342,13 @@ class DailyDiaryController extends Controller
 
         $permissions = Permission::where('userid',Auth::user()->userid)->where('centerid',$centerid)->first();
 
+        $selectionMeta = Auth::user()->userType === 'Parent'
+            ? [
+                'selectedChildId' => $selectedChildId,
+                'selectedChildSource' => $selectedChildSource,
+            ]
+            : [];
+
         return response()->json([
             'status' => true,
             'message' => $responseMessage,
@@ -350,11 +357,9 @@ class DailyDiaryController extends Controller
                 // 'rooms' => $room,
                 'selectedRoom' => $selectedroom,
                 'selectedDate' => $selectedDate->format('Y-m-d'),
-                'selectedChildId' => $selectedChildId,
-                'selectedChildSource' => $selectedChildSource,
                 // 'permission' => $permissions,
                 'children' => $children,
-            ]
+            ] + $selectionMeta
         ]);
     } 
 

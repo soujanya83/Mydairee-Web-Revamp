@@ -529,8 +529,6 @@ class ObservationsController extends Controller
                     'status' => false,
                     'message' => 'No affiliated child found for this parent.',
                     'observations' => [],
-                    'selectedChildId' => null,
-                    'selectedChildSource' => null,
                 ]);
             }
 
@@ -544,8 +542,6 @@ class ObservationsController extends Controller
                     'status' => false,
                     'message' => 'No observations found for the selected child.',
                     'observations' => [],
-                    'selectedChildId' => $selectedChildId,
-                    'selectedChildSource' => $selectedChildSource,
                 ]);
             }
 
@@ -560,21 +556,327 @@ class ObservationsController extends Controller
                     'status' => false,
                     'message' => 'No observations found for the selected child.',
                     'observations' => [],
-                    'selectedChildId' => $selectedChildId,
-                    'selectedChildSource' => $selectedChildSource,
                 ]);
             }
         }
+
+        $selectionMeta = $user->userType === 'Parent'
+            ? [
+                'selectedChildId' => $selectedChildId,
+                'selectedChildSource' => $selectedChildSource,
+            ]
+            : [];
 
         return response()->json([
             'success'      => true,
            
             //'centers'      => $centers,
-            'selectedChildId' => $selectedChildId,
-            'selectedChildSource' => $selectedChildSource,
              'observations' => $observations,   
-        ]);
+        ] + $selectionMeta);
     }
+
+    public function mernapplyFilters(Request $request)
+    {
+        //    dd($request->all());
+        try {
+
+            $validator = Validator::make($request->all(), [
+                'center_id' => 'required|integer|min:1',
+                'per_page'  => 'nullable|integer|min:1',
+                'page'      => 'nullable|integer|min:1',
+                'child_search' => 'nullable|string',
+                'created_by_search' => 'nullable|string',
+            ], [
+                'center_id.required' => 'Center ID is required.',
+                'center_id.integer'  => 'Center ID must be an integer.',
+                'center_id.min'      => 'Center ID must be greater than 0.',
+                'per_page.integer'   => 'Per page must be an integer.',
+                'per_page.min'       => 'Per page must be greater than 0.',
+                'page.integer'       => 'Page must be an integer.',
+                'page.min'           => 'Page must be greater than 0.',
+            ]);
+
+            // If validation fails, return response
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed.',
+                    'errors'  => $validator->errors(),
+                ], 422);
+            }
+
+            // Get validated center_id
+            $validated = $validator->validated();
+            $centerid = $validated['center_id'];
+            $perPage = $validated['per_page'] ?? max((int) $request->input('per_page', 10), 1);
+            $page = $validated['page'] ?? max((int) $request->input('page', 1), 1);
+            $selectedChildId = null;
+            $selectedChildSource = null;
+            $user = Auth::user();
+            $parentChildIds = collect();
+
+
+            $query = Observation::with(['user', 'child', 'media', 'Seen.user'])
+                ->where('centerid', $centerid);
+
+            if ($user->userType === 'Parent') {
+                $parentChildIds = Childparent::where('parentid', $user->id)->pluck('childid')->values();
+                $requestedChildId = $request->input('child_id', $request->input('childid'));
+                $savedChildId = User::where('userid', $user->id)->value('selectedchildreanid');
+
+                if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+                    $requestedChildId = (int) $requestedChildId;
+
+                    if (!$parentChildIds->contains($requestedChildId)) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'This child does not belong to this parent',
+                        ], 403);
+                    }
+
+                    $selectedChildId = $requestedChildId;
+                    $selectedChildSource = 'request';
+                }
+
+                if (!$selectedChildId && !empty($savedChildId) && $parentChildIds->contains((int) $savedChildId)) {
+                    $selectedChildId = (int) $savedChildId;
+                    $selectedChildSource = 'saved';
+                }
+
+                if (!$selectedChildId && $parentChildIds->isNotEmpty()) {
+                    $selectedChildId = (int) $parentChildIds->first();
+                    $selectedChildSource = 'fallback';
+                }
+
+                if (!$selectedChildId) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'No affiliated child found for this parent.',
+                        'observations' => [],
+                        'selectedChildId' => null,
+                        'selectedChildSource' => null,
+                    ]);
+                }
+
+                $observationIds = ObservationChild::where('childId', $selectedChildId)
+                    ->pluck('observationId')
+                    ->unique()
+                    ->toArray();
+
+                if (empty($observationIds)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'No observations found for the selected child.',
+                        'observations' => [],
+                        'selectedChildId' => $selectedChildId,
+                        'selectedChildSource' => $selectedChildSource,
+                    ]);
+                }
+
+                $query->whereIn('id', $observationIds);
+            }
+            // Status filter - parents see Published only
+            if ($user->userType === 'Parent') {
+                $query->where('status', 'Published');
+            } else {
+                if ($request->has('observations') && !empty($request->observations)) {
+                    $statusFilters = $request->observations;
+                    if (!in_array('All', $statusFilters)) {
+                        $query->whereIn('status', $statusFilters);
+                    }
+                }
+            }
+
+            // Date filter
+            if ($request->has('added') && !empty($request->added)) {
+                $dateFilters = $request->added;
+                foreach ($dateFilters as $dateFilter) {
+                    switch ($dateFilter) {
+                        case 'Today':
+                            $query->whereDate('created_at', Carbon::today());
+                            break;
+                        case 'This Week':
+                            $query->whereBetween('created_at', [
+                                Carbon::now()->startOfWeek(),
+                                Carbon::now()->endOfWeek()
+                            ]);
+                            break;
+                        case 'This Month':
+                            $query->whereBetween('created_at', [
+                                Carbon::now()->startOfMonth(),
+                                Carbon::now()->endOfMonth()
+                            ]);
+                            break;
+                        case 'Custom':
+                            if ($request->fromDate && $request->toDate) {
+                                $fromDate = Carbon::parse($request->fromDate)->startOfDay();
+                                $toDate = Carbon::parse($request->toDate)->endOfDay();
+                                $query->whereBetween('created_at', [$fromDate, $toDate]);
+                            }
+                            break;
+                    }
+                }
+            }
+
+            // Child filter
+            if ($request->has('childs') && !empty($request->childs)) {
+                $childIds = $request->childs;
+
+                // Get observation IDs that have the selected children
+                $observationIds = ObservationChild::whereIn('childId', $childIds)
+                    ->pluck('observationId')
+                    ->unique()
+                    ->toArray();
+                if (!empty($observationIds)) {
+                    $query->whereIn('id', $observationIds);
+                } else {
+                    // If no observations found for selected children, return empty result
+                    $query->where('id', 0);
+                }
+            }
+
+            // Author filter
+            if ($request->has('authors') && !empty($request->authors)) {
+                $authorFilters = $request->authors;
+
+                // 🚫 Skip filter if "Any" is selected
+                if (!in_array('Any', $authorFilters)) {
+
+                    // ✅ If "Me" is selected
+                    if (in_array('Me', $authorFilters)) {
+                        $query->where('userId', Auth::id());
+                    }
+                    // ✅ If specific staff IDs are selected (as string IDs)
+                    else {
+                        $query->whereIn('userId', $authorFilters);
+                    }
+                }
+            }
+
+            // Child name search filter
+            if ($request->filled('child_search')) {
+                $childSearch = trim((string) $request->input('child_search'));
+
+                if ($childSearch !== '') {
+                    $query->whereHas('child.child', function ($childQuery) use ($childSearch) {
+                        $childQuery->where('name', 'like', '%' . $childSearch . '%')
+                            ->orWhere('lastname', 'like', '%' . $childSearch . '%')
+                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $childSearch . '%']);
+                    });
+                }
+            }
+
+            // Creator name search filter
+            if ($request->filled('created_by_search')) {
+                $creatorSearch = trim((string) $request->input('created_by_search'));
+
+                if ($creatorSearch !== '') {
+                    $query->whereHas('user', function ($creatorQuery) use ($creatorSearch) {
+                        $creatorQuery->where('name', 'like', '%' . $creatorSearch . '%');
+                    });
+                }
+            }
+            if ($user->userType === 'Staff') {
+                $query->where('userId', Auth::id());
+            }
+            // Apply user-specific filters based on role
+            // $user = Auth::user();
+            // if ($user->userType === 'Parent') {
+            //     // Parents can only see observations of their children
+            //     $userChildIds = $user->children()->pluck('id')->toArray();
+            //     if (!empty($userChildIds)) {
+            //         $parentObservationIds = ObservationChild::whereIn('childId', $userChildIds)
+            //             ->pluck('observationId')
+            //             ->unique()
+            //             ->toArray();
+            //         if (!empty($parentObservationIds)) {
+            //             $query->whereIn('id', $parentObservationIds);
+            //         } else {
+            //             $query->where('id', 0);
+            //         }
+            //     }
+            // } elseif ($user->userType === 'Teacher') {
+            //     // Teachers can see observations of children in their classes
+            //     // Adjust this logic based on your relationship structure
+            //     $teacherChildIds = $user->teacherChildren()->pluck('id')->toArray();
+            //     if (!empty($teacherChildIds)) {
+            //         $teacherObservationIds = ObservationChild::whereIn('childId', $teacherChildIds)
+            //             ->pluck('observationId')
+            //             ->unique()
+            //             ->toArray();
+            //         if (!empty($teacherObservationIds)) {
+            //             $query->whereIn('id', $teacherObservationIds);
+            //         } else {
+            //             $query->where('id', 0);
+            //         }
+            //     }
+            // }
+
+            // Order by latest first
+            $query->orderBy('created_at', 'desc');
+
+            // Get the filtered observations with pagination
+            $observations = $query->paginate($perPage, ['*'], 'page', $page);
+
+            // Format the observations for response
+            $formattedObservations = $observations->getCollection()->map(function ($observation) {
+                return [
+                    'id' => $observation->id,
+                    'title' => html_entity_decode($observation->title ?? ''),
+                    'obestitle' => $observation->obestitle ?? '',
+                    'status' => $observation->status,
+                    'media' => $observation->media->first(),
+                    'mediaType' => $observation->observationsMediaType,
+                    'userName' => $observation->user->name ?? 'Unknown',
+                    'date_added' => Carbon::parse($observation->created_at)->format('d.m.Y'),
+                    'created_at' => $observation->created_at->format('Y-m-d H:i:s'),
+                    'seen' => $observation->seen->map(function ($seen) {
+                        if ($seen->user && $seen->user->userType === 'Parent') {
+                            return [
+                                'name' => $seen->user->name,
+                                'imageUrl' => $seen->user->imageUrl,
+                                'gender' => $seen->user->gender,
+                            ];
+                        }
+                        return null;
+                    })->filter(),
+                ];
+            });
+
+            $observations->setCollection($formattedObservations);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Filters applied successfully',
+                'observations' => $observations,
+                'userRole' => Auth::user()->userType,
+                'count' => $observations->total(),
+                'pagination' => [
+                    'current_page' => $observations->currentPage(),
+                    'per_page' => $observations->perPage(),
+                    'total' => $observations->total(),
+                    'last_page' => $observations->lastPage(),
+                    'from' => $observations->firstItem(),
+                    'to' => $observations->lastItem(),
+                ],
+                'filters' => [
+                    'child_search' => $request->input('child_search', ''),
+                    'created_by_search' => $request->input('created_by_search', ''),
+                ],
+                'selectedChildId' => $user->userType === 'Parent' ? $selectedChildId : null,
+                'selectedChildSource' => $user->userType === 'Parent' ? $selectedChildSource : null,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Filter error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while applying filters',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     public function applyFilters(Request $request)
     {
@@ -2424,8 +2726,6 @@ class ObservationsController extends Controller
                     'status' => false,
                     'message' => 'No snapshots found for the selected child.',
                     'snapshots' => [],
-                    'selectedChildId' => $selectedChildId,
-                    'selectedChildSource' => $selectedChildSource,
                 ]);
             }
 
@@ -2491,11 +2791,16 @@ class ObservationsController extends Controller
         }
 
         // Success response
+        $selectionMeta = ($user->usertype ?? $user->userType) === 'Parent'
+            ? [
+                'selectedChildId' => $selectedChildId ?? null,
+                'selectedChildSource' => $selectedChildSource ?? null,
+            ]
+            : [];
+
         return response()->json([
             'status' => true,
             'message' => 'Snapshots fetched successfully',
-            'selectedChildId' => $selectedChildId ?? null,
-            'selectedChildSource' => $selectedChildSource ?? null,
             'snapshots' => $snapshots,
             // 'centers' => $centers,
             // 'pagination' => $snapshots instanceof \Illuminate\Pagination\LengthAwarePaginator ? [
@@ -2504,7 +2809,7 @@ class ObservationsController extends Controller
             //     'total' => $snapshots->total(),
             //     'last_page' => $snapshots->lastPage(),
             // ] : null,
-        ]);
+        ] + $selectionMeta);
     }
 
     private function applySnapshotFilters($query, Request $request)
