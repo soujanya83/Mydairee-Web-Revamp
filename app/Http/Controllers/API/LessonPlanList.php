@@ -370,6 +370,13 @@ class LessonPlanList extends Controller
             // return view('programPlan.list', compact(
             //     'programPlans', 'userType', 'userId', 'centerId', 'centers', 'getMonthName'
             // ));
+            $selectionMeta = $userType === 'Parent'
+                ? [
+                    'selectedChildId' => $selectedChildId,
+                    'selectedChildSource' => $selectedChildSource,
+                ]
+                : [];
+
             return response()->json([
         'status' => true,
         'data' => [
@@ -377,8 +384,6 @@ class LessonPlanList extends Controller
             // 'userType' => $userType,
             // 'userId' => $userId,
             // 'centerId' => $centerId,
-            'selectedChildId' => $selectedChildId,
-            'selectedChildSource' => $selectedChildSource,
             // 'centers' => $centers,
             // 'getMonthName' => $getMonthName,
             'programPlans' => $programPlans,
@@ -391,7 +396,7 @@ class LessonPlanList extends Controller
                 'to' => $programPlans->lastItem(),
             ],
         ]
-        ]);
+        ] + $selectionMeta);
 
             // } else {
             //     // return redirect('login');
@@ -557,7 +562,227 @@ public function filterProgramPlan(Request $request)
     ]);
 }
 
+public function mernfilterProgramPlan(Request $request)
+{
+    if (!Auth::check()) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
 
+    $user = Auth::user();
+    $authId = $user->id;
+    $defaultCenterId = session('user_center_id');
+    $centerId = $request->input('center_id', $request->input('centerid', $defaultCenterId));
+    $search = trim((string) $request->input('search', ''));
+    $perPage = max((int) $request->input('per_page', 10), 1);
+    $selectedChildId = null;
+    $selectedChildSource = null;
+
+    if (!$centerId) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Center ID is required.'
+        ], 422);
+    }
+
+    $query = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
+        ->where('centerid', $centerId);
+
+    if ($user->userType === 'Superadmin') {
+        $accessibleCenters = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+        if (!in_array($centerId, $accessibleCenters)) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized center access'], 403);
+        }
+    } elseif ($user->userType === 'Staff') {
+        $query->where(function ($q) use ($authId) {
+            $q->where('created_by', $authId)
+              ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
+        });
+    } elseif ($user->userType === 'Parent') {
+        $childIds = Childparent::where('parentid', $authId)->pluck('childid')->values();
+        $requestedChildId = $request->input('child_id', $request->input('childid'));
+        $savedChildId = User::where('userid', $authId)->value('selectedchildreanid');
+
+        if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+            $requestedChildId = (int) $requestedChildId;
+
+            if (!$childIds->contains($requestedChildId)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This child does not belong to this parent',
+                ], 403);
+            }
+
+            $selectedChildId = $requestedChildId;
+            $selectedChildSource = 'request';
+        }
+
+        if (!$selectedChildId && !empty($savedChildId) && $childIds->contains((int) $savedChildId)) {
+            $selectedChildId = (int) $savedChildId;
+            $selectedChildSource = 'saved';
+        }
+
+        if (!$selectedChildId && $childIds->isNotEmpty()) {
+            $selectedChildId = (int) $childIds->first();
+            $selectedChildSource = 'fallback';
+        }
+
+        if (!$selectedChildId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No affiliated child found for this parent.',
+                'data' => [
+                    'programPlans' => [],
+                    'selectedChildId' => null,
+                    'selectedChildSource' => null,
+                ]
+            ]);
+        }
+
+        // Match child IDs safely even if `children` has spaces like "101, 325, 410".
+        $query->whereRaw("CONCAT(',', REPLACE(children, ' ', ''), ',') LIKE ?", ['%,' . $selectedChildId . ',%']);
+        $query->where('status', 'Published');
+    }
+
+    $roomNameFilter = trim((string) $request->input('room', $request->input('room_name', '')));
+    if ($roomNameFilter !== '') {
+        $query->whereHas('room', function ($q) use ($roomNameFilter) {
+            $q->where('name', 'like', '%' . $roomNameFilter . '%');
+        });
+    }
+
+    $roomIdFilter = $request->input('room_id', $request->input('roomid'));
+    if (!empty($roomIdFilter)) {
+        $query->whereRaw("CONCAT(',', REPLACE(room_id, ' ', ''), ',') LIKE ?", ['%,' . (int) $roomIdFilter . ',%']);
+    }
+
+    $createdByFilter = trim((string) $request->input('created_by', $request->input('createdBy', '')));
+    if ($createdByFilter !== '') {
+        if (is_numeric($createdByFilter)) {
+            $query->where('created_by', (int) $createdByFilter);
+        } else {
+            $query->whereHas('creator', function ($q) use ($createdByFilter) {
+                $q->where('name', 'like', '%' . $createdByFilter . '%');
+            });
+        }
+    }
+
+    if ($search !== '') {
+        $query->where(function ($searchQuery) use ($search) {
+            $searchQuery->whereHas('room', function ($roomQuery) use ($search) {
+                $roomQuery->where('name', 'like', '%' . $search . '%');
+            })->orWhereHas('creator', function ($creatorQuery) use ($search) {
+                $creatorQuery->where('name', 'like', '%' . $search . '%');
+            });
+        });
+    }
+
+    if ($user->userType !== 'Parent' && $request->filled('status')) {
+        $query->where('status', 'like', '%' . $request->status . '%');
+    }
+
+    $monthInput = trim((string) $request->input('month', $request->input('months', '')));
+    if ($monthInput !== '') {
+
+        if (is_numeric($monthInput)) {
+            $query->where('months', (int) $monthInput);
+        } else {
+            $monthNumber = null;
+
+            try {
+                $monthNumber = Carbon::parse($monthInput)->month;
+            } catch (\Exception $e) {
+                $monthNumber = null;
+            }
+
+            if ($monthNumber) {
+                $query->where('months', $monthNumber);
+            }
+        }
+    }
+
+    $yearInput = $request->input('year', $request->input('years'));
+    if (!empty($yearInput)) {
+        $query->where('years', $yearInput);
+    }
+
+    $programPlans = $query->orderByDesc('created_at')->paginate($perPage);
+
+    if ($user->userType === 'Parent' && $programPlans->total() === 0) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No program plans found for the selected child.',
+            'data' => [
+                'programPlans' => [],
+                'selectedChildId' => $selectedChildId,
+                'selectedChildSource' => $selectedChildSource,
+            ]
+        ]);
+    }
+
+    $permission = Permission::where('userid', $user->userid)->first();
+
+    $data = $programPlans->getCollection()->map(function ($plan) use ($permission, $user) {
+        $monthNumber = (int) $plan->months;
+        $monthName = $monthNumber > 0
+            ? Carbon::create()->month($monthNumber)->format('F')
+            : 'December';
+
+        $roomIds = explode(',', (string) $plan->room_id);
+        $rooms = !empty($roomIds) ? Room::whereIn('id', $roomIds)->pluck('name')->toArray() : [];
+        $room_name = implode(',', $rooms);
+
+        $deleteProgramPlan = 0;
+        $viewProgramPlan = 0;
+        $editProgramPlan = 0;
+
+        if ($user->userType === 'Superadmin' || $user->admin === '1') {
+            $deleteProgramPlan = 1;
+            $viewProgramPlan = 1;
+            $editProgramPlan = 1;
+        } elseif ($permission) {
+            $deleteProgramPlan = $permission->deleteProgramPlan ? 1 : 0;
+            $viewProgramPlan = $permission->viewProgramPlan ? 1 : 0;
+            $editProgramPlan = $permission->editProgramPlan ? 1 : 0;
+        }
+
+        return [
+            'id' => $plan->id,
+            'month' => $plan->months,
+            'month_name' => $monthName,
+            'years' => $plan->years,
+            'room_name' => $room_name,
+            'creator_name' => $plan->creator->name ?? '',
+            'created_at_formatted' => optional($plan->created_at)->format('d M Y / H:i'),
+            'updated_at_formatted' => optional($plan->updated_at)->format('d M Y / H:i'),
+            'can_edit' => $editProgramPlan,
+            'can_delete' => $deleteProgramPlan,
+            'status' => $plan->status ?? ''
+        ];
+    });
+
+    $programPlans->setCollection($data);
+
+    return response()->json([
+        'status' => true,
+        'data' => [
+            'programPlans' => $programPlans,
+            'pagination' => [
+                'current_page' => $programPlans->currentPage(),
+                'per_page' => $programPlans->perPage(),
+                'total' => $programPlans->total(),
+                'last_page' => $programPlans->lastPage(),
+                'from' => $programPlans->firstItem(),
+                'to' => $programPlans->lastItem(),
+            ],
+            'filters' => [
+                'search' => $search,
+            ],
+        ] + ($user->userType === 'Parent' ? [
+            'selectedChildId' => $selectedChildId,
+            'selectedChildSource' => $selectedChildSource,
+        ] : [])
+    ]);
+}
 public function programPlanPrintPage(Request $request)
 {
 

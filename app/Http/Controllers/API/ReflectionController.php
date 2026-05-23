@@ -293,24 +293,26 @@ class ReflectionController extends Controller
                 'message' => 'No reflections found.',
                 'data' => [
                     'reflection' => [],
-                    'selectedChildId' => $selectedChildId,
-                    'selectedChildSource' => $selectedChildSource,
                 ],
             ]);
         }
 
         $reflection = $query->orderBy('id', 'desc')->paginate($perPage);
 
+        $selectionMeta = $user->userType === 'Parent'
+            ? [
+                'selectedChildId' => $selectedChildId,
+                'selectedChildSource' => $selectedChildSource,
+            ]
+            : [];
+
         return response()->json([
             'status' => true,
             'message' => 'Data retrieved successfully',
             'data' => [
                 // 'centers' => $centers,
-                
-                'selectedChildId' => $selectedChildId,
-                'selectedChildSource' => $selectedChildSource,
                 'reflection' => $reflection,
-            ],
+            ] + $selectionMeta,
             // 'pagination' => [
             //     'current_page' => $reflection->currentPage(),
             //     'per_page' => $reflection->perPage(),

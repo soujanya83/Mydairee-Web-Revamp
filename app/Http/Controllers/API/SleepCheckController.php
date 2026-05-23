@@ -182,6 +182,11 @@ public function getmernSleepChecksList(Request $request)
             if ($parentChildIds->contains($requestedChildId)) {
                 $selectedChildId = $requestedChildId;
                 $selectedChildSource = 'request';
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This child does not belong to this parent'
+                ], 403);
             }
         }
 
@@ -284,17 +289,22 @@ public function getmernSleepChecksList(Request $request)
         $permission = null;
     }
 
+    // Choose message based on user type and presence of data
+    if ($userType === 'Parent') {
+        $responseMessage = $hasSleepChecks ? 'Sleep checks list fetched successfully.' : 'No sleep checks found for the selected child.';
+    } else {
+        $responseMessage = $hasSleepChecks ? 'Sleep checks list fetched successfully.' : 'No sleep checks found for the selected room.';
+    }
+
     // Return JSON response
     return response()->json([
         'status'      => true,
-        'message'     => $hasSleepChecks ? 'Sleep checks list fetched successfully.' : 'No daily dairy available for this child.',
+        'message'     => $responseMessage,
         'centerid'    => $centerid,
         'date'        => $date,
         'roomid'      => $roomid,
         'roomname'    => $roomname,
         'roomcolor'   => $roomcolor,
-        'selectedChildId' => $selectedChildId,
-        'selectedChildSource' => $selectedChildSource,
         'children'    => $childrenWithSleepChecks,
         'pagination'  => [
             'current_page' => $children->currentPage(),
@@ -394,7 +404,6 @@ public function getmernSleepChecksList(Request $request)
 {
        $validator = Validator::make($request->all(), [
         'childid'          => 'required|integer|exists:child,id',
-        'diarydate'        => 'required|date_format:d-m-Y',
         'roomid'           => 'required|integer|exists:room,id',
         'time'             => 'required|string',
         'breathing'        => 'nullable|string',

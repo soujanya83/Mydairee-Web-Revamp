@@ -314,6 +314,13 @@ class AccidentsController extends Controller
 
         $childs = Child::where('room', $roomid)->get();
 
+        $selectionMeta = $userType === 'Parent'
+            ? [
+                'selectedChildId' => $selectedChildId,
+                'selectedChildSource' => $selectedChildSource,
+            ]
+            : [];
+
         return response()->json([
             'success'      => true,
             'message'      => 'Accident list fetched successfully.',
@@ -326,11 +333,9 @@ class AccidentsController extends Controller
                 //'rooms'           => $centerRooms,
                 //'childs'          => $childs,
                 'accidents'       => $accArr,
-                'selectedChildId' => $selectedChildId,
-                'selectedChildSource' => $selectedChildSource,
                 //'centers'         => $centers,
                 'selectedCenter'  => $request->centerid,
-            ]
+            ] + $selectionMeta
         ]);
     }
 
