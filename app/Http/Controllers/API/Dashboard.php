@@ -626,8 +626,8 @@ class Dashboard extends Controller
                 'status' => true,
                 'message' => 'Universal dashboard fetched successfully',
                 'data' => [
-                    // 'birthdays' => $birthdays,
-                    // 'holidays' => $holidays,
+                    'birthdays' => $birthdays,
+                    'holidays' => $holidays,
                     'events' => $events,
                 ],
             ]);
