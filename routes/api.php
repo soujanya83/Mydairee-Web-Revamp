@@ -172,6 +172,8 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
 
         Route::get('/index', [ObservationsController::class, 'snapshotindex'])->name('index');
         Route::get('/mernindex', [ObservationsController::class, 'mernsnapshotindex'])->name('mernindex');
+        Route::post('/mernsnapshotfilters', [ObservationsController::class, 'mernsnapshotapplyFilters'])->name('mernsnapshotfilters');
+
         Route::get('/addnew', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew');
         // Route::get('/addnew/{id?}', [ObservationsController::class, 'snapshotindexstorepage'])->name('addnew.optional');
         Route::post('/store', [ObservationsController::class, 'snapshotstore'])->name('store');
