@@ -409,6 +409,7 @@ public function getmernSleepChecksList(Request $request)
         'breathing'        => 'nullable|string',
         'body_temperature' => 'nullable|string',
         'notes'            => 'nullable|string',
+        'signature'        => 'required|string',
     ]);
 
     if ($validator->fails()) {
@@ -444,7 +445,7 @@ public function getmernSleepChecksList(Request $request)
         'notes'            => $request->notes,
         'createdBy'        => $createdBy,
         'created_at'       =>  $nowSydney,
-        'signature' => $request->signature
+        'signature'        => $request->signature
     ]);
 
     if ($check) {
