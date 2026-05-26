@@ -7,7 +7,10 @@ use App\Models\DevMilestoneMain;
 use App\Models\DevMilestoneSub;
 use App\Models\Observation;
 use App\Models\ObservationLink;
+use App\Models\Reflection;
+use App\Models\ProgramPlanTemplateDetailsAdd;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ObservationApiController extends ObservationsController
 {
@@ -114,7 +117,7 @@ class ObservationApiController extends ObservationsController
 
     public function linkObservationData(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'obsId' => 'required|integer|exists:observation,id',
         ], [
             'obsId.required' => 'Observation ID is required.',
@@ -144,9 +147,34 @@ class ObservationApiController extends ObservationsController
             })
             ->values();
 
+        // Fetch the linked observations and include media and creator
+        $obsIds = $linkedIds->pluck('ObservationId')->unique()->values()->all();
+        $observations = [];
+        if (!empty($obsIds)) {
+            $observations = Observation::whereIn('id', $obsIds)
+                ->with(['media', 'user'])
+                ->get()
+                ->map(function ($o) {
+                    return [
+                        'id' => $o->id,
+                        'title' => $o->title ?? $o->obestitle ?? null,
+                        'created_by' => $o->user?->name ?? null,
+                        'created_by_id' => $o->user?->id ?? null,
+                        'media' => $o->media->map(function ($m) {
+                            return [
+                                'id' => $m->id,
+                                'mediaUrl' => $m->mediaUrl,
+                                'mediaType' => $m->mediaType,
+                            ];
+                        })->values(),
+                    ];
+                })->values();
+        }
+
         return response()->json([
             'status' => true,
             'linked_ids' => $linkedIds,
+            'observations' => $observations,
         ]);
     }
 
@@ -157,7 +185,7 @@ class ObservationApiController extends ObservationsController
 
     public function linkReflectionData(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'obsId' => 'required|integer|exists:observation,id',
         ], [
             'obsId.required' => 'Observation ID is required.',
@@ -187,9 +215,34 @@ class ObservationApiController extends ObservationsController
             })
             ->values();
 
+        // Fetch the linked reflections and include media and creator
+        $reflectionIds = $linkedIds->pluck('ReflectionId')->unique()->values()->all();
+        $reflections = [];
+        if (!empty($reflectionIds)) {
+            $reflections = Reflection::whereIn('id', $reflectionIds)
+                ->with(['media', 'creator'])
+                ->get()
+                ->map(function ($r) {
+                    return [
+                        'id' => $r->id,
+                        'title' => $r->title ?? null,
+                        'created_by' => $r->creator?->name ?? null,
+                        'created_by_id' => $r->creator?->id ?? null,
+                        'media' => $r->media->map(function ($m) {
+                            return [
+                                'id' => $m->id,
+                                'mediaUrl' => $m->mediaUrl,
+                                'mediaType' => $m->mediaType ?? null,
+                            ];
+                        })->values(),
+                    ];
+                })->values();
+        }
+
         return response()->json([
             'status' => true,
             'linked_ids' => $linkedIds,
+            'reflections' => $reflections,
         ]);
     }
 
@@ -200,7 +253,7 @@ class ObservationApiController extends ObservationsController
 
     public function linkProgramPlanData(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'obsId' => 'required|integer|exists:observation,id',
         ], [
             'obsId.required' => 'Observation ID is required.',
@@ -230,10 +283,39 @@ class ObservationApiController extends ObservationsController
             })
             ->values();
 
+        $planIds = $linkedIds->pluck('ProgramPlanId')->unique()->values()->all();
+        $programPlans = [];
+        if (!empty($planIds)) {
+            $programPlans = ProgramPlanTemplateDetailsAdd::whereIn('id', $planIds)
+                ->with(['room', 'creator'])
+                ->get()
+                ->map(function ($p) {
+                    return [
+                        'id' => $p->id,
+                        'month_name' => $this->getMonthName((int) $p->months),
+                        'room_name' => $p->room?->name ?? null,
+                        'created_by' => $p->creator?->name ?? null,
+                        'created_by_id' => $p->creator?->id ?? null,
+                    ];
+                })->values();
+        }
+
         return response()->json([
             'status' => true,
             'linked_ids' => $linkedIds,
+            'program_plans' => $programPlans,
         ]);
+    }
+
+    private function getMonthName(int $monthNumber)
+    {
+        $months = [
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
+        ];
+
+        return $months[$monthNumber] ?? null;
     }
 
     public function storeLinkedProgramPlan(Request $request)
