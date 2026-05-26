@@ -50,6 +50,7 @@ use Illuminate\Support\Str;
 use App\Notifications\ObservationAdded;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\Mail;
 
 class ObservationsController extends Controller
 {
@@ -146,7 +147,7 @@ class ObservationsController extends Controller
             $url = route('sharelink', $obsId);
 
             // Send email
-            \Mail::send([], [], function ($mail) use ($email, $url, $message, $obsId) {
+            Mail::send([], [], function ($mail) use ($email, $url, $message, $obsId) {
                 $mail->from('mydairee47@gmail.com', 'Observation Report')
                     ->to($email)
                     ->subject('Observation Report - ' . $obsId)
@@ -2812,12 +2813,193 @@ class ObservationsController extends Controller
         ] + $selectionMeta);
     }
 
+    public function mernsnapshotapplyFilters(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'center_id' => 'required|integer|min:1',
+                'per_page'  => 'nullable|integer|min:1',
+                'page'      => 'nullable|integer|min:1',
+                'search'    => 'nullable|string',
+                'title'     => 'nullable|string',
+                'status'    => 'nullable|string',
+                'date'      => 'nullable|array',
+                'date.*'    => 'nullable|string',
+                'fromDate'  => 'nullable|date',
+                'toDate'    => 'nullable|date',
+                'author'    => 'nullable|string',
+                'child_name'=> 'nullable|string',
+                'room_id'   => 'nullable|integer|min:1',
+                'roomid'    => 'nullable|integer|min:1',
+                'child_id'  => 'nullable|integer|min:1',
+                'childid'   => 'nullable|integer|min:1',
+            ], [
+                'center_id.required' => 'Center ID is required.',
+                'center_id.integer'  => 'Center ID must be an integer.',
+                'center_id.min'      => 'Center ID must be greater than 0.',
+                'per_page.integer'   => 'Per page must be an integer.',
+                'per_page.min'       => 'Per page must be greater than 0.',
+                'page.integer'       => 'Page must be an integer.',
+                'page.min'           => 'Page must be greater than 0.',
+                'fromDate.date'      => 'From date must be a valid date.',
+                'toDate.date'        => 'To date must be a valid date.',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed.',
+                    'errors'  => $validator->errors(),
+                ], 422);
+            }
+
+            $validated = $validator->validated();
+            $centerid = $validated['center_id'];
+            $perPage = $validated['per_page'] ?? max((int) $request->input('per_page', 10), 1);
+            $page = $validated['page'] ?? max((int) $request->input('page', 1), 1);
+            $roomId = $request->input('room_id', $request->input('roomid'));
+            $selectedChildId = null;
+            $selectedChildSource = null;
+            $user = Auth::user();
+
+            $query = Snapshot::with(['creator', 'center', 'children.child', 'media'])
+                ->where('centerid', $centerid);
+
+            if ($user->userType === 'Parent') {
+                $parentChildIds = Childparent::where('parentid', $user->id)->pluck('childid')->values();
+                $requestedChildId = $request->input('child_id', $request->input('childid'));
+                $savedChildId = User::where('userid', $user->id)->value('selectedchildreanid');
+
+                if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+                    $requestedChildId = (int) $requestedChildId;
+
+                    if (!$parentChildIds->contains($requestedChildId)) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'This child does not belong to this parent',
+                        ], 403);
+                    }
+
+                    $selectedChildId = $requestedChildId;
+                    $selectedChildSource = 'request';
+                }
+
+                if (!$selectedChildId && !empty($savedChildId) && $parentChildIds->contains((int) $savedChildId)) {
+                    $selectedChildId = (int) $savedChildId;
+                    $selectedChildSource = 'saved';
+                }
+
+                if (!$selectedChildId && $parentChildIds->isNotEmpty()) {
+                    $selectedChildId = (int) $parentChildIds->first();
+                    $selectedChildSource = 'fallback';
+                }
+
+                if (!$selectedChildId) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'No affiliated child found for this parent.',
+                        'snapshots' => [],
+                        'selectedChildId' => null,
+                        'selectedChildSource' => null,
+                    ]);
+                }
+
+                $snapshotIds = SnapshotChild::where('childid', $selectedChildId)
+                    ->pluck('snapshotid')
+                    ->unique()
+                    ->toArray();
+
+                if (empty($snapshotIds)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'No snapshots found for the selected child.',
+                        'snapshots' => [],
+                        'selectedChildId' => $selectedChildId,
+                        'selectedChildSource' => $selectedChildSource,
+                    ]);
+                }
+
+                $query->whereIn('id', $snapshotIds)
+                    ->where('status', 'Published');
+            }
+
+            if ($user->userType === 'Staff') {
+                $query->where('createdBy', Auth::id());
+            }
+
+            $this->applySnapshotFilters($query, $request);
+            $this->applySnapshotRoomFilter($query, $roomId);
+
+            $query->orderBy('id', 'desc');
+
+            $snapshots = $query->paginate($perPage, ['*'], 'page', $page);
+
+            $snapshotItems = $snapshots->getCollection();
+
+            $allRoomIds = $snapshotItems->pluck('roomids')
+                ->flatMap(fn($roomids) => explode(',', (string) $roomids))
+                ->unique()
+                ->filter();
+
+            $rooms = $allRoomIds->isNotEmpty()
+                ? Room::whereIn('id', $allRoomIds)->get()->keyBy('id')
+                : collect();
+
+            $snapshotItems->transform(function ($snapshot) use ($rooms) {
+                $roomIds = array_filter(explode(',', (string) $snapshot->roomids));
+                $snapshot->rooms = $rooms->only($roomIds)->values();
+                return $snapshot;
+            });
+
+            $snapshots->setCollection($snapshotItems);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Snapshot filters applied successfully',
+                'filters' => [
+                    'search' => $request->input('search', ''),
+                    'title' => $request->input('title', ''),
+                    'status' => $request->input('status', ''),
+                    'date' => $request->input('date', ''),
+                    'author' => $request->input('author', ''),
+                    'child_name' => $request->input('child_name', ''),
+                    'room_id' => $roomId,
+                ],
+                'snapshots' => $snapshots,
+                'userRole' => $user->userType,
+                'count' => $snapshots->total(),
+                'pagination' => [
+                    'current_page' => $snapshots->currentPage(),
+                    'per_page' => $snapshots->perPage(),
+                    'total' => $snapshots->total(),
+                    'last_page' => $snapshots->lastPage(),
+                    'from' => $snapshots->firstItem(),
+                    'to' => $snapshots->lastItem(),
+                ],
+                
+                'selectedChildId' => $user->userType === 'Parent' ? $selectedChildId : null,
+                'selectedChildSource' => $user->userType === 'Parent' ? $selectedChildSource : null,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Snapshot filter error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while applying snapshot filters',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     private function applySnapshotFilters($query, Request $request)
     {
         $search = trim((string) $request->input('search', ''));
         $title = trim((string) $request->input('title', ''));
         $status = trim((string) $request->input('status', ''));
-        $date = trim((string) $request->input('date', ''));
+        $dateFilters = $request->input('date', []);
+        $dateFilters = is_array($dateFilters) ? $dateFilters : [$dateFilters];
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
         $author = trim((string) $request->input('author', ''));
         $childName = trim((string) $request->input('child_name', ''));
 
@@ -2853,18 +3035,50 @@ class ObservationsController extends Controller
             $query->where('status', 'like', '%' . $status . '%');
         }
 
-        if ($date !== '') {
-            try {
-                $query->whereDate('created_at', Carbon::parse($date)->toDateString());
-            } catch (\Exception $e) {
-                $query->whereRaw("DATE_FORMAT(created_at, '%d-%m-%Y') LIKE ?", ['%' . $date . '%']);
+        if (!empty($dateFilters)) {
+            foreach ($dateFilters as $dateFilter) {
+                switch ($dateFilter) {
+                    case 'Today':
+                        $query->whereDate('created_at', Carbon::today());
+                        break;
+                    case 'This Week':
+                        $query->whereBetween('created_at', [
+                            Carbon::now()->startOfWeek(),
+                            Carbon::now()->endOfWeek(),
+                        ]);
+                        break;
+                    case 'This Month':
+                        $query->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth(),
+                        ]);
+                        break;
+                    case 'Custom':
+                        if ($fromDate && $toDate) {
+                            $query->whereBetween('created_at', [
+                                Carbon::parse($fromDate)->startOfDay(),
+                                Carbon::parse($toDate)->endOfDay(),
+                            ]);
+                        }
+                        break;
+                }
             }
         }
 
         if ($author !== '') {
-            $query->whereHas('creator', function ($creatorQuery) use ($author) {
-                $creatorQuery->where('name', 'like', '%' . $author . '%');
-            });
+            $authorLower = strtolower($author);
+
+            if ($authorLower === 'any') {
+                // No author filter.
+            } elseif ($authorLower === 'me') {
+                $query->where('createdBy', Auth::id());
+            } elseif (is_numeric($author)) {
+                $query->where('createdBy', (int) $author);
+            } else {
+                $query->whereHas('creator', function ($creatorQuery) use ($author) {
+                    $creatorQuery->where('name', 'like', '%' . $author . '%');
+                });
+            }
         }
 
         if ($childName !== '') {

@@ -198,6 +198,8 @@ class ReflectionController extends Controller
                 $selectedChildSource = 'fallback';
             }
 
+            $query->where('status', 'PUBLISHED');
+
             $reflectionIds = ReflectionChild::whereIn('childid', $selectedChildId ? [$selectedChildId] : $childids)
                 ->pluck('reflectionid')
                 ->unique()
@@ -365,7 +367,6 @@ class ReflectionController extends Controller
                     'outcomes'  => $outcomes,
                 ]
             ]);
-
      }
 
 
