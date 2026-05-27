@@ -28,6 +28,7 @@ use App\Http\Controllers\API\UserProfileController;
 use App\Http\Controllers\API\DeviceController;
 use App\Http\Controllers\API\GlobalRoomsChildrenController;
 use App\Http\Controllers\API\NotificationApiController;
+use App\Http\Controllers\API\NotesController;
 use App\Http\Controllers\API\PublicHolidayController;
 use App\Http\Controllers\API\ApiWifiIPController;
 use App\Http\Controllers\API\ApiPTMController;
@@ -53,6 +54,13 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::post('user/profile-picture', [UserProfileController::class, 'updateProfilePicture']);
 	Route::get('user/profile', [UserProfileController::class, 'getProfile']);
 	Route::patch('user/profile', [UserProfileController::class, 'updateProfile']);
+    Route::prefix('notes')->name('notes.')->group(function () {
+        Route::get('/', [NotesController::class, 'index'])->name('index');
+        Route::post('/', [NotesController::class, 'store'])->name('store');
+        Route::get('/{id}', [NotesController::class, 'show'])->name('show');
+        Route::post('/update', [NotesController::class, 'update'])->name('update');
+        Route::delete('/{id}', [NotesController::class, 'destroy'])->name('destroy');
+    });
     Route::get('global-rooms', [GlobalRoomsChildrenController::class, 'getCenterRooms']);
     Route::get('global-userrooms',[GlobalRoomsChildrenController::class, 'getUserCenterRooms']);
     Route::get('global-children', [GlobalRoomsChildrenController::class, 'getRoomChildren']);
