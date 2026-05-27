@@ -50,7 +50,21 @@ class AnnouncementController extends Controller
                 ->where('centerid', $centerId);
 
             if ($userType === 'Staff') {
-                $query->where('createdBy', $userId);
+                $staffRoomIds = \App\Models\RoomStaff::where('staffid', $user->id)->pluck('roomid');
+                $staffChildIds = $staffRoomIds->isNotEmpty()
+                    ? Child::whereIn('room', $staffRoomIds)->pluck('id')
+                    : collect();
+                $taggedAnnouncementIds = $staffChildIds->isNotEmpty()
+                    ? AnnouncementChildModel::whereIn('childid', $staffChildIds)->pluck('aid')->unique()->values()
+                    : collect();
+
+                $query->where(function ($staffQuery) use ($userId, $taggedAnnouncementIds) {
+                    $staffQuery->where('createdBy', $userId);
+
+                    if ($taggedAnnouncementIds->isNotEmpty()) {
+                        $staffQuery->orWhereIn('id', $taggedAnnouncementIds);
+                    }
+                });
             }
 
             $records = $query->orderByDesc('id')->get(); // ✅ Pagination applied
@@ -115,7 +129,21 @@ class AnnouncementController extends Controller
                 ->where('centerid', $centerId);
 
             if ($userType === 'Staff') {
-                $query->where('createdBy', $userId);
+                $staffRoomIds = \App\Models\RoomStaff::where('staffid', $user->id)->pluck('roomid');
+                $staffChildIds = $staffRoomIds->isNotEmpty()
+                    ? Child::whereIn('room', $staffRoomIds)->pluck('id')
+                    : collect();
+                $taggedAnnouncementIds = $staffChildIds->isNotEmpty()
+                    ? AnnouncementChildModel::whereIn('childid', $staffChildIds)->pluck('aid')->unique()->values()
+                    : collect();
+
+                $query->where(function ($staffQuery) use ($userId, $taggedAnnouncementIds) {
+                    $staffQuery->where('createdBy', $userId);
+
+                    if ($taggedAnnouncementIds->isNotEmpty()) {
+                        $staffQuery->orWhereIn('id', $taggedAnnouncementIds);
+                    }
+                });
             }
 
             $records = $query->orderByDesc('id')->get(); // ✅ Pagination applied
@@ -219,7 +247,7 @@ class AnnouncementController extends Controller
             
             'centerId' => $centerId,
             'records' => $records,
-            'permissions' => $permissions,
+           // 'permissions' => $permissions,
         ] + $selectionMeta
         ]);
 

@@ -446,27 +446,24 @@ class ApiHealthyController extends Controller
             }
 
             $authId = $user->id;
-            $centerid = $user->user_center_id ?? session('user_center_id');
             $requestedCenterId = $request->input('center_id');
 
-            if ($user->userType == "Superadmin") {
-                $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-
-                if ($requestedCenterId) {
-                    $centerIds = [$requestedCenterId];
-                }
-
-                $centers = Center::whereIn('id', $centerIds)->get();
-            } else {
-                $centerId = $centerid;
-
-                if ($requestedCenterId && $requestedCenterId != $centerId) {
-                    return response()->json(['status' => 'error', 'message' => 'Access denied for requested center.'], 403);
-                }
-
-                $centerIds = [$centerId];
-                $centers = Center::whereIn('id', $centerIds)->get();
+            if ($requestedCenterId === null || $requestedCenterId === '') {
+                return response()->json(['status' => 'error', 'message' => 'center_id is required.'], 400);
             }
+
+            $allowedCenterIds = Usercenter::where('userid', $authId)
+                ->pluck('centerid')
+                ->map(fn ($id) => (string) $id)
+                ->toArray();
+
+            if (!in_array((string) $requestedCenterId, $allowedCenterIds, true)) {
+                return response()->json(['status' => 'error', 'message' => 'Access denied for requested center.'], 403);
+            }
+
+            $centerIds = [(int) $requestedCenterId];
+            $centers = Center::whereIn('id', $centerIds)->get();
+            $currentCenterId = (int) $requestedCenterId;
 
             $recipes = RecipeModel::whereIn('recipes.centerid', $centerIds)
                 ->join('recipe_media', 'recipe_media.recipeid', '=', 'recipes.id')
@@ -487,7 +484,7 @@ class ApiHealthyController extends Controller
             return response()->json([
                 'status' => 'success',
                 'centers' => $centers,
-                'Current Center Id' => $requestedCenterId,
+                'Current Center Id' => $currentCenterId,
                 'recipes' => $recipes,
                 'unique_meal_types' => $uniqueMealTypes,
                 'ingredients' => $ingredients,
