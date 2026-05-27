@@ -19,41 +19,41 @@ use App\Models\Usercenter;
 
 class HeadChecks extends Controller
 {
-public function headcheckprint(Request $request)
-{
-    $request->validate([
-        'roomid' => 'required',
-        'centerid' => 'required',
-        'diarydate' => 'required'
-    ]);
+    public function headcheckprint(Request $request)
+    {
+        $request->validate([
+            'roomid' => 'required',
+            'centerid' => 'required',
+            'diarydate' => 'required'
+        ]);
 
-    $roomid = $request->roomid;
-    $inputDate = $request->diarydate;
+        $roomid = $request->roomid;
+        $inputDate = $request->diarydate;
 
-    // Convert from d-m-Y to Y-m-d
-    $date = \Carbon\Carbon::createFromFormat('d-m-Y', $inputDate);
-    $formattedDate = $date->format('Y-m-d');
+        // Convert from d-m-Y to Y-m-d
+        $date = \Carbon\Carbon::createFromFormat('d-m-Y', $inputDate);
+        $formattedDate = $date->format('Y-m-d');
 
-    // Calculate week range (Monday to Friday only)
-    $startOfWeek = $date->copy()->startOfWeek();
-    $endOfWeek = $startOfWeek->copy()->addDays(4); // Friday
+        // Calculate week range (Monday to Friday only)
+        $startOfWeek = $date->copy()->startOfWeek();
+        $endOfWeek = $startOfWeek->copy()->addDays(4); // Friday
 
-    // Extract month & year for filtering
-    $month = $date->format('m');
-    $year = $date->format('Y');
+        // Extract month & year for filtering
+        $month = $date->format('m');
+        $year = $date->format('Y');
 
-    $room = Room::where('id', $roomid)->select('name')->first();
+        $room = Room::where('id', $roomid)->select('name')->first();
 
-    // Only fetch head checks for the selected week (Monday to Friday)
-    $headchecks = DailyDiaryHeadCheckModel::where('roomid', $roomid)
-        ->whereBetween('diarydate', [$startOfWeek->format('Y-m-d'), $endOfWeek->format('Y-m-d')])
-        ->get();
+        // Only fetch head checks for the selected week (Monday to Friday)
+        $headchecks = DailyDiaryHeadCheckModel::where('roomid', $roomid)
+            ->whereBetween('diarydate', [$startOfWeek->format('Y-m-d'), $endOfWeek->format('Y-m-d')])
+            ->get();
 
-    return view('headChecks.print', compact('room', 'month', 'headchecks', 'startOfWeek', 'endOfWeek', 'inputDate'));
-}
+        return view('headChecks.print', compact('room', 'month', 'headchecks', 'startOfWeek', 'endOfWeek', 'inputDate'));
+    }
 
 
-  public function index(Request $request)
+    public function index(Request $request)
     {
         // Validate user token (simulate $res = getAuthUserId)
         $user = Auth::user();
@@ -67,9 +67,9 @@ public function headcheckprint(Request $request)
          if ($userType === "Superadmin") {
         $centerIds = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
         $centers = Center::whereIn('id', $centerIds)->get();
-    } else {
-        $centers = Center::where('id', $centerId)->get();
-    }
+        } else {
+            $centers = Center::where('id', $centerId)->get();
+        }
 
         if (empty($request->roomid)) {
             $centerRoom = Room::where('centerid', $centerId)->first();
@@ -87,9 +87,9 @@ public function headcheckprint(Request $request)
 
         // Date
         // dd($request->date);
-$staff = RoomStaff::where('roomid', $request->roomid)->pluck('staffid');
+        $staff = RoomStaff::where('roomid', $request->roomid)->pluck('staffid');
 
-$staffDetails = User::whereIn('userid', $staff)->get();
+        $staffDetails = User::whereIn('userid', $staff)->get();
 
 
 
@@ -107,120 +107,120 @@ $staffDetails = User::whereIn('userid', $staff)->get();
         // Get head checks
         $headChecks = DailyDiaryHeadCheckModel::where('createdBy', $user->userid)
                         ->where('roomid', $roomid)
-                        ->whereDate('createdAt', $date)
+                        ->whereDate('created_at', $date)
                         ->get();
 
                         // dd($headChecks);
 
       return view('headChecks.index', [
-    'centerid' => $centerId,
-    'date' => $date,
-    'roomid' => $roomid,
-    'roomname' => $roomname,
-    'roomcolor' => $roomcolor,
-    'rooms' => $centerRooms,
-    'headChecks' => $headChecks,
-    'permissionsData' => $permission,         ///// old veriable permissions ot permissionsData for setting submenu remove for change this (26/09/2025) CS.
-    'centers'=>$centers,
-    'staffs' => $staffDetails
-]);
+        'centerid' => $centerId,
+        'date' => $date,
+        'roomid' => $roomid,
+        'roomname' => $roomname,
+        'roomcolor' => $roomcolor,
+        'rooms' => $centerRooms,
+        'headChecks' => $headChecks,
+        'permissionsData' => $permission,         ///// old veriable permissions ot permissionsData for setting submenu remove for change this (26/09/2025) CS.
+        'centers'=>$centers,
+        'staffs' => $staffDetails
+       ]);
 
     }
 
- // if needed to check user auth (or a custom AuthService)
+    // if needed to check user auth (or a custom AuthService)
 
-public function getCenterRooms(Request $request)
-{
+    public function getCenterRooms(Request $request)
+    {
 
-    $userId = Auth::user()->userid;
-    $centerid = Session('user_center_id');
+        $userId = Auth::user()->userid;
+        $centerid = Session('user_center_id');
 
-    // Fetch rooms from DB
-    $rooms = Room::where('centerid', $centerid)->get();
+        // Fetch rooms from DB
+        $rooms = Room::where('centerid', $centerid)->get();
 
-    return response()->json([
-        'Status' => 'SUCCESS',
-        'Rooms' => $rooms
-    ]);
-}
-
-
-public function headchecksStore(Request $request)
-{
-    $validated = $request->validate([
-        'timePicker' => 'required|array',
-        'headCount'  => 'required|array',
-        'signature'  => 'required|array',
-        'roomid'     => 'required|integer',
-        'centerid'   => 'required|integer',
-        'diarydate'  => 'required|string',
-    ]);
-
-    // Format diary date
-    $diaryDate = str_replace("/", "-", $validated['diarydate']);
-    $diaryDate = date('Y-m-d', strtotime($diaryDate));
-
-    // Optional date (for delete filter)
-    $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
-
-    // Delete existing records if 'headcheck' flag is sent
-    if ($request->headcheck) {
-        DailyDiaryHeadCheckModel::where('roomid', $validated['roomid'])
-            ->whereDate('createdAt', $date)
-            ->delete();
-    }
-
-    $headchecks = [];
-
-    for ($i = 0; $i < count($validated['timePicker']); $i++) {
-        // Convert HH:MM to 1h:00m
-        [$hours, $minutes] = explode(':', $validated['timePicker'][$i]);
-        $convertedTime = intval($hours) . 'h:' . intval($minutes) . 'm';
-
-        $headchecks[] = [
-            'time'      => $convertedTime,
-            'diarydate' => $diaryDate,
-            'headcount' => $validated['headCount'][$i],
-            'signature' => $validated['signature'][$i],
-            'roomid'    => $validated['roomid'],
-            'createdBy' => Auth::id(),  // use Auth::user()->userid if needed
-            'createdAt' => now(),
-        ];
-    }
-
-    // Insert all rows
-    DailyDiaryHeadCheckModel::insert($headchecks);
-
-    return redirect()->route('headChecks', [
-        'roomid'   => $validated['roomid'],
-        'date'     => $diaryDate,
-        'centerid' => $validated['centerid'],
-    ])->with('success', 'Records added successfully.');
-}
-
-
-public function headcheckDelete(Request $request)
-{
-    $request->validate([
-        'headCheckId' => 'required|integer|exists:dailydiaryheadcheck,id',
-    ]);
-
-    $headCheckId = $request->headCheckId;
-
-    $deleted = DailyDiaryHeadCheckModel::where('id', $headCheckId)->delete();
-
-    if ($deleted) {
         return response()->json([
             'Status' => 'SUCCESS',
-            'Message' => 'Record deleted successfully'
-        ]);
-    } else {
-        return response()->json([
-            'Status' => 'ERROR',
-            'Message' => 'Failed to delete the record'
+            'Rooms' => $rooms
         ]);
     }
-}
+
+
+    public function headchecksStore(Request $request)
+    {
+        $validated = $request->validate([
+            'timePicker' => 'required|array',
+            'headCount'  => 'required|array',
+            'signature'  => 'required|array',
+            'roomid'     => 'required|integer',
+            'centerid'   => 'required|integer',
+            'diarydate'  => 'required|string',
+        ]);
+
+        // Format diary date
+        $diaryDate = str_replace("/", "-", $validated['diarydate']);
+        $diaryDate = date('Y-m-d', strtotime($diaryDate));
+
+        // Optional date (for delete filter)
+        $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
+
+        // Delete existing records if 'headcheck' flag is sent
+        if ($request->headcheck) {
+            DailyDiaryHeadCheckModel::where('roomid', $validated['roomid'])
+                ->whereDate('created_at', $date)
+                ->delete();
+        }
+
+        $headchecks = [];
+
+        for ($i = 0; $i < count($validated['timePicker']); $i++) {
+            // Convert HH:MM to 1h:00m
+            [$hours, $minutes] = explode(':', $validated['timePicker'][$i]);
+            $convertedTime = intval($hours) . 'h:' . intval($minutes) . 'm';
+
+            $headchecks[] = [
+                'time'      => $convertedTime,
+                'diarydate' => $diaryDate,
+                'headcount' => $validated['headCount'][$i],
+                'signature' => $validated['signature'][$i],
+                'roomid'    => $validated['roomid'],
+                'createdBy' => Auth::id(),  // use Auth::user()->userid if needed
+                'created_at' => now(),
+            ];
+        }
+
+        // Insert all rows
+        DailyDiaryHeadCheckModel::insert($headchecks);
+
+        return redirect()->route('headChecks', [
+            'roomid'   => $validated['roomid'],
+            'date'     => $diaryDate,
+            'centerid' => $validated['centerid'],
+        ])->with('success', 'Records added successfully.');
+    }
+
+
+    public function headcheckDelete(Request $request)
+    {
+        $request->validate([
+            'headCheckId' => 'required|integer|exists:dailydiaryheadcheck,id',
+        ]);
+
+        $headCheckId = $request->headCheckId;
+
+        $deleted = DailyDiaryHeadCheckModel::where('id', $headCheckId)->delete();
+
+        if ($deleted) {
+            return response()->json([
+                'Status' => 'SUCCESS',
+                'Message' => 'Record deleted successfully'
+            ]);
+        } else {
+            return response()->json([
+                'Status' => 'ERROR',
+                'Message' => 'Failed to delete the record'
+            ]);
+        }
+    }
 
 
 }
