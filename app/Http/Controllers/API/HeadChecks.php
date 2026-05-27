@@ -83,7 +83,7 @@ public function index(Request $request)
     // Get head checks
     $headChecks = DailyDiaryHeadCheckModel::where('createdBy', $userId)
         ->where('roomid', $roomid)
-        ->whereDate('createdAt', $date)
+        ->whereDate('created_at', $date)
         ->get();
 
     // Respond as JSON if requested
@@ -160,7 +160,7 @@ public function getCenterRooms(Request $request)
 //   $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
 //   if ($request->headcheck) {
 //     DailyDiaryHeadCheckModel::where('roomid', $request->roomid)
-//         ->whereDate('createdAt', $date)
+//         ->whereDate('created_at', $date)
 //         ->delete();
 // }
 
@@ -174,7 +174,7 @@ public function getCenterRooms(Request $request)
 //             'comments'  => $validated['comments'][$i],
 //             'roomid'    => $validated['roomid'],
 //             'createdBy' => Auth::user()->userid,
-//             'createdAt' => now(),
+//             'created_at' => now(),
 //         ];
 //     }
 
@@ -235,7 +235,7 @@ public function headchecksStore(Request $request)
 
         $newRecord = DailyDiaryHeadCheckModel::create($payload + [
             'createdBy' => Auth::id(),
-            'createdAt' => now(),
+            'created_at' => now(),
         ]);
 
         $headchecks[] = array_merge(['id' => $newRecord->id], $payload);
