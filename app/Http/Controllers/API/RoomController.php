@@ -306,7 +306,7 @@ class RoomController extends Controller
         | Get Centers
         |--------------------------------------------------------------------------
         */
-        if ($userType == "Superadmin") {
+        if ($userType == "Superadmin" || $userType == "Centeradmin") {
 
             $centerIds = Usercenter::where('userid', $authId)
                 ->pluck('centerid')
@@ -331,7 +331,7 @@ class RoomController extends Controller
         | Fetch Rooms Based On User Type
         |--------------------------------------------------------------------------
         */
-        if ($userType == "Superadmin") {
+        if ($userType == "Superadmin" || $userType == "Centeradmin") {
             // Superadmin: all rooms of the current center
             if (!empty($centerid)) {
                 $getrooms = Room::where('centerid', $centerid)->get();
