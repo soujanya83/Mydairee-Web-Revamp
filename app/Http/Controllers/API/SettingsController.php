@@ -1147,13 +1147,29 @@ public function center_settings()
 
 public function center_store(Request $request)
 {
+    $adminEmail = trim((string) $request->input('admin_email', $request->input('email', '')));
+    $adminPassword = (string) $request->input('admin_password', $request->input('password', ''));
+    $adminName = trim((string) $request->input('admin_name', $request->input('name', $adminEmail)));
+   
+
+    $payload = array_merge($request->all(), [
+        
+        'admin_email' => $adminEmail,
+        'admin_password' => $adminPassword,
+        'admin_name' => $adminName,
+        
+    ]);
+
     // Step 1: Validate request using Validator
-    $validator = Validator::make($request->all(), [
+    $validator = Validator::make($payload, [
         'centerName'     => 'required|string',
         'adressStreet'   => 'required|string',
         'addressCity'    => 'required|string',
         'addressState'   => 'required|string',
         'addressZip'     => 'required|min:3',
+        'admin_name'      => 'required|string|max:255',
+        'admin_email'     => 'required|email|unique:users,email',
+        'admin_password'  => 'required|string|min:6',
     ]);
 
     // Step 2: Return validation errors if any
@@ -1167,38 +1183,72 @@ public function center_store(Request $request)
 
     try {
         // Step 3: Save Center
-$check = Center::whereRaw('LOWER(centerName) = ?', [strtolower($request->centerName)])
-               ->where('user_id', Auth::user()->id)
-               ->first();
+    $check = Center::whereRaw('LOWER(centerName) = ?', [strtolower($request->centerName)])
+                ->where('user_id', Auth::user()->id)
+                ->first();
 
-if ($check) {
-    return response()->json([
-        'status'  => false,
-        'message' => 'Center name already exists for this user.',
-        'errors'  => ['centerName' => ['This center name is already taken.']]
-    ], 422);
-}
+    if ($check) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Center name already exists for this user.',
+            'errors'  => ['centerName' => ['This center name is already taken.']]
+        ], 422);
+    }
 
-        $center = new Center();
-        $center->user_id       = Auth::user()->id;
-        $center->centerName    = $request->centerName;
-        $center->adressStreet  = $request->adressStreet;
-        $center->addressCity   = $request->addressCity;
-        $center->addressState  = $request->addressState;
-        $center->addressZip    = $request->addressZip;
-        $center->save();
+        $centerAdmin = null;
+        $center = null;
 
-        // Step 4: Create Usercenter record
-        $userCenter = new Usercenter();
-        $userCenter->userid   = Auth::user()->id;
-        $userCenter->centerid = $center->id;
-        $userCenter->save();
+        DB::transaction(function () use ($request, $adminName, $adminEmail, $adminPassword, &$center, &$centerAdmin) {
+            $authId = Auth::id();
+
+            $center = new Center();
+            $center->user_id       = $authId;
+            $center->centerName    = $request->centerName;
+            $center->adressStreet  = $request->adressStreet;
+            $center->addressCity   = $request->addressCity;
+            $center->addressState  = $request->addressState;
+            $center->addressZip    = $request->addressZip;
+            $center->save();
+
+            $centerAdmin = new User();
+            $centerAdmin->name = $adminName;
+            $centerAdmin->email = $adminEmail;
+            $centerAdmin->emailid = $adminEmail;
+            $centerAdmin->password = Hash::make($adminPassword);
+            $centerAdmin->userType = 'Centeradmin';
+            $centerAdmin->center_status = '1';
+            $centerAdmin->save();
+
+            $centerAdmin->userid = $centerAdmin->id;
+            $centerAdmin->save();
+
+            // Keep creator linked to the center 
+            Usercenter::firstOrCreate([
+                'userid' => $authId,
+                'centerid' => $center->id,
+            ]);
+
+            // Auto-assign created center admin to this center.
+            Usercenter::firstOrCreate([
+                'userid' => $centerAdmin->id,
+                'centerid' => $center->id,
+            ]);
+        });
 
         // Step 5: Return success response
         return response()->json([
             'status'  => true,
             'message' => 'Center created successfully.',
-            'data'    => [ 'center' => $center ]
+            'data'    => [
+                'center' => $center,
+                'center_admin' => [
+                    'id' => $centerAdmin->id,
+                    'userid' => $centerAdmin->userid,
+                    'name' => $centerAdmin->name,
+                    'email' => $centerAdmin->email,
+                    'userType' => $centerAdmin->userType,
+                ],
+            ]
         ]);
     } catch (\Exception $e) {
         return response()->json([
@@ -1208,21 +1258,93 @@ if ($check) {
     }
 }
 
-    public function center_edit($id)
-    {
-        $user = Center::findOrFail($id);
-        return response()->json($user);
+ public function center_edit(Request $request)
+{
+    $id = $request->id;
+
+    if (!$id) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Center ID is required.'
+        ], 400);
     }
+
+    $center = Center::find($id);
+
+    if (!$center) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Center not found.'
+        ], 404);
+    }
+
+    $centerAdmin = User::select(
+            'users.id',
+            'users.userid',
+            'users.name',
+            'users.username',
+            'users.email',
+            'users.contactNo',
+            'users.gender',
+            'users.userType'
+        )
+        ->join('usercenters', 'usercenters.userid', '=', 'users.id')
+        ->where('usercenters.centerid', $center->id)
+        ->where('users.userType', 'Centeradmin')
+        ->first();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Center details retrieved successfully.',
+        'data' => [
+            'center' => $center,
+            'center_admin' => $centerAdmin,
+        ],
+    ]);
+}
 
     public function center_update(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $center = Center::find($request->id);
+        $currentCenterAdmin = null;
+
+        if ($center) {
+            $currentCenterAdmin = User::select('users.*')
+                ->join('usercenters', 'usercenters.userid', '=', 'users.id')
+                ->where('usercenters.centerid', $center->id)
+                ->where('users.userType', 'Centeradmin')
+                ->first();
+        }
+
+        $centerAdminId = $currentCenterAdmin ? $currentCenterAdmin->id : null;
+       
+        $adminEmail = trim((string) $request->input('admin_email', $request->input('email', '')));
+        $adminPassword = (string) $request->input('admin_password', $request->input('password', ''));
+        $adminName = trim((string) $request->input('admin_name', $request->input('name', '')));
+       
+
+        $payload = array_merge($request->all(), [
+            'admin_name' => $adminName,
+         
+            'admin_email' => $adminEmail,
+            'admin_password' => $adminPassword,
+           
+        ]);
+
+        $validator = Validator::make($payload, [
             'id'            => 'required|exists:centers,id',
             'centerName'    => 'required|string',
             'adressStreet'  => 'required|string',
             'addressCity'   => 'required|string',
             'addressState'  => 'required|string',
             'addressZip'    => 'required|min:3',
+            'admin_name' => 'nullable|string|max:255',
+            'admin_email' => [
+                'nullable',
+                'email',
+                Rule::unique('users', 'email')->ignore($centerAdminId),
+            ],
+            'admin_password' => 'nullable|string|min:6',
         ]);
 
         if ($validator->fails()) {
@@ -1255,17 +1377,56 @@ if ($check) {
             ], 422);
         }
 
-        $center->centerName   = $request->centerName;
-        $center->adressStreet  = $request->adressStreet;
-        $center->addressCity   = $request->addressCity;
-        $center->addressState  = $request->addressState;
-        $center->addressZip    = $request->addressZip;
-        $center->save();
+        $adminRequested = $adminName !== '' || $adminUsername !== '' || $adminEmail !== '' || $adminPassword !== '' || $adminContactNo !== '' || $adminGender !== '';
+        $updatedCenterAdmin = null;
+
+        DB::transaction(function () use ($request, $center, $adminRequested, $adminName, $adminEmail, $adminPassword, &$updatedCenterAdmin) {
+            $center->centerName   = $request->centerName;
+            $center->adressStreet  = $request->adressStreet;
+            $center->addressCity   = $request->addressCity;
+            $center->addressState  = $request->addressState;
+            $center->addressZip    = $request->addressZip;
+            $center->save();
+
+            $centerAdmin = User::select('users.*')
+                ->join('usercenters', 'usercenters.userid', '=', 'users.id')
+                ->where('usercenters.centerid', $center->id)
+                ->where('users.userType', 'Centeradmin')
+                ->first();
+
+            if ($adminRequested && $centerAdmin) {
+                if ($adminName !== '') {
+                    $centerAdmin->name = $adminName;
+                }
+                
+                if ($adminEmail !== '') {
+                    $centerAdmin->email = $adminEmail;
+                    $centerAdmin->emailid = $adminEmail;
+                }
+                if ($adminPassword !== '') {
+                    $centerAdmin->password = Hash::make($adminPassword);
+                }
+
+                $centerAdmin->center_status = '1';
+                $centerAdmin->save();
+            }
+
+            $updatedCenterAdmin = $centerAdmin;
+        });
 
         return response()->json([
             'status'  => true,
             'message' => 'Center updated successfully.',
-            'data'    => $center,
+            'data'    => [
+                'center' => $center,
+                'center_admin' => $updatedCenterAdmin ? [
+                    'id' => $updatedCenterAdmin->id,
+                    'userid' => $updatedCenterAdmin->userid,
+                    'name' => $updatedCenterAdmin->name,
+                    'email' => $updatedCenterAdmin->email,
+                    'userType' => $updatedCenterAdmin->userType,
+                ] : null,
+            ],
         ]);
     }
 
@@ -1279,10 +1440,33 @@ if ($check) {
 
         try {
             DB::transaction(function () use ($center) {
+                // Find any users of type Centeradmin linked to this center
+                $centerAdmins = User::select('users.*')
+                    ->join('usercenters', 'usercenters.userid', '=', 'users.id')
+                    ->where('usercenters.centerid', $center->id)
+                    ->where('users.userType', 'Centeradmin')
+                    ->get();
+
+                // Remove all center-user mappings for this center
                 Usercenter::where('centerid', $center->id)->delete();
+
+                // Delete the center record
                 $center->delete();
+
+                // Delete linked center admin users (and their images)
+                foreach ($centerAdmins as $admin) {
+                    try {
+                        if (!empty($admin->imageUrl) && file_exists(public_path($admin->imageUrl))) {
+                            @unlink(public_path($admin->imageUrl));
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore file deletion errors
+                    }
+                    $admin->delete();
+                }
             });
-            return response()->json(['status' => true,'message' => 'center deleted successfully']);
+
+            return response()->json(['status' => true, 'message' => 'Center and linked Centeradmin(s) deleted successfully']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Delete failed']);
         }
