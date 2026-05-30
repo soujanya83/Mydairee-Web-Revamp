@@ -97,7 +97,15 @@ class NotesController extends Controller
 
         $note = AppNote::where('id', $request->id)
             ->where('created_by', $this->currentUserId())
-            ->firstOrFail();
+            ->first();
+
+        if (! $note) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Note not found.',
+            ], 404);
+        }
+
         $note->update([
             'title' => $request->title,
             'content' => $request->content,

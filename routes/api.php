@@ -64,6 +64,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('global-rooms', [GlobalRoomsChildrenController::class, 'getCenterRooms']);
     Route::get('global-userrooms',[GlobalRoomsChildrenController::class, 'getUserCenterRooms']);
     Route::get('global-children', [GlobalRoomsChildrenController::class, 'getRoomChildren']);
+    Route::get('global-room-staff/{roomId}', [GlobalRoomsChildrenController::class, 'getRoomStaff']);
+    Route::get('global-center-staff/{centerId}', [GlobalRoomsChildrenController::class, 'getCenterStaff']);
     Route::get('global-child-parents/{childId}', [GlobalRoomsChildrenController::class, 'getChildParents']);
     Route::get('global-parent-children/{parentId}', [GlobalRoomsChildrenController::class, 'getParentChildren']);
 });
