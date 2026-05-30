@@ -393,6 +393,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
 
         Route::get('/addnew', [ReflectionController::class, 'storepage'])->name('addnew');
         Route::get('/addnew/{id?}', [ReflectionController::class, 'storepage'])->name('addnew.optional');
+        Route::get('/view/{id}', [ReflectionController::class, 'showById'])->whereNumber('id')->name('view');
         Route::get('/print', [ReflectionController::class, 'print'])->name('print');
 
 
