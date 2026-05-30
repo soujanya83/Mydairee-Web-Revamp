@@ -420,10 +420,10 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::post('/superadmin/update', [SettingsController::class, 'update'])->name('superadmin.update');
         Route::get('/center_settings', [SettingsController::class, 'center_settings'])->name('center_settings');
         Route::post('/center_store', [SettingsController::class, 'center_store'])->name('center_store');
-        Route::get('/center/{id}/edit', [SettingsController::class, 'center_edit'])->name('center.edit');
+        Route::get('/center/edit', [SettingsController::class, 'center_edit'])->name('center.edit');
         Route::post('/center', [SettingsController::class, 'center_update'])->name('center.update');
         Route::delete('/center/{id}/destroy', [SettingsController::class, 'destroycenter'])->name('center.destroy');
-
+ 
         Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
 
         Route::post('/staff/store', [SettingsController::class, 'staff_store'])->name('staff.store');
