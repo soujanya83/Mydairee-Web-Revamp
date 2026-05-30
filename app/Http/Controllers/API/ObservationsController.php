@@ -1148,8 +1148,8 @@ class ObservationsController extends Controller
 
             // Fetch children by center
             if ($centerid) {
-                if ($user->userType === 'Superadmin') {
-                    $children = $this->getChildrenForSuperadmin($centerid);
+                    if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
+                        $children = $this->getChildrenForSuperadmin($centerid);
                 } elseif ($user->userType === 'Staff') {
                     $children = $this->getChildrenForStaff($centerid);
                 } else {
@@ -1273,7 +1273,7 @@ class ObservationsController extends Controller
 
             if ($centerid) {
 
-                if ($user->userType === 'Superadmin' || $user->userType === 'Staff') {
+                if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin' || $user->userType === 'Staff') {
                     $staff = $this->getStaffForSuperadmin($centerid);
                 }
             }
@@ -1355,7 +1355,7 @@ class ObservationsController extends Controller
 
             $centerid = $validator->validated()['center_id'];
 
-            if ($user->userType === 'Superadmin') {
+            if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
                 $rooms = $this->getroomsforSuperadmin($centerid);
             } else {
                 $rooms = $this->getroomsforStaff($centerid);

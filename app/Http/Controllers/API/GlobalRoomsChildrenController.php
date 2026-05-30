@@ -64,7 +64,7 @@ class GlobalRoomsChildrenController extends Controller
 
         $userType = $user->userType;
         $authId = $user->id;
-        if ($userType === 'Superadmin') {
+        if ($userType === 'Superadmin' || $userType === 'Centeradmin') {
             // All rooms in the center
             $rooms = Room::where('centerid', $centerid)->get();
         } elseif ($userType === 'Staff') {

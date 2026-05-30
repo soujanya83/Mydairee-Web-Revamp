@@ -97,7 +97,7 @@ class ReflectionController extends Controller
         $perPage = $request->get('per_page', 10); // Default 10 items per page
         $search = trim((string) $request->input('search', ''));
 
-        if (Auth::user()->userType == "Superadmin") {
+        if (Auth::user()->userType == "Superadmin" || Auth::user()->userType == "Centeradmin") {
             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $center)->get();
         } else {
@@ -155,7 +155,7 @@ class ReflectionController extends Controller
         $selectedChildId = null;
         $selectedChildSource = null;
 
-        if ($user->userType === 'Superadmin') {
+        if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
             $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $centerIds)->get();
         } else {
@@ -165,8 +165,8 @@ class ReflectionController extends Controller
         $query = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
             ->where('centerid', $centerid);
 
-        if ($user->userType === 'Superadmin') {
-            // Superadmin can see all reflections for the selected center.
+        if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
+            // Superadmin or Centeradmin can see all reflections for the selected center.
         } elseif ($user->userType === 'Staff') {
             // Staff can see all reflections for the selected center.
         } else {

@@ -37,7 +37,7 @@ class AnnouncementController extends Controller
         $userType = $user->userType;
         $permissions = null;
 
-        if ($userType === "Superadmin") {
+        if ($userType === "Superadmin" || $userType === "Centeradmin") {
             $centerIds = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $centerIds)->get();
         } else {
@@ -45,7 +45,7 @@ class AnnouncementController extends Controller
         }
 
         // Fetch announcements with pagination
-        if ($userType === 'Staff' || $userType === 'Superadmin') {
+        if ($userType === 'Staff' || $userType === 'Superadmin' || $userType === 'Centeradmin') {
             $query = AnnouncementsModel::with('creator') // optional relationship
                 ->where('centerid', $centerId);
 
@@ -116,7 +116,7 @@ class AnnouncementController extends Controller
         $selectedChildId = null;
         $selectedChildSource = null;
 
-        if ($userType === "Superadmin") {
+        if ($userType === "Superadmin" || $userType === "Centeradmin") {
             $centerIds = Usercenter::where('userid', $userId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $centerIds)->get();
         } else {
@@ -124,7 +124,7 @@ class AnnouncementController extends Controller
         }
 
         // Fetch announcements with pagination
-        if ($userType === 'Staff' || $userType === 'Superadmin') {
+        if ($userType === 'Staff' || $userType === 'Superadmin' || $userType === 'Centeradmin') {
             $query = AnnouncementsModel::with('creator') // optional relationship
                 ->where('centerid', $centerId);
 
@@ -572,7 +572,7 @@ public function AnnouncementStore(Request $request)
         $run    = 0;
         $status = 'Pending';
 
-        if ($role === "Superadmin") {
+        if ($role === "Superadmin" || $role === "Centeradmin") {
             $run = 1;
             $status = "Sent";
         } elseif ($role === "Staff") {
@@ -835,7 +835,7 @@ public function AnnouncementDelete(Request $request)
     $run = 0;
 
     // Role-based permission check
-    if ($role === "Superadmin") {
+    if ($role === "Superadmin" || $role === "Centeradmin") {
         $run = 1;
     } elseif ($role === "Staff") {
         $permission = PermissionsModel::where('userid', $userid)
