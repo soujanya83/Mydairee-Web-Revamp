@@ -96,7 +96,7 @@ class LessonPlanList extends Controller
     public function centers(){
          $user = Auth::user();
             $authId = $user->id;
-             if ($user->userType == "Superadmin") {
+             if ($user->userType == "Superadmin" || $user->userType == "Centeradmin") {
             // dd('here');
             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $center)->get();
@@ -147,7 +147,7 @@ class LessonPlanList extends Controller
             $validated = $validator->validated();
             $centerId = $validated['centerid'];
 
-            if ($user->userType == "Superadmin") {
+            if ($user->userType == "Superadmin" || $user->userType == "Centeradmin") {
                 // dd('here');
                 $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
                 $centers = Center::whereIn('id', $center)->get();
@@ -157,7 +157,7 @@ class LessonPlanList extends Controller
 
             $programPlans = collect();
 
-            if ($user->userType === 'Superadmin') {
+            if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
                 $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
                     ->where('centerid', $centerId)
                     ->orderByDesc('created_at')
@@ -256,7 +256,7 @@ class LessonPlanList extends Controller
             $validated = $validator->validated();
             $centerId = $validated['centerid'];
 
-            if ($user->userType == "Superadmin") {
+            if ($user->userType == "Superadmin" || $user->userType == "Centeradmin") {
                 // dd('here');
                 $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
                 $centers = Center::whereIn('id', $center)->get();
@@ -268,7 +268,7 @@ class LessonPlanList extends Controller
             $selectedChildId = null;
             $selectedChildSource = null;
 
-            if ($user->userType === 'Superadmin') {
+            if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
                 $programPlans = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
                     ->where('centerid', $centerId)
                     ->orderByDesc('created_at')
@@ -425,7 +425,7 @@ public function filterProgramPlan(Request $request)
     $query = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
         ->where('centerid', $centerId);
 
-    if ($user->userType === 'Superadmin') {
+    if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
         $accessibleCenters = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
         if (!in_array($centerId, $accessibleCenters)) {
             return response()->json(['success' => false, 'message' => 'Unauthorized center access'], 403);
@@ -516,7 +516,7 @@ public function filterProgramPlan(Request $request)
         $viewProgramPlan = 0;
         $editProgramPlan = 0;
 
-        if ($user->userType === 'Superadmin' || $user->admin === '1') {
+        if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin' || $user->admin === '1') {
             $deleteProgramPlan = 1;
             $viewProgramPlan = 1;
             $editProgramPlan = 1;
@@ -587,7 +587,7 @@ public function mernfilterProgramPlan(Request $request)
     $query = ProgramPlanTemplateDetailsAdd::with(['creator:id,name', 'room:id,name'])
         ->where('centerid', $centerId);
 
-    if ($user->userType === 'Superadmin') {
+    if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
         $accessibleCenters = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
         if (!in_array($centerId, $accessibleCenters)) {
             return response()->json(['success' => false, 'message' => 'Unauthorized center access'], 403);
@@ -735,7 +735,7 @@ public function mernfilterProgramPlan(Request $request)
         $viewProgramPlan = 0;
         $editProgramPlan = 0;
 
-        if ($user->userType === 'Superadmin' || $user->admin === '1') {
+        if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin' || $user->admin === '1') {
             $deleteProgramPlan = 1;
             $viewProgramPlan = 1;
             $editProgramPlan = 1;
@@ -930,7 +930,7 @@ $centerId = $validated['centerid'];
             $planid = $request->planId;
             // dd($planid);
 
-            $admin = ($user->userType == "Superadmin") ? 1 : 0;
+            $admin = ($user->userType == "Superadmin" || $user->userType == "Centeradmin") ? 1 : 0;
 
             // Fetch rooms
             $rooms = Room::when($admin == 1, function ($query) use ($centerId) {

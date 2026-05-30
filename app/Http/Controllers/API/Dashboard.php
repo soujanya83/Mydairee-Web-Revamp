@@ -466,7 +466,7 @@ class Dashboard extends Controller
             }
 
             $usertype = strtolower((string) ($auth->userType ?? ''));
-            $isSuperadmin = ((string) ($auth->admin ?? '')) === '1' || $usertype === 'superadmin';
+            $isSuperadmin = ((string) ($auth->admin ?? '')) === '1' || $usertype === 'superadmin' || $usertype === 'centeradmin';
             $isStaff = $usertype === 'staff';
 
             if (!$isSuperadmin && !$isStaff) {

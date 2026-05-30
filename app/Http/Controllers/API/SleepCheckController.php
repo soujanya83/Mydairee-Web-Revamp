@@ -42,7 +42,7 @@ public function getSleepChecksList(Request $request)
     }
 
     // Fetch centers for user
-    if ($userType === "Superadmin") {
+    if ($userType === "Superadmin" || $userType === "Centeradmin") {
         $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
         $centers = Center::whereIn('id', $centerIds)->get();
     } else {
@@ -107,7 +107,7 @@ public function getSleepChecksList(Request $request)
 
     // Handle permissions
    
-    if ($role === "Superadmin") {
+    if ($role === "Superadmin" || $role === "Centeradmin") {
          $permission = \App\Models\PermissionsModel::where('userid', $userid)
             ->where('centerid', $centerId)
             ->first();
@@ -159,7 +159,7 @@ public function getmernSleepChecksList(Request $request)
     }
 
     // Fetch centers for user
-    if ($userType === "Superadmin") {
+    if ($userType === "Superadmin" || $userType === "Centeradmin") {
         $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
         $centers = Center::whereIn('id', $centerIds)->get();
     } else {
@@ -281,7 +281,7 @@ public function getmernSleepChecksList(Request $request)
 
     // Handle permissions
    
-    if ($role === "Superadmin") {
+    if ($role === "Superadmin" || $role === "Centeradmin") {
          $permission = \App\Models\PermissionsModel::where('userid', $userid)
             ->where('centerid', $centerId)
             ->first();

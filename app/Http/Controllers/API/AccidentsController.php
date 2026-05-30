@@ -109,7 +109,7 @@ class AccidentsController extends Controller
         }
 
         // Get list of centers
-        if ($userType === "Superadmin") {
+        if ($userType === "Superadmin" || $userType === "Centeradmin") {
             $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $centerIds)->get();
         } else {
@@ -207,7 +207,7 @@ class AccidentsController extends Controller
         }
 
         // Get list of centers
-        if ($userType === "Superadmin") {
+        if ($userType === "Superadmin" || $userType === "Centeradmin") {
             $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $centerIds)->get();
         } else {
