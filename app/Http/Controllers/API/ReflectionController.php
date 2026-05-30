@@ -369,6 +369,52 @@ class ReflectionController extends Controller
             ]);
      }
 
+    public function showById($id)
+    {
+        $validator = Validator::make(['id' => $id], [
+            'id' => 'required|integer|exists:reflection,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $reflection = Reflection::with([
+            'creator',
+            'center',
+            'children.child',
+            'media',
+            'staff.staff',
+            'Seen.user',
+        ])->find($id);
+
+        if (! $reflection) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Reflection not found.',
+            ], 404);
+        }
+
+        $roomNames = collect();
+        if (! empty($reflection->roomids)) {
+            $roomIds = array_values(array_filter(array_map('trim', explode(',', $reflection->roomids))));
+            $roomNames = Room::whereIn('id', $roomIds)->pluck('name');
+        }
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Reflection data retrieved successfully.',
+            'data'    => [
+                'reflection' => $reflection,
+                'rooms'      => $roomNames,
+            ],
+        ]);
+    }
+
 
 //      public function print(Request $request){
 //         $id = $request->id;

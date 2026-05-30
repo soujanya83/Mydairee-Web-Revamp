@@ -2857,6 +2857,7 @@ class ObservationsController extends Controller
             $centerid = $validated['center_id'];
             $perPage = $validated['per_page'] ?? max((int) $request->input('per_page', 10), 1);
             $page = $validated['page'] ?? max((int) $request->input('page', 1), 1);
+            $childName = trim((string) $request->input('child_name', ''));
             $roomId = $request->input('room_id', $request->input('roomid'));
             $selectedChildId = null;
             $selectedChildSource = null;
@@ -2927,8 +2928,28 @@ class ObservationsController extends Controller
                 $query->where('createdBy', Auth::id());
             }
 
-            $this->applySnapshotFilters($query, $request);
+            $filterRequest = $request->duplicate();
+            $filterRequest->request->remove('child_name');
+            $filterRequest->query->remove('child_name');
+
+            $this->applySnapshotFilters($query, $filterRequest);
             $this->applySnapshotRoomFilter($query, $roomId);
+
+            if ($childName !== '') {
+                $query->whereHas('children.child', function ($childQuery) use ($childName) {
+                    $childQuery->where(function ($nameQuery) use ($childName) {
+                        $nameQuery->where('name', 'like', '%' . $childName . '%')
+                            ->orWhere('lastname', 'like', '%' . $childName . '%')
+                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $childName . '%']);
+
+                        if (is_numeric($childName)) {
+                            $nameQuery->orWhere('id', (int) $childName);
+                        }
+                    });
+                });
+
+                $page = 1;
+            }
 
             $query->orderBy('id', 'desc');
 
