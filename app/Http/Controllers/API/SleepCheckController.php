@@ -246,9 +246,13 @@ public function getmernSleepChecksList(Request $request)
 
     if ($search !== '') {
         $childrenQuery->where(function ($query) use ($search) {
-            $query->where('name', 'like', '%' . $search . '%')
-                ->orWhere('lastname', 'like', '%' . $search . '%')
-                ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+            if (is_numeric($search)) {
+                $query->where('id', (int) $search);
+            } else {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('lastname', 'like', '%' . $search . '%')
+                    ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+            }
         });
     }
 
