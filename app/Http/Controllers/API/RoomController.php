@@ -610,7 +610,7 @@ class RoomController extends Controller
             'lastname'    => ['required','string','max:255','not_regex:/\\d/'],
             'dob'         => 'required|date',
             'startDate'   => 'required|date',
-            'gender'      => 'required|in:Male,Female,Other',
+            'gender'      => 'required|in:Male,Female,Prefer not to say',
             'status'      => 'nullable|in:Active,In Active,Enrolled',
             'file'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'id'          => 'required|integer|exists:room,id',
@@ -703,7 +703,7 @@ class RoomController extends Controller
             'lastname' => ['required','string','max:255','not_regex:/\\d/'],
             'dob' => 'required|date',
             'startDate' => 'required|date',
-            'gender' => 'required|in:Male,Female,Other',
+            'gender' => 'required|in:Male,Female,Prefer not to say',
             'status' => 'nullable|in:Active,In Active,Enrolled',
             'file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'id' => 'required'
@@ -847,7 +847,7 @@ class RoomController extends Controller
         $genderMap = [
             'male' => 'Male',
             'female' => 'Female',
-            'other' => 'Other',
+            'other' => 'Prefer not to say',
             'all' => 'All',
         ];
         $genderInput = $genderMap[$genderRaw] ?? 'All';
@@ -856,7 +856,8 @@ class RoomController extends Controller
         $statusMap = [
             'active' => 'Active',
             'enrolled' => 'Enrolled',
-            'inactive' => 'Inactive',
+            'inactive' => 'In Active',
+            'in active' => 'In Active',
             'all' => 'All',
         ];
         $statusInput = $statusMap[$statusRaw] ?? 'All';
@@ -871,8 +872,8 @@ class RoomController extends Controller
         ], [
             'center_id' => 'required|integer|exists:centers,id',
             'room_id' => 'nullable|integer|exists:room,id',
-            'gender' => 'nullable|in:Male,Female,Other,All',
-            'status' => 'nullable|in:Active,Enrolled,Inactive,All',
+            'gender' => 'nullable|in:Male,Female,Prefer not to say,All',
+            'status' => 'nullable|in:Active,Enrolled,In Active,All',
             'sort' => 'nullable|in:asc,desc',
         ]);
 
@@ -933,10 +934,10 @@ class RoomController extends Controller
                 'total' => $allChildrenInScope->count(),
                 'male' => $allChildrenInScope->where('gender', 'Male')->count(),
                 'female' => $allChildrenInScope->where('gender', 'Female')->count(),
-                'other' => $allChildrenInScope->where('gender', 'Other')->count(),
+                'other' => $allChildrenInScope->where('gender', 'Prefer not to say')->count(),
                 'active' => $allChildrenInScope->where('status', 'Active')->count(),
                 'enrolled' => $allChildrenInScope->where('status', 'Enrolled')->count(),
-                'inactive' => $allChildrenInScope->where('status', 'Inactive')->count(),
+                'inactive' => $allChildrenInScope->where('status', 'In Active')->count(),
                 'filtered_count' => $children->total(),
             ];
 
