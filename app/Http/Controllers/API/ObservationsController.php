@@ -826,7 +826,7 @@ class ObservationsController extends Controller
                     'title' => html_entity_decode($observation->title ?? ''),
                     'obestitle' => $observation->obestitle ?? '',
                     'status' => $observation->status,
-                    'media' => $observation->media->first(),
+                    'media' => $observation->media->values(),
                     'mediaType' => $observation->observationsMediaType,
                     'userName' => $observation->user->name ?? 'Unknown',
                     'date_added' => Carbon::parse($observation->created_at)->format('d.m.Y'),
@@ -1067,7 +1067,7 @@ class ObservationsController extends Controller
                     'title' => html_entity_decode($observation->title ?? ''),
                     'obestitle' => $observation->obestitle ?? '',
                     'status' => $observation->status,
-                    'media' => $observation->media->first(),
+                    'media' => $observation->media->values(),
                     'mediaType' => $observation->observationsMediaType,
                     'userName' => $observation->user->name ?? 'Unknown',
                     'date_added' => Carbon::parse($observation->created_at)->format('d.m.Y'),
@@ -2321,11 +2321,19 @@ class ObservationsController extends Controller
 
 
 
-    public function destroyimage(Request $request)
+    public function destroyimage(Request $request, $id = null)
     {
-        $id = $request->id;
+        $id = $id ?? $request->input('id') ?? $request->route('id');
+
+        if (empty($id) || !is_numeric($id)) {
+            return response()->json(['status' => false, 'message' => 'Media id is required.'], 422);
+        }
 
         $mediaItems = ObservationMedia::where('id', $id)->get();
+
+        if ($mediaItems->isEmpty()) {
+            return response()->json(['status' => false, 'message' => 'Media not found.'], 404);
+        }
 
         foreach ($mediaItems as $media) {
             if (file_exists(public_path($media->mediaUrl))) {

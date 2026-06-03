@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('global-center-staff/{centerId}', [GlobalRoomsChildrenController::class, 'getCenterStaff']);
     Route::get('global-child-parents/{childId}', [GlobalRoomsChildrenController::class, 'getChildParents']);
     Route::get('global-parent-children/{parentId}', [GlobalRoomsChildrenController::class, 'getParentChildren']);
+    Route::post('rooms/update', [RoomController::class, 'rooms_update']);
 });
 
 Route::middleware('auth:sanctum')->post('user/change-password', [ApiResetPasswordController::class, 'changePassword']);
@@ -106,10 +107,12 @@ Route::get('/test', function () {
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/store', [RagisterController::class, 'store']);
 
+
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('qip')->name('qip.')->group(function () {
         Route::get('/index', [QipController::class, 'index'])->name('index');
-        Route::post('/addnew', [QipController::class, 'addnew'])->name('addnew');
+        Route::post('/addnew', [QipController::class, 'addnost'])->name('addnew');
         Route::post('/update-name', [QipController::class, 'updateName'])->name('update.name');
         Route::delete('/delete/{id}', [QipController::class, 'destroy'])->name('delete');
         Route::get('/{id}/area/{area}', [QipController::class, 'viewArea'])->name('area.view');
@@ -162,6 +165,8 @@ Route::middleware('auth:sanctum')->group(function () {
              Route::get('parent-dashboard', [Dashboard::class, 'parentDashboard'])->name('parent.dashboard');
              Route::post('parent-dashboard/selected-child', [Dashboard::class, 'saveSelectedChild'])->name('parent.dashboard.selected-child');
              Route::get('parent-dashboard/selected-child', [Dashboard::class, 'getSelectedChild'])->name('parent.dashboard.selected-child');
+             Route::post('user/selected-center', [Dashboard::class, 'saveSelectedCenter'])->name('user.selected-center.store');
+             Route::get('user/selected-center', [Dashboard::class, 'getSelectedCenter'])->name('user.selected-center.show');
             
              Route::get('universal-dashboard', [Dashboard::class, 'universalDashboard'])->name('dashboard.universal');
 // Route::get('/username-suggestions', [UserController::class, 'getUsernameSuggestions']);
@@ -370,6 +375,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         
         // Share observation via email (API)
         Route::post('/share', [ObservationsController::class, 'shareObservationApi']);
+        Route::delete('/observation-media/{id}', [ObservationsController::class, 'destroyimage']);
         Route::post('/observation-media', [ObservationsController::class, 'destroyimage']);
 
         Route::post('/montessori/store', [ObservationsController::class, 'storeMontessoriData'])->name('montessori.store');
@@ -401,6 +407,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
 
         Route::post('/store', [ReflectionController::class, 'store'])->name('store');
 
+        Route::delete('/reflection-media/{id}', [ReflectionController::class, 'destroyimage']);
         Route::post('/reflection-media', [ReflectionController::class, 'destroyimage']);
 
         Route::post('/status/update', [ReflectionController::class, 'updateStatus'])->name('status.update');
@@ -422,7 +429,9 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::post('/center_store', [SettingsController::class, 'center_store'])->name('center_store');
         Route::get('/center/edit', [SettingsController::class, 'center_edit'])->name('center.edit');
         Route::post('/center', [SettingsController::class, 'center_update'])->name('center.update');
+        Route::post('/center/status/{id}', [SettingsController::class, 'changeCenterStatus'])->name('center.changeStatus');
         Route::delete('/center/{id}/destroy', [SettingsController::class, 'destroycenter'])->name('center.destroy');
+        Route::post('/center/logo/update', [SettingsController::class, 'updateCenterLogo'])->name('center.logo.update');
  
         Route::get('/staff_settings', [SettingsController::class, 'staff_settings'])->name('staff_settings');
 
@@ -483,6 +492,14 @@ Route::post('/resend-otp', [ApiResetPassword::class, 'apiResendOtp']);
 Route::post('/reset-password-update', [ApiResetPassword::class, 'apiUpdatePassword']);
 
 
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/ingredient-types', [ApiHealthyController::class, 'ingredientTypesIndex']);
+    Route::post('/ingredient-types', [ApiHealthyController::class, 'ingredientTypesStore']);
+    Route::post('/ingredient-types/{id}', [ApiHealthyController::class, 'ingredientTypesUpdate']);
+    Route::delete('/ingredient-types/{id}', [ApiHealthyController::class, 'ingredientTypesDestroy']);
+    Route::post('/ingredients/move-type', [ApiHealthyController::class, 'moveIngredientToType']);
+});
 Route::middleware('auth:sanctum')->group(function () {
     Route::match(['get', 'post'], '/healthy-menu', [ApiHealthyController::class, 'apiHealthyMenu']);
     Route::get('/get-recipes-by-type', [ApiHealthyController::class, 'apiGetRecipesByType']);
