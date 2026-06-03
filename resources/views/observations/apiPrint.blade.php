@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Child's Observation Report</title>
@@ -55,7 +56,8 @@
             page-break-inside: auto;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #333;
             padding: 6px;
             vertical-align: top;
@@ -159,211 +161,227 @@
         }
     </style>
 </head>
+
 <body>
-<div class="container">
+    <div class="container">
 
-    <!-- Header -->
-    <div class="header-section">
-        <img src="{{ public_path('assets/profile_1739442700.jpeg') }}" class="logo" alt="Logo">
-        <h2>Child's Observation Report</h2>
-    </div>
+        <!-- Header -->
+        <div class="header-section">
+            <img src="{{ public_path('assets/profile_1739442700.jpeg') }}" class="logo" alt="Logo">
+            <h2>Child's Observation Report</h2>
+        </div>
 
-    <!-- Basic Info -->
-    <table class="keep-together">
-        <tr>
-            <th>Child's Name</th>
-            <td>{{ $observation->child->pluck('child.name')->implode(', ') ?? 'N/A' }}</td>
-        </tr>
-        <tr>
-            <th>Date</th>
-            <td>{{ \Carbon\Carbon::parse($observation->date_added)->format('d/m/Y') }}</td>
-        </tr>
-        <tr>
-            <th>Educator</th>
-            <td>{{ $observation->user->name ?? $observation->name ?? 'N/A' }}</td>
-        </tr>
-        <tr>
-            <th>Classroom</th>
-            <td>{{ $roomNames ?? 'N/A' }}</td>
-        </tr>
-    </table>
+        <!-- Basic Info -->
+        <table class="keep-together">
+            <tr>
+                <th>Child's Name</th>
+                <td>{{ $observation->child->pluck('child.name')->implode(', ') ?? 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td>{{ \Carbon\Carbon::parse($observation->date_added)->format('d/m/Y') }}</td>
+            </tr>
+            <tr>
+                <th>Educator</th>
+                <td>{{ $observation->user->name ?? ($observation->name ?? 'N/A') }}</td>
+            </tr>
+            <tr>
+                <th>Classroom</th>
+                <td>{{ $roomNames ?? 'N/A' }}</td>
+            </tr>
+        </table>
 
-    <div class="spacer"></div>
+        <div class="spacer"></div>
 
-    <!-- Photos -->
-    @if($observation->media && $observation->media->count() > 0)
-    <table class="keep-together">
-        <tr>
-            <th>Child's Photos</th>
-            <td>
-                <div class="photo-gallery">
-                    @foreach($observation->media as $mediaItem)
-                        @if(Str::startsWith($mediaItem->mediaType, 'image'))
-                            <img src="{{ public_path($mediaItem->mediaUrl) }}" alt="Photo">
-                        @endif
-                    @endforeach
-                </div>
-            </td>
-        </tr>
-    </table>
-    @endif
+        <!-- Photos -->
+        @if ($observation->media && $observation->media->count() > 0)
+            <table class="keep-together">
+                <tr>
+                    <th>Child's Photos</th>
+                    <td>
+                        <div class="photo-gallery">
+                            @foreach ($observation->media as $mediaItem)
+                                @if (Str::startsWith($mediaItem->mediaType, 'image'))
+                                    <img src="{{ public_path($mediaItem->mediaUrl) }}" alt="Photo">
+                                @endif
+                            @endforeach
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        @endif
 
-    <div class="spacer"></div>
+        <div class="spacer"></div>
 
-    <!-- Observation -->
-    <table class="keep-together">
-        <tr>
-            <th>Observation</th>
-            <td class="avoid-orphan">{!! $observation->title ?? 'N/A' !!}</td>
-        </tr>
-    </table>
+        <!-- Observation -->
+        <table class="keep-together">
+            <tr>
+                <th>Observation</th>
+                <td class="avoid-orphan">{!! $observation->title ?? 'N/A' !!}</td>
+            </tr>
+        </table>
 
-    <div class="spacer"></div>
 
-    <!-- EYLF Outcomes -->
-    @if($observation->eylfLinks && $observation->eylfLinks->count() > 0)
-    <table class="allow-break">
-        <tr>
-            <th>EYLF Outcomes</th>
-            <td class="large-content">
-                @php
-                    $groupedByOutcome = $observation->eylfLinks->groupBy(function($item) {
-                        return $item->subActivity->activity->outcome->title ?? 'Unknown Outcome';
-                    });
-                @endphp
 
-                @foreach($groupedByOutcome as $outcomeTitle => $links)
-                    <div class="outcome-group">
-                        <div class="outcome-title">{{ $outcomeTitle }}</div>
-                        @foreach($links as $link)
-                            <div class="outcome-item">- {{ $link->subActivity->activity->title ?? 'N/A' }}</div>
-                            <div class="outcome-subitem">• {{ $link->subActivity->title ?? 'N/A' }}</div>
-                        @endforeach
-                    </div>
-                @endforeach
-            </td>
-        </tr>
-    </table>
-    @else
-    <table class="keep-together">
-        <tr>
-            <th>EYLF Outcomes</th>
-            <td>No EYLF outcomes recorded</td>
-        </tr>
-    </table>
-    @endif
+        <div class="spacer"></div>
 
-    <div class="spacer"></div>
+        <!-- Evaluation & Reflection -->
+        <table class="allow-break">
+            <tr>
+                <th>Learning Analysis</th>
+                <td class="large-content avoid-orphan">{!! $observation->notes ?? 'N/A' !!}</td>
+            </tr>
 
-    <!-- Evaluation & Reflection -->
-    <table class="allow-break">
-        <tr>
-            <th>Analysis / Evaluation</th>
-            <td class="large-content avoid-orphan">{!! $observation->notes ?? 'N/A' !!}</td>
-        </tr>
-        <tr>
-            <th>Reflection</th>
-            <td class="large-content avoid-orphan">{!! $observation->reflection ?? 'N/A' !!}</td>
-        </tr>
-    </table>
+        </table>
 
-    <div class="spacer"></div>
+        <div class="spacer"></div>
 
-    <!-- Child's Voice -->
-    <table class="keep-together">
-        <tr>
-            <th>Child's Voice</th>
-            <td class="avoid-orphan">{!! $observation->child_voice ?? 'Not recorded' !!}</td>
-        </tr>
-    </table>
+        <!-- Child's Voice -->
+        <table class="keep-together">
+            <tr>
+                <th>Child's Voice</th>
+                <td class="avoid-orphan">{!! $observation->child_voice ?? 'Not recorded' !!}</td>
+            </tr>
+        </table>
 
-    <div class="spacer"></div>
+        <div class="spacer"></div>
 
-    <!-- Montessori Assessment -->
-    @if($observation->montessoriLinks && $observation->montessoriLinks->count() > 0)
-    <table class="allow-break">
-        <tr>
-            <th>Montessori Assessment</th>
-            <td class="large-content">
-                @php
-                    $groupedBySubject = $observation->montessoriLinks->groupBy(function($item) {
-                        return $item->subActivity->activity->subject->name ?? 'Unknown';
-                    });
-                @endphp
+        <!-- Future Plan -->
+        <table class="keep-together">
+            <tr>
+                <th>Future Plan </th>
+                <td class="avoid-orphan">{!! $observation->future_plan ?? '' !!}</td>
+            </tr>
+            <tr>
+                <th>Implementation</th>
+                <td class="avoid-orphan">{!! $observation->implementation ?? '' !!}</td>
+            </tr>
+            <tr>
+                <th>Critical Reflection</th>
+                <td class="avoid-orphan">{!! $observation->reflection ?? 'N/A' !!}</td>
+            </tr>
+        </table>
 
-                @foreach($groupedBySubject as $subjectName => $assessments)
-                    <div class="milestone-group">
-                        <div class="milestone-title">{{ $subjectName }}</div>
-                        @foreach($assessments as $assessment)
-                            <div class="milestone-category">- {{ $assessment->subActivity->activity->title ?? 'N/A' }}</div>
-                            <div class="milestone-item">• {{ $assessment->subActivity->title ?? 'N/A' }} ({{ $assessment->assesment ?? 'N/A' }})</div>
-                        @endforeach
-                    </div>
-                @endforeach
-            </td>
-        </tr>
-    </table>
-    @else
-    <table class="keep-together">
-        <tr>
-            <th>Montessori Assessment</th>
-            <td>No Montessori assessment recorded</td>
-        </tr>
-    </table>
-    @endif
+        <div class="spacer"></div>
 
-    <div class="spacer"></div>
-
-    <!-- Development Milestones -->
-    @if($observation->devMilestoneSubs && $observation->devMilestoneSubs->count() > 0)
-    <table class="allow-break">
-        <tr>
-            <th>Development Milestones</th>
-            <td class="large-content">
-                @php
-                    $groupedByAgeGroup = $observation->devMilestoneSubs->groupBy(function($item) {
-                        return $item->devMilestone->milestone->ageGroup ?? 'Unknown Age Group';
-                    });
-                @endphp
-
-                @foreach($groupedByAgeGroup as $ageGroup => $milestones)
-                    <div class="milestone-group">
-                        <div class="milestone-title">{{ $ageGroup }}</div>
+        <!-- EYLF Outcomes -->
+        @if ($observation->eylfLinks && $observation->eylfLinks->count() > 0)
+            <table class="allow-break">
+                <tr>
+                    <th>EYLF Outcomes</th>
+                    <td class="large-content">
                         @php
-                            $groupedByMain = $milestones->groupBy(function($item) {
-                                return $item->devMilestone->main->name ?? 'Unknown Category';
+                            $groupedByOutcome = $observation->eylfLinks->groupBy(function ($item) {
+                                return $item->subActivity->activity->outcome->title ?? 'Unknown Outcome';
                             });
                         @endphp
-                        @foreach($groupedByMain as $mainCategory => $categoryMilestones)
-                            <div class="milestone-category">- {{ $mainCategory }}</div>
-                            @foreach($categoryMilestones as $milestone)
-                                <div class="milestone-item">• {{ $milestone->devMilestone->name ?? 'N/A' }} ({{ $milestone->assessment ?? 'N/A' }})</div>
-                            @endforeach
+
+                        @foreach ($groupedByOutcome as $outcomeTitle => $links)
+                            <div class="outcome-group">
+                                <div class="outcome-title">{{ $outcomeTitle }}</div>
+                                @foreach ($links as $link)
+                                    <div class="outcome-item">- {{ $link->subActivity->activity->title ?? 'N/A' }}</div>
+                                    <div class="outcome-subitem">• {{ $link->subActivity->title ?? 'N/A' }}</div>
+                                @endforeach
+                            </div>
                         @endforeach
-                    </div>
-                @endforeach
-            </td>
-        </tr>
-    </table>
-    @else
-    <table class="keep-together">
-        <tr>
-            <th>Development Milestones</th>
-            <td>No development milestones recorded</td>
-        </tr>
-    </table>
-    @endif
+                    </td>
+                </tr>
+            </table>
+        @else
+            <table class="keep-together">
+                <tr>
+                    <th>EYLF Outcomes</th>
+                    <td>No EYLF outcomes recorded</td>
+                </tr>
+            </table>
+        @endif
 
-    <div class="spacer"></div>
 
-    <!-- Future Plan -->
-    <table class="keep-together">
-        <tr>
-            <th>Future Plan / Extension</th>
-            <td class="avoid-orphan">{!! $observation->future_plan ?? '' !!}</td>
-        </tr>
-    </table>
+        <div class="spacer"></div>
 
-</div>
+
+        <!-- Montessori Assessment -->
+        @if ($observation->montessoriLinks && $observation->montessoriLinks->count() > 0)
+            <table class="allow-break">
+                <tr>
+                    <th>Montessori Assessment</th>
+                    <td class="large-content">
+                        @php
+                            $groupedBySubject = $observation->montessoriLinks->groupBy(function ($item) {
+                                return $item->subActivity->activity->subject->name ?? 'Unknown';
+                            });
+                        @endphp
+
+                        @foreach ($groupedBySubject as $subjectName => $assessments)
+                            <div class="milestone-group">
+                                <div class="milestone-title">{{ $subjectName }}</div>
+                                @foreach ($assessments as $assessment)
+                                    <div class="milestone-category">-
+                                        {{ $assessment->subActivity->activity->title ?? 'N/A' }}</div>
+                                    <div class="milestone-item">• {{ $assessment->subActivity->title ?? 'N/A' }}
+                                        ({{ $assessment->assesment ?? 'N/A' }})</div>
+                                @endforeach
+                            </div>
+                        @endforeach
+                    </td>
+                </tr>
+            </table>
+        @else
+            <table class="keep-together">
+                <tr>
+                    <th>Montessori Assessment</th>
+                    <td>No Montessori assessment recorded</td>
+                </tr>
+            </table>
+        @endif
+
+        <div class="spacer"></div>
+
+        <!-- Development Milestones -->
+        @if ($observation->devMilestoneSubs && $observation->devMilestoneSubs->count() > 0)
+            <table class="allow-break">
+                <tr>
+                    <th>Development Milestones</th>
+                    <td class="large-content">
+                        @php
+                            $groupedByAgeGroup = $observation->devMilestoneSubs->groupBy(function ($item) {
+                                return $item->devMilestone->milestone->ageGroup ?? 'Unknown Age Group';
+                            });
+                        @endphp
+
+                        @foreach ($groupedByAgeGroup as $ageGroup => $milestones)
+                            <div class="milestone-group">
+                                <div class="milestone-title">{{ $ageGroup }}</div>
+                                @php
+                                    $groupedByMain = $milestones->groupBy(function ($item) {
+                                        return $item->devMilestone->main->name ?? 'Unknown Category';
+                                    });
+                                @endphp
+                                @foreach ($groupedByMain as $mainCategory => $categoryMilestones)
+                                    <div class="milestone-category">- {{ $mainCategory }}</div>
+                                    @foreach ($categoryMilestones as $milestone)
+                                        <div class="milestone-item">• {{ $milestone->devMilestone->name ?? 'N/A' }}
+                                            ({{ $milestone->assessment ?? 'N/A' }})</div>
+                                    @endforeach
+                                @endforeach
+                            </div>
+                        @endforeach
+                    </td>
+                </tr>
+            </table>
+        @else
+            <table class="keep-together">
+                <tr>
+                    <th>Development Milestones</th>
+                    <td>No development milestones recorded</td>
+                </tr>
+            </table>
+        @endif
+
+        <div class="spacer"></div>
+
+    </div>
 </body>
+
 </html>
