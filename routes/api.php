@@ -358,7 +358,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::get('/get-staff', [ObservationsController::class, 'getStaff'])->name('get-staff');
         Route::post('/filters', [ObservationsController::class, 'applyFilters'])->name('filters');
         Route::post('/mernfilters', [ObservationsController::class, 'mernapplyFilters'])->name('mernfilters');
-        Route::get('/view', [ObservationsController::class, 'index'])->name('view');
+        Route::get('/view', [ObservationsController::class, 'view'])->name('view');
         Route::get('/print', [ObservationsController::class, 'print'])->name('print');
 
 

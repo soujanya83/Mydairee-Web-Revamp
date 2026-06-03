@@ -1615,6 +1615,7 @@ use Illuminate\Pagination\Paginator;
         $search = trim((string) $request->input('search', ''));
         $sort = strtolower((string) $request->input('sort', 'asc'));
         $perPage = max((int) $request->input('per_page', 10), 1);
+        $roomid = $request->input('roomid');
 
         // Step 2: Get all user IDs in the center
         $userIds = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
@@ -1623,6 +1624,14 @@ use Illuminate\Pagination\Paginator;
         $staffQuery = User::whereIn('id', $userIds)
             // ->where('id', '!=', $authId)
             ->where('userType', 'Staff');
+
+            if (!empty($roomid)) {
+                $staffIds = DB::table('room_staff')
+                    ->where('roomid', $roomid)
+                    ->pluck('staffid');
+
+                $staffQuery->whereIn('id', $staffIds);
+            }
 
         if ($search !== '') {
             $staffQuery->where(function ($query) use ($search) {
@@ -1645,6 +1654,9 @@ use Illuminate\Pagination\Paginator;
             'filters' => [
                 'search' => $search,
                 'sort' => $sort,
+                'per_page' => $perPage,
+                'roomid' => $roomid,
+                
             ],
             'pagination' => [
                 'current_page' => $staff->currentPage(),

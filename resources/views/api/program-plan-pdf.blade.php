@@ -359,38 +359,42 @@
                     </tr>
                 @endif
 
-                <!-- Other sections with similar pattern -->
                 @php
-                    $sections = [
-                        'Inquiry Topic' => 'inquiry_topic',
-                        'Sustainability Topic' => 'sustainability_topic',
-                        "Children's Voices" => 'children_voices',
-                        'Families Input' => 'families_input',
-                        'Group Experience' => 'group_experience',
-                        'Spontaneous Experience' => 'spontaneous_experience',
-                        'Mindfulness Experiences' => 'mindfulness_experiences',
-                        'What is working' => 'working',
-                        'What is not working' => 'notworking'
-                    ];
-                @endphp
+                $sections = [
+                    'Inquiry Topic' => 'inquiry_topic',
+                    'Sustainability Topic' => 'sustainability_topic',
+                    "Children's Voices" => 'children_voices',
+                    'Families Input' => 'families_input',
+                    'Group Experience' => 'group_experience',
+                    'Spontaneous Experience' => 'spontaneous_experience',
+                    'Mindfulness Experiences' => 'mindfulness_experiences'
+                ];
+            @endphp
 
-                @foreach($sections as $label => $field)
-                    @php
-                        $items = splitItems($plan[$field] ?? '');
-                    @endphp
-                    @if(count($items))
-                        <tr>
-                            <th>{{ $label }}</th>
-                            <td colspan="3">
-                                <ul>
-                                    @foreach($items as $item)
-                                        <li>{{ $item }}</li>
-                                    @endforeach
-                                </ul>
-                            </td>
-                        </tr>
-                    @endif
-                @endforeach
+        @foreach($sections as $label => $field)
+            @php
+                $items = splitItems($plan[$field] ?? '');
+            @endphp
+            @if(count($items))
+                <tr>
+                    <th>{{ $label }}</th>
+                    <td colspan="3">
+                        <ul>
+                            @foreach($items as $item)
+                                <li>{{ $item }}</li>
+                            @endforeach
+                        </ul>
+                    </td>
+                </tr>
+            @endif
+        @endforeach
+
+        <tr>
+            <th>Evaluation</th>
+            <td colspan="3" style="height: 600px; vertical-align: top;">
+                &nbsp;
+            </td>
+        </tr>
             </table>
 
             <div class="footer">

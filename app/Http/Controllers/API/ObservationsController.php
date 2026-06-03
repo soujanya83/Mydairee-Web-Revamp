@@ -1672,6 +1672,26 @@ class ObservationsController extends Controller
             'devMilestoneSubs.devMilestone.milestone'
         ])->findOrFail($id);
 
+        // Get tagged staff IDs
+        $staffIds = array_filter(explode(',', $observation->tagged_staff));
+
+        // Fetch staff details
+        $taggedStaff = User::whereIn('id', $staffIds)
+            ->select('id', 'name', 'imageUrl')
+            ->get()
+            ->map(function ($staff) {
+                return [
+                    'id' => $staff->id,
+                    'name' => $staff->name,
+                    'imageUrl' => $staff->imageUrl
+                        ? asset($staff->imageUrl)
+                        : null,
+                ];
+            });
+
+        // Append to response
+        $observation->tagged_staff_details = $taggedStaff;
+
         return response()->json([
             'status'  => true,
             'message' => 'Observation data fetched successfully.',

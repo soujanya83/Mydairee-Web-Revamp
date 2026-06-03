@@ -261,7 +261,7 @@ public function getmernSleepChecksList(Request $request)
     // Fetch all sleep checks for the room and date for the current page children only
     $pageChildIds = $children->getCollection()->pluck('id')->all();
     $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
-        ->whereDate('created_at', $date)
+        ->whereDate('diarydate', $date)
         ->whereIn('childid', $pageChildIds)
         ->get()
         ->groupBy('childid');
