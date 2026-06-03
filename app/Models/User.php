@@ -38,7 +38,8 @@ class User extends Authenticatable
         'email_verified_at',
         'has_seen_login_notice',
         'admin',
-        'allow_notifications'
+        'allow_notifications',
+        'selected_center_id'
     ];
 
 

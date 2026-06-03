@@ -292,6 +292,114 @@ class RoomController extends Controller
         }
     }
 
+    public function rooms_update(Request $request, $id = null)
+    {
+        $roomId = $request->input('id', $id);
+        $payload = array_filter(
+            $request->only(['room_name', 'room_capacity', 'ageFrom', 'ageTo', 'room_status', 'room_color', 'educators']),
+            function ($value) {
+                return $value !== null && $value !== '';
+            }
+        );
+
+        $validator = Validator::make(array_merge(['id' => $roomId], $payload), [
+            'id'            => 'required|integer|exists:room,id',
+            'room_name'     => 'nullable|string|max:255',
+            'room_capacity' => 'nullable|integer|min:1',
+            'ageFrom'       => 'nullable|numeric|min:0',
+            'ageTo'         => 'nullable|numeric',
+            'room_status'   => 'nullable|in:Active,Inactive',
+            'room_color'    => 'nullable|string',
+            'educators'     => 'nullable|array',
+            'educators.*'   => 'exists:users,userid',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        if (empty($roomId)) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Room id is required.',
+            ], 422);
+        }
+
+        if (empty($payload)) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'At least one room field must be provided for update.',
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $room = Room::findOrFail($roomId);
+            $updateData = [];
+
+            if ($request->filled('room_name')) {
+                $updateData['name'] = $request->input('room_name');
+            }
+
+            if ($request->filled('room_capacity')) {
+                $updateData['capacity'] = $request->input('room_capacity');
+            }
+
+            if ($request->filled('ageFrom')) {
+                $updateData['ageFrom'] = $request->input('ageFrom');
+            }
+
+            if ($request->filled('ageTo')) {
+                $updateData['ageTo'] = $request->input('ageTo');
+            }
+
+            if ($request->filled('room_status')) {
+                $updateData['status'] = $request->input('room_status');
+            }
+
+            if ($request->filled('room_color')) {
+                $updateData['color'] = $request->input('room_color');
+            }
+
+            if (!empty($updateData)) {
+                $room->update($updateData);
+            }
+
+            if ($request->has('educators')) {
+                RoomStaff::where('roomid', $roomId)->delete();
+
+                foreach ($request->input('educators') as $educatorId) {
+                    RoomStaff::create([
+                        'roomid'  => $roomId,
+                        'staffid' => $educatorId,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Room updated successfully.',
+                'room_id' => $roomId,
+                'updated_fields' => array_keys($updateData),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Failed to update room.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
 
     public function rooms_list(Request $request)
@@ -334,19 +442,28 @@ class RoomController extends Controller
         if ($userType == "Superadmin" || $userType == "Centeradmin") {
             // Superadmin: all rooms of the current center
             if (!empty($centerid)) {
-                $getrooms = Room::where('centerid', $centerid)->get();
+                $getrooms = Room::where('centerid', $centerid)
+                    ->orderBy('ageFrom', 'asc')
+                    ->orderBy('ageTo', 'asc')
+                    ->get();
             } else {
                 $getrooms = collect(); // No center selected, return empty
             }
         } elseif ($userType == "Staff") {
             // Staff: all rooms they are attached to
             $roomIds = RoomStaff::where('staffid', $authId)->pluck('roomid');
-            $getrooms = Room::whereIn('id', $roomIds)->get();
+            $getrooms = Room::whereIn('id', $roomIds)
+                ->orderBy('ageFrom', 'asc')
+                ->orderBy('ageTo', 'asc')
+                ->get();
         } else {
             // Parent: all rooms their children are in
             $childids = Childparent::where('parentid', $authId)->pluck('childid');
             $roomIds = Child::whereIn('id', $childids)->pluck('room')->filter()->unique();
-            $getrooms = Room::whereIn('id', $roomIds)->get();
+            $getrooms = Room::whereIn('id', $roomIds)
+                ->orderBy('ageFrom', 'asc')
+                ->orderBy('ageTo', 'asc')
+                ->get();
         }
 
         /*
@@ -494,7 +611,7 @@ class RoomController extends Controller
             'dob'         => 'required|date',
             'startDate'   => 'required|date',
             'gender'      => 'required|in:Male,Female,Other',
-            'status'      => 'nullable|in:Active,,Enrolled',
+            'status'      => 'nullable|in:Active,In Active,Enrolled',
             'file'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'id'          => 'required|integer|exists:room,id',
         ]);
@@ -587,7 +704,7 @@ class RoomController extends Controller
             'dob' => 'required|date',
             'startDate' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
-            'status' => 'nullable|in:Active,,Enrolled',
+            'status' => 'nullable|in:Active,In Active,Enrolled',
             'file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'id' => 'required'
         ]);

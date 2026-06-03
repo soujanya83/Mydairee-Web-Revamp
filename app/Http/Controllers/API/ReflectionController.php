@@ -735,11 +735,12 @@ private function convertToBytes($value)
 }
 
 
-public function destroyimage(Request $request)
+public function destroyimage(Request $request, $id = null)
 {
-    // dd('here');
+    $id = $id ?? $request->input('id') ?? $request->route('id');
+
     // Validate the incoming request
-    $validator = Validator::make($request->all(), [
+    $validator = Validator::make(['id' => $id], [
         'id' => 'required|integer|exists:reflectionmedia,id',
     ]);
 
