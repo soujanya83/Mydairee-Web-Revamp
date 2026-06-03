@@ -1797,6 +1797,48 @@ use Illuminate\Pagination\Paginator;
     }
 
 
+    public function toggleUserStatus($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        // Only Staff users allowed
+        if ($user->userType !== 'Staff') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Can\'t change status. Only Staff users are allowed. This user is of type: ' . $user->userType
+            ], 422);
+        }
+
+
+        // Toggle logic
+        if ($user->status === 'IN-ACTIVE') {
+            $user->status = 'ACTIVE';
+        } else {
+            $user->status = 'IN-ACTIVE';
+        }
+
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'User status updated successfully.',
+            'data' => [
+                'id' => $user->id,
+                'userid' => $user->userid,
+                'name' => $user->name,
+                'user_status' => $user->status
+            ]
+        ]);
+    }
+
     public function staff_destroy($id)
     {
         $user = User::find($id);

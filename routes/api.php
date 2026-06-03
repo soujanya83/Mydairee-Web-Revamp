@@ -442,7 +442,7 @@ Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDeta
         Route::delete('/staff/destroy/{id}', [SettingsController::class, 'staff_destroy'])->name('staff.destroy');
         Route::post('/settings/update-permissions', [SettingsController::class, 'updateUserPermissions'])->name('update_user_permissions');
         Route::post('/staff/wifi-access', [ApiWifiIPController::class, 'userwifiChangeStatus'])->name('staff.wifi-access');
-
+        Route::post('/staff/status/{id}', [SettingsController::class, 'toggleUserStatus'])->name('staff.toggleStatus');
 
 
 
