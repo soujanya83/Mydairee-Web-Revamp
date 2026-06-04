@@ -195,6 +195,27 @@ class ApiHealthyController extends Controller
         }
     }
 
+    public function apiRecipeIngredientslist()
+    {
+        try {
+            $ingredients = IngredientModel::select('id', 'name')
+                ->orderBy('name')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'ingredients' => $ingredients
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function moveIngredientToType(Request $request)
     {
         try {

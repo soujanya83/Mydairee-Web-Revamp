@@ -587,6 +587,7 @@ class ObservationsController extends Controller
                 'page'      => 'nullable|integer|min:1',
                 'child_search' => 'nullable|string',
                 'created_by_search' => 'nullable|string',
+                'search_by_title' => 'nullable|string',
             ], [
                 'center_id.required' => 'Center ID is required.',
                 'center_id.integer'  => 'Center ID must be an integer.',
@@ -767,6 +768,18 @@ class ObservationsController extends Controller
                 }
             }
 
+            // Observation title search filter
+            if ($request->filled('search_by_title')) {
+                $titleSearch = trim((string) $request->input('search_by_title'));
+
+                if ($titleSearch !== '') {
+                    $query->where(function ($titleQuery) use ($titleSearch) {
+                        $titleQuery->where('title', 'like', '%' . $titleSearch . '%')
+                                ->orWhere('obestitle', 'like', '%' . $titleSearch . '%');
+                    });
+                }
+            }
+
             // Creator name search filter
             if ($request->filled('created_by_search')) {
                 $creatorSearch = trim((string) $request->input('created_by_search'));
@@ -863,6 +876,7 @@ class ObservationsController extends Controller
                 'filters' => [
                     'child_search' => $request->input('child_search', ''),
                     'created_by_search' => $request->input('created_by_search', ''),
+                    'search_by_title' => $request->input('search_by_title', ''),
                 ],
                 'selectedChildId' => $user->userType === 'Parent' ? $selectedChildId : null,
                 'selectedChildSource' => $user->userType === 'Parent' ? $selectedChildSource : null,
