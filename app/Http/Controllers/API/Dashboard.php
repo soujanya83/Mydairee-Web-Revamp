@@ -30,30 +30,30 @@ class Dashboard extends Controller
 {
 
     
-    public function university()
-{
-    $totalUsers = User::count();
-    $totalSuperadmin = User::where('userType', 'Superadmin')->count();
-    $totalStaff = User::where('userType', 'Staff')->count();
-    $totalParent = User::where('userType', 'Parent')->count();
-    $totalCenter = Usercenter::count();
-    $totalRooms = Room::count();
-    $totalRecipes = RecipeModel::count();
+        public function university()
+        {
+            $totalUsers = User::count();
+            $totalSuperadmin = User::where('userType', 'Superadmin')->count();
+            $totalStaff = User::where('userType', 'Staff')->count();
+            $totalParent = User::where('userType', 'Parent')->count();
+            $totalCenter = Usercenter::count();
+            $totalRooms = Room::count();
+            $totalRecipes = RecipeModel::count();
 
-    return response()->json([
-        'status' => true,
-        'message' => 'University dashboard stats fetched successfully',
-        'data' => [
-            'totalUsers'      => $totalUsers,
-            'totalSuperadmin' => $totalSuperadmin,
-            'totalStaff'      => $totalStaff,
-            'totalParent'     => $totalParent,
-            'totalCenter'     => $totalCenter,
-            'totalRooms'      => $totalRooms,
-            'totalRecipes'    => $totalRecipes,
-        ]
-    ]);
-}
+            return response()->json([
+                'status' => true,
+                'message' => 'University dashboard stats fetched successfully',
+                'data' => [
+                    'totalUsers'      => $totalUsers,
+                    'totalSuperadmin' => $totalSuperadmin,
+                    'totalStaff'      => $totalStaff,
+                    'totalParent'     => $totalParent,
+                    'totalCenter'     => $totalCenter,
+                    'totalRooms'      => $totalRooms,
+                    'totalRecipes'    => $totalRecipes,
+                ]
+            ]);
+        }
 
 
       // New University Dashboard Function
@@ -143,8 +143,9 @@ class Dashboard extends Controller
                 ->where('status', 'ACTIVE')
                 ->count();
 
-            $newEnrolmentsLastYear = ReEnrolment::whereDate('created_at', '>=', now()->subYear())
-            ->count();
+            $currentMonthBirthdays = Child::where('centerid', $centerid)
+                ->whereMonth('dob', now()->month)
+                ->count();
 
             $totalRooms = Room::where('centerid', $centerid)
                 ->where('status', 'Active')
@@ -156,6 +157,10 @@ class Dashboard extends Controller
             $activeChildren = Child::where('centerid', $centerid)
                 ->where('status', 'Active')
                 ->count();
+
+            $affiliatedCenters = Usercenter::where('userid', $userid)
+                ->distinct('centerid')
+                ->count('centerid');
 
             /*
             |--------------------------------------------------------------------------
@@ -171,7 +176,8 @@ class Dashboard extends Controller
                     'totalUsers'       => $totalUsers,
                     'totalStaff'       => $totalStaff,
                     'totalParent'      => $totalParent,
-                    'newEnrolmentsLastYear' => $newEnrolmentsLastYear,
+                    'currentMonthBirthdays' => $currentMonthBirthdays,
+                    'affiliatedCenters'     => $affiliatedCenters,
                     'totalRooms'       => $totalRooms,
                     'totalRecipes'     => $totalRecipes,
                     'activeChildren'   => $activeChildren,

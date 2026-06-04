@@ -121,7 +121,7 @@ class DeviceController extends Controller
                     $data['section'] = $section;
                 }
 
-                // Optional debug log
+                //Optional debug log
                 // Log::info('Sending FCM to parent', [
                 //     'parent_id' => $parent->id,
                 //     'token' => $device->fcm_token,
@@ -146,4 +146,43 @@ class DeviceController extends Controller
 
         return $notified;
     }
+
+
+
+    public function testFcm(Request $request, FirebaseNotificationService $service) {
+    $request->validate([
+        'token' => 'required|string'
+    ]);
+
+    try {
+
+        $response = $service->sendToToken(
+            $request->token,
+            'Test Notification',
+            'FCM is working successfully.',
+            [
+                'type' => 'test',
+                'timestamp' => now()->toDateTimeString()
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'response' => method_exists($response, 'getData')
+                ? $response->getData()
+                : $response
+        ]);
+
+    } catch (\Exception $e) {
+
+        \Log::error('FCM Test Error', [
+            'message' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 }
