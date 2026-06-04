@@ -512,6 +512,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/recipe/delete/{id}', [ApiHealthyController::class, 'apiDestroyRecipe']);
     Route::post('/recipe/store', [ApiHealthyController::class, 'apiStoreRecipe']);
     Route::get('/ingredients', [ApiHealthyController::class, 'apiRecipeIngredients']);
+    Route::get('/ingredients/list', [ApiHealthyController::class, 'apiRecipeIngredientslist']);
     Route::get('/ingredients/edit/{id}', [ApiHealthyController::class, 'apiEditIngredient']);
     Route::post('/ingredient/update', [ApiHealthyController::class, 'apiUpdateIngredient']);
     Route::delete('/ingredient/{id}', [ApiHealthyController::class, 'destroyIngredient']);
