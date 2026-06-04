@@ -42,7 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/children/{id}/details', [\App\Http\Controllers\API\ChildDetailsController::class, 'show']);
         Route::patch('/children/{id}/toggle-status', [\App\Http\Controllers\API\ChildDetailsController::class, 'toggleStatus']);
     Route::post('/save-fcm-token', [DeviceController::class, 'saveToken']);
-    Route::post('/test-fcm', [DeviceController::class, 'testNotification']);
+    Route::post('/test-fcm', [DeviceController::class, 'testFcm']);
     Route::patch('/user/notification-preference', [DeviceController::class, 'updateNotificationPreference']);
 
     // New API: Get all permissions

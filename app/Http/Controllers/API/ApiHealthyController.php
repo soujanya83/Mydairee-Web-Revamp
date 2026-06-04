@@ -167,17 +167,25 @@ class ApiHealthyController extends Controller
     public function apiRecipeIngredients()
     {
         try {
-            $ingredients = IngredientModel::with('type')->orderBy('name')->get()->map(function ($item) {
-                $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
-                $item->colorClass = $colors[$item->id % count($colors)];
-                // $item->ingredient_type_name = $item->type?->name;
-                return $item;
+            $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
+
+            $types = IngredientTypeModel::with(['ingredients' => function ($query) {
+                $query->orderBy('name');
+            }])
+            ->orderBy('name')
+            ->get();
+
+            $types->each(function ($type) use ($colors) {
+                $type->ingredients->each(function ($ingredient) use ($colors) {
+                    $ingredient->colorClass = $colors[$ingredient->id % count($colors)];
+                });
             });
 
             return response()->json([
                 'status' => 'success',
-                'ingredients' => $ingredients,
+                'types' => $types
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
