@@ -2182,6 +2182,8 @@ class ObservationsController extends Controller
             'implementation'    => 'nullable|string',
             'selected_children' => 'required|string',
             'selected_staff'    => 'nullable|string',
+            'status'            => 'nullable|in:Published,Draft',
+            'publishIntent'     => 'nullable|in:Published,Draft',
         ];
 
         if (!$isEdit) {
@@ -2229,6 +2231,7 @@ class ObservationsController extends Controller
             $observation->tagged_staff = $validated['selected_staff'] ?? '';
             $observation->userId       = $authId;
             $observation->centerid     = $centerid;
+            $observation->status       = $request->input('status', $request->input('publishIntent', 'Draft'));
             $observation->save();
 
             $observationId = $observation->id;
@@ -2301,22 +2304,27 @@ class ObservationsController extends Controller
             // ]);
 
             // Send notification to all parents of the attached children ONLY if published
-            // if (!empty($selectedChildren) && ($observation->status ?? null) === 'Published') {
-            //     Log::info('[Observation Store] Sending notification to parents', [
-            //         'observation_id' => $observationId,
-            //         'status' => $observation->status,
-            //         'selectedChildren' => $selectedChildren,
-            //     ]);
-            //     $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
-            //     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
-            //         $selectedChildren,
-            //         'observation',
-            //         $observationId,
-            //         $authId,
-            //         $service
-            //     );
-            // }
+            if (!empty($selectedChildren) && strtolower($observation->status ?? '') === 'published') {
+                Log::info('NOTIFICATION_TRIGGER_CHECK', [
+                    'module' => 'observation',
+                    'status' => $observation->status,
+                    'childIds' => $selectedChildren,
+                    'staffIds' => $selectedStaff ?? [],
+                    'observation_id' => $observationId,
+                ]);
 
+                $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                    $selectedChildren,
+                    'observation',
+                    $observationId,
+                    $authId,
+                    $service,
+                    null,
+                    [],
+                    $selectedStaff ?? []
+                );
+            }
 
             return response()->json([
                 'status' => true,
@@ -3291,6 +3299,8 @@ class ObservationsController extends Controller
         // ✅ Assign Snapshot Data
 
         $status = $request->input('publishIntent', $request->input('status', 'Draft'));
+        $normalizedSnapshotStatus = strcasecmp($status, 'published') === 0 ? 'Published' : 'Draft';
+
         if (!$isEdit && !$snapshot) {
             // Create new snapshot
             $snapshot = Snapshot::create([
@@ -3299,7 +3309,7 @@ class ObservationsController extends Controller
                 'centerid'  => $centerid,
                 'createdBy' => $authId,
                 'educators' => $validated['selected_staff'],
-                'status'    => $status,
+                'status'    => $normalizedSnapshotStatus,
             ]);
 
             // Update roomids after creation
@@ -3316,7 +3326,7 @@ class ObservationsController extends Controller
             $snapshot->createdBy = $authId;
             $snapshot->educators = $validated['selected_staff'];
             $snapshot->roomids   = $validated['selected_rooms'];
-            $snapshot->status    = $status;
+            $snapshot->status    = $normalizedSnapshotStatus;
 
             $snapshot->save();
         }
@@ -3371,15 +3381,30 @@ class ObservationsController extends Controller
 
         DB::commit();
 
+        // Extract educators/staff IDs for notification
+        $educatorsArr = !empty($validated['selected_staff']) 
+            ? array_filter(array_map('trim', explode(',', (string)$validated['selected_staff'])))
+            : [];
+
         // Send notification to all parents of the attached children ONLY if published
-        if (!empty($selectedChildren) && ($snapshot->status ?? null) === 'Published') {
+        if (!empty($selectedChildren) && strcasecmp($snapshot->status ?? '', 'Published') === 0) {
+            Log::info('SNAPSHOT_FCM_TRIGGER', [
+                'snapshot_id' => $snapshotId,
+                'status' => $snapshot->status,
+                'child_ids' => $selectedChildren,
+                'staff_ids' => $educatorsArr,
+            ]);
+
             $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
             \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                 $selectedChildren,
                 'snapshot',
                 $snapshotId,
                 $authId,
-                $service
+                $service,
+                null,
+                [],
+                $educatorsArr
             );
         }
 

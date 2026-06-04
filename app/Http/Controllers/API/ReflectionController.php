@@ -560,22 +560,9 @@ public function print(Request $request)
         'selected_children' => 'required|string',
         'selected_staff'    => 'required|string',
         'center_id'         => 'required|integer|exists:centers,id',
-        'status'            => [
-            'required',
-            function ($attribute, $value, $fail) {
-                $allowed = ['PUBLISHED', 'DRAFT'];
-                if (!in_array(strtoupper($value), $allowed)) {
-                    $fail('The ' . $attribute . ' field must be PUBLISHED or DRAFT.');
-                }
-            },
-        ],
+        'status'            => 'nullable|string',
+        'publishIntent'     => 'nullable|string',
     ];
-
-    if (!$isEdit) {
-        $rules['media'] = 'required|array|min:1';
-    } else {
-        $rules['media'] = 'nullable|array';
-    }
 
     $rules['media.*'] = 'file|mimes:jpeg,png,jpg,gif,webp,mp4|max:' . intval($uploadMaxSize / 1024);
 
@@ -609,9 +596,12 @@ public function print(Request $request)
         $reflection->title     = $request->title;
         $reflection->about     = $request->about;
         $reflection->eylf      = $request->eylf;
+        $rawStatus = $request->input('status', $request->input('publishIntent', 'Draft'));
+        $normalizedStatus = strcasecmp($rawStatus, 'published') === 0 ? 'PUBLISHED' : 'DRAFT';
+
         $reflection->centerid  = $centerId;
         $reflection->createdBy = $authId;
-        $reflection->status    = (strtoupper($request->status ?? '') === 'PUBLISHED') ? 'PUBLISHED' : 'DRAFT';
+        $reflection->status    = $normalizedStatus;
         $reflection->save();
 
         $reflectionId = $reflection->id;
@@ -682,14 +672,24 @@ public function print(Request $request)
         DB::commit();
 
         // Send notification to all parents of the attached children ONLY if published
-        if (!empty($selectedChildren) && $reflection->status === 'PUBLISHED')  {
+        if (!empty($childIds) && strtoupper($reflection->status) === 'PUBLISHED')  {
+            Log::info('REFLECTION_FCM_TRIGGER', [
+                'reflection_id' => $reflectionId,
+                'status' => $reflection->status,
+                'child_ids' => $childIds,
+                'staff_ids' => $staffIds ?? [],
+            ]);
+
             $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
             \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                 $childIds,
                 'reflection',
                 $reflectionId,
                 $authId,
-                $service
+                $service,
+                null,
+                [],
+                $staffIds ?? []
             );
         }
 
