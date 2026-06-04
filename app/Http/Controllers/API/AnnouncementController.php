@@ -228,6 +228,16 @@ class AnnouncementController extends Controller
             $announcement->createdBy = $creator->name ?? 'Not Available';
         }
 
+        // Fix old image URLs
+        foreach ($records as $announcement) {
+
+            $announcement->announcementMedia = str_replace(
+                'mydiaree.com.au',
+                'api.mydiaree.com.au',
+                $announcement->announcementMedia
+            );
+        }
+
         // Permissions
         $permissions = PermissionsModel::where('userid', $userId)
             ->where('centerid', $centerId)
