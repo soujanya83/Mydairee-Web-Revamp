@@ -118,6 +118,10 @@ class DeviceController extends Controller
 
         $notified = [];
 
+        // Fetch creator name once for use in notifications
+        $creator = \App\Models\User::find($createdBy);
+        $creatorName = $creator ? $creator->name : 'A colleague';
+
         // ✅ Notify Parents: PUSH (FCM) + WEB (Database)
         if (!empty($normalizedChildIds)) {
             $parentUsers = \App\Models\User::whereHas('children', function ($q) use ($normalizedChildIds) {
@@ -201,7 +205,8 @@ class DeviceController extends Controller
                         $body,
                         $normalizedChildIds,
                         $createdBy,
-                        'parent'
+                        'parent',
+                        $creatorName
                     ));
                     Log::info('WEB_NOTIFICATION_SENT_PARENT', [
                         'module' => $moduleType,
@@ -219,7 +224,7 @@ class DeviceController extends Controller
         }
 
         // ✅ Notify Tagged Staff: WEB ONLY (Database) - NO PUSH
-        if (!empty($normalizedStaffIds)) {
+        if ($moduleType !== 'diary' && !empty($normalizedStaffIds)) {
             $staffUsers = \App\Models\User::whereIn('userid', $normalizedStaffIds)
                 ->where('allow_notifications', true)
                 ->get();
@@ -230,20 +235,18 @@ class DeviceController extends Controller
                 'staff_ids' => $staffUsers->pluck('userid')->all(),
             ]);
 
-            $staffTitle = str_replace('your child', 'a task', $title);
-            $staffBody = str_replace('your child', 'a task', $body);
-
             foreach ($staffUsers as $staff) {
                 // Send WEB Notification ONLY (Database) - NO PUSH
                 try {
                     $staff->notify(new \App\Notifications\GenericModuleNotification(
                         $moduleType,
                         $moduleId,
-                        $staffTitle,
-                        $staffBody,
+                        $title,
+                        $body,
                         $normalizedChildIds,
                         $createdBy,
-                        'staff'
+                        'staff',
+                        $creatorName
                     ));
                     Log::info('WEB_NOTIFICATION_SENT_STAFF', [
                         'module' => $moduleType,
