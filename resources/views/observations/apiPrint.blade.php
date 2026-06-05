@@ -43,16 +43,22 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 8px;
-            page-break-inside: avoid;
         }
 
-        /* Avoid breaking tables across pages */
         table.keep-together {
             page-break-inside: avoid;
         }
 
-        /* Allow breaking for large content tables */
         table.allow-break {
+            page-break-inside: auto;
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
+
+        td,
+        th {
             page-break-inside: auto;
         }
 
@@ -85,31 +91,19 @@
         }
 
         .photo-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
             margin: 8px 0;
-            justify-content: flex-start;
-            min-height: 140px;
-            max-height: 200px;
-            overflow: hidden;
         }
 
         .photo-gallery img {
+            display: inline-block;
             width: 100px;
             height: 130px;
-            object-fit: cover;
+            margin-top: 30px;
+            margin-left: 8px;
             border: 1px solid #999;
-            border-radius: 4px;
         }
 
-        .content-section {
-            page-break-inside: avoid;
-        }
 
-        .large-content {
-            page-break-inside: auto;
-        }
 
         .outcome-group {
             margin-bottom: 8px;
@@ -149,11 +143,6 @@
             margin-bottom: 2px;
         }
 
-        /* Prevent orphaned content */
-        .avoid-orphan {
-            orphans: 3;
-            widows: 3;
-        }
 
         /* Ensure proper spacing */
         .spacer {
@@ -167,19 +156,31 @@
 
         <!-- Header -->
         <div class="header-section">
-            <img src="{{ public_path('assets/profile_1739442700.jpeg') }}" class="logo" alt="Logo">
+            @php
+                $logoPath = public_path('assets/profile_1739442700.jpeg');
+
+                if (file_exists($logoPath)) {
+                    $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
+                    $logoData = file_get_contents($logoPath);
+                    $logoBase64 = 'data:image/' . $logoType . ';base64,' . base64_encode($logoData);
+                }
+            @endphp
+
+            @if (!empty($logoBase64))
+                <img src="{{ $logoBase64 }}" class="logo" alt="Logo">
+            @endif
             <h2>Child's Observation Report</h2>
         </div>
 
         <!-- Basic Info -->
         <table class="keep-together">
             <tr>
-                <th>Child's Name</th>
-                <td>{{ $observation->child->pluck('child.name')->implode(', ') ?? 'N/A' }}</td>
+                <th>Title</th>
+                <td>{{ strip_tags($observation->obestitle ?? 'N/A') }}</td>
             </tr>
             <tr>
-                <th>Date</th>
-                <td>{{ \Carbon\Carbon::parse($observation->date_added)->format('d/m/Y') }}</td>
+                <th>Child's Name</th>
+                <td>{{ $observation->child->pluck('child.name')->implode(', ') ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <th>Educator</th>
@@ -202,7 +203,23 @@
                         <div class="photo-gallery">
                             @foreach ($observation->media as $mediaItem)
                                 @if (Str::startsWith($mediaItem->mediaType, 'image'))
-                                    <img src="{{ public_path($mediaItem->mediaUrl) }}" alt="Photo">
+                                    @php
+                                        $imagePath = public_path(ltrim($mediaItem->mediaUrl, '/'));
+
+                                        $imageBase64 = null;
+
+                                        if (file_exists($imagePath)) {
+                                            $imageType = pathinfo($imagePath, PATHINFO_EXTENSION);
+                                            $imageData = file_get_contents($imagePath);
+
+                                            $imageBase64 =
+                                                'data:image/' . $imageType . ';base64,' . base64_encode($imageData);
+                                        }
+                                    @endphp
+
+                                    @if ($imageBase64)
+                                        <img src="{{ $imageBase64 }}" alt="Photo">
+                                    @endif
                                 @endif
                             @endforeach
                         </div>
@@ -266,28 +283,30 @@
 
         <!-- EYLF Outcomes -->
         @if ($observation->eylfLinks && $observation->eylfLinks->count() > 0)
-            <table class="allow-break">
-                <tr>
-                    <th>EYLF Outcomes</th>
-                    <td class="large-content">
-                        @php
-                            $groupedByOutcome = $observation->eylfLinks->groupBy(function ($item) {
-                                return $item->subActivity->activity->outcome->title ?? 'Unknown Outcome';
-                            });
-                        @endphp
+            <div class="section-title">EYLF Outcomes</div>
 
-                        @foreach ($groupedByOutcome as $outcomeTitle => $links)
-                            <div class="outcome-group">
-                                <div class="outcome-title">{{ $outcomeTitle }}</div>
-                                @foreach ($links as $link)
-                                    <div class="outcome-item">- {{ $link->subActivity->activity->title ?? 'N/A' }}</div>
-                                    <div class="outcome-subitem">• {{ $link->subActivity->title ?? 'N/A' }}</div>
-                                @endforeach
+            <div style="border:1px solid #333;padding:10px;">
+                @php
+                    $groupedByOutcome = $observation->eylfLinks->groupBy(function ($item) {
+                        return $item->subActivity->activity->outcome->title ?? 'Unknown Outcome';
+                    });
+                @endphp
+                @foreach ($groupedByOutcome as $outcomeTitle => $links)
+                    <div class="outcome-group">
+                        <div class="outcome-title">{{ $outcomeTitle }}</div>
+
+                        @foreach ($links as $link)
+                            <div class="outcome-item">
+                                - {{ $link->subActivity->activity->title ?? 'N/A' }}
+                            </div>
+
+                            <div class="outcome-subitem">
+                                • {{ $link->subActivity->title ?? 'N/A' }}
                             </div>
                         @endforeach
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                @endforeach
+            </div>
         @else
             <table class="keep-together">
                 <tr>
@@ -320,7 +339,8 @@
                                     <div class="milestone-category">-
                                         {{ $assessment->subActivity->activity->title ?? 'N/A' }}</div>
                                     <div class="milestone-item">• {{ $assessment->subActivity->title ?? 'N/A' }}
-                                        ({{ $assessment->assesment ?? 'N/A' }})</div>
+                                        ({{ $assessment->assesment ?? 'N/A' }})
+                                    </div>
                                 @endforeach
                             </div>
                         @endforeach
@@ -340,36 +360,45 @@
 
         <!-- Development Milestones -->
         @if ($observation->devMilestoneSubs && $observation->devMilestoneSubs->count() > 0)
-            <table class="allow-break">
-                <tr>
-                    <th>Development Milestones</th>
-                    <td class="large-content">
+
+            <div class="section-title">Development Milestones</div>
+
+            <div style="border:1px solid #333;padding:10px;">
+
+                @php
+                    $groupedByAgeGroup = $observation->devMilestoneSubs->groupBy(function ($item) {
+                        return $item->devMilestone->milestone->ageGroup ?? 'Unknown Age Group';
+                    });
+                @endphp
+
+                @foreach ($groupedByAgeGroup as $ageGroup => $milestones)
+                    <div class="milestone-group">
+
+                        <div class="milestone-title">{{ $ageGroup }}</div>
+
                         @php
-                            $groupedByAgeGroup = $observation->devMilestoneSubs->groupBy(function ($item) {
-                                return $item->devMilestone->milestone->ageGroup ?? 'Unknown Age Group';
+                            $groupedByMain = $milestones->groupBy(function ($item) {
+                                return $item->devMilestone->main->name ?? 'Unknown Category';
                             });
                         @endphp
 
-                        @foreach ($groupedByAgeGroup as $ageGroup => $milestones)
-                            <div class="milestone-group">
-                                <div class="milestone-title">{{ $ageGroup }}</div>
-                                @php
-                                    $groupedByMain = $milestones->groupBy(function ($item) {
-                                        return $item->devMilestone->main->name ?? 'Unknown Category';
-                                    });
-                                @endphp
-                                @foreach ($groupedByMain as $mainCategory => $categoryMilestones)
-                                    <div class="milestone-category">- {{ $mainCategory }}</div>
-                                    @foreach ($categoryMilestones as $milestone)
-                                        <div class="milestone-item">• {{ $milestone->devMilestone->name ?? 'N/A' }}
-                                            ({{ $milestone->assessment ?? 'N/A' }})</div>
-                                    @endforeach
-                                @endforeach
+                        @foreach ($groupedByMain as $mainCategory => $categoryMilestones)
+                            <div class="milestone-category">
+                                - {{ $mainCategory }}
                             </div>
+
+                            @foreach ($categoryMilestones as $milestone)
+                                <div class="milestone-item">
+                                    • {{ $milestone->devMilestone->name ?? 'N/A' }}
+                                    ({{ $milestone->assessment ?? 'N/A' }})
+                                </div>
+                            @endforeach
                         @endforeach
-                    </td>
-                </tr>
-            </table>
+
+                    </div>
+                @endforeach
+
+            </div>
         @else
             <table class="keep-together">
                 <tr>
@@ -377,6 +406,7 @@
                     <td>No development milestones recorded</td>
                 </tr>
             </table>
+
         @endif
 
         <div class="spacer"></div>

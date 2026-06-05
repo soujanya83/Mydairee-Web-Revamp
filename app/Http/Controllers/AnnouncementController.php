@@ -68,6 +68,30 @@ class AnnouncementController extends Controller
             foreach ($users as $user) {
                 $user->notify(new AnnouncementAdded($announcement));
             }
+
+            if ($updateStatus === 'Sent' && $childIds->isNotEmpty()) {
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                $moduleType = ($announcement->type === 'events') ? 'event' : 'announcement';
+                Log::info('ANNOUNCEMENT_WEB_FCM_TRIGGER', [
+                    'announcement_id' => $announcement->id,
+                    'status' => $updateStatus,
+                    'child_ids' => $childIds->all(),
+                ]);
+                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                    $childIds->all(),
+                    $moduleType,
+                    $announcement->id,
+                    Auth::id(),
+                    $firebaseService,
+                    null,
+                    [
+                        'type' => $moduleType,
+                        'module_id' => (string)$announcement->id,
+                        'child_ids' => $childIds->implode(','),
+                        'created_by' => (string)Auth::id(),
+                    ]
+                );
+            }
         }
 
         if ($check) {

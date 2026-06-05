@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use App\Notifications\AnnouncementAdded;
+use Illuminate\Support\Facades\Log;
 
 
 class AnnouncementController extends Controller
@@ -490,10 +491,11 @@ public function AnnouncementStore(Request $request)
         ]);
     }
 
-    $childIds = $request->input('childId', []);
-    if (is_string($childIds)) {
-        $childIds = explode(',', $childIds);
-    }
+    $status = $request->input('status', 'Pending');
+            $childIds = $request->input('childId', []);
+        if (is_string($childIds)) {
+            $childIds = explode(',', $childIds);
+        }
 
     if (is_array($childIds)) {
         $flattenedChildIds = [];
@@ -580,11 +582,11 @@ public function AnnouncementStore(Request $request)
 
         $role   = Auth::user()->userType;
         $run    = 0;
-        $status = 'Pending';
+        
 
         if ($role === "Superadmin" || $role === "Centeradmin") {
             $run = 1;
-            $status = "Sent";
+            
         } elseif ($role === "Staff") {
             $permission = \App\Models\PermissionsModel::where('userid', $userid)
                 ->where('centerid', $centerid)
@@ -592,7 +594,7 @@ public function AnnouncementStore(Request $request)
 
             if ($permission && ($permission->addAnnouncement || $permission->updateAnnouncement)) {
                 $run = 1;
-                $status = $permission->approveAnnouncement ? "Sent" : "Pending";
+               
             }
         }
 
@@ -718,6 +720,49 @@ public function AnnouncementStore(Request $request)
             $user = User::find($userId);
             if ($user) {
                 $user->notify(new AnnouncementAdded($announcement));
+            }
+        }
+
+        if (strtolower($status) === 'sent') {
+            $parentChildIds = \App\Models\AnnouncementChildModel::where('aid', $announcementId)
+                ->pluck('childid')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            // Get center staff to notify them as well
+            $centerStaffIds = \App\Models\Usercenter::where('centerid', $centerid)
+                ->pluck('userid')
+                ->unique()
+                ->values()
+                ->all();
+
+            if (!empty($parentChildIds) || !empty($centerStaffIds)) {
+                Log::info('ANNOUNCEMENT_FCM_TRIGGER', [
+                    'announcement_id' => $announcementId,
+                    'status' => $status,
+                    'child_ids' => $parentChildIds,
+                    'staff_ids' => $centerStaffIds,
+                ]);
+
+                $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                $moduleType = strtolower($announcement->type) === 'events' ? 'event' : 'announcement';
+                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                    $parentChildIds,
+                    $moduleType,
+                    $announcementId,
+                    Auth::id(),
+                    $firebaseService,
+                    null,
+                    [
+                        'type' => $moduleType,
+                        'module_id' => (string)$announcementId,
+                        'child_ids' => implode(',', $parentChildIds),
+                        'created_by' => (string)Auth::id(),
+                    ],
+                    $centerStaffIds
+                );
             }
         }
 
