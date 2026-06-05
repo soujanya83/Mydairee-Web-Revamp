@@ -51,6 +51,7 @@ use App\Notifications\ObservationAdded;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Facades\Mail;
+use App\Models\ObservationStaff;
 
 class ObservationsController extends Controller
 {
@@ -492,8 +493,16 @@ class ObservationsController extends Controller
                 ->orderBy('id', 'desc')
                 ->paginate($perPage);
         } elseif ($user->userType == "Staff") {
+
+            $taggedObservationIds = ObservationStaff::where('userid', $authId)
+                ->pluck('observationId')
+                ->toArray();
+
             $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
-                ->where('userId', $authId)
+                ->where(function ($query) use ($authId, $taggedObservationIds) {
+                    $query->where('userId', $authId)
+                        ->orWhereIn('id', $taggedObservationIds);
+                })
                 ->orderBy('id', 'desc')
                 ->paginate($perPage);
         } else {
@@ -791,7 +800,26 @@ class ObservationsController extends Controller
                 }
             }
             if ($user->userType === 'Staff') {
-                $query->where('userId', Auth::id());
+                                $authId = Auth::id();
+
+                // Include observations where the staff is the creator OR explicitly tagged via ObservationStaff
+                $staffObservationIds = \App\Models\ObservationStaff::where('userid', $authId)
+                    ->pluck('observationId')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                $query->where(function ($q) use ($authId, $staffObservationIds) {
+                    $q->where('userId', $authId);
+
+                    if (!empty($staffObservationIds)) {
+                        $q->orWhereIn('id', $staffObservationIds);
+                    }
+
+                    // Also support legacy comma-separated `tagged_staff` field on observations
+                    $q->orWhereRaw('FIND_IN_SET(?, tagged_staff)', [$authId]);
+                });
             }
             // Apply user-specific filters based on role
             // $user = Auth::user();
@@ -2703,7 +2731,10 @@ class ObservationsController extends Controller
             }
 
             $snapshotQuery = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-                ->where('createdBy', $authId);
+                ->where(function ($q) use ($authId) {
+                    $q->where('createdBy', $authId)
+                    ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
+                });
 
             if (!empty($centerid)) {
                 $snapshotQuery->where('centerid', $centerid);
@@ -2975,7 +3006,17 @@ class ObservationsController extends Controller
             }
 
             if ($user->userType === 'Staff') {
-                $query->where('createdBy', Auth::id());
+                    $authId = Auth::id();
+
+                    $query->where(function ($q) use ($authId) {
+
+                        // Created by me
+                        $q->where('createdBy', $authId)
+
+                        // Tagged as educator
+                        ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
+                    });
+
             }
 
             $filterRequest = $request->duplicate();
