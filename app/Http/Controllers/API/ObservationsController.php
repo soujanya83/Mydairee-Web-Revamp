@@ -209,7 +209,7 @@ class ObservationsController extends Controller
         $authId   = Auth::id();
         $centerid = session('user_center_id');
 
-        if (Auth::user()->userType === "Superadmin") {
+        if (Auth::user()->userType === "Superadmin" || Auth::user()->userType === "Centeradmin") {
             $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers   = Center::whereIn('id', $centerIds)->get();
             $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
