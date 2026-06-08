@@ -13,6 +13,7 @@ use App\Models\Usercenter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\IngredientModel;
+use App\Models\IngredientTypeModel;
 
 class ApiHealthyController extends Controller
 {
@@ -43,10 +44,12 @@ class ApiHealthyController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255|unique:ingredients,name',
+                'ingredient_type_id' => 'required|exists:ingredient_types,id',
             ]);
 
             $ingredient = IngredientModel::create([
                 'name' => $request->name,
+                'ingredient_type_id' => $request->ingredient_type_id,
             ]);
 
             return response()->json([
@@ -100,7 +103,7 @@ class ApiHealthyController extends Controller
     public function apiEditIngredient($id)
     {
         try {
-            $recipe = IngredientModel::find($id);
+            $recipe = IngredientModel::with('type')->find($id);
 
             if (!$recipe) {
                 return response()->json([
@@ -135,7 +138,7 @@ class ApiHealthyController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:ingredients,name,' . $idToUse,
+            'name' => 'sometimes|string|max:255|unique:ingredients,name,' . $idToUse,
         ]);
 
         if ($validator->fails()) {
@@ -164,16 +167,202 @@ class ApiHealthyController extends Controller
     public function apiRecipeIngredients()
     {
         try {
-            $ingredients = IngredientModel::all()->map(function ($item) {
-                $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
-                $item->colorClass = $colors[$item->id % count($colors)];
-                return $item;
+            $colors = ['xl-pink', 'xl-turquoise', 'xl-parpl', 'xl-blue', 'xl-khaki'];
+
+            $types = IngredientTypeModel::with(['ingredients' => function ($query) {
+                $query->orderBy('name');
+            }])
+            ->orderBy('name')
+            ->get();
+
+            $types->each(function ($type) use ($colors) {
+                $type->ingredients->each(function ($ingredient) use ($colors) {
+                    $ingredient->colorClass = $colors[$ingredient->id % count($colors)];
+                });
             });
 
             return response()->json([
                 'status' => 'success',
-                'ingredients' => $ingredients,
+                'types' => $types
             ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function apiRecipeIngredientslist()
+    {
+        try {
+            $ingredients = IngredientModel::select('id', 'name')
+                ->orderBy('name')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'ingredients' => $ingredients
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function moveIngredientToType(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'ingredient_id' => 'required|exists:ingredients,id',
+                'ingredient_type_id' => 'required|exists:ingredient_types,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $ingredient = IngredientModel::find($request->ingredient_id);
+
+            if (!$ingredient) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Ingredient not found.',
+                ], 404);
+            }
+
+            $ingredient->ingredient_type_id = $request->ingredient_type_id;
+            $ingredient->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Ingredient moved to type successfully.',
+                'data' => $ingredient->load('type'),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function ingredientTypesIndex()
+    {
+        try {
+            $types = IngredientTypeModel::orderBy('name')->get();
+
+            return response()->json([
+                'status' => 'success',
+                'ingredient_types' => $types,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function ingredientTypesStore(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255|unique:ingredient_types,name',
+            ]);
+
+            $type = IngredientTypeModel::create([
+                'name' => $request->name,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Ingredient type added successfully!',
+                'data' => $type,
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function ingredientTypesUpdate(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255|unique:ingredient_types,name,' . $id,
+            ]);
+
+            $type = IngredientTypeModel::find($id);
+            if (!$type) {
+                return response()->json(['status' => 'error', 'message' => 'Ingredient type not found.'], 404);
+            }
+
+            $type->name = $request->name;
+            $type->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Ingredient type updated successfully.',
+                'data' => $type,
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function ingredientTypesDestroy($id)
+    {
+        try {
+            $type = IngredientTypeModel::find($id);
+            if (!$type) {
+                return response()->json(['status' => 'error', 'message' => 'Ingredient type not found.'], 404);
+            }
+
+            if (IngredientModel::where('ingredient_type_id', $type->id)->exists()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Move or reassign ingredients before deleting this type.',
+                ], 409);
+            }
+
+            $type->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Ingredient type deleted successfully.',
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -446,27 +635,24 @@ class ApiHealthyController extends Controller
             }
 
             $authId = $user->id;
-            $centerid = $user->user_center_id ?? session('user_center_id');
             $requestedCenterId = $request->input('center_id');
 
-            if ($user->userType == "Superadmin") {
-                $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-
-                if ($requestedCenterId) {
-                    $centerIds = [$requestedCenterId];
-                }
-
-                $centers = Center::whereIn('id', $centerIds)->get();
-            } else {
-                $centerId = $centerid;
-
-                if ($requestedCenterId && $requestedCenterId != $centerId) {
-                    return response()->json(['status' => 'error', 'message' => 'Access denied for requested center.'], 403);
-                }
-
-                $centerIds = [$centerId];
-                $centers = Center::whereIn('id', $centerIds)->get();
+            if ($requestedCenterId === null || $requestedCenterId === '') {
+                return response()->json(['status' => 'error', 'message' => 'center_id is required.'], 400);
             }
+
+            $allowedCenterIds = Usercenter::where('userid', $authId)
+                ->pluck('centerid')
+                ->map(fn ($id) => (string) $id)
+                ->toArray();
+
+            if (!in_array((string) $requestedCenterId, $allowedCenterIds, true)) {
+                return response()->json(['status' => 'error', 'message' => 'Access denied for requested center.'], 403);
+            }
+
+            $centerIds = [(int) $requestedCenterId];
+            $centers = Center::whereIn('id', $centerIds)->get();
+            $currentCenterId = (int) $requestedCenterId;
 
             $recipes = RecipeModel::whereIn('recipes.centerid', $centerIds)
                 ->join('recipe_media', 'recipe_media.recipeid', '=', 'recipes.id')
@@ -487,7 +673,7 @@ class ApiHealthyController extends Controller
             return response()->json([
                 'status' => 'success',
                 'centers' => $centers,
-                'Current Center Id' => $requestedCenterId,
+                'Current Center Id' => $currentCenterId,
                 'recipes' => $recipes,
                 'unique_meal_types' => $uniqueMealTypes,
                 'ingredients' => $ingredients,

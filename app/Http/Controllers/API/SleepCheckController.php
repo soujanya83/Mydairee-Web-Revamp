@@ -42,7 +42,7 @@ public function getSleepChecksList(Request $request)
     }
 
     // Fetch centers for user
-    if ($userType === "Superadmin") {
+    if ($userType === "Superadmin" || $userType === "Centeradmin") {
         $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
         $centers = Center::whereIn('id', $centerIds)->get();
     } else {
@@ -107,7 +107,7 @@ public function getSleepChecksList(Request $request)
 
     // Handle permissions
    
-    if ($role === "Superadmin") {
+    if ($role === "Superadmin" || $role === "Centeradmin") {
          $permission = \App\Models\PermissionsModel::where('userid', $userid)
             ->where('centerid', $centerId)
             ->first();
@@ -159,7 +159,7 @@ public function getmernSleepChecksList(Request $request)
     }
 
     // Fetch centers for user
-    if ($userType === "Superadmin") {
+    if ($userType === "Superadmin" || $userType === "Centeradmin") {
         $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
         $centers = Center::whereIn('id', $centerIds)->get();
     } else {
@@ -246,9 +246,13 @@ public function getmernSleepChecksList(Request $request)
 
     if ($search !== '') {
         $childrenQuery->where(function ($query) use ($search) {
-            $query->where('name', 'like', '%' . $search . '%')
-                ->orWhere('lastname', 'like', '%' . $search . '%')
-                ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+            if (is_numeric($search)) {
+                $query->where('id', (int) $search);
+            } else {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('lastname', 'like', '%' . $search . '%')
+                    ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+            }
         });
     }
 
@@ -257,7 +261,7 @@ public function getmernSleepChecksList(Request $request)
     // Fetch all sleep checks for the room and date for the current page children only
     $pageChildIds = $children->getCollection()->pluck('id')->all();
     $sleepChecks = DailyDiarySleepCheckList::where('roomid', $roomid)
-        ->whereDate('created_at', $date)
+        ->whereDate('diarydate', $date)
         ->whereIn('childid', $pageChildIds)
         ->get()
         ->groupBy('childid');
@@ -277,7 +281,7 @@ public function getmernSleepChecksList(Request $request)
 
     // Handle permissions
    
-    if ($role === "Superadmin") {
+    if ($role === "Superadmin" || $role === "Centeradmin") {
          $permission = \App\Models\PermissionsModel::where('userid', $userid)
             ->where('centerid', $centerId)
             ->first();
@@ -409,6 +413,7 @@ public function getmernSleepChecksList(Request $request)
         'breathing'        => 'nullable|string',
         'body_temperature' => 'nullable|string',
         'notes'            => 'nullable|string',
+        'signature'        => 'required|string',
     ]);
 
     if ($validator->fails()) {
@@ -444,7 +449,7 @@ public function getmernSleepChecksList(Request $request)
         'notes'            => $request->notes,
         'createdBy'        => $createdBy,
         'created_at'       =>  $nowSydney,
-        'signature' => $request->signature
+        'signature'        => $request->signature
     ]);
 
     if ($check) {

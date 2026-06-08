@@ -475,7 +475,7 @@ class DailyDiaryController extends Controller
             $user = Auth::user();
             $rooms = collect();
             
-        if($user->userType === 'Superadmin') {
+        if($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
             $rooms = $this->getroomsforSuperadmin($center_id);
             }else if($user->userType === 'Staff'){
             $rooms = $this->getroomsforStaff($center_id);
@@ -546,8 +546,8 @@ class DailyDiaryController extends Controller
 
         $userCenters = UserCenter::where('userid', $userid)->get();
 
-                if (Auth::user()->userType === 'Superadmin') {
-            $data['superadmin'] = 1;
+                if (Auth::user()->userType === 'Superadmin' || Auth::user()->userType === 'Centeradmin') {
+                    $data['superadmin'] = 1;
         } elseif (Auth::user()->userType === 'Parent') {
             $data['superadmin'] = 2;
         } else {

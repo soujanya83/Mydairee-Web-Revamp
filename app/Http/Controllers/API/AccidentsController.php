@@ -30,6 +30,229 @@ use Illuminate\Support\Facades\Validator;
 
 class AccidentsController extends Controller
 {
+
+
+   public function mernCreateAccident(Request $request)
+{
+    DB::beginTransaction();
+
+    try {
+        $validator = Validator::make($request->all(), [
+            'accident_id' => 'nullable|integer',
+            'childid' => 'required',
+            'incident_date' => 'required|date',
+            'incident_time' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = Auth::user();
+        $addedBy = $user->userid ?? $user->id ?? null;
+
+        $data = [
+            'centerid' => $request->centerid ?? '',
+            'roomid' => $request->roomid ?? '',
+            'person_name' => $request->person_name ?? '',
+            'person_role' => $request->person_role ?? '',
+            'service_name' => $request->service_name ?? '',
+            'made_record_date' => $request->made_record_date ?? '',
+            'made_record_time' => $request->made_record_time ?? '',
+            'childid' => $request->childid,
+            'child_name' => $request->child_name ?? '',
+            'child_dob' => $request->child_dob ?? '',
+            'child_age' => $request->child_age ?? '',
+            'child_gender' => $request->child_gender ?? '',
+            'incident_date' => $request->incident_date,
+            'incident_time' => $request->incident_time,
+            'incident_location' => $request->incident_location ?? '',
+            'location_of_incident' => $request->location_of_incident ?? '',
+            'witness_name' => $request->witness_name ?? '',
+            'witness_date' => $request->witness_date ?? '',
+            'details_injury' => $request->details_injury ?? '',
+            'circumstances_leading' => $request->circumstances_leading ?? '',
+            'circumstances_child_missingd' => $request->circumstances_child_missingd ?? '',
+            'circumstances_child_removed' => $request->circumstances_child_removed ?? '',
+            'remarks' => $request->accident_remarks ?? ($request->remarks ?? ''),
+            'action_taken' => $request->action_taken ?? '',
+            'emrg_serv_attend' => $request->emrg_serv_attend ?? 'No',
+            'emrg_serv_time' => $request->emrg_serv_time ?? '',
+            'emrg_serv_arrived' => $request->emrg_serv_arrived ?? '',
+            'med_attention' => $request->med_attention ?? 'No',
+            'med_attention_details' => $request->med_attention_details ?? '',
+            'provideDetails_minimise' => $request->provideDetails_minimise ?? '',
+            'parent1_name' => $request->parent1_name ?? '',
+            'carers_date' => $request->carers_date ?? '',
+            'carers_time' => $request->carers_time ?? '',
+            'director_educator_coordinator' => $request->director_educator_coordinator ?? '',
+            'educator_date' => $request->educator_date ?? '',
+            'educator_time' => $request->educator_time ?? '',
+            'other_agency' => $request->other_agency ?? '',
+            'other_agency_date' => $request->other_agency_date ?? '',
+            'other_agency_time' => $request->other_agency_time ?? '',
+            'regulatory_authority' => $request->regulatory_authority ?? '',
+            'regulatory_authority_date' => $request->regulatory_authority_date ?? '',
+            'regulatory_authority_time' => $request->regulatory_authority_time ?? '',
+            'ack_parent_name' => $request->ack_parent_name ?? '',
+            'ack_date' => $request->ack_date ?? '',
+            'ack_time' => $request->ack_time ?? '',
+            'add_notes' => $request->add_notes ?? '',
+            'ack_incident' => $request->boolean('ack_incident') ? 1 : 0,
+            'ack_injury' => $request->boolean('ack_injury') ? 1 : 0,
+            'ack_trauma' => $request->boolean('ack_trauma') ? 1 : 0,
+            'ack_illness' => $request->boolean('ack_illness') ? 1 : 0,
+            'added_by' => $addedBy,
+        ];
+
+        if (!empty($request->accident_id)) {
+            $accident = AccidentsModel::findOrFail($request->accident_id);
+            $accident->update($data);
+            $this->replaceAccidentImages($accident, $request);
+            $this->saveIllnessData($accident->id, $request);
+            $message = 'Accident updated successfully';
+        } else {
+            $data['added_at'] = now();
+            $accident = AccidentsModel::create($data);
+            $this->saveAccidentImages($accident, $request);
+            $this->saveIllnessData($accident->id, $request);
+            $message = 'Accident created successfully';
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => [
+                'accident_id' => $accident->id,
+            ],
+        ], 200);
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Something went wrong',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+  private function saveAccidentImages($accident, $request)
+{
+    $imageMappings = [
+        'made_person_sign' => 'madePersonSign',
+        'witness_sign' => 'witnessSign',
+        'injury_image' => 'injuryImage',
+        'final_sign' => 'finalSign',
+    ];
+
+    foreach ($imageMappings as $field => $prefix) {
+        if (!empty($request->$field)) {
+            $filename = $prefix . '-' . $accident->id . '.png';
+            $relativePath = 'uploads/accidents/' . $filename;
+            $absoluteDir = public_path('uploads/accidents');
+
+            File::ensureDirectoryExists($absoluteDir);
+
+            $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $request->$field);
+            $binary = base64_decode($imageData, true);
+
+            if ($binary === false) {
+                throw new \Exception("Invalid base64 image for {$field}");
+            }
+
+            File::put(public_path($relativePath), $binary);
+            $accident->$field = url($relativePath);
+        }
+    }
+
+    $accident->save();
+}
+
+  private function saveIllnessData($accidentId, Request $request)
+{
+    AccidentIllnessModel::where('accident_id', $accidentId)->delete();
+
+    return AccidentIllnessModel::create([
+        'accident_id' => $accidentId,
+        'abrasion' => $request->boolean('abrasion') ? 1 : 0,
+        'allergic_reaction' => $request->boolean('allergic_reaction') ? 1 : 0,
+        'amputation' => $request->boolean('amputation') ? 1 : 0,
+        'anaphylaxis' => $request->boolean('anaphylaxis') ? 1 : 0,
+        'asthma' => $request->boolean('asthma') ? 1 : 0,
+        'bite_wound' => $request->boolean('bite_wound') ? 1 : 0,
+        'broken_bone' => $request->boolean('broken_bone') ? 1 : 0,
+        'burn' => $request->boolean('burn') ? 1 : 0,
+        'choking' => $request->boolean('choking') ? 1 : 0,
+        'concussion' => $request->boolean('concussion') ? 1 : 0,
+        'crush' => $request->boolean('crush') ? 1 : 0,
+        'cut' => $request->boolean('cut') ? 1 : 0,
+        'drowning' => $request->boolean('drowning') ? 1 : 0,
+        'eye_injury' => $request->boolean('eye_injury') ? 1 : 0,
+        'electric_shock' => $request->boolean('electric_shock') ? 1 : 0,
+        'infectious_disease' => $request->boolean('infectious_disease') ? 1 : 0,
+        'high_temperature' => $request->boolean('high_temperature') ? 1 : 0,
+        'ingestion' => $request->boolean('ingestion') ? 1 : 0,
+        'internal_injury' => $request->boolean('internal_injury') ? 1 : 0,
+        'poisoning' => $request->boolean('poisoning') ? 1 : 0,
+        'rash' => $request->boolean('rash') ? 1 : 0,
+        'respiratory' => $request->boolean('respiratory') ? 1 : 0,
+        'seizure' => $request->boolean('seizure') ? 1 : 0,
+        'sprain' => $request->boolean('sprain') ? 1 : 0,
+        'stabbing' => $request->boolean('stabbing') ? 1 : 0,
+        'tooth' => $request->boolean('tooth') ? 1 : 0,
+        'venomous_bite' => $request->boolean('venomous_bite') ? 1 : 0,
+        'other' => $request->boolean('other') ? 1 : 0,
+        'remarks' => $request->illness_remarks ?? ($request->remarks ?? '')
+    ]);
+}
+
+private function replaceAccidentImages($accident, $request)
+{
+    $imageMappings = [
+        'made_person_sign' => 'madePersonSign',
+        'witness_sign' => 'witnessSign',
+        'injury_image' => 'injuryImage',
+        'final_sign' => 'finalSign',
+    ];
+
+    foreach ($imageMappings as $field => $prefix) {
+        if (!empty($request->$field)) {
+            if (!empty($accident->$field)) {
+                $oldRelative = str_replace(url('/') . '/', '', $accident->$field);
+                $oldAbsolute = public_path($oldRelative);
+                if (File::exists($oldAbsolute)) {
+                    File::delete($oldAbsolute);
+                }
+            }
+
+            $filename = $prefix . '-' . $accident->id . '-' . time() . '.png';
+            $relativePath = 'uploads/accidents/' . $filename;
+            $absolutePath = public_path($relativePath);
+
+            File::ensureDirectoryExists(public_path('uploads/accidents'));
+
+            $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $request->$field);
+            $binary = base64_decode($imageData, true);
+
+            if ($binary === false) {
+                throw new \Exception("Invalid base64 image for {$field}");
+            }
+
+            File::put($absolutePath, $binary);
+            $accident->$field = url($relativePath);
+        }
+    }
+
+    $accident->save();
+}
+
     public function AccidentDelete(Request $r)
     {
         // ✅ Validate request with Validator
@@ -109,7 +332,7 @@ class AccidentsController extends Controller
         }
 
         // Get list of centers
-        if ($userType === "Superadmin") {
+        if ($userType === "Superadmin" || $userType === "Centeradmin") {
             $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $centerIds)->get();
         } else {
@@ -142,7 +365,7 @@ class AccidentsController extends Controller
             $childids = Childparent::where('parentid',$userid)->pluck('childid');
             $roomids = Child::whereIn('id',$childids)->pluck('room');
             $centerRooms = Room::whereIn('id',  $roomids)->get();
-     $selectedRoom = Room::where('id', $roomid)->first();
+            $selectedRoom = Room::where('id', $roomid)->first();
         }
 
     
@@ -207,7 +430,7 @@ class AccidentsController extends Controller
         }
 
         // Get list of centers
-        if ($userType === "Superadmin") {
+        if ($userType === "Superadmin" || $userType === "Centeradmin") {
             $centerIds = Usercenter::where('userid', $userid)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $centerIds)->get();
         } else {
@@ -792,7 +1015,7 @@ class AccidentsController extends Controller
 
         // Insert new illness record
         return AccidentIllnessModel::create($illnessData)->id;
-    }
+    } 
 
     public function create(Request $request)
     {
@@ -834,7 +1057,7 @@ class AccidentsController extends Controller
 
     public function getChildDetails(Request $request)
     {
-    $id = $request->childid;
+     $id = $request->childid;
         $child = Child::where('id', $id)->first();
 
         if ($child) {

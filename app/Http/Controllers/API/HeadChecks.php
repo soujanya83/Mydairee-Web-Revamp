@@ -83,7 +83,7 @@ public function index(Request $request)
     // Get head checks
     $headChecks = DailyDiaryHeadCheckModel::where('createdBy', $userId)
         ->where('roomid', $roomid)
-        ->whereDate('createdAt', $date)
+        ->whereDate('created_at', $date)
         ->get();
 
     // Respond as JSON if requested
@@ -160,7 +160,7 @@ public function getCenterRooms(Request $request)
 //   $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
 //   if ($request->headcheck) {
 //     DailyDiaryHeadCheckModel::where('roomid', $request->roomid)
-//         ->whereDate('createdAt', $date)
+//         ->whereDate('created_at', $date)
 //         ->delete();
 // }
 
@@ -174,7 +174,7 @@ public function getCenterRooms(Request $request)
 //             'comments'  => $validated['comments'][$i],
 //             'roomid'    => $validated['roomid'],
 //             'createdBy' => Auth::user()->userid,
-//             'createdAt' => now(),
+//             'created_at' => now(),
 //         ];
 //     }
 
@@ -196,6 +196,7 @@ public function headchecksStore(Request $request)
         'timePicker' => 'required|array',
         'headCount'  => 'required|array',
         'signature'  => 'required|array',
+        'headcheck'  => 'nullable|array',
         'roomid'     => 'required|integer',
         'centerid'   => 'required|integer',
         'diarydate'  => 'required|string',
@@ -205,43 +206,44 @@ public function headchecksStore(Request $request)
     $diaryDate = str_replace("/", "-", $validated['diarydate']);
     $diaryDate = date('Y-m-d', strtotime($diaryDate));
 
-    // Optional date (for delete filter)
-    $date = !empty($request->date) ? date('Y-m-d', strtotime($request->date)) : date('Y-m-d');
-
-    // Delete existing records if 'headcheck' flag is sent
-    if ($request->headcheck) {
-        DailyDiaryHeadCheckModel::where('roomid', $validated['roomid'])
-            ->whereDate('createdAt', $date)
-            ->delete();
-    }
-
     $headchecks = [];
+    $headcheckIds = $request->input('headcheck', []);
 
     for ($i = 0; $i < count($validated['timePicker']); $i++) {
         // Convert HH:MM to 1h:00m
-  [$hours, $minutes] = explode(':', $validated['timePicker'][$i]);
-$convertedTime = intval($hours) . 'h:' . str_pad($minutes, 2, '0', STR_PAD_LEFT) . 'm';
+        [$hours, $minutes] = explode(':', $validated['timePicker'][$i]);
+        $convertedTime = intval($hours) . 'h:' . str_pad($minutes, 2, '0', STR_PAD_LEFT) . 'm';
 
-
-        // dd($convertedTime);
-
-        $headchecks[] = [
+        $payload = [
             'time'      => $convertedTime,
             'diarydate' => $diaryDate,
             'headcount' => $validated['headCount'][$i],
             'signature' => $validated['signature'][$i],
             'roomid'    => $validated['roomid'],
-            'createdBy' => Auth::id(), // or Auth::user()->userid
-            'createdAt' => now(),
         ];
-    }
 
-    // Insert all rows
-    DailyDiaryHeadCheckModel::insert($headchecks);
+        $headCheckId = !empty($headcheckIds[$i]) ? (int) $headcheckIds[$i] : null;
+
+        if (!empty($headCheckId)) {
+            DailyDiaryHeadCheckModel::where('id', $headCheckId)
+                ->where('roomid', $validated['roomid'])
+                ->update($payload);
+
+            $headchecks[] = array_merge(['id' => $headCheckId], $payload);
+            continue;
+        }
+
+        $newRecord = DailyDiaryHeadCheckModel::create($payload + [
+            'createdBy' => Auth::id(),
+            'created_at' => now(),
+        ]);
+
+        $headchecks[] = array_merge(['id' => $newRecord->id], $payload);
+    }
 
     return response()->json([
         'status'  => true,
-        'message' => 'Head check records added successfully.',
+        'message' => 'Head check records saved successfully.',
         'roomid'  => $validated['roomid'],
         'date'    => $diaryDate,
         'centerid'=> $validated['centerid'],

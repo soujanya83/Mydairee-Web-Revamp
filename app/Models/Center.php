@@ -10,6 +10,7 @@ class Center extends Model
     protected $fillable = [
         'centerName',
         'user_id',
+        'status',
         'adressStreet',
         'addressCity',
         'addressZip',

@@ -2342,7 +2342,7 @@ Observation:
             'child_voice'       => 'nullable|string',
             'future_plan'       => 'nullable|string',
             'selected_children' => 'required|string',
-            'selected_staff' => 'nullable|string'
+            'selected_staff' => 'nullable|string',
         ];
 
 
@@ -2427,6 +2427,7 @@ Observation:
                 $observation->userId   = $authId; // Only set when creating
             }
             $observation->centerid     = $centerid;
+            $observation->status       = $request->input('status', $observation->status ?? 'Draft');
             $observation->save();
 
             $observationId = $observation->id;
@@ -2488,50 +2489,6 @@ Observation:
             }
 
             DB::commit();
-
-              // Debug log for notification trigger
-            // Log::info('[Observation Store] Notification check', [
-            //     'observation_id' => $observationId,
-            //     'status' => $observation->status,
-            //     'request_status' => $request->input('status'),
-            //     'selectedChildren' => $selectedChildren,
-            //     'authId' => $authId,
-            // ]);
-
-            // Send notification to all parents of the attached children ONLY if published
-            // if (!empty($selectedChildren) &&  strtolower($observation->status ?? '') === 'published') {
-            //     Log::info('[Observation Store] Sending notification to parents', [
-            //         'observation_id' => $observationId,
-            //         'status' => $observation->status,
-            //         'selectedChildren' => $selectedChildren,
-            //     ]);
-            //     $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
-            //     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
-            //         $selectedChildren,
-            //         'observation',
-            //         $observationId,
-            //         $authId,
-            //         $service
-            //     );
-            // }
-
-            // $selectedChildren = explode(',', $request->input('selected_children'));
-
-            // foreach ($selectedChildren as $childId) {
-            //     $childId = trim($childId);
-            //     if ($childId !== '') {
-            //         // Get all related parent entries for this child
-            //         $parentRelations = Childparent::where('childid', $childId)->get();
-
-            //         foreach ($parentRelations as $relation) {
-            //             $parentUser = User::find($relation->parentid); // assuming users table stores parent records
-
-            //             if ($parentUser) {
-            //                 $parentUser->notify(new ObservationAdded($observation));
-            //             }
-            //         }
-            //     }
-            // }
 
             return response()->json([
                 'status'  => 'success',

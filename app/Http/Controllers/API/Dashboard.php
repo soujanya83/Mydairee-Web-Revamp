@@ -13,11 +13,13 @@ use App\Models\Reflection;
 use App\Models\PTM;
 use App\Models\PubicHoliday_Model;
 use App\Models\User;
+use App\Models\Center;
 use App\Models\Room;
 use App\Models\RoomStaff;
 use App\Models\Usercenter;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use App\Models\AnnouncementChildModel;
 use App\Models\Childparent;
 use Carbon\Carbon;
@@ -28,30 +30,30 @@ class Dashboard extends Controller
 {
 
     
-    public function university()
-{
-    $totalUsers = User::count();
-    $totalSuperadmin = User::where('userType', 'Superadmin')->count();
-    $totalStaff = User::where('userType', 'Staff')->count();
-    $totalParent = User::where('userType', 'Parent')->count();
-    $totalCenter = Usercenter::count();
-    $totalRooms = Room::count();
-    $totalRecipes = RecipeModel::count();
+        public function university()
+        {
+            $totalUsers = User::count();
+            $totalSuperadmin = User::where('userType', 'Superadmin')->count();
+            $totalStaff = User::where('userType', 'Staff')->count();
+            $totalParent = User::where('userType', 'Parent')->count();
+            $totalCenter = Usercenter::count();
+            $totalRooms = Room::count();
+            $totalRecipes = RecipeModel::count();
 
-    return response()->json([
-        'status' => true,
-        'message' => 'University dashboard stats fetched successfully',
-        'data' => [
-            'totalUsers'      => $totalUsers,
-            'totalSuperadmin' => $totalSuperadmin,
-            'totalStaff'      => $totalStaff,
-            'totalParent'     => $totalParent,
-            'totalCenter'     => $totalCenter,
-            'totalRooms'      => $totalRooms,
-            'totalRecipes'    => $totalRecipes,
-        ]
-    ]);
-}
+            return response()->json([
+                'status' => true,
+                'message' => 'University dashboard stats fetched successfully',
+                'data' => [
+                    'totalUsers'      => $totalUsers,
+                    'totalSuperadmin' => $totalSuperadmin,
+                    'totalStaff'      => $totalStaff,
+                    'totalParent'     => $totalParent,
+                    'totalCenter'     => $totalCenter,
+                    'totalRooms'      => $totalRooms,
+                    'totalRecipes'    => $totalRecipes,
+                ]
+            ]);
+        }
 
 
       // New University Dashboard Function
@@ -141,8 +143,9 @@ class Dashboard extends Controller
                 ->where('status', 'ACTIVE')
                 ->count();
 
-            $newEnrolmentsLastYear = ReEnrolment::whereDate('created_at', '>=', now()->subYear())
-            ->count();
+            $currentMonthBirthdays = Child::where('centerid', $centerid)
+                ->whereMonth('dob', now()->month)
+                ->count();
 
             $totalRooms = Room::where('centerid', $centerid)
                 ->where('status', 'Active')
@@ -154,6 +157,10 @@ class Dashboard extends Controller
             $activeChildren = Child::where('centerid', $centerid)
                 ->where('status', 'Active')
                 ->count();
+
+            $affiliatedCenters = Usercenter::where('userid', $userid)
+                ->distinct('centerid')
+                ->count('centerid');
 
             /*
             |--------------------------------------------------------------------------
@@ -169,7 +176,8 @@ class Dashboard extends Controller
                     'totalUsers'       => $totalUsers,
                     'totalStaff'       => $totalStaff,
                     'totalParent'      => $totalParent,
-                    'newEnrolmentsLastYear' => $newEnrolmentsLastYear,
+                    'currentMonthBirthdays' => $currentMonthBirthdays,
+                    'affiliatedCenters'     => $affiliatedCenters,
                     'totalRooms'       => $totalRooms,
                     'totalRecipes'     => $totalRecipes,
                     'activeChildren'   => $activeChildren,
@@ -453,6 +461,158 @@ class Dashboard extends Controller
                 ],
             ]);
         }
+
+        public function saveSelectedCenter(Request $request)
+        {
+            $auth = Auth::user();
+
+            if (!$auth) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+
+            $userid = $auth->userid ?? $auth->id ?? null;
+            $centerIdInput = $request->input('center_id', $request->input('centerid'));
+
+            if ($centerIdInput === null || trim((string) $centerIdInput) === '') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Center id is required',
+                ], 422);
+            }
+
+            if (!filter_var($centerIdInput, FILTER_VALIDATE_INT)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid center id',
+                ], 422);
+            }
+
+            $centerId = (int) $centerIdInput;
+            $linkedCenterIds = Usercenter::where('userid', $userid)
+                ->orderBy('id')
+                ->pluck('centerid')
+                ->map(fn ($value) => (int) $value)
+                ->values();
+
+            if ($linkedCenterIds->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No linked centers found for this user',
+                ], 404);
+            }
+
+            if (!$linkedCenterIds->contains($centerId)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Selected center does not belong to this user',
+                ], 403);
+            }
+
+            $center = Center::find($centerId);
+
+            if (!$center) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Selected center not found',
+                ], 404);
+            }
+
+            User::where('userid', $userid)->update([
+                'selected_center_id' => $centerId,
+            ]);
+
+            Session::put('user_center_id', $centerId);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Selected center saved successfully',
+                'data' => [
+                    'selected_center_id' => $centerId,
+                    'center' => $center,
+                ],
+            ]);
+        }
+
+        public function getSelectedCenter(Request $request)
+        {
+            $auth = Auth::user();
+
+            if (!$auth) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+
+            $userid = $auth->userid ?? $auth->id ?? null;
+            $linkedCenterIds = Usercenter::where('userid', $userid)
+                ->orderBy('id')
+                ->pluck('centerid')
+                ->map(fn ($value) => (int) $value)
+                ->values();
+
+            if ($linkedCenterIds->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No linked centers found for this user',
+                    'data' => null,
+                ], 404);
+            }
+
+            $savedCenterId = User::where('userid', $userid)->value('selected_center_id');
+            $selectedCenterId = null;
+            $selectionSource = null;
+
+            if (!empty($savedCenterId) && $linkedCenterIds->contains((int) $savedCenterId)) {
+                $savedCenter = Center::find((int) $savedCenterId);
+
+                if ($savedCenter) {
+                    $selectedCenterId = (int) $savedCenterId;
+                    $selectionSource = 'saved';
+                }
+            }
+
+            if (!$selectedCenterId) {
+                foreach ($linkedCenterIds as $linkedCenterId) {
+                    $center = Center::find($linkedCenterId);
+
+                    if ($center) {
+                        $selectedCenterId = $linkedCenterId;
+                        $selectionSource = 'fallback';
+
+                        User::where('userid', $userid)->update([
+                            'selected_center_id' => $selectedCenterId,
+                        ]);
+
+                        Session::put('user_center_id', $selectedCenterId);
+                        break;
+                    }
+                }
+            }
+
+            if (!$selectedCenterId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No valid linked centers found for this user',
+                    'data' => null,
+                ], 404);
+            }
+
+            $center = Center::find($selectedCenterId);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Selected center fetched successfully',
+                'data' => [
+                    'selected_center_id' => $selectedCenterId,
+                    'selected_center_source' => $selectionSource,
+                    'center' => $center,
+                ],
+            ]);
+        }
         
         public function universalDashboard(Request $request)
         {
@@ -466,7 +626,7 @@ class Dashboard extends Controller
             }
 
             $usertype = strtolower((string) ($auth->userType ?? ''));
-            $isSuperadmin = ((string) ($auth->admin ?? '')) === '1' || $usertype === 'superadmin';
+            $isSuperadmin = ((string) ($auth->admin ?? '')) === '1' || $usertype === 'superadmin' || $usertype === 'centeradmin';
             $isStaff = $usertype === 'staff';
 
             if (!$isSuperadmin && !$isStaff) {
@@ -626,8 +786,8 @@ class Dashboard extends Controller
                 'status' => true,
                 'message' => 'Universal dashboard fetched successfully',
                 'data' => [
-                    // 'birthdays' => $birthdays,
-                    // 'holidays' => $holidays,
+                    'birthdays' => $birthdays,
+                    'holidays' => $holidays,
                     'events' => $events,
                 ],
             ]);

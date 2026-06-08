@@ -64,7 +64,7 @@ class GlobalRoomsChildrenController extends Controller
 
         $userType = $user->userType;
         $authId = $user->id;
-        if ($userType === 'Superadmin') {
+        if ($userType === 'Superadmin' || $userType === 'Centeradmin') {
             // All rooms in the center
             $rooms = Room::where('centerid', $centerid)->get();
         } elseif ($userType === 'Staff') {
@@ -240,6 +240,142 @@ class GlobalRoomsChildrenController extends Controller
                 'full_name' => trim(($parent->title ? $parent->title . ' ' : '') . ($parent->name ?? '')),
             ],
             'children' => $children,
+        ]);
+    }
+
+    public function getRoomStaff(Request $request, $roomId = null)
+    {
+        $roomId = $roomId ?? $request->input('room_id', $request->input('roomid'));
+
+        $validator = Validator::make([
+            'room_id' => $roomId,
+        ], [
+            'room_id' => 'required|integer|exists:room,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $roomId = (int) $validator->validated()['room_id'];
+
+        $room = Room::with(['staff' => function ($query) {
+            $query->select(
+                'users.id',
+                'users.userid',
+                'users.title',
+                'users.name',
+                'users.email',
+                'users.contactNo',
+                'users.imageUrl',
+                'users.gender',
+                'users.status',
+                'users.userType'
+            )->orderBy('users.name');
+        }])->find($roomId);
+
+        if (! $room) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Room not found.',
+            ], 404);
+        }
+
+        $staffs = $room->staff->map(function ($staff) {
+            return [
+                'id' => (int) $staff->id,
+                'userid' => $staff->userid ?? null,
+                'title' => $staff->title ?? null,
+                'name' => $staff->name ?? null,
+                'full_name' => trim(($staff->title ? $staff->title . ' ' : '') . ($staff->name ?? '')),
+                'email' => $staff->email ?? null,
+                'contactNo' => $staff->contactNo ?? null,
+                'imageUrl' => $staff->imageUrl ?? null,
+                'gender' => $staff->gender ?? null,
+                'status' => $staff->status ?? null,
+                'userType' => $staff->userType ?? null,
+            ];
+        })->values();
+
+        return response()->json([
+            'status' => true,
+            'room_id' => $roomId,
+            'room' => [
+                'id' => (int) $room->id,
+                'name' => $room->name,
+                'centerid' => $room->centerid,
+                'status' => $room->status,
+            ],
+            'count' => $staffs->count(),
+            'staffs' => $staffs,
+        ]);
+    }
+
+    public function getCenterStaff(Request $request, $centerId = null)
+    {
+        $centerId = $centerId ?? $request->input('center_id', $request->input('centerid'));
+
+        $validator = Validator::make([
+            'center_id' => $centerId,
+        ], [
+            'center_id' => 'required|integer|exists:centers,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $centerId = (int) $validator->validated()['center_id'];
+
+        $staffs = User::join('room_staff', 'users.id', '=', 'room_staff.staffid')
+            ->join('room', 'room.id', '=', 'room_staff.roomid')
+            ->where('room.centerid', $centerId)
+            ->where('users.userType', 'Staff')
+            ->select(
+                'users.id',
+                'users.userid',
+                'users.title',
+                'users.name',
+                'users.email',
+                'users.contactNo',
+                'users.imageUrl',
+                'users.gender',
+                'users.status',
+                'users.userType'
+            )
+            ->distinct()
+            ->orderBy('users.name')
+            ->get()
+            ->map(function ($staff) {
+                return [
+                    'id' => (int) $staff->id,
+                    'userid' => $staff->userid ?? null,
+                    'title' => $staff->title ?? null,
+                    'name' => $staff->name ?? null,
+                    'full_name' => trim(($staff->title ? $staff->title . ' ' : '') . ($staff->name ?? '')),
+                    'email' => $staff->email ?? null,
+                    'contactNo' => $staff->contactNo ?? null,
+                    'imageUrl' => $staff->imageUrl ?? null,
+                    'gender' => $staff->gender ?? null,
+                    'status' => $staff->status ?? null,
+                    'userType' => $staff->userType ?? null,
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'status' => true,
+            'center_id' => $centerId,
+            'count' => $staffs->count(),
+            'staffs' => $staffs,
         ]);
     }
 }

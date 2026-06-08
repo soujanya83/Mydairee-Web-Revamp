@@ -41,7 +41,7 @@ class LnPcontroller extends Controller
         }
 
         // Fetch centers based on user type
-        if (Auth::user()->userType == "Superadmin") {
+        if (Auth::user()->userType == "Superadmin" || Auth::user()->userType == "Centeradmin") {
             $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $centerIds)->get();
         } else {
@@ -119,7 +119,7 @@ class LnPcontroller extends Controller
             $user = Auth::user();
             $rooms = collect();
             
-        if($user->userType === 'Superadmin') {
+        if($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
             $rooms = $this->getroomsforSuperadmin($centerid);
             }elseif($user->userType === 'Staff'){
             $rooms = $this->getroomsforStaff($centerid);

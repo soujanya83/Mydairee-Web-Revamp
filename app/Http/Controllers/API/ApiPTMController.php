@@ -34,7 +34,7 @@ class ApiPTMController extends Controller
 
         $ptms = collect();
 
-        if ($user->userType === 'Superadmin' || $user->userType === 'Staff') {
+        if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin' || $user->userType === 'Staff') {
             $ptms = PTM::with(['staff', 'center', 'children', 'ptmDates','ptmSlots',
                 'reschedules.rescheduledate','reschedules.rescheduleslot'])
                 ->withMin('ptmDates', 'date')
@@ -250,7 +250,7 @@ class ApiPTMController extends Controller
         $user = Auth::user();
         $rooms = $request->rooms;
         $roomIds = !empty($rooms) ? explode(',', $rooms) : [];
-        if ($user->userType === 'Superadmin') {
+        if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
             $children = Child::whereIn('room', $roomIds)->where('status', 'Active')->orderBy('name','asc')->get();
         } elseif ($user->userType === 'Staff') {
             $children = Child::whereIn('room', $roomIds)->where('status', 'Active')->orderBy('name','asc')->get();
@@ -669,7 +669,7 @@ class ApiPTMController extends Controller
         }
 
         $user = Auth::user();
-        if (in_array($user->userType, ['Superadmin', 'Staff'], true)) {
+        if (in_array($user->userType, ['Superadmin', 'Centeradmin', 'Staff'], true)) {
             $isAllowed = Usercenter::where('userid', $user->id)->where('centerid', $centerId)->exists();
             if (!$isAllowed) {
                 return [null, null, response()->json([

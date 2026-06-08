@@ -29,7 +29,7 @@ class QipController extends Controller
 
         $qipQuery = Qip::query();
 
-        if ($authUser->userType === 'Superadmin') {
+        if ($authUser->userType === 'Superadmin' || $authUser->userType === 'Centeradmin') {
             if ($requestedCenterId) {
                 $qipQuery->where('centerId', $requestedCenterId);
             }

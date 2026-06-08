@@ -51,6 +51,7 @@ use App\Notifications\ObservationAdded;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Facades\Mail;
+use App\Models\ObservationStaff;
 
 class ObservationsController extends Controller
 {
@@ -208,7 +209,7 @@ class ObservationsController extends Controller
         $authId   = Auth::id();
         $centerid = session('user_center_id');
 
-        if (Auth::user()->userType === "Superadmin") {
+        if (Auth::user()->userType === "Superadmin" || Auth::user()->userType === "Centeradmin") {
             $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers   = Center::whereIn('id', $centerIds)->get();
             $snapshot = Snapshot::with(['creator', 'center', 'children.child', 'media'])
@@ -492,8 +493,16 @@ class ObservationsController extends Controller
                 ->orderBy('id', 'desc')
                 ->paginate($perPage);
         } elseif ($user->userType == "Staff") {
+
+            $taggedObservationIds = ObservationStaff::where('userid', $authId)
+                ->pluck('observationId')
+                ->toArray();
+
             $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
-                ->where('userId', $authId)
+                ->where(function ($query) use ($authId, $taggedObservationIds) {
+                    $query->where('userId', $authId)
+                        ->orWhereIn('id', $taggedObservationIds);
+                })
                 ->orderBy('id', 'desc')
                 ->paginate($perPage);
         } else {
@@ -587,6 +596,7 @@ class ObservationsController extends Controller
                 'page'      => 'nullable|integer|min:1',
                 'child_search' => 'nullable|string',
                 'created_by_search' => 'nullable|string',
+                'search_by_title' => 'nullable|string',
             ], [
                 'center_id.required' => 'Center ID is required.',
                 'center_id.integer'  => 'Center ID must be an integer.',
@@ -767,6 +777,18 @@ class ObservationsController extends Controller
                 }
             }
 
+            // Observation title search filter
+            if ($request->filled('search_by_title')) {
+                $titleSearch = trim((string) $request->input('search_by_title'));
+
+                if ($titleSearch !== '') {
+                    $query->where(function ($titleQuery) use ($titleSearch) {
+                        $titleQuery->where('title', 'like', '%' . $titleSearch . '%')
+                                ->orWhere('obestitle', 'like', '%' . $titleSearch . '%');
+                    });
+                }
+            }
+
             // Creator name search filter
             if ($request->filled('created_by_search')) {
                 $creatorSearch = trim((string) $request->input('created_by_search'));
@@ -778,7 +800,26 @@ class ObservationsController extends Controller
                 }
             }
             if ($user->userType === 'Staff') {
-                $query->where('userId', Auth::id());
+                                $authId = Auth::id();
+
+                // Include observations where the staff is the creator OR explicitly tagged via ObservationStaff
+                $staffObservationIds = \App\Models\ObservationStaff::where('userid', $authId)
+                    ->pluck('observationId')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                $query->where(function ($q) use ($authId, $staffObservationIds) {
+                    $q->where('userId', $authId);
+
+                    if (!empty($staffObservationIds)) {
+                        $q->orWhereIn('id', $staffObservationIds);
+                    }
+
+                    // Also support legacy comma-separated `tagged_staff` field on observations
+                    $q->orWhereRaw('FIND_IN_SET(?, tagged_staff)', [$authId]);
+                });
             }
             // Apply user-specific filters based on role
             // $user = Auth::user();
@@ -826,7 +867,7 @@ class ObservationsController extends Controller
                     'title' => html_entity_decode($observation->title ?? ''),
                     'obestitle' => $observation->obestitle ?? '',
                     'status' => $observation->status,
-                    'media' => $observation->media->first(),
+                    'media' => $observation->media->values(),
                     'mediaType' => $observation->observationsMediaType,
                     'userName' => $observation->user->name ?? 'Unknown',
                     'date_added' => Carbon::parse($observation->created_at)->format('d.m.Y'),
@@ -863,6 +904,7 @@ class ObservationsController extends Controller
                 'filters' => [
                     'child_search' => $request->input('child_search', ''),
                     'created_by_search' => $request->input('created_by_search', ''),
+                    'search_by_title' => $request->input('search_by_title', ''),
                 ],
                 'selectedChildId' => $user->userType === 'Parent' ? $selectedChildId : null,
                 'selectedChildSource' => $user->userType === 'Parent' ? $selectedChildSource : null,
@@ -1067,7 +1109,7 @@ class ObservationsController extends Controller
                     'title' => html_entity_decode($observation->title ?? ''),
                     'obestitle' => $observation->obestitle ?? '',
                     'status' => $observation->status,
-                    'media' => $observation->media->first(),
+                    'media' => $observation->media->values(),
                     'mediaType' => $observation->observationsMediaType,
                     'userName' => $observation->user->name ?? 'Unknown',
                     'date_added' => Carbon::parse($observation->created_at)->format('d.m.Y'),
@@ -1148,8 +1190,8 @@ class ObservationsController extends Controller
 
             // Fetch children by center
             if ($centerid) {
-                if ($user->userType === 'Superadmin') {
-                    $children = $this->getChildrenForSuperadmin($centerid);
+                    if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
+                        $children = $this->getChildrenForSuperadmin($centerid);
                 } elseif ($user->userType === 'Staff') {
                     $children = $this->getChildrenForStaff($centerid);
                 } else {
@@ -1273,7 +1315,7 @@ class ObservationsController extends Controller
 
             if ($centerid) {
 
-                if ($user->userType === 'Superadmin' || $user->userType === 'Staff') {
+                if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin' || $user->userType === 'Staff') {
                     $staff = $this->getStaffForSuperadmin($centerid);
                 }
             }
@@ -1355,7 +1397,7 @@ class ObservationsController extends Controller
 
             $centerid = $validator->validated()['center_id'];
 
-            if ($user->userType === 'Superadmin') {
+            if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
                 $rooms = $this->getroomsforSuperadmin($centerid);
             } else {
                 $rooms = $this->getroomsforStaff($centerid);
@@ -1613,15 +1655,34 @@ class ObservationsController extends Controller
             // Get all children attached to this observation
             $selectedChildren = \App\Models\ObservationChild::where('observationId', $observation->id)->pluck('childId')->toArray();
             $authId = $observation->userId;
-            // Push notification (deep linking)
-            $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
-            \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
-                $selectedChildren,
-                'observation',
-                $observation->id,
-                $authId,
-                $service
-            );
+                // Push notification (deep linking)
+                $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+
+                // Collect tagged staff IDs from ObservationStaff table (userid) and legacy tagged_staff column
+                $staffFromTable = \App\Models\ObservationStaff::where('observationId', $observation->id)
+                    ->pluck('userid')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                $staffFromColumn = [];
+                if (!empty($observation->tagged_staff)) {
+                    $staffFromColumn = array_values(array_filter(array_map('trim', explode(',', $observation->tagged_staff))));
+                }
+
+                $combinedStaff = array_values(array_unique(array_merge($staffFromTable, $staffFromColumn)));
+
+                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                    $selectedChildren,
+                    'observation',
+                    $observation->id,
+                    $authId,
+                    $service,
+                    null,
+                    [],
+                    $combinedStaff
+                );
             // Laravel notification (database/email)
             foreach ($selectedChildren as $childId) {
                 $parentRelations = \App\Models\Childparent::where('childid', $childId)->get();
@@ -1671,6 +1732,26 @@ class ObservationsController extends Controller
             'devMilestoneSubs.devMilestone.main',
             'devMilestoneSubs.devMilestone.milestone'
         ])->findOrFail($id);
+
+        // Get tagged staff IDs
+        $staffIds = array_filter(explode(',', $observation->tagged_staff));
+
+        // Fetch staff details
+        $taggedStaff = User::whereIn('id', $staffIds)
+            ->select('id', 'name', 'imageUrl')
+            ->get()
+            ->map(function ($staff) {
+                return [
+                    'id' => $staff->id,
+                    'name' => $staff->name,
+                    'imageUrl' => $staff->imageUrl
+                        ? asset($staff->imageUrl)
+                        : null,
+                ];
+            });
+
+        // Append to response
+        $observation->tagged_staff_details = $taggedStaff;
 
         return response()->json([
             'status'  => true,
@@ -2139,8 +2220,8 @@ class ObservationsController extends Controller
 
         $rules = [
             'selected_rooms'    => 'required|string',
-            'obestitle'         => 'required|string|max:255',
-            'title'             => 'nullable|string|max:255',
+            'obestitle'         => 'required|string',
+            'title'             => 'nullable|string',
             'notes'             => 'nullable|string',
             'reflection'        => 'nullable|string',
             'child_voice'       => 'nullable|string',
@@ -2148,6 +2229,8 @@ class ObservationsController extends Controller
             'implementation'    => 'nullable|string',
             'selected_children' => 'required|string',
             'selected_staff'    => 'nullable|string',
+            'status'            => 'nullable|in:Published,Draft',
+            'publishIntent'     => 'nullable|in:Published,Draft',
         ];
 
         if (!$isEdit) {
@@ -2195,6 +2278,7 @@ class ObservationsController extends Controller
             $observation->tagged_staff = $validated['selected_staff'] ?? '';
             $observation->userId       = $authId;
             $observation->centerid     = $centerid;
+            $observation->status       = $request->input('status', $request->input('publishIntent', 'Draft'));
             $observation->save();
 
             $observationId = $observation->id;
@@ -2267,22 +2351,27 @@ class ObservationsController extends Controller
             // ]);
 
             // Send notification to all parents of the attached children ONLY if published
-            // if (!empty($selectedChildren) && ($observation->status ?? null) === 'Published') {
-            //     Log::info('[Observation Store] Sending notification to parents', [
-            //         'observation_id' => $observationId,
-            //         'status' => $observation->status,
-            //         'selectedChildren' => $selectedChildren,
-            //     ]);
-            //     $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
-            //     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
-            //         $selectedChildren,
-            //         'observation',
-            //         $observationId,
-            //         $authId,
-            //         $service
-            //     );
-            // }
+            if (!empty($selectedChildren) && strtolower($observation->status ?? '') === 'published') {
+                Log::info('NOTIFICATION_TRIGGER_CHECK', [
+                    'module' => 'observation',
+                    'status' => $observation->status,
+                    'childIds' => $selectedChildren,
+                    'staffIds' => $selectedStaff ?? [],
+                    'observation_id' => $observationId,
+                ]);
 
+                $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+                    $selectedChildren,
+                    'observation',
+                    $observationId,
+                    $authId,
+                    $service,
+                    null,
+                    [],
+                    $selectedStaff ?? []
+                );
+            }
 
             return response()->json([
                 'status' => true,
@@ -2321,11 +2410,19 @@ class ObservationsController extends Controller
 
 
 
-    public function destroyimage(Request $request)
+    public function destroyimage(Request $request, $id = null)
     {
-        $id = $request->id;
+        $id = $id ?? $request->input('id') ?? $request->route('id');
+
+        if (empty($id) || !is_numeric($id)) {
+            return response()->json(['status' => false, 'message' => 'Media id is required.'], 422);
+        }
 
         $mediaItems = ObservationMedia::where('id', $id)->get();
+
+        if ($mediaItems->isEmpty()) {
+            return response()->json(['status' => false, 'message' => 'Media not found.'], 404);
+        }
 
         foreach ($mediaItems as $media) {
             if (file_exists(public_path($media->mediaUrl))) {
@@ -2653,7 +2750,10 @@ class ObservationsController extends Controller
             }
 
             $snapshotQuery = Snapshot::with(['creator', 'center', 'children.child', 'media'])
-                ->where('createdBy', $authId);
+                ->where(function ($q) use ($authId) {
+                    $q->where('createdBy', $authId)
+                    ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
+                });
 
             if (!empty($centerid)) {
                 $snapshotQuery->where('centerid', $centerid);
@@ -2857,6 +2957,7 @@ class ObservationsController extends Controller
             $centerid = $validated['center_id'];
             $perPage = $validated['per_page'] ?? max((int) $request->input('per_page', 10), 1);
             $page = $validated['page'] ?? max((int) $request->input('page', 1), 1);
+            $childName = trim((string) $request->input('child_name', ''));
             $roomId = $request->input('room_id', $request->input('roomid'));
             $selectedChildId = null;
             $selectedChildSource = null;
@@ -2924,11 +3025,41 @@ class ObservationsController extends Controller
             }
 
             if ($user->userType === 'Staff') {
-                $query->where('createdBy', Auth::id());
+                    $authId = Auth::id();
+
+                    $query->where(function ($q) use ($authId) {
+
+                        // Created by me
+                        $q->where('createdBy', $authId)
+
+                        // Tagged as educator
+                        ->orWhereRaw('FIND_IN_SET(?, educators)', [$authId]);
+                    });
+
             }
 
-            $this->applySnapshotFilters($query, $request);
+            $filterRequest = $request->duplicate();
+            $filterRequest->request->remove('child_name');
+            $filterRequest->query->remove('child_name');
+
+            $this->applySnapshotFilters($query, $filterRequest);
             $this->applySnapshotRoomFilter($query, $roomId);
+
+            if ($childName !== '') {
+                $query->whereHas('children.child', function ($childQuery) use ($childName) {
+                    $childQuery->where(function ($nameQuery) use ($childName) {
+                        $nameQuery->where('name', 'like', '%' . $childName . '%')
+                            ->orWhere('lastname', 'like', '%' . $childName . '%')
+                            ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $childName . '%']);
+
+                        if (is_numeric($childName)) {
+                            $nameQuery->orWhere('id', (int) $childName);
+                        }
+                    });
+                });
+
+                $page = 1;
+            }
 
             $query->orderBy('id', 'desc');
 
@@ -3228,6 +3359,8 @@ class ObservationsController extends Controller
         // ✅ Assign Snapshot Data
 
         $status = $request->input('publishIntent', $request->input('status', 'Draft'));
+        $normalizedSnapshotStatus = strcasecmp($status, 'published') === 0 ? 'Published' : 'Draft';
+
         if (!$isEdit && !$snapshot) {
             // Create new snapshot
             $snapshot = Snapshot::create([
@@ -3236,7 +3369,7 @@ class ObservationsController extends Controller
                 'centerid'  => $centerid,
                 'createdBy' => $authId,
                 'educators' => $validated['selected_staff'],
-                'status'    => $status,
+                'status'    => $normalizedSnapshotStatus,
             ]);
 
             // Update roomids after creation
@@ -3253,7 +3386,7 @@ class ObservationsController extends Controller
             $snapshot->createdBy = $authId;
             $snapshot->educators = $validated['selected_staff'];
             $snapshot->roomids   = $validated['selected_rooms'];
-            $snapshot->status    = $status;
+            $snapshot->status    = $normalizedSnapshotStatus;
 
             $snapshot->save();
         }
@@ -3308,15 +3441,30 @@ class ObservationsController extends Controller
 
         DB::commit();
 
+        // Extract educators/staff IDs for notification
+        $educatorsArr = !empty($validated['selected_staff']) 
+            ? array_filter(array_map('trim', explode(',', (string)$validated['selected_staff'])))
+            : [];
+
         // Send notification to all parents of the attached children ONLY if published
-        if (!empty($selectedChildren) && ($snapshot->status ?? null) === 'Published') {
+        if (!empty($selectedChildren) && strcasecmp($snapshot->status ?? '', 'Published') === 0) {
+            Log::info('SNAPSHOT_FCM_TRIGGER', [
+                'snapshot_id' => $snapshotId,
+                'status' => $snapshot->status,
+                'child_ids' => $selectedChildren,
+                'staff_ids' => $educatorsArr,
+            ]);
+
             $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
             \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                 $selectedChildren,
                 'snapshot',
                 $snapshotId,
                 $authId,
-                $service
+                $service,
+                null,
+                [],
+                $educatorsArr
             );
         }
 

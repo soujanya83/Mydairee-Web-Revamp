@@ -97,7 +97,7 @@ class ReflectionController extends Controller
         $perPage = $request->get('per_page', 10); // Default 10 items per page
         $search = trim((string) $request->input('search', ''));
 
-        if (Auth::user()->userType == "Superadmin") {
+        if (Auth::user()->userType == "Superadmin" || Auth::user()->userType == "Centeradmin") {
             $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $center)->get();
         } else {
@@ -155,7 +155,7 @@ class ReflectionController extends Controller
         $selectedChildId = null;
         $selectedChildSource = null;
 
-        if ($user->userType === 'Superadmin') {
+        if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
             $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
             $centers = Center::whereIn('id', $centerIds)->get();
         } else {
@@ -165,8 +165,8 @@ class ReflectionController extends Controller
         $query = Reflection::with(['creator', 'center', 'children.child', 'media', 'staff.staff', 'Seen.user'])
             ->where('centerid', $centerid);
 
-        if ($user->userType === 'Superadmin') {
-            // Superadmin can see all reflections for the selected center.
+        if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
+            // Superadmin or Centeradmin can see all reflections for the selected center.
         } elseif ($user->userType === 'Staff') {
             // Staff can see all reflections for the selected center.
         } else {
@@ -369,6 +369,52 @@ class ReflectionController extends Controller
             ]);
      }
 
+    public function showById($id)
+    {
+        $validator = Validator::make(['id' => $id], [
+            'id' => 'required|integer|exists:reflection,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $reflection = Reflection::with([
+            'creator',
+            'center',
+            'children.child',
+            'media',
+            'staff.staff',
+            'Seen.user',
+        ])->find($id);
+
+        if (! $reflection) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Reflection not found.',
+            ], 404);
+        }
+
+        $roomNames = collect();
+        if (! empty($reflection->roomids)) {
+            $roomIds = array_values(array_filter(array_map('trim', explode(',', $reflection->roomids))));
+            $roomNames = Room::whereIn('id', $roomIds)->pluck('name');
+        }
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Reflection data retrieved successfully.',
+            'data'    => [
+                'reflection' => $reflection,
+                'rooms'      => $roomNames,
+            ],
+        ]);
+    }
+
 
 //      public function print(Request $request){
 //         $id = $request->id;
@@ -514,22 +560,9 @@ public function print(Request $request)
         'selected_children' => 'required|string',
         'selected_staff'    => 'required|string',
         'center_id'         => 'required|integer|exists:centers,id',
-        'status'            => [
-            'required',
-            function ($attribute, $value, $fail) {
-                $allowed = ['PUBLISHED', 'DRAFT'];
-                if (!in_array(strtoupper($value), $allowed)) {
-                    $fail('The ' . $attribute . ' field must be PUBLISHED or DRAFT.');
-                }
-            },
-        ],
+        'status'            => 'nullable|string',
+        'publishIntent'     => 'nullable|string',
     ];
-
-    if (!$isEdit) {
-        $rules['media'] = 'required|array|min:1';
-    } else {
-        $rules['media'] = 'nullable|array';
-    }
 
     $rules['media.*'] = 'file|mimes:jpeg,png,jpg,gif,webp,mp4|max:' . intval($uploadMaxSize / 1024);
 
@@ -563,9 +596,12 @@ public function print(Request $request)
         $reflection->title     = $request->title;
         $reflection->about     = $request->about;
         $reflection->eylf      = $request->eylf;
+        $rawStatus = $request->input('status', $request->input('publishIntent', 'Draft'));
+        $normalizedStatus = strcasecmp($rawStatus, 'published') === 0 ? 'PUBLISHED' : 'DRAFT';
+
         $reflection->centerid  = $centerId;
         $reflection->createdBy = $authId;
-        $reflection->status    = (strtoupper($request->status ?? '') === 'PUBLISHED') ? 'PUBLISHED' : 'DRAFT';
+        $reflection->status    = $normalizedStatus;
         $reflection->save();
 
         $reflectionId = $reflection->id;
@@ -636,14 +672,24 @@ public function print(Request $request)
         DB::commit();
 
         // Send notification to all parents of the attached children ONLY if published
-        if (!empty($selectedChildren) && $reflection->status === 'PUBLISHED')  {
+        if (!empty($childIds) && strtoupper($reflection->status) === 'PUBLISHED')  {
+            Log::info('REFLECTION_FCM_TRIGGER', [
+                'reflection_id' => $reflectionId,
+                'status' => $reflection->status,
+                'child_ids' => $childIds,
+                'staff_ids' => $staffIds ?? [],
+            ]);
+
             $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
             \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
                 $childIds,
                 'reflection',
                 $reflectionId,
                 $authId,
-                $service
+                $service,
+                null,
+                [],
+                $staffIds ?? []
             );
         }
 
@@ -689,11 +735,12 @@ private function convertToBytes($value)
 }
 
 
-public function destroyimage(Request $request)
+public function destroyimage(Request $request, $id = null)
 {
-    // dd('here');
+    $id = $id ?? $request->input('id') ?? $request->route('id');
+
     // Validate the incoming request
-    $validator = Validator::make($request->all(), [
+    $validator = Validator::make(['id' => $id], [
         'id' => 'required|integer|exists:reflectionmedia,id',
     ]);
 

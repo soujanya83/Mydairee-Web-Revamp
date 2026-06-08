@@ -292,6 +292,114 @@ class RoomController extends Controller
         }
     }
 
+    public function rooms_update(Request $request, $id = null)
+    {
+        $roomId = $request->input('id', $id);
+        $payload = array_filter(
+            $request->only(['room_name', 'room_capacity', 'ageFrom', 'ageTo', 'room_status', 'room_color', 'educators']),
+            function ($value) {
+                return $value !== null && $value !== '';
+            }
+        );
+
+        $validator = Validator::make(array_merge(['id' => $roomId], $payload), [
+            'id'            => 'required|integer|exists:room,id',
+            'room_name'     => 'nullable|string|max:255',
+            'room_capacity' => 'nullable|integer|min:1',
+            'ageFrom'       => 'nullable|numeric|min:0',
+            'ageTo'         => 'nullable|numeric',
+            'room_status'   => 'nullable|in:Active,Inactive',
+            'room_color'    => 'nullable|string',
+            'educators'     => 'nullable|array',
+            'educators.*'   => 'exists:users,userid',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        if (empty($roomId)) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Room id is required.',
+            ], 422);
+        }
+
+        if (empty($payload)) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'At least one room field must be provided for update.',
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $room = Room::findOrFail($roomId);
+            $updateData = [];
+
+            if ($request->filled('room_name')) {
+                $updateData['name'] = $request->input('room_name');
+            }
+
+            if ($request->filled('room_capacity')) {
+                $updateData['capacity'] = $request->input('room_capacity');
+            }
+
+            if ($request->filled('ageFrom')) {
+                $updateData['ageFrom'] = $request->input('ageFrom');
+            }
+
+            if ($request->filled('ageTo')) {
+                $updateData['ageTo'] = $request->input('ageTo');
+            }
+
+            if ($request->filled('room_status')) {
+                $updateData['status'] = $request->input('room_status');
+            }
+
+            if ($request->filled('room_color')) {
+                $updateData['color'] = $request->input('room_color');
+            }
+
+            if (!empty($updateData)) {
+                $room->update($updateData);
+            }
+
+            if ($request->has('educators')) {
+                RoomStaff::where('roomid', $roomId)->delete();
+
+                foreach ($request->input('educators') as $educatorId) {
+                    RoomStaff::create([
+                        'roomid'  => $roomId,
+                        'staffid' => $educatorId,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Room updated successfully.',
+                'room_id' => $roomId,
+                'updated_fields' => array_keys($updateData),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Failed to update room.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
 
     public function rooms_list(Request $request)
@@ -306,7 +414,7 @@ class RoomController extends Controller
         | Get Centers
         |--------------------------------------------------------------------------
         */
-        if ($userType == "Superadmin") {
+        if ($userType == "Superadmin" || $userType == "Centeradmin") {
 
             $centerIds = Usercenter::where('userid', $authId)
                 ->pluck('centerid')
@@ -331,22 +439,31 @@ class RoomController extends Controller
         | Fetch Rooms Based On User Type
         |--------------------------------------------------------------------------
         */
-        if ($userType == "Superadmin") {
+        if ($userType == "Superadmin" || $userType == "Centeradmin") {
             // Superadmin: all rooms of the current center
             if (!empty($centerid)) {
-                $getrooms = Room::where('centerid', $centerid)->get();
+                $getrooms = Room::where('centerid', $centerid)
+                    ->orderBy('ageFrom', 'asc')
+                    ->orderBy('ageTo', 'asc')
+                    ->get();
             } else {
                 $getrooms = collect(); // No center selected, return empty
             }
         } elseif ($userType == "Staff") {
             // Staff: all rooms they are attached to
             $roomIds = RoomStaff::where('staffid', $authId)->pluck('roomid');
-            $getrooms = Room::whereIn('id', $roomIds)->get();
+            $getrooms = Room::whereIn('id', $roomIds)
+                ->orderBy('ageFrom', 'asc')
+                ->orderBy('ageTo', 'asc')
+                ->get();
         } else {
             // Parent: all rooms their children are in
             $childids = Childparent::where('parentid', $authId)->pluck('childid');
             $roomIds = Child::whereIn('id', $childids)->pluck('room')->filter()->unique();
-            $getrooms = Room::whereIn('id', $roomIds)->get();
+            $getrooms = Room::whereIn('id', $roomIds)
+                ->orderBy('ageFrom', 'asc')
+                ->orderBy('ageTo', 'asc')
+                ->get();
         }
 
         /*
@@ -493,8 +610,8 @@ class RoomController extends Controller
             'lastname'    => ['required','string','max:255','not_regex:/\\d/'],
             'dob'         => 'required|date',
             'startDate'   => 'required|date',
-            'gender'      => 'required|in:Male,Female,Other',
-            'status'      => 'nullable|in:Active,,Enrolled',
+            'gender'      => 'required|in:Male,Female,Prefer not to say',
+            'status'      => 'nullable|in:Active,In Active,Enrolled',
             'file'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'id'          => 'required|integer|exists:room,id',
         ]);
@@ -586,8 +703,8 @@ class RoomController extends Controller
             'lastname' => ['required','string','max:255','not_regex:/\\d/'],
             'dob' => 'required|date',
             'startDate' => 'required|date',
-            'gender' => 'required|in:Male,Female,Other',
-            'status' => 'nullable|in:Active,,Enrolled',
+            'gender' => 'required|in:Male,Female,Prefer not to say',
+            'status' => 'nullable|in:Active,In Active,Enrolled',
             'file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'id' => 'required'
         ]);
@@ -730,7 +847,7 @@ class RoomController extends Controller
         $genderMap = [
             'male' => 'Male',
             'female' => 'Female',
-            'other' => 'Other',
+            'other' => 'Prefer not to say',
             'all' => 'All',
         ];
         $genderInput = $genderMap[$genderRaw] ?? 'All';
@@ -739,7 +856,8 @@ class RoomController extends Controller
         $statusMap = [
             'active' => 'Active',
             'enrolled' => 'Enrolled',
-            'inactive' => 'Inactive',
+            'inactive' => 'In Active',
+            'in active' => 'In Active',
             'all' => 'All',
         ];
         $statusInput = $statusMap[$statusRaw] ?? 'All';
@@ -754,8 +872,8 @@ class RoomController extends Controller
         ], [
             'center_id' => 'required|integer|exists:centers,id',
             'room_id' => 'nullable|integer|exists:room,id',
-            'gender' => 'nullable|in:Male,Female,Other,All',
-            'status' => 'nullable|in:Active,Enrolled,Inactive,All',
+            'gender' => 'nullable|in:Male,Female,Prefer not to say,All',
+            'status' => 'nullable|in:Active,Enrolled,In Active,All',
             'sort' => 'nullable|in:asc,desc',
         ]);
 
@@ -816,10 +934,10 @@ class RoomController extends Controller
                 'total' => $allChildrenInScope->count(),
                 'male' => $allChildrenInScope->where('gender', 'Male')->count(),
                 'female' => $allChildrenInScope->where('gender', 'Female')->count(),
-                'other' => $allChildrenInScope->where('gender', 'Other')->count(),
+                'other' => $allChildrenInScope->where('gender', 'Prefer not to say')->count(),
                 'active' => $allChildrenInScope->where('status', 'Active')->count(),
                 'enrolled' => $allChildrenInScope->where('status', 'Enrolled')->count(),
-                'inactive' => $allChildrenInScope->where('status', 'Inactive')->count(),
+                'inactive' => $allChildrenInScope->where('status', 'In Active')->count(),
                 'filtered_count' => $children->total(),
             ];
 
