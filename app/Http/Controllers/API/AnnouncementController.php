@@ -720,11 +720,14 @@ class AnnouncementController extends Controller
             $userIds = Usercenter::where('centerid', $centerid)
                 ->pluck('userid')
                 ->unique();
+            
 
-            foreach ($userIds as $userId) {
-                $user = User::find($userId);
-                if ($user) {
-                    $user->notify(new AnnouncementAdded($announcement));
+            if (strtolower($status) === 'sent') {
+                foreach ($userIds as $userId) {
+                    $user = User::find($userId);
+                    if ($user) {
+                        $user->notify(new AnnouncementAdded($announcement));
+                    }
                 }
             }
 
