@@ -68,6 +68,19 @@ class AccidentsModel extends Model
         'added_at'
     ];
 
+    protected $casts = [
+        'centerid' => 'integer',
+        'roomid' => 'integer',
+        'childid' => 'integer',
+        'added_by' => 'integer',
+        'added_at' => 'datetime',
+        'made_record_date' => 'date',
+        'child_dob' => 'date',
+        'incident_date' => 'date',
+        'witness_date' => 'date',
+    ];
+
+
     public function childParent()
     {
         return $this->hasOne(ChildParent::class, 'childid', 'childid');
@@ -82,6 +95,11 @@ class AccidentsModel extends Model
 
     public function addedByUser()
     {
-        return $this->belongsTo(User::class, 'added_by', 'id');
+        return $this->belongsTo(User::class, 'added_by', 'userid');
+    }
+
+    public function illness()
+    {
+        return $this->hasOne(AccidentIllnessModel::class, 'accident_id', 'id');
     }
 }

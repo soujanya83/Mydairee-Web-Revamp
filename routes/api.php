@@ -285,7 +285,13 @@ Route::get('accidents/form-data', [AccidentsController::class, 'create'])->name(
 Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
 Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
 Route::post('Accident/delete', [AccidentsController::class, 'AccidentDelete'])->name('Accident.delete');
-Route::post('Accident/create', [AccidentsController::class, 'mernCreateAccident']);
+
+Route::prefix('accidents')->group(function () {
+    Route::get('/', [AccidentsController::class, 'mernAccidentList']);
+    Route::get('/{id}', [AccidentsController::class, 'mernGetAccidentDetails']);
+    Route::post('/save', [AccidentsController::class, 'mernCreateAccident']);
+});
+
 // rooms
     Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
     Route::get('/edit-child/{id}', [RoomController::class, 'edit_child'])->name('edit_child');
