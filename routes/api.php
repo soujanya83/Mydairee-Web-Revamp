@@ -284,7 +284,8 @@ Route::match(['get', 'post'], 'Accidents/edit',[AccidentsController::class,'Acci
 Route::get('accidents/form-data', [AccidentsController::class, 'create'])->name('accidents.form-data');
 Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
 Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
-    Route::post('Accident/delete', [AccidentsController::class, 'AccidentDelete'])->name('Accident.delete');
+Route::post('Accident/delete', [AccidentsController::class, 'AccidentDelete'])->name('Accident.delete');
+Route::post('Accident/create', [AccidentsController::class, 'mernCreateAccident']);
 // rooms
     Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
     Route::get('/edit-child/{id}', [RoomController::class, 'edit_child'])->name('edit_child');

@@ -74,19 +74,19 @@ class DeviceController extends Controller
         array $taggedStaffIds = []
     ) {
         $titles = [
-            'observation' => 'New Observation Added',
-            'reflection'  => 'New Reflection Added',
-            'snapshot'    => 'New Snapshot Added',
-            'diary'       => 'New Daily Diary Entry',
+            // 'observation' => 'New Observation Added',
+            // 'reflection'  => 'New Reflection Added',
+            // 'snapshot'    => 'New Snapshot Added',
+            // 'diary'       => 'New Daily Diary Entry',
             'announcement' => 'New Announcement Added',
             'event' => 'New Event Added',
         ];
 
         $bodies = [
-            'observation' => 'A new observation has been added for your child.',
-            'reflection'  => 'A new reflection has been added for your child.',
-            'snapshot'    => 'A new snapshot has been added for your child.',
-            'diary'       => 'A new daily diary entry has been added for your child.',
+            // 'observation' => 'A new observation has been added for your child.',
+            // 'reflection'  => 'A new reflection has been added for your child.',
+            // 'snapshot'    => 'A new snapshot has been added for your child.',
+            // 'diary'       => 'A new daily diary entry has been added for your child.',
             'announcement' => 'A new announcement has been added for your child.',
             'event' => 'A new event has been added for your child.',
         ];
