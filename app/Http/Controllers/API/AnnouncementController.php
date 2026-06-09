@@ -827,11 +827,20 @@ class AnnouncementController extends Controller
         $announcementInfo->username = $user->name ?? 'Unknown';
 
         // Normalize legacy media URLs for old announcements
-        $announcementInfo->announcementMedia = str_replace(
-            'mydiaree.com.au',
-            'api.mydiaree.com.au',
-            $announcementInfo->announcementMedia
-        );
+
+        $media = json_decode($announcementInfo->announcementMedia, true);
+
+        if (is_array($media)) {
+            foreach ($media as &$url) {
+                $url = preg_replace(
+                    '#https?://mydiaree\.com\.au#',
+                    'https://api.mydiaree.com.au',
+                    $url
+                );
+            }
+
+            $announcementInfo->announcementMedia = json_encode($media);
+        }
 
         // Fetch children linked to this announcement
         $childIds = \App\Models\AnnouncementChildModel::where('aid', $announcementId)->pluck('childid');
