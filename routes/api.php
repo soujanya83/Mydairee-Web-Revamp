@@ -35,6 +35,7 @@ use App\Http\Controllers\API\ApiPTMController;
 use App\Http\Controllers\API\RecycleBinController as ApiRecycleBinController;
 use App\Http\Controllers\API\ProgramPlanApiController;
 use App\Http\Controllers\API\ObservationApiController;
+use App\Http\Controllers\API\AppVersionController;
  
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
@@ -47,6 +48,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // New API: Get all permissions
     Route::get('settings/all-permissions', [SettingsController::class, 'all_permissions']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/app-version',[AppVersionController::class, 'appVersion']);
+    Route::post('app-version/update',[AppVersionController::class, 'updateVersion']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
