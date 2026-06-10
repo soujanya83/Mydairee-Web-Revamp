@@ -1651,49 +1651,49 @@ class ObservationsController extends Controller
         $observation->save();
 
         // Only send notification if status is set to Published (case-insensitive)
-        if (strtolower($observation->status) === 'published') {
-            // Get all children attached to this observation
-            $selectedChildren = \App\Models\ObservationChild::where('observationId', $observation->id)->pluck('childId')->toArray();
-            $authId = $observation->userId;
-                // Push notification (deep linking)
-                $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+        // if (strtolower($observation->status) === 'published') {
+        //     // Get all children attached to this observation
+        //     $selectedChildren = \App\Models\ObservationChild::where('observationId', $observation->id)->pluck('childId')->toArray();
+        //     $authId = $observation->userId;
+        //         // Push notification (deep linking)
+        //         $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
 
-                // Collect tagged staff IDs from ObservationStaff table (userid) and legacy tagged_staff column
-                $staffFromTable = \App\Models\ObservationStaff::where('observationId', $observation->id)
-                    ->pluck('userid')
-                    ->filter()
-                    ->unique()
-                    ->values()
-                    ->all();
+        //         // Collect tagged staff IDs from ObservationStaff table (userid) and legacy tagged_staff column
+        //         $staffFromTable = \App\Models\ObservationStaff::where('observationId', $observation->id)
+        //             ->pluck('userid')
+        //             ->filter()
+        //             ->unique()
+        //             ->values()
+        //             ->all();
 
-                $staffFromColumn = [];
-                if (!empty($observation->tagged_staff)) {
-                    $staffFromColumn = array_values(array_filter(array_map('trim', explode(',', $observation->tagged_staff))));
-                }
+        //         $staffFromColumn = [];
+        //         if (!empty($observation->tagged_staff)) {
+        //             $staffFromColumn = array_values(array_filter(array_map('trim', explode(',', $observation->tagged_staff))));
+        //         }
 
-                $combinedStaff = array_values(array_unique(array_merge($staffFromTable, $staffFromColumn)));
+        //         $combinedStaff = array_values(array_unique(array_merge($staffFromTable, $staffFromColumn)));
 
-                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
-                    $selectedChildren,
-                    'observation',
-                    $observation->id,
-                    $authId,
-                    $service,
-                    null,
-                    [],
-                    $combinedStaff
-                );
-            // Laravel notification (database/email)
-            foreach ($selectedChildren as $childId) {
-                $parentRelations = \App\Models\Childparent::where('childid', $childId)->get();
-                foreach ($parentRelations as $relation) {
-                    $parentUser = \App\Models\User::find($relation->parentid);
-                    if ($parentUser) {
-                        $parentUser->notify(new \App\Notifications\ObservationAdded($observation));
-                    }
-                }
-            }
-        }
+        //         \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+        //             $selectedChildren,
+        //             'observation',
+        //             $observation->id,
+        //             $authId,
+        //             $service,
+        //             null,
+        //             [],
+        //             $combinedStaff
+        //         );
+        //     // Laravel notification (database/email)
+        //     foreach ($selectedChildren as $childId) {
+        //         $parentRelations = \App\Models\Childparent::where('childid', $childId)->get();
+        //         foreach ($parentRelations as $relation) {
+        //             $parentUser = \App\Models\User::find($relation->parentid);
+        //             if ($parentUser) {
+        //                 $parentUser->notify(new \App\Notifications\ObservationAdded($observation));
+        //             }
+        //         }
+        //     }
+        // }
 
 
         return response()->json([
