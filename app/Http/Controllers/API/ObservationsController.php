@@ -2351,27 +2351,27 @@ class ObservationsController extends Controller
             // ]);
 
             // Send notification to all parents of the attached children ONLY if published
-            if (!empty($selectedChildren) && strtolower($observation->status ?? '') === 'published') {
-                Log::info('NOTIFICATION_TRIGGER_CHECK', [
-                    'module' => 'observation',
-                    'status' => $observation->status,
-                    'childIds' => $selectedChildren,
-                    'staffIds' => $selectedStaff ?? [],
-                    'observation_id' => $observationId,
-                ]);
+            // if (!empty($selectedChildren) && strtolower($observation->status ?? '') === 'published') {
+            //     Log::info('NOTIFICATION_TRIGGER_CHECK', [
+            //         'module' => 'observation',
+            //         'status' => $observation->status,
+            //         'childIds' => $selectedChildren,
+            //         'staffIds' => $selectedStaff ?? [],
+            //         'observation_id' => $observationId,
+            //     ]);
 
-                $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
-                \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
-                    $selectedChildren,
-                    'observation',
-                    $observationId,
-                    $authId,
-                    $service,
-                    null,
-                    [],
-                    $selectedStaff ?? []
-                );
-            }
+            //     $service = app(\App\Services\Firebase\FirebaseNotificationService::class);
+            //     \App\Http\Controllers\API\DeviceController::notifyParentsModuleCreated(
+            //         $selectedChildren,
+            //         'observation',
+            //         $observationId,
+            //         $authId,
+            //         $service,
+            //         null,
+            //         [],
+            //         $selectedStaff ?? []
+            //     );
+            // }
 
             return response()->json([
                 'status' => true,
