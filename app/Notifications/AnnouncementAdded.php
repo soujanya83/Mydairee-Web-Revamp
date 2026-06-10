@@ -21,13 +21,29 @@ class AnnouncementAdded extends Notification
         return ['database']; // or add 'mail', 'broadcast' if needed
     }
 
+    // public function toDatabase($notifiable)
+    // {
+    //     return [
+    //         'title'   => 'New Announcement',
+    //         'message' => $this->announcement->title,
+    //         'url' => 'https://mydiaree.com.au/events/' . $this->announcement->id,
+    //         'icon'    => 'fa fa-bullhorn',
+    //     ];
+    // }
+
     public function toDatabase($notifiable)
     {
+        $isEvent = strtolower($this->announcement->type) === 'events';
+
         return [
-            'title'   => 'New Announcement',
+            'title'   => $isEvent ? 'New Event' : 'New Announcement',
             'message' => $this->announcement->title,
-            'url'     => route('announcements.view', $this->announcement->id), // adjust as needed
-            'icon'    => 'fa fa-bullhorn',
+            'url'     => $isEvent
+                ? '/events/' . $this->announcement->id
+                : '/events/' . $this->announcement->id,
+            'icon'    => $isEvent
+                ? 'fa fa-calendar'
+                : 'fa fa-bullhorn',
         ];
     }
 }
