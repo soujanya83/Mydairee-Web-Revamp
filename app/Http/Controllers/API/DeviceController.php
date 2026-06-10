@@ -137,14 +137,16 @@ class DeviceController extends Controller
 
         // ✅ Notify Parents: PUSH (FCM) + WEB (Database)
         if (!empty($normalizedChildIds)) {
-            $parentUsers = \App\Models\User::whereHas('children', function ($q) use ($normalizedChildIds) {
-                    $q->whereIn('childparent.childid', $normalizedChildIds);
-                })
-                ->where('allow_notifications', true)
-                ->where('userid', '!=', $createdBy)
-                ->distinct()
-                ->get();
+            $parentUsers = User::whereHas('children', function ($q) use ($normalizedChildIds) {
+    $q->whereIn('childparent.childid', $normalizedChildIds);
+})
+->where('userType', 'Parent')
+->where('allow_notifications', true)
+->where('userid', '!=', $createdBy)
+->get()
+->unique('userid');
 
+                $parentUserIds = $parentUsers->pluck('userid')->toArray();
             Log::info('PARENTS_FOUND', [
                 'module' => $moduleType,
                 'count' => $parentUsers->count(),
@@ -188,12 +190,22 @@ class DeviceController extends Controller
                             'data' => $data,
                         ]);
 
-                        $response = $service->sendToToken(
-                            $device->fcm_token,
-                            $title,
-                            $body,
-                            $data
-                        );
+                        try {
+    $response = $service->sendToToken(
+        $device->fcm_token,
+        $title,
+        $body,
+        $data
+    );
+} catch (\Exception $e) {
+    Log::error('FCM_SEND_FAILED', [
+        'parent_id' => $parent->id,
+        'token' => $device->fcm_token,
+        'error' => $e->getMessage(),
+    ]);
+
+    continue;
+}
 
                         $responseData = method_exists($response, 'getData') ? $response->getData() : $response;
                         Log::info('FCM_RESPONSE', [
@@ -238,12 +250,18 @@ class DeviceController extends Controller
             }
         }
 
-        $users = collect();
+       $users = collect();
+
+if (!isset($parentUserIds)) {
+    $parentUserIds = [];
+}
         // ✅ Notify Tagged Staff: WEB ONLY (Database) - NO PUSH
         if (!empty($normalizedUserIds)) {
         $users = User::whereIn('userid', $normalizedUserIds)
                 ->where('userid', '!=', $createdBy)
                 ->where('allow_notifications', true)
+                ->whereNotIn('userid', $parentUserIds)
+                ->whereNotIn('userType', ['Parent', 'Superadmin'])
                 ->get();
         }
                         Log::info('CENTER_USERS_FOUND', [
