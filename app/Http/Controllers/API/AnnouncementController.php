@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-use App\Notifications\AnnouncementAdded;
+
 use Illuminate\Support\Facades\Log;
 
 
@@ -717,20 +717,7 @@ class AnnouncementController extends Controller
                 }
             }
 
-            $userIds = Usercenter::where('centerid', $centerid)
-                ->pluck('userid')
-                ->unique();
-            
-
-            if (strtolower($status) === 'sent') {
-                foreach ($userIds as $userId) {
-                    $user = User::find($userId);
-                    if ($user) {
-                        $user->notify(new AnnouncementAdded($announcement));
-                    }
-                }
-            }
-
+ 
             if (strtolower($status) === 'sent') {
                 $parentChildIds = \App\Models\AnnouncementChildModel::where('aid', $announcementId)
                     ->pluck('childid')
@@ -740,18 +727,18 @@ class AnnouncementController extends Controller
                     ->all();
 
                 // Get center staff to notify them as well
-                $centerStaffIds = \App\Models\Usercenter::where('centerid', $centerid)
+                $centerUserIds = \App\Models\Usercenter::where('centerid', $centerid)
                     ->pluck('userid')
                     ->unique()
                     ->values()
                     ->all();
 
-                if (!empty($parentChildIds) || !empty($centerStaffIds)) {
+                if (!empty($parentChildIds) || !empty($centerUserIds)) {
                     Log::info('ANNOUNCEMENT_FCM_TRIGGER', [
                         'announcement_id' => $announcementId,
                         'status' => $status,
                         'child_ids' => $parentChildIds,
-                        'staff_ids' => $centerStaffIds,
+                        'user_ids' => $centerUserIds,
                     ]);
 
                     $firebaseService = app(\App\Services\Firebase\FirebaseNotificationService::class);
@@ -760,16 +747,16 @@ class AnnouncementController extends Controller
                         $parentChildIds,
                         $moduleType,
                         $announcementId,
-                        Auth::id(),
+                        $userid,
                         $firebaseService,
                         null,
                         [
                             'type' => $moduleType,
                             'module_id' => (string)$announcementId,
                             'child_ids' => implode(',', $parentChildIds),
-                            'created_by' => (string)Auth::id(),
+                            'created_by' => (string)$userid,
                         ],
-                        $centerStaffIds
+                        $centerUserIds
                     );
                 }
             }

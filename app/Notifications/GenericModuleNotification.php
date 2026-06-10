@@ -59,14 +59,15 @@ class GenericModuleNotification extends Notification
     public function toDatabase($notifiable)
     {
         // Generate role-specific messages
-        $title = 'New ' . ucfirst($this->moduleType) . ' Added';
+        $title = $this->moduleType === 'event'
+    ? 'New Event Added'
+    : 'New Announcement Added';
         $message = $this->body;
 
         if ($this->recipientType === 'staff') {
-            // Staff message: "You are tagged in a new observation by (creator name)"
-            $creatorName = $this->creatorName ?? 'A colleague';
-            $message = "You are tagged in a new {$this->moduleType} by {$creatorName}";
-        } else {
+             $creatorName = $this->creatorName ?? 'A colleague';
+          $message = "A new {$this->moduleType} has been published by {$creatorName}";
+        }else {
             // Parent message: "A new observation has been added for (child name)"
             $childNames = $this->getChildNames();
             if ($childNames) {
@@ -142,7 +143,7 @@ class GenericModuleNotification extends Notification
         ];
 
         return $icons[$this->moduleType] ?? 'fa fa-bell';
-    }
+    } 
 
     /**
      * Get the deeplink URL for the module.
