@@ -10,6 +10,8 @@ use Illuminate\Support\Carbon;
 use App\Models\UserDevice;
 use Illuminate\Http\JsonResponse;
 use App\Services\Firebase\FirebaseNotificationService;
+use App\Models\User;
+use App\Notifications\GenericModuleNotification;
 
 class DeviceController extends Controller
 {
@@ -71,8 +73,14 @@ class DeviceController extends Controller
                 FirebaseNotificationService $service,
                 $section = null,
                 array $data = [],
-                array $taggedStaffIds = []) 
+                array $centerUserIds  = []) 
     {
+
+          $allowedModules = ['announcement', 'event'];
+
+            if (!in_array($moduleType, $allowedModules)) {
+                return [];
+            }    
         $titles = [
             // 'observation' => 'New Observation Added',
             // 'reflection'  => 'New Reflection Added',
@@ -98,9 +106,14 @@ class DeviceController extends Controller
             return trim((string)$childId);
         }, $childIds), fn ($value) => $value !== ''));
 
-        $normalizedStaffIds = array_values(array_filter(array_map(function ($staffId) {
-            return (int)trim((string)$staffId);
-        }, $taggedStaffIds ?? []), fn ($value) => $value > 0));
+        $normalizedUserIds = array_values(
+        array_filter(
+                    array_map(function ($userId) {
+                        return (int) trim((string) $userId);
+                    }, $centerUserIds ?? []),
+                    fn ($value) => $value > 0
+                )
+            );
 
         Log::info('NOTIFY_FUNCTION_CALLED', [
             'module' => $moduleType,
@@ -108,10 +121,10 @@ class DeviceController extends Controller
             'created_by' => $createdBy,
             'section' => $section,
             'child_ids' => $normalizedChildIds,
-            'staff_ids' => $normalizedStaffIds,
+            'user_ids' => $normalizedUserIds,
         ]);
 
-        if (empty($normalizedChildIds) && empty($normalizedStaffIds)) {
+        if (empty($normalizedChildIds) && empty($normalizedUserIds)) {
             Log::info('NOTIFY_FUNCTION_ABORTED', ['reason' => 'no_recipients', 'module' => $moduleType]);
             return [];
         }
@@ -119,7 +132,7 @@ class DeviceController extends Controller
         $notified = [];
 
         // Fetch creator name once for use in notifications
-        $creator = \App\Models\User::find($createdBy);
+        $creator = User::where('userid', $createdBy)->first();
         $creatorName = $creator ? $creator->name : 'A colleague';
 
         // ✅ Notify Parents: PUSH (FCM) + WEB (Database)
@@ -128,6 +141,8 @@ class DeviceController extends Controller
                     $q->whereIn('childparent.childid', $normalizedChildIds);
                 })
                 ->where('allow_notifications', true)
+                ->where('userid', '!=', $createdBy)
+                ->distinct()
                 ->get();
 
             Log::info('PARENTS_FOUND', [
@@ -223,80 +238,54 @@ class DeviceController extends Controller
             }
         }
 
+        $users = collect();
         // ✅ Notify Tagged Staff: WEB ONLY (Database) - NO PUSH
-        if ($moduleType !== 'diary' && !empty($normalizedStaffIds)) {
-            $staffUsers = \App\Models\User::whereIn('userid', $normalizedStaffIds)
+        if (!empty($normalizedUserIds)) {
+        $users = User::whereIn('userid', $normalizedUserIds)
+                ->where('userid', '!=', $createdBy)
                 ->where('allow_notifications', true)
                 ->get();
-
-            Log::info('STAFF_FOUND', [
+        }
+                        Log::info('CENTER_USERS_FOUND', [
                 'module' => $moduleType,
-                'count' => $staffUsers->count(),
-                'staff_ids' => $staffUsers->pluck('userid')->all(),
+                'count' => $users->count(),
+                'user_ids' => $users->pluck('userid')->all(),
             ]);
 
-            foreach ($staffUsers as $staff) {
+           foreach ($users as $user){
                 // Send WEB Notification ONLY (Database) - NO PUSH
                 try {
-                    $staff->notify(new \App\Notifications\GenericModuleNotification(
-                        $moduleType,
-                        $moduleId,
-                        $title,
-                        $body,
-                        $normalizedChildIds,
-                        $createdBy,
-                        'staff',
-                        $creatorName
-                    ));
+                    $user->notify(
+                        new GenericModuleNotification(
+                            $moduleType,
+                            $moduleId,
+                            $title,
+                            $body,
+                            $normalizedChildIds,
+                            $createdBy,
+                            'staff',
+                            $creatorName
+                        )
+                    );
                     Log::info('WEB_NOTIFICATION_SENT_STAFF', [
                         'module' => $moduleType,
-                        'staff_id' => $staff->userid,
+                       'user_id' => $user->userid,
                         'module_id' => $moduleId,
                     ]);
                 } catch (\Exception $e) {
                     Log::error('WEB_NOTIFICATION_FAILED_STAFF', [
                         'module' => $moduleType,
-                        'staff_id' => $staff->userid,
+                        'user_id' => $user->userid,
                         'error' => $e->getMessage(),
                     ]);
-                }
+                } 
             }
-        }
 
         return $notified;
     }
 
 
-//     public static function notifyParentsModuleCreated(
-//     array $childIds,
-//     string $moduleType,
-//     int $moduleId,
-//     $createdBy,
-//     FirebaseNotificationService $service,
-//     $section = null,
-//     array $data = [],
-//     array $taggedStaffIds = []
-// ) {
-//     $allowedModules = ['announcement', 'event'];
-
-//     if (!in_array($moduleType, $allowedModules, true)) {
-//         Log::info('NOTIFY_SKIPPED', [
-//             'module' => $moduleType,
-//             'reason' => 'module_not_allowed_for_notifications',
-//         ]);
-//         return [];
-//     }
-
-//     $titles = [
-//         'announcement' => 'New Announcement Added',
-//         'event' => 'New Event Added',
-//     ];
-
-//     $bodies = [
-//         'announcement' => 'A new announcement has been added for your child.',
-//         'event' => 'A new event has been added for your child.',
-//     ];
-// }
+    
 
     public function testFcm(Request $request, FirebaseNotificationService $service) 
     {
