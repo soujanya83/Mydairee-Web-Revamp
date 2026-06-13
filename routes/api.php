@@ -36,6 +36,7 @@ use App\Http\Controllers\API\RecycleBinController as ApiRecycleBinController;
 use App\Http\Controllers\API\ProgramPlanApiController;
 use App\Http\Controllers\API\ObservationApiController;
 use App\Http\Controllers\API\AppVersionController;
+use App\Http\Controllers\AnalyticsController;
  
 Route::prefix('v1')->name('v1.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
@@ -143,6 +144,12 @@ Route::prefix('re-enrollment')->name('re-enrollment.')->group(function () {
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::get('/login',[LoginController::class,'login'])->name('login');
 // });
+
+
+Route::middleware('auth:sanctum')->prefix('analytics')->group(function () {
+    Route::get('/analytics', [AnalyticsController::class, 'analytics']);
+    Route::post('/filter', [AnalyticsController::class, 'analyticsFilter']);
+});
 
 Route::middleware('auth:sanctum')->prefix('recycle')->name('recycle.')->group(function () {
     Route::get('/modules', [ApiRecycleBinController::class, 'modules'])->name('modules');

@@ -68,7 +68,13 @@ class FirebaseNotificationService
             $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
 
         Log::info('Final FCM Payload', $payload);
-            // 6. Send POST request to FCM
+
+
+        // for local fcm testing
+          //$response = Http::withoutVerifying()->withHeaders($headers)->post($url, $payload);
+          
+          
+          // 6. Send POST request to FCM
             $response = Http::withHeaders($headers)->post($url, $payload);
 
             // 8. Return JSON response

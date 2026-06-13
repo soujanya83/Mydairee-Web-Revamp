@@ -17,6 +17,7 @@ class AccidentIllnessModel extends Model
         'asthma',
         'bite_wound',
         'broken_bone',
+        'bruise',
         'burn',
         'choking',
         'concussion',

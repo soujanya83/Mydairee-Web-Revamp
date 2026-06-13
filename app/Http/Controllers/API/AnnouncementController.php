@@ -109,6 +109,7 @@ class AnnouncementController extends Controller
     {
         // $centerId = Session::get('user_center_id');
         $centerId = $request->centerid;
+        $perPage = $request->input('per_page', 9);
         // $user = User::where('userid',$request->userid)->first();
         $user = Auth::user();
         $userId = $user->userid;
@@ -147,7 +148,7 @@ class AnnouncementController extends Controller
                 });
             }
 
-            $records = $query->orderByDesc('id')->get(); // ✅ Pagination applied
+            $records = $query->orderByDesc('id')->paginate($perPage); // ✅ Pagination applied
         } else {
             // For Parents - resolve one selected child first
             $childIds = Childparent::where('parentid', $userId)->pluck('childid')->values();
@@ -204,7 +205,7 @@ class AnnouncementController extends Controller
                 ->whereIn('id', $announcementIds)
                 ->where('status', 'Sent')
                 ->orderByDesc('id')
-                ->get();
+                 ->paginate($perPage);
         }
 
         if ($userType === 'Parent' && $records->isEmpty()) {
@@ -224,13 +225,13 @@ class AnnouncementController extends Controller
         }
 
         // Attach creator name manually if needed
-        foreach ($records as $announcement) {
+        foreach ($records->items() as $announcement) {
             $creator = User::where('userid', $announcement->createdBy)->first();
             $announcement->createdBy = $creator->name ?? 'Not Available';
         }
 
         // Fix old image URLs
-        foreach ($records as $announcement) {
+        foreach ($records->items() as $announcement){
             $announcement->announcementMedia = str_replace(
                 'mydiaree.com.au',
                 'api.mydiaree.com.au',
@@ -244,10 +245,7 @@ class AnnouncementController extends Controller
             );
         }
 
-        // Permissions
-        $permissions = PermissionsModel::where('userid', $userId)
-            ->where('centerid', $centerId)
-            ->first();
+
 
         $selectionMeta = $userType === 'Parent'
             ? [
@@ -256,14 +254,14 @@ class AnnouncementController extends Controller
             ]
             : [];
 
-        return response()->json([
+        return response()->json([ 
         'status' => true,
         'data' => [
           
             
             'centerId' => $centerId,
             'records' => $records,
-           // 'permissions' => $permissions,
+
         ] + $selectionMeta
         ]);
 

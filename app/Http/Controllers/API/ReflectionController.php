@@ -172,7 +172,8 @@ class ReflectionController extends Controller
         } else {
             $childids = Childparent::where('parentid', $authId)->pluck('childid')->values();
             $requestedChildId = $request->input('child_id', $request->input('childid'));
-            $savedChildId = User::where('userid', $authId)->value('selectedchildreanid');
+            // $savedChildId = User::where('userid', $authId)->value('selectedchildreanid');
+            $savedChildId = $user->selectedchildreanid;
 
             if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
                 $requestedChildId = (int) $requestedChildId;
@@ -312,17 +313,16 @@ class ReflectionController extends Controller
             'status' => true,
             'message' => 'Data retrieved successfully',
             'data' => [
-                // 'centers' => $centers,
                 'reflection' => $reflection,
             ] + $selectionMeta,
-            // 'pagination' => [
-            //     'current_page' => $reflection->currentPage(),
-            //     'per_page' => $reflection->perPage(),
-            //     'total' => $reflection->total(),
-            //     'last_page' => $reflection->lastPage(),
-            //     'from' => $reflection->firstItem(),
-            //     'to' => $reflection->lastItem(),
-            // ],
+            'pagination' => [
+                'current_page' => $reflection->currentPage(),
+                'per_page' => $reflection->perPage(),
+                'total' => $reflection->total(),
+                'last_page' => $reflection->lastPage(),
+                'from' => $reflection->firstItem(),
+                'to' => $reflection->lastItem(),
+            ],
         ]);
     }
 
