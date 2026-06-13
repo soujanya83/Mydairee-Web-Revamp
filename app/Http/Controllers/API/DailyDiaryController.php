@@ -41,82 +41,82 @@ class DailyDiaryController extends Controller
 {
     
     public function list(Request $request)
-{
-    $authId = Auth::user()->id;
-    // Accept parameters from POST (form-data) or GET querystring
-    $centerid = $request->input('center_id', $request->query('center_id'));
+    {
+        $authId = Auth::user()->id;
+        // Accept parameters from POST (form-data) or GET querystring
+        $centerid = $request->input('center_id', $request->query('center_id'));
 
-    // Store centerid back into session if it came from query
+        // Store centerid back into session if it came from query
 
-    // Get centers
-    if (Auth::user()->userType == "Superadmin") {
-        $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-        $centers   = Center::whereIn('id', $centerIds)->get();
-    } else {
-        $centers = Center::where('id', $centerid)->get();
+        // Get centers
+        if (Auth::user()->userType == "Superadmin") {
+            $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+            $centers   = Center::whereIn('id', $centerIds)->get();
+        } else {
+            $centers = Center::where('id', $centerid)->get();
+        }
+
+        // Rooms list
+        $room = $this->getrooms5($centerid);
+        // dd($room);
+
+        // Selected room
+        $selectedroom = $room->where('id', $request->input('room_id', $request->query('room_id')))->first();
+        if (!$selectedroom) {
+            $selectedroom = $room->first();
+        }
+
+        // Selected date
+        $selectedDate = $request->input('selected_date', $request->query('selected_date'))
+            ? \Carbon\Carbon::parse($request->input('selected_date', $request->query('selected_date')))
+            : now();
+
+        $dayIndex = $selectedDate->dayOfWeekIso - 1; // 0 = Monday
+
+        $children = collect();
+
+        // Parent user
+        if (auth()->user()->userType == 'Parent') {
+            $parentId = auth()->user()->id;
+            $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
+
+            $children = Child::whereIn('id', $childIds)
+                ->get()
+                ->filter(fn($child) => isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1')
+                ->map(fn($child) => $this->getChildDiaryData($child, $selectedDate))
+                ->values();
+
+        // Superadmin or Staff
+        } elseif (in_array(auth()->user()->userType, ['Superadmin', 'Staff']) && $selectedroom) {
+            $children = Child::where('room', $selectedroom->id)
+                ->get()
+                ->filter(fn($child) => isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1')
+                ->map(fn($child) => $this->getChildDiaryData($child, $selectedDate))
+                ->values();
+        }
+
+        // JSON Response: wrap payload under `data` for app compatibility.
+        $payload = [
+            'centers'       => $centers,
+            'rooms'         => $room,
+            'selected_room' => $selectedroom,
+            'children'      => $children,
+            'selected_date' => $selectedDate->toDateString(),
+        ];
+
+        return response()->json([
+            'status'   => true,
+            'message'  => 'Daily diary list fetched successfully.',
+            'data'     => $payload,
+            'dataJson' => $payload, // legacy compatibility if app expects `dataJson`
+        ]);
     }
-
-    // Rooms list
-    $room = $this->getrooms5($centerid);
-    // dd($room);
-
-    // Selected room
-    $selectedroom = $room->where('id', $request->input('room_id', $request->query('room_id')))->first();
-    if (!$selectedroom) {
-        $selectedroom = $room->first();
-    }
-
-    // Selected date
-    $selectedDate = $request->input('selected_date', $request->query('selected_date'))
-        ? \Carbon\Carbon::parse($request->input('selected_date', $request->query('selected_date')))
-        : now();
-
-    $dayIndex = $selectedDate->dayOfWeekIso - 1; // 0 = Monday
-
-    $children = collect();
-
-    // Parent user
-    if (auth()->user()->userType == 'Parent') {
-        $parentId = auth()->user()->id;
-        $childIds = Childparent::where('parentid', $parentId)->pluck('childid');
-
-        $children = Child::whereIn('id', $childIds)
-            ->get()
-            ->filter(fn($child) => isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1')
-            ->map(fn($child) => $this->getChildDiaryData($child, $selectedDate))
-            ->values();
-
-    // Superadmin or Staff
-    } elseif (in_array(auth()->user()->userType, ['Superadmin', 'Staff']) && $selectedroom) {
-        $children = Child::where('room', $selectedroom->id)
-            ->get()
-            ->filter(fn($child) => isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1')
-            ->map(fn($child) => $this->getChildDiaryData($child, $selectedDate))
-            ->values();
-    }
-
-    // JSON Response: wrap payload under `data` for app compatibility.
-    $payload = [
-        'centers'       => $centers,
-        'rooms'         => $room,
-        'selected_room' => $selectedroom,
-        'children'      => $children,
-        'selected_date' => $selectedDate->toDateString(),
-    ];
-
-    return response()->json([
-        'status'   => true,
-        'message'  => 'Daily diary list fetched successfully.',
-        'data'     => $payload,
-        'dataJson' => $payload, // legacy compatibility if app expects `dataJson`
-    ]);
-}
-
-
 
     public function mernlist(Request $request)
     {
-        $authId = Auth::user()->id;
+        $user = Auth::user();
+        $authId = $user->id;
+        $userType = $user->userType;
 
           $validator = Validator::make($request->all(), [
         'center_id' => 'required|integer|exists:centers,id',
@@ -142,11 +142,11 @@ class DailyDiaryController extends Controller
         }
     
         $room = $this->getrooms5($centerid);
-        Log::info('API DailyDiaryController rooms for user', [
-            'user_id' => Auth::user()->id,
-            'center_id' => $centerid,
-            'rooms' => $room
-        ]);
+        // Log::info('API DailyDiaryController rooms for user', [
+        //     'user_id' => Auth::user()->id,
+        //     'center_id' => $centerid,
+        //     'rooms' => $room
+        // ]);
         $selectedDate = $request->input('selected_date')
             ? \Carbon\Carbon::parse($request->input('selected_date'))
             : now();
@@ -164,16 +164,15 @@ class DailyDiaryController extends Controller
         $selectedroom = $room->where('id', $request->room_id)->first();
         if (!$selectedroom && $request->room_id) {
             // Requested room_id is not assigned to this user
-            $permissions = Permission::where('userid',Auth::user()->userid)->where('centerid',$centerid)->first();
+            
             return response()->json([
                 'status' => true,
                 'message' => 'You are not allotted to this room or the room does not exist.',
                 'data' => [
-                    'centers' => $centers,
                     'rooms' => $room,
                     'selectedRoom' => null,
                     'selectedDate' => $selectedDate->format('Y-m-d'),
-                    'permission' => $permissions,
+                    
                     'children' => [],
                 ]
             ]);
@@ -183,7 +182,7 @@ class DailyDiaryController extends Controller
             $parentId = auth()->user()->id;
             $parentChildIds = Childparent::where('parentid', $parentId)->pluck('childid')->values();
             $requestedChildId = $request->input('child_id', $request->input('childid'));
-            $savedChildId = User::where('userid', $parentId)->value('selectedchildreanid');
+            $savedChildId = $user->selectedchildreanid;
 
             if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
                 $requestedChildId = (int) $requestedChildId;
@@ -248,26 +247,13 @@ class DailyDiaryController extends Controller
                 }
 
                 $children = $childQuery
-                    ->orderBy('name')
-                    ->get()
-                    ->filter(function ($child) use ($dayIndex) {
-                        return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
-                    })
-                    ->map(function ($child) use ($selectedDate) {
-                        return [
-                            'child' => $child,
-                            'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
-                            'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
-                            'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
-                            'snacks' => DailyDiarySnacks::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                            'afternoon_tea' => DailyDiaryAfternoonTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                            'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
-                            'lunch' => DailyDiaryLunch::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                            'morning_tea' => DailyDiaryMorningTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                            'breakfast' => DailyDiaryBreakfast::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        ];
-                    })
-                    ->values();
+                        ->orderBy('name')
+                        ->get()
+                        ->filter(function ($child) use ($dayIndex) {
+                            return isset($child->daysAttending[$dayIndex])
+                                && $child->daysAttending[$dayIndex] === '1';
+                        })
+                        ->values();
             } else {
                 $targetChildIds = $selectedChildId ? collect([$selectedChildId]) : $parentChildIds;
 
@@ -283,51 +269,118 @@ class DailyDiaryController extends Controller
                 }
 
                 $children = $childQuery
-                    ->orderBy('name')
-                    ->get()
-                    ->filter(function ($child) use ($dayIndex) {
-                        return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
-                    })
-                    ->map(function ($child) use ($selectedDate) {
-                        return [
-                            'child' => $child,
-                            'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
-                            'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
-                            'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
-                            'snacks' => DailyDiarySnacks::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                            'afternoon_tea' => DailyDiaryAfternoonTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                            'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
-                            'lunch' => DailyDiaryLunch::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                            'morning_tea' => DailyDiaryMorningTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                            'breakfast' => DailyDiaryBreakfast::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
-                        ];
-                    })
-                    ->values();
+                            ->orderBy('name')
+                            ->get()
+                            ->filter(function ($child) use ($dayIndex) {
+                                return isset($child->daysAttending[$dayIndex])
+                                    && $child->daysAttending[$dayIndex] === '1';
+                            })
+                            ->values();
             }
         }
 
-        $hasDiaryData = $children->contains(function ($childDiary) {
-            return !empty($childDiary['bottle'])
-                || !empty($childDiary['toileting'])
-                || !empty($childDiary['sunscreen'])
+        
+
+       
+
+        // Apply pagination to the children collection
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 10);
+
+        $total = $children->count();
+
+        $paginatedChildren = $children
+            ->forPage($page, $perPage)
+            ->values();
+
+        $childIds = $paginatedChildren->pluck('id');
+
+        $bottles = DailyDiaryBottle::whereIn('childid', $childIds)
+            ->whereDate('diarydate', $selectedDate)
+            ->get()
+            ->groupBy('childid');
+
+        $toileting = DailyDiaryToileting::whereIn('childid', $childIds)
+            ->whereDate('diarydate', $selectedDate)
+            ->get()
+            ->groupBy('childid');
+
+        $sunscreen = DailyDiarySunscreen::whereIn('childid', $childIds)
+            ->whereDate('diarydate', $selectedDate)
+            ->get()
+            ->groupBy('childid');
+
+        $sleep = DailyDiarySleep::whereIn('childid', $childIds)
+            ->whereDate('diarydate', $selectedDate)
+            ->get()
+            ->groupBy('childid');
+
+        $snacks = DailyDiarySnacks::whereIn('childid', $childIds)
+            ->whereDate('diarydate', $selectedDate)
+            ->get()
+            ->keyBy('childid');
+
+        $afternoonTea = DailyDiaryAfternoonTea::whereIn('childid', $childIds)
+            ->whereDate('diarydate', $selectedDate)
+            ->get()
+            ->keyBy('childid');
+
+        $lunch = DailyDiaryLunch::whereIn('childid', $childIds)
+            ->whereDate('diarydate', $selectedDate)
+            ->get()
+            ->keyBy('childid');
+
+        $morningTea = DailyDiaryMorningTea::whereIn('childid', $childIds)
+            ->whereDate('diarydate', $selectedDate)
+            ->get()
+            ->keyBy('childid');
+
+        $breakfast = DailyDiaryBreakfast::whereIn('childid', $childIds)
+            ->whereDate('diarydate', $selectedDate)
+            ->get()
+            ->keyBy('childid');
+
+        $paginatedItems = $paginatedChildren->map(function ($child) use (
+            $bottles,
+            $toileting,
+            $sunscreen,
+            $sleep,
+            $snacks,
+            $afternoonTea,
+            $lunch,
+            $morningTea,
+            $breakfast
+        ) {
+            return [
+                'child' => $child,
+                'bottle' => $bottles->get($child->id, collect()),
+                'toileting' => $toileting->get($child->id, collect()),
+                'sunscreen' => $sunscreen->get($child->id, collect()),
+                'sleep' => $sleep->get($child->id, collect()),
+                'snacks' => $snacks->get($child->id),
+                'afternoon_tea' => $afternoonTea->get($child->id),
+                'lunch' => $lunch->get($child->id),
+                'morning_tea' => $morningTea->get($child->id),
+                'breakfast' => $breakfast->get($child->id),
+            ];
+        });
+        
+        $hasDiaryData = $paginatedItems->contains(function ($childDiary) {
+            return
+                $childDiary['bottle']->isNotEmpty()
+                || $childDiary['toileting']->isNotEmpty()
+                || $childDiary['sunscreen']->isNotEmpty()
+                || $childDiary['sleep']->isNotEmpty()
                 || !empty($childDiary['snacks'])
                 || !empty($childDiary['afternoon_tea'])
-                || !empty($childDiary['sleep'])
                 || !empty($childDiary['lunch'])
                 || !empty($childDiary['morning_tea'])
                 || !empty($childDiary['breakfast']);
         });
 
-        $responseMessage = $hasDiaryData
+         $responseMessage = $hasDiaryData
             ? 'Daily diary data fetched successfully.'
             : 'No daily diary available for this child.';
-
-        // Apply pagination to the children collection
-        $page = (int) $request->input('page', 1);
-        $perPage = (int) $request->input('per_page', 10);
-        $total = $children->count();
-
-        $paginatedItems = $children->forPage($page, $perPage)->values();
 
         $children = new LengthAwarePaginator(
             $paginatedItems,
@@ -340,7 +393,7 @@ class DailyDiaryController extends Controller
             ]
         );
 
-        $permissions = Permission::where('userid',Auth::user()->userid)->where('centerid',$centerid)->first();
+        
 
         $selectionMeta = Auth::user()->userType === 'Parent'
             ? [
@@ -353,15 +406,267 @@ class DailyDiaryController extends Controller
             'status' => true,
             'message' => $responseMessage,
             'data' => [
-                // 'centers' => $centers,
-                // 'rooms' => $room,
                 'selectedRoom' => $selectedroom,
                 'selectedDate' => $selectedDate->format('Y-m-d'),
-                // 'permission' => $permissions,
-                'children' => $children,
+                
+                'children' => $children,  // OPT- id name last dob imageurl 
             ] + $selectionMeta
         ]);
     } 
+
+
+
+    //        old without optimization 
+
+
+    // public function mernlist(Request $request)
+    // {
+    //     $authId = Auth::user()->id;
+
+    //       $validator = Validator::make($request->all(), [
+    //     'center_id' => 'required|integer|exists:centers,id',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status'  => false,
+    //             'message' => 'Validation failed.',
+    //             'errors'  => $validator->errors(),
+    //         ], 422);
+    //     }
+
+    //     $authId = Auth::user()->id;
+    //     $centerid = $validator->validated()['center_id'];
+
+    
+    //     if(Auth::user()->userType == "Superadmin"){
+    //         $center = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+    //         $centers = Center::whereIn('id', $center)->get();
+    //     } else {
+    //         $centers = Center::where('id', $centerid)->get();
+    //     }
+    
+    //     $room = $this->getrooms5($centerid);
+    //     // Log::info('API DailyDiaryController rooms for user', [
+    //     //     'user_id' => Auth::user()->id,
+    //     //     'center_id' => $centerid,
+    //     //     'rooms' => $room
+    //     // ]);
+    //     $selectedDate = $request->input('selected_date')
+    //         ? \Carbon\Carbon::parse($request->input('selected_date'))
+    //         : now();
+    //     $dayIndex = $selectedDate->dayOfWeekIso - 1; // 0 = Monday
+    //     $search = trim((string) $request->input('search', ''));
+
+    //     $children = collect();
+    //     $selectedroom = null;
+    //     $selectedChildId = null;
+    //     $selectedChildSource = null;
+    //     $parentChildIds = collect();
+    //     $selectedChild = null;
+
+    //     // Always select a room: use room_id if provided, else first available
+    //     $selectedroom = $room->where('id', $request->room_id)->first();
+    //     if (!$selectedroom && $request->room_id) {
+    //         // Requested room_id is not assigned to this user
+            
+    //         return response()->json([
+    //             'status' => true,
+    //             'message' => 'You are not allotted to this room or the room does not exist.',
+    //             'data' => [
+    //                 'rooms' => $room,
+    //                 'selectedRoom' => null,
+    //                 'selectedDate' => $selectedDate->format('Y-m-d'),
+                    
+    //                 'children' => [],
+    //             ]
+    //         ]);
+    //     }
+
+    //     if (Auth::user()->userType == "Parent") {
+    //         $parentId = auth()->user()->id;
+    //         $parentChildIds = Childparent::where('parentid', $parentId)->pluck('childid')->values();
+    //         $requestedChildId = $request->input('child_id', $request->input('childid'));
+    //         $savedChildId = User::where('userid', $parentId)->value('selectedchildreanid');
+
+    //         if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+    //             $requestedChildId = (int) $requestedChildId;
+
+    //             if (!$parentChildIds->contains($requestedChildId)) {
+    //                 return response()->json([
+    //                     'status' => false,
+    //                     'message' => 'This child does not belong to this parent',
+    //                 ], 403);
+    //             }
+
+    //             $selectedChildId = $requestedChildId;
+    //             $selectedChildSource = 'request';
+    //         }
+
+    //         if (!$selectedChildId && !empty($savedChildId) && $parentChildIds->contains((int) $savedChildId)) {
+    //             $selectedChildId = (int) $savedChildId;
+    //             $selectedChildSource = 'saved';
+    //         }
+
+    //         if (!$selectedChildId && $parentChildIds->isNotEmpty()) {
+    //             $selectedChildId = (int) $parentChildIds->first();
+    //             $selectedChildSource = 'fallback';
+    //         }
+
+    //         if ($selectedChildId) {
+    //             $selectedChild = Child::where('id', $selectedChildId)->first();
+
+    //             if ($selectedChild) {
+    //                 $childRoom = $room->where('id', $selectedChild->room)->first();
+
+    //                 if ($childRoom) {
+    //                     $selectedroom = $childRoom;
+    //                 }
+    //             }
+    //         }
+
+    //         if (!$selectedroom && $parentChildIds->isNotEmpty()) {
+    //             $fallbackChild = Child::whereIn('id', $parentChildIds)->first();
+
+    //             if ($fallbackChild) {
+    //                 $selectedroom = $room->where('id', $fallbackChild->room)->first() ?? $selectedroom;
+    //                 if (!$selectedChildId) {
+    //                     $selectedChildId = (int) $fallbackChild->id;
+    //                     $selectedChildSource = 'fallback';
+    //                     $selectedChild = $fallbackChild;
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     if ($selectedroom) {
+    //         if (Auth::user()->userType != "Parent") {
+    //             $childQuery = Child::where('room', $selectedroom->id);
+
+    //             if ($search !== '') {
+    //                 $childQuery->where(function ($nameQuery) use ($search) {
+    //                     $nameQuery->where('name', 'like', '%' . $search . '%')
+    //                         ->orWhere('lastname', 'like', '%' . $search . '%')
+    //                         ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+    //                 });
+    //             }
+
+    //             $children = $childQuery
+    //                 ->orderBy('name')
+    //                 ->get()
+    //                 ->filter(function ($child) use ($dayIndex) {
+    //                     return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
+    //                 })
+    //                 ->map(function ($child) use ($selectedDate) {
+    //                     return [
+    //                         'child' => $child,
+    //                         'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+    //                         'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+    //                         'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+    //                         'snacks' => DailyDiarySnacks::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+    //                         'afternoon_tea' => DailyDiaryAfternoonTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+    //                         'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+    //                         'lunch' => DailyDiaryLunch::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+    //                         'morning_tea' => DailyDiaryMorningTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+    //                         'breakfast' => DailyDiaryBreakfast::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+    //                     ];
+    //                 })
+    //                 ->values();
+    //         } else {
+    //             $targetChildIds = $selectedChildId ? collect([$selectedChildId]) : $parentChildIds;
+
+    //             $childQuery = Child::whereIn('id', $targetChildIds)
+    //                 ->where('room', $selectedroom->id);
+
+    //             if ($search !== '') {
+    //                 $childQuery->where(function ($nameQuery) use ($search) {
+    //                     $nameQuery->where('name', 'like', '%' . $search . '%')
+    //                         ->orWhere('lastname', 'like', '%' . $search . '%')
+    //                         ->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(lastname, '')) LIKE ?", ['%' . $search . '%']);
+    //                 });
+    //             }
+
+    //             $children = $childQuery
+    //                 ->orderBy('name')
+    //                 ->get()
+    //                 ->filter(function ($child) use ($dayIndex) {
+    //                     return isset($child->daysAttending[$dayIndex]) && $child->daysAttending[$dayIndex] === '1';
+    //                 })
+    //                 ->map(function ($child) use ($selectedDate) {
+    //                     return [
+    //                         'child' => $child,
+    //                         'bottle' => DailyDiaryBottle::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+    //                         'toileting' => DailyDiaryToileting::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+    //                         'sunscreen' => DailyDiarySunscreen::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+    //                         'snacks' => DailyDiarySnacks::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+    //                         'afternoon_tea' => DailyDiaryAfternoonTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+    //                         'sleep' => DailyDiarySleep::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->get(),
+    //                         'lunch' => DailyDiaryLunch::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+    //                         'morning_tea' => DailyDiaryMorningTea::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+    //                         'breakfast' => DailyDiaryBreakfast::where('childid', $child->id)->whereDate('diarydate', $selectedDate)->first(),
+    //                     ];
+    //                 })
+    //                 ->values();
+    //         }
+    //     }
+
+    //     $hasDiaryData = $children->contains(function ($childDiary) {
+    //         return !empty($childDiary['bottle'])
+    //             || !empty($childDiary['toileting'])
+    //             || !empty($childDiary['sunscreen'])
+    //             || !empty($childDiary['snacks'])
+    //             || !empty($childDiary['afternoon_tea'])
+    //             || !empty($childDiary['sleep'])
+    //             || !empty($childDiary['lunch'])
+    //             || !empty($childDiary['morning_tea'])
+    //             || !empty($childDiary['breakfast']);
+    //     });
+
+    //     $responseMessage = $hasDiaryData
+    //         ? 'Daily diary data fetched successfully.'
+    //         : 'No daily diary available for this child.';
+
+    //     // Apply pagination to the children collection
+    //     $page = (int) $request->input('page', 1);
+    //     $perPage = (int) $request->input('per_page', 10);
+    //     $total = $children->count();
+
+    //     $paginatedItems = $children->forPage($page, $perPage)->values();
+
+    //     $children = new LengthAwarePaginator(
+    //         $paginatedItems,
+    //         $total,
+    //         $perPage,
+    //         $page,
+    //         [
+    //             'path' => Paginator::resolveCurrentPath(),
+    //             'query' => $request->query(),
+    //         ]
+    //     );
+
+        
+
+    //     $selectionMeta = Auth::user()->userType === 'Parent'
+    //         ? [
+    //             'selectedChildId' => $selectedChildId,
+    //             'selectedChildSource' => $selectedChildSource,
+    //         ]
+    //         : [];
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => $responseMessage,
+    //         'data' => [
+    //             'selectedRoom' => $selectedroom,
+    //             'selectedDate' => $selectedDate->format('Y-m-d'),
+                
+    //             'children' => $children,  // OPT- id name last dob imageurl 
+    //         ] + $selectionMeta
+    //     ]);
+    // } 
+
+
+
 
     /**
      * Get all diary data for a given child and date

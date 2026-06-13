@@ -210,6 +210,7 @@ class AccidentsController extends Controller
             ], 500);
         }
     }
+
     private function saveAccidentImages($accident, $request)
     {
         $imageMappings = [
@@ -255,6 +256,7 @@ class AccidentsController extends Controller
             'asthma' => $request->boolean('asthma') ? 1 : 0,
             'bite_wound' => $request->boolean('bite_wound') ? 1 : 0,
             'broken_bone' => $request->boolean('broken_bone') ? 1 : 0,
+            'bruise' => $request->boolean('bruise') ? 1 : 0,
             'burn' => $request->boolean('burn') ? 1 : 0,
             'choking' => $request->boolean('choking') ? 1 : 0,
             'concussion' => $request->boolean('concussion') ? 1 : 0,

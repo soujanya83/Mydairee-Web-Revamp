@@ -79,6 +79,17 @@ class FirebaseAuthService
             //     'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
             //     'assertion' => $jwt,
             // ]);
+
+
+
+        // for local fcm testing 
+            // $response = Http::withoutVerifying()->asForm()->post('https://oauth2.googleapis.com/token', [
+            //         'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            //         'assertion' => $jwt,
+            //     ]);
+
+            
+
             $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
                     'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                     'assertion' => $jwt,

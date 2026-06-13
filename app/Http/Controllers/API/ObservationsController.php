@@ -478,13 +478,6 @@ class ObservationsController extends Controller
         $selectedChildId = null;
         $selectedChildSource = null;
 
-        // Fetch centers based on role
-        if ($user->userType == "Superadmin") {
-            $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
-            $centers   = Center::whereIn('id', $centerIds)->get();
-        } else {
-            $centers = Center::where('id', $centerid)->get();
-        }
 
         // Fetch observations based on role
         if ($user->userType == "Superadmin") {
@@ -494,21 +487,22 @@ class ObservationsController extends Controller
                 ->paginate($perPage);
         } elseif ($user->userType == "Staff") {
 
-            $taggedObservationIds = ObservationStaff::where('userid', $authId)
-                ->pluck('observationId')
-                ->toArray();
-
-            $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
-                ->where(function ($query) use ($authId, $taggedObservationIds) {
-                    $query->where('userId', $authId)
-                        ->orWhereIn('id', $taggedObservationIds);
-                })
-                ->orderBy('id', 'desc')
-                ->paginate($perPage);
+           $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+                            ->where(function ($query) use ($authId) {
+                                $query->where('userId', $authId)
+                                    ->orWhereIn('id', function ($sub) use ($authId) {
+                                        $sub->select('observationId')
+                                            ->from('observation_staff')
+                                            ->where('userid', $authId);
+                                    });
+                            })
+                            ->orderByDesc('id')
+                            ->where('centerid', $centerid)
+                            ->paginate($perPage);
         } else {
             $childIds = Childparent::where('parentid', $authId)->pluck('childid')->values();
             $requestedChildId = $request->input('child_id', $request->input('childid'));
-            $savedChildId = User::where('userid', $authId)->value('selectedchildreanid');
+           $savedChildId = $user->selectedchildreanid;
 
             if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
                 $requestedChildId = (int) $requestedChildId;
@@ -542,24 +536,16 @@ class ObservationsController extends Controller
                 ]);
             }
 
-            $observationIds = ObservationChild::whereIn('childId', [$selectedChildId])
-                ->pluck('observationId')
-                ->unique()
-                ->toArray();
-
-            if (empty($observationIds)) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'No observations found for the selected child.',
-                    'observations' => [],
-                ]);
-            }
-
             $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
-                ->whereIn('id', $observationIds)
-                ->where('status', 'Published')
-                ->orderBy('id', 'desc')
-                ->paginate($perPage);
+                            ->whereIn('id', function ($sub) use ($selectedChildId) {
+                                $sub->select('observationId')
+                                    ->from('observation_children')
+                                    ->where('childId', $selectedChildId);
+                            })
+                            ->where('status', 'Published')
+                            ->where('centerid', $centerid)
+                            ->orderByDesc('id')
+                            ->paginate($perPage);
 
             if ($observations->total() === 0) {
                 return response()->json([
@@ -584,6 +570,144 @@ class ObservationsController extends Controller
              'observations' => $observations,   
         ] + $selectionMeta);
     }
+
+
+    //         old withnout optimmize 
+    //  public function mernindex(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'center_id' => 'required|integer|min:1',
+    //         'per_page'  => 'nullable|integer|min:1' // optional pagination size
+    //     ], [
+    //         'center_id.required' => 'Center ID is required',
+    //         'center_id.integer'  => 'Center ID must be an integer.',
+    //         'center_id.min'      => 'Center ID must be greater than 0.',
+    //         'per_page.integer'   => 'Per page must be an integer.',
+    //         'per_page.min'       => 'Per page must be greater than 0.',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status'  => false,
+    //             'message' => 'Validation failed.',
+    //             'errors'  => $validator->errors(),
+    //         ], 422);
+    //     }
+
+    //     $validated = $validator->validated();
+    //     $centerid  = $validated['center_id'];
+    //     $perPage   = $validated['per_page'] ?? 10; // default to 10 items per page
+    //     $user      = Auth::user();
+    //     $authId    = $user->id;
+    //     $selectedChildId = null;
+    //     $selectedChildSource = null;
+
+    //     // Fetch centers based on role
+    //     if ($user->userType == "Superadmin") {
+    //         $centerIds = Usercenter::where('userid', $authId)->pluck('centerid')->toArray();
+    //         $centers   = Center::whereIn('id', $centerIds)->get();
+    //     } else {
+    //         $centers = Center::where('id', $centerid)->get();
+    //     }
+
+    //     // Fetch observations based on role
+    //     if ($user->userType == "Superadmin") {
+    //         $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+    //             ->where('centerid', $centerid)
+    //             ->orderBy('id', 'desc')
+    //             ->paginate($perPage);
+    //     } elseif ($user->userType == "Staff") {
+
+    //         $taggedObservationIds = ObservationStaff::where('userid', $authId)
+    //             ->pluck('observationId')
+    //             ->toArray();
+
+    //         $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+    //             ->where(function ($query) use ($authId, $taggedObservationIds) {
+    //                 $query->where('userId', $authId)
+    //                     ->orWhereIn('id', $taggedObservationIds);
+    //             })
+    //             ->orderBy('id', 'desc')
+    //             ->paginate($perPage);
+    //     } else {
+    //         $childIds = Childparent::where('parentid', $authId)->pluck('childid')->values();
+    //         $requestedChildId = $request->input('child_id', $request->input('childid'));
+    //         $savedChildId = User::where('userid', $authId)->value('selectedchildreanid');
+
+    //         if (!empty($requestedChildId) && trim((string) $requestedChildId) !== '') {
+    //             $requestedChildId = (int) $requestedChildId;
+
+    //             if (!$childIds->contains($requestedChildId)) {
+    //                 return response()->json([
+    //                     'status' => false,
+    //                     'message' => 'This child does not belong to this parent',
+    //                 ], 403);
+    //             }
+
+    //             $selectedChildId = $requestedChildId;
+    //             $selectedChildSource = 'request';
+    //         }
+
+    //         if (!$selectedChildId && !empty($savedChildId) && $childIds->contains((int) $savedChildId)) {
+    //             $selectedChildId = (int) $savedChildId;
+    //             $selectedChildSource = 'saved';
+    //         }
+
+    //         if (!$selectedChildId && $childIds->isNotEmpty()) {
+    //             $selectedChildId = (int) $childIds->first();
+    //             $selectedChildSource = 'fallback';
+    //         }
+
+    //         if (!$selectedChildId) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'No affiliated child found for this parent.',
+    //                 'observations' => [],
+    //             ]);
+    //         }
+
+    //         $observationIds = ObservationChild::whereIn('childId', [$selectedChildId])
+    //             ->pluck('observationId')
+    //             ->unique()
+    //             ->toArray();
+
+    //         if (empty($observationIds)) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'No observations found for the selected child.',
+    //                 'observations' => [],
+    //             ]);
+    //         }
+
+    //         $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
+    //             ->whereIn('id', $observationIds)
+    //             ->where('status', 'Published')
+    //             ->orderBy('id', 'desc')
+    //             ->paginate($perPage);
+
+    //         if ($observations->total() === 0) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'No observations found for the selected child.',
+    //                 'observations' => [],
+    //             ]);
+    //         }
+    //     }
+
+    //     $selectionMeta = $user->userType === 'Parent'
+    //         ? [
+    //             'selectedChildId' => $selectedChildId,
+    //             'selectedChildSource' => $selectedChildSource,
+    //         ]
+    //         : [];
+
+    //     return response()->json([
+    //         'success'      => true,
+           
+    //         //'centers'      => $centers,
+    //          'observations' => $observations,   
+    //     ] + $selectionMeta);
+    // }
 
     public function mernapplyFilters(Request $request)
     {
