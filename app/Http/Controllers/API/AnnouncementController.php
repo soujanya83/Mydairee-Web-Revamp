@@ -148,7 +148,7 @@ class AnnouncementController extends Controller
                 });
             }
 
-            $records = $query->orderByDesc('id')->paginate($perPage); // ✅ Pagination applied
+            $records = $query->orderByDesc('id')->get();
         } else {
             // For Parents - resolve one selected child first
             $childIds = Childparent::where('parentid', $userId)->pluck('childid')->values();
@@ -205,7 +205,7 @@ class AnnouncementController extends Controller
                 ->whereIn('id', $announcementIds)
                 ->where('status', 'Sent')
                 ->orderByDesc('id')
-                 ->paginate($perPage);
+                 ->get();
         }
 
         if ($userType === 'Parent' && $records->isEmpty()) {
@@ -225,13 +225,13 @@ class AnnouncementController extends Controller
         }
 
         // Attach creator name manually if needed
-        foreach ($records->items() as $announcement) {
+        foreach ($records as $announcement) {
             $creator = User::where('userid', $announcement->createdBy)->first();
             $announcement->createdBy = $creator->name ?? 'Not Available';
         }
 
         // Fix old image URLs
-        foreach ($records->items() as $announcement){
+        foreach ($records as $announcement){
             $announcement->announcementMedia = str_replace(
                 'mydiaree.com.au',
                 'api.mydiaree.com.au',
