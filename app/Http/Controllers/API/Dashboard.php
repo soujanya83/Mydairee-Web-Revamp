@@ -779,8 +779,13 @@ class Dashboard extends Controller
                     'date' => $event['date'] ?? null,
                     'type' => $event['type'] ?? 'event',
                     'text' => $event['text'] ?? '',
-                ];
-            })->values();
+
+                    'imageUrl' => $event['imageUrl'] ?? '',
+                    'imagePath' => $event['imagePath'] ?? '',
+
+                    //  returning all media
+                    'announcementMedia' => $event['announcementMedia'] ?? [],];
+                        })->values();
 
             return response()->json([
                 'status' => true,
@@ -1187,16 +1192,54 @@ class Dashboard extends Controller
         }
 
 
+        // private function formatEventForDashboard($announcement): array
+        // {
+        //     return [
+        //         'id' => $announcement->id,
+        //         'title' => $announcement->title,
+        //         'text' => $this->cleanText($announcement->text) ?? '',
+        //         'status' => $announcement->status ?? '',
+        //         'announcementMedia' => $announcement->announcementMedia ?? '',
+        //         'type' => $announcement->type ?? '',
+        //         'date' => $this->safeFormatDate($announcement->eventDate ?? $announcement->createdAt, 'Y-m-d'),
+        //     ];
+        // }
+
         private function formatEventForDashboard($announcement): array
         {
+            $media = json_decode($announcement->announcementMedia, true) ?? [];
+            $media = array_map(function ($url) {
+                return str_replace(
+                    'https://mydiaree.com.au',
+                    'https://api.mydiaree.com.au',
+                    $url
+                );
+            }, $media);
+
+            $imageUrl = $media[0] ?? '';
+
+            $imagePath = '';
+
+            if (!empty($imageUrl)) {
+                $imagePath = ltrim(parse_url($imageUrl, PHP_URL_PATH), '/');
+            }
+
             return [
                 'id' => $announcement->id,
                 'title' => $announcement->title,
                 'text' => $this->cleanText($announcement->text) ?? '',
                 'status' => $announcement->status ?? '',
-                'announcementMedia' => $announcement->announcementMedia ?? '',
                 'type' => $announcement->type ?? '',
-                'date' => $this->safeFormatDate($announcement->eventDate ?? $announcement->createdAt, 'Y-m-d'),
+                'date' => $this->safeFormatDate(
+                    $announcement->eventDate ?? $announcement->createdAt,
+                    'Y-m-d'
+                ),
+
+                'imageUrl' => $imageUrl,
+                'imagePath' => $imagePath,
+
+                // optional
+                'announcementMedia' => $media,
             ];
         }
 //    public function getEvents()
