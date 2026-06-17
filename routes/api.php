@@ -243,7 +243,7 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
     Route::post('/programplan/MonthYear', [LessonPlanList::class, 'programplanMonthYear'])->name('programplan.MonthYear');
     Route::get('/programPlan/create',[LessonPlanList::class,'createForm'])->name('create.programplan');
     Route::post('/programPlan',[LessonPlanList::class,'store'])->name('store.programPlan');
-Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus'])->name('update-program-plan-status');
+    Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus'])->name('update-program-plan-status');
 
     // New dedicated Program Plan API create flow: subject -> module -> submodule
     Route::prefix('program-plan')->name('program-plan.')->group(function () {
@@ -262,48 +262,48 @@ Route::post('/update-program-plan-status',[LessonPlanList::class,'updatestatus']
     Route::get('announcements/list',[AnnouncementController::class,'list'])->name('announcements.list');
     Route::get('announcements/mernlist',[AnnouncementController::class,'mernlist'])->name('announcements.mernlist');
     Route::get('announcements/filterlist',[AnnouncementController::class,'Filterlist'])->name('announcements.Filterlist');
-Route::get('announcements/create',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
-Route::post('announcements/store',[AnnouncementController::class,'AnnouncementStore'])->name('announcements.store');
-Route::delete('announcements/delete',[AnnouncementController::class,'AnnouncementDelete'])->name('announcements.delete');
-Route::get('announcements/view',[AnnouncementController::class,'AnnouncementView'])->name('announcements.view');
+    Route::get('announcements/create',[AnnouncementController::class,'AnnouncementCreate'])->name('announcements.create');
+    Route::post('announcements/store',[AnnouncementController::class,'AnnouncementStore'])->name('announcements.store');
+    Route::delete('announcements/delete',[AnnouncementController::class,'AnnouncementDelete'])->name('announcements.delete');
+    Route::get('announcements/view',[AnnouncementController::class,'AnnouncementView'])->name('announcements.view');
+    Route::get('announcements/download-image', [AnnouncementController::class, 'downloadImage']);
 
-// headchecks
-Route::get('headChecks',[HeadChecks::class,'index'])->name('headChecks');
-Route::post('headchecks/store',[HeadChecks::class,'headchecksStore'])->name('headchecks.store');
-Route::post('headchecks/getCenterRooms',[HeadChecks::class,'getCenterRooms'])->name('headchecks.getCenterRooms');
-Route::post('headcheckdelete',[HeadChecks::class,'headcheckDelete'])->name('headcheck.delete');
-Route::get('headChecks/print', [HeadChecks::class, 'print'])->middleware('auth:sanctum');
-Route::get('headChecks/view', [HeadChecks::class, 'weekTable'])->middleware('auth:sanctum');
+    // headchecks
+    Route::get('headChecks',[HeadChecks::class,'index'])->name('headChecks');
+    Route::post('headchecks/store',[HeadChecks::class,'headchecksStore'])->name('headchecks.store');
+    Route::post('headchecks/getCenterRooms',[HeadChecks::class,'getCenterRooms'])->name('headchecks.getCenterRooms');
+    Route::post('headcheckdelete',[HeadChecks::class,'headcheckDelete'])->name('headcheck.delete');
+    Route::get('headChecks/print', [HeadChecks::class, 'print'])->middleware('auth:sanctum');
+    Route::get('headChecks/view', [HeadChecks::class, 'weekTable'])->middleware('auth:sanctum');
 
 
-// sleep checks
-Route::get('sleepcheck/list',[SleepCheckController::class,'getSleepChecksList'])->name('sleepcheck.list');
-Route::get('mernsleepcheck/list',[SleepCheckController::class,'getmernSleepChecksList'])->name('mernsleepcheck.list');
-Route::post('sleepcheck/save',[SleepCheckController::class,'sleepcheckSave'])->name('sleepcheck.save');
-Route::post('sleepcheck/update',[SleepCheckController::class,'sleepcheckUpdate'])->name('sleepcheck.update');
-Route::post('sleepcheck/delete',[SleepCheckController::class,'sleepcheckDelete'])->name('sleepcheck.delete');
-Route::post('sleepcheck/bulk-save', [SleepCheckController::class, 'bulkSave'])->name('sleepcheck.bulk_save');
+    // sleep checks
+    Route::get('sleepcheck/list',[SleepCheckController::class,'getSleepChecksList'])->name('sleepcheck.list');
+    Route::get('mernsleepcheck/list',[SleepCheckController::class,'getmernSleepChecksList'])->name('mernsleepcheck.list');
+    Route::post('sleepcheck/save',[SleepCheckController::class,'sleepcheckSave'])->name('sleepcheck.save');
+    Route::post('sleepcheck/update',[SleepCheckController::class,'sleepcheckUpdate'])->name('sleepcheck.update');
+    Route::post('sleepcheck/delete',[SleepCheckController::class,'sleepcheckDelete'])->name('sleepcheck.delete');
+    Route::post('sleepcheck/bulk-save', [SleepCheckController::class, 'bulkSave'])->name('sleepcheck.bulk_save');
 
-// Accidents
-Route::match(['get', 'post'], 'Accidents/list',[AccidentsController::class,'AccidentsList'])->name('Accidents.list');
-Route::match(['get', 'post'], 'Accidents/mernlist',[AccidentsController::class,'mernAccidentsList'])->name('Accidents.mernlist');
-Route::post('Accidents/getCenterRooms',[AccidentsController::class,'getCenterRooms'])->name('Accidents.getCenterRooms');
-Route::put('Accidents/update/{id}',[AccidentsController::class,'AccidentsUpdate'])->name('accidents.update');
-Route::match(['get', 'post'], 'Accidents/details',[AccidentsController::class,'getAccidentDetails'])->name('Accidents.details');
-Route::post('Accidents/sendEmail',[AccidentsController::class,'sendEmail'])->name('Accidents.sendEmail');
-Route::match(['get', 'post'], 'Accidents/downloadPdf', [AccidentsController::class, 'downloadPdf'])->name('Accidents.downloadPdf');
-Route::match(['get', 'post'], 'Accidents/create',[AccidentsController::class,'create'])->name('Accidents.create');
-Route::match(['get', 'post'], 'Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
-Route::get('accidents/form-data', [AccidentsController::class, 'create'])->name('accidents.form-data');
-Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
-Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
-Route::post('Accident/delete', [AccidentsController::class, 'AccidentDelete'])->name('Accident.delete');
-
-Route::prefix('accidents')->group(function () {
-    Route::get('/', [AccidentsController::class, 'mernAccidentList']);
-    Route::get('/{id}', [AccidentsController::class, 'mernGetAccidentDetails']);
-    Route::post('/save', [AccidentsController::class, 'mernCreateAccident']);
-});
+    // Accidents
+    Route::match(['get', 'post'], 'Accidents/list',[AccidentsController::class,'AccidentsList'])->name('Accidents.list');
+    Route::match(['get', 'post'], 'Accidents/mernlist',[AccidentsController::class,'mernAccidentsList'])->name('Accidents.mernlist');
+    Route::post('Accidents/getCenterRooms',[AccidentsController::class,'getCenterRooms'])->name('Accidents.getCenterRooms');
+    Route::put('Accidents/update/{id}',[AccidentsController::class,'AccidentsUpdate'])->name('accidents.update');
+    Route::match(['get', 'post'], 'Accidents/details',[AccidentsController::class,'getAccidentDetails'])->name('Accidents.details');
+    Route::post('Accidents/sendEmail',[AccidentsController::class,'sendEmail'])->name('Accidents.sendEmail');
+    Route::match(['get', 'post'], 'Accidents/downloadPdf', [AccidentsController::class, 'downloadPdf'])->name('Accidents.downloadPdf');
+    Route::match(['get', 'post'], 'Accidents/create',[AccidentsController::class,'create'])->name('Accidents.create');
+    Route::match(['get', 'post'], 'Accidents/edit',[AccidentsController::class,'AccidentEdit'])->name('Accidents.edit');
+    Route::get('accidents/form-data', [AccidentsController::class, 'create'])->name('accidents.form-data');
+    Route::post('Accident/saveAccident',[AccidentsController::class,'saveAccident'])->name('Accidents.saveAccident');
+    Route::post('Accident/getChildDetails',[AccidentsController::class,'getChildDetails'])->name('Accident/getChildDetails');
+    Route::post('Accident/delete', [AccidentsController::class, 'AccidentDelete'])->name('Accident.delete');
+    Route::prefix('accidents')->group(function () {
+        Route::get('/', [AccidentsController::class, 'mernAccidentList']);
+        Route::get('/{id}', [AccidentsController::class, 'mernGetAccidentDetails']);
+        Route::post('/save', [AccidentsController::class, 'mernCreateAccident']);
+    });
 
 // rooms
     Route::get('/room/{roomid}/children', [RoomController::class, 'showChildren'])->name('room.children');
