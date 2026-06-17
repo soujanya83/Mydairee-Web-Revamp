@@ -125,7 +125,6 @@ class AnnouncementController extends Controller
             $centers = Center::where('id', $centerId)->get();
         }
 
-        // Fetch announcements with pagination
         if ($userType === 'Staff' || $userType === 'Superadmin' || $userType === 'Centeradmin') {
             $query = AnnouncementsModel::with('creator') // optional relationship
                 ->where('centerid', $centerId);
@@ -243,6 +242,14 @@ class AnnouncementController extends Controller
                 'api.mydiaree.com.au',
                 $announcement->announcementMedia
             );
+
+            $media = json_decode($announcement->announcementMedia, true) ?? [];
+
+            $announcement->imageUrl = $media[0] ?? null;
+
+            $announcement->imagePath = !empty($media[0])
+                ? ltrim(parse_url($media[0], PHP_URL_PATH), '/')
+                : null;
         }
 
 
@@ -920,6 +927,31 @@ class AnnouncementController extends Controller
             'status' => false,
             'message' => 'Permission Denied.'
         ], 403);
+    }
+
+    public function downloadImage(Request $request)
+    {
+        $url = $request->image_url;
+
+        if (empty($url)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Image URL is required'
+            ], 400);
+        }
+
+        $path = public_path(
+            ltrim(parse_url($url, PHP_URL_PATH), '/')
+        );
+
+        if (!file_exists($path)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'File not found'
+            ], 404);
+        }
+
+        return response()->download($path);
     }
 
 }
