@@ -1600,6 +1600,7 @@ use Illuminate\Pagination\Paginator;
         $validator = Validator::make($request->all(), [
             'center_id' => 'required|exists:centers,id',
             'sort' => 'nullable|in:asc,desc',
+            'status' => 'nullable|in:ACTIVE,IN-ACTIVE,PENDING,active,in-active,pending,Active,In-Active,Pending',
         ]);
 
         if ($validator->fails()) {
@@ -1616,6 +1617,7 @@ use Illuminate\Pagination\Paginator;
         $sort = strtolower((string) $request->input('sort', 'asc'));
         $perPage = max((int) $request->input('per_page', 10), 1);
         $roomid = $request->input('roomid');
+        $status = strtoupper(trim($request->input('status', '')));
 
         // Step 2: Get all user IDs in the center
         $userIds = Usercenter::where('centerid', $centerid)->pluck('userid')->toArray();
@@ -1624,6 +1626,10 @@ use Illuminate\Pagination\Paginator;
         $staffQuery = User::whereIn('id', $userIds)
             // ->where('id', '!=', $authId)
             ->where('userType', 'Staff');
+      
+            if (!empty($status)) {
+                $staffQuery->where('status', $status);
+            }
 
             if (!empty($roomid)) {
                 $staffIds = DB::table('room_staff')
@@ -1656,6 +1662,7 @@ use Illuminate\Pagination\Paginator;
                 'sort' => $sort,
                 'per_page' => $perPage,
                 'roomid' => $roomid,
+                'status' => $status,
                 
             ],
             'pagination' => [
@@ -1810,10 +1817,10 @@ use Illuminate\Pagination\Paginator;
         }
 
         // Only Staff users allowed
-        if ($user->userType !== 'Staff') {
+        if ($user->userType !== 'Staff' && $user->userType !== 'Parent') {
             return response()->json([
                 'status' => false,
-                'message' => 'Can\'t change status. Only Staff users are allowed. This user is of type: ' . $user->userType
+                'message' => 'Can\'t change status. Only Staff & Parent users are allowed. This user is of type: ' . $user->userType
             ], 422);
         }
 
@@ -1866,6 +1873,7 @@ use Illuminate\Pagination\Paginator;
         $validator = Validator::make($request->all(), [
             'center_id' => 'required|exists:centers,id',
             'sort' => 'nullable|in:asc,desc',
+            'status'    => 'nullable|in:ACTIVE,IN-ACTIVE,PENDING,active,in-active,pending',
         ]);
 
         if ($validator->fails()) {
@@ -1878,6 +1886,7 @@ use Illuminate\Pagination\Paginator;
         $authId = Auth::user()->id;
         $centerid = $request->center_id;
         $search = trim((string) $request->input('search', ''));
+        $status = strtoupper(trim($request->input('status', '')));
         $sort = strtolower((string) $request->input('sort', 'asc'));
         $perPage = max((int) $request->input('per_page', 10), 1);
 
@@ -1897,6 +1906,9 @@ use Illuminate\Pagination\Paginator;
             });
         }
 
+        if (!empty($status)) {
+            $parentsQuery->where('status', $status);
+        }
         $parents = $parentsQuery
             ->orderBy('name', $sort)
             ->paginate($perPage);
