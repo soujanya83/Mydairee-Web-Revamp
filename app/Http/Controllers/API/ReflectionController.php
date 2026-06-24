@@ -168,7 +168,17 @@ class ReflectionController extends Controller
         if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
             // Superadmin or Centeradmin can see all reflections for the selected center.
         } elseif ($user->userType === 'Staff') {
-            // Staff can see all reflections for the selected center.
+                $query->where(function ($q) use ($authId) {
+
+                    // Reflections created by the staff
+                    $q->where('createdBy', $authId)
+
+                    // OR reflections where the staff is tagged
+                    ->orWhereHas('staff', function ($staffQuery) use ($authId) {
+                        $staffQuery->where('staffid', $authId);
+                    });
+                });
+
         } else {
             $childids = Childparent::where('parentid', $authId)->pluck('childid')->values();
             $requestedChildId = $request->input('child_id', $request->input('childid'));
