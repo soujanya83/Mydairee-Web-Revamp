@@ -705,7 +705,7 @@ public function print(Request $request)
 
         return response()->json([
             'status'  => 'success',
-            'message' => $isEdit ? 'Reflection updated successfully.' : 'Reflection saved successfully.',
+            'message' => $isEdit ? 'Reflection updated successfully.' : 'Reflection created successfully.',
             'id'      => $reflectionId
         ]);
 
