@@ -2422,7 +2422,7 @@ class ObservationsController extends Controller
 
             
             \App\Models\ObservationStaff::where('observationId', $observationId)->delete();
-            $selectedStaff = explode(',', $validated['selected_staff']);
+            $selectedStaff = explode(',', $validated['selected_staff'] ?? '');
             foreach ($selectedStaff as $userid) {
                 if (trim($userid) !== '') {
                     \App\Models\ObservationStaff::create([
@@ -2499,7 +2499,7 @@ class ObservationsController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => $isEdit ? 'Observation updated successfully.' : 'Observation saved successfully.',
+                'message' => $isEdit ? 'Observation updated successfully.' : 'Observation created successfully.',
                 'id' => $observationId
             ]);
         } catch (\Exception $e) {
@@ -3438,16 +3438,16 @@ class ObservationsController extends Controller
             'selected_staff'    => 'required|string',
         ];
 
-        if (!$isEdit) {
-            $rules['media'] = 'required|array|min:1';
-        } else {
-            $rules['media'] = 'nullable|array';
-        }
+        // if (!$isEdit) {
+        //     $rules['media'] = 'required|array|min:1';
+        // } else {
+        //     $rules['media'] = 'nullable|array';
+        // }
 
+        $rules['media'] = 'nullable|array';
         $rules['media.*'] = "file|mimes:jpeg,png,jpg,gif,webp,mp4|max:" . intval($uploadMaxSize / 1024);
 
         $messages = [
-            'media.required' => 'At least one media file is required.',
             'media.*.max'    => 'Each file must be smaller than ' . round($uploadMaxSize / 1024 / 1024, 2) . 'MB.',
             'title.required' => 'Title is required.',
         ];
@@ -3594,7 +3594,7 @@ class ObservationsController extends Controller
 
         return response()->json([
             'status'  => true,
-            'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot saved successfully.',
+            'message' => $isEdit ? 'Snapshot updated successfully.' : 'Snapshot created successfully.',
             'id'      => $snapshotId,
         ], 200);
     }
