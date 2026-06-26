@@ -492,7 +492,7 @@ class ObservationsController extends Controller
                                 $query->where('userId', $authId)
                                     ->orWhereIn('id', function ($sub) use ($authId) {
                                         $sub->select('observationId')
-                                            ->from('observation_staff')
+                                            ->from('observationstaff')
                                             ->where('userid', $authId);
                                     });
                             })
