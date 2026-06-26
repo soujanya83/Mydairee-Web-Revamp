@@ -539,7 +539,7 @@ class ObservationsController extends Controller
             $observations = Observation::with(['user', 'child', 'media', 'Seen.user'])
                             ->whereIn('id', function ($sub) use ($selectedChildId) {
                                 $sub->select('observationId')
-                                    ->from('observation_children')
+                                    ->from('observationchild')
                                     ->where('childId', $selectedChildId);
                             })
                             ->where('status', 'Published')
