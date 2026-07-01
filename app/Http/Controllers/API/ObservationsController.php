@@ -564,47 +564,49 @@ class ObservationsController extends Controller
             : [];
 
 
-            $counts = [];
+           $counts = [];
 
-        if ($user->userType == "Superadmin") {
+            if ($user->userType == "Superadmin") {
 
-            $counts = [
-                'published' => Observation::where('centerid', $centerid)
-                                    ->where('status', 'Published')
-                                    ->count(),
+                $counts = Observation::where('centerid', $centerid)
+                    ->selectRaw("
+                        COUNT(*) as all_count,
+                        SUM(status = 'Published') as published,
+                        SUM(status = 'Draft') as draft
+                    ")
+                    ->first();
 
-                'draft' => Observation::where('centerid', $centerid)
-                                ->where('status', 'Draft')
-                                ->count(),
-            ];
+            }
 
-        }
-        elseif ($user->userType == "Staff") {
+            elseif($user->userType == "Staff") {
 
-            $staffObservationIds = Observation::where(function ($query) use ($authId) {
-                    $query->where('userId', $authId)
-                        ->orWhereIn('id', function ($sub) use ($authId) {
-                            $sub->select('observationId')
-                                ->from('observationStaff')
-                                ->where('userid', $authId);
-                        });
-                })
-                ->where('centerid', $centerid)
-                ->pluck('id');
+                $staffObservationIds = Observation::where(function ($query) use ($authId) {
+                        $query->where('userId', $authId)
+                            ->orWhereIn('id', function ($sub) use ($authId) {
+                                $sub->select('observationId')
+                                    ->from('observationStaff')
+                                    ->where('userid', $authId);
+                            });
+                    })
+                    ->where('centerid', $centerid)
+                    ->pluck('id');
 
-            $counts = [
-                'published' => Observation::whereIn('id', $staffObservationIds)
-                                    ->where('status', 'Published')
-                                    ->count(),
+                $counts = Observation::whereIn('id', $staffObservationIds)
+                    ->selectRaw("
+                        COUNT(*) as all_count,
+                        SUM(status = 'Published') as published,
+                        SUM(status = 'Draft') as draft
+                    ")
+                    ->first();
+            }
 
-                'draft' => Observation::whereIn('id', $staffObservationIds)
-                                ->where('status', 'Draft')
-                                ->count(),
-            ];
-        }
         return response()->json([
             'success'      => true,
-           'counts'       => $counts,
+           'counts' => [
+                'all'       => (int) ($counts->all_count ?? 0),
+                'published' => (int) ($counts->published ?? 0),
+                'draft'     => (int) ($counts->draft ?? 0),
+            ],
             //'centers'      => $centers,
              'observations' => $observations,   
         ] + $selectionMeta);
