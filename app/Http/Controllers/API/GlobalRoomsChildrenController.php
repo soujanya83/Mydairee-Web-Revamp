@@ -123,7 +123,7 @@ class GlobalRoomsChildrenController extends Controller
         $roomId = (int) $validator->validated()['room_id'];
 
         $children = Child::where('room', $roomId)
-            ->select('id', 'name', 'lastname', 'room', 'centerid', 'status')
+            ->select('id', 'name', 'lastname', 'imageUrl', 'room', 'centerid', 'status')
             ->orderBy('name')
             ->orderBy('lastname')
             ->get()
@@ -131,6 +131,7 @@ class GlobalRoomsChildrenController extends Controller
                 return [
                     'id' => (int) $child->id,
                     'name' => trim(($child->name ?? '') . ' ' . ($child->lastname ?? '')),
+                    'image' => !empty($child->imageUrl) ? asset($child->imageUrl) : null,
                     'room' => (int) $child->room,
                     'centerid' => (int) $child->centerid,
                     'status' => $child->status,
