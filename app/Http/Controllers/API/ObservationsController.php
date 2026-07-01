@@ -563,9 +563,48 @@ class ObservationsController extends Controller
             ]
             : [];
 
+
+            $counts = [];
+
+        if ($user->userType == "Superadmin") {
+
+            $counts = [
+                'published' => Observation::where('centerid', $centerid)
+                                    ->where('status', 'Published')
+                                    ->count(),
+
+                'draft' => Observation::where('centerid', $centerid)
+                                ->where('status', 'Draft')
+                                ->count(),
+            ];
+
+        }
+        elseif ($user->userType == "Staff") {
+
+            $staffObservationIds = Observation::where(function ($query) use ($authId) {
+                    $query->where('userId', $authId)
+                        ->orWhereIn('id', function ($sub) use ($authId) {
+                            $sub->select('observationId')
+                                ->from('observationStaff')
+                                ->where('userid', $authId);
+                        });
+                })
+                ->where('centerid', $centerid)
+                ->pluck('id');
+
+            $counts = [
+                'published' => Observation::whereIn('id', $staffObservationIds)
+                                    ->where('status', 'Published')
+                                    ->count(),
+
+                'draft' => Observation::whereIn('id', $staffObservationIds)
+                                ->where('status', 'Draft')
+                                ->count(),
+            ];
+        }
         return response()->json([
             'success'      => true,
-           
+           'counts'       => $counts,
             //'centers'      => $centers,
              'observations' => $observations,   
         ] + $selectionMeta);
