@@ -300,6 +300,39 @@ class ReflectionController extends Controller
             $query->whereRaw('FIND_IN_SET(?, roomids)', [$roomId]);
         }
 
+        $counts = [];
+
+        if ($user->userType === 'Superadmin' || $user->userType === 'Centeradmin') {
+
+            $counts = Reflection::where('centerid', $centerid)
+                ->selectRaw("
+                    COUNT(*) as all_count,
+                    SUM(status = 'PUBLISHED') as published,
+                    SUM(status = 'DRAFT') as draft
+                ")
+                ->first();
+
+        } 
+        elseif ($user->userType === 'Staff') {
+
+            $staffReflectionIds = Reflection::where(function ($q) use ($authId) {
+                    $q->where('createdBy', $authId)
+                    ->orWhereHas('staff', function ($staffQuery) use ($authId) {
+                        $staffQuery->where('staffid', $authId);
+                    });
+                })
+                ->where('centerid', $centerid)
+                ->pluck('id');
+
+            $counts = Reflection::whereIn('id', $staffReflectionIds)
+                ->selectRaw("
+                    COUNT(*) as all_count,
+                    SUM(status = 'PUBLISHED') as published,
+                    SUM(status = 'DRAFT') as draft
+                ")
+                ->first();
+        }
+
         if (! $query->exists()) {
             return response()->json([
                 'status' => false,
@@ -323,6 +356,11 @@ class ReflectionController extends Controller
             'status' => true,
             'message' => 'Data retrieved successfully',
             'data' => [
+                'counts' => [
+                    'all' => (int) ($counts->all_count ?? 0),
+                    'published' => (int) ($counts->published ?? 0),
+                    'draft' => (int) ($counts->draft ?? 0),
+                ],
                 'reflection' => $reflection,
             ] + $selectionMeta,
             'pagination' => [
