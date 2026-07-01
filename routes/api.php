@@ -366,11 +366,11 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
 
     Route::prefix('observation')->name('observation')->group(function () {
 
-    // Observation comments API
-    Route::get('/{observationId}/comments', [ObservationsController::class, 'listComments']);
-    Route::post('/{observationId}/comments', [ObservationsController::class, 'addComment']);
-    Route::delete('/{observationId}/comments/{commentId}', [ObservationsController::class, 'deleteComment']);
-    Route::delete('/delete/{id}', [ObservationsController::class, 'destroy'])->name('delete');
+        // Observation comments API
+        Route::get('/{observationId}/comments', [ObservationsController::class, 'listComments']);
+        Route::post('/{observationId}/comments', [ObservationsController::class, 'addComment']);
+        Route::delete('/{observationId}/comments/{commentId}', [ObservationsController::class, 'deleteComment']);
+        Route::delete('/delete/{id}', [ObservationsController::class, 'destroy'])->name('delete');
 
         Route::get('/index', [ObservationsController::class, 'index'])->name('index');
         Route::get('/mernindex', [ObservationsController::class, 'mernindex'])->name('mernindex');
@@ -397,6 +397,7 @@ Route::get('/api/events', [Dashboard::class, 'getEvents']);
         Route::post('/share', [ObservationsController::class, 'shareObservationApi']);
         Route::delete('/observation-media/{id}', [ObservationsController::class, 'destroyimage']);
         Route::post('/observation-media', [ObservationsController::class, 'destroyimage']);
+        Route::get('/observation-media/download/{id}', [ObservationsController::class, 'downloadMedia']);
 
         Route::post('/montessori/store', [ObservationsController::class, 'storeMontessoriData'])->name('montessori.store');
         Route::post('/eylf/store', [ObservationsController::class, 'storeEylfData'])->name('eylf.store');

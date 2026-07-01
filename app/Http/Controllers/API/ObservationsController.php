@@ -2559,6 +2559,33 @@ class ObservationsController extends Controller
         return response()->json(['status' => true, 'message' => 'selected media deleted for this observation.']);
     }
 
+    //Media Download 
+    public function downloadMedia($id)
+    {
+        $media = ObservationMedia::find($id);
+
+        if (!$media) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Media not found.'
+            ], 404);
+        }
+
+        // Full path to the file
+        $filePath = public_path($media->mediaUrl);
+
+        if (!File::exists($filePath)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'File does not exist.'
+            ], 404);
+        }
+
+        return response()->download(
+            $filePath,
+            basename($filePath)
+        );
+    }
 
     // print page not rendering properly
     public function print(Request $request)
